@@ -5,8 +5,10 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 ## Auto Import
 
 @plan.md
+@03-planning/daily/today.md
 
 > The above files are force-loaded with CLAUDE.md. No manual reading needed.
+> `today.md` is a symlink to today's daily plan. If no plan exists, it points to `_no-plan.md`.
 
 ## Time & State Awareness
 
