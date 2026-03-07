@@ -47,6 +47,7 @@ User can say `/sync` mid-conversation to refresh cross-terminal awareness:
 | `08-archive/` | Everything completed or expired | When looking up history |
 | `09-links/` | Symlinks to external project folders | When working with external projects |
 | `10-dashboard/` | Web visualization panel | When developing/maintaining |
+| `11-references/` | External knowledge: books, articles, quotes, videos, frameworks | When discussing ideas, making decisions, or creating content |
 | `templates/` | All templates in one place | When creating new files |
 | `plan.md` | Life direction & annual goals | Every conversation start |
 | `inbox.md` | Fastest capture point (root level) | Every conversation start |
@@ -62,6 +63,7 @@ User can say `/sync` mid-conversation to refresh cross-terminal awareness:
 ### Layer 2 — Loaded on demand
 - Each module's `README.md` (when entering that domain)
 - Specific task, plan, and contact files
+- `11-references/` — external knowledge (books, articles, quotes) when discussing ideas or making decisions
 
 ### Layer 3 — Deep storage, never auto-loaded
 - `08-archive/` archived content
