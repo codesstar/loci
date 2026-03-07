@@ -1,0 +1,19 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
+
+# Dashboard build output
+10-dashboard/data.json
+
+# Sensitive files - uncomment if needed
+# 02-finance/*.md
+# !02-finance/README.md

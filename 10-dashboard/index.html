@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loci Dashboard</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: {
+              900: '#000000',
+              800: '#222222',
+              700: '#444444',
+              600: '#666666',
+              500: '#888888',
+              400: '#aaaaaa',
+              300: '#cccccc',
+              200: '#e0e0e0',
+              100: '#f0f0f0',
+              50:  '#f5f5f5',
+              0:   '#ffffff',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Silkscreen', monospace;
+      background: #ffffff;
+      color: #000000;
+      min-height: 100vh;
+      image-rendering: pixelated;
+    }
+
+    /* ===== Pixel heading font ===== */
+    .pixel-font {
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    /* ===== Scrollbar - pixel style ===== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f5f5f5; }
+    ::-webkit-scrollbar-thumb {
+      background: #000000;
+      border: 2px solid #f5f5f5;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #444444; }
+
+    /* ===== Pixel card ===== */
+    .card {
+      background: #ffffff;
+      border: 1px solid #000000;
+      box-shadow: 2px 2px 0px #000000;
+      padding: 0;
+      border-radius: 0;
+      position: relative;
+    }
+    .card:hover {
+      background: #fafafa;
+    }
+
+    /* ===== Card header - black bar with white text ===== */
+    .card-header {
+      background: #000000;
+      color: #ffffff;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      width: 100%;
+    }
+    .card-header span,
+    .card-header h3 {
+      color: #ffffff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      margin: 0;
+    }
+
+    /* ===== Card body - content area with breathing room ===== */
+    .card-body {
+      padding: 24px;
+    }
+
+    /* ===== Stat card - clean style ===== */
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* Progress bar */
+    .hp-bar {
+      height: 7px;
+      background: #e0e0e0;
+      border: 1px solid #cccccc;
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: #000000;
+    }
+
+    /* Stat numbers - bigger for prominence */
+    .stat-number {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 40px;
+      color: #000000;
+      line-height: 1.2;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar-item {
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 0;
+      position: relative;
+    }
+    .sidebar-item:hover {
+      background: #e0e0e0;
+    }
+    .sidebar-item.active {
+      background: #000000;
+      color: #ffffff;
+    }
+    .sidebar-item .cursor-indicator {
+      opacity: 0;
+      color: #000000;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+    }
+    .sidebar-item.active .cursor-indicator {
+      opacity: 1;
+      color: #ffffff;
+    }
+    .sidebar-item:hover .cursor-indicator {
+      opacity: 0.5;
+    }
+
+    /* ===== Pixel sub-tab buttons ===== */
+    .pixel-tab {
+      border: 1px solid #cccccc;
+      background: #ffffff;
+      color: #666666;
+      font-family: 'Silkscreen', monospace;
+      border-radius: 0;
+      box-shadow: 2px 2px 0px #cccccc;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+    .pixel-tab:hover {
+      border-color: #000000;
+      color: #000000;
+      background: #f0f0f0;
+      box-shadow: 2px 2px 0px #000000;
+    }
+    .pixel-tab.active {
+      border-color: #000000;
+      background: #000000;
+      color: #ffffff;
+      box-shadow: 2px 2px 0px #666666;
+    }
+
+    /* ===== Pixel checkboxes ===== */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #000000;
+      background: #ffffff;
+      cursor: default;
+      position: relative;
+      flex-shrink: 0;
+      border-radius: 0;
+    }
+    input[type="checkbox"]:checked {
+      background: #000000;
+    }
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 8px; height: 8px;
+      background: #ffffff;
+      clip-path: polygon(15% 50%, 40% 75%, 85% 20%, 85% 40%, 40% 95%, 0% 50%);
+    }
+
+    /* ===== Markdown content styling - pixel b&w theme ===== */
+    .md-content h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.45em;
+      font-weight: 700;
+      margin: 1.2rem 0 0.6rem;
+      color: #000000;
+      line-height: 1.4;
+    }
+    .md-content h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1rem;
+      font-weight: 400;
+      margin: 1.2rem 0 0.5rem;
+      color: #000000;
+      border-bottom: 1px solid #dddddd;
+      padding-bottom: 0.4rem;
+    }
+    .md-content h3 {
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 0.75rem 0 0.4rem;
+      color: #000000;
+    }
+    .md-content h4 {
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.8rem;
+      font-weight: 400;
+      margin: 0.5rem 0 0.3rem;
+      color: #444444;
+    }
+    .md-content p {
+      margin-bottom: 1em;
+      line-height: 1.8;
+      color: #333333;
+    }
+    .md-content ul, .md-content ol { margin: 0.4rem 0 0.4rem 1.5rem; }
+    .md-content li {
+      margin: 0.2rem 0;
+      line-height: 1.7;
+      color: #333333;
+      list-style-type: '> ';
+    }
+    .md-content li::marker {
+      color: #000000;
+    }
+    .md-content li.task { list-style: none; margin-left: -1.5rem; }
+    .md-content li.task input { margin-right: 0.5rem; }
+    .md-content li.task.done { color: #aaaaaa; text-decoration: line-through; }
+    .md-content blockquote {
+      border-left: 4px solid #000000;
+      padding: 0.5rem 1rem;
+      margin: 0.5rem 0;
+      background: #f0f0f0;
+      color: #444444;
+      font-style: normal;
+      border-radius: 0;
+    }
+    .md-content code {
+      background: #f0f0f0;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid #cccccc;
+      font-size: 0.85rem;
+      color: #000000;
+      font-family: 'Silkscreen', monospace;
+      border-radius: 0;
+    }
+    .md-content pre {
+      background: #f5f5f5;
+      padding: 1rem;
+      border: 1px solid #000000;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+      border-radius: 0;
+      box-shadow: 2px 2px 0px #000000;
+    }
+    .md-content pre code { background: none; padding: 0; border: none; }
+    .md-content hr { border: none; border-top: 2px dashed #cccccc; margin: 1rem 0; }
+    .md-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+    .md-content th {
+      text-align: left;
+      padding: 0.5rem;
+      border-bottom: 2px solid #000000;
+      color: #000000;
+      font-weight: 400;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.65rem;
+    }
+    .md-content td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      color: #333333;
+    }
+    .md-content a { color: #000000; text-decoration: underline; }
+    .md-content a:hover { color: #666666; }
+    .md-content strong { color: #000000; font-weight: bold; }
+    .md-content img { max-width: 100%; margin: 0.5rem 0; border: 1px solid #000000; border-radius: 0; }
+
+    /* ===== Timeline - pixel style ===== */
+    .timeline-item {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0.4rem;
+      top: 1.8rem;
+      bottom: -0.5rem;
+      width: 2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        #000000 0px,
+        #000000 4px,
+        transparent 4px,
+        transparent 8px
+      );
+    }
+    .timeline-item:last-child::before {
+      display: none;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: 0;
+      top: 0.35rem;
+      width: 1rem;
+      height: 1rem;
+      background: #000000;
+      border: 2px solid #ffffff;
+      border-radius: 0;
+    }
+
+    /* ===== Priority badges - grayscale pixel ===== */
+    .badge-p0 { background: #000000; color: #ffffff; border: 2px solid #000000; box-shadow: 2px 2px 0px #888888; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
+    .badge-p1 { background: #444444; color: #ffffff; border: 2px solid #444444; box-shadow: 2px 2px 0px #888888; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
+    .badge-p2 { background: #888888; color: #ffffff; border: 2px solid #888888; box-shadow: 2px 2px 0px #cccccc; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
+    .badge-p3 { background: #cccccc; color: #444444; border: 2px solid #cccccc; box-shadow: 2px 2px 0px #e0e0e0; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
+
+    /* ===== Empty state ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #aaaaaa;
+    }
+    .empty-state .icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    /* ===== Blink cursor for loading ===== */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .blink {
+      animation: blink 0.8s step-end infinite;
+    }
+
+    /* ===== Responsive sidebar ===== */
+    @media (max-width: 768px) {
+      .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 40;
+      }
+    }
+
+    /* ===== Pixel tag/badge ===== */
+    .pixel-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid #cccccc;
+      background: #f5f5f5;
+      color: #666666;
+      font-size: 0.7rem;
+      border-radius: 0;
+    }
+
+    /* ===== Pixel person avatar ===== */
+    .pixel-avatar {
+      width: 40px;
+      height: 40px;
+      background: #000000;
+      border: 2px solid #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      color: #ffffff;
+      box-shadow: 2px 2px 0px #888888;
+      flex-shrink: 0;
+    }
+
+    /* ===== Status badges ===== */
+    .pixel-status-active {
+      border: 2px solid #000000;
+      background: #000000;
+      color: #ffffff;
+      padding: 2px 8px;
+      font-size: 0.65rem;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .pixel-status-inactive {
+      border: 2px solid #cccccc;
+      background: #f0f0f0;
+      color: #888888;
+      padding: 2px 8px;
+      font-size: 0.65rem;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    /* ===== Pixel date label ===== */
+    .pixel-date {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      color: #000000;
+      background: #f5f5f5;
+      border: 1px solid #000000;
+      padding: 3px 8px;
+      box-shadow: 2px 2px 0px #cccccc;
+    }
+
+    /* ===== Priority grid panels ===== */
+    .priority-panel {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      padding: 1rem;
+      border-radius: 0;
+    }
+
+    /* ===== No transitions for retro feel ===== */
+    * {
+      transition: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Mobile header -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-white px-4 py-3 flex items-center justify-between" style="border-bottom: 2px solid #000; box-shadow: 0 2px 0 #ccc;">
+      <button @click="sidebarOpen = !sidebarOpen" class="pixel-font text-black text-xs">
+        {{ sidebarOpen ? '[X]' : '[=]' }}
+      </button>
+      <span class="pixel-font text-black text-xs">{{ dashboardTitle }}</span>
+      <span class="text-xs text-ink-600">{{ currentNavItem?.icon }}</span>
+    </div>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div v-if="sidebarOpen" class="sidebar-overlay md:hidden" @click="sidebarOpen = false"></div>
+
+    <!-- Sidebar -->
+    <aside :class="[
+      'fixed top-0 left-0 h-full w-64 z-50',
+      'flex flex-col',
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+    ]" style="background: #f0f0f0; border-right: 2px solid #000; box-shadow: 2px 0 0 #ccc;">
+
+      <!-- Logo / Title Screen -->
+      <div class="px-5 py-5" style="border-bottom: 2px solid #000;">
+        <div class="pixel-font text-black text-sm">
+          {{ dashboardTitle }}
+        </div>
+        <div class="text-ink-600 text-xs mt-2" style="font-family: 'Silkscreen', monospace;">
+          &#9608;&#9608; Personal System &#9608;&#9608;
+        </div>
+        <div class="mt-2 text-black text-xs" style="font-size: 0.6rem;">
+          &#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;
+        </div>
+      </div>
+
+      <!-- Nav items - Game Menu style -->
+      <nav class="flex-1 py-3 overflow-y-auto">
+        <div class="px-4 mb-2">
+          <span class="pixel-font text-black text-xs" style="font-size: 0.55rem;">-- MENU --</span>
+        </div>
+        <div
+          v-for="item in navItems"
+          :key="item.id"
+          @click="navigateTo(item.id)"
+          :class="[
+            'sidebar-item px-4 py-3 flex items-center gap-2',
+            currentPage === item.id ? 'active' : ''
+          ]"
+        >
+          <span class="cursor-indicator" style="width: 12px;">&#9658;</span>
+          <span class="text-sm w-6 text-center">{{ item.icon }}</span>
+          <span class="text-sm">
+            {{ item.label }}
+          </span>
+        </div>
+      </nav>
+
+      <!-- Footer - System info -->
+      <div class="px-4 py-4 text-xs text-ink-600" style="border-top: 2px solid #000; font-family: 'Silkscreen', monospace;">
+        <div v-if="data">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-black">&#9632;</span>
+            <span>{{ data.build_time }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-black">&#9632;</span>
+            <span>{{ data.stats?.total_files || 0 }} files</span>
+          </div>
+        </div>
+        <div v-else class="text-ink-500">LOADING...<span class="blink">_</span></div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="md:ml-64 min-h-screen pt-14 md:pt-0" style="background: #ffffff;">
+
+      <!-- Loading state -->
+      <div v-if="loading" class="flex items-center justify-center h-screen">
+        <div class="text-center">
+          <div class="pixel-font text-black text-sm mb-6">LOADING...</div>
+          <div class="text-black text-xs">
+            [&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;]
+          </div>
+          <div class="text-ink-600 text-xs mt-4">PLEASE WAIT<span class="blink">_</span></div>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div v-else-if="error" class="flex items-center justify-center h-screen">
+        <div class="text-center max-w-md mx-auto px-4">
+          <div class="pixel-font text-black text-sm mb-4">!! ERROR !!</div>
+          <div class="card">
+            <div class="card-body">
+              <p class="text-black text-sm mb-3">&#9608; SYSTEM FAILURE &#9608;</p>
+              <p class="text-ink-600 text-xs mb-4">{{ error }}</p>
+              <p class="text-xs text-ink-600">
+                RUN: <code class="text-black" style="background: #f0f0f0; border: 1px solid #000; padding: 2px 6px;">python build.py</code>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div v-else-if="data" class="p-4 md:p-6 lg:p-8">
+
+        <!-- ========== Dashboard ========== -->
+        <section v-if="currentPage === 'dashboard'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9733; Overview &#9733; &#9608;
+          </h2>
+
+          <!-- Date widget -->
+          <div class="card mb-6" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="pixel-font" style="font-size: 1.8rem;">{{ currentDay }}</span>
+              <div>
+                <div class="pixel-font" style="font-size: 0.55rem; color: #000;">{{ currentDateFull }}</div>
+                <div style="font-size: 0.8rem; color: #666; margin-top: 2px;">{{ currentWeekday }}</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div class="pixel-font" style="font-size: 0.5rem; color: #666;">{{ currentTime }}</div>
+            </div>
+          </div>
+
+          <!-- Stats cards - clean HUD Style -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+            <div class="card stat-card">
+              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">TASKS</div>
+              <div class="stat-number">{{ data.stats?.total_tasks || 0 }}</div>
+              <div class="text-xs text-ink-600 mt-1">&#9658; Active tasks</div>
+              <div class="hp-bar"><div class="hp-bar-fill" style="width: 70%;"></div></div>
+            </div>
+            <div class="card stat-card">
+              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">DONE</div>
+              <div class="stat-number">{{ data.stats?.done_tasks || 0 }}</div>
+              <div class="text-xs text-ink-600 mt-1">&#9658; Completed</div>
+              <div class="hp-bar"><div class="hp-bar-fill" style="width: 100%;"></div></div>
+            </div>
+            <div class="card stat-card">
+              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">PEOPLE</div>
+              <div class="stat-number">{{ data.stats?.total_people || 0 }}</div>
+              <div class="text-xs text-ink-600 mt-1">&#9658; Contacts</div>
+              <div class="hp-bar"><div class="hp-bar-fill" style="width: 50%;"></div></div>
+            </div>
+            <div class="card stat-card">
+              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">DECISIONS</div>
+              <div class="stat-number">{{ data.stats?.total_decisions || 0 }}</div>
+              <div class="text-xs text-ink-600 mt-1">&#9658; Decision log</div>
+              <div class="hp-bar"><div class="hp-bar-fill" style="width: 40%;"></div></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Plan -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9733;</span>
+                <h3>Direction &amp; Goals</h3>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.plan?.content || emptyHtml"></div>
+              </div>
+            </div>
+
+            <!-- Inbox -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9654;</span>
+                <h3>Inbox</h3>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.inbox?.content || emptyHtml"></div>
+                <div v-if="data.inbox?.items?.length" class="mt-4 pt-4" style="border-top: 2px dashed #e0e0e0;">
+                  <h4 class="text-xs text-ink-600 mb-2">&#9608; Inbox Items</h4>
+                  <div v-for="item in data.inbox.items" :key="item.filename" class="mb-2">
+                    <div class="text-sm text-black">&#9658; {{ item.filename }}</div>
+                    <div class="md-content text-sm" v-html="item.content"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Tasks -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9632;</span>
+                <h3>Active Tasks</h3>
+              </div>
+              <div class="card-body">
+                <div v-if="hasActiveTasks">
+                  <div v-for="(tasks, priority) in data.tasks?.active_tasks" :key="priority">
+                    <div v-if="tasks.length" class="mb-3">
+                      <span :class="['inline-block px-2 py-0.5 text-xs mb-2', priorityClass(priority)]">
+                        {{ priority }}
+                      </span>
+                      <div v-for="(task, i) in tasks" :key="i" class="flex items-start gap-2 py-1">
+                        <input type="checkbox" :checked="task.done" disabled class="mt-1">
+                        <span :class="task.done ? 'line-through text-ink-400' : 'text-black'" class="text-sm">
+                          {{ task.text }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="text-ink-500 text-sm">&#9608; No active tasks</div>
+              </div>
+            </div>
+
+            <!-- Today's Plan -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9830;</span>
+                <h3>Today's Plan</h3>
+              </div>
+              <div class="card-body">
+                <div v-if="todayPlan">
+                  <div class="md-content" v-html="todayPlan.content"></div>
+                </div>
+                <div v-else class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No plan for today yet</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Log -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9670;</span>
+                <h3>Learning Log</h3>
+              </div>
+              <div class="card-body">
+                <div v-if="data.learning?.length">
+                  <div
+                    v-for="(entry, idx) in data.learning"
+                    :key="entry.filename"
+                    style="border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; margin-bottom: 8px;"
+                    :style="idx === data.learning.length - 1 ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : {}"
+                  >
+                    <div
+                      @click="toggleLearning(entry.filename)"
+                      style="cursor: pointer; display: flex; align-items: center; gap: 8px;"
+                    >
+                      <span style="font-size: 0.7rem; color: #000;">{{ expandedLearning[entry.filename] ? '&#9660;' : '&#9654;' }}</span>
+                      <span style="font-size: 0.75rem; color: #666; min-width: 80px;">{{ entry.meta?.date || '—' }}</span>
+                      <span style="font-size: 0.85rem; color: #000;">{{ entry.meta?.title || entry.filename.replace('.md', '') }}</span>
+                    </div>
+                    <div v-if="expandedLearning[entry.filename]" style="margin-top: 10px; padding-left: 20px;">
+                      <div v-if="entry.meta?.tags?.length" style="margin-bottom: 8px;">
+                        <span
+                          v-for="tag in entry.meta.tags"
+                          :key="tag"
+                          style="display: inline-block; border: 1px solid #000; padding: 1px 6px; margin-right: 4px; font-size: 0.7rem;"
+                        >{{ tag }}</span>
+                      </div>
+                      <div class="md-content text-sm" v-html="entry.content"></div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="text-ink-500 text-sm">&#9608; No entries yet</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== About Me ========== -->
+        <section v-if="currentPage === 'me'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9829; About Me &#9829; &#9608;
+          </h2>
+
+          <!-- Sub-tabs -->
+          <div class="flex gap-2 mb-6 flex-wrap">
+            <button
+              v-for="tab in meTabs"
+              :key="tab.id"
+              @click="meTab = tab.id"
+              :class="['pixel-tab', meTab === tab.id ? 'active' : '']"
+            >
+              {{ tab.icon }} {{ tab.label }}
+            </button>
+          </div>
+
+          <!-- Identity -->
+          <div v-if="meTab === 'identity'" class="card">
+            <div class="card-body">
+              <div class="md-content" v-html="data.me?.identity?.content || emptyHtml"></div>
+            </div>
+          </div>
+
+          <!-- Goals -->
+          <div v-if="meTab === 'goals'" class="card">
+            <div class="card-body">
+              <div class="md-content" v-html="data.me?.goals?.content || emptyHtml"></div>
+            </div>
+          </div>
+
+          <!-- Values -->
+          <div v-if="meTab === 'values'" class="card">
+            <div class="card-body">
+              <div class="md-content" v-html="data.me?.values?.content || emptyHtml"></div>
+            </div>
+          </div>
+
+          <!-- Learned -->
+          <div v-if="meTab === 'learned'" class="card">
+            <div class="card-body">
+              <div class="md-content" v-html="data.me?.learned?.content || emptyHtml"></div>
+            </div>
+          </div>
+
+          <!-- Evolution Timeline -->
+          <div v-if="meTab === 'evolution'">
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="md-content" v-html="data.me?.evolution?.content || ''"></div>
+              </div>
+            </div>
+            <div v-if="data.me?.evolution_entries?.length">
+              <h3 class="pixel-font text-xs text-black mb-4" style="font-size: 0.6rem;">&#9632; Growth Timeline</h3>
+              <div class="space-y-4">
+                <div v-for="(entry, i) in data.me.evolution_entries" :key="i" class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="flex items-center gap-3 mb-2 flex-wrap">
+                        <span class="pixel-date">{{ entry.date }}</span>
+                        <span class="pixel-tag">{{ entry.type }}</span>
+                      </div>
+                      <div class="md-content text-sm" v-html="entry.content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="card">
+              <div class="card-body">
+                <div class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No entries yet. Growth timeline builds over conversations.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Planning ========== -->
+        <section v-if="currentPage === 'planning'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9830; Planning &#9830; &#9608;
+          </h2>
+
+          <!-- Sub-tabs -->
+          <div class="flex gap-2 mb-6 flex-wrap">
+            <button
+              v-for="tab in planningTabs"
+              :key="tab.id"
+              @click="planningTab = tab.id"
+              :class="['pixel-tab', planningTab === tab.id ? 'active' : '']"
+            >
+              {{ tab.icon }} {{ tab.label }}
+            </button>
+          </div>
+
+          <!-- Daily -->
+          <div v-if="planningTab === 'daily'">
+            <div v-if="data.planning?.daily?.length" class="space-y-6">
+              <div v-for="plan in data.planning.daily" :key="plan.filename" class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="pixel-date">{{ plan.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div class="md-content" v-html="plan.content"></div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="card">
+              <div class="card-body">
+                <div class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No daily plans yet</p>
+                  <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">03-planning/daily/YYYY-MM-DD.md</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly -->
+          <div v-if="planningTab === 'monthly'">
+            <div v-if="data.planning?.monthly?.length" class="space-y-6">
+              <div v-for="plan in data.planning.monthly" :key="plan.filename" class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="pixel-date">{{ plan.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div class="md-content" v-html="plan.content"></div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="card">
+              <div class="card-body">
+                <div class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No monthly plans yet</p>
+                  <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">03-planning/monthly/YYYY-MM.md</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quarterly -->
+          <div v-if="planningTab === 'quarterly'">
+            <div v-if="data.planning?.quarterly?.length" class="space-y-6">
+              <div v-for="plan in data.planning.quarterly" :key="plan.filename" class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="pixel-date">{{ plan.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div class="md-content" v-html="plan.content"></div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="card">
+              <div class="card-body">
+                <div class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No quarterly plans yet</p>
+                  <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">03-planning/quarterly/YYYY-QN.md</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews -->
+          <div v-if="planningTab === 'reviews'">
+            <div v-if="data.planning?.reviews?.length" class="space-y-6">
+              <div v-for="review in data.planning.reviews" :key="review.filename" class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="pixel-date">{{ review.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div class="md-content" v-html="review.content"></div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="card">
+              <div class="card-body">
+                <div class="empty-state">
+                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                  <p class="text-sm text-ink-500">No review entries yet</p>
+                  <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">03-planning/reviews/</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== People ========== -->
+        <section v-if="currentPage === 'people'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9829; People &#9829; &#9608;
+          </h2>
+
+          <div v-if="data.people?.contacts?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="person in data.people.contacts" :key="person.filename" class="card">
+              <div class="card-body">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="pixel-avatar">
+                    {{ getPersonInitial(person) }}
+                  </div>
+                  <div>
+                    <div class="text-black text-sm" style="font-family: 'Press Start 2P', monospace; font-size: 0.6rem;">{{ person.meta?.name || person.filename.replace('.md', '') }}</div>
+                    <div v-if="person.meta?.relation" class="text-xs text-ink-600 mt-1">&#9658; {{ person.meta.relation }}</div>
+                  </div>
+                </div>
+                <div v-if="person.meta?.tags?.length" class="flex flex-wrap gap-1 mb-3">
+                  <span v-for="tag in person.meta.tags" :key="tag" class="pixel-tag" style="border-color: #000;">
+                    {{ tag }}
+                  </span>
+                </div>
+                <div v-if="person.meta?.last_contact" class="text-xs text-ink-600 mb-2">
+                  &#9632; Last contact: {{ person.meta.last_contact }}
+                </div>
+                <div class="md-content text-sm" v-html="person.content"></div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="card">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon text-ink-300">&#9829; &#9829; &#9829;</div>
+                <p class="text-sm text-ink-500">No contacts yet</p>
+                <p class="text-xs text-ink-500 mt-2">Create files with YAML frontmatter in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">04-people/</code></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meetings -->
+          <div v-if="data.people?.meetings?.length" class="mt-8">
+            <h3 class="pixel-font text-xs text-black mb-4" style="font-size: 0.6rem;">&#9632; Meeting Notes</h3>
+            <div class="space-y-6">
+              <div v-for="meeting in data.people.meetings" :key="meeting.filename" class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="pixel-date">{{ meeting.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div class="md-content text-sm" v-html="meeting.content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Tasks ========== -->
+        <section v-if="currentPage === 'tasks'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9632; Tasks &#9632; &#9608;
+          </h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Active Tasks by Priority -->
+            <div class="card lg:col-span-2">
+              <div class="card-header">
+                <span>&#9733;</span>
+                <h3>Active Tasks</h3>
+              </div>
+              <div class="card-body">
+                <div v-if="hasActiveTasks" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div v-for="(tasks, priority) in data.tasks?.active_tasks" :key="priority" class="priority-panel">
+                    <div class="flex items-center gap-2 mb-3">
+                      <span :class="['inline-block px-2 py-0.5 text-xs', priorityClass(priority)]">
+                        {{ priority }}
+                      </span>
+                      <span class="text-xs text-ink-600">{{ priorityLabel(priority) }}</span>
+                      <span class="text-xs text-ink-500 ml-auto">{{ tasks.length }} items</span>
+                    </div>
+                    <div v-if="tasks.length" class="space-y-2">
+                      <div v-for="(task, i) in tasks" :key="i" class="flex items-start gap-2 py-1.5" :style="i !== tasks.length - 1 ? 'border-bottom: 1px dashed #e0e0e0;' : ''">
+                        <input type="checkbox" :checked="task.done" disabled class="mt-0.5">
+                        <span :class="task.done ? 'line-through text-ink-400' : 'text-black'" class="text-sm">
+                          {{ task.text }}
+                        </span>
+                      </div>
+                    </div>
+                    <div v-else class="text-sm text-ink-500 py-2">&#9608; (empty)</div>
+                  </div>
+                </div>
+                <div v-else class="text-ink-500 text-sm">&#9608; No active tasks</div>
+              </div>
+            </div>
+
+            <!-- Full active.md content -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9654;</span>
+                <h3>active.md Full Text</h3>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.tasks?.active?.content || emptyHtml"></div>
+              </div>
+            </div>
+
+            <!-- Someday -->
+            <div class="card">
+              <div class="card-header">
+                <span>&#9733;</span>
+                <h3>Someday / Maybe</h3>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.tasks?.someday?.content || emptyHtml"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Decisions ========== -->
+        <section v-if="currentPage === 'decisions'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9830; Decision Log &#9830; &#9608;
+          </h2>
+
+          <div v-if="data.decisions?.length" class="space-y-6">
+            <div v-for="(decision, i) in data.decisions" :key="i" class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="card">
+                <div class="card-body">
+                  <div class="flex items-center gap-3 mb-3 flex-wrap">
+                    <span v-if="decision.meta?.date" class="pixel-date">{{ decision.meta.date }}</span>
+                    <span class="text-sm text-black" style="font-family: 'Press Start 2P', monospace; font-size: 0.55rem;">{{ decision.filename.replace('.md', '') }}</span>
+                    <span v-if="decision.meta?.status"
+                      :class="decision.meta.status === 'active' ? 'pixel-status-active' : 'pixel-status-inactive'">
+                      {{ decision.meta.status }}
+                    </span>
+                  </div>
+                  <div v-if="decision.meta?.tags?.length" class="flex flex-wrap gap-1 mb-3">
+                    <span v-for="tag in decision.meta.tags" :key="tag" class="pixel-tag" style="border-color: #000;">
+                      {{ tag }}
+                    </span>
+                  </div>
+                  <div class="md-content text-sm" v-html="decision.content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="card">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon text-ink-300">&#9830; &#9830; &#9830;</div>
+                <p class="text-sm text-ink-500">No decision records yet</p>
+                <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">07-decisions/YYYY-MM-DD-slug.md</code></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Finance ========== -->
+        <section v-if="currentPage === 'finance'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9733; Finance &#9733; &#9608;
+          </h2>
+
+          <div v-if="data.finance?.files?.length" class="space-y-6">
+            <div v-for="file in data.finance.files" :key="file.filename" class="card">
+              <div class="card-body">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pixel-date">{{ file.filename.replace('.md', '') }}</span>
+                </div>
+                <div class="md-content" v-html="file.content"></div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="card">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon text-ink-300">&#9733; &#9733; &#9733;</div>
+                <p class="text-sm text-ink-500">No finance records yet</p>
+                <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">02-finance/</code>, e.g. <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">overview.md</code>, <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">budget.md</code></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Content ========== -->
+        <section v-if="currentPage === 'content'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9654; Content &#9654; &#9608;
+          </h2>
+
+          <!-- Section 1: Brand Overview -->
+          <div class="mb-8">
+            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Brand Matrix</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" v-if="data.content?.platforms?.brands">
+              <div v-for="brand in data.content.platforms.brands" :key="brand.name" class="card">
+                <div class="card-header">
+                  <span class="pixel-font text-xs">{{ brand.name }}</span>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <span class="text-xs text-ink-500">Type:</span>
+                    <span class="text-sm font-bold ml-1">{{ brand.type }}</span>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-xs text-ink-500 block mb-1.5">Platforms:</span>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span v-for="p in brand.platforms" :key="p"
+                        style="display: inline-block; background: #000; color: #fff; font-size: 10px; padding: 2px 6px; font-family: 'Silkscreen', monospace;">
+                        {{ p }}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="text-xs text-ink-500">Strategy:</span>
+                    <p class="text-sm mt-1">{{ brand.strategy }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Platform Accounts -->
+          <div class="mb-8">
+            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Platform Accounts</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" v-if="data.content?.platforms?.accounts">
+              <div v-for="(account, idx) in data.content.platforms.accounts" :key="idx" class="card">
+                <div class="card-header">
+                  <span class="text-xs" style="font-family: 'Silkscreen', monospace;">
+                    &#9632; {{ account.platform }}
+                  </span>
+                </div>
+                <div class="card-body">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-bold">{{ account.name }}</span>
+                    <span v-if="account.status === 'active'"
+                      style="display: inline-block; background: #000; color: #fff; font-size: 10px; padding: 2px 8px; font-family: 'Silkscreen', monospace;">
+                      Active
+                    </span>
+                    <span v-else
+                      style="display: inline-block; background: #aaa; color: #fff; font-size: 10px; padding: 2px 8px; font-family: 'Silkscreen', monospace;">
+                      Planned
+                    </span>
+                  </div>
+                  <div v-if="account.brand" class="mb-1">
+                    <span class="text-xs text-ink-500">Brand:</span>
+                    <span class="text-xs ml-1">{{ account.brand }}</span>
+                  </div>
+                  <div v-if="account.content" class="mb-1">
+                    <span class="text-xs text-ink-500">Content:</span>
+                    <span class="text-xs ml-1">{{ account.content }}</span>
+                  </div>
+                  <div v-if="account.followers" class="mb-1">
+                    <span class="text-xs text-ink-500">Followers:</span>
+                    <span class="text-xs ml-1 font-bold">{{ account.followers }}</span>
+                  </div>
+                  <div v-if="account.target" class="mb-1">
+                    <span class="text-xs text-ink-500">Target cadence:</span>
+                    <span class="text-xs ml-1">{{ account.target }}</span>
+                  </div>
+                  <div v-if="account.device" class="mb-1">
+                    <span class="text-xs text-ink-500">Device:</span>
+                    <span class="text-xs ml-1">{{ account.device }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Strategy Summary -->
+          <div class="mb-8" v-if="data.content?.strategy">
+            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Strategy Summary</h3>
+            <div class="card">
+              <div class="card-header">
+                <span class="pixel-font text-xs">Content Strategy</span>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.content.strategy.content || ''"></div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const data = ref(null);
+        const loading = ref(true);
+        const error = ref(null);
+        const currentPage = ref('dashboard');
+        const sidebarOpen = ref(false);
+        const meTab = ref('identity');
+        const planningTab = ref('daily');
+
+        const emptyHtml = '<p style="color: #aaaaaa;">\u25A0 No data</p>';
+
+        // Learning log expand/collapse state
+        const expandedLearning = reactive({});
+        function toggleLearning(filename) {
+          expandedLearning[filename] = !expandedLearning[filename];
+        }
+
+        // Dashboard title from config or fallback
+        const dashboardTitle = computed(() => {
+          return data.value?.config?.title || 'LOCI';
+        });
+
+        // Username from config or fallback
+        const username = computed(() => {
+          return data.value?.config?.username || 'User';
+        });
+
+        const navItems = [
+          { id: 'dashboard', label: 'Overview',  icon: '\u2605' },
+          { id: 'me',        label: 'About Me',  icon: '\u2665' },
+          { id: 'planning',  label: 'Planning',  icon: '\u25C6' },
+          { id: 'people',    label: 'People',    icon: '\u2665' },
+          { id: 'tasks',     label: 'Tasks',     icon: '\u25A0' },
+          { id: 'decisions', label: 'Decisions', icon: '\u25C6' },
+          { id: 'finance',   label: 'Finance',   icon: '\u2605' },
+          { id: 'content',   label: 'Content',   icon: '\u25BA' },
+        ];
+
+        const meTabs = [
+          { id: 'identity',  label: 'Identity',  icon: '\u25BA' },
+          { id: 'goals',     label: 'Goals',     icon: '\u2605' },
+          { id: 'values',    label: 'Values',    icon: '\u25C6' },
+          { id: 'learned',   label: 'Learned',   icon: '\u25A0' },
+          { id: 'evolution', label: 'Growth',    icon: '\u2665' },
+        ];
+
+        const planningTabs = [
+          { id: 'daily',     label: 'Daily',     icon: '\u25BA' },
+          { id: 'monthly',   label: 'Monthly',   icon: '\u25C6' },
+          { id: 'quarterly', label: 'Quarterly', icon: '\u2605' },
+          { id: 'reviews',   label: 'Reviews',   icon: '\u25A0' },
+        ];
+
+        const currentNavItem = computed(() => {
+          return navItems.find(i => i.id === currentPage.value);
+        });
+
+        const hasActiveTasks = computed(() => {
+          const tasks = data.value?.tasks?.active_tasks;
+          if (!tasks) return false;
+          return Object.values(tasks).some(arr => arr.length > 0);
+        });
+
+        const todayPlan = computed(() => {
+          const today = new Date().toISOString().slice(0, 10);
+          const daily = data.value?.planning?.daily || [];
+          return daily.find(d => d.filename.includes(today));
+        });
+
+        // Date widget
+        const now = ref(new Date());
+        setInterval(() => { now.value = new Date(); }, 1000);
+
+        const currentDay = computed(() => now.value.getDate());
+        const currentDateFull = computed(() => {
+          const d = now.value;
+          return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+        });
+        const currentWeekday = computed(() => {
+          const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          return days[now.value.getDay()];
+        });
+        const currentWeekdayEn = computed(() => {
+          const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          return days[now.value.getDay()];
+        });
+        const currentTime = computed(() => {
+          const d = now.value;
+          return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+        });
+
+        function navigateTo(page) {
+          currentPage.value = page;
+          sidebarOpen.value = false;
+        }
+
+        function priorityClass(p) {
+          const map = { P0: 'badge-p0', P1: 'badge-p1', P2: 'badge-p2', P3: 'badge-p3' };
+          return map[p] || 'badge-p3';
+        }
+
+        function priorityLabel(p) {
+          const map = {
+            P0: 'Must do today',
+            P1: 'This week',
+            P2: 'Quick wins',
+            P3: 'When free'
+          };
+          return map[p] || '';
+        }
+
+        function getPersonInitial(person) {
+          const name = person.meta?.name || person.filename?.replace('.md', '') || '?';
+          return name.charAt(0).toUpperCase();
+        }
+
+        onMounted(async () => {
+          try {
+            const res = await fetch('data.json');
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            data.value = await res.json();
+          } catch (e) {
+            error.value = e.message;
+            console.error('Failed to load data.json:', e);
+          } finally {
+            loading.value = false;
+          }
+        });
+
+        return {
+          data, loading, error,
+          currentPage, sidebarOpen,
+          meTab, planningTab,
+          emptyHtml,
+          dashboardTitle, username,
+          navItems, meTabs, planningTabs,
+          currentNavItem, hasActiveTasks, todayPlan,
+          currentDay, currentDateFull, currentWeekday, currentWeekdayEn, currentTime,
+          navigateTo, priorityClass, priorityLabel, getPersonInitial,
+          expandedLearning, toggleLearning,
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

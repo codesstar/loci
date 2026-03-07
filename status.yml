@@ -1,0 +1,18 @@
+# Loci Status File — Auto-generated, user-overridable
+# This file is L1 (loaded every conversation) to give the AI state awareness.
+
+updated: ""
+ttl: 4h
+
+energy: ""          # low / moderate / high
+location: ""
+context: ""
+available_hours: 0
+confidence: 0.0
+
+override:
+  energy: ""
+  note: ""
+  set_at: ""
+
+sources: []
