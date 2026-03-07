@@ -148,6 +148,13 @@ loci/
 │   └── registry.md        # Project registry
 ├── 10-dashboard/          # Web visualization panel
 │   └── build.py           # Dashboard data generator
+├── 11-references/         # External knowledge base
+│   ├── books/             # Book notes & takeaways
+│   ├── articles/          # Articles, posts, tweets
+│   ├── quotes/            # Ideas that stuck with you
+│   ├── videos/            # Video & podcast notes
+│   ├── frameworks/        # Mental models & methodologies
+│   └── inbox.md           # Quick dump, sort later
 │
 ├── templates/             # File templates for consistency
 ├── docs/                  # Documentation
