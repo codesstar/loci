@@ -12,6 +12,7 @@ These files are read at the start of every conversation. They define who you are
 |------|---------|
 | `CLAUDE.md` | System rules, behavior protocols, directory map |
 | `plan.md` | Life direction, annual goals, current focus |
+| `03-planning/daily/today.md` | Today's schedule, priorities, energy state |
 | `inbox.md` | Quick capture, pending items |
 | `.claude/memory/MEMORY.md` | AI's persistent auto-memory |
 
@@ -73,6 +74,27 @@ AI context windows are finite. Loading everything every time wastes tokens and d
 3. **Completeness**: Layer 3 ensures nothing is ever lost
 
 This mirrors how the human brain works — you don't consciously recall every memory at once, but everything is accessible when triggered.
+
+## Design Philosophy: Loci as a Memory Scheduler
+
+**The core job of Loci is deciding what the AI should remember right now — and what it can safely forget.**
+
+This is exactly how the human brain works:
+
+| Human Brain | Capacity | Loci Equivalent |
+|-------------|----------|-----------------|
+| Working memory | 4-7 chunks (tiny!) | Layer 1 — always loaded, must stay small |
+| Short-term memory | Recall on demand | Layer 2 — one thought away |
+| Long-term memory | Unlimited storage | Layer 3 — archived, searchable |
+
+The human hippocampus (海马体) acts as the dispatcher — it decides which memories to promote to working memory and which to consolidate into long-term storage. **Loci plays this exact role for your AI.**
+
+This is also why competitors fall short:
+- **ChatGPT Memory**: flat list, no layers, no scheduling — like having all your memories at the same volume
+- **Mem0**: has storage and retrieval, but no intelligent dispatch — like a filing cabinet without a librarian
+- **Loci**: **layered storage + on-demand loading + active forgetting** — the three things that make memory systems actually work
+
+> The name isn't a coincidence. The hippocampus (our seahorse mascot 🐴) is the brain's memory scheduler. Loci is the AI's.
 
 ## Context Awareness
 
