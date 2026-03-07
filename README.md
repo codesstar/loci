@@ -178,6 +178,8 @@ loci/
 | Open source | Yes | No | No | Varies |
 | Works offline | Yes | No | No | Yes |
 | Your data stays local | Yes | No | No | Yes |
+| Portable (switch AI tools) | Yes (copy folder) | No (locked in) | No | No |
+| Privacy controls | Yes (4 layers) | No | No | No |
 
 ---
 
@@ -190,6 +192,7 @@ Detailed guides are available in the `docs/` directory:
 - **[Distillation](docs/distillation.md)** — How conversation insights are extracted and stored
 - **[Departments](docs/departments.md)** — Multi-project orchestration guide
 - **[Dashboard](docs/dashboard.md)** — Customizing the web visualization
+- **[Privacy](docs/privacy.md)** — Data protection, encryption, AI context control
 - **[Personalization](docs/personalization.md)** — Adapting Loci to your workflow
 
 ---
