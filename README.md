@@ -48,7 +48,7 @@ Get running in 5 minutes.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/callumcyc/loci.git
+git clone https://github.com/codesstar/loci.git
 
 # 2. Enter the directory
 cd loci
