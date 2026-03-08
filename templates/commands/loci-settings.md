@@ -15,35 +15,28 @@ Steps:
 
 3. **Check existing config**: Read `.loci-config.json` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
-4. **Present sync settings** in ONE message, with recommended defaults based on project type. Use this format:
+4. **Present and collect settings using AskUserQuestion tool**. Do it step by step, one question per category. Use the AskUserQuestion tool for each question so the user gets a clean interactive prompt:
 
-   ```
-   Project detected: [type]
+   First, show a brief summary: "Detected: [project type]. Let me walk you through sync settings."
 
-   What should sync to your brain?
+   Then ask each category using AskUserQuestion with clear yes/no or selection options:
 
-   1. [ON]  Decisions (e.g. "chose REST over GraphQL")
-   2. [ON]  Milestones (e.g. "v1.0 launched")
-   3. [ON]  Lessons learned / insights
-   4. [OFF] Code implementation details
-   5. [OFF] Environment variables & secrets
-   6. [OFF] Debug logs & error traces
-   7. [ON]  Architecture changes
-   8. [OFF] Dependency updates
-   9. [ON]  Blockers & anomalies
-
-   Reply with numbers to toggle, or "ok" to confirm.
-   ```
+   Q1: "Sync decisions to brain? (e.g. 'chose REST over GraphQL')" → default: yes
+   Q2: "Sync milestones? (e.g. 'v1.0 launched')" → default: yes
+   Q3: "Sync lessons learned & insights?" → default: yes
+   Q4: "Sync code implementation details?" → default: no
+   Q5: "Sync architecture changes?" → default: yes (code project) / no (other)
+   Q6: "Sync blockers & anomalies?" → default: yes
+   Q7: "Any custom rules? (e.g. 'never sync client names')" → free text, optional
 
    Adjust defaults by project type:
    - **Code project**: Architecture ON, code details OFF, deps OFF
-   - **Content project**: Topics ON, drafts OFF, publish status ON
-   - **Research project**: Findings ON, raw data OFF, sources ON
-   - **General**: Decisions ON, details OFF
+   - **Content project**: Add "Sync topic ideas?" ON, "Sync draft content?" OFF, "Sync publish status?" ON
+   - **Research project**: Add "Sync findings?" ON, "Sync raw data?" OFF, "Sync sources?" ON
 
-5. **Let user toggle**: User replies with numbers (e.g. "4 6" to toggle items 4 and 6). Show updated list. Repeat until user says "ok".
+   Skip questions about environment variables, debug logs, and dependency updates — these should ALWAYS be OFF and never synced. Just mention this at the end: "Note: env variables, secrets, debug logs, and dependency updates are never synced."
 
-6. **Save config**: Write `.loci-config.json` in current directory:
+5. **Save config**: Write `.loci-config.json` in current directory:
    ```json
    {
      "projectType": "detected type",
@@ -52,18 +45,22 @@ Steps:
        "milestones": true,
        "lessons": true,
        "codeDetails": false,
-       "envSecrets": false,
-       "debugLogs": false,
        "architecture": true,
-       "dependencies": false,
        "blockers": true
      },
-     "customRules": []
+     "customRules": ["user's custom rules if any"]
    }
    ```
 
-7. **Apply rules**: If the project has a CLAUDE.md, append a "Loci Sync Rules" section summarizing what to sync and what not to sync. If no CLAUDE.md, create a minimal one with just the sync rules.
+6. **Apply rules**: If the project has a CLAUDE.md, append a "Loci Sync Rules" section summarizing what to sync and what not to sync in natural language. If no CLAUDE.md, create a minimal one with just the sync rules.
 
-8. **Confirm**: "Settings saved. Your brain will now sync [ON items] from this project, and skip [OFF items]."
+7. **Confirm with summary**:
+   ```
+   ✅ Settings saved.
 
-9. **Custom rules**: After confirming, ask: "Any custom rules? (e.g. 'never sync client names', 'always sync API design decisions'). Say 'no' to skip." If yes, add to `customRules` array and update CLAUDE.md.
+   Syncing to brain: decisions, milestones, lessons, architecture, blockers
+   Never synced: code details, env/secrets, debug logs, deps
+   Custom rules: [if any]
+
+   You can re-run /loci-settings anytime to change these.
+   ```
