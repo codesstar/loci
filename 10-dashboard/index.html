@@ -32,15 +32,18 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Silkscreen', monospace;
+      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', 'Silkscreen', monospace;
       background: #ffffff;
       color: #000000;
       min-height: 100vh;
       image-rendering: pixelated;
+      font-size: 18px;
     }
 
     /* ===== Pixel heading font ===== */
@@ -114,6 +117,16 @@
     .hp-bar-fill {
       height: 100%;
       background: #000000;
+    }
+
+    .goal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 6px; height: 16px;
+      background: #000; cursor: pointer; margin-top: -2px;
+    }
+    .goal-slider::-moz-range-thumb {
+      width: 6px; height: 16px;
+      background: #000; cursor: pointer; border-radius: 0; border: none;
     }
 
     /* Stat numbers - bigger for prominence */
@@ -221,15 +234,15 @@
       padding-bottom: 0.4rem;
     }
     .md-content h3 {
-      font-family: 'Silkscreen', monospace;
-      font-size: 0.85rem;
+      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', sans-serif;
+      font-size: 1.1rem;
       font-weight: 700;
       margin: 0.75rem 0 0.4rem;
       color: #000000;
     }
     .md-content h4 {
-      font-family: 'Silkscreen', monospace;
-      font-size: 0.8rem;
+      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', sans-serif;
+      font-size: 1rem;
       font-weight: 400;
       margin: 0.5rem 0 0.3rem;
       color: #444444;
@@ -547,215 +560,419 @@
       <!-- Content -->
       <div v-else-if="data" class="p-4 md:p-6 lg:p-8">
 
-        <!-- ========== Dashboard ========== -->
-        <section v-if="currentPage === 'dashboard'">
+        <!-- ========== Today ========== -->
+        <section v-if="currentPage === 'today'">
           <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9733; Overview &#9733; &#9608;
+            &#9608; &#9788; Today &#9788; &#9608;
           </h2>
 
-          <!-- Date widget -->
-          <div class="card mb-6" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span class="pixel-font" style="font-size: 1.8rem;">{{ currentDay }}</span>
-              <div>
-                <div class="pixel-font" style="font-size: 0.55rem; color: #000;">{{ currentDateFull }}</div>
-                <div style="font-size: 0.8rem; color: #666; margin-top: 2px;">{{ currentWeekday }}</div>
-              </div>
-            </div>
-            <div style="text-align: right;">
-              <div class="pixel-font" style="font-size: 0.5rem; color: #666;">{{ currentTime }}</div>
-            </div>
-          </div>
-
-          <!-- Stats cards - clean HUD Style -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-            <div class="card stat-card">
-              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">TASKS</div>
-              <div class="stat-number">{{ data.stats?.total_tasks || 0 }}</div>
-              <div class="text-xs text-ink-600 mt-1">&#9658; Active tasks</div>
-              <div class="hp-bar"><div class="hp-bar-fill" style="width: 70%;"></div></div>
-            </div>
-            <div class="card stat-card">
-              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">DONE</div>
-              <div class="stat-number">{{ data.stats?.done_tasks || 0 }}</div>
-              <div class="text-xs text-ink-600 mt-1">&#9658; Completed</div>
-              <div class="hp-bar"><div class="hp-bar-fill" style="width: 100%;"></div></div>
-            </div>
-            <div class="card stat-card">
-              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">PEOPLE</div>
-              <div class="stat-number">{{ data.stats?.total_people || 0 }}</div>
-              <div class="text-xs text-ink-600 mt-1">&#9658; Contacts</div>
-              <div class="hp-bar"><div class="hp-bar-fill" style="width: 50%;"></div></div>
-            </div>
-            <div class="card stat-card">
-              <div class="pixel-font text-xs text-ink-500 mb-2" style="font-size: 0.5rem;">DECISIONS</div>
-              <div class="stat-number">{{ data.stats?.total_decisions || 0 }}</div>
-              <div class="text-xs text-ink-600 mt-1">&#9658; Decision log</div>
-              <div class="hp-bar"><div class="hp-bar-fill" style="width: 40%;"></div></div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Plan -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9733;</span>
-                <h3>Direction &amp; Goals</h3>
-              </div>
-              <div class="card-body">
-                <div class="md-content" v-html="data.plan?.content || emptyHtml"></div>
-              </div>
-            </div>
-
-            <!-- Inbox -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9654;</span>
-                <h3>Inbox</h3>
-              </div>
-              <div class="card-body">
-                <div class="md-content" v-html="data.inbox?.content || emptyHtml"></div>
-                <div v-if="data.inbox?.items?.length" class="mt-4 pt-4" style="border-top: 2px dashed #e0e0e0;">
-                  <h4 class="text-xs text-ink-600 mb-2">&#9608; Inbox Items</h4>
-                  <div v-for="item in data.inbox.items" :key="item.filename" class="mb-2">
-                    <div class="text-sm text-black">&#9658; {{ item.filename }}</div>
-                    <div class="md-content text-sm" v-html="item.content"></div>
-                  </div>
+          <!-- 1. Date & Time -->
+          <div class="card mb-6" style="padding: 32px 28px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 20px;">
+                <span class="pixel-font" style="font-size: 3.5rem; line-height: 1;">{{ currentDay }}</span>
+                <div>
+                  <div class="pixel-font" style="font-size: 0.75rem; color: #000;">{{ currentDateFull }}</div>
+                  <div style="font-size: 1.1rem; color: #666; margin-top: 6px;">{{ currentWeekday }}</div>
                 </div>
               </div>
+              <div style="text-align: right;">
+                <div class="pixel-font" style="font-size: 1.5rem; color: #000;">{{ currentTime }}</div>
+                <div style="font-size: 0.9rem; color: #888; margin-top: 4px;">{{ greeting }}</div>
+              </div>
             </div>
+          </div>
 
-            <!-- Active Tasks -->
-            <div class="card">
-              <div class="card-header">
+          <!-- 2. Today's Tasks (reactive to calendar view) -->
+          <div class="card mb-6">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
                 <span>&#9632;</span>
-                <h3>Active Tasks</h3>
+                <h3>{{ taskSectionTitle }}</h3>
               </div>
-              <div class="card-body">
-                <div v-if="hasActiveTasks">
-                  <div v-for="(tasks, priority) in data.tasks?.active_tasks" :key="priority">
-                    <div v-if="tasks.length" class="mb-3">
-                      <span :class="['inline-block px-2 py-0.5 text-xs mb-2', priorityClass(priority)]">
-                        {{ priority }}
-                      </span>
-                      <div v-for="(task, i) in tasks" :key="i" class="flex items-start gap-2 py-1">
-                        <input type="checkbox" :checked="task.done" disabled class="mt-1">
-                        <span :class="task.done ? 'line-through text-ink-400' : 'text-black'" class="text-sm">
-                          {{ task.text }}
-                        </span>
+              <button @click="showAddTask = !showAddTask"
+                style="width: 28px; height: 28px; border: 2px solid #000; background: #fff; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;"
+                :style="showAddTask ? 'background: #000; color: #fff;' : ''">+</button>
+            </div>
+            <!-- Quick-add task inline form -->
+            <div v-if="showAddTask" style="padding: 12px 16px; border-bottom: 2px solid #eee; display: flex; gap: 8px; align-items: center;">
+              <input v-model="newTaskText" @keyup.enter="addNewTask()" placeholder="New task..."
+                style="flex: 1; padding: 6px 10px; border: 2px solid #000; font-size: 0.9rem; outline: none;">
+              <select v-model="newTaskPriority" style="padding: 6px 8px; border: 2px solid #000; font-size: 0.8rem; cursor: pointer;">
+                <option value="P0">Focus</option>
+                <option value="P1">P1</option>
+              </select>
+              <button @click="addNewTask()" style="padding: 6px 14px; border: 2px solid #000; background: #000; color: #fff; cursor: pointer; font-size: 0.8rem;">Add</button>
+            </div>
+            <div class="card-body">
+              <!-- === DAY VIEW === -->
+              <div v-if="calendarView === 'day'">
+                <!-- Focus: P0 tasks -->
+                <div @dragover.prevent @drop="dropTask($event, 'P0')"
+                  style="min-height: 20px;" :style="dragOverGroup === 'P0' ? 'background: #f5f5f5;' : ''"
+                  @dragenter.prevent="dragOverGroup = 'P0'" @dragleave="dragOverGroup = null"
+                  class="mb-4">
+                  <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #000;">&#9733; FOCUS</div>
+                  <div v-for="(task, i) in undoneTasks('P0')" :key="'p0-'+i"
+                    draggable="true" @dragstart="dragTask($event, 'P0', task)"
+                    style="padding: 12px 16px; border: 2px solid #000; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; cursor: grab;"
+                    :style="draggingTask === task ? 'opacity: 0.4;' : ''">
+                    <input type="checkbox" :checked="task.done" @change="task.done = true">
+                    <span style="color: #000; font-weight: bold; font-size: 1.05rem;">{{ task.text }}</span>
+                  </div>
+                </div>
+                <!-- P1 tasks -->
+                <div v-for="p in ['P1']" :key="p"
+                  @dragover.prevent @drop="dropTask($event, p)"
+                  :style="dragOverGroup === p ? 'background: #f5f5f5;' : ''"
+                  @dragenter.prevent="dragOverGroup = p" @dragleave="dragOverGroup = null"
+                  style="min-height: 20px;" class="mb-3">
+                  <span :class="['inline-block px-2 py-0.5 text-xs mb-2', priorityClass(p)]">{{ p }}</span>
+                  <div v-for="(task, i) in undoneTasks(p)" :key="p+'-'+i"
+                    draggable="true" @dragstart="dragTask($event, p, task)"
+                    style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
+                    :style="draggingTask === task ? 'opacity: 0.4;' : ''">
+                    <input type="checkbox" :checked="task.done" @change="task.done = true">
+                    <span style="color: #333;">{{ task.text }}</span>
+                  </div>
+                </div>
+                <div v-if="!hasAnyTodayTasks" style="color: #aaa; padding: 20px 0; text-align: center;">
+                  &#9632; No tasks for today. Enjoy the day!
+                </div>
+                <!-- Finished -->
+                <div @dragover.prevent @drop="dropTask($event, 'done')"
+                  :style="dragOverGroup === 'done' ? 'background: #f5f5f5;' : ''"
+                  @dragenter.prevent="dragOverGroup = 'done'" @dragleave="dragOverGroup = null"
+                  style="margin-top: 20px; padding-top: 16px; border-top: 2px dashed #e0e0e0; min-height: 40px;">
+                  <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #888;">&#9632; FINISHED ({{ finishedTasks.length }})</div>
+                  <div v-for="(task, i) in finishedTasks" :key="'done-'+i"
+                    draggable="true" @dragstart="dragTask($event, 'done', task)"
+                    style="padding: 6px 12px; display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
+                    :style="draggingTask === task ? 'opacity: 0.4;' : ''">
+                    <input type="checkbox" checked @change="task.done = false">
+                    <span style="color: #aaa;">{{ task.text }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- === WEEK VIEW === -->
+              <div v-if="calendarView === 'week'">
+                <div v-for="wd in weeklyTasks" :key="wd.day" style="margin-bottom: 16px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span class="pixel-font" style="font-size: 0.6rem; min-width: 36px;" :style="wd.isToday ? 'color: #000; font-weight: bold;' : 'color: #888;'">{{ wd.day }}</span>
+                    <span style="font-size: 0.75rem; color: #aaa;">{{ wd.date }}</span>
+                  </div>
+                  <div v-if="wd.tasks.length === 0" style="color: #ccc; font-size: 0.85rem; padding-left: 44px;">--</div>
+                  <div v-for="(task, i) in wd.tasks" :key="i"
+                    style="padding: 6px 12px 6px 44px; display: flex; align-items: center; gap: 8px;">
+                    <span :class="['inline-block px-2 py-0.5 text-xs', priorityClass(task.priority)]" style="font-size: 0.65rem;">{{ task.priority }}</span>
+                    <span :style="task.done ? 'color: #aaa; text-decoration: line-through;' : 'color: #333;'">{{ task.text }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- === MONTH VIEW === -->
+              <div v-if="calendarView === 'month'">
+                <!-- Monthly summary -->
+                <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.total }}</div>
+                    <div style="font-size: 0.75rem; color: #888;">Total Tasks</div>
+                  </div>
+                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.done }}</div>
+                    <div style="font-size: 0.75rem; color: #888;">Completed</div>
+                  </div>
+                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.rate }}%</div>
+                    <div style="font-size: 0.75rem; color: #888;">Completion</div>
+                  </div>
+                </div>
+                <!-- Goals with progress -->
+                <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #000;">&#9632; MONTHLY GOALS</div>
+                <div v-for="(goal, i) in goalsList" :key="'mg-'+i" style="margin-bottom: 14px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="font-size: 0.9rem; color: #333;">{{ goal.name }}</span>
+                    <span style="font-size: 0.8rem; color: #888;">{{ goal.progress }}%</span>
+                  </div>
+                  <div style="width: 100%; height: 8px; background: #eee; border: 1px solid #ddd;">
+                    <div :style="'width:' + goal.progress + '%; height: 100%; background: #000;'"></div>
+                  </div>
+                </div>
+                <div v-if="!goalsList.length" style="color: #aaa; padding: 20px 0; text-align: center;">
+                  &#9632; No goals found
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Calendar Timeline -->
+          <div class="card mb-6">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>&#9654;</span>
+                <h3>Calendar</h3>
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <button v-for="v in ['day','week','month']" :key="v"
+                  @click="switchCalendarView(v)"
+                  :class="['pixel-tab', calendarView === v ? 'active' : '']"
+                  style="padding: 4px 10px; font-size: 0.7rem;">
+                  {{ v.charAt(0).toUpperCase() + v.slice(1) }}
+                </button>
+              </div>
+            </div>
+            <div class="card-body" style="position: relative;">
+              <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 1;">
+                <button @click="calendarNav(-1)" style="background: #fff; border: 1px solid #ccc; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: #666;">&#9664;</button>
+                <button @click="calendarNav(1)" style="background: #fff; border: 1px solid #ccc; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: #666;">&#9654;</button>
+              </div>
+              <div v-if="calendarView === 'day'" style="user-select: none;">
+                <div style="display: flex;">
+                  <!-- Hour labels column -->
+                  <div style="width: 60px; flex-shrink: 0;">
+                    <div v-for="hour in dayHours" :key="hour" :style="'height: ' + PX_PER_HOUR + 'px;'" style="text-align: right; padding-right: 12px; padding-top: 0;">
+                      <span class="pixel-font" style="font-size: 0.45rem; color: #888;">{{ String(hour).padStart(2,'0') }}:00</span>
+                    </div>
+                  </div>
+                  <!-- Timeline interaction area -->
+                  <div data-timeline style="flex: 1; position: relative; border-left: 1px solid #e0e0e0; cursor: crosshair;"
+                    :style="'height: ' + TIMELINE_HEIGHT + 'px;'"
+                    @click.stop
+                    @mousedown="onTimelineMousedown"
+                    @mousemove="onTimelineMousemove"
+                    @mouseup="onTimelineMouseup"
+                    @mouseleave="isDraggingTime = false">
+                    <!-- Hour grid lines -->
+                    <div v-for="hour in dayHours" :key="'line'+hour"
+                      style="position: absolute; left: 0; right: 0; border-top: 1px solid #e8e8e8; pointer-events: none;"
+                      :style="'top: ' + minuteToY(hour * 60) + 'px;'">
+                    </div>
+                    <!-- Half-hour lines -->
+                    <div v-for="hour in dayHours" :key="'half'+hour"
+                      style="position: absolute; left: 0; right: 0; border-top: 1px dotted #f0f0f0; pointer-events: none;"
+                      :style="'top: ' + minuteToY(hour * 60 + 30) + 'px;'">
+                    </div>
+                    <!-- Current time indicator -->
+                    <div v-if="calendarDayOffset === 0"
+                      style="position: absolute; left: 0; right: 0; height: 2px; background: #e00; z-index: 5; pointer-events: none;"
+                      :style="'top: ' + minuteToY(currentHour * 60 + new Date().getMinutes()) + 'px;'">
+                      <div style="position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; background: #e00; border-radius: 50%;"></div>
+                    </div>
+                    <!-- Events -->
+                    <div v-for="(event, ei) in getEventsForDay()" :key="'ev'+ei"
+                      @click.stop="onEventClick(event._ref || event, $event)" @mousedown.stop="onEventMousedown(event._ref || event, $event, ei)"
+                      style="position: absolute; background: #000; color: #fff; padding: 0; font-size: 0.85rem; border-radius: 4px; z-index: 3; overflow: visible; cursor: grab; display: flex; flex-direction: column;"
+                      :style="'top: ' + minuteToY(event.startKey) + 'px; height: ' + Math.max(minuteToY(event.endKey) - minuteToY(event.startKey), 14) + 'px; left: calc(' + (event._col || 0) + ' * (100% - 8px) / ' + (event._totalCols || 1) + ' + 4px); width: calc((100% - 8px) / ' + (event._totalCols || 1) + ' - 2px);'">
+                      <!-- Top resize handle -->
+                      <div @mousedown.stop="onResizeMousedown(event._ref || event, 'top', $event)"
+                        style="position: absolute; top: -2px; left: 0; right: 0; height: 6px; cursor: n-resize; z-index: 4;"></div>
+                      <!-- Event content -->
+                      <div style="padding: 3px 8px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="min-width: 0; overflow: hidden;">
+                          <div style="font-weight: 500; line-height: 1.2; font-size: 0.8rem;">{{ event.title }}</div>
+                          <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 24" style="opacity: 0.6; font-size: 0.65rem; margin-top: 1px;">{{ keyToTime(event.startKey) }} - {{ keyToTime(event.endKey) }}</div>
+                          <div v-if="event.location && minuteToY(event.endKey) - minuteToY(event.startKey) >= 36" style="opacity: 0.5; font-size: 0.6rem; margin-top: 1px; display: flex; align-items: center; gap: 3px;"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5S12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.5"/></svg>{{ event.location }}</div>
+                        </div>
+                        <span @click.stop="removeEvent(event._ref || event)" style="cursor: pointer; opacity: 0.5; font-size: 0.8rem; flex-shrink: 0; margin-left: 4px;">&times;</span>
+                      </div>
+                      <!-- Bottom resize handle -->
+                      <div @mousedown.stop="onResizeMousedown(event._ref || event, 'bottom', $event)"
+                        style="position: absolute; bottom: -2px; left: 0; right: 0; height: 6px; cursor: s-resize; z-index: 4;"></div>
+                    </div>
+                    <!-- Drag selection preview -->
+                    <div v-if="isDraggingTime && dragStartKey !== null"
+                      style="position: absolute; left: 4px; right: 4px; background: rgba(0,0,0,0.08); border: 2px solid #000; border-radius: 4px; z-index: 4; pointer-events: none;"
+                      :style="'top: ' + minuteToY(Math.min(dragStartKey, dragEndKey)) + 'px; height: ' + Math.max(minuteToY(Math.max(dragStartKey, dragEndKey)) - minuteToY(Math.min(dragStartKey, dragEndKey)), 4) + 'px;'">
+                      <div style="position: absolute; bottom: -18px; left: 4px; font-size: 0.65rem; color: #666; white-space: nowrap;">
+                        {{ keyToTime(Math.min(dragStartKey, dragEndKey)) }} - {{ keyToTime(Math.max(dragStartKey, dragEndKey)) }}
+                      </div>
+                    </div>
+                    <!-- Inline add form -->
+                    <div v-if="addingEventStart !== null" @click.stop @mousedown.stop
+                      style="position: absolute; left: 4px; right: 4px; background: #fff; border: 2px solid #000; padding: 12px; border-radius: 6px; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.18);"
+                      :style="'top: ' + minuteToY(addingEventStart) + 'px;'">
+                      <!-- Title -->
+                      <input v-model="newEventTitle" @keyup.enter="confirmAddEvent" @keyup.escape="addingEventStart = null"
+                        placeholder="Add title"
+                        style="width: 100%; border: none; border-bottom: 2px solid #000; padding: 4px 0; font-size: 1rem; font-family: inherit; outline: none; margin-bottom: 10px; font-weight: 500;">
+                      <!-- Time -->
+                      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><circle cx="8" cy="8" r="6.5" stroke="#999" stroke-width="1.2"/><line x1="8" y1="4" x2="8" y2="8" stroke="#999" stroke-width="1.2" stroke-linecap="round"/><line x1="8" y1="8" x2="11" y2="10" stroke="#999" stroke-width="1.2" stroke-linecap="round"/></svg>
+                        <input type="time" v-model="editStartTime"
+                          style="border: 1px solid #ddd; padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px;">
+                        <span style="color: #888;">-</span>
+                        <input type="time" v-model="editEndTime"
+                          style="border: 1px solid #ddd; padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px;">
+                      </div>
+                      <!-- Location -->
+                      <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5S12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" stroke="#999" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="6" r="1.8" stroke="#999" stroke-width="1"/></svg>
+                        <input v-model="newEventLocation" placeholder="Add location"
+                          style="flex: 1; border: 1px solid #ddd; padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px;">
+                      </div>
+                      <!-- Note -->
+                      <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 10px;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0; margin-top: 4px;"><rect x="2" y="1.5" width="12" height="13" rx="1" stroke="#999" stroke-width="1.2"/><line x1="5" y1="5" x2="11" y2="5" stroke="#999" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8" x2="11" y2="8" stroke="#999" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="11" x2="9" y2="11" stroke="#999" stroke-width="1" stroke-linecap="round"/></svg>
+                        <textarea v-model="newEventNote" placeholder="Add note" rows="2"
+                          style="flex: 1; border: 1px solid #ddd; padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; resize: vertical;"></textarea>
+                      </div>
+                      <!-- Actions -->
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <button v-if="editingEvent" @click.stop="removeEvent(editingEvent); editingEvent = null; addingEventStart = null;"
+                          style="background: #fff; color: #c00; border: 1px solid #c00; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Delete</button>
+                        <span v-else></span>
+                        <div style="display: flex; gap: 6px;">
+                          <button @click="editingEvent = null; addingEventStart = null;" style="background: #fff; color: #666; border: 1px solid #ddd; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Cancel</button>
+                          <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" style="background: #000; color: #fff; border: none; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Save</button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div v-else class="text-ink-500 text-sm">&#9608; No active tasks</div>
               </div>
-            </div>
-
-            <!-- Today's Plan -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9830;</span>
-                <h3>Today's Plan</h3>
-              </div>
-              <div class="card-body">
-                <div v-if="todayPlan">
-                  <div class="md-content" v-html="todayPlan.content"></div>
-                </div>
-                <div v-else class="empty-state">
-                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
-                  <p class="text-sm text-ink-500">No plan for today yet</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Learning Log -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9670;</span>
-                <h3>Learning Log</h3>
-              </div>
-              <div class="card-body">
-                <div v-if="data.learning?.length">
-                  <div
-                    v-for="(entry, idx) in data.learning"
-                    :key="entry.filename"
-                    style="border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; margin-bottom: 8px;"
-                    :style="idx === data.learning.length - 1 ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : {}"
-                  >
-                    <div
-                      @click="toggleLearning(entry.filename)"
-                      style="cursor: pointer; display: flex; align-items: center; gap: 8px;"
-                    >
-                      <span style="font-size: 0.7rem; color: #000;">{{ expandedLearning[entry.filename] ? '&#9660;' : '&#9654;' }}</span>
-                      <span style="font-size: 0.75rem; color: #666; min-width: 80px;">{{ entry.meta?.date || '—' }}</span>
-                      <span style="font-size: 0.85rem; color: #000;">{{ entry.meta?.title || entry.filename.replace('.md', '') }}</span>
-                    </div>
-                    <div v-if="expandedLearning[entry.filename]" style="margin-top: 10px; padding-left: 20px;">
-                      <div v-if="entry.meta?.tags?.length" style="margin-bottom: 8px;">
-                        <span
-                          v-for="tag in entry.meta.tags"
-                          :key="tag"
-                          style="display: inline-block; border: 1px solid #000; padding: 1px 6px; margin-right: 4px; font-size: 0.7rem;"
-                        >{{ tag }}</span>
-                      </div>
-                      <div class="md-content text-sm" v-html="entry.content"></div>
+              <!-- Week View -->
+              <div v-if="calendarView === 'week'">
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
+                  <div v-for="(day, i) in weekDays" :key="i"
+                    @click="goToDay(day.date)"
+                    :style="day.isToday ? 'border: 2px solid #000; background: #fafafa;' : 'border: 1px solid #e0e0e0;'"
+                    style="padding: 12px 10px; min-height: 140px; cursor: pointer; transition: background 0.15s;"
+                    onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background=''">
+                    <div class="pixel-font" style="font-size: 0.45rem; color: #888; margin-bottom: 4px;">{{ day.label }}</div>
+                    <div :style="day.isToday ? 'font-weight: bold;' : ''" style="font-size: 1.4rem; margin-bottom: 10px;">{{ day.date }}</div>
+                    <div v-for="event in day.events" :key="event.title"
+                      style="background: #000; color: #fff; padding: 4px 8px; margin-bottom: 4px; font-size: 0.8rem; line-height: 1.3; word-wrap: break-word;">
+                      {{ event.title }}
                     </div>
                   </div>
                 </div>
-                <div v-else class="text-ink-500 text-sm">&#9608; No entries yet</div>
+              </div>
+              <!-- Month View -->
+              <div v-if="calendarView === 'month'">
+                <div class="pixel-font text-center mb-4" style="font-size: 0.65rem;">{{ monthLabel }}</div>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
+                  <div v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d"
+                    class="pixel-font" style="text-align: center; font-size: 0.45rem; color: #888; padding: 6px;">{{ d }}</div>
+                  <div v-for="(cell, i) in monthCells" :key="i"
+                    @click="cell.day ? goToDay(cell.day) : null"
+                    :style="cell.isToday ? 'border: 2px solid #000; background: #fafafa;' : 'border: 1px solid #eee;'"
+                    style="padding: 8px 6px; min-height: 90px; font-size: 0.95rem; cursor: pointer; transition: background 0.15s;"
+                    :class="cell.day ? '' : 'opacity-0 pointer-events-none'"
+                    onmouseover="if(!this.classList.contains('opacity-0'))this.style.background='#f0f0f0'" onmouseout="this.style.background=''">
+                    <div style="margin-bottom: 6px;" :style="cell.isToday ? 'font-weight: bold;' : ''">{{ cell.day || '' }}</div>
+                    <div v-if="cell.events" v-for="event in cell.events.slice(0, 3)" :key="event.title"
+                      style="background: #000; color: #fff; padding: 2px 5px; margin-bottom: 3px; font-size: 0.65rem; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                      {{ event.title }}
+                    </div>
+                    <div v-if="cell.events?.length > 3" style="font-size: 0.6rem; color: #888;">
+                      +{{ cell.events.length - 3 }} more
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Goal Progress -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <span>&#9733;</span>
+              <h3>Goal Progress</h3>
+            </div>
+            <div class="card-body">
+              <div v-for="(goal, i) in goalsList" :key="i" style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-size: 1rem; color: #000;">{{ goal.name }}</span>
+                  <span class="pixel-font" style="font-size: 0.5rem; color: #666;">{{ goal.progress }}%</span>
+                </div>
+                <input type="range" min="0" max="100" :value="goal.progress"
+                  @input="setGoalProgress(goal.name, $event.target.value)"
+                  :style="'width: 100%; height: 12px; -webkit-appearance: none; appearance: none; outline: none; cursor: pointer; border-radius: 0; background: linear-gradient(to right, #000 ' + goal.progress + '%, #e0e0e0 ' + goal.progress + '%);'"
+                  class="goal-slider">
+              </div>
+              <div v-if="!goalsList.length" style="color: #aaa; padding: 20px 0; text-align: center;">
+                &#9632; No goals defined yet. Add them in plan.md
               </div>
             </div>
           </div>
         </section>
 
-        <!-- ========== About Me ========== -->
-        <section v-if="currentPage === 'me'">
+        <!-- ========== Memory ========== -->
+        <section v-if="currentPage === 'memory'">
           <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9829; About Me &#9829; &#9608;
+            &#9608; &#9829; Memory &#9829; &#9608;
           </h2>
 
           <!-- Sub-tabs -->
           <div class="flex gap-2 mb-6 flex-wrap">
             <button
-              v-for="tab in meTabs"
+              v-for="tab in memoryTabs"
               :key="tab.id"
-              @click="meTab = tab.id"
-              :class="['pixel-tab', meTab === tab.id ? 'active' : '']"
+              @click="memoryTab = tab.id"
+              :class="['pixel-tab', memoryTab === tab.id ? 'active' : '']"
             >
               {{ tab.icon }} {{ tab.label }}
             </button>
           </div>
 
           <!-- Identity -->
-          <div v-if="meTab === 'identity'" class="card">
+          <div v-if="memoryTab === 'identity'" class="card">
             <div class="card-body">
               <div class="md-content" v-html="data.me?.identity?.content || emptyHtml"></div>
             </div>
           </div>
 
-          <!-- Goals -->
-          <div v-if="meTab === 'goals'" class="card">
-            <div class="card-body">
-              <div class="md-content" v-html="data.me?.goals?.content || emptyHtml"></div>
-            </div>
-          </div>
-
           <!-- Values -->
-          <div v-if="meTab === 'values'" class="card">
+          <div v-if="memoryTab === 'values'" class="card">
             <div class="card-body">
               <div class="md-content" v-html="data.me?.values?.content || emptyHtml"></div>
             </div>
           </div>
 
           <!-- Learned -->
-          <div v-if="meTab === 'learned'" class="card">
-            <div class="card-body">
-              <div class="md-content" v-html="data.me?.learned?.content || emptyHtml"></div>
+          <div v-if="memoryTab === 'learned'">
+            <div class="card mb-6">
+              <div class="card-body">
+                <div class="md-content" v-html="data.me?.learned?.content || emptyHtml"></div>
+              </div>
+            </div>
+            <!-- Learning Log -->
+            <div v-if="data.learning?.length" class="card">
+              <div class="card-header">
+                <span>&#9670;</span>
+                <h3>Learning Log</h3>
+              </div>
+              <div class="card-body">
+                <div
+                  v-for="(entry, idx) in data.learning"
+                  :key="entry.filename"
+                  style="border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; margin-bottom: 8px;"
+                  :style="idx === data.learning.length - 1 ? { borderBottom: 'none', marginBottom: 0, paddingBottom: 0 } : {}"
+                >
+                  <div
+                    @click="toggleLearning(entry.filename)"
+                    style="cursor: pointer; display: flex; align-items: center; gap: 8px;"
+                  >
+                    <span style="font-size: 0.7rem; color: #000;">{{ expandedLearning[entry.filename] ? '&#9660;' : '&#9654;' }}</span>
+                    <span style="font-size: 0.75rem; color: #666; min-width: 80px;">{{ entry.meta?.date || '—' }}</span>
+                    <span style="font-size: 0.85rem; color: #000;">{{ entry.meta?.title || entry.filename.replace('.md', '') }}</span>
+                  </div>
+                  <div v-if="expandedLearning[entry.filename]" style="margin-top: 10px; padding-left: 20px;">
+                    <div v-if="entry.meta?.tags?.length" style="margin-bottom: 8px;">
+                      <span
+                        v-for="tag in entry.meta.tags"
+                        :key="tag"
+                        style="display: inline-block; border: 1px solid #000; padding: 1px 6px; margin-right: 4px; font-size: 0.7rem;"
+                      >{{ tag }}</span>
+                    </div>
+                    <div class="md-content text-sm" v-html="entry.content"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Evolution Timeline -->
-          <div v-if="meTab === 'evolution'">
+          <div v-if="memoryTab === 'evolution'">
             <div class="card mb-4">
               <div class="card-body">
                 <div class="md-content" v-html="data.me?.evolution?.content || ''"></div>
@@ -898,6 +1115,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Someday / Maybe -->
+          <div v-if="planningTab === 'someday'">
+            <div class="card">
+              <div class="card-header">
+                <span>&#9733;</span>
+                <h3>Someday / Maybe</h3>
+              </div>
+              <div class="card-body">
+                <div class="md-content" v-html="data.tasks?.someday?.content || emptyHtml"></div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- ========== People ========== -->
@@ -957,67 +1187,6 @@
           </div>
         </section>
 
-        <!-- ========== Tasks ========== -->
-        <section v-if="currentPage === 'tasks'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9632; Tasks &#9632; &#9608;
-          </h2>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Active Tasks by Priority -->
-            <div class="card lg:col-span-2">
-              <div class="card-header">
-                <span>&#9733;</span>
-                <h3>Active Tasks</h3>
-              </div>
-              <div class="card-body">
-                <div v-if="hasActiveTasks" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div v-for="(tasks, priority) in data.tasks?.active_tasks" :key="priority" class="priority-panel">
-                    <div class="flex items-center gap-2 mb-3">
-                      <span :class="['inline-block px-2 py-0.5 text-xs', priorityClass(priority)]">
-                        {{ priority }}
-                      </span>
-                      <span class="text-xs text-ink-600">{{ priorityLabel(priority) }}</span>
-                      <span class="text-xs text-ink-500 ml-auto">{{ tasks.length }} items</span>
-                    </div>
-                    <div v-if="tasks.length" class="space-y-2">
-                      <div v-for="(task, i) in tasks" :key="i" class="flex items-start gap-2 py-1.5" :style="i !== tasks.length - 1 ? 'border-bottom: 1px dashed #e0e0e0;' : ''">
-                        <input type="checkbox" :checked="task.done" disabled class="mt-0.5">
-                        <span :class="task.done ? 'line-through text-ink-400' : 'text-black'" class="text-sm">
-                          {{ task.text }}
-                        </span>
-                      </div>
-                    </div>
-                    <div v-else class="text-sm text-ink-500 py-2">&#9608; (empty)</div>
-                  </div>
-                </div>
-                <div v-else class="text-ink-500 text-sm">&#9608; No active tasks</div>
-              </div>
-            </div>
-
-            <!-- Full active.md content -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9654;</span>
-                <h3>active.md Full Text</h3>
-              </div>
-              <div class="card-body">
-                <div class="md-content" v-html="data.tasks?.active?.content || emptyHtml"></div>
-              </div>
-            </div>
-
-            <!-- Someday -->
-            <div class="card">
-              <div class="card-header">
-                <span>&#9733;</span>
-                <h3>Someday / Maybe</h3>
-              </div>
-              <div class="card-body">
-                <div class="md-content" v-html="data.tasks?.someday?.content || emptyHtml"></div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <!-- ========== Decisions ========== -->
         <section v-if="currentPage === 'decisions'">
@@ -1060,148 +1229,21 @@
           </div>
         </section>
 
-        <!-- ========== Finance ========== -->
-        <section v-if="currentPage === 'finance'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9733; Finance &#9733; &#9608;
-          </h2>
-
-          <div v-if="data.finance?.files?.length" class="space-y-6">
-            <div v-for="file in data.finance.files" :key="file.filename" class="card">
-              <div class="card-body">
-                <div class="flex items-center gap-2 mb-3">
-                  <span class="pixel-date">{{ file.filename.replace('.md', '') }}</span>
-                </div>
-                <div class="md-content" v-html="file.content"></div>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="card">
-            <div class="card-body">
-              <div class="empty-state">
-                <div class="icon text-ink-300">&#9733; &#9733; &#9733;</div>
-                <p class="text-sm text-ink-500">No finance records yet</p>
-                <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">02-finance/</code>, e.g. <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">overview.md</code>, <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">budget.md</code></p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ========== Content ========== -->
-        <section v-if="currentPage === 'content'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9654; Content &#9654; &#9608;
-          </h2>
-
-          <!-- Section 1: Brand Overview -->
-          <div class="mb-8">
-            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Brand Matrix</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" v-if="data.content?.platforms?.brands">
-              <div v-for="brand in data.content.platforms.brands" :key="brand.name" class="card">
-                <div class="card-header">
-                  <span class="pixel-font text-xs">{{ brand.name }}</span>
-                </div>
-                <div class="card-body">
-                  <div class="mb-3">
-                    <span class="text-xs text-ink-500">Type:</span>
-                    <span class="text-sm font-bold ml-1">{{ brand.type }}</span>
-                  </div>
-                  <div class="mb-3">
-                    <span class="text-xs text-ink-500 block mb-1.5">Platforms:</span>
-                    <div class="flex flex-wrap gap-1.5">
-                      <span v-for="p in brand.platforms" :key="p"
-                        style="display: inline-block; background: #000; color: #fff; font-size: 10px; padding: 2px 6px; font-family: 'Silkscreen', monospace;">
-                        {{ p }}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span class="text-xs text-ink-500">Strategy:</span>
-                    <p class="text-sm mt-1">{{ brand.strategy }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 2: Platform Accounts -->
-          <div class="mb-8">
-            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Platform Accounts</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" v-if="data.content?.platforms?.accounts">
-              <div v-for="(account, idx) in data.content.platforms.accounts" :key="idx" class="card">
-                <div class="card-header">
-                  <span class="text-xs" style="font-family: 'Silkscreen', monospace;">
-                    &#9632; {{ account.platform }}
-                  </span>
-                </div>
-                <div class="card-body">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-bold">{{ account.name }}</span>
-                    <span v-if="account.status === 'active'"
-                      style="display: inline-block; background: #000; color: #fff; font-size: 10px; padding: 2px 8px; font-family: 'Silkscreen', monospace;">
-                      Active
-                    </span>
-                    <span v-else
-                      style="display: inline-block; background: #aaa; color: #fff; font-size: 10px; padding: 2px 8px; font-family: 'Silkscreen', monospace;">
-                      Planned
-                    </span>
-                  </div>
-                  <div v-if="account.brand" class="mb-1">
-                    <span class="text-xs text-ink-500">Brand:</span>
-                    <span class="text-xs ml-1">{{ account.brand }}</span>
-                  </div>
-                  <div v-if="account.content" class="mb-1">
-                    <span class="text-xs text-ink-500">Content:</span>
-                    <span class="text-xs ml-1">{{ account.content }}</span>
-                  </div>
-                  <div v-if="account.followers" class="mb-1">
-                    <span class="text-xs text-ink-500">Followers:</span>
-                    <span class="text-xs ml-1 font-bold">{{ account.followers }}</span>
-                  </div>
-                  <div v-if="account.target" class="mb-1">
-                    <span class="text-xs text-ink-500">Target cadence:</span>
-                    <span class="text-xs ml-1">{{ account.target }}</span>
-                  </div>
-                  <div v-if="account.device" class="mb-1">
-                    <span class="text-xs text-ink-500">Device:</span>
-                    <span class="text-xs ml-1">{{ account.device }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 3: Strategy Summary -->
-          <div class="mb-8" v-if="data.content?.strategy">
-            <h3 class="pixel-font text-black text-xs mb-4">&#9632; Strategy Summary</h3>
-            <div class="card">
-              <div class="card-header">
-                <span class="pixel-font text-xs">Content Strategy</span>
-              </div>
-              <div class="card-body">
-                <div class="md-content" v-html="data.content.strategy.content || ''"></div>
-              </div>
-            </div>
-          </div>
-
-        </section>
-
       </div>
     </main>
   </div>
 
   <script>
-    const { createApp, ref, reactive, computed, onMounted } = Vue;
+    const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
     createApp({
       setup() {
         const data = ref(null);
         const loading = ref(true);
         const error = ref(null);
-        const currentPage = ref('dashboard');
+        const currentPage = ref('today');
         const sidebarOpen = ref(false);
-        const meTab = ref('identity');
+        const memoryTab = ref('identity');
         const planningTab = ref('daily');
 
         const emptyHtml = '<p style="color: #aaaaaa;">\u25A0 No data</p>';
@@ -1222,20 +1264,22 @@
           return data.value?.config?.username || 'User';
         });
 
+        const calendarView = ref('day');
+        const calendarDayOffset = ref(0);
+        const calendarWeekOffset = ref(0);
+        const calendarMonthOffset = ref(0);
+        const calendarScrollRef = ref(null);
+
         const navItems = [
-          { id: 'dashboard', label: 'Overview',  icon: '\u2605' },
-          { id: 'me',        label: 'About Me',  icon: '\u2665' },
+          { id: 'today',     label: 'Today',     icon: '\u2600' },
+          { id: 'memory',    label: 'Memory',    icon: '\u2665' },
           { id: 'planning',  label: 'Planning',  icon: '\u25C6' },
           { id: 'people',    label: 'People',    icon: '\u2665' },
-          { id: 'tasks',     label: 'Tasks',     icon: '\u25A0' },
           { id: 'decisions', label: 'Decisions', icon: '\u25C6' },
-          { id: 'finance',   label: 'Finance',   icon: '\u2605' },
-          { id: 'content',   label: 'Content',   icon: '\u25BA' },
         ];
 
-        const meTabs = [
+        const memoryTabs = [
           { id: 'identity',  label: 'Identity',  icon: '\u25BA' },
-          { id: 'goals',     label: 'Goals',     icon: '\u2605' },
           { id: 'values',    label: 'Values',    icon: '\u25C6' },
           { id: 'learned',   label: 'Learned',   icon: '\u25A0' },
           { id: 'evolution', label: 'Growth',    icon: '\u2665' },
@@ -1246,6 +1290,7 @@
           { id: 'monthly',   label: 'Monthly',   icon: '\u25C6' },
           { id: 'quarterly', label: 'Quarterly', icon: '\u2605' },
           { id: 'reviews',   label: 'Reviews',   icon: '\u25A0' },
+          { id: 'someday',   label: 'Someday',   icon: '\u2733' },
         ];
 
         const currentNavItem = computed(() => {
@@ -1311,6 +1356,640 @@
           return name.charAt(0).toUpperCase();
         }
 
+        // Today page computed
+        const greeting = computed(() => {
+          const h = now.value.getHours();
+          if (h < 6) return 'Night owl mode';
+          if (h < 12) return 'Good morning';
+          if (h < 18) return 'Good afternoon';
+          return 'Good evening';
+        });
+
+        const currentHour = computed(() => now.value.getHours());
+
+        const dayHours = computed(() => {
+          const hours = [];
+          for (let i = START_HOUR; i <= END_HOUR; i++) hours.push(i);
+          return hours;
+        });
+
+        function formatTime(h, m) {
+          return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        }
+
+        const START_HOUR = 0;
+        const END_HOUR = 23;
+        const PX_PER_HOUR = 40;
+        const SNAP_MINUTES = 15;
+        const PX_PER_MIN = PX_PER_HOUR / 60; // 0.8
+        const TIMELINE_HEIGHT = (END_HOUR - START_HOUR + 1) * PX_PER_HOUR;
+
+        function yToMinute(y) {
+          const raw = Math.round(y / PX_PER_MIN + START_HOUR * 60);
+          return Math.round(raw / SNAP_MINUTES) * SNAP_MINUTES;
+        }
+
+        function minuteToY(min) {
+          return (min - START_HOUR * 60) * PX_PER_MIN;
+        }
+
+        const todayP0Tasks = computed(() => {
+          return data.value?.tasks?.active_tasks?.P0?.filter(t => !t.done) || [];
+        });
+
+        function todayPriorityTasks(p) {
+          return data.value?.tasks?.active_tasks?.[p]?.filter(t => !t.done) || [];
+        }
+
+        function undoneTasks(p) {
+          return data.value?.tasks?.active_tasks?.[p]?.filter(t => !t.done) || [];
+        }
+
+        const finishedTasks = computed(() => {
+          const at = data.value?.tasks?.active_tasks;
+          if (!at) return [];
+          const done = [];
+          ['P0','P1','P2','P3'].forEach(p => {
+            (at[p] || []).forEach(t => { if (t.done) done.push(t); });
+          });
+          return done;
+        });
+
+        const hasAnyTodayTasks = computed(() => {
+          const at = data.value?.tasks?.active_tasks;
+          if (!at) return false;
+          return ['P0','P1'].some(p => at[p]?.some(t => !t.done));
+        });
+
+        // --- Calendar add event (pixel-based drag, minute precision) ---
+        const addingEventStart = ref(null); // minutes since midnight
+        const addingEventEnd = ref(null);
+        const newEventTitle = ref('');
+        const newEventLocation = ref('');
+        const newEventNote = ref('');
+        const isDraggingTime = ref(false);
+        const dragStartKey = ref(null);
+        const dragEndKey = ref(null);
+        const addingEventHour = computed(() => addingEventStart.value !== null ? Math.floor(addingEventStart.value / 60) : null);
+
+        function onTimelineMousedown(e) {
+          if (e.button !== 0) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const y = e.clientY - rect.top;
+          const minute = yToMinute(y);
+          isDraggingTime.value = true;
+          dragStartKey.value = minute;
+          dragEndKey.value = minute;
+          addingEventStart.value = null;
+        }
+
+        function onTimelineMousemove(e) {
+          if (!isDraggingTime.value) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const y = e.clientY - rect.top;
+          dragEndKey.value = yToMinute(y);
+        }
+
+        function onTimelineMouseup(e) {
+          if (!isDraggingTime.value) return;
+          isDraggingTime.value = false;
+          const start = Math.min(dragStartKey.value, dragEndKey.value);
+          let end = Math.max(dragStartKey.value, dragEndKey.value);
+          if (end === start) end = start + 30; // single click = 30min event
+          addingEventStart.value = start;
+          addingEventEnd.value = end;
+          newEventTitle.value = '';
+          newEventLocation.value = '';
+          newEventNote.value = '';
+          editingEvent.value = null;
+          dragStartKey.value = null;
+          dragEndKey.value = null;
+          setTimeout(() => {
+            const input = document.querySelector('input[placeholder="Add title"]');
+            if (input) input.focus();
+          }, 50);
+        }
+
+        function confirmAddEvent() {
+          if (!newEventTitle.value.trim()) return;
+          const key = dateToKey(viewingDate.value);
+          if (!calendarEvents[key]) calendarEvents[key] = [];
+          const ev = {
+            title: newEventTitle.value.trim(),
+            startKey: addingEventStart.value,
+            endKey: addingEventEnd.value,
+            hour: Math.floor(addingEventStart.value / 60),
+          };
+          if (newEventLocation.value.trim()) ev.location = newEventLocation.value.trim();
+          if (newEventNote.value.trim()) ev.note = newEventNote.value.trim();
+          calendarEvents[key].push(ev);
+          calendarEvents[key] = [...calendarEvents[key]];
+          newEventTitle.value = '';
+          newEventLocation.value = '';
+          newEventNote.value = '';
+          addingEventStart.value = null;
+          addingEventEnd.value = null;
+        }
+
+        function keyToTime(key) {
+          return formatTime(Math.floor(key / 60), key % 60);
+        }
+
+        const editStartTime = computed({
+          get: () => addingEventStart.value !== null ? keyToTime(addingEventStart.value) : '',
+          set: (val) => {
+            const [h, m] = val.split(':').map(Number);
+            if (!isNaN(h) && !isNaN(m)) addingEventStart.value = h * 60 + m;
+          }
+        });
+
+        const editEndTime = computed({
+          get: () => addingEventEnd.value !== null ? keyToTime(addingEventEnd.value) : '',
+          set: (val) => {
+            const [h, m] = val.split(':').map(Number);
+            if (!isNaN(h) && !isNaN(m)) addingEventEnd.value = h * 60 + m;
+          }
+        });
+
+        function removeEvent(eventObj) {
+          const key = dateToKey(viewingDate.value);
+          const dayEvents = calendarEvents[key];
+          if (!dayEvents) return;
+          const idx = dayEvents.indexOf(eventObj);
+          if (idx > -1) {
+            dayEvents.splice(idx, 1);
+            calendarEvents[key] = [...dayEvents];
+          }
+        }
+
+        const editingEvent = ref(null);
+
+        function startEditEvent(event) {
+          editingEvent.value = event;
+          addingEventStart.value = event.startKey;
+          addingEventEnd.value = event.endKey;
+          newEventTitle.value = event.title;
+          newEventLocation.value = event.location || '';
+          newEventNote.value = event.note || '';
+          setTimeout(() => {
+            const input = document.querySelector('input[placeholder="Add title"]');
+            if (input) input.focus();
+          }, 50);
+        }
+
+        function saveEditEvent() {
+          if (!newEventTitle.value.trim()) return;
+          const ev = editingEvent.value;
+          if (ev) {
+            ev.title = newEventTitle.value.trim();
+            ev.startKey = addingEventStart.value;
+            ev.endKey = addingEventEnd.value;
+            ev.hour = Math.floor(addingEventStart.value / 60);
+            ev.location = newEventLocation.value.trim() || undefined;
+            ev.note = newEventNote.value.trim() || undefined;
+            // trigger reactivity
+            const key = dateToKey(viewingDate.value);
+            if (calendarEvents[key]) calendarEvents[key] = [...calendarEvents[key]];
+          }
+          editingEvent.value = null;
+          newEventTitle.value = '';
+          newEventLocation.value = '';
+          newEventNote.value = '';
+          addingEventStart.value = null;
+          addingEventEnd.value = null;
+        }
+
+        // --- Event move & resize ---
+        const eventDragState = ref(null); // { event, mode: 'move'|'resize-top'|'resize-bottom', startY, origStart, origEnd }
+
+        function onEventMousedown(event, e, ei) {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          const timeline = e.target.closest('[data-timeline]') || e.currentTarget.parentElement;
+          const rect = timeline.getBoundingClientRect();
+          eventDragState.value = {
+            event,
+            mode: 'move',
+            startY: e.clientY,
+            origStart: event.startKey,
+            origEnd: event.endKey,
+            timelineTop: rect.top,
+          };
+          document.addEventListener('mousemove', onEventDragMove);
+          document.addEventListener('mouseup', onEventDragEnd);
+        }
+
+        function onResizeMousedown(event, edge, e) {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          const timeline = e.target.closest('[data-timeline]') || e.currentTarget.parentElement.parentElement;
+          const rect = timeline.getBoundingClientRect();
+          eventDragState.value = {
+            event,
+            mode: 'resize-' + edge,
+            startY: e.clientY,
+            origStart: event.startKey,
+            origEnd: event.endKey,
+            timelineTop: rect.top,
+          };
+          document.addEventListener('mousemove', onEventDragMove);
+          document.addEventListener('mouseup', onEventDragEnd);
+        }
+
+        let eventDragMoved = false;
+
+        function onEventDragMove(e) {
+          const s = eventDragState.value;
+          if (!s) return;
+          eventDragMoved = true;
+          const deltaMin = Math.round((e.clientY - s.startY) / PX_PER_MIN);
+          const snappedDelta = Math.round(deltaMin / SNAP_MINUTES) * SNAP_MINUTES;
+
+          if (s.mode === 'move') {
+            const duration = s.origEnd - s.origStart;
+            let newStart = s.origStart + snappedDelta;
+            newStart = Math.max(START_HOUR * 60, Math.min(newStart, (END_HOUR + 1) * 60 - duration));
+            s.event.startKey = newStart;
+            s.event.endKey = newStart + duration;
+            s.event.hour = Math.floor(newStart / 60);
+          } else if (s.mode === 'resize-top') {
+            let newStart = s.origStart + snappedDelta;
+            newStart = Math.max(START_HOUR * 60, Math.min(newStart, s.origEnd - SNAP_MINUTES));
+            s.event.startKey = newStart;
+            s.event.hour = Math.floor(newStart / 60);
+          } else if (s.mode === 'resize-bottom') {
+            let newEnd = s.origEnd + snappedDelta;
+            newEnd = Math.max(s.origStart + SNAP_MINUTES, Math.min(newEnd, (END_HOUR + 1) * 60));
+            s.event.endKey = newEnd;
+          }
+          // trigger reactivity
+          const key = dateToKey(viewingDate.value);
+          if (calendarEvents[key]) calendarEvents[key] = [...calendarEvents[key]];
+        }
+
+        function onEventDragEnd(e) {
+          document.removeEventListener('mousemove', onEventDragMove);
+          document.removeEventListener('mouseup', onEventDragEnd);
+          eventDragState.value = null;
+          // Reset after a tick so click handler can check
+          setTimeout(() => { eventDragMoved = false; }, 0);
+        }
+
+        function onEventClick(event, e) {
+          // Only open edit if user didn't drag
+          if (!eventDragMoved) {
+            startEditEvent(event);
+          }
+        }
+
+        // --- Task drag and drop ---
+        const draggingTask = ref(null);
+        const draggingFrom = ref(null);
+        const dragOverGroup = ref(null);
+
+        function dragTask(event, fromGroup, task) {
+          draggingTask.value = task;
+          draggingFrom.value = fromGroup;
+          event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dropTask(event, toGroup) {
+          dragOverGroup.value = null;
+          const task = draggingTask.value;
+          const from = draggingFrom.value;
+          if (!task || !from) return;
+
+          const at = data.value?.tasks?.active_tasks;
+          if (!at) return;
+
+          // Remove from source
+          if (from === 'done') {
+            // Find which priority array it's in
+            ['P0','P1','P2','P3'].forEach(p => {
+              const arr = at[p] || [];
+              const idx = arr.indexOf(task);
+              if (idx > -1) {
+                // It's still in the array, just marked done
+              }
+            });
+          }
+
+          // Handle moving
+          if (toGroup === 'done') {
+            task.done = true;
+          } else {
+            // Move between priority groups
+            if (from !== 'done' && from !== toGroup) {
+              const srcArr = at[from];
+              const idx = srcArr.indexOf(task);
+              if (idx > -1) srcArr.splice(idx, 1);
+              if (!at[toGroup]) at[toGroup] = [];
+              at[toGroup].push(task);
+            } else if (from === 'done') {
+              task.done = false;
+              // Find current array and move
+              let found = false;
+              ['P0','P1','P2','P3'].forEach(p => {
+                const arr = at[p] || [];
+                const idx = arr.indexOf(task);
+                if (idx > -1 && p !== toGroup) {
+                  arr.splice(idx, 1);
+                  if (!at[toGroup]) at[toGroup] = [];
+                  at[toGroup].push(task);
+                  found = true;
+                } else if (idx > -1 && p === toGroup) {
+                  found = true;
+                }
+              });
+            }
+          }
+
+          draggingTask.value = null;
+          draggingFrom.value = null;
+        }
+
+        // --- localStorage persistence ---
+        const STORAGE_KEYS = {
+          calendarEvents: 'loci_calendar_events',
+          goalProgresses: 'loci_goal_progresses',
+          taskDoneStates: 'loci_task_done_states',
+        };
+
+        function saveToStorage(key, data) {
+          try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) {}
+        }
+
+        function loadFromStorage(key) {
+          try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : null; } catch(e) { return null; }
+        }
+
+        // --- Date key helper (YYYY-MM-DD) ---
+        function dateToKey(date) {
+          const y = date.getFullYear();
+          const m = String(date.getMonth() + 1).padStart(2, '0');
+          const d = String(date.getDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        }
+
+        // Mock calendar events for demo (using YYYY-MM-DD keys)
+        const _now = new Date();
+        const _y = _now.getFullYear();
+        const _m = String(_now.getMonth() + 1).padStart(2, '0');
+        function _dk(day) { return `${_y}-${_m}-${String(day).padStart(2, '0')}`; }
+        const calendarEvents = reactive({
+          [_dk(8)]:  [{ title: 'Deep work: TechCorp handoff', hour: 8, startKey: 480, endKey: 600 }, { title: 'Review Sarah email', hour: 10, startKey: 600, endKey: 660 }, { title: 'Gym - upper body', hour: 18, startKey: 1080, endKey: 1140, location: 'Anytime Fitness CBD' }],
+          [_dk(9)]:  [{ title: 'Marcus call - Bloom wireframes', hour: 9, startKey: 540, endKey: 600, note: 'Discuss v2 layout changes' }, { title: 'TaskFlow landing page', hour: 14, startKey: 840, endKey: 960 }, { title: 'Rust ch.6 study', hour: 20, startKey: 1200, endKey: 1290, location: 'Home office' }],
+          [_dk(10)]: [{ title: 'TechCorp final review', hour: 10, startKey: 600, endKey: 720, location: 'Zoom' }, { title: 'Portfolio update', hour: 14, startKey: 840, endKey: 900 }],
+          [_dk(11)]: [{ title: 'Client prospect research', hour: 9, startKey: 540, endKey: 630 }, { title: 'Blog post draft', hour: 13, startKey: 780, endKey: 900 }, { title: 'Run - 5K', hour: 17, startKey: 1020, endKey: 1080 }],
+          [_dk(12)]: [{ title: 'Bloom wireframes v2', hour: 10, startKey: 600, endKey: 720 }, { title: 'TaskFlow auth fix', hour: 14, startKey: 840, endKey: 930 }, { title: 'Dinner with Jake', hour: 19, startKey: 1140, endKey: 1260 }],
+          [_dk(13)]: [{ title: 'Cold emails to agencies', hour: 9, startKey: 540, endKey: 600 }, { title: 'TaskFlow board UI', hour: 13, startKey: 780, endKey: 900 }, { title: 'Yoga class', hour: 18, startKey: 1080, endKey: 1140 }],
+          [_dk(14)]: [{ title: 'Figma files cleanup', hour: 10, startKey: 600, endKey: 660 }, { title: 'Blog: Rust post editing', hour: 14, startKey: 840, endKey: 960 }],
+          [_dk(15)]: [{ title: 'TechCorp delivery due!', hour: 9, startKey: 540, endKey: 660 }, { title: 'Sarah handoff meeting', hour: 11, startKey: 660, endKey: 720 }, { title: 'Celebrate - dinner out', hour: 19, startKey: 1140, endKey: 1260 }],
+          [_dk(17)]: [{ title: 'TaskFlow sprint planning', hour: 9, startKey: 540, endKey: 630 }, { title: 'Bloom feedback review', hour: 14, startKey: 840, endKey: 900 }, { title: 'Gym - leg day', hour: 17, startKey: 1020, endKey: 1080 }],
+          [_dk(20)]: [{ title: 'Bloom wireframes due!', hour: 9, startKey: 540, endKey: 660 }, { title: 'Marcus presentation', hour: 11, startKey: 660, endKey: 750 }, { title: 'Invoice clients', hour: 15, startKey: 900, endKey: 960 }],
+          [_dk(22)]: [{ title: 'Blog post publish day', hour: 10, startKey: 600, endKey: 660 }, { title: 'TaskFlow testing', hour: 14, startKey: 840, endKey: 960 }, { title: 'Half-marathon training', hour: 17, startKey: 1020, endKey: 1110 }],
+          [_dk(25)]: [{ title: 'Q1 review prep', hour: 9, startKey: 540, endKey: 660 }, { title: 'Design system docs', hour: 13, startKey: 780, endKey: 900 }, { title: 'Coffee with new prospect', hour: 16, startKey: 960, endKey: 1020 }],
+          [_dk(28)]: [{ title: 'Month-end review', hour: 10, startKey: 600, endKey: 720 }, { title: 'April planning', hour: 14, startKey: 840, endKey: 960 }, { title: 'Dinner with college friends', hour: 19, startKey: 1140, endKey: 1260 }],
+        });
+
+        const viewingDate = computed(() => {
+          const d = new Date(now.value);
+          d.setDate(d.getDate() + calendarDayOffset.value);
+          return d;
+        });
+
+        const viewingDayLabel = computed(() => {
+          const d = viewingDate.value;
+          const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        });
+
+        function goToDay(dayNum) {
+          const today = new Date();
+          calendarDayOffset.value = dayNum - today.getDate();
+          calendarView.value = 'day';
+        }
+
+        function switchCalendarView(v) {
+          if (v === 'day') calendarDayOffset.value = 0;
+          if (v === 'week') calendarWeekOffset.value = 0;
+          if (v === 'month') calendarMonthOffset.value = 0;
+          calendarView.value = v;
+        }
+
+        function calendarNav(dir) {
+          if (calendarView.value === 'day') calendarDayOffset.value += dir;
+          else if (calendarView.value === 'week') calendarWeekOffset.value += dir;
+          else if (calendarView.value === 'month') calendarMonthOffset.value += dir;
+        }
+
+        function getEventsForDay() {
+          const key = dateToKey(viewingDate.value);
+          const events = calendarEvents[key] || [];
+          if (events.length === 0) return [];
+
+          // Sort by start time, then by duration (longer first)
+          const sorted = [...events].sort((a, b) => a.startKey - b.startKey || (b.endKey - b.startKey) - (a.endKey - a.startKey));
+
+          // Assign columns using a greedy algorithm
+          const columns = []; // each column tracks its last endKey
+          const layout = new Map();
+
+          for (const ev of sorted) {
+            let placed = false;
+            for (let c = 0; c < columns.length; c++) {
+              if (columns[c] <= ev.startKey) {
+                columns[c] = ev.endKey;
+                layout.set(ev, { col: c });
+                placed = true;
+                break;
+              }
+            }
+            if (!placed) {
+              layout.set(ev, { col: columns.length });
+              columns.push(ev.endKey);
+            }
+          }
+
+          const totalCols = columns.length;
+
+          // Compute per-event group width (events that actually overlap share columns)
+          // For simplicity, use the max columns visible at any point overlapping with this event
+          for (const ev of sorted) {
+            let maxCols = 0;
+            for (const other of sorted) {
+              if (other.startKey < ev.endKey && other.endKey > ev.startKey) {
+                const otherCol = layout.get(other).col;
+                if (otherCol + 1 > maxCols) maxCols = otherCol + 1;
+              }
+            }
+            layout.get(ev).totalCols = Math.max(maxCols, 1);
+          }
+
+          return sorted.map(ev => {
+            const l = layout.get(ev);
+            return { ...ev, _col: l.col, _totalCols: l.totalCols, _ref: ev };
+          });
+        }
+
+        function getEventsForHour(hour) {
+          return getEventsForDay().filter(e => e.hour === hour);
+        }
+
+        // Week view
+        const weekDays = computed(() => {
+          const today = new Date();
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay() + calendarWeekOffset.value * 7);
+          const days = [];
+          const labels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(startOfWeek);
+            d.setDate(startOfWeek.getDate() + i);
+            const key = dateToKey(d);
+            days.push({
+              label: labels[i],
+              date: d.getDate(),
+              isToday: d.toDateString() === today.toDateString(),
+              events: calendarEvents[key] || [],
+            });
+          }
+          return days;
+        });
+
+        const viewingWeekLabel = computed(() => {
+          const today = new Date();
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay() + calendarWeekOffset.value * 7);
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          return `${months[startOfWeek.getMonth()]} ${startOfWeek.getDate()} - ${months[endOfWeek.getMonth()]} ${endOfWeek.getDate()}, ${endOfWeek.getFullYear()}`;
+        });
+
+        // Month view
+        const viewingMonth = computed(() => {
+          const d = new Date(now.value);
+          d.setMonth(d.getMonth() + calendarMonthOffset.value);
+          return d;
+        });
+
+        const monthLabel = computed(() => {
+          const d = viewingMonth.value;
+          const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          return months[d.getMonth()] + ' ' + d.getFullYear();
+        });
+
+        const monthCells = computed(() => {
+          const d = viewingMonth.value;
+          const year = d.getFullYear();
+          const month = d.getMonth();
+          const firstDay = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const today = now.value.getDate();
+          const isCurrentMonth = now.value.getMonth() === month && now.value.getFullYear() === year;
+          const cells = [];
+          for (let i = 0; i < firstDay; i++) cells.push({ day: 0, isToday: false, events: [] });
+          for (let i = 1; i <= daysInMonth; i++) {
+            const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            cells.push({ day: i, isToday: isCurrentMonth && i === today, events: calendarEvents[key] || [] });
+          }
+          return cells;
+        });
+
+        // Goals from plan.md - parse goal headings
+        const goalProgresses = reactive({});
+        const goalsList = computed(() => {
+          const content = data.value?.plan?.content || '';
+          const goals = [];
+          const regex = /Goal \d+[:\s]*([^<]+)/g;
+          const defaults = [15, 30, 25, 20, 10];
+          let match;
+          let idx = 0;
+          while ((match = regex.exec(content)) !== null) {
+            const name = match[1].trim();
+            if (!(name in goalProgresses)) goalProgresses[name] = defaults[idx] || 15;
+            goals.push({ name, progress: goalProgresses[name] });
+            idx++;
+          }
+          return goals;
+        });
+
+        function setGoalProgress(name, val) {
+          goalProgresses[name] = Number(val);
+        }
+
+        // --- Task section reactive to calendar view ---
+        const taskSectionTitle = computed(() => {
+          if (calendarView.value === 'week') return "This Week's Plan";
+          if (calendarView.value === 'month') return "This Month's Plan";
+          return "Today's Tasks";
+        });
+
+        const weeklyTasks = computed(() => {
+          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const today = new Date();
+          const dayOfWeek = today.getDay();
+          const monday = new Date(today);
+          monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7) + (calendarWeekOffset.value * 7));
+
+          const at = data.value?.tasks?.active_tasks || {};
+          const allTasks = [];
+          for (const p of ['P0', 'P1', 'P2']) {
+            (at[p] || []).forEach(t => allTasks.push({ ...t, priority: p }));
+          }
+
+          const result = [];
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const dayLabel = dayNames[d.getDay()];
+            const dateStr = (d.getMonth() + 1) + '/' + d.getDate();
+            const isToday = d.toDateString() === new Date().toDateString();
+
+            // Distribute tasks across the week as mock data
+            const dayTasks = allTasks.filter((_, idx) => idx % 7 === i).map(t => ({
+              text: t.text,
+              priority: t.priority,
+              done: t.done || false
+            }));
+
+            result.push({ day: dayLabel, date: dateStr, isToday, tasks: dayTasks });
+          }
+          return result;
+        });
+
+        const monthlyTaskSummary = computed(() => {
+          const at = data.value?.tasks?.active_tasks || {};
+          let total = 0, done = 0;
+          for (const p of ['P0', 'P1', 'P2']) {
+            const tasks = at[p] || [];
+            total += tasks.length;
+            done += tasks.filter(t => t.done).length;
+          }
+          const finished = data.value?.tasks?.finished || [];
+          total += finished.length;
+          done += finished.length;
+          const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+          return { total, done, rate };
+        });
+
+        // --- Quick-add task ---
+        const showAddTask = ref(false);
+        const newTaskText = ref('');
+        const newTaskPriority = ref('P0');
+
+        function addNewTask() {
+          if (!newTaskText.value.trim()) return;
+          const at = data.value?.tasks?.active_tasks;
+          if (!at) return;
+          if (!at[newTaskPriority.value]) at[newTaskPriority.value] = [];
+          at[newTaskPriority.value].push({ text: newTaskText.value.trim(), done: false });
+          newTaskText.value = '';
+          showAddTask.value = false;
+        }
+
         onMounted(async () => {
           try {
             const res = await fetch('data.json');
@@ -1322,19 +2001,180 @@
           } finally {
             loading.value = false;
           }
+
+          // Close event form when clicking outside
+          document.addEventListener('click', (e) => {
+            if (addingEventStart.value !== null) {
+              addingEventStart.value = null;
+              editingEvent.value = null;
+            }
+          });
+
+          // === Loci API: programmatic interface for AI agents ===
+          window.lociAPI = {
+            // --- Tasks ---
+            toggleTask(priority, index, done) {
+              const tasks = data.value?.tasks?.active_tasks?.[priority];
+              if (tasks && tasks[index]) tasks[index].done = done !== undefined ? done : !tasks[index].done;
+            },
+            moveTask(fromPriority, index, toPriority) {
+              const at = data.value?.tasks?.active_tasks;
+              if (!at) return;
+              const src = at[fromPriority];
+              if (!src || !src[index]) return;
+              const task = src.splice(index, 1)[0];
+              if (!at[toPriority]) at[toPriority] = [];
+              at[toPriority].push(task);
+            },
+            addTask(priority, text) {
+              const at = data.value?.tasks?.active_tasks;
+              if (!at) return;
+              if (!at[priority]) at[priority] = [];
+              at[priority].push({ text, done: false });
+            },
+
+            // --- Calendar Events (dateStr = 'YYYY-MM-DD') ---
+            addEvent(dateStr, title, startMin, endMin, location, note) {
+              if (!calendarEvents[dateStr]) calendarEvents[dateStr] = [];
+              const ev = { title, startKey: startMin, endKey: endMin, hour: Math.floor(startMin / 60) };
+              if (location) ev.location = location;
+              if (note) ev.note = note;
+              calendarEvents[dateStr].push(ev);
+              calendarEvents[dateStr] = [...calendarEvents[dateStr]];
+            },
+            removeEventByIndex(dateStr, index) {
+              if (!calendarEvents[dateStr]) return;
+              calendarEvents[dateStr].splice(index, 1);
+              calendarEvents[dateStr] = [...calendarEvents[dateStr]];
+            },
+            getEvents(dateStr) {
+              return calendarEvents[dateStr] || [];
+            },
+
+            // --- Goals ---
+            setGoalProgress(name, val) {
+              goalProgresses[name] = Number(val);
+            },
+            getGoals() {
+              return goalsList.value;
+            },
+
+            // --- Navigation ---
+            navigateTo(page) { currentPage.value = page; },
+            switchCalendarView(v) { switchCalendarView(v); },
+            calendarNav(dir) { calendarNav(dir); },
+            goToDay(day) { goToDay(day); },
+
+            // --- Data Access ---
+            getData() { return data.value; },
+            getCalendarEvents() { return { ...calendarEvents }; },
+
+            // --- Context ---
+            getCurrentContext() {
+              const at = data.value?.tasks?.active_tasks || {};
+              let total = 0, done = 0;
+              Object.values(at).forEach(arr => {
+                if (Array.isArray(arr)) {
+                  total += arr.length;
+                  done += arr.filter(t => t.done).length;
+                }
+              });
+              return {
+                page: currentPage.value,
+                calendarView: calendarView.value,
+                viewingDate: dateToKey(viewingDate.value),
+                taskCounts: { total, done },
+              };
+            },
+
+            // --- State change listeners ---
+            _listeners: [],
+            onStateChange(callback) {
+              this._listeners.push(callback);
+              return () => { this._listeners = this._listeners.filter(l => l !== callback); };
+            },
+            _notifyListeners(event) {
+              this._listeners.forEach(cb => { try { cb(event); } catch(e) {} });
+            },
+          };
+
+          // --- Restore persisted state from localStorage ---
+          const savedEvents = loadFromStorage(STORAGE_KEYS.calendarEvents);
+          if (savedEvents) Object.assign(calendarEvents, savedEvents);
+
+          const savedGoals = loadFromStorage(STORAGE_KEYS.goalProgresses);
+          if (savedGoals) Object.assign(goalProgresses, savedGoals);
+
+          const savedDone = loadFromStorage(STORAGE_KEYS.taskDoneStates);
+          if (savedDone && data.value?.tasks?.active_tasks) {
+            const at = data.value.tasks.active_tasks;
+            Object.keys(savedDone).forEach(p => {
+              if (at[p]) at[p].forEach((t, i) => {
+                if (savedDone[p]?.[i] !== undefined) t.done = savedDone[p][i];
+              });
+            });
+          }
+
+          // --- Auto-save watchers (debounced) ---
+          let _saveTimer = null;
+          function debouncedSave(key, getData) {
+            clearTimeout(_saveTimer);
+            _saveTimer = setTimeout(() => { saveToStorage(key, getData()); }, 300);
+          }
+
+          watch(() => ({ ...calendarEvents }), (val) => {
+            saveToStorage(STORAGE_KEYS.calendarEvents, val);
+            if (window.lociAPI) window.lociAPI._notifyListeners({ type: 'calendarEvents', data: val });
+          }, { deep: true });
+
+          watch(goalProgresses, (val) => {
+            saveToStorage(STORAGE_KEYS.goalProgresses, { ...val });
+            if (window.lociAPI) window.lociAPI._notifyListeners({ type: 'goalProgresses', data: { ...val } });
+          }, { deep: true });
+
+          // Watch task done states
+          watch(() => {
+            const at = data.value?.tasks?.active_tasks;
+            if (!at) return null;
+            const states = {};
+            Object.keys(at).forEach(p => {
+              states[p] = (at[p] || []).map(t => !!t.done);
+            });
+            return states;
+          }, (val) => {
+            if (val) {
+              saveToStorage(STORAGE_KEYS.taskDoneStates, val);
+              if (window.lociAPI) window.lociAPI._notifyListeners({ type: 'taskDoneStates', data: val });
+            }
+          }, { deep: true });
         });
 
         return {
           data, loading, error,
           currentPage, sidebarOpen,
-          meTab, planningTab,
+          memoryTab, planningTab,
           emptyHtml,
           dashboardTitle, username,
-          navItems, meTabs, planningTabs,
+          navItems, memoryTabs, planningTabs,
           currentNavItem, hasActiveTasks, todayPlan,
           currentDay, currentDateFull, currentWeekday, currentWeekdayEn, currentTime,
           navigateTo, priorityClass, priorityLabel, getPersonInitial,
           expandedLearning, toggleLearning,
+          calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
+          greeting, currentHour, dayHours,
+          viewingDate, viewingDayLabel, viewingWeekLabel, goToDay,
+          switchCalendarView, calendarNav,
+          todayP0Tasks, todayPriorityTasks, undoneTasks, finishedTasks, hasAnyTodayTasks,
+          addingEventStart, addingEventEnd, addingEventHour, newEventTitle, newEventLocation, newEventNote, confirmAddEvent, removeEvent,
+          editingEvent, startEditEvent, saveEditEvent,
+          onEventMousedown, onResizeMousedown, onEventClick, eventDragState,
+          isDraggingTime, dragStartKey, dragEndKey, onTimelineMousedown, onTimelineMousemove, onTimelineMouseup,
+          formatTime, keyToTime, getEventsForDay, TIMELINE_HEIGHT, PX_PER_HOUR, minuteToY, editStartTime, editEndTime,
+          calendarScrollRef,
+          draggingTask, draggingFrom, dragOverGroup, dragTask, dropTask,
+          getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress,
+          taskSectionTitle, weeklyTasks, monthlyTaskSummary,
+          showAddTask, newTaskText, newTaskPriority, addNewTask,
         };
       }
     }).mount('#app');
