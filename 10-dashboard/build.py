@@ -320,11 +320,24 @@ def build_tasks():
 
 def build_planning():
     planning_dir = os.path.join(LOCI_ROOT, "03-planning")
+    journal_files = [f for f in scan_md_files(os.path.join(planning_dir, "journal")) if 'buffer' not in f.get('filename', '')]
+
+    calendar_events = {}
+    cal_path = os.path.join(planning_dir, "calendar.json")
+    if os.path.exists(cal_path):
+        try:
+            with open(cal_path, "r", encoding="utf-8") as f:
+                calendar_events = json.load(f)
+        except Exception:
+            pass
+
     return {
         "daily": scan_md_files(os.path.join(planning_dir, "daily")),
         "monthly": scan_md_files(os.path.join(planning_dir, "monthly")),
         "quarterly": scan_md_files(os.path.join(planning_dir, "quarterly")),
         "reviews": scan_md_files(os.path.join(planning_dir, "reviews")),
+        "journal": journal_files,
+        "calendar_events": calendar_events,
     }
 
 

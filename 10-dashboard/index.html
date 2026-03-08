@@ -894,6 +894,55 @@
               </div>
             </div>
           </div>
+
+        </section>
+
+        <!-- ========== Journal ========== -->
+        <section v-if="currentPage === 'journal'">
+          <h2 class="pixel-font text-black text-sm mb-6">
+            &#9608; &#9670; Journal &#9670; &#9608;
+          </h2>
+
+          <!-- Today's entry highlighted -->
+          <div v-if="todayJournal" class="card mb-6" style="border-width: 2px;">
+            <div class="card-header">
+              <span>&#9788;</span>
+              <h3>Today</h3>
+              <span style="margin-left: auto; font-size: 0.5rem; opacity: 0.7;">{{ todayJournal.filename.replace('.md', '') }}</span>
+            </div>
+            <div class="card-body">
+              <div class="md-content" v-html="todayJournal.content"></div>
+            </div>
+          </div>
+          <div v-else class="card mb-6" style="border-width: 2px;">
+            <div class="card-header">
+              <span>&#9788;</span>
+              <h3>Today</h3>
+            </div>
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
+                <p class="text-sm text-ink-500">No journal entry for today yet</p>
+                <p class="text-xs text-ink-500 mt-2">Say "summary" at the end of the day to generate one</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Past entries -->
+          <div v-if="pastJournals.length">
+            <h3 class="pixel-font text-xs text-black mb-4" style="font-size: 0.6rem;">&#9632; Past Entries</h3>
+            <div class="space-y-4">
+              <div v-for="entry in pastJournals" :key="entry.filename" class="card">
+                <div class="card-header" style="background: #444;">
+                  <span>&#9670;</span>
+                  <h3>{{ entry.filename.replace('.md', '') }}</h3>
+                </div>
+                <div class="card-body">
+                  <div class="md-content" v-html="entry.content"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- ========== Memory ========== -->
@@ -1022,29 +1071,6 @@
             >
               {{ tab.icon }} {{ tab.label }}
             </button>
-          </div>
-
-          <!-- Daily -->
-          <div v-if="planningTab === 'daily'">
-            <div v-if="data.planning?.daily?.length" class="space-y-6">
-              <div v-for="plan in data.planning.daily" :key="plan.filename" class="card">
-                <div class="card-body">
-                  <div class="flex items-center gap-2 mb-3">
-                    <span class="pixel-date">{{ plan.filename.replace('.md', '') }}</span>
-                  </div>
-                  <div class="md-content" v-html="plan.content"></div>
-                </div>
-              </div>
-            </div>
-            <div v-else class="card">
-              <div class="card-body">
-                <div class="empty-state">
-                  <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
-                  <p class="text-sm text-ink-500">No daily plans yet</p>
-                  <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">03-planning/daily/YYYY-MM-DD.md</code></p>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- Monthly -->
@@ -1244,7 +1270,7 @@
         const currentPage = ref('today');
         const sidebarOpen = ref(false);
         const memoryTab = ref('identity');
-        const planningTab = ref('daily');
+        const planningTab = ref('monthly');
 
         const emptyHtml = '<p style="color: #aaaaaa;">\u25A0 No data</p>';
 
@@ -1272,6 +1298,7 @@
 
         const navItems = [
           { id: 'today',     label: 'Today',     icon: '\u2600' },
+          { id: 'journal',   label: 'Journal',   icon: '\u25C6' },
           { id: 'memory',    label: 'Memory',    icon: '\u2665' },
           { id: 'planning',  label: 'Planning',  icon: '\u25C6' },
           { id: 'people',    label: 'People',    icon: '\u2665' },
@@ -1286,7 +1313,6 @@
         ];
 
         const planningTabs = [
-          { id: 'daily',     label: 'Daily',     icon: '\u25BA' },
           { id: 'monthly',   label: 'Monthly',   icon: '\u25C6' },
           { id: 'quarterly', label: 'Quarterly', icon: '\u2605' },
           { id: 'reviews',   label: 'Reviews',   icon: '\u25A0' },
@@ -1307,6 +1333,18 @@
           const today = new Date().toISOString().slice(0, 10);
           const daily = data.value?.planning?.daily || [];
           return daily.find(d => d.filename.includes(today));
+        });
+
+        const todayJournal = computed(() => {
+          const today = new Date().toISOString().slice(0, 10);
+          const entries = data.value?.planning?.journal || [];
+          return entries.find(d => d.filename.includes(today));
+        });
+
+        const pastJournals = computed(() => {
+          const today = new Date().toISOString().slice(0, 10);
+          const entries = data.value?.planning?.journal || [];
+          return entries.filter(d => !d.filename.includes(today)).sort((a, b) => b.filename.localeCompare(a.filename));
         });
 
         // Date widget
@@ -1990,17 +2028,36 @@
           showAddTask.value = false;
         }
 
-        onMounted(async () => {
+        // --- Hot reload: fetch data.json and merge calendar events ---
+        let _lastDataHash = '';
+        async function refreshData() {
           try {
-            const res = await fetch('data.json');
-            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-            data.value = await res.json();
+            const res = await fetch('data.json?t=' + Date.now());
+            if (!res.ok) return;
+            const text = await res.text();
+            if (text === _lastDataHash) return;
+            _lastDataHash = text;
+            const newData = JSON.parse(text);
+            data.value = newData;
+            const fileEvents = newData?.planning?.calendar_events;
+            if (fileEvents) {
+              for (const [dateKey, events] of Object.entries(fileEvents)) {
+                if (!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
+                for (const ev of events) {
+                  const exists = calendarEvents[dateKey].some(e => e.title === ev.title && e.startKey === ev.startKey);
+                  if (!exists) calendarEvents[dateKey].push(ev);
+                }
+              }
+            }
           } catch (e) {
-            error.value = e.message;
-            console.error('Failed to load data.json:', e);
-          } finally {
-            loading.value = false;
+            if (!data.value) error.value = e.message;
           }
+        }
+
+        onMounted(async () => {
+          await refreshData();
+          loading.value = false;
+          setInterval(refreshData, 3000);
 
           // Close event form when clicking outside
           document.addEventListener('click', (e) => {
@@ -2156,7 +2213,7 @@
           emptyHtml,
           dashboardTitle, username,
           navItems, memoryTabs, planningTabs,
-          currentNavItem, hasActiveTasks, todayPlan,
+          currentNavItem, hasActiveTasks, todayPlan, todayJournal, pastJournals,
           currentDay, currentDateFull, currentWeekday, currentWeekdayEn, currentTime,
           navigateTo, priorityClass, priorityLabel, getPersonInitial,
           expandedLearning, toggleLearning,
