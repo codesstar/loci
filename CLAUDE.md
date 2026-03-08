@@ -33,8 +33,8 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - "Would you like Loci to be aware of your other project folders? This lets you connect projects to your brain from anywhere."
    - If yes:
      - Append a Loci connection block to `~/.claude/CLAUDE.md` with this brain's absolute path
-     - Install `/loci-link` slash command: copy `templates/commands/loci-link.md` to `~/.claude/commands/loci-link.md`
-     - Tell user: "You can now use `/loci-link` in any project folder to connect it to your brain."
+     - Install slash commands: copy `templates/commands/loci-link.md` and `templates/commands/loci-settings.md` to `~/.claude/commands/`
+     - Tell user: "You now have two commands available in any project: `/loci-link` to connect a project, `/loci-settings` to configure what syncs to your brain."
 4. **Done**: "Your brain is ready. You can start talking to me about anything — I'll remember and organize it for you."
    - Point them to `examples/alex/` if they want to see what a fully populated brain looks like
 
