@@ -10,6 +10,31 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 > The above files are force-loaded with CLAUDE.md. No manual reading needed.
 > `today.md` is a symlink to today's daily plan. If no plan exists, it points to `_no-plan.md`.
 
+## First-Time Setup
+
+At conversation start, read `01-me/identity.md`. If its `status` is `template` (or the file is empty/missing), this is a **new user**. Skip all normal startup routines and run onboarding instead:
+
+1. **Welcome**: "Welcome to Loci — your AI-powered memory palace. Let me help you set up your brain."
+2. **Collect info** through natural conversation (don't dump all questions at once):
+   - What's your name?
+   - What do you do? (one sentence)
+   - What's the most important thing you're working on right now?
+   - What language do you prefer? (Loci works in any language)
+3. **Generate initial files** from the answers:
+   - `01-me/identity.md` — basics, work, current season (set status: active)
+   - `plan.md` — mission + current focus as annual goals
+   - `05-tasks/active.md` — first P0 task from "most important thing"
+   - Set today's date as `created` in all frontmatter
+4. **Offer global awareness** (optional):
+   - "Would you like Loci to be aware of your other project folders? This lets you connect projects to your brain from anywhere."
+   - If yes: append a Loci connection block to `~/.claude/CLAUDE.md` with this brain's absolute path
+5. **Done**: "Your brain is ready. You can start talking to me about anything — I'll remember and organize it for you."
+   - Point them to `examples/alex/` if they want to see what a fully populated brain looks like
+
+After onboarding, proceed with normal Time & State Awareness below.
+
+> **Tip for the user**: See `examples/alex/` for a complete example of what a populated Loci brain looks like.
+
 ## Time & State Awareness
 
 At the start of every conversation:
