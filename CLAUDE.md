@@ -36,23 +36,10 @@ User can say `/sync` mid-conversation to refresh cross-terminal awareness:
 
 ## Directory Map
 
-| Folder | Purpose | When to Read |
-|--------|---------|-------------|
-| `00-inbox/` | Quick capture, unsorted thoughts & tasks | Glance at start of each conversation |
-| `01-me/` | Personal info, values, goals | When you need to understand the user |
-| `02-finance/` | Financial planning, assets, budgets | When discussing finances |
-| `03-planning/` | Daily/monthly/quarterly plans & reviews | When discussing planning |
-| `04-people/` | Contacts, relationships, meeting notes | When someone is mentioned |
-| `05-tasks/` | Task management (active.md = current tasks) | When discussing tasks |
-| `06-content/` | Content creation, writing, publishing | When discussing content |
-| `07-decisions/` | Important decision records | When reviewing past decisions |
-| `08-archive/` | Everything completed or expired | When looking up history |
-| `09-links/` | Symlinks to external project folders | When working with external projects |
-| `10-dashboard/` | Web visualization panel | When developing/maintaining |
-| `11-references/` | External knowledge: books, articles, quotes, videos, frameworks | When discussing ideas, making decisions, or creating content |
-| `templates/` | All templates in one place | When creating new files |
-| `plan.md` | Life direction & annual goals | Every conversation start |
-| `inbox.md` | Fastest capture point (root level) | Every conversation start |
+`00-inbox/` capture · `01-me/` personal info · `02-finance/` finances · `03-planning/` plans (incl. journal/)
+`04-people/` contacts · `05-tasks/` tasks (active.md = current) · `06-content/` content creation
+`07-decisions/` decisions · `08-archive/` archive · `09-links/` external projects · `10-dashboard/` panel
+`11-references/` external knowledge · `templates/` templates · `plan.md` life direction · `inbox.md` quick capture
 
 ## Context Layering Rules
 
@@ -121,55 +108,35 @@ Even if the user doesn't explicitly say "update", proactively remind them when:
 7. **Auto-refresh dashboard** — After modifying any of these files, run `cd 10-dashboard && python3 build.py` to update data.json:
    - `inbox.md`, `plan.md`, `05-tasks/active.md`
    - `03-planning/daily/` daily plans
+   - `03-planning/journal/` daily summaries
    - `01-me/` personal info
    - `06-content/`, `07-decisions/`, `04-people/` or any content files
 
-## Daily Summary
+## Daily Summary (Journal)
 
-When the user says "summarize", "what did I do today", or similar trigger phrases:
+- During conversations, append decisions/insights/important topics to `03-planning/journal/buffer.md`
+- On "summarize" trigger, read buffer + review conversation → generate `03-planning/journal/YYYY-MM-DD.md` → clear buffer
+- Check for yesterday's journal at conversation start; remind to backfill if missing
+- Proactively offer to summarize when user seems to be wrapping up
+- Full mechanism → `03-planning/journal/README.md`
 
-1. Scan files modified today (daily plan, inbox, notes, etc.)
-2. Review topics discussed in today's conversation
-3. Fill in the daily plan's review section:
-   - **Discussed**: Main topics covered today
-   - **Learned**: New insights, new knowledge
-   - **Recorded**: What was saved to which files
-   - **Accomplished**: Tasks completed, actions taken
-   - **Incomplete**: Planned but not done
-   - **Tomorrow**: Suggested focus for tomorrow
+## Quick Add Reminders/Events
 
-If no daily plan file exists for today, create one first, then fill it in.
+When the user mentions something to do, **add immediately** without confirmation:
+- Add to `05-tasks/active.md` (default P2)
+- If a time is mentioned, also add to `03-planning/calendar.json`
+- Format details → `03-planning/README.md`
 
 ## Department Communication Protocol
 
-Your Loci system is HQ (headquarters). External projects connected via `09-links/` are "departments". Two-way communication uses two files:
-
-| File | Direction | Written by | Read by |
-|------|-----------|-----------|---------|
-| `09-links/XX/from-hq.md` | HQ → Department | Loci (HQ) | Department |
-| `09-links/XX/to-hq.md` | Department → HQ | Department | Loci (HQ) |
-
-### When to write from-hq.md
-Write when making **strategic decisions that affect a department** (priority changes, strategy shifts, new rules). One-off tasks don't need this — execute them directly in the department's terminal.
-
-### When to read to-hq.md
-Scan all departments' `to-hq.md` Active sections at conversation start. Watch for tagged entries: `[needs-decision]` `[milestone]` `[anomaly]`.
-
-### Monthly Maintenance
-At the start of each month, move Active entries older than 30 days (or completed) to the Archive section.
+External projects ("departments") connect via `09-links/`. Two-way communication:
+- `from-hq.md` (HQ→Dept): Write on strategic decisions, execute one-off tasks directly
+- `to-hq.md` (Dept→HQ): Scan Active section at conversation start, watch for `[needs-decision]` `[milestone]` `[anomaly]`
+- Monthly: archive entries older than 30 days or completed
 
 ## Extension Rules
 
-### Adding Internal Modules
-`mkdir NN-name` → Create README.md → Update this file's directory map
-
-### Connecting External Projects
-1. `ln -s /actual/path 09-links/link-name`
-2. Register in `09-links/registry.md` (name, path, purpose)
-3. Access via `09-links/link-name/` path — works like a local folder
-
-### Adding Templates
-Place in `templates/`
-
-### Cross-Project Management
-Loci is the main entry point. All external projects are accessed through `09-links/` after connection. Launch Claude Code in this directory to manage everything.
+- **New module**: `mkdir NN-name` → Create README.md → Update directory map
+- **Connect external project**: `ln -s /actual/path 09-links/name` → Register in `09-links/registry.md`
+- **New template**: Place in `templates/`
+- Loci is the main entry point; all external projects managed through `09-links/`
