@@ -27,7 +27,12 @@ Steps:
    Q4: "Sync code implementation details?" → default: no
    Q5: "Sync architecture changes?" → default: yes (code project) / no (other)
    Q6: "Sync blockers & anomalies?" → default: yes
-   Q7: "Any custom rules? (e.g. 'never sync client names')" → free text, optional
+   Q7: "Want to add more sync items? Describe what else you'd like to sync to your brain. (e.g. 'meeting notes', 'API design changes', 'user feedback'). Say 'no' to skip."
+   → If yes: add each item as a new sync category (default ON), save to config alongside the built-in ones
+   → User can keep adding. After each one, ask "Anything else?" until they say no.
+
+   Q8: "Any rules about what should NEVER sync? (e.g. 'never sync client names', 'skip internal jokes'). Say 'no' to skip."
+   → Save to customRules as exclusion rules
 
    Adjust defaults by project type:
    - **Code project**: Architecture ON, code details OFF, deps OFF
@@ -48,7 +53,8 @@ Steps:
        "architecture": true,
        "blockers": true
      },
-     "customRules": ["user's custom rules if any"]
+     "customSync": ["meeting notes", "user feedback"],
+     "customExclusions": ["client names", "internal jokes"]
    }
    ```
 
