@@ -1,10 +1,17 @@
 Connect the current project folder to your Loci brain.
 
 Steps:
-1. Read `~/.claude/CLAUDE.md` to find the Loci brain path (look for the "Loci Brain" section)
-2. If no brain is registered, tell the user: "No Loci brain found. Run `claude "help me set up my brain"` in your Loci directory first."
-3. Get the brain path and the current working directory
-4. Ask the user:
+1. Check if `.loci-link` already exists in the current directory. If yes:
+   - Read it to get the brain path
+   - Tell the user: "This project is already connected to your Loci brain at [path]."
+   - Ask: "Want to reconnect to a different brain, or disconnect?"
+   - If disconnect: remove `.loci-link`, `from-hq.md`, `to-hq.md`, and the symlink in the brain's `09-links/`
+   - If reconnect: continue with step 4
+   - Otherwise: stop here
+2. Read `~/.claude/CLAUDE.md` to find the Loci brain path (look for the "Loci Brain" section)
+3. If no brain is registered, tell the user: "No Loci brain found. Run `claude "help me set up my brain"` in your Loci directory first."
+4. Get the brain path and the current working directory
+5. Ask the user:
    - Project name (default: current folder name)
    - Purpose: [code/content/research/other]
    - Associated department: [engineering/product/research/marketing/none]
