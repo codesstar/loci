@@ -29,10 +29,13 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - `plan.md` — mission + current focus as annual goals
    - `05-tasks/active.md` — first P0 task from "most important thing"
    - Set today's date as `created` in all frontmatter
-4. **Offer global awareness** (optional):
+3. **Offer global awareness** (optional):
    - "Would you like Loci to be aware of your other project folders? This lets you connect projects to your brain from anywhere."
-   - If yes: append a Loci connection block to `~/.claude/CLAUDE.md` with this brain's absolute path
-5. **Done**: "Your brain is ready. You can start talking to me about anything — I'll remember and organize it for you."
+   - If yes:
+     - Append a Loci connection block to `~/.claude/CLAUDE.md` with this brain's absolute path
+     - Install `/loci-link` slash command: copy `templates/commands/loci-link.md` to `~/.claude/commands/loci-link.md`
+     - Tell user: "You can now use `/loci-link` in any project folder to connect it to your brain."
+4. **Done**: "Your brain is ready. You can start talking to me about anything — I'll remember and organize it for you."
    - Point them to `examples/alex/` if they want to see what a fully populated brain looks like
 
 After onboarding, proceed with normal Time & State Awareness below.
