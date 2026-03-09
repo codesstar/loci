@@ -21,6 +21,10 @@ Steps:
 
    Then ask each category using AskUserQuestion with clear yes/no or selection options:
 
+   Q0: "Enable Loci sync for this project? When disabled, nothing syncs to or from your brain."
+   - **Yes (default)** — Sync is active
+   - **No** — Pause all sync for this project
+
    Q1: "Sync decisions to brain? (e.g. 'chose REST over GraphQL')" → default: yes
    Q2: "Sync milestones? (e.g. 'v1.0 launched')" → default: yes
    Q3: "Sync lessons learned & insights?" → default: yes
@@ -44,6 +48,7 @@ Steps:
 5. **Save config**: Write `.loci-config.json` in current directory:
    ```json
    {
+     "enabled": true,
      "projectType": "detected type",
      "sync": {
        "decisions": true,
@@ -62,8 +67,9 @@ Steps:
 
 7. **Confirm with summary**:
    ```
-   ✅ Settings saved.
+   Settings saved.
 
+   Enabled: yes
    Syncing to brain: decisions, milestones, lessons, architecture, blockers
    Never synced: code details, env/secrets, debug logs, deps
    Custom rules: [if any]

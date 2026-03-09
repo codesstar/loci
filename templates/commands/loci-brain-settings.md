@@ -7,15 +7,29 @@ Steps:
 2. **Check existing config**: Read `loci-brain-settings.yml` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
 3. **Quick mode**: First ask using AskUserQuestion: "How do you want to configure your brain?"
-   - **Default (recommended)** — Smart defaults, covers 80% of needs
-   - **Everything** — Store everything, share everything, no filtering
-   - **Custom** — Configure each setting individually
+   - **"自动帮我存和分发 (recommended)"** — persistence: smart (auto_confirm: true), routing: tag-routed
+   - **"存之前先问我"** — persistence: smart (auto_confirm: false), routing: tag-routed
+   - **"我自己决定什么时候存"** — persistence: manual, routing: manual
 
-   If "Default": apply defaults below, show summary, done.
-   If "Everything": set all to maximum/open, show summary, done.
-   If "Custom": proceed with step 4.
+   If first or second option: apply corresponding defaults below, show summary, done.
+   If third option: apply manual settings, show summary, done.
+   If user wants to tweak individual settings: proceed with step 4.
 
-4. **Privacy settings** (AskUserQuestion for each):
+4. **Enabled** (AskUserQuestion):
+
+   "Enable Loci brain synapse? When disabled, no information is stored or shared."
+   - **Yes (default)** — Brain is active
+   - **No** — Brain pauses all sync
+
+5. **Persistence** (AskUserQuestion):
+
+   "How should your brain handle storing information?"
+   - **Smart (recommended)** — Brain auto-detects what's worth storing, asks for confirmation on important items
+     - `auto_confirm: true` — Store without asking (default)
+     - `auto_confirm: false` — Always ask before storing
+   - **Manual** — You explicitly decide when to store, nothing is saved automatically
+
+6. **Privacy settings** (AskUserQuestion):
 
    "What information should NEVER be shared with sub-projects?"
    Default blocked: medical, financial details, credentials/passwords
@@ -23,7 +37,7 @@ Steps:
    - User can remove defaults (e.g. "financial is fine to share")
    - Ask: "Any custom privacy rules? (e.g. 'never share relationship details')"
 
-5. **Distillation level** (AskUserQuestion):
+7. **Distillation level** (AskUserQuestion):
 
    "How much detail should your brain keep when storing information?"
    - **Verbose** — Store everything as-is, no compression
@@ -33,30 +47,32 @@ Steps:
 
    If Custom: ask for each type (decisions, tasks, journal, casual conversation, technical details)
 
-6. **Signal tagging** (AskUserQuestion):
+8. **Routing** (AskUserQuestion):
 
-   "Your brain auto-tags information by priority. Sub-projects subscribe to tags they care about."
+   "How should your brain tag and share information with sub-projects?"
+
+   This combines signal tagging + dispatch into one setting.
+
+   Mode:
+   - **Open** — All info visible to all sub-projects, each project pulls what it needs
+   - **Tag-routed (recommended)** — Brain auto-tags info and matches to sub-projects by their declared `interest_tags`
+   - **Manual** — You manually decide which info goes to which sub-project every time
+   - **Silent** — Brain keeps everything to itself. Sub-projects get nothing unless you explicitly push.
+
+   Auto-tags (always active except in silent mode):
    - urgent — Critical, time-sensitive (sub-projects see immediately)
    - decision — Strategic decisions made
    - fyi — Good to know, not urgent
    - log — Low-priority records
 
-   Ask: "Want to add custom signal tags? (e.g. 'creative-idea', 'learning')"
+   Ask: "Want to add custom tags? (e.g. 'creative-idea', 'learning')"
 
-7. **Dispatch mode** (AskUserQuestion):
-
-   "How should your brain share information with sub-projects?"
-   - **Open (recommended)** — All info visible to all sub-projects, each project pulls what it needs based on its own tags/settings
-   - **Tag-routed** — Brain auto-matches info to sub-projects by tags. Sub-projects only see info matching their declared `interest_tags`
-   - **Manual** — You manually decide which info goes to which sub-project. Brain asks you every time.
-   - **Silent** — Brain keeps everything to itself. Sub-projects get nothing unless you explicitly push.
-
-   If "Tag-routed": show list of connected sub-projects and their current interest_tags. Ask if user wants to adjust any.
+   If "Tag-routed": show list of connected sub-projects and their current interest_tags. Ask user to configure which tags route to which sub-projects.
    If "Manual": explain that brain will prompt "Send this to which projects?" after each decision/insight.
 
-   Note: "Regardless of dispatch mode, privacy rules always apply. Blocked info is never shared."
+   Note: "Regardless of routing mode, privacy rules always apply. Blocked info is never shared."
 
-8. **Retention policy** (AskUserQuestion):
+9. **Retention policy** (AskUserQuestion):
 
    "How long before unused information gets archived?"
    - **30 days**
@@ -66,10 +82,16 @@ Steps:
 
    Note: "Archived information is still searchable, just moved to 08-archive/."
 
-8. **Save config**: Write `loci-brain-settings.yml` in brain root directory:
+10. **Save config**: Write `loci-brain-settings.yml` in brain root directory:
    ```yaml
    version: 1
-   preset: custom  # default | everything | custom
+   preset: custom  # recommended | ask-first | manual | custom
+
+   enabled: true
+
+   persistence:
+     mode: smart  # smart | manual
+     auto_confirm: true
 
    privacy:
      mode: blocklist
@@ -80,27 +102,27 @@ Steps:
      level: balanced  # verbose | balanced | minimal | custom
      overrides: {}    # per-type overrides when level=custom
 
-   signals:
+   routing:
+     mode: tag-routed  # open | tag-routed | manual | silent
      auto_tag: true
-     levels: [urgent, decision, fyi, log]
+     tags: [urgent, decision, fyi, log]
      custom_tags: []
-
-   dispatch:
-     mode: open  # open | tag-routed | manual | silent
+     routes: {}  # tag → [sub-project] mapping for tag-routed mode
 
    retention:
      archive_after_days: 90
      archived_searchable: true
    ```
 
-9. **Summary**: Show what was configured:
+11. **Summary**: Show what was configured:
    ```
-   ✅ Brain Synapse settings saved.
+   Brain Synapse settings saved.
 
+   Enabled: yes
+   Persistence: smart (auto-confirm)
    Privacy: medical, financial, credentials blocked
    Distillation: balanced
-   Signal tags: urgent, decision, fyi, log
-   Dispatch: open (all sub-projects can pull what they need)
+   Routing: tag-routed (urgent, decision, fyi, log)
    Retention: 90 days → archive
 
    Run /loci-brain-settings anytime to change these.
