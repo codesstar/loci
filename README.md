@@ -35,7 +35,7 @@ Loci gives your AI a **memory palace** — a layered, structured, evolving knowl
 - **Three layers of context** so your AI loads what it needs, when it needs it
 - **Conversation distillation** that extracts insights instead of saving raw transcripts
 - **Identity modeling** so your AI understands your goals, values, and working style
-- **A department protocol** to orchestrate multiple projects from a single hub
+- **Synapse** — a cross-project information flow system that connects, syncs, and routes knowledge between your brain and sub-projects
 - **A web dashboard** to visualize your entire system at a glance
 
 The result: an AI that picks up where you left off, reminds you what matters, and evolves alongside you.
@@ -94,21 +94,37 @@ When your goals, values, or identity evolve, Loci doesn't just overwrite the old
 
 Current files stay lean (L1). History grows indefinitely (L3). Both are always available.
 
-### Department System
+### Synapse — Cross-Project Information Flow
+
+The **Synapse** system controls how information flows between your brain and sub-projects — like synapses between neurons, selectively transmitting what matters.
 
 Managing multiple projects? Loci uses a **hub-and-spoke** model:
 
 ```
-Loci (HQ)
+Loci Brain (HQ)
 ├── 09-links/project-alpha/   → symlink to ~/projects/alpha
-│   ├── from-hq.md            ← HQ writes strategic directives
-│   └── to-hq.md              ← Project reports back
-├── 09-links/project-beta/    → symlink to ~/projects/beta
+│   ├── profile.md             ← Auto-generated project profile
+│   ├── from-hq.md             ← Brain writes strategic directives
+│   └── to-hq.md               ← Project reports back
+├── 09-links/project-beta/
+│   ├── profile.md
 │   ├── from-hq.md
 │   └── to-hq.md
 ```
 
-Each project is a "department" connected via symlinks. Communication flows through structured Markdown files with tags like `[needs-decision]`, `[milestone]`, and `[anomaly]`.
+**Connect any folder** to your brain with `/loci-link`. Loci auto-scans the project (README, package.json, directory structure) and creates a profile — your brain knows what each project is from day one.
+
+**Smart persistence** — Loci doesn't burn context saving every message. It auto-distills every 5 conversation rounds, reminds you every 3 rounds when something's worth saving, and detects important info in real-time. All intervals are customizable.
+
+**Four slash commands** manage the entire system:
+
+| Command | Where | What it does |
+|---------|-------|--------------|
+| `/loci-link` | Any folder | Connect a project to your brain + auto-scan |
+| `/loci-settings` | Sub-project | Configure what syncs to/from brain |
+| `/loci-brain-settings` | Brain | Configure persistence, privacy, routing, retention |
+| `/loci-sync` | Either | Manual push + pull |
+| `/loci-scan` | Sub-project | Re-scan and update project profile |
 
 ### Dashboard
 
@@ -142,7 +158,11 @@ loci/
 ├── 07-decisions/          # Decision records with context
 ├── 08-archive/            # Completed / expired items (L3)
 ├── 09-links/              # Symlinks to external projects
-│   └── registry.md        # Project registry
+│   ├── registry.md        # Project registry
+│   └── <project>/         # Each linked project has:
+│       ├── profile.md     # Auto-scanned project profile
+│       ├── from-hq.md     # Directives from brain
+│       └── to-hq.md       # Reports back to brain
 ├── 10-dashboard/          # Web visualization panel
 │   └── build.py           # Dashboard data generator
 ├── 11-references/         # External knowledge base
@@ -154,6 +174,7 @@ loci/
 │   └── inbox.md           # Quick dump, sort later
 │
 ├── templates/             # File templates for consistency
+│   └── commands/          # Slash commands (/loci-link, /loci-settings, etc.)
 ├── docs/                  # Documentation
 ├── setup.sh               # One-command setup
 └── LICENSE                # MIT
@@ -167,8 +188,9 @@ loci/
 |---------|------|----------------|-------------|--------------|
 | Structured context layers | Yes (L1/L2/L3) | No (flat list) | No | No |
 | Identity modeling | Yes | Partial | Static only | No |
+| Cross-project memory | Yes (Synapse) | No | No | No |
+| Configurable sync/privacy | Yes | No | No | No |
 | Task management | Yes | No | No | No |
-| Multi-project orchestration | Yes (departments) | No | No | No |
 | Web dashboard | Yes | No | No | No |
 | Conversation distillation | Yes | Append-only | No | No |
 | Growth tracking | Yes | No | No | No |
@@ -176,7 +198,6 @@ loci/
 | Works offline | Yes | No | No | Yes |
 | Your data stays local | Yes | No | No | Yes |
 | Portable (switch AI tools) | Yes (copy folder) | No (locked in) | No | No |
-| Privacy controls | Yes (4 layers) | No | No | No |
 
 ---
 
