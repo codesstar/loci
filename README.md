@@ -1,9 +1,19 @@
-# Loci — Memory Palace for AI
-
-**Give your AI a brain.** | **给 AI 装大脑。**
-
 <p align="center">
   <img src="docs/assets/seahorse-logo.png" alt="Loci Seahorse" width="200" />
+</p>
+
+<h1 align="center">Loci — Memory Palace for AI</h1>
+
+<p align="center">
+  <strong>Give your AI a brain.</strong> | <strong>给 AI 装大脑。</strong>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+  <a href="https://github.com/codesstar/loci/stargazers"><img src="https://img.shields.io/github/stars/codesstar/loci?style=social" alt="GitHub Stars" /></a>
+  <img src="https://img.shields.io/badge/made_for-Claude_Code-blueviolet" alt="Made for Claude Code" />
+  <img src="https://img.shields.io/badge/storage-100%25_local_Markdown-green" alt="Local Markdown" />
+  <img src="https://img.shields.io/badge/pronunciation-loh--sigh_(洛赛)-orange" alt="Pronunciation" />
 </p>
 
 Loci is an open-source framework that gives AI assistants persistent memory, identity awareness, and multi-project orchestration. It turns Claude Code (and potentially other AI coding tools) from a stateless assistant into one that knows who you are, what you're working on, and where you left off.
@@ -60,6 +70,44 @@ That's it. Loci detects it's your first time and walks you through a conversatio
 Everything is local Markdown — no database, no server, no account required.
 
 > **Want to see what a fully populated brain looks like?** Check out `examples/alex/` for a complete example.
+
+---
+
+## How It Works
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    🧠 Loci Brain (HQ)                    │
+│                                                         │
+│  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐  │
+│  │ Identity │  │  Tasks   │  │  Plans  │  │ Decisions│  │
+│  │ 01-me/   │  │ 05-tasks/│  │03-plan/ │  │07-decide/│  │
+│  └─────────┘  └──────────┘  └─────────┘  └──────────┘  │
+│                                                         │
+│  L1 (every conv) ──── L2 (on demand) ──── L3 (archive)  │
+│                                                         │
+│                    ┌──────────┐                          │
+│                    │ Synapse  │                          │
+│                    │ Filter → │                          │
+│                    │Transform→│                          │
+│                    │  Route   │                          │
+│                    └────┬─────┘                          │
+│                         │                                │
+└─────────────────────────┼───────────────────────────────┘
+                          │
+            ┌─────────────┼─────────────┐
+            │             │             │
+            ▼             ▼             ▼
+   ┌──────────────┐ ┌──────────┐ ┌──────────────┐
+   │  Project A   │ │Project B │ │  Project C   │
+   │  (code)      │ │(content) │ │  (research)  │
+   │              │ │          │ │              │
+   │ .loci-link   │ │.loci-link│ │ .loci-link   │
+   │ .loci-config │ │          │ │              │
+   └──────────────┘ └──────────┘ └──────────────┘
+```
+
+> One brain, many projects. Each project connects via `/loci-link` and communicates through the Synapse system. Your brain grows with every conversation, across every terminal.
 
 ---
 
@@ -236,4 +284,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-**Loci** is built by [Sam](https://github.com/usercyc). If this framework helps you, consider giving it a star.
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=codesstar/loci&type=Date)](https://star-history.com/#codesstar/loci&Date)
+
+---
+
+<p align="center">
+  <strong>Loci</strong> is built by <a href="https://github.com/codesstar">Sam</a>.<br/>
+  If this framework helps you, consider giving it a ⭐
+</p>
