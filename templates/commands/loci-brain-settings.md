@@ -7,9 +7,8 @@ Steps:
 2. **Check existing config**: Read `loci-brain-settings.yml` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
 3. **Quick mode**: First ask using AskUserQuestion: "How do you want to configure your brain?"
-   - **"自动帮我存和分发 (recommended)"** — persistence: smart (auto_confirm: true), routing: tag-routed
-   - **"存之前先问我"** — persistence: smart (auto_confirm: false), routing: tag-routed
-   - **"我自己决定什么时候存"** — persistence: manual, routing: manual
+   - **"自动帮我存和分发 (recommended)"** — persistence: smart (auto-distill every 5 rounds, remind every 3 rounds + smart detect), routing: tag-routed
+   - **"我自己决定什么时候存"** — persistence: manual (only via `/loci-sync` or explicit request), routing: manual
 
    If first or second option: apply corresponding defaults below, show summary, done.
    If third option: apply manual settings, show summary, done.
@@ -24,10 +23,12 @@ Steps:
 5. **Persistence** (AskUserQuestion):
 
    "How should your brain handle storing information?"
-   - **Smart (recommended)** — Brain auto-detects what's worth storing, asks for confirmation on important items
-     - `auto_confirm: true` — Store without asking (default)
-     - `auto_confirm: false` — Always ask before storing
-   - **Manual** — You explicitly decide when to store, nothing is saved automatically
+   - **Smart (recommended)** — Two mechanisms working together:
+     - **Auto-distill**: every 5 rounds, silently distill and store
+     - **Auto-remind**: every 3 rounds, or when important info is detected, proactively notify user what was stored / what's worth storing
+     - Also supports: user says "记一下" / "save this" / `/loci-sync` → immediate save
+     - All intervals are customizable
+   - **Manual** — No auto-remind, no auto-distill. Only stores when user explicitly requests or runs `/loci-sync`
 
 6. **Privacy settings** (AskUserQuestion):
 
@@ -91,7 +92,10 @@ Steps:
 
    persistence:
      mode: smart  # smart | manual
-     auto_confirm: true
+     auto_confirm: true          # true: auto-distill silently | false: only remind, user decides
+     remind_interval: 3          # proactively remind every N rounds (0 = off)
+     distill_interval: 5         # auto-distill every N rounds (0 = off)
+     smart_detect: true          # also remind/distill when important info detected mid-conversation
 
    privacy:
      mode: blocklist
@@ -119,7 +123,7 @@ Steps:
    Brain Synapse settings saved.
 
    Enabled: yes
-   Persistence: smart (auto-confirm)
+   Persistence: smart (auto-distill every 5 rounds, remind every 3 rounds, smart detect on)
    Privacy: medical, financial, credentials blocked
    Distillation: balanced
    Routing: tag-routed (urgent, decision, fyi, log)
