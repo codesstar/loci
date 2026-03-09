@@ -43,7 +43,20 @@ Steps:
 
    Ask: "Want to add custom signal tags? (e.g. 'creative-idea', 'learning')"
 
-7. **Retention policy** (AskUserQuestion):
+7. **Dispatch mode** (AskUserQuestion):
+
+   "How should your brain share information with sub-projects?"
+   - **Open (recommended)** — All info visible to all sub-projects, each project pulls what it needs based on its own tags/settings
+   - **Tag-routed** — Brain auto-matches info to sub-projects by tags. Sub-projects only see info matching their declared `interest_tags`
+   - **Manual** — You manually decide which info goes to which sub-project. Brain asks you every time.
+   - **Silent** — Brain keeps everything to itself. Sub-projects get nothing unless you explicitly push.
+
+   If "Tag-routed": show list of connected sub-projects and their current interest_tags. Ask if user wants to adjust any.
+   If "Manual": explain that brain will prompt "Send this to which projects?" after each decision/insight.
+
+   Note: "Regardless of dispatch mode, privacy rules always apply. Blocked info is never shared."
+
+8. **Retention policy** (AskUserQuestion):
 
    "How long before unused information gets archived?"
    - **30 days**
@@ -72,6 +85,9 @@ Steps:
      levels: [urgent, decision, fyi, log]
      custom_tags: []
 
+   dispatch:
+     mode: open  # open | tag-routed | manual | silent
+
    retention:
      archive_after_days: 90
      archived_searchable: true
@@ -84,6 +100,7 @@ Steps:
    Privacy: medical, financial, credentials blocked
    Distillation: balanced
    Signal tags: urgent, decision, fyi, log
+   Dispatch: open (all sub-projects can pull what they need)
    Retention: 90 days → archive
 
    Run /loci-brain-settings anytime to change these.
