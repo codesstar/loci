@@ -16,7 +16,7 @@ Steps:
 ### If running in a Brain:
 
 3. **Push (distill + store + route)**:
-   a. Review the current conversation for new information worth storing
+   a. Review the current conversation for new information worth storing (this is the manual trigger for session-end distillation — same logic, user-initiated timing)
    b. Apply Distillation settings (verbose/balanced/minimal) to compress
    c. Write distilled info to the appropriate brain files (decisions → `07-decisions/`, tasks → `05-tasks/active.md`, insights → `01-me/learned.md`, etc.)
    d. Apply Routing settings:
