@@ -20,6 +20,6 @@ Thumbs.db
 # If you use your own private remote, all files are safe to track.
 .loci/status.yml
 .loci/activity-log.md
-# .loci/config.yml is intentionally tracked (not gitignored).
+# NOTE: The .loci/config settings file is intentionally tracked (NOT ignored).
 # It contains persistence/routing/privacy settings that should be version-controlled
-# so your brain configuration is portable and restorable. No secrets are stored here.
+# so your brain configuration is portable and restorable. No secrets are stored there.

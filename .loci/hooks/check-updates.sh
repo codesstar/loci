@@ -13,14 +13,16 @@ if [ ! -f "$CHANGELOG" ]; then
 fi
 
 if [ -f "$LAST_CHECK" ]; then
-    SINCE=$(cat "$LAST_CHECK")
+    SINCE_LINE=$(cat "$LAST_CHECK")
 else
-    SINCE=0
+    SINCE_LINE=0
 fi
 
-# Filter for other terminals' changes since last check
-UPDATES=$(awk -F'|' -v since="$SINCE" -v me="$TERMINAL_ID" \
-    '$1 > since && $2 != me { print }' "$CHANGELOG")
+TOTAL_LINES=$(wc -l < "$CHANGELOG" | tr -d ' ')
+
+# Filter for other terminals' changes since last checkpoint (line-based)
+UPDATES=$(tail -n +"$((SINCE_LINE + 1))" "$CHANGELOG" 2>/dev/null | \
+    awk -F'|' -v me="$TERMINAL_ID" '$2 != me { print }')
 
 if [ -z "$UPDATES" ]; then
     echo "No cross-terminal updates since last session."
@@ -33,5 +35,5 @@ else
     echo "=============================="
 fi
 
-# Update checkpoint
-date +%s > "$LAST_CHECK"
+# Update checkpoint: save current line count
+echo "$TOTAL_LINES" > "$LAST_CHECK"
