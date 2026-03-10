@@ -6,7 +6,7 @@ Steps:
 
 1. **Check connection**: Read `.loci-link` in current directory. If not found, tell user: "This project is not connected to a brain. Run `/loci-link` first."
 
-2. **Get brain path** from `.loci-link` and derive the profile path: `<brain>/09-links/<project-name>/profile.md`
+2. **Get brain path** from `.loci-link` and derive the profile path: `<brain>/.loci/links/<project-name>/profile.md`
 
 3. **Run the same scan as `/loci-link` step 7**:
    - Read identity files (CLAUDE.md, README.md, package.json/pyproject.toml/etc., .git/config, LICENSE)
@@ -26,4 +26,4 @@ Steps:
 
 ## Flags
 
-- `--all`: Run from brain directory to re-scan ALL connected sub-projects. Reads `09-links/registry.md`, iterates through each linked project, updates each profile.md. Shows a summary table at the end.
+- `--all`: Run from brain directory to re-scan ALL connected sub-projects. Reads `.loci/links/registry.md`, iterates through each linked project, updates each profile.md. Shows a summary table at the end.

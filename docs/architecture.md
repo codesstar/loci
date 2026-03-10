@@ -12,7 +12,7 @@ These files are read at the start of every conversation. They define who you are
 |------|---------|
 | `CLAUDE.md` | System rules, behavior protocols, directory map |
 | `plan.md` | Life direction, annual goals, current focus |
-| `03-planning/daily/today.md` | Today's schedule, priorities, energy state |
+| `tasks/daily/today.md` | Today's schedule, priorities, energy state |
 | `inbox.md` | Quick capture, pending items |
 | `.claude/memory/MEMORY.md` | AI's persistent auto-memory |
 
@@ -24,11 +24,11 @@ These files are read when the conversation enters a specific domain.
 
 | Trigger | Files Loaded |
 |---------|-------------|
-| Discussing tasks | `05-tasks/active.md`, `05-tasks/README.md` |
-| Mentioning a person | `04-people/person-name.md` |
-| Planning | `03-planning/daily/today.md`, module README |
-| Financial discussion | `02-finance/overview.md` |
-| Content creation | `06-content/platforms.md` |
+| Discussing tasks | `tasks/active.md`, `tasks/README.md` |
+| Mentioning a person | `people/person-name.md` |
+| Planning | `tasks/daily/today.md`, module README |
+| Financial discussion | `finance/overview.md` |
+| Content creation | `content/platforms.md` |
 
 **Design principle**: Module README files serve as the "index" for each domain. The AI reads the README first to understand what's available, then loads specific files as needed.
 
@@ -36,9 +36,9 @@ These files are read when the conversation enters a specific domain.
 
 Never auto-loaded. Only accessed when explicitly needed.
 
-- `08-archive/` — Completed tasks, expired plans, old content
-- `07-decisions/` — Historical decision records
-- `01-me/evolution.md` — Personal growth timeline
+- `archive/` — Completed tasks, expired plans, old content
+- `decisions/` — Historical decision records
+- `me/evolution.md` — Personal growth timeline
 - Detailed financial records, old journals
 
 **Design principle**: Layer 3 can grow indefinitely without affecting performance. It's your searchable archive.
@@ -56,12 +56,12 @@ Conversation
 │  auto-memory                            │
 ├─────────────────────────────────────────┤
 │  Layer 2 (On Demand)                    │
-│  01-me/ → 03-planning/ → 05-tasks/     │
-│  04-people/ → 06-content/              │
+│  me/ → tasks/ → people/                │
+│  content/ → finance/                    │
 ├─────────────────────────────────────────┤
 │  Layer 3 (Deep Storage)                 │
-│  08-archive/ → 07-decisions/            │
-│  01-me/evolution.md                     │
+│  archive/ → decisions/                  │
+│  me/evolution.md                        │
 └─────────────────────────────────────────┘
 ```
 

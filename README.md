@@ -80,8 +80,8 @@ Everything is local Markdown — no database, no server, no account required. Th
 │                    🧠 Loci Brain (HQ)                    │
 │                                                         │
 │  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐  │
-│  │ Identity │  │  Tasks   │  │  Plans  │  │ Decisions│  │
-│  │ 01-me/   │  │ 05-tasks/│  │03-plan/ │  │07-decide/│  │
+│  │ Identity │  │  Tasks   │  │Decisions│  │ Archive  │  │
+│  │  me/     │  │  tasks/  │  │decisions│  │ archive/ │  │
 │  └─────────┘  └──────────┘  └─────────┘  └──────────┘  │
 │                                                         │
 │  L1 (every conv) ──── L2 (on demand) ──── L3 (archive)  │
@@ -120,8 +120,8 @@ Not everything needs to load every time. Loci organizes knowledge by access freq
 | Layer | Loaded | Contents | Example |
 |-------|--------|----------|---------|
 | **L1** | Every conversation | Identity, active goals, inbox | `plan.md`, `inbox.md` |
-| **L2** | On demand | Module details, specific people, finances | `04-people/john.md` |
-| **L3** | Rarely, by request | Archives, old decisions, evolution history | `08-archive/` |
+| **L2** | On demand | Module details, specific people, finances | `people/john.md` |
+| **L3** | Rarely, by request | Archives, old decisions, evolution history | `archive/` |
 
 This keeps your AI fast and focused while maintaining access to deep history when needed.
 
@@ -129,16 +129,16 @@ This keeps your AI fast and focused while maintaining access to deep history whe
 
 Loci never saves raw conversation transcripts. Instead, it **distills** each conversation into structured updates:
 
-- New facts about you go to `01-me/`
-- New decisions go to `07-decisions/`
-- New tasks go to `05-tasks/active.md`
+- New facts about you go to `me/`
+- New decisions go to `decisions/`
+- New tasks go to `tasks/active.md`
 - New insights go to auto-memory
 
 Think of it as a personal knowledge base that grows automatically — but only with the good parts.
 
 ### Growth Tracking
 
-When your goals, values, or identity evolve, Loci doesn't just overwrite the old version. It archives the previous state to `01-me/evolution.md`, creating a timeline of personal growth that you can revisit anytime.
+When your goals, values, or identity evolve, Loci doesn't just overwrite the old version. It archives the previous state to `me/evolution.md`, creating a timeline of personal growth that you can revisit anytime.
 
 Current files stay lean (L1). History grows indefinitely (L3). Both are always available.
 
@@ -150,11 +150,11 @@ Managing multiple projects? Loci uses a **hub-and-spoke** model:
 
 ```
 Loci Brain (HQ)
-├── 09-links/project-alpha/   → symlink to ~/projects/alpha
+├── .loci/links/project-alpha/   → symlink to ~/projects/alpha
 │   ├── profile.md             ← Auto-generated project profile
 │   ├── from-hq.md             ← Brain writes strategic directives
 │   └── to-hq.md               ← Project reports back
-├── 09-links/project-beta/
+├── .loci/links/project-beta/
 │   ├── profile.md
 │   ├── from-hq.md
 │   └── to-hq.md
@@ -181,10 +181,10 @@ Everything is Markdown. Your AI's memory is version-controlled out of the box:
 git diff
 
 # See your growth over time
-git log --oneline 01-me/
+git log --oneline me/
 
 # Full history of every decision
-git log --oneline 07-decisions/
+git log --oneline decisions/
 ```
 
 No database migrations, no export tools. Your memory is portable, diffable, and yours forever.
@@ -198,44 +198,56 @@ A local web dashboard (pixel-art style) that visualizes your goals, tasks, inbox
 ## Directory Structure
 
 ```
-loci/
+my-brain/
 ├── CLAUDE.md              # System rules — the AI reads this first
 ├── plan.md                # Life direction and yearly goals (L1)
 ├── inbox.md               # Quick capture, fastest input (L1)
 │
-├── 00-inbox/              # Unsorted thoughts and ideas
-├── 01-me/                 # Identity, values, preferences
+├── me/                    # Identity, values, preferences
+│   ├── identity.md        # Who you are
+│   ├── values.md          # What you believe in
+│   ├── learned.md         # Lessons learned
+│   ├── goals.md           # Detailed goal breakdown
 │   └── evolution.md       # Growth history (L3)
-├── 02-finance/            # Budget, assets, financial tracking
-├── 03-planning/           # Daily / monthly / quarterly plans
-│   └── daily/             # Daily plans and retrospectives
-├── 04-people/             # Contacts, meeting notes, relationships
-├── 05-tasks/              # Task management
-│   └── active.md          # Current tasks with priorities (L1)
-├── 06-content/            # Writing, content creation, publishing
-├── 07-decisions/          # Decision records with context
-├── 08-archive/            # Completed / expired items (L3)
-├── 09-links/              # Symlinks to external projects
-│   ├── registry.md        # Project registry
-│   └── <project>/         # Each linked project has:
-│       ├── profile.md     # Auto-scanned project profile
-│       ├── from-hq.md     # Directives from brain
-│       └── to-hq.md       # Reports back to brain
-├── 10-dashboard/          # Web visualization panel
-│   └── build.py           # Dashboard data generator
-├── 11-references/         # External knowledge base
-│   ├── books/             # Book notes & takeaways
-│   ├── articles/          # Articles, posts, tweets
-│   ├── quotes/            # Ideas that stuck with you
-│   ├── videos/            # Video & podcast notes
-│   ├── frameworks/        # Mental models & methodologies
-│   └── inbox.md           # Quick dump, sort later
+│
+├── tasks/                 # Task management + planning
+│   ├── active.md          # Current tasks with priorities (L1)
+│   ├── someday.md         # Ideas without deadlines
+│   ├── calendar.json      # Calendar events
+│   ├── daily/             # Daily plans (YYYY-MM-DD.md)
+│   └── journal/           # Daily summaries
+│
+├── decisions/             # Decision records with context
+│
+├── archive/               # Completed / expired items (L3)
+│
+├── .loci/                 # System internals
+│   ├── hooks/             # Cross-terminal sync hooks
+│   ├── links/             # Symlinks to external projects
+│   │   ├── registry.md    # Project registry
+│   │   └── <project>/     # Each linked project has:
+│   │       ├── profile.md # Auto-scanned project profile
+│   │       ├── from-hq.md # Directives from brain
+│   │       └── to-hq.md   # Reports back to brain
+│   ├── dashboard/         # Web visualization panel
+│   │   └── build.py       # Dashboard data generator
+│   ├── config.yml         # Brain settings (persistence, privacy, routing)
+│   ├── status.yml         # Current state
+│   └── activity-log.md    # Recent activity timeline
 │
 ├── templates/             # File templates for consistency
-│   └── commands/          # Slash commands (/loci-link, /loci-settings, etc.)
+│   ├── commands/          # Slash commands (/loci-link, /loci-settings, etc.)
+│   └── extensions/        # README templates for extension modules
+│
 ├── docs/                  # Documentation
 ├── setup.sh               # One-command setup
 └── LICENSE                # MIT
+
+Extension modules (created on demand, not in default install):
+├── finance/               # Budget, assets, financial tracking
+├── people/                # Contacts, meeting notes, relationships
+├── content/               # Writing, content creation, publishing
+└── references/            # External knowledge base
 ```
 
 ---

@@ -17,11 +17,11 @@ At the end of a conversation (or when triggered), the AI:
 
 | Information Type | Destination | Example |
 |-----------------|------------|---------|
-| Personal facts | `01-me/identity.md` | "I just moved to Berlin" |
-| New values/principles | `01-me/values.md` | "I realized quality > speed" |
-| Lessons learned | `01-me/learned.md` | "Never deploy on Fridays" |
-| Decisions | `07-decisions/YYYY-MM-DD-slug.md` | "Chose React over Vue" |
-| New tasks | `05-tasks/active.md` | "Need to update the API docs" |
+| Personal facts | `me/identity.md` | "I just moved to Berlin" |
+| New values/principles | `me/values.md` | "I realized quality > speed" |
+| Lessons learned | `me/learned.md` | "Never deploy on Fridays" |
+| Decisions | `decisions/YYYY-MM-DD-slug.md` | "Chose React over Vue" |
+| New tasks | `tasks/active.md` | "Need to update the API docs" |
 | Insights/patterns | `.claude/memory/MEMORY.md` | "User prefers dark mode themes" |
 | Unprocessed thoughts | `inbox.md` | "Maybe I should learn Rust" |
 
@@ -50,13 +50,13 @@ User: Let's go with that. Also, I realized I need to stop checking Twitter first
 
 ### After (Distilled)
 
-**07-decisions/2026-03-01-pivot-to-b2b.md:**
+**decisions/2026-03-01-pivot-to-b2b.md:**
 > Decision: Pivot side project from B2C to B2B. Price: $49/mo. Reasoning: leverages enterprise experience, higher price filters for serious users.
 
-**01-me/learned.md** (appended):
+**me/learned.md** (appended):
 > Don't check Twitter first thing in the morning — it fragments focus.
 
-**05-tasks/active.md** (appended):
+**tasks/active.md** (appended):
 > - [ ] Update landing page messaging for B2B positioning
 
 Three files updated. Zero raw transcript saved. Everything searchable and in context.
@@ -66,7 +66,7 @@ Three files updated. Zero raw transcript saved. Everything searchable and in con
 When identity or values change, Loci doesn't just overwrite — it evolves:
 
 1. Current file (e.g., `values.md`) is updated to the new state
-2. The old version is appended to `01-me/evolution.md` with a timestamp
+2. The old version is appended to `me/evolution.md` with a timestamp
 
 This creates a personal changelog — you can see how your thinking evolved over months and years.
 
