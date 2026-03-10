@@ -18,6 +18,19 @@ Loci doesn't save on a fixed schedule. It watches every conversation turn for **
 
 **No signal = no save.** Five turns of chitchat produce zero writes. One turn with a major decision saves immediately.
 
+### Signal Detection Checklist
+
+The AI checks each conversation turn against these patterns:
+
+- **Task signal**: user mentions something to do ("need to", "should", "要做", "记得")
+- **Decision signal**: user makes a choice ("decided", "going with", "chose", "定了", "选")
+- **Insight signal**: user expresses a realization ("learned", "realized", "turns out", "原来", "发现")
+- **Identity signal**: user states personal info ("I am", "I moved to", "my job is", "我是", "我住")
+- **Goal signal**: user updates objectives ("pushing to", "new target", "目标改成")
+- **Reference signal**: user mentions external content to save ("save this article", "记一下这个链接")
+
+If none match, no save. If multiple match, save all categories in one operation.
+
 ### Notification Format
 
 After each auto-save, you see a one-line notification:
@@ -93,7 +106,7 @@ Privacy is always a hard boundary — sub-projects cannot weaken it.
 
 ## File Format
 
-### Brain side: `.loci/config.yml`
+### Brain side: `.loci/config.yml` (tracked in git)
 
 ```yaml
 version: 1
