@@ -4,164 +4,180 @@
 
 set -e
 
+TODAY=$(date +%Y-%m-%d)
+
+# ─── Colors ─────────────────────────────────────────────────────────────────
+BOLD='\033[1m'
+DIM='\033[2m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
 echo ""
-echo "╔══════════════════════════════════════╗"
-echo "║   Loci — Memory Palace for AI        ║"
-echo "╚══════════════════════════════════════╝"
+echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}"
+echo -e "${BOLD}║   🧠 Loci — Memory Palace for AI         ║${NC}"
+echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
 echo ""
-echo "Let's personalize your memory palace."
-echo ""
-
-# Collect user info
-read -p "Your name: " NAME
-read -p "Your occupation/role: " OCCUPATION
-read -p "Your location: " LOCATION
-read -p "Your main goal this year (one sentence): " GOAL
-echo ""
-
-# Update identity.md
-if [ -f "01-me/identity.md" ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        SED_CMD="sed -i ''"
-    else
-        SED_CMD="sed -i"
-    fi
-
-    $SED_CMD "s/Alex Chen/$NAME/g" 01-me/identity.md
-    $SED_CMD "s/Freelance UI\/UX Designer/$OCCUPATION/g" 01-me/identity.md
-    $SED_CMD "s/San Francisco, CA/$LOCATION/g" 01-me/identity.md
-
-    # Update dates
-    TODAY=$(date +%Y-%m-%d)
-    $SED_CMD "s/YYYY-MM-DD/$TODAY/g" 01-me/identity.md
-fi
-
-# Update plan.md
-if [ -f "plan.md" ]; then
-    TODAY=$(date +%Y-%m-%d)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/YYYY-MM-DD/$TODAY/g" plan.md
-    else
-        sed -i "s/YYYY-MM-DD/$TODAY/g" plan.md
-    fi
-fi
-
-# Update inbox.md
-if [ -f "inbox.md" ]; then
-    TODAY=$(date +%Y-%m-%d)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/YYYY-MM-DD/$TODAY/g" inbox.md
-    else
-        sed -i "s/YYYY-MM-DD/$TODAY/g" inbox.md
-    fi
-fi
-
-# Ask about optional modules
-echo "Which modules do you want to keep? (y/n for each)"
+echo -e "${DIM}Let's set up your brain. Answer a few questions.${NC}"
 echo ""
 
-read -p "  02-finance (financial tracking)? [y/n] " KEEP_FINANCE
-read -p "  04-people (contact management)? [y/n] " KEEP_PEOPLE
-read -p "  06-content (content creation)? [y/n] " KEEP_CONTENT
-read -p "  09-links (multi-project orchestration)? [y/n] " KEEP_LINKS
-read -p "  10-dashboard (web visualization)? [y/n] " KEEP_DASHBOARD
-
-# Remove unwanted modules
-if [[ "$KEEP_FINANCE" != "y" && "$KEEP_FINANCE" != "Y" ]]; then
-    rm -rf 02-finance
-    echo "  Removed 02-finance"
-fi
-
-if [[ "$KEEP_PEOPLE" != "y" && "$KEEP_PEOPLE" != "Y" ]]; then
-    rm -rf 04-people
-    echo "  Removed 04-people"
-fi
-
-if [[ "$KEEP_CONTENT" != "y" && "$KEEP_CONTENT" != "Y" ]]; then
-    rm -rf 06-content
-    echo "  Removed 06-content"
-fi
-
-if [[ "$KEEP_LINKS" != "y" && "$KEEP_LINKS" != "Y" ]]; then
-    rm -rf 09-links
-    echo "  Removed 09-links"
-fi
-
-if [[ "$KEEP_DASHBOARD" != "y" && "$KEEP_DASHBOARD" != "Y" ]]; then
-    rm -rf 10-dashboard
-    echo "  Removed 10-dashboard"
-fi
-
-# Ask about example data
+# ─── Step 1: Basic Info ─────────────────────────────────────────────────────
+echo -e "${CYAN}━━━ Step 1/3: About You ━━━${NC}"
 echo ""
-read -p "Remove example data (Alex Chen persona)? [y/n] " REMOVE_EXAMPLES
 
-if [[ "$REMOVE_EXAMPLES" == "y" || "$REMOVE_EXAMPLES" == "Y" ]]; then
-    # Clear example content but keep file structure
-    if [ -d "07-decisions" ]; then
-        rm -f 07-decisions/2026-01-15-niche-down.md
-    fi
-    if [ -d "09-links/client-acme" ]; then
-        rm -rf 09-links/client-acme
-    fi
-    # Reset task files to empty templates
-    cat > 05-tasks/active.md << 'TASKEOF'
+read -p "  Your name: " NAME
+read -p "  What do you do? (one sentence): " ROLE
+read -p "  Most important thing you're working on: " FOCUS
+
+echo ""
+
+# ─── Step 2: Language ───────────────────────────────────────────────────────
+echo -e "${CYAN}━━━ Step 2/3: Preferences ━━━${NC}"
+echo ""
+echo "  Preferred language:"
+echo -e "    ${DIM}1) English${NC}"
+echo -e "    ${DIM}2) 中文${NC}"
+echo -e "    ${DIM}3) Other${NC}"
+read -p "  Choose [1/2/3]: " LANG_CHOICE
+
+case "$LANG_CHOICE" in
+  1) LANG="English" ;;
+  2) LANG="中文" ;;
+  3) read -p "  Enter language: " LANG ;;
+  *) LANG="English" ;;
+esac
+
+echo ""
+
+# ─── Step 3: Modules ───────────────────────────────────────────────────────
+echo -e "${CYAN}━━━ Step 3/3: Modules ━━━${NC}"
+echo ""
+echo -e "  ${DIM}Keep all modules? (finance, people, content, dashboard, etc.)${NC}"
+read -p "  [Y/n]: " KEEP_ALL
+
+if [[ "$KEEP_ALL" == "n" || "$KEEP_ALL" == "N" ]]; then
+  read -p "    02-finance (financial tracking)? [y/n]: " KEEP_FINANCE
+  read -p "    04-people (contact management)? [y/n]: " KEEP_PEOPLE
+  read -p "    06-content (content creation)? [y/n]: " KEEP_CONTENT
+  read -p "    09-links (multi-project orchestration)? [y/n]: " KEEP_LINKS
+  read -p "    10-dashboard (web visualization)? [y/n]: " KEEP_DASHBOARD
+
+  [[ "$KEEP_FINANCE" != "y" && "$KEEP_FINANCE" != "Y" ]] && rm -rf 02-finance && echo "    ✓ Removed 02-finance"
+  [[ "$KEEP_PEOPLE" != "y" && "$KEEP_PEOPLE" != "Y" ]] && rm -rf 04-people && echo "    ✓ Removed 04-people"
+  [[ "$KEEP_CONTENT" != "y" && "$KEEP_CONTENT" != "Y" ]] && rm -rf 06-content && echo "    ✓ Removed 06-content"
+  [[ "$KEEP_LINKS" != "y" && "$KEEP_LINKS" != "Y" ]] && rm -rf 09-links && echo "    ✓ Removed 09-links"
+  [[ "$KEEP_DASHBOARD" != "y" && "$KEEP_DASHBOARD" != "Y" ]] && rm -rf 10-dashboard && echo "    ✓ Removed 10-dashboard"
+fi
+
+echo ""
+
+# ─── Generate Files ─────────────────────────────────────────────────────────
+echo -e "${YELLOW}Setting up your brain...${NC}"
+
+# identity.md
+cat > 01-me/identity.md << EOF
 ---
-updated: YYYY-MM-DD
+created: ${TODAY}
+updated: ${TODAY}
+tags: [identity, core]
+status: active
+---
+
+# Who I Am
+
+- **Name**: ${NAME}
+- **Role**: ${ROLE}
+- **Current Focus**: ${FOCUS}
+- **Language**: ${LANG}
+EOF
+
+# plan.md
+cat > plan.md << EOF
+---
+created: ${TODAY}
+updated: ${TODAY}
+status: active
+---
+
+# Life Direction & Goals
+
+> Your north star. Everything day-to-day should trace back here.
+
+## Current Focus
+
+${FOCUS}
+
+## Goals
+
+<!-- Add your goals here. Your AI will help you track them. -->
+EOF
+
+# active.md
+cat > 05-tasks/active.md << EOF
+---
+updated: ${TODAY}
 ---
 
 # Active Tasks
 
-## P0 — Must do today
-- [ ]
+> What you're working on right now. P0 = drop everything. P3 = nice to have.
 
-## P1 — This week
-- [ ]
+## P0
 
-## P2 — Can delegate or quick wins
-- [ ]
+- [ ] ${FOCUS}
 
-## P3 — When there's time
-- [ ]
-TASKEOF
+## P1
 
-    cat > 05-tasks/someday.md << 'SOMEDAYEOF'
+## P2
+
+## P3
+EOF
+
+# inbox.md
+cat > inbox.md << EOF
 ---
-updated: YYYY-MM-DD
+updated: ${TODAY}
 ---
 
-# Someday / Maybe
+# Inbox
 
-> Ideas and projects I want to do eventually, but haven't scheduled yet.
+> Brain dump. Sort weekly. If it takes < 2 min, just do it.
 
--
-SOMEDAYEOF
+## Unprocessed
+EOF
 
-    echo "  Example data removed"
-fi
+# activity-log.md
+cat > activity-log.md << EOF
+---
+updated: ${TODAY}
+---
 
-# Initialize git
-echo ""
-read -p "Initialize git repository? [y/n] " INIT_GIT
+# Activity Log
 
-if [[ "$INIT_GIT" == "y" || "$INIT_GIT" == "Y" ]]; then
-    git init
-    git add -A
-    git commit -m "Initialize Loci memory palace"
-    echo "  Git repository initialized"
-fi
+> Automatic timeline of what happened. Read by new sessions to restore context.
+> Retention: 14 days. Important info is distilled to proper files.
+
+## ${TODAY}
+
+- $(date "+%H:%M") \`create\` setup.sh — initial brain setup
+EOF
+
+echo -e "  ${GREEN}✓${NC} 01-me/identity.md"
+echo -e "  ${GREEN}✓${NC} plan.md"
+echo -e "  ${GREEN}✓${NC} 05-tasks/active.md"
+echo -e "  ${GREEN}✓${NC} inbox.md"
+echo -e "  ${GREEN}✓${NC} activity-log.md"
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "  Your memory palace is ready!"
+echo -e "  ${GREEN}Your memory palace is ready!${NC}"
 echo ""
-echo "  Next steps:"
-echo "  1. Edit 01-me/identity.md with your full profile"
-echo "  2. Set your goals in plan.md"
-echo "  3. Open Claude Code in this directory"
-echo "  4. Start chatting — your AI now remembers everything"
+echo -e "  ${DIM}Starting Claude Code...${NC}"
 echo ""
-echo "  Docs: https://github.com/codesstar/loci#readme"
+echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Launch Claude
+claude --prompt "My brain is set up. Read my identity and plan, then tell me what you know about me and what we should work on."

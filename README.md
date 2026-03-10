@@ -54,18 +54,18 @@ The result: an AI that picks up where you left off, reminds you what matters, an
 
 ## Quick Start
 
-Get running in 30 seconds. No setup script needed.
+Get running in 2 minutes.
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/codesstar/loci.git my-brain
 cd my-brain
 
-# 2. Start your brain
-claude --prompt "set up my brain"
+# 2. Set up your brain
+bash setup.sh
 ```
 
-That's it. Loci detects it's your first time and walks you through a conversational setup — your name, what you do, what you're working on. In 2 minutes, your brain is ready.
+That's it. The setup script walks you through a few questions — your name, what you do, what you're working on — then launches Claude Code with your brain ready to go.
 
 Everything is local Markdown — no database, no server, no account required.
 
