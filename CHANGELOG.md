@@ -2,7 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.0] — 2026-03-10
+## [0.1.0] — 2026-03-11
+
+### Added
+- Sub-project local persistence (`.loci/memory.md`)
+- Tag-based sync (`push_tags` / `local_tags`)
+- Global awareness block for `~/.claude/CLAUDE.md`
+- Sub-project files consolidated into `.loci/` directory
+- `adapt.sh` for multi-tool compatibility (Cursor, Windsurf, Cline)
+
+### Fixed
+- Bug fixes from test suite (`build.py`, `check-updates.sh`, `.gitignore`, `adapt.sh`)
+
+### Removed
+- Routing modes (deferred to v1.0 — see [roadmap](docs/roadmap.md))
+- Auto-compression (deferred to v0.2)
+- Privacy boundary configuration (deferred to v1.0)
+- Distillation level presets (deferred to v1.0)
+
+## [0.1.0-alpha] — 2026-03-10
 
 Initial public release.
 

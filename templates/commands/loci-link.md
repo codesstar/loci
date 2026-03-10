@@ -34,9 +34,7 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
 4. Get the brain path and the project directory
 5. **Use AskUserQuestion** to collect project info in one form (user can tab through fields):
    - Question 1: "Project name" (header: "Name", default: current folder name, let user type)
-   - Question 2: "What's this project for?" (header: "Purpose", options: "Code", "Content", "Research", "Other")
-   - Question 3: "Associated department" (header: "Department", options: "engineering", "product", "research", "marketing", "none")
-   - Question 4: "One-line description" (header: "Description", let user type)
+   - Question 2: "One-line description" (header: "Description", let user type)
 5. In the brain directory:
    - Create symlink: `.loci/links/<project-name>` → current directory
    - Register in `.loci/links/registry.md`
@@ -49,7 +47,7 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
      ```markdown
      # Project: <name>
      > <one-line description>
-     > Department: <department> | Brain: <brain-path>
+     > Brain: <brain-path>
 
      ## Active
 
@@ -60,15 +58,10 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
      {
        "version": 1,
        "brain": "<brain-path>",
-       "department": "<department>",
        "sync": {
          "push_tags": ["decision", "insight", "milestone", "architecture"],
          "local_tags": ["local", "debug", "wip"],
          "auto_push": true
-       },
-       "memory": {
-         "compress_after_lines": 200,
-         "compress_after_days": 30
        }
      }
      ```

@@ -73,9 +73,9 @@ Steps:
       - `[local]` — project-specific context, naming conventions, quirks
       - `[debug]` — tricky bugs and their solutions
       - `[wip]` — work in progress notes, current state of incomplete work
-   e. **Filter for push**: check `sync.push_tags` in `.loci/config.json`. Only entries whose tag appears in `push_tags` get written to `.loci/to-hq.md` with appropriate tags.
-   f. Entries whose tag appears in `sync.local_tags` stay in `memory.md` only — they are never pushed to `to-hq.md`.
-   g. If not `--local`: write filtered items to `.loci/to-hq.md`
+   e. **Immediate push**: For each new entry, check if its tag appears in `sync.push_tags` from `.loci/config.json`. If yes, write the entry to **both** `.loci/memory.md` and `.loci/to-hq.md` simultaneously. No batching, no waiting for session end.
+   f. Entries whose tag appears in `sync.local_tags` are written to `memory.md` only — they are never pushed to `to-hq.md`.
+   g. If `--local` flag is set: write everything to `memory.md` only, skip `to-hq.md` regardless of tags.
 
 4. **Pull (read from brain)** (skip if `--local`):
    a. Read brain path from `.loci/link`
@@ -85,26 +85,13 @@ Steps:
    e. Display new entries, highlighting priority
    f. Mark displayed entries as `[read]` with today's date
 
-5. **Compression** (runs after distill, before summary):
-   a. Read `compress_after_lines` and `compress_after_days` from `.loci/config.json` (defaults: 200 lines, 30 days)
-   b. If `.loci/memory.md` exceeds `compress_after_lines`:
-      - Identify entries older than `compress_after_days`
-      - Append those original entries to `.loci/memory-archive.md` (preserving exact text)
-      - Replace them in `memory.md` with a compressed summary block:
-        ```
-        [compressed] YYYY-MM-DD Summarized N entries from YYYY-MM-DD to YYYY-MM-DD: <one-paragraph summary>
-        ```
-      - Keep recent entries (within `compress_after_days`) untouched
-   c. If memory.md is under the line threshold, skip compression
-
-6. **Show summary**:
+5. **Show summary**:
    ```
    Sync complete.
 
    Stored locally: X items → memory.md
    Pushed to brain: Y items (via to-hq.md)
    Pulled from brain: Z new updates
-   Compressed: N old entries archived
 
    [List of stored items with tags]
    [List of pushed items]
@@ -118,10 +105,13 @@ Steps:
 When persistence mode is `auto` (default), the AI performs signal-driven sync automatically during conversation:
 
 1. **Every turn**, AI evaluates whether the current exchange contains storable information (new task, decision, insight, personal info change, etc.)
-2. **If yes**: silently distill and **append** to `.loci/memory.md` (in sub-projects) or the appropriate brain file, then route if applicable. Output a one-line notification:
+2. **If yes**: silently distill and **append** to `.loci/memory.md` (in sub-projects) or the appropriate brain file. If the tag matches `push_tags`, **immediately** write to both `memory.md` and `to-hq.md` in the same operation. Output a one-line notification:
    ```
-   [Loci] Stored: [decision] 2026-03-11 Loci pricing set to $49 → memory.md
-   [Loci] Pushed: [decision] Loci pricing $49 → to-hq.md
+   [Loci] Stored: [decision] 2026-03-11 Loci pricing set to $49 → memory.md + to-hq.md
+   ```
+   For local-only entries:
+   ```
+   [Loci] Stored: [debug] 2026-03-11 Fixed race condition in auth flow → memory.md
    ```
    In the brain:
    ```
@@ -130,6 +120,6 @@ When persistence mode is `auto` (default), the AI performs signal-driven sync au
    ```
 3. **If no**: do nothing, no notification
 4. User can say "undo" / "撤销" to reverse the last auto-save
-5. **Compression** is never auto-triggered — it only runs during explicit `/loci-sync`
+5. **memory.md grows over time.** Clean manually if needed, or wait for v2.0 auto-compression.
 
 This is signal-driven, not interval-based. 5 turns of chitchat = nothing stored. 1 turn with a major decision = stored immediately.

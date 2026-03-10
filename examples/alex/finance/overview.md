@@ -8,46 +8,48 @@ tags: [finance, overview]
 
 ## Income (2026)
 
-### Freelance Design & Development
-- **Monthly target**: $8,000
-- **Current monthly average**: $7,200
-- **Hourly rate**: $150/hr (raised from $120 in March)
+### Freelance Development
+- **Monthly target**: $9,000
+- **Current monthly average**: $6,500
+- **Hourly rate**: $165/hr (raised from $140 in March)
 
 | Client | Monthly Retainer | Status |
 |--------|-----------------|--------|
-| TechCorp (Sarah Kim) | $4,000 | Active |
-| Marcus Johnson (startup) | $2,500 | Active |
-| Overflow projects | ~$700 | Variable |
+| DataForge (Sarah Kim) | $4,000 | Active |
+| Bloom Health (Marcus) | $2,500 | Active |
+| Overflow projects | ~$500 | Variable |
 
 ### Side Income
-- GitHub Sponsors: $85/mo
-- Blog affiliate links: ~$50/mo
+- GitHub Sponsors: $65/mo
+- Blog affiliate links: ~$40/mo
 
 ## Expenses (Monthly)
 
 | Category | Amount | Notes |
 |----------|--------|-------|
-| Rent | $2,400 | Studio in Mission District |
-| Food & groceries | $600 | Cooking more to save |
-| Software & tools | $180 | Figma, Vercel, Claude Pro, domain |
-| Gym | $60 | ClassPass |
-| Phone & internet | $120 | |
-| Insurance | $350 | Health + liability |
-| Savings | $1,000 | Auto-transfer |
-| Misc | $300 | |
-| **Total** | **$5,010** | |
+| Rent | $1,600 | 1BR in Hawthorne, Portland |
+| Food & groceries | $450 | Cooking most meals |
+| Software & tools | $160 | Vercel, Railway, Claude Pro, domains |
+| CloudMetrics infra | $85 | Railway + TimescaleDB (will grow) |
+| Gym | $45 | Portland Rock Gym membership |
+| Phone & internet | $95 | |
+| Insurance | $280 | Health (marketplace plan) |
+| Savings | $800 | Auto-transfer |
+| Misc | $250 | |
+| **Total** | **$3,765** | |
 
 ## Savings & Goals
 
-- **Emergency fund**: $12,500 / $15,000 target (83%)
-- **SaaS runway fund**: $3,200 (goal: $10,000 before going full-time on TaskFlow)
-- **Travel fund**: $1,800 (Japan trip planned for November)
+- **Emergency fund**: $14,200 / $15,000 target (95%)
+- **SaaS runway fund**: $4,800 (goal: $12,000 before going full-time on CloudMetrics)
+- **Travel fund**: $1,200 (Japan trip tentatively November)
 
 ## Key Metrics
 
-- **Net monthly**: ~$2,190 (income - expenses)
-- **Savings rate**: ~27%
-- **Months of runway**: 2.5 months (if freelance stops)
+- **Net monthly**: ~$2,735 (income - expenses)
+- **Savings rate**: ~39%
+- **Months of runway**: 3.8 months (if freelance stops entirely)
+- **CloudMetrics MRR**: $0 (pre-launch)
 
 ---
 > Review monthly. Update after major income/expense changes.

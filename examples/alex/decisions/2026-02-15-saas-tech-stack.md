@@ -1,42 +1,42 @@
 ---
 date: 2026-02-15
-tags: [taskflow, technical, architecture]
+tags: [cloudmetrics, technical, architecture]
 status: active
 ---
 
-# Decision: TaskFlow Tech Stack
+# Decision: CloudMetrics Tech Stack
 
 ## Background
 
-Needed to pick a stack for TaskFlow (my SaaS side project — a project management tool for small design teams). Requirements: fast to build as a solo dev, good DX, can scale to ~1000 users without re-architecting.
+Needed to pick a stack for CloudMetrics (my SaaS — real-time infrastructure monitoring for small dev teams). Requirements: fast to build as a solo dev, good DX, handles time-series data well, can scale to ~1000 users without re-architecting.
 
 ## Options Considered
 
-1. **Next.js + Supabase + Vercel** — Full-stack JS, auth/db/storage included, generous free tier
-2. **Remix + PlanetScale + Fly.io** — More control, slightly more setup, better data mutation patterns
-3. **SvelteKit + Firebase** — Fastest UI, but Firebase pricing gets unpredictable at scale
-4. **Rust (Axum) + HTMX + SQLite** — Lean and fast, but I don't know Rust well enough yet
+1. **Next.js + Supabase (Postgres) + Vercel** — Full-stack JS, auth/db/storage included, generous free tier
+2. **Go + ClickHouse + self-hosted** — Purpose-built for metrics, but more ops burden as a solo dev
+3. **Next.js + TimescaleDB + Railway** — Best of both: familiar stack + time-series optimized storage
+4. **Rust (Axum) + ClickHouse** — Maximum performance, but I don't know Rust well enough yet
 
 ## Decision
 
-Going with **Option 1: Next.js + Supabase + Vercel**.
+Going with **Option 3: Next.js + TimescaleDB + Railway**, with Supabase for auth only.
 
 ### Reasoning
-- I already know Next.js deeply from client work — zero ramp-up time
-- Supabase gives me auth, Postgres, real-time subscriptions, and row-level security out of the box
-- Vercel's preview deployments are great for iterating fast
-- The ecosystem is huge — if I get stuck, there's always a blog post or Discord answer
-- I can always add Rust microservices later for performance-critical features
+- I know Next.js deeply from client work — zero ramp-up time on the frontend
+- TimescaleDB is Postgres under the hood, so I get all the Postgres ecosystem (RLS, pg_cron, extensions) plus native time-series capabilities (continuous aggregates, compression, retention policies)
+- Railway gives me simple deploys without Vercel's serverless limitations (I need persistent connections for metrics ingestion)
+- Supabase Auth is excellent and free — no reason to build auth from scratch
+- I can always add a Rust ingestion service later for performance-critical paths
 
 ### Trade-offs Accepted
-- Vendor lock-in with Vercel (acceptable for now, can self-host Next.js if needed)
-- Supabase is still maturing — some rough edges in their JS client
-- Not as "cool" as building in Rust, but shipping matters more than tech cred
+- TimescaleDB is less proven than plain Postgres for non-time-series queries
+- Railway is smaller than Vercel/AWS — vendor risk
+- Not as cutting-edge as a Go/Rust stack, but shipping matters more than tech cred
 
 ## Follow-up
 
-- [x] Set up Supabase project and initial schema
-- [x] Configure Vercel deployment pipeline
-- [x] Set up GitHub Actions for CI
+- [x] Set up TimescaleDB on Railway + initial schema (hypertables, retention policies)
+- [x] Configure GitHub Actions CI pipeline
+- [x] Supabase Auth integration with Next.js middleware
 - [ ] Evaluate tRPC vs REST for API layer (Jake recommended tRPC)
-- [ ] Set up Stripe Checkout for billing (after core features work)
+- [ ] Set up Stripe Checkout for billing (in progress as of March)

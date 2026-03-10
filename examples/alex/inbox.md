@@ -8,8 +8,8 @@ updated: 2026-03-09
 
 ## Unprocessed
 
-- Check out Vercel's new AI SDK v4 — might simplify the design tool backend
-- Idea: "Memory-aware UI patterns" article series (how interfaces change when AI remembers)
-- Reply to Sarah's email about the March meetup talk
-- Bookmark: that thread on designing for LLM latency
-- Move old Figma files to archive (taking up space)
+- Look into OpenTelemetry collector as a CloudMetrics data source — might unlock a whole new user segment
+- Idea: "How I monitor my own SaaS with my own SaaS" blog post (meta but people love this)
+- Reply to Jake's DM about the Rust Portland meetup next Thursday
+- That HN thread about Prometheus alternatives had 3 comments mentioning the exact pain point CloudMetrics solves — screenshot and save for landing page copy
+- Move the old freelance project repos to archive — they're cluttering my GitHub stars

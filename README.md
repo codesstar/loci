@@ -144,7 +144,7 @@ Extension modules (created on demand): `finance/`, `people/`, `content/`, `refer
 
 Start here: **[How It Works](docs/how-it-works.md)** — one doc, understand everything.
 
-Topic guides: [Architecture](docs/architecture.md) | [Synapse](docs/synapse.md) | [Distillation](docs/distillation.md) | [Context Awareness](docs/context-awareness.md) | [Departments](docs/departments.md) | [Dashboard](docs/dashboard.md) | [Privacy](docs/privacy.md) | [Personalization](docs/personalization.md)
+Topic guides: [Architecture](docs/architecture.md) | [Synapse](docs/synapse.md) | [Distillation](docs/distillation.md) | [Context Awareness](docs/context-awareness.md) | [Departments](docs/departments.md) | [Dashboard](docs/dashboard.md) | [Privacy](docs/privacy.md) | [Personalization](docs/personalization.md) | [Roadmap](docs/roadmap.md)
 
 ---
 

@@ -65,44 +65,18 @@ Configure via `/loci-brain-settings`:
 | **Auto** (default) | Signal-driven save + one-line notifications | Most users |
 | **Manual** | Only saves on `/loci-sync` or explicit request | Power users who want full control |
 
-## How Routing Works
+## Tag-Based Routing
 
-When information is saved in the brain, Synapse decides which sub-projects should know about it:
+When information is saved in the brain, Synapse uses tags to decide which sub-projects should know about it:
 
-```
-Information detected
-       ↓
-   [Filter] — Does it match any category? (task, decision, insight...)
-       ↓
-  [Transform] — Apply distillation level (verbose / balanced / minimal)
-       ↓
-    [Route] — Send to the right place(s)
-```
+1. Each piece of information is auto-tagged: `urgent`, `decision`, `fyi`, `log`
+2. Each sub-project declares `interest_tags` in `.loci/config.json`
+3. Synapse matches tags to interests — only relevant items are routed
+4. Projects with no matching tags receive nothing (no noise)
 
-### Routing Modes
+Example: A decision tagged `[decision, backend]` routes to projects whose `interest_tags` include `decision` or `backend`, but skips a frontend-only project.
 
-| Mode | How it works |
-|------|-------------|
-| **Tag-routed** (default) | Auto-tag items (urgent/decision/fyi/log), match to sub-project `interest_tags` |
-| **Open** | All info visible to all sub-projects, each pulls what it needs |
-| **Manual** | You choose which projects get each item |
-| **Silent** | Brain keeps everything to itself |
-
-### Privacy
-
-Some information should never leave the brain. Privacy rules are configured in `/loci-brain-settings`:
-
-- **Default blocked**: medical info, financial details, credentials/passwords
-- **Custom rules**: You can add any category (e.g., "never share relationship details")
-- **Hard boundary**: Privacy rules cannot be overridden by sub-projects
-
-## Configuration Inheritance
-
-```
-Loci defaults → Brain settings → Sub-project settings → User override
-```
-
-Privacy is always a hard boundary — sub-projects cannot weaken it.
+Sensitive files (medical, financial, credentials) are never synced to sub-projects by default.
 
 ## File Format
 
@@ -110,24 +84,9 @@ Privacy is always a hard boundary — sub-projects cannot weaken it.
 
 ```yaml
 version: 1
-
 persistence:
-  mode: auto        # auto | manual
-  notify: true      # show one-line notification after each save
-
-privacy:
-  blocked_tags: [medical, financial, credentials]
-  custom_rules: []
-
-distillation:
-  level: balanced   # verbose | balanced | minimal
-
-routing:
-  mode: tag-routed  # open | tag-routed | manual | silent
-  tags: [urgent, decision, fyi, log]
-
-retention:
-  archive_after_days: 90
+  mode: auto    # auto | manual
+  notify: true  # show one-line notification after each save
 ```
 
 ### Sub-project side: `.loci/config.json`
@@ -171,14 +130,3 @@ Two-way communication files between the sub-project and the brain:
 
 - **`.loci/to-hq.md`** (project -> brain): Milestones, blockers, questions needing decision
 - **`.loci/from-hq.md`** (brain -> project): Strategic decisions, priority changes, cross-project info
-
-### Tag-Based Sync
-
-When the brain produces new information, Synapse uses tags to decide which sub-projects should receive it:
-
-1. Each piece of information is auto-tagged: `urgent`, `decision`, `fyi`, `log`
-2. Each sub-project declares `interest_tags` in `.loci/config.json`
-3. Synapse matches tags to interests — only relevant items are routed
-4. Projects with no matching tags receive nothing (no noise)
-
-Example: A decision tagged `[decision, backend]` routes to projects whose `interest_tags` include `decision` or `backend`, but skips a frontend-only project.
