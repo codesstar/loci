@@ -175,8 +175,9 @@ This is the Week 2 feature — when you have multiple project folders.
 What happens:
 1. Auto-scans the project (README, package.json, directory structure) → generates a profile
 2. Creates a symlink in the brain's `.loci/links/`
-3. Creates `.loci-link` in the project (points to brain path)
-4. Creates two-way communication files: `from-hq.md` (brain → project), `to-hq.md` (project → brain)
+3. Creates `.loci/` directory in the project with `link` file (points to brain path)
+4. Creates two-way communication files: `.loci/from-hq.md` (brain → project), `.loci/to-hq.md` (project → brain)
+5. Creates `.loci/memory.md` for project-local knowledge persistence
 
 ### Information Flow
 
@@ -185,14 +186,18 @@ What happens:
           ╱    │    ╲
          ╱     │     ╲
     Project A  Project B  Project C
+    .loci/     .loci/     .loci/
 
-Upstream (to-hq.md): Project → Brain
+Upstream (.loci/to-hq.md): Project → Brain
   "v1.0 shipped" [milestone]
   "Should we switch databases?" [needs-decision]
 
-Downstream (from-hq.md): Brain → Project
+Downstream (.loci/from-hq.md): Brain → Project
   "Decision: use PostgreSQL across all projects"
   "This month's priority is Project A, deprioritize others"
+
+Local (.loci/memory.md): Project-specific knowledge
+  Facts, decisions, and lessons that stay within this project
 ```
 
 ### Routing Modes

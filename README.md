@@ -77,10 +77,10 @@ Claude will greet you, ask a few questions, and set up your brain through conver
          ┌──────────┼──────────┐
          ▼          ▼          ▼
     Project A   Project B   Project C
-    .loci-link  .loci-link  .loci-link
+    .loci/       .loci/       .loci/
 ```
 
-> One brain, many projects. Each project connects via `.loci-link` and communicates through Synapse. Your brain grows with every conversation, across every terminal.
+> One brain, many projects. Each project connects via a `.loci/` directory and communicates through Synapse. Your brain grows with every conversation, across every terminal.
 
 ---
 

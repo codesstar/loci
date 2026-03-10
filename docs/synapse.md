@@ -37,7 +37,7 @@ After each auto-save, you see a one-line notification:
 
 ```
 [Loci] Stored: new task "Update API docs" → active.md
-[Loci] Synced: decision "Use PostgreSQL" → from-hq.md (project-alpha)
+[Loci] Synced: decision "Use PostgreSQL" → .loci/from-hq.md (project-alpha)
 ```
 
 This is a notification, not a question. Your conversation flow is never interrupted.
@@ -130,7 +130,7 @@ retention:
   archive_after_days: 90
 ```
 
-### Sub-project side: `.loci-config.json`
+### Sub-project side: `.loci/config.json`
 
 ```json
 {
@@ -146,3 +146,39 @@ retention:
   }
 }
 ```
+
+### Sub-project side: `.loci/memory.md`
+
+Local persistence layer for project-specific knowledge. The AI appends distilled facts, decisions, and lessons relevant to this project here. Unlike brain-level memory, this stays within the project and loads as L1 context when working in this project.
+
+```markdown
+# Project Memory
+
+## Facts
+- Using PostgreSQL with Prisma ORM
+- Deployed on Railway
+
+## Decisions
+- 2026-03-10: Switched from REST to tRPC for type safety
+
+## Lessons
+- Connection pooling required for serverless deployment
+```
+
+### Sub-project communication: `.loci/to-hq.md` and `.loci/from-hq.md`
+
+Two-way communication files between the sub-project and the brain:
+
+- **`.loci/to-hq.md`** (project -> brain): Milestones, blockers, questions needing decision
+- **`.loci/from-hq.md`** (brain -> project): Strategic decisions, priority changes, cross-project info
+
+### Tag-Based Sync
+
+When the brain produces new information, Synapse uses tags to decide which sub-projects should receive it:
+
+1. Each piece of information is auto-tagged: `urgent`, `decision`, `fyi`, `log`
+2. Each sub-project declares `interest_tags` in `.loci/config.json`
+3. Synapse matches tags to interests — only relevant items are routed
+4. Projects with no matching tags receive nothing (no noise)
+
+Example: A decision tagged `[decision, backend]` routes to projects whose `interest_tags` include `decision` or `backend`, but skips a frontend-only project.

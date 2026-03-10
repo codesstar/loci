@@ -20,9 +20,63 @@ When the user mentions external content (articles, tweets, videos, quotes, produ
 ## Department Communication Protocol
 
 External projects ("departments") connect via `.loci/links/`. Two-way communication:
-- `from-hq.md` (HQ→Dept): Write on strategic decisions, execute one-off tasks directly
-- `to-hq.md` (Dept→HQ): Scan Active section at conversation start, watch for `[needs-decision]` `[milestone]` `[anomaly]`
+- `.loci/from-hq.md` (HQ→Dept): Write on strategic decisions, execute one-off tasks directly
+- `.loci/to-hq.md` (Dept→HQ): Scan Active section at conversation start, watch for `[needs-decision]` `[milestone]` `[anomaly]`
 - Monthly: archive entries older than 30 days or completed
+- For linked sub-projects, communication files live inside the sub-project's `.loci/` directory (not root)
+
+## Sub-Project Persistence
+
+When working inside a project that has a `.loci/` directory, the AI maintains a local project memory via `.loci/memory.md`.
+
+### memory.md Format
+
+Append-only, one entry per line:
+
+```
+[tag] YYYY-MM-DD One-line description of knowledge
+```
+
+Example:
+```
+[decision] 2026-03-11 Switched from REST to GraphQL for the API layer
+[architecture] 2026-03-11 Auth uses JWT with refresh tokens stored in httpOnly cookies
+[local] 2026-03-11 Fixed flaky test in user.test.ts by mocking date
+[insight] 2026-03-11 Batch writes to SQLite are 10x faster with WAL mode
+```
+
+### Tag Categories
+
+**Push tags** (auto-sync to brain's `.loci/links/` at session end):
+- `[decision]` — architectural or strategic choices
+- `[architecture]` — system design, data models, tech stack
+- `[insight]` — learned patterns, performance findings, best practices
+- `[milestone]` — shipped features, releases, major completions
+
+**Local tags** (stay in sub-project only):
+- `[local]` — project-specific context, not worth syncing
+- `[debug]` — bug fixes, workarounds, temporary solutions
+- `[wip]` — work in progress notes, incomplete thoughts
+
+### Compression
+
+When `memory.md` exceeds 200 lines:
+1. Entries older than 30 days → summarize into an `## Archive` section at the bottom of memory.md (grouped by month)
+2. Move original entries to `memory-archive.md` (append, never overwrite)
+3. Keep all entries from the last 30 days intact
+
+### Auto-Push
+
+At session end, scan memory.md for **new** push-tagged entries added during this session:
+1. Format them as entries in `.loci/to-hq.md` under the `## Active` section
+2. The brain picks these up on its next session start via the department communication scan
+
+### Relationship to .claude/ Auto-Memory
+
+- `.claude/` (auto-memory) = **AI behavior instructions** — how the AI should act in this project (preferences, conventions, tool configs)
+- `.loci/` (project memory) = **project knowledge** — what the AI knows about this project (decisions, architecture, insights, milestones)
+
+They are complementary: `.claude/` shapes behavior, `.loci/` provides context.
 
 ## Daily Summary (Journal)
 
