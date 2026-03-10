@@ -303,6 +303,14 @@ retention:
 
 > Deep dive: [Context Awareness](context-awareness.md), [Dashboard](dashboard.md)
 
+### Known Limitations (v0.1)
+
+- **Concurrent editing**: Multiple terminals writing to the same brain file simultaneously may cause conflicts. Git tracks all changes, so no data is truly lost, but you may need to resolve a manual merge.
+- **Cross-terminal detection**: The hook system (`check-updates.sh`) detects when another terminal has modified files, but it cannot prevent two writes from overlapping.
+- **Best practice**: Avoid editing the same brain file from multiple terminals at the same time. In practice this is rare — most conversations touch different files — but it's worth knowing.
+
+This is a v0.1 limitation, not a fundamental design issue. Future versions will add file-level locking or conflict-free merge strategies.
+
 ---
 
 ## One-Line Summary

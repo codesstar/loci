@@ -1,7 +1,7 @@
 ---
 created: 2026-01-20
 updated: 2026-03-06
-tags: [client, techcorp, active]
+tags: [client, dataforge, active]
 status: active
 ---
 
@@ -9,43 +9,44 @@ status: active
 
 ## Info
 
-- **Role:** Senior Product Manager at TechCorp
-- **Company:** TechCorp — Series B enterprise analytics platform, ~80 employees
-- **Location:** SF (SOMA office, but mostly remote)
-- **Email:** sarah.kim@techcorp.io
-- **How we met:** Referral from Jake (mutual friend from UC Davis). Jake's girlfriend works at TechCorp.
+- **Role:** VP of Engineering at DataForge
+- **Company:** DataForge — Series B data integration platform, ~60 employees
+- **Location:** SF (remote-first, we've never met in person)
+- **Email:** sarah.kim@dataforge.io
+- **How we met:** Referral from Jake (mutual friend from Oregon State). Jake's former Stripe colleague works at DataForge.
 - **Working together since:** January 2026
 
 ## Relationship
 
-Sarah is Client A — my biggest active project. She's sharp, organized, and gives clear feedback. Ideal client. She runs the product team for TechCorp's customer-facing dashboard, which is what I'm redesigning.
+Sarah is Client A — my biggest active project. She's sharp, organized, and gives clear technical specs. Ideal client. She runs the platform engineering team, and I'm helping them migrate their data ingestion API from REST to gRPC.
 
 ## Communication Style
 
 - Prefers Slack for quick questions, email for formal deliverables
-- Responds fast during business hours (usually within 30 min)
+- Responds fast during business hours (usually within 20 min)
 - Likes structured updates — uses the Friday email format I send
-- Direct but polite. Will tell me if something's off without being vague about it.
+- Direct but respectful. Will tell me if something's off without being vague about it.
+- Former Google SRE, so she thinks in terms of SLOs and error budgets. I've started framing my updates in those terms too.
 
 ## Current Project
 
-**TechCorp Dashboard Redesign** — Redesigning their main analytics dashboard. Moving from a dense table-heavy layout to a card-based design with better data visualization. Budget: $12K over 2 months. Currently in high-fidelity mockup phase, delivery due Mar 15.
+**DataForge API Migration** — Migrating their metric ingestion pipeline from REST to gRPC. The REST API has latency issues at scale (p99 is 800ms, target is under 200ms). Budget: $16K over 3 months. Currently in implementation phase, delivery due April 1.
 
 ## Key Details
 
-- She reports to VP of Product (Diana). Diana has final sign-off but trusts Sarah's judgment.
-- TechCorp's design system uses a custom component library based on Radix UI. I need to design within those constraints.
-- She mentioned they might need help with their mobile app dashboard in Q2 — potential follow-up project.
+- She reports to CTO (Wei Chen). Wei has final sign-off but trusts Sarah's judgment.
+- DataForge uses a microservices architecture on Kubernetes. I need to work within their existing deployment pipeline.
+- She mentioned they might need help with their alerting system in Q2 — potential follow-up project (and directly relevant to CloudMetrics learnings).
 
 ## Meeting Notes
 
-### 2026-03-05 — Stakeholder Presentation
-- Presented 3 dashboard directions (safe/moderate/bold)
-- Team aligned on Option B (card-based layout with expandable panels)
-- Sarah will send final content requirements by Monday (Mar 10)
-- Diana asked about accessibility — I need to add WCAG AA compliance notes to handoff doc
+### 2026-03-05 — Implementation Review
+- Reviewed the gRPC proto definitions I drafted
+- Team aligned on the message schema. One change: add a `metadata` field for extensibility.
+- Sarah will send the internal performance benchmarks by Monday (Mar 10)
+- Wei asked about backward compatibility — I need to add a REST-to-gRPC adapter layer for legacy clients
 
 ### 2026-02-15 — Kickoff
-- Walked through current dashboard pain points
-- Main issues: information overload, no hierarchy, users can't find the metrics they need
-- Success metric: reduce time-to-insight from ~3 min to under 30 seconds
+- Walked through current API pain points
+- Main issues: REST serialization overhead at high throughput, no streaming support, inconsistent error handling
+- Success metric: p99 latency under 200ms at 10K events/second

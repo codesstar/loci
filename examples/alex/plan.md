@@ -1,5 +1,5 @@
 ---
-created: 2026-02-15
+created: 2025-12-15
 updated: 2026-03-09
 status: active
 ---
@@ -10,28 +10,33 @@ status: active
 
 ## Mission
 
-Design AI products that feel human. Ship fast, learn in public.
+Build developer tools that respect engineers' time. Ship fast, write about it, build in public.
 
 ## 2026 Goals
 
-### Goal 1: Transition to AI Product Design
-- Key result: Land 3 AI-focused clients by Q2
-- Progress: 1/3 (Stripe audit in pipeline)
+### Goal 1: Launch CloudMetrics publicly
+- Key result: Public beta by Q2, 100 users by end of year
+- Progress: Private alpha with 8 testers, billing integration in progress
 
-### Goal 2: Build in Public
-- Key result: 50 posts sharing design process
-- Progress: 18/50
+### Goal 2: Sustainable indie income
+- Key result: $5K MRR from CloudMetrics OR 3 stable freelance retainers
+- Progress: 2 retainers ($6,500/mo), CloudMetrics at $0 MRR (pre-launch)
 
-### Goal 3: Launch a Side Project
-- Key result: Ship an AI design tool (open source)
-- Progress: Prototype stage
+### Goal 3: Build in Public
+- Key result: 40 posts/articles sharing the building process
+- Progress: 14/40 (blog + Twitter threads)
 
-### Goal 4: Health & Balance
-- Key result: Gym 4x/week, no screens after 10pm
-- Progress: Averaging 3x/week
+### Goal 4: Learn Rust properly
+- Key result: Comfortable enough to build production services in Rust
+- Progress: Through chapter 6 of The Rust Book, built 2 CLI tools
+
+### Goal 5: Health & Balance
+- Key result: Run 3x/week, half-marathon in October, no screens after 10pm
+- Progress: Running 2x/week, signed up for Portland Marathon
 
 ## Q1 Focus (Jan-Mar 2026)
 
-1. Portfolio site v2 with AI case studies
-2. Build Twitter/X presence (design + AI audience)
-3. First paying AI design client
+1. CloudMetrics: finish billing, alerting engine, and onboarding flow
+2. Land 3rd freelance client to build runway
+3. Publish 6 blog posts (bi-weekly cadence)
+4. Rust: finish The Rust Book through chapter 12

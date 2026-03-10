@@ -1,43 +1,43 @@
 # Meet Alex
 
-Alex Chen is a fictional UX designer in San Francisco who has been using Loci for about 3 months. This example shows what a real, lived-in brain looks like — not a pristine template, but a working system with messy inboxes, evolving identities, and decisions that reference each other.
+Alex Rivera is a fictional 28-year-old full-stack developer in Portland, OR who has been using Loci for about 3 months. He's building a SaaS product (CloudMetrics), freelancing to fund it, learning Rust on the side, and writing about dev tools. This example shows what a real, lived-in brain looks like — not a pristine template, but a working system with messy inboxes, evolving identities, and decisions that reference each other.
 
 Browse these files to see how a personal AI memory grows from a blank slate into something genuinely useful.
 
 ## What's Here
 
 ### `plan.md` — The North Star
-Alex's life direction: transition from generalist designer to AI product designer, build in public, launch a side project. Everything else in the brain traces back to this file. Notice how the goals have concrete key results and honest progress tracking — not aspirational fluff.
+Alex's life direction: build developer tools, launch CloudMetrics, learn in public. Everything else in the brain traces back to this file. Notice how the goals have concrete key results and honest progress tracking — not aspirational fluff.
 
 ### `me/` — Identity, Values, and Growth
-- **`identity.md`** — Started sparse in January (just name and job title). By March it reflects a real shift: "UX Designer" became "transitioning to AI Product Designer." The file grew as Alex's self-concept evolved.
+- **`identity.md`** — Started sparse in December (just name and job title). By March it reflects a real shift: "developer who writes code for clients" became "developer who builds products." The file grew as Alex's self-concept evolved.
 - **`values.md`** — Five principles that actually guide decisions (you'll see "Ship > Perfect" echoed in the tech stack decision).
 - **`learned.md`** — Hard-won insights collected over 3 months. The pricing lessons directly connect to the rate raise decision. The "I overthink when I'm anxious" pattern is the kind of self-knowledge that makes AI assistants genuinely helpful.
-- **`evolution.md`** — A timeline of identity shifts. This is the most interesting file — it shows Alex going from "designer who codes" to "design-engineer," and from undercharging out of insecurity to raising rates with confidence.
+- **`evolution.md`** — A timeline of identity shifts. This is the most interesting file — it shows Alex going from "developer-for-hire" to "builder," and from undercharging out of insecurity to raising rates with confidence.
 - **`goals.md`** — Long-term vision plus explicit anti-goals ("not raising VC", "not chasing followers"). The anti-goals are just as important as the goals.
 
 ### `tasks/` — What's Happening Now
 - **`active.md`** — Current task board with priority levels. Some tasks are checked off, others are waiting. A living document, not a to-do graveyard.
-- **`daily/`** — Daily plans for March 8-9. Notice how sparse they are — just 3-4 items, not an overwhelming list. The gap between "Plan" and "Done" is honest.
+- **`daily/`** — Daily plans for March 8-9. Notice how they're honest about what got done and what didn't. The gap between "Plan" and "Done" is real.
 
 ### `decisions/` — The Decision Log
 This is where Loci shines. Four decisions spanning January to March:
 
 1. **Jan 15: Niche down** — The foundational career decision. Has a "Results" section added later showing it paid off. Follow-up tasks link back to `active.md`.
-2. **Feb 15: Tech stack** — Practical tradeoffs for the side project. Notice the reasoning style: no paralysis, just "good enough and I can ship."
+2. **Feb 15: Tech stack** — Practical tradeoffs for CloudMetrics. Notice the reasoning style: no paralysis, just "good enough and I can ship."
 3. **Mar 1: Pricing** — Directly triggered by something Sarah said (see `people/sarah-kim.md`). The evolution entry for the same date captures the emotional shift behind the numbers.
 4. **Mar 5: Rust learning path** — A newer, lighter decision showing the brain is still growing.
 
 ### `people/` — Relationships with Context
 - **`sarah-kim.md`** — Client A. Communication preferences, project details, meeting notes. When Alex's AI sees "Sarah mentioned..." it knows exactly who she is and what they're working on.
 - **`marcus-johnson.md`** — Client B. Note the honest assessment: "needs to push back occasionally." Meeting notes capture not just what was said, but working dynamics.
-- **`jake-nguyen.md`** — The friend who referred Sarah. Relationships form a graph.
+- **`jake-nguyen.md`** — The college friend who referred Sarah. Relationships form a graph.
 
 ### `finance/` — Money, Honestly
-`overview.md` tracks income, expenses, savings goals, and runway. The rate raise from `decisions/` is reflected here. The numbers tell a story: Alex is making it work in SF, but the margin is thin — which is why the side project matters.
+`overview.md` tracks income, expenses, savings goals, and runway. The rate raise from `decisions/` is reflected here. The numbers tell a story: Alex is making it work in Portland, but the margin depends on keeping freelance clients while bootstrapping — which is why the runway fund matters.
 
 ### `content/` — Building in Public
-`blog-ideas.md` has a pipeline from idea to published. The backlog items reference real experiences from other files ("Why I Raised My Rate", "The 3-Option Framework"). Content is a byproduct of living, not a separate workstream.
+`blog-ideas.md` has a pipeline from idea to published. The backlog items reference real experiences from other files ("Why I Raised My Rate", "The gRPC Migration Playbook"). Content is a byproduct of building, not a separate workstream.
 
 ### `inbox.md` — The Brain Dump
 Five unprocessed items. Some will become tasks, some will become blog posts, some will quietly expire. The inbox is supposed to be messy — that's the point.
@@ -51,7 +51,7 @@ A machine-readable file that tracks energy, location, and available hours. Mostl
 
 **Early files are thin, later files are rich.** Compare January's spare decision log to March's detailed entries. A brain that starts perfect is a brain nobody uses. Start with one file. Let it grow.
 
-**Honest > Impressive.** Alex tracks what actually happened, not what was supposed to happen. The daily plans have unchecked boxes. The financial overview shows a tight margin. The identity file admits to a career transition still in progress. This honesty is what makes the AI assistant useful — it can give real advice because it has real context.
+**Honest > Impressive.** Alex tracks what actually happened, not what was supposed to happen. The daily plans have unchecked boxes. The financial overview shows a tight bootstrapping margin. The identity file admits to a career transition still in progress. This honesty is what makes the AI assistant useful — it can give real advice because it has real context.
 
 ## Try It Yourself
 

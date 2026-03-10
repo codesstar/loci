@@ -8,26 +8,28 @@ updated: 2026-03-09
 
 ## P0
 
-- [ ] **Launch portfolio site v2** — AI-powered case study generator
-- [x] **Finish Loci onboarding flow** — conversational setup for new users
-- [ ] **Client pitch deck** — Stripe design system audit proposal
+- [ ] **CloudMetrics: Stripe billing integration** — need checkout flow + webhook handler before beta invites go out
+- [x] **CloudMetrics: fix alert deduplication bug** — users getting 5x duplicate Slack notifications
+- [ ] **Client: DataForge API migration** — move their ingestion pipeline from REST to gRPC, due Mar 14
 
 ## P1
 
-- [ ] Write "Why AI needs memory" blog post
-- [x] Set up Figma → code pipeline with Claude
-- [ ] Record 3 short demos for Twitter/X
-- [ ] Review and merge dashboard PR #42
+- [ ] Write "Monitoring Your SaaS With Your Own SaaS" blog post
+- [x] Set up GitHub Actions CI for CloudMetrics (lint + test + deploy preview)
+- [ ] Record demo video for CloudMetrics landing page (under 90 seconds)
+- [ ] Review and merge PR #38 — dashboard time-range selector
 
 ## P2
 
-- [x] Organize design assets library
-- [ ] Update LinkedIn headline and portfolio links
-- [ ] Research vector DB options for side project
-- [ ] Weekly newsletter draft (issue #12)
+- [ ] Refactor CloudMetrics alerting engine to support custom thresholds
+- [ ] Update LinkedIn headline and project links
+- [x] Research ClickHouse vs TimescaleDB for metrics storage (decided: TimescaleDB)
+- [ ] Write newsletter issue #8 — "Why I chose Postgres over everything"
+- [ ] Reply to 3 HN comments from the "Show HN" thread
 
 ## P3
 
-- [ ] Explore Blender for 3D mockups
-- [ ] Read "Design of Everyday Things" (Ch. 5-7)
-- [x] Fix dark mode toggle on personal site
+- [ ] Explore Grafana plugin SDK — could CloudMetrics be a Grafana data source?
+- [ ] Rust rewrite of the metrics ingestion worker (learning project, not urgent)
+- [x] Fix dark mode toggle on personal blog
+- [ ] Read "Designing Data-Intensive Applications" chapters 10-12

@@ -1,5 +1,5 @@
 ---
-created: 2026-02-15
+created: 2025-12-15
 updated: 2026-03-09
 tags: [identity, core]
 status: active
@@ -9,19 +9,22 @@ status: active
 
 ## Basic Info
 
-- **Name**: Alex Chen
-- **Location**: San Francisco, CA
-- **Occupation**: UX Designer → transitioning to AI Product Designer
-- **Company**: Freelance (previously at Figma)
-- **Education**: RISD, BFA Industrial Design
+- **Name**: Alex Rivera
+- **Age**: 28
+- **Location**: Portland, OR
+- **Occupation**: Full-stack developer, freelance + building CloudMetrics
+- **Previous**: 3 years at Stripe (backend eng), 1 year at a Portland startup (full-stack)
+- **Education**: Oregon State University, BS Computer Science (2020)
 
-## Current Focus
+## Current Season
 
-Building AI-native design tools and sharing the process. Exploring how memory systems can make AI assistants more personal and context-aware.
+Building CloudMetrics — a real-time infrastructure monitoring SaaS for small dev teams. Freelancing part-time to fund it. Learning Rust on the side because I think it's the future of backend tooling. Writing about dev tools and the indie hacker journey.
 
 ## Working Style
 
-- Deep work mornings (9-12), meetings afternoon
-- Prefer async communication
-- Think in systems, design in pixels
-- Journal daily, review weekly
+- Deep work mornings (7-11am, before the world wakes up), meetings afternoon
+- Code in TypeScript daily, Rust when I can steal time
+- Prefer async communication — Slack DMs over calls
+- Think in systems, ship in iterations
+- Journal daily, review weekly, plan monthly
+- Best work happens with headphones on, instrumental music, and a cold brew

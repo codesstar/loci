@@ -47,7 +47,7 @@ Example:
 
 ### Tag Categories
 
-**Push tags** (auto-sync to brain's `.loci/links/` at session end):
+**Push tags** (immediately synced to brain via `to-hq.md` when written):
 - `[decision]` — architectural or strategic choices
 - `[architecture]` — system design, data models, tech stack
 - `[insight]` — learned patterns, performance findings, best practices
@@ -58,18 +58,18 @@ Example:
 - `[debug]` — bug fixes, workarounds, temporary solutions
 - `[wip]` — work in progress notes, incomplete thoughts
 
-### Compression
+### Memory Growth
 
-When `memory.md` exceeds 200 lines:
-1. Entries older than 30 days → summarize into an `## Archive` section at the bottom of memory.md (grouped by month)
-2. Move original entries to `memory-archive.md` (append, never overwrite)
-3. Keep all entries from the last 30 days intact
+memory.md grows over time. Clean manually if needed, or wait for v2.0 auto-compression.
 
-### Auto-Push
+### Immediate Push
 
-At session end, scan memory.md for **new** push-tagged entries added during this session:
-1. Format them as entries in `.loci/to-hq.md` under the `## Active` section
-2. The brain picks these up on its next session start via the department communication scan
+When writing an entry to memory.md whose tag matches `push_tags` in `.loci/config.json`:
+1. Write the entry to `.loci/memory.md`
+2. **Simultaneously** write the same entry to `.loci/to-hq.md` under the `## Active` section
+3. The brain picks these up on its next session start via the department communication scan
+
+No batching, no "session end" trigger. Push happens at the moment of writing.
 
 ### Relationship to .claude/ Auto-Memory
 

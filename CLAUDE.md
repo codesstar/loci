@@ -1,7 +1,7 @@
 <!--
-  Hey human! This file is for the AI, not for you.
-  You don't need to read or edit this — just run `claude` and start talking.
-  If you're curious about how it works, see docs/architecture.md
+  This is Loci's instruction file — it tells the AI how to manage your brain.
+  You don't need to edit it, but you're welcome to read it.
+  For a human-friendly overview, see docs/how-it-works.md
 -->
 
 # Loci — Memory Palace for AI
@@ -99,7 +99,7 @@ Never save raw transcripts. Distill to structured files:
 
 ## Persistence (Synapse)
 
-Read `.loci/config.yml` for the user's mode. Default: **auto**.
+Default: **auto mode with tag-routed sync.** Config lives in `.loci/config.yml`.
 
 ### Auto mode (default)
 Every turn, evaluate for storable info (task, decision, insight, personal change, goal update). If found → store + one-line notification:
