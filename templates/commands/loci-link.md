@@ -22,11 +22,11 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
 
 ### Project Mode (running `/loci-link` from a sub-project)
 
-1. Check if `.loci-link` already exists in the current directory. If yes:
+1. Check if `.loci/link` already exists in the current directory. If yes:
    - Read it to get the brain path
    - Tell the user: "This project is already connected to your Loci brain at [path]."
    - Ask: "Want to reconnect to a different brain, or disconnect?"
-   - If disconnect: remove `.loci-link`, `from-hq.md`, `to-hq.md`, and the symlink in the brain's `.loci/links/`
+   - If disconnect: remove the `.loci/` directory and the symlink in the brain's `.loci/links/`
    - If reconnect: continue with step 4
    - Otherwise: stop here
 2. Read `~/.claude/CLAUDE.md` to find the Loci brain path (look for the "Loci Brain" section)
@@ -40,11 +40,42 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
 5. In the brain directory:
    - Create symlink: `.loci/links/<project-name>` → current directory
    - Register in `.loci/links/registry.md`
-6. In the current directory:
-   - Create `.loci-link` file containing the brain's absolute path
-   - Create `from-hq.md` (for receiving directives from brain)
-   - Create `to-hq.md` (for reporting back to brain)
-7. **Initial Scan** — automatically scan the project to create a profile for the brain:
+6. In the current directory, create the `.loci/` directory with the following files:
+
+   - **`.loci/link`** — contains only the brain's absolute path (one line)
+   - **`.loci/from-hq.md`** — for receiving directives from brain
+   - **`.loci/to-hq.md`** — for reporting back to brain
+   - **`.loci/memory.md`** — project-local memory:
+     ```markdown
+     # Project: <name>
+     > <one-line description>
+     > Department: <department> | Brain: <brain-path>
+
+     ## Active
+
+     ## Archive
+     ```
+   - **`.loci/config.json`** — project configuration:
+     ```json
+     {
+       "version": 1,
+       "brain": "<brain-path>",
+       "department": "<department>",
+       "sync": {
+         "push_tags": ["decision", "insight", "milestone", "architecture"],
+         "local_tags": ["local", "debug", "wip"],
+         "auto_push": true
+       },
+       "memory": {
+         "compress_after_lines": 200,
+         "compress_after_days": 30
+       }
+     }
+     ```
+
+7. **Add `.loci/` to `.gitignore`** — if the project has a `.gitignore`, append `.loci/` to it (if not already present). If there is no `.gitignore`, create one containing `.loci/`.
+
+8. **Initial Scan** — automatically scan the project to create a profile for the brain:
 
    a. **Read identity files** (parallel, skip if not found):
       - `CLAUDE.md` (first 200 lines)
@@ -55,8 +86,8 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
       - Check for monorepo markers: `turbo.json`, `nx.json`, `pnpm-workspace.yaml`, `lerna.json`
 
    b. **Scan directory skeleton**:
-      - Run `tree -L 2 -d --noreport -I 'node_modules|.git|dist|build|.next|__pycache__|.venv|venv|target|.gradle'` (truncate to 50 lines)
-      - Count total files: `find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' -not -path '*/__pycache__/*' -not -path '*/.venv/*' | wc -l`
+      - Run `tree -L 2 -d --noreport -I 'node_modules|.git|dist|build|.next|__pycache__|.venv|venv|target|.gradle|.loci'` (truncate to 50 lines)
+      - Count total files: `find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' -not -path '*/dist/*' -not -path '*/__pycache__/*' -not -path '*/.venv/*' -not -path '*/.loci/*' | wc -l`
 
    c. **Extract structured data** (deterministic, no AI needed):
       - `name`: from package.json/pyproject.toml or folder name
@@ -107,10 +138,10 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
       - YYYY-MM-DD: Initial scan, auto-generated
       ```
 
-   **NEVER read**: `.env`, `.env.*`, `*.pem`, `*.key`, `*.cert`, `credentials.*`, `secrets.*`, `*.sqlite`, `*.db`, or anything inside `node_modules/`, `.git/objects/`, `dist/`, `build/`
+   **NEVER read**: `.env`, `.env.*`, `*.pem`, `*.key`, `*.cert`, `credentials.*`, `secrets.*`, `*.sqlite`, `*.db`, or anything inside `node_modules/`, `.git/objects/`, `dist/`, `build/`, `.loci/`
 
    If any identity file is missing, skip it gracefully. If the project is empty, set `type: empty` and write "New project, not yet initialized" as overview. Never fabricate information.
 
-8. Confirm: "Project connected and scanned. Profile saved to `.loci/links/<name>/profile.md`."
+9. Confirm: "Project connected and scanned. Profile saved to `.loci/links/<name>/profile.md`."
    Show a brief summary of what was detected (type, language, scale).
    Remind: "Run `/loci-settings` to configure what this project syncs to your brain."

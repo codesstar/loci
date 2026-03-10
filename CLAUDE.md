@@ -30,7 +30,22 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - `tasks/active.md` — first P0 task from "most important thing"
 3. **Offer global awareness** (optional):
    - "Would you like to connect other project folders to your brain?"
-   - If yes: append Loci block to `~/.claude/CLAUDE.md`, copy `templates/commands/` to `~/.claude/commands/`
+   - If yes: append the following block to `~/.claude/CLAUDE.md` (replace `<brain-path>` with the actual absolute path to this brain):
+     ```markdown
+     <!-- loci:start v1 -->
+     ## Loci Brain Connection
+     - Brain: <brain-path>
+     - In projects with `.loci/` directory:
+       1. Read `.loci/memory.md` at session start for project context
+       2. Append project knowledge during conversation: `[tag] YYYY-MM-DD content`
+       3. Tags: `[decision]` `[architecture]` `[insight]` `[milestone]` auto-push to brain; `[local]` `[debug]` `[wip]` stay local
+       4. At session end, check for push-tagged new entries → write to `.loci/to-hq.md`
+       5. Read `.loci/from-hq.md` for brain directives
+       6. Compress memory.md when >200 lines (summarize entries >30 days old)
+     - Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan
+     <!-- loci:end -->
+     ```
+   - Also copy `templates/commands/` to `~/.claude/commands/`
    - Only say: "Done! Use `/loci-link` in any project folder to connect it."
 4. **Done**: Keep it simple:
    ```

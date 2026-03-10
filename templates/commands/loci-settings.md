@@ -2,7 +2,7 @@ Configure what this project syncs to your Loci brain.
 
 Steps:
 
-1. **Check connection**: Read `.loci-link` in current directory. If not found, tell user: "This project is not connected to a brain. Run `/loci-link` first."
+1. **Check connection**: Check for `.loci/link` in current directory. If not found, tell user: "This project is not connected to a brain. Run `/loci-link` first."
 
 2. **Analyze project**: Scan the current directory to detect project type:
    - Check for `package.json` → Node.js/frontend project
@@ -13,7 +13,7 @@ Steps:
    - Check for common content files (`.md` heavy) → Content/writing project
    - If none match → General project
 
-3. **Check existing config**: Read `.loci-config.json` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
+3. **Check existing config**: Read `.loci/config.json` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
 4. **Present and collect settings using AskUserQuestion tool**. Do it step by step, one question per category. Use the AskUserQuestion tool for each question so the user gets a clean interactive prompt:
 
@@ -36,7 +36,7 @@ Steps:
    → User can keep adding. After each one, ask "Anything else?" until they say no.
 
    Q8: "Any rules about what should NEVER sync? (e.g. 'never sync client names', 'skip internal jokes'). Say 'no' to skip."
-   → Save to customRules as exclusion rules
+   → Save to customExclusions as exclusion rules
 
    Adjust defaults by project type:
    - **Code project**: Architecture ON, code details OFF, deps OFF
@@ -45,34 +45,49 @@ Steps:
 
    Skip questions about environment variables, debug logs, and dependency updates — these should ALWAYS be OFF and never synced. Just mention this at the end: "Note: env variables, secrets, debug logs, and dependency updates are never synced."
 
-5. **Save config**: Write `.loci-config.json` in current directory:
+5. **Map answers to tag config**: Convert the user's answers into push_tags and local_tags:
+   - Items the user wants synced → add corresponding tags to `push_tags`
+   - Items the user wants kept local → add corresponding tags to `local_tags`
+   - Default push_tags: `["decision", "insight", "milestone", "architecture"]`
+   - Default local_tags: `["local", "debug", "wip"]`
+
+6. **Save config**: Write `.loci/config.json` in current directory:
    ```json
    {
-     "enabled": true,
-     "projectType": "detected type",
+     "version": 1,
+     "brain": "<path from .loci/link>",
+     "department": "<project directory name>",
      "sync": {
-       "decisions": true,
-       "milestones": true,
-       "lessons": true,
-       "codeDetails": false,
-       "architecture": true,
-       "blockers": true
+       "push_tags": ["decision", "insight", "milestone", "architecture"],
+       "local_tags": ["local", "debug", "wip"],
+       "auto_push": true
      },
-     "customSync": ["meeting notes", "user feedback"],
+     "memory": {
+       "compress_after_lines": 200,
+       "compress_after_days": 30
+     },
      "customExclusions": ["client names", "internal jokes"]
    }
    ```
+   - `brain` path is read from `.loci/link`
+   - `department` defaults to the current directory name (user can override in Q0)
+   - `push_tags` and `local_tags` are derived from the user's answers in step 5
+   - `customExclusions` comes from Q8
 
-6. **Apply rules**: If the project has a CLAUDE.md, append a "Loci Sync Rules" section summarizing what to sync and what not to sync in natural language. If no CLAUDE.md, create a minimal one with just the sync rules.
+7. **Apply rules**: If the project has a CLAUDE.md, append a "Loci Sync" section noting that `.loci/memory.md` is the project's local memory file managed by Loci, and summarizing what tags push to brain vs stay local. If no CLAUDE.md, create a minimal one with just the Loci sync awareness.
 
-7. **Confirm with summary**:
+8. **Confirm with summary**:
    ```
-   Settings saved.
+   Settings saved to .loci/config.json
 
-   Enabled: yes
-   Syncing to brain: decisions, milestones, lessons, architecture, blockers
-   Never synced: code details, env/secrets, debug logs, deps
-   Custom rules: [if any]
+   Brain: <brain path>
+   Department: <department name>
+   Auto-push: yes
+   Push tags: decision, insight, milestone, architecture
+   Local tags: local, debug, wip
+   Memory compression: after 200 lines or 30 days
+   Custom exclusions: [if any]
+   Never synced: env/secrets, debug logs, deps
 
    You can re-run /loci-settings anytime to change these.
    ```
