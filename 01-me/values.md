@@ -8,3 +8,4 @@ status: template
 # Values & Principles
 
 <!-- Will be shaped through your conversations with Loci. -->
+<!-- For a complete example, see examples/alex/01-me/values.md -->

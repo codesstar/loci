@@ -5,6 +5,7 @@ updated:
 # Active Tasks
 
 > What you're working on right now. P0 = drop everything. P3 = nice to have.
+> For a complete example, see examples/alex/05-tasks/active.md
 
 ## P0
 

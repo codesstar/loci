@@ -14,6 +14,26 @@ Thumbs.db
 # Dashboard build output
 10-dashboard/data.json
 
-# Sensitive files - uncomment if needed
-# 02-finance/*.md
-# !02-finance/README.md
+# ─── Personal data (excluded by default for privacy) ───
+# Only README.md in each directory is tracked.
+# After onboarding, your real data stays local and won't be pushed.
+01-me/*
+!01-me/README.md
+02-finance/*
+!02-finance/README.md
+04-people/*
+!04-people/README.md
+03-planning/daily/*
+03-planning/journal/*
+!03-planning/journal/README.md
+status.yml
+activity-log.md
+
+# Keep template files tracked
+!01-me/identity.md
+!01-me/values.md
+!01-me/goals.md
+!01-me/learned.md
+!01-me/evolution.md
+!05-tasks/active.md
+!05-tasks/someday.md
