@@ -11,12 +11,12 @@ Steps:
 
 ### Brain Mode (running `/loci-link` from the brain directory)
 
-The user is in their brain and wants to connect a project. Offer two options:
+The user is in their brain and wants to connect a project. **Use AskUserQuestion** to ask:
 
-1. "Enter the path to the project you want to connect" — user provides a path, then proceed to step 4 using that path as the project directory (run all scan steps against that path remotely)
-2. "Go to your project folder and run `/loci-link` there" — just show this instruction and stop
+- Question 1: "Enter the project path to connect (or type 'skip' to see alternative)" (header: "Project Path", let user type)
 
-If the user picks option 1, ask for the project path, verify it exists, then proceed to step 4 below (using the provided path instead of `cwd`).
+If the user provides a valid path, verify it exists, then proceed to step 4 below (using the provided path instead of `cwd`).
+If the user types "skip" or the path doesn't exist, suggest: "Go to your project folder and run `/loci-link` there."
 
 ---
 
@@ -32,11 +32,11 @@ If the user picks option 1, ask for the project path, verify it exists, then pro
 2. Read `~/.claude/CLAUDE.md` to find the Loci brain path (look for the "Loci Brain" section)
 3. If no brain is registered, tell the user: "No Loci brain found. Run `claude "help me set up my brain"` in your Loci directory first."
 4. Get the brain path and the project directory
-5. Ask the user:
-   - Project name (default: current folder name)
-   - Purpose: [code/content/research/other]
-   - Associated department: [engineering/product/research/marketing/none]
-   - One-line description
+5. **Use AskUserQuestion** to collect project info in one form (user can tab through fields):
+   - Question 1: "Project name" (header: "Name", default: current folder name, let user type)
+   - Question 2: "What's this project for?" (header: "Purpose", options: "Code", "Content", "Research", "Other")
+   - Question 3: "Associated department" (header: "Department", options: "engineering", "product", "research", "marketing", "none")
+   - Question 4: "One-line description" (header: "Description", let user type)
 5. In the brain directory:
    - Create symlink: `09-links/<project-name>` → current directory
    - Register in `09-links/registry.md`
