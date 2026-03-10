@@ -14,7 +14,8 @@ import glob as glob_mod
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-LOCI_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# build.py lives at .loci/dashboard/build.py — go up 3 levels to reach brain root
+LOCI_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
 
 # Customize these for your dashboard

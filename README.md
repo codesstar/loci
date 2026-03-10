@@ -18,11 +18,9 @@
 
 Loci is an open-source framework that gives AI assistants persistent memory, identity awareness, and multi-project orchestration. It turns Claude Code (and potentially other AI coding tools) from a stateless assistant into one that knows who you are, what you're working on, and where you left off.
 
-Named after the [method of loci](https://en.wikipedia.org/wiki/Method_of_loci) — the ancient memory technique of placing ideas in an imagined architectural space — Loci gives your AI a structured place to store and retrieve everything that matters.
+Named after the [method of loci](https://en.wikipedia.org/wiki/Method_of_loci) — the ancient memory technique of placing ideas in an imagined architectural space.
 
-> **Why a seahorse?** The hippocampus — the brain region responsible for forming memories — is named after its seahorse-like shape. Our mascot is a reminder: Loci is the memory center of your AI.
->
-> **为什么是海马？** 大脑中负责记忆形成的「海马体」（hippocampus），因形似海马而得名。海马体是 Loci 的中文别名，也是我们的 IP。
+> **Why a seahorse?** The hippocampus — the brain region responsible for forming memories — is named after its seahorse-like shape. Loci is the memory center of your AI. 海马体是 Loci 的中文别名，也是我们的 IP。
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
@@ -30,25 +28,18 @@ Named after the [method of loci](https://en.wikipedia.org/wiki/Method_of_loci) �
 
 ## The Problem
 
-Every time you start a new conversation with an AI assistant, it starts from zero.
-
-- **ChatGPT memories** are a flat list of disconnected facts. No structure, no hierarchy, no context.
-- **Custom GPTs / system prompts** are static. They don't grow with you.
-- **Raw dotfiles** (`.cursorrules`, `.clinerules`) give instructions but no memory, no identity, no orchestration.
-
-You end up repeating yourself. Re-explaining your goals. Re-describing your projects. The AI never truly *knows* you — it just follows instructions until the context window runs out.
+Every time you start a new conversation with an AI assistant, it starts from zero. ChatGPT memories are a flat list of disconnected facts. Custom GPTs are static. Raw dotfiles give instructions but no memory. You end up repeating yourself — the AI never truly *knows* you.
 
 ## The Solution
 
-Loci gives your AI a **memory palace** — a layered, structured, evolving knowledge base that loads automatically and grows with every conversation.
+Loci gives your AI a **memory palace** — a layered, structured, evolving knowledge base that loads automatically and grows with every conversation:
 
-- **Three layers of context** so your AI loads what it needs, when it needs it
-- **Conversation distillation** that extracts insights instead of saving raw transcripts
-- **Identity modeling** so your AI understands your goals, values, and working style
-- **Synapse** — a cross-project information flow system that connects, syncs, and routes knowledge between your brain and sub-projects
-- **A web dashboard** to visualize your entire system at a glance
-
-The result: an AI that picks up where you left off, reminds you what matters, and evolves alongside you.
+- **Three-layer context** — load what's needed, when it's needed ([details](docs/architecture.md))
+- **Conversation distillation** — extracts insights, never saves raw transcripts ([details](docs/distillation.md))
+- **Identity modeling** — understands your goals, values, and working style
+- **Synapse** — cross-project information flow that connects all your projects ([details](docs/synapse.md))
+- **Growth tracking** — archives old identity states, never overwrites
+- **Web dashboard** — visualize your entire system at a glance
 
 ---
 
@@ -57,141 +48,52 @@ The result: an AI that picks up where you left off, reminds you what matters, an
 Get running in 2 minutes. Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/codesstar/loci.git my-brain
 cd my-brain
-
-# 2. Launch setup (checks prerequisites, then starts Claude)
 bash setup.sh
 ```
 
-Claude will greet you, ask a few questions, and set up your brain through conversation. No forms, no config files — just talk to your AI.
+Claude will greet you, ask a few questions, and set up your brain through conversation. Everything is local Markdown — no database, no server, no account required.
 
-Everything is local Markdown — no database, no server, no account required. The setup script auto-disconnects from the template repo so your personal data stays private.
-
-> **Want to see what a populated brain looks like before starting?** Check out [`examples/alex/`](examples/alex/) — a complete example with identity, tasks, decisions, and daily plans.
+> **Want to see a populated brain first?** Check out [`examples/alex/`](examples/alex/).
 
 ---
 
 ## How It Works
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    🧠 Loci Brain (HQ)                    │
-│                                                         │
-│  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌──────────┐  │
-│  │ Identity │  │  Tasks   │  │Decisions│  │ Archive  │  │
-│  │  me/     │  │  tasks/  │  │decisions│  │ archive/ │  │
-│  └─────────┘  └──────────┘  └─────────┘  └──────────┘  │
-│                                                         │
-│  L1 (every conv) ──── L2 (on demand) ──── L3 (archive)  │
-│                                                         │
-│                    ┌──────────┐                          │
-│                    │ Synapse  │                          │
-│                    │ Filter → │                          │
-│                    │Transform→│                          │
-│                    │  Route   │                          │
-│                    └────┬─────┘                          │
-│                         │                                │
-└─────────────────────────┼───────────────────────────────┘
-                          │
-            ┌─────────────┼─────────────┐
-            │             │             │
-            ▼             ▼             ▼
-   ┌──────────────┐ ┌──────────┐ ┌──────────────┐
-   │  Project A   │ │Project B │ │  Project C   │
-   │  (code)      │ │(content) │ │  (research)  │
-   │              │ │          │ │              │
-   │ .loci-link   │ │.loci-link│ │ .loci-link   │
-   │ .loci-config │ │          │ │              │
-   └──────────────┘ └──────────┘ └──────────────┘
+┌──────────────────────────────────────────────────┐
+│                 Loci Brain (HQ)                  │
+│                                                  │
+│  Identity   Tasks   Decisions   Archive          │
+│                                                  │
+│  L1 (every conv) ── L2 (on demand) ── L3 (deep) │
+│                                                  │
+│              ┌──────────┐                        │
+│              │ Synapse  │                        │
+│              │ Filter → Transform → Route        │
+│              └────┬─────┘                        │
+└───────────────────┼──────────────────────────────┘
+         ┌──────────┼──────────┐
+         ▼          ▼          ▼
+    Project A   Project B   Project C
+    .loci-link  .loci-link  .loci-link
 ```
 
-> One brain, many projects. Each project connects via `/loci-link` and communicates through the Synapse system. Your brain grows with every conversation, across every terminal.
+> One brain, many projects. Each project connects via `.loci-link` and communicates through Synapse. Your brain grows with every conversation, across every terminal.
 
 ---
 
 ## Core Concepts
 
-### Three-Layer Context
-
-Not everything needs to load every time. Loci organizes knowledge by access frequency:
-
-| Layer | Loaded | Contents | Example |
-|-------|--------|----------|---------|
-| **L1** | Every conversation | Identity, active goals, inbox | `plan.md`, `inbox.md` |
-| **L2** | On demand | Module details, specific people, finances | `people/john.md` |
-| **L3** | Rarely, by request | Archives, old decisions, evolution history | `archive/` |
-
-This keeps your AI fast and focused while maintaining access to deep history when needed.
-
-### Distillation Protocol
-
-Loci never saves raw conversation transcripts. Instead, it **distills** each conversation into structured updates:
-
-- New facts about you go to `me/`
-- New decisions go to `decisions/`
-- New tasks go to `tasks/active.md`
-- New insights go to auto-memory
-
-Think of it as a personal knowledge base that grows automatically — but only with the good parts.
-
-### Growth Tracking
-
-When your goals, values, or identity evolve, Loci doesn't just overwrite the old version. It archives the previous state to `me/evolution.md`, creating a timeline of personal growth that you can revisit anytime.
-
-Current files stay lean (L1). History grows indefinitely (L3). Both are always available.
-
-### Synapse — Cross-Project Information Flow
-
-The **Synapse** system controls how information flows between your brain and sub-projects — like synapses between neurons, selectively transmitting what matters.
-
-Managing multiple projects? Loci uses a **hub-and-spoke** model:
-
-```
-Loci Brain (HQ)
-├── .loci/links/project-alpha/   → symlink to ~/projects/alpha
-│   ├── profile.md             ← Auto-generated project profile
-│   ├── from-hq.md             ← Brain writes strategic directives
-│   └── to-hq.md               ← Project reports back
-├── .loci/links/project-beta/
-│   ├── profile.md
-│   ├── from-hq.md
-│   └── to-hq.md
-```
-
-**Connect any folder** to your brain with `/loci-link`. Loci auto-scans the project (README, package.json, directory structure) and creates a profile — your brain knows what each project is from day one.
-
-**Signal-driven persistence** — Loci doesn't burn context saving every message. It watches for meaningful information (new tasks, decisions, insights, personal changes) and saves immediately when detected. You get a one-line notification — never an interrupting question. Say "undo" if it got something wrong.
-
-When you're ready to connect other project folders, one command does it all:
-
-```
-/loci-link    — Connect any project folder to your brain
-```
-
-Advanced commands (`/loci-sync`, `/loci-settings`, `/loci-brain-settings`, `/loci-scan`) are available when you need fine-grained control. See [docs/departments.md](docs/departments.md) for the full guide.
-
-### Git-Native Memory
-
-Everything is Markdown. Your AI's memory is version-controlled out of the box:
-
-```bash
-# See what your AI learned today
-git diff
-
-# See your growth over time
-git log --oneline me/
-
-# Full history of every decision
-git log --oneline decisions/
-```
-
-No database migrations, no export tools. Your memory is portable, diffable, and yours forever.
-
-### Dashboard
-
-A local web dashboard (pixel-art style) that visualizes your goals, tasks, inbox, and project status. Built with vanilla HTML/CSS/JS — no frameworks, no dependencies. Your AI will offer to open it when you have enough data to visualize.
+| Concept | What it does | Details |
+|---------|-------------|---------|
+| **Three-Layer Context** | L1 loads every conversation, L2 on demand, L3 for archives | [docs/architecture.md](docs/architecture.md) |
+| **Distillation** | Extracts facts, decisions, tasks, insights from conversations — never saves raw transcripts | [docs/distillation.md](docs/distillation.md) |
+| **Growth Tracking** | Archives previous identity states to `me/evolution.md` instead of overwriting | — |
+| **Synapse** | Hub-and-spoke info flow between brain and linked projects, with signal-driven persistence | [docs/synapse.md](docs/synapse.md) |
+| **Git-Native Memory** | Everything is Markdown + git. `git diff` to see what your AI learned today | — |
+| **Dashboard** | Local pixel-art web panel for goals, tasks, inbox, and project status | [docs/dashboard.md](docs/dashboard.md) |
 
 ---
 
@@ -199,134 +101,60 @@ A local web dashboard (pixel-art style) that visualizes your goals, tasks, inbox
 
 ```
 my-brain/
-├── CLAUDE.md              # System rules — the AI reads this first
-├── plan.md                # Life direction and yearly goals (L1)
-├── inbox.md               # Quick capture, fastest input (L1)
-│
-├── me/                    # Identity, values, preferences
-│   ├── identity.md        # Who you are
-│   ├── values.md          # What you believe in
-│   ├── learned.md         # Lessons learned
-│   ├── goals.md           # Detailed goal breakdown
-│   └── evolution.md       # Growth history (L3)
-│
-├── tasks/                 # Task management + planning
-│   ├── active.md          # Current tasks with priorities (L1)
-│   ├── someday.md         # Ideas without deadlines
-│   ├── calendar.json      # Calendar events
-│   ├── daily/             # Daily plans (YYYY-MM-DD.md)
-│   └── journal/           # Daily summaries
-│
+├── CLAUDE.md              # System rules (AI reads this first)
+├── plan.md                # Life direction & goals (L1)
+├── inbox.md               # Quick capture (L1)
+├── me/                    # Identity, values, preferences, evolution
+├── tasks/                 # active.md, someday.md, calendar, daily plans, journal
 ├── decisions/             # Decision records with context
-│
 ├── archive/               # Completed / expired items (L3)
-│
 ├── .loci/                 # System internals
-│   ├── hooks/             # Cross-terminal sync hooks
-│   ├── links/             # Symlinks to external projects
-│   │   ├── registry.md    # Project registry
-│   │   └── <project>/     # Each linked project has:
-│   │       ├── profile.md # Auto-scanned project profile
-│   │       ├── from-hq.md # Directives from brain
-│   │       └── to-hq.md   # Reports back to brain
-│   ├── dashboard/         # Web visualization panel
-│   │   └── build.py       # Dashboard data generator
-│   ├── config.yml         # Brain settings (persistence, privacy, routing)
-│   ├── status.yml         # Current state
-│   └── activity-log.md    # Recent activity timeline
-│
-├── templates/             # File templates for consistency
-│   ├── commands/          # Slash commands (/loci-link, /loci-settings, etc.)
-│   └── extensions/        # README templates for extension modules
-│
-├── docs/                  # Documentation
+│   ├── links/             # Symlinks to external projects (Synapse)
+│   ├── dashboard/         # Web visualization
+│   ├── config.yml         # Brain settings
+│   └── hooks/             # Cross-terminal sync
+├── templates/             # File & command templates
+├── docs/                  # Full documentation
 ├── setup.sh               # One-command setup
 └── LICENSE                # MIT
-
-Extension modules (created on demand, not in default install):
-├── finance/               # Budget, assets, financial tracking
-├── people/                # Contacts, meeting notes, relationships
-├── content/               # Writing, content creation, publishing
-└── references/            # External knowledge base
 ```
 
----
-
-## Comparison
-
-| Feature | Loci | ChatGPT Memory | Custom GPTs | .cursorrules |
-|---------|------|----------------|-------------|--------------|
-| Structured context layers | Yes (L1/L2/L3) | No (flat list) | No | No |
-| Identity modeling | Yes | Partial | Static only | No |
-| Cross-project memory | Yes (Synapse) | No | No | No |
-| Configurable sync/privacy | Yes | No | No | No |
-| Task management | Yes | No | No | No |
-| Web dashboard | Yes | No | No | No |
-| Conversation distillation | Yes | Append-only | No | No |
-| Growth tracking | Yes | No | No | No |
-| Open source | Yes | No | No | Varies |
-| Works offline | Yes | No | No | Yes |
-| Your data stays local | Yes | No | No | Yes |
-| Portable (switch AI tools) | Yes (copy folder) | No (locked in) | No | No |
-
-**Current limitations**: CLI only (no mobile app), requires Claude Code (partial support for other AI tools), no built-in search beyond file grep, no real-time collaboration, no cloud sync in free version.
+Extension modules (created on demand): `finance/`, `people/`, `content/`, `references/`
 
 ---
 
 ## Compatibility
 
-Loci works with any AI coding tool that reads a project-level instruction file on startup.
+| Tool | Support | How |
+|------|---------|-----|
+| **Claude Code** | Full | Native — reads `CLAUDE.md` + `@import` |
+| **Cursor** | High | Copy to `.cursorrules` |
+| **Windsurf** | High | Copy to `.windsurfrules` |
+| **Cline** | High | Copy to `.clinerules` |
+| **OpenAI Codex** | Partial | Reads `AGENTS.md`, needs adapted prompt |
+| **GitHub Copilot** | Minimal | No project-level instructions |
 
-| Tool | Support Level | How |
-|------|--------------|-----|
-| **Claude Code** | Full | Native. Reads `CLAUDE.md` + `@import` automatically |
-| **Cursor** | High | Reads `.cursorrules`. Copy CLAUDE.md content to `.cursorrules` |
-| **Windsurf** | High | Reads `.windsurfrules`. Copy CLAUDE.md content to `.windsurfrules` |
-| **Cline** | High | Reads `.clinerules`. Copy CLAUDE.md content to `.clinerules` |
-| **OpenAI Codex** | Partial | Reads `AGENTS.md`. Needs adapted prompt (no @import support) |
-| **GitHub Copilot** | Minimal | No project-level instructions. Use as reference only |
+> Loci's memory is plain Markdown — it works regardless of which AI reads it. Slash commands are Claude Code specific, but the underlying file operations can be done manually or scripted.
 
-For non-Claude tools, run `bash scripts/adapt.sh <tool>` to generate the appropriate config file. *(Script coming soon — not yet implemented.)*
-
-> Loci's memory is stored in plain Markdown — it works regardless of which AI tool reads it. The slash commands (`/loci-sync`, `/loci-link`) are Claude Code specific, but the underlying file operations can be done manually or scripted.
+**Current limitations**: CLI only (no mobile app), requires Claude Code for full features, no built-in search beyond file grep, no real-time collaboration.
 
 ---
 
 ## Documentation
 
-**[How It Works](docs/how-it-works.md)** — The complete guide. Read one doc, understand everything.
+Start here: **[How It Works](docs/how-it-works.md)** — one doc, understand everything.
 
-Detailed guides by topic:
-
-- **[Architecture](docs/architecture.md)** — Deep dive into the three-layer memory system
-- **[Synapse](docs/synapse.md)** — Cross-project information flow, persistence modes, routing
-- **[Distillation](docs/distillation.md)** — How conversation insights are extracted and stored
-- **[Context Awareness](docs/context-awareness.md)** — State sensing + cross-terminal sync
-- **[Departments](docs/departments.md)** — Multi-project orchestration guide
-- **[Dashboard](docs/dashboard.md)** — Customizing the web visualization
-- **[Privacy](docs/privacy.md)** — Data protection, encryption, AI context control
-- **[Personalization](docs/personalization.md)** — Adapting Loci to your workflow
+Topic guides: [Architecture](docs/architecture.md) | [Synapse](docs/synapse.md) | [Distillation](docs/distillation.md) | [Context Awareness](docs/context-awareness.md) | [Departments](docs/departments.md) | [Dashboard](docs/dashboard.md) | [Privacy](docs/privacy.md) | [Personalization](docs/personalization.md)
 
 ---
 
 ## Contributing
 
-Loci is early-stage and welcomes contributions of all kinds — bug fixes, new features, documentation improvements, or just sharing how you use it.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-idea`)
-3. Make your changes
-4. Submit a pull request
-
-Please open an issue first for large changes so we can discuss the approach.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
----
+Contributions welcome — bug fixes, features, docs, or just sharing how you use it. Fork, branch, PR. Please open an issue first for large changes. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).
 
 ---
 
