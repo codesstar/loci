@@ -2,9 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.0] — 2026-03-11
+## [1.0.0] — 2026-03-11
 
 ### Added
+- **Memory Consolidation** — daily auto-review of recent distilled knowledge, cross-domain pattern detection, insight generation to `me/insights.md`. Manual trigger via `/loci-consolidate`
+- **Source Citations** — distilled entries annotated with `<!-- source: ... -->` for traceability
 - Sub-project local persistence (`.loci/memory.md`)
 - Tag-based sync (`push_tags` / `local_tags`)
 - Global awareness block for `~/.claude/CLAUDE.md`
@@ -12,13 +14,16 @@ All notable changes to this project will be documented in this file.
 - `adapt.sh` for multi-tool compatibility (Cursor, Windsurf, Cline)
 
 ### Fixed
-- Bug fixes from test suite (`build.py`, `check-updates.sh`, `.gitignore`, `adapt.sh`)
+- `build.py` LOCI_ROOT path (3 dirname levels instead of 2)
+- `check-updates.sh` timestamp race condition (line-count-based checkpoint)
+- `.gitignore` comment false match on config.yml
+- `adapt.sh` codex note leaking slash command names
 
 ### Removed
-- Routing modes (deferred to v1.0 — see [roadmap](docs/roadmap.md))
-- Auto-compression (deferred to v0.2)
-- Privacy boundary configuration (deferred to v1.0)
-- Distillation level presets (deferred to v1.0)
+- Routing modes (deferred to v2.0 — see [roadmap](docs/roadmap.md))
+- Auto-compression (deferred to v2.0)
+- Privacy boundary configuration (deferred to v2.0)
+- Distillation level presets (deferred to v2.0)
 
 ## [0.1.0-alpha] — 2026-03-10
 
@@ -33,7 +38,7 @@ Initial public release.
 - **Three-layer context system**: L1 (every conversation), L2 (on demand), L3 (archive) — keeps the AI fast while maintaining deep history access
 - **Distillation protocol**: conversations are distilled into structured updates (facts, decisions, tasks, insights), never saved as raw transcripts
 - **Multi-project orchestration**: hub-and-spoke model via `.loci/links/`, with `from-hq.md` / `to-hq.md` communication protocol
-- **Conversational onboarding**: `setup.sh` launches Claude, which sets up the brain through conversation — no forms, no config files
+- **Conversational onboarding**: `install.sh` launches Claude, which sets up the brain through conversation — no forms, no config files
 - **Growth tracking**: identity/values/goals changes are archived to `me/evolution.md` before updating current files
 - **Extension modules**: `people/`, `finance/`, `content/`, `references/` created on demand, not in default install
 - **Activity log**: `.loci/hooks/on-file-change.sh` tracks file changes across sessions
