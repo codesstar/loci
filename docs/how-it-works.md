@@ -17,37 +17,43 @@ You never need to learn everything upfront. The system reveals itself as you use
 
 ## Layer 1: The Brain
 
-Your brain is a folder. Inside are markdown files, organized by numbered sections:
+Your brain is a folder. Inside are markdown files organized into four core modules plus system internals:
 
 ```
 my-brain/
 ├── CLAUDE.md          ← AI's operating system (reads this first)
 ├── plan.md            ← Your life direction and goals (loaded every conversation)
 ├── inbox.md           ← Quick capture box (loaded every conversation)
-├── activity-log.md    ← Last 14 days of activity timeline
-├── status.yml         ← Current state (tired / energized / traveling)
 │
-├── 01-me/             ← Who you are
+├── me/                ← Who you are
 │   ├── identity.md    ← Basics (name, job, city)
 │   ├── values.md      ← What you believe in
 │   ├── learned.md     ← Lessons you've picked up
 │   ├── goals.md       ← Detailed goal breakdown
 │   └── evolution.md   ← Growth timeline (old versions append here)
 │
-├── 03-planning/       ← Plans
+├── tasks/             ← Tasks + planning (merged)
+│   ├── active.md      ← Current tasks (P0/P1/P2/P3 priorities)
+│   ├── someday.md     ← Maybe later
 │   ├── daily/         ← One md per day (schedule + what got done)
 │   └── journal/       ← Daily summaries (buffer.md → end-of-day journal)
 │
-├── 05-tasks/
-│   ├── active.md      ← Current tasks (P0/P1/P2/P3 priorities)
-│   └── someday.md     ← Maybe later
+├── decisions/         ← One file per major decision (with context + reasoning)
+├── archive/           ← Expired content moves here, never deleted
 │
-├── 07-decisions/      ← One file per major decision (with context + reasoning)
-├── 08-archive/        ← Expired content moves here, never deleted
-├── 09-links/          ← Connected external projects (Week 2)
-├── 10-dashboard/      ← Visual panel (Week 3)
-├── 11-references/     ← External knowledge base (articles, books, tweets, quotes)
-└── templates/         ← File templates + slash command definitions
+├── .loci/             ← System internals
+│   ├── hooks/         ← Cross-terminal sync hooks
+│   ├── links/         ← Connected external projects
+│   ├── dashboard/     ← Visual panel
+│   ├── config.yml     ← Brain settings (persistence, privacy, routing)
+│   ├── status.yml     ← Current state (tired / energized / traveling)
+│   └── activity-log.md ← Last 14 days of activity timeline
+│
+└── (extension modules, created on demand)
+    ├── finance/       ← Budget, assets, financial tracking
+    ├── people/        ← Contacts, meeting notes, relationships
+    ├── content/       ← Writing, content creation, publishing
+    └── references/    ← External knowledge base (articles, books, quotes)
 ```
 
 ### Three-Layer Context
@@ -56,7 +62,7 @@ This is Loci's core design — not all memories need to load every time:
 
 | Layer | When loaded | Contents | Human analogy |
 |-------|------------|----------|---------------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, activity-log.md, auto-memory | Working memory (what you're thinking about right now) |
+| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory | Working memory (what you're thinking about right now) |
 | **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references | Short-term memory (one thought away) |
 | **L3** | Only when explicitly asked | archive, old decisions, evolution.md, old journals | Long-term memory (have to dig for it) |
 
@@ -79,11 +85,11 @@ You say something
        ↓
    No  → do nothing
    Yes → classify + route:
-         ├── Personal fact ("I moved to Berlin")       → 01-me/identity.md
-         ├── New insight ("never deploy on Fridays")   → 01-me/learned.md
-         ├── Decision ("going with PostgreSQL")        → 07-decisions/2026-03-10-xxx.md
-         ├── New task ("need to update API docs")      → 05-tasks/active.md
-         ├── External content (article, tweet, quote)  → 11-references/inbox.md
+         ├── Personal fact ("I moved to Berlin")       → me/identity.md
+         ├── New insight ("never deploy on Fridays")   → me/learned.md
+         ├── Decision ("going with PostgreSQL")        → decisions/2026-03-10-xxx.md
+         ├── New task ("need to update API docs")      → tasks/active.md
+         ├── External content (article, tweet, quote)  → references/inbox.md
          └── Vague thought ("maybe I should learn Rust") → inbox.md
 ```
 
@@ -106,9 +112,9 @@ Result: current files stay lean (fast L1 loading). evolution.md is your personal
 > "I've been thinking about my side project. Maybe I should pivot from B2C to B2B. And the pricing should be $49/mo not $19. Also, I realized I need to stop checking Twitter first thing in the morning."
 
 **What Loci stores:**
-- `07-decisions/2026-03-10-pivot-to-b2b.md`: Pivot to B2B, price $49/mo, leverages enterprise experience
-- `01-me/learned.md` (appended): Don't check Twitter first thing — it fragments focus
-- `05-tasks/active.md` (appended): Update landing page for B2B positioning
+- `decisions/2026-03-10-pivot-to-b2b.md`: Pivot to B2B, price $49/mo, leverages enterprise experience
+- `me/learned.md` (appended): Don't check Twitter first thing — it fragments focus
+- `tasks/active.md` (appended): Update landing page for B2B positioning
 
 Three files updated. Zero raw transcript saved. Everything searchable and in context.
 
@@ -168,7 +174,7 @@ This is the Week 2 feature — when you have multiple project folders.
 
 What happens:
 1. Auto-scans the project (README, package.json, directory structure) → generates a profile
-2. Creates a symlink in the brain's `09-links/`
+2. Creates a symlink in the brain's `.loci/links/`
 3. Creates `.loci-link` in the project (points to brain path)
 4. Creates two-way communication files: `from-hq.md` (brain → project), `to-hq.md` (project → brain)
 
@@ -263,7 +269,7 @@ routing:
   tags: [urgent, decision, fyi, log]
 
 retention:
-  archive_after_days: 90  # 90 days unreferenced → move to 08-archive/
+  archive_after_days: 90  # 90 days unreferenced → move to archive/
 ```
 
 ---
@@ -271,17 +277,17 @@ retention:
 ## Layer 6: Supporting Mechanisms
 
 ### Daily Plans + Journal
-- `03-planning/daily/YYYY-MM-DD.md` — today's schedule + what got done
-- `03-planning/journal/buffer.md` — append key points during conversation
+- `tasks/daily/YYYY-MM-DD.md` — today's schedule + what got done
+- `tasks/journal/buffer.md` — append key points during conversation
 - Say "summarize" → buffer + conversation review → generate today's journal → clear buffer
 
 ### Activity Log
-- Every file change auto-records to `activity-log.md` (via Claude Code hook)
+- Every file change auto-records to `.loci/activity-log.md` (via Claude Code hook)
 - New conversations read the last 7 days → know what happened last session
 - Monthly cleanup: entries older than 14 days get removed
 
 ### Dashboard
-- `10-dashboard/` — local web page, pixel-art style, shows goals/tasks/inbox/project status
+- `.loci/dashboard/` — local web page, pixel-art style, shows goals/tasks/inbox/project status
 - `python3 build.py` generates `data.json` from your markdown files
 - AI proactively offers to open it once you have 2-3 tasks
 
@@ -318,4 +324,4 @@ Day one, the user just feels "my AI remembers me." The complexity underneath rev
 - [Synapse](synapse.md) — Persistence modes, routing, privacy
 - [Distillation](distillation.md) — How conversations become structured knowledge
 - [Departments](departments.md) — Multi-project orchestration
-- [Privacy](docs/privacy.md) — Data protection and AI context control
+- [Privacy](privacy.md) — Data protection and AI context control

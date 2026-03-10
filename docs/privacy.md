@@ -16,7 +16,7 @@ Every Loci user gets this automatically. No setup needed.
 
 ### .gitignore
 
-Pre-configured to exclude personal content directories (`01-me/`, `02-finance/`, `04-people/`, daily plans, journals). Only structure files (README.md, templates, CLAUDE.md) are tracked by default. After onboarding, your real data stays local.
+Pre-configured to exclude personal content directories (`me/`, `finance/`, `people/`, daily plans, journals). Only structure files (README.md, templates, CLAUDE.md) are tracked by default. After onboarding, your real data stays local.
 
 > **Important**: Clone, don't fork. If you fork, your fork is public. Set it to private immediately.
 
@@ -35,14 +35,13 @@ Default sensitivity by directory:
 
 | Directory | Default Sensitivity | Default AI Context |
 |-----------|--------------------|--------------------|
-| `01-me/` | medium | allow |
-| `02-finance/` | high | deny |
-| `03-planning/` | low | allow |
-| `04-people/` | high | summary-only |
-| `05-tasks/` | low | allow |
-| `06-content/` | low | allow |
-| `07-decisions/` | medium | allow |
-| `11-references/` | low | allow |
+| `me/` | medium | allow |
+| `finance/` | high | deny |
+| `tasks/` | low | allow |
+| `people/` | high | summary-only |
+| `content/` | low | allow |
+| `decisions/` | medium | allow |
+| `references/` | low | allow |
 
 ---
 
@@ -59,8 +58,8 @@ Use Claude Code's built-in `permissions.deny` to block the AI from reading sensi
 {
   "permissions": {
     "deny": [
-      "Read(./02-finance/**)",
-      "Read(./04-people/**)",
+      "Read(./finance/**)",
+      "Read(./people/**)",
       "Read(./.env*)",
       "Read(./.loci-secrets/**)"
     ]
@@ -80,7 +79,7 @@ Cloud LLM (Claude)
   → Calls local tool: query_finance()
   ↓
 Local MCP Server (on your machine)
-  → Reads 02-finance/budget.md (locally, never sent to API)
+  → Reads finance/budget.md (locally, never sent to API)
   → Processes: "Monthly budget: 80% used, 20% remaining"
   → Returns ONLY the summary
   ↓
@@ -148,10 +147,10 @@ Using `age` (single binary, no dependencies):
 
 ```bash
 # Encrypt sensitive files
-age -p 02-finance/assets.md > 02-finance/assets.md.age
+age -p finance/assets.md > finance/assets.md.age
 
 # Decrypt temporarily when needed (pipe to stdout, never written to disk)
-age -d 02-finance/assets.md.age
+age -d finance/assets.md.age
 ```
 
 Git tracks `.age` files only — encrypted at rest, decrypted on demand.

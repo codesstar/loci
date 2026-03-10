@@ -15,7 +15,7 @@ Loci includes a pixel-art styled web dashboard that visualizes your memory palac
 
 ```bash
 # Generate data
-cd 10-dashboard
+cd .loci/dashboard
 python3 build.py
 
 # Open in browser

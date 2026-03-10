@@ -8,7 +8,7 @@ Loci's department system lets you manage multiple projects from a single AI head
 
 ```
 Your Loci System (HQ)
-├── 09-links/
+├── .loci/links/
 │   ├── project-alpha/          # Symlink → /path/to/project-alpha
 │   │   ├── from-hq.md         # HQ → Department directives
 │   │   └── to-hq.md           # Department → HQ reports
@@ -23,12 +23,12 @@ Your Loci System (HQ)
 ### Step 1: Create a symlink
 
 ```bash
-ln -s /path/to/your/project 09-links/project-name
+ln -s /path/to/your/project .loci/links/project-name
 ```
 
 ### Step 2: Register it
 
-Add a row to `09-links/registry.md`:
+Add a row to `.loci/links/registry.md`:
 
 | Name | Link Name | Actual Path | Purpose |
 |------|-----------|-------------|---------|
