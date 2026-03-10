@@ -22,7 +22,7 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - Question 1: "What's your name?" (header: "Name", options with common examples or let user type)
    - Question 2: "What do you do?" (header: "Role", options: "Developer", "Designer", "Creator", "Student")
    - Question 3: "What's your most important focus right now?" (header: "Focus", options: "Ship a product", "Learn a skill", "Build an audience", "Get a job")
-   - Question 4: "Preferred language?" (header: "Language", options: "English", "中文", "日本語")
+   - Question 4: "Preferred language?" (header: "Language", options: "English", "中文", "中英混合")
    The user can always select "Other" to type a custom answer for any question.
 2. **Generate initial files** from the answers:
    - `01-me/identity.md` — basics, work, current season (set status: active)
