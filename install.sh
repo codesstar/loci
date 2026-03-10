@@ -1,6 +1,6 @@
 #!/bin/bash
 # Loci — Memory Palace for AI
-# Thin launcher: check prerequisites → launch Claude for onboarding
+# Installer: clone (if needed) → check prerequisites → launch Claude for onboarding
 
 set -e
 
@@ -16,6 +16,20 @@ echo -e "${BOLD}╔════════════════════�
 echo -e "${BOLD}║   Loci — Memory Palace for AI            ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
 echo ""
+
+# ─── If running via curl pipe, clone the repo first ─────────────────────────
+if [ ! -f "CLAUDE.md" ]; then
+  if ! command -v git &> /dev/null; then
+    echo -e "${RED}git is not installed. Please install git first.${NC}"
+    exit 1
+  fi
+
+  BRAIN_DIR="${1:-my-brain}"
+  echo -e "Creating brain in ${BOLD}${BRAIN_DIR}/${NC} ..."
+  git clone --depth 1 https://github.com/codesstar/loci.git "$BRAIN_DIR"
+  cd "$BRAIN_DIR"
+  echo -e "${GREEN}✓${NC} Cloned"
+fi
 
 # ─── Check prerequisites ─────────────────────────────────────────────────────
 if ! command -v claude &> /dev/null; then

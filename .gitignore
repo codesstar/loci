@@ -15,7 +15,7 @@ Thumbs.db
 .loci/dashboard/data.json
 
 # ─── Personal data (stays local after onboarding) ───
-# setup.sh auto-disconnects from the template remote,
+# install.sh auto-disconnects from the template remote,
 # so your data never gets pushed to the public repo.
 # If you use your own private remote, all files are safe to track.
 .loci/status.yml

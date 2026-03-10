@@ -78,6 +78,50 @@ No batching, no "session end" trigger. Push happens at the moment of writing.
 
 They are complementary: `.claude/` shapes behavior, `.loci/` provides context.
 
+## Memory Consolidation
+
+Loci performs daily memory consolidation — reviewing recent distilled knowledge to find cross-domain patterns and generate insights. Inspired by how the hippocampus consolidates memories during sleep.
+
+### Auto Trigger
+
+At conversation start, check `.loci/last-consolidation.txt`:
+- If file missing or date < today → run consolidation (24h window), then update file with today's date
+- If date == today → skip
+
+### What It Does
+
+1. Scan recent changes: `decisions/`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, `.loci/links/*/to-hq.md`
+2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
+3. If insights found → append to `me/insights.md` with source citations
+4. Report in one conversational sentence, or stay silent if nothing notable
+
+### Manual Trigger
+
+`/loci-consolidate` — runs consolidation on demand. Accepts optional day range: `/loci-consolidate 7` for weekly review.
+
+Full spec → `templates/commands/loci-consolidate.md`
+
+## Source Citations
+
+When distilling information into brain files, annotate the source with an HTML comment including timestamp:
+
+```markdown
+Switched from REST to GraphQL <!-- source: conversation @2026-03-11T14:32 -->
+```
+
+During consolidation, insights reference the files they were derived from with timestamps:
+
+```markdown
+- [pattern] 三个决策都在简化架构 <!-- source: decisions/2026-03-09-api-redesign.md @2026-03-09T14:32, decisions/2026-03-11-merge-versions.md @2026-03-11T09:20 -->
+```
+
+Timestamps enable:
+- Temporal queries ("我上周三下午在干嘛")
+- Cause-effect ordering (A happened before B, so A may have influenced B)
+- Precise recall that feels like a real memory, not a summary
+
+This makes all distilled knowledge traceable. When the user asks "why did I decide X?", the AI can follow the source trail.
+
 ## Daily Summary (Journal)
 
 - During conversations, append decisions/insights/important topics to `tasks/journal/buffer.md`
