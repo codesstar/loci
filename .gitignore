@@ -14,26 +14,10 @@ Thumbs.db
 # Dashboard build output
 10-dashboard/data.json
 
-# ─── Personal data (excluded by default for privacy) ───
-# Only README.md in each directory is tracked.
-# After onboarding, your real data stays local and won't be pushed.
-01-me/*
-!01-me/README.md
-02-finance/*
-!02-finance/README.md
-04-people/*
-!04-people/README.md
-03-planning/daily/*
-03-planning/journal/*
-!03-planning/journal/README.md
+# ─── Personal data (stays local after onboarding) ───
+# setup.sh auto-disconnects from the template remote,
+# so your data never gets pushed to the public repo.
+# If you use your own private remote, all files are safe to track.
 status.yml
 activity-log.md
-
-# Keep template files tracked
-!01-me/identity.md
-!01-me/values.md
-!01-me/goals.md
-!01-me/learned.md
-!01-me/evolution.md
-!05-tasks/active.md
-!05-tasks/someday.md
+loci-brain-settings.yml

@@ -72,6 +72,24 @@ This creates a personal changelog — you can see how your thinking evolved over
 
 ## Triggering Distillation
 
-- **Manual**: Say "update" or "save this"
-- **Proactive**: AI notices important information and asks if you want to save it
-- **End of session**: AI reviews the conversation and proposes updates
+### Auto mode (default)
+
+Signal-driven: the AI evaluates each conversation turn for storable information. When it detects a new task, decision, insight, or personal info change, it saves immediately and shows a one-line notification:
+
+```
+[Loci] Stored: new task "Update API docs" → active.md
+```
+
+No interrupting questions. Say "undo" to reverse.
+
+### Manual mode
+
+- Say "update", "save this", "记一下" → immediate save
+- Run `/loci-sync` → full distill + cross-project sync
+- Run `/loci-sync --dry-run` → preview what would be saved
+
+### Legacy "update" trigger
+
+Say "update" for a full conversation review with a manifest you can cherry-pick from. This works in both modes.
+
+See [Synapse](synapse.md) for the full persistence and routing system.
