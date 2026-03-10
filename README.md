@@ -54,22 +54,22 @@ The result: an AI that picks up where you left off, reminds you what matters, an
 
 ## Quick Start
 
-Get running in 2 minutes.
+Get running in 2 minutes. Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/codesstar/loci.git my-brain
 cd my-brain
 
-# 2. Set up your brain
+# 2. Launch setup (checks prerequisites, then starts Claude)
 bash setup.sh
 ```
 
-That's it. The setup script walks you through a few questions — your name, what you do, what you're working on — then launches Claude Code with your brain ready to go.
+Claude will greet you, ask a few questions, and set up your brain through conversation. No forms, no config files — just talk to your AI.
 
-Everything is local Markdown — no database, no server, no account required.
+Everything is local Markdown — no database, no server, no account required. The setup script auto-disconnects from the template repo so your personal data stays private.
 
-> **Want to see what a fully populated brain looks like?** Check out `examples/alex/` for a complete example.
+> **Want to see what a populated brain looks like before starting?** Check out [`examples/alex/`](examples/alex/) — a complete example with identity, tasks, decisions, and daily plans.
 
 ---
 
@@ -162,26 +162,36 @@ Loci Brain (HQ)
 
 **Connect any folder** to your brain with `/loci-link`. Loci auto-scans the project (README, package.json, directory structure) and creates a profile — your brain knows what each project is from day one.
 
-**Smart persistence** — Loci doesn't burn context saving every message. It auto-distills every 5 conversation rounds, reminds you every 3 rounds when something's worth saving, and detects important info in real-time. All intervals are customizable.
+**Signal-driven persistence** — Loci doesn't burn context saving every message. It watches for meaningful information (new tasks, decisions, insights, personal changes) and saves immediately when detected. You get a one-line notification — never an interrupting question. Say "undo" if it got something wrong.
 
-**Four slash commands** manage the entire system:
+When you're ready to connect other project folders, one command does it all:
 
-| Command | Where | What it does |
-|---------|-------|--------------|
-| `/loci-link` | Any folder | Connect a project to your brain + auto-scan |
-| `/loci-settings` | Sub-project | Configure what syncs to/from brain |
-| `/loci-brain-settings` | Brain | Configure persistence, privacy, routing, retention |
-| `/loci-sync` | Either | Manual push + pull |
-| `/loci-scan` | Sub-project | Re-scan and update project profile |
+```
+/loci-link    — Connect any project folder to your brain
+```
+
+Advanced commands (`/loci-sync`, `/loci-settings`, `/loci-brain-settings`, `/loci-scan`) are available when you need fine-grained control. See [docs/departments.md](docs/departments.md) for the full guide.
+
+### Git-Native Memory
+
+Everything is Markdown. Your AI's memory is version-controlled out of the box:
+
+```bash
+# See what your AI learned today
+git diff
+
+# See your growth over time
+git log --oneline 01-me/
+
+# Full history of every decision
+git log --oneline 07-decisions/
+```
+
+No database migrations, no export tools. Your memory is portable, diffable, and yours forever.
 
 ### Dashboard
 
-A local web dashboard (pixel-art style) that visualizes your goals, tasks, inbox, and project status. Built with vanilla HTML/CSS/JS — no frameworks, no dependencies.
-
-```bash
-cd 10-dashboard && python3 build.py
-# Open localhost:8765
-```
+A local web dashboard (pixel-art style) that visualizes your goals, tasks, inbox, and project status. Built with vanilla HTML/CSS/JS — no frameworks, no dependencies. Your AI will offer to open it when you have enough data to visualize.
 
 ---
 
@@ -254,8 +264,9 @@ loci/
 Detailed guides are available in the `docs/` directory:
 
 - **[Architecture](docs/architecture.md)** — Deep dive into the three-layer memory system
-- **[Context Awareness](docs/context-awareness.md)** — State sensing + cross-terminal sync
+- **[Synapse](docs/synapse.md)** — Cross-project information flow, persistence modes, routing
 - **[Distillation](docs/distillation.md)** — How conversation insights are extracted and stored
+- **[Context Awareness](docs/context-awareness.md)** — State sensing + cross-terminal sync
 - **[Departments](docs/departments.md)** — Multi-project orchestration guide
 - **[Dashboard](docs/dashboard.md)** — Customizing the web visualization
 - **[Privacy](docs/privacy.md)** — Data protection, encryption, AI context control

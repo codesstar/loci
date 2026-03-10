@@ -1,6 +1,10 @@
 Sync information between this project and the Loci brain. Push local changes out, pull remote updates in.
 
-This command works in both the brain and sub-projects.
+This command works in both the brain and sub-projects. It combines two operations into one: session distillation (persist what was discussed) and cross-project sync (route info to relevant projects).
+
+Flags:
+- `--local` — Only distill and store locally, skip cross-project sync
+- `--dry-run` — Show what would be stored/synced without executing
 
 Steps:
 
@@ -9,61 +13,61 @@ Steps:
 2. **Read config**:
    - Brain: read `loci-brain-settings.yml`
    - Sub-project: read `.loci-config.json` and `.loci-link` (to get brain path)
-   - If no config found, tell user to run `/loci-brain-settings` or `/loci-settings` first.
+   - If no config found, use defaults (auto mode, balanced distillation, tag-routed).
 
 ---
 
 ### If running in a Brain:
 
-3. **Push (distill + store + route)**:
-   a. Review the current conversation for new information worth storing (this is the manual trigger for session-end distillation — same logic, user-initiated timing)
+3. **Distill (session → files)**:
+   a. Review the current conversation for new information worth storing
    b. Apply Distillation settings (verbose/balanced/minimal) to compress
-   c. Write distilled info to the appropriate brain files (decisions → `07-decisions/`, tasks → `05-tasks/active.md`, insights → `01-me/learned.md`, etc.)
-   d. Apply Routing settings:
-      - Auto-tag each item (urgent/decision/fyi/log + custom tags)
-      - Based on routing mode:
-        - **open**: write to shared info pool, all sub-projects can see
-        - **tag-routed**: match tags to sub-project `interest_tags`, write to each matched sub-project's `from-hq.md`
-        - **manual**: use AskUserQuestion for each item: "Send this to which projects? [list sub-projects]"
-        - **silent**: skip routing entirely
-   e. Respect Privacy rules — never route blocked categories
-   f. If persistence mode is `smart` with `auto_confirm: false`, use AskUserQuestion to confirm each item before storing
+   c. If `--dry-run`: list what would be stored, then stop
+   d. Write distilled info to the appropriate brain files (decisions → `07-decisions/`, tasks → `05-tasks/active.md`, insights → `01-me/learned.md`, etc.)
 
-4. **Pull (scan sub-projects)**:
+4. **Sync (brain → sub-projects)** (skip if `--local`):
+   a. Auto-tag each stored item (urgent/decision/fyi/log + custom tags)
+   b. Based on routing mode:
+      - **open**: write to shared info pool, all sub-projects can see
+      - **tag-routed**: match tags to sub-project `interest_tags`, write to each matched sub-project's `from-hq.md`
+      - **manual**: ask user "Send this to which projects?" for each item
+      - **silent**: skip routing entirely
+   c. Respect Privacy rules — never route blocked categories
+
+5. **Pull (scan sub-projects)**:
    a. Scan all connected sub-projects (from `09-links/`)
    b. Read each sub-project's `to-hq.md`
    c. Check for new entries (entries not yet marked as `[read]`)
    d. Display new entries grouped by sub-project, highlighting `[urgent]` and `[decision]` tags
    e. Mark displayed entries as `[read]` with today's date
 
-5. **Show summary** using AskUserQuestion:
+6. **Show summary**:
    ```
    Sync complete.
 
-   Pushed: X items stored, Y items routed to sub-projects
+   Stored: X items (tasks: 2, decisions: 1, insights: 1)
+   Routed: Y items to sub-projects
    Pulled: Z new updates from sub-projects
 
-   [List of routed items with destinations]
+   [List of stored items with destinations]
    [List of pulled items with sources]
-
-   Anything to follow up on?
    ```
 
 ---
 
 ### If running in a Sub-project:
 
-3. **Push (distill + store local + push to brain)**:
+3. **Distill (session → local + brain)**:
    a. Review the current conversation for new information
    b. Apply local distillation (based on project's sync settings)
-   c. Store relevant info locally (project's own notes/docs)
-   d. Filter through Sync Items config (`.loci-config.json`):
+   c. If `--dry-run`: list what would be stored/pushed, then stop
+   d. Store relevant info locally (project's own notes/docs)
+   e. Filter through Sync Items config (`.loci-config.json`):
       - Only push items that match enabled sync categories (decisions, milestones, lessons, etc.)
       - Apply exclusion rules
-   e. Write filtered items to this project's `to-hq.md` with appropriate tags
-   f. If project is not enabled, skip push entirely
+   f. If not `--local`: write filtered items to this project's `to-hq.md` with appropriate tags
 
-4. **Pull (read from brain)**:
+4. **Pull (read from brain)** (skip if `--local`):
    a. Read brain path from `.loci-link`
    b. Read this project's `from-hq.md`
    c. Check for new entries (entries not yet marked as `[read]`)
@@ -71,15 +75,31 @@ Steps:
    e. Display new entries, highlighting priority
    f. Mark displayed entries as `[read]` with today's date
 
-5. **Show summary** using AskUserQuestion:
+5. **Show summary**:
    ```
    Sync complete.
 
-   Pushed: X items to brain (via to-hq.md)
-   Pulled: Z new updates from brain
+   Stored locally: X items
+   Pushed to brain: Y items (via to-hq.md)
+   Pulled from brain: Z new updates
 
    [List of pushed items]
    [List of pulled items]
-
-   Anything to follow up on?
    ```
+
+---
+
+## Auto-sync behavior (when not triggered manually)
+
+When persistence mode is `auto` (default), the AI performs signal-driven sync automatically during conversation:
+
+1. **Every turn**, AI evaluates whether the current exchange contains storable information (new task, decision, insight, personal info change, etc.)
+2. **If yes**: silently distill + store + route, then output a one-line notification:
+   ```
+   [Loci] Stored: new task "Buy power adapter" → active.md
+   [Loci] Synced: decision "Loci pricing $49" → from-hq.md (cyc, ai-resume)
+   ```
+3. **If no**: do nothing, no notification
+4. User can say "undo" / "撤销" to reverse the last auto-save
+
+This is signal-driven, not interval-based. 5 turns of chitchat = nothing stored. 1 turn with a major decision = stored immediately.

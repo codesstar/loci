@@ -7,11 +7,11 @@ Steps:
 2. **Check existing config**: Read `loci-brain-settings.yml` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
 3. **Quick mode**: First ask using AskUserQuestion: "How do you want to configure your brain?"
-   - **"自动帮我存和分发 (recommended)"** — persistence: smart (auto-distill every 5 rounds, remind every 3 rounds + smart detect), routing: tag-routed
-   - **"我自己决定什么时候存"** — persistence: manual (only via `/loci-sync` or explicit request), routing: manual
+   - **"Auto (recommended)"** — persistence: auto (signal-driven distill + one-line notifications), routing: tag-routed
+   - **"Manual"** — persistence: manual (only via `/loci-sync` or explicit request), routing: manual
 
-   If first or second option: apply corresponding defaults below, show summary, done.
-   If third option: apply manual settings, show summary, done.
+   If first option: apply auto defaults below, show summary, done.
+   If second option: apply manual settings, show summary, done.
    If user wants to tweak individual settings: proceed with step 4.
 
 4. **Enabled** (AskUserQuestion):
@@ -23,12 +23,8 @@ Steps:
 5. **Persistence** (AskUserQuestion):
 
    "How should your brain handle storing information?"
-   - **Smart (recommended)** — Two mechanisms working together:
-     - **Auto-distill**: every 5 rounds, silently distill and store
-     - **Auto-remind**: every 3 rounds, or when important info is detected, proactively notify user what was stored / what's worth storing
-     - Also supports: user says "记一下" / "save this" / `/loci-sync` → immediate save
-     - All intervals are customizable
-   - **Manual** — No auto-remind, no auto-distill. Only stores when user explicitly requests or runs `/loci-sync`
+   - **Auto (recommended)** — Signal-driven: AI detects when something worth storing comes up (task, decision, insight, personal info) and saves immediately. One-line notification after each save, no interrupting questions. User can say "undo" to reverse. `/loci-sync` also available for manual trigger anytime.
+   - **Manual** — No auto-save. Only stores when user explicitly requests or runs `/loci-sync`
 
 6. **Privacy settings** (AskUserQuestion):
 
@@ -91,11 +87,10 @@ Steps:
    enabled: true
 
    persistence:
-     mode: smart  # smart | manual
-     auto_confirm: true          # true: auto-distill silently | false: only remind, user decides
-     remind_interval: 3          # proactively remind every N rounds (0 = off)
-     distill_interval: 5         # auto-distill every N rounds (0 = off)
-     smart_detect: true          # also remind/distill when important info detected mid-conversation
+     mode: auto  # auto | manual
+     # auto mode: signal-driven, AI detects storable info and saves immediately
+     # manual mode: only saves on /loci-sync or explicit user request
+     notify: true                # show one-line notification after each auto-save
 
    privacy:
      mode: blocklist
@@ -123,7 +118,7 @@ Steps:
    Brain Synapse settings saved.
 
    Enabled: yes
-   Persistence: smart (auto-distill every 5 rounds, remind every 3 rounds, smart detect on)
+   Persistence: auto (signal-driven, one-line notifications)
    Privacy: medical, financial, credentials blocked
    Distillation: balanced
    Routing: tag-routed (urgent, decision, fyi, log)
