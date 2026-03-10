@@ -62,7 +62,7 @@ git clone https://github.com/codesstar/loci.git my-brain
 cd my-brain
 
 # 2. Start your brain
-claude "help me set up my brain"
+claude --prompt "set up my brain"
 ```
 
 That's it. Loci detects it's your first time and walks you through a conversational setup — your name, what you do, what you're working on. In 2 minutes, your brain is ready.
