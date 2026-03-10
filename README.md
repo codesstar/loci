@@ -269,6 +269,27 @@ Extension modules (created on demand, not in default install):
 | Your data stays local | Yes | No | No | Yes |
 | Portable (switch AI tools) | Yes (copy folder) | No (locked in) | No | No |
 
+**Current limitations**: CLI only (no mobile app), requires Claude Code (partial support for other AI tools), no built-in search beyond file grep, no real-time collaboration, no cloud sync in free version.
+
+---
+
+## Compatibility
+
+Loci works with any AI coding tool that reads a project-level instruction file on startup.
+
+| Tool | Support Level | How |
+|------|--------------|-----|
+| **Claude Code** | Full | Native. Reads `CLAUDE.md` + `@import` automatically |
+| **Cursor** | High | Reads `.cursorrules`. Copy CLAUDE.md content to `.cursorrules` |
+| **Windsurf** | High | Reads `.windsurfrules`. Copy CLAUDE.md content to `.windsurfrules` |
+| **Cline** | High | Reads `.clinerules`. Copy CLAUDE.md content to `.clinerules` |
+| **OpenAI Codex** | Partial | Reads `AGENTS.md`. Needs adapted prompt (no @import support) |
+| **GitHub Copilot** | Minimal | No project-level instructions. Use as reference only |
+
+For non-Claude tools, run `bash scripts/adapt.sh <tool>` to generate the appropriate config file. *(Script coming soon — not yet implemented.)*
+
+> Loci's memory is stored in plain Markdown — it works regardless of which AI tool reads it. The slash commands (`/loci-sync`, `/loci-link`) are Claude Code specific, but the underlying file operations can be done manually or scripted.
+
 ---
 
 ## Documentation
