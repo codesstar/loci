@@ -26,13 +26,13 @@ Priority: User Override > File Inference > Environmental Signals
 At the start of every conversation, Loci runs the **inference chain**:
 
 ```
-Step 1: Read status.yml
+Step 1: Read .loci/status.yml
   → If override exists and not expired → use it
   → If expired → mark stale, continue to Step 2
 
 Step 2: Read today's daily plan
   → Extract: location, schedule, mood markers, planned workload
-  → Write to status.yml sources
+  → Write to .loci/status.yml sources
 
 Step 3: Read zero-permission signals
   → Current time → infer time-of-day (morning/afternoon/late night)
@@ -43,10 +43,10 @@ Step 4: Fuse signals and compute confidence
   → Signals agree → high confidence → use directly
   → Signals conflict or insufficient → low confidence → ask naturally
 
-Step 5: Update status.yml
+Step 5: Update .loci/status.yml
 ```
 
-### status.yml (L1 — Always Loaded)
+### .loci/status.yml (L1 — Always Loaded)
 
 ```yaml
 updated: "2026-03-07T14:30:00+11:00"
@@ -65,7 +65,7 @@ override:                   # User /status input — highest priority
 
 sources:
   - type: daily_plan
-    file: "03-planning/daily/2026-03-07.md"
+    file: "tasks/daily/2026-03-07.md"
     extracted: "Arrived in Sydney, flight landed at 14:00"
   - type: time_signal
     value: "Conversation gap > 72 hours"
@@ -134,8 +134,8 @@ Every terminal writes to a shared append-only log when it modifies key files. Ev
 ### changelog.log Format
 
 ```
-1741334400|terminal-hq|WRITE|05-tasks/active.md|Added P0 task
-1741334520|terminal-projectA|WRITE|03-planning/daily/2026-03-07.md|Completed daily plan
+1741334400|terminal-hq|WRITE|tasks/active.md|Added P0 task
+1741334520|terminal-projectA|WRITE|tasks/daily/2026-03-07.md|Completed daily plan
 1741334600|terminal-hq|WRITE|inbox.md|Added 3 items
 ```
 
@@ -171,7 +171,7 @@ TIMESTAMP=$(date +%s)
 FILEPATH="${1#$LOCI_ROOT/}"
 
 case "$FILEPATH" in
-  inbox.md|plan.md|status.yml|05-tasks/*|03-planning/daily/*|09-links/*/to-hq.md)
+  inbox.md|plan.md|.loci/status.yml|tasks/*|.loci/links/*/to-hq.md)
     echo "${TIMESTAMP}|${TERMINAL_ID}|WRITE|${FILEPATH}|" >> "$CHANGELOG"
     ;;
 esac
@@ -235,7 +235,7 @@ They complement each other. The department protocol is for intentional messages;
 
 | Phase | What | Effort |
 |-------|------|--------|
-| **Phase 1** | Fix: ensure "read daily plan at start" executes 100%. Add `status.yml` to L1. | Half day |
+| **Phase 1** | Fix: ensure "read daily plan at start" executes 100%. Add `.loci/status.yml` to L1. | Half day |
 | **Phase 2** | changelog.log + write/read scripts + hooks config | 1.5 hours |
 | **Phase 3** | `/status` + `/sync` commands + TTL expiry | 1 day |
 | **Phase 4** | Provider interface + file locking + log rotation | 1 day |

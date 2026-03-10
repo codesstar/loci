@@ -23,4 +23,4 @@ tags: [review, weekly]
 ## Inbox Cleanup
 
 - [ ] Cleared inbox.md
-- [ ] Sorted files in 00-inbox/
+- [ ] Reviewed inbox.md

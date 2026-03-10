@@ -8,10 +8,10 @@ Flags:
 
 Steps:
 
-1. **Detect context**: Check if current directory is a brain (has `.loci/` or `01-me/identity.md`) or a sub-project (has `.loci-link`). If neither, tell user: "This directory is not a Loci brain or connected sub-project. Run `/loci-link` first."
+1. **Detect context**: Check if current directory is a brain (has `.loci/` or `me/identity.md`) or a sub-project (has `.loci-link`). If neither, tell user: "This directory is not a Loci brain or connected sub-project. Run `/loci-link` first."
 
 2. **Read config**:
-   - Brain: read `loci-brain-settings.yml`
+   - Brain: read `.loci/config.yml`
    - Sub-project: read `.loci-config.json` and `.loci-link` (to get brain path)
    - If no config found, use defaults (auto mode, balanced distillation, tag-routed).
 
@@ -23,7 +23,7 @@ Steps:
    a. Review the current conversation for new information worth storing
    b. Apply Distillation settings (verbose/balanced/minimal) to compress
    c. If `--dry-run`: list what would be stored, then stop
-   d. Write distilled info to the appropriate brain files (decisions → `07-decisions/`, tasks → `05-tasks/active.md`, insights → `01-me/learned.md`, etc.)
+   d. Write distilled info to the appropriate brain files (decisions → `decisions/`, tasks → `tasks/active.md`, insights → `me/learned.md`, etc.)
 
 4. **Sync (brain → sub-projects)** (skip if `--local`):
    a. Auto-tag each stored item (urgent/decision/fyi/log + custom tags)
@@ -35,7 +35,7 @@ Steps:
    c. Respect Privacy rules — never route blocked categories
 
 5. **Pull (scan sub-projects)**:
-   a. Scan all connected sub-projects (from `09-links/`)
+   a. Scan all connected sub-projects (from `.loci/links/`)
    b. Read each sub-project's `to-hq.md`
    c. Check for new entries (entries not yet marked as `[read]`)
    d. Display new entries grouped by sub-project, highlighting `[urgent]` and `[decision]` tags

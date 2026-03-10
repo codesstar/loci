@@ -3,7 +3,7 @@ Connect a project folder to your Loci brain. Works from either the brain or a su
 Steps:
 
 **Step 0 — Detect context:**
-- Check if the current directory IS the brain (contains `CLAUDE.md` with "Loci" AND has `09-links/` directory)
+- Check if the current directory IS the brain (contains `CLAUDE.md` with "Loci" AND has `.loci/links/` directory)
 - If YES → go to **Brain Mode** below
 - If NO → go to **Project Mode** (step 1)
 
@@ -26,7 +26,7 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
    - Read it to get the brain path
    - Tell the user: "This project is already connected to your Loci brain at [path]."
    - Ask: "Want to reconnect to a different brain, or disconnect?"
-   - If disconnect: remove `.loci-link`, `from-hq.md`, `to-hq.md`, and the symlink in the brain's `09-links/`
+   - If disconnect: remove `.loci-link`, `from-hq.md`, `to-hq.md`, and the symlink in the brain's `.loci/links/`
    - If reconnect: continue with step 4
    - Otherwise: stop here
 2. Read `~/.claude/CLAUDE.md` to find the Loci brain path (look for the "Loci Brain" section)
@@ -38,8 +38,8 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
    - Question 3: "Associated department" (header: "Department", options: "engineering", "product", "research", "marketing", "none")
    - Question 4: "One-line description" (header: "Description", let user type)
 5. In the brain directory:
-   - Create symlink: `09-links/<project-name>` → current directory
-   - Register in `09-links/registry.md`
+   - Create symlink: `.loci/links/<project-name>` → current directory
+   - Register in `.loci/links/registry.md`
 6. In the current directory:
    - Create `.loci-link` file containing the brain's absolute path
    - Create `from-hq.md` (for receiving directives from brain)
@@ -68,7 +68,7 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
 
    d. **AI summary** (only AI step): generate a one-line description (<100 chars) from project name + README first 5 lines + tech stack
 
-   e. **Write profile** to `09-links/<project-name>/profile.md`:
+   e. **Write profile** to `.loci/links/<project-name>/profile.md`:
       ```markdown
       ---
       name: <project name>
@@ -111,6 +111,6 @@ If the user types "skip" or the path doesn't exist, suggest: "Go to your project
 
    If any identity file is missing, skip it gracefully. If the project is empty, set `type: empty` and write "New project, not yet initialized" as overview. Never fabricate information.
 
-8. Confirm: "Project connected and scanned. Profile saved to `09-links/<name>/profile.md`."
+8. Confirm: "Project connected and scanned. Profile saved to `.loci/links/<name>/profile.md`."
    Show a brief summary of what was detected (type, language, scale).
    Remind: "Run `/loci-settings` to configure what this project syncs to your brain."

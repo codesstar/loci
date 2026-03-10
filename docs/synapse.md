@@ -10,10 +10,10 @@ Loci doesn't save on a fixed schedule. It watches every conversation turn for **
 
 | Signal | Example | Destination |
 |--------|---------|-------------|
-| New task | "I need to update the API docs" | `05-tasks/active.md` |
-| Decision | "Let's go with PostgreSQL" | `07-decisions/` |
-| Insight/lesson | "Never deploy on Fridays" | `01-me/learned.md` |
-| Personal info change | "I just moved to Berlin" | `01-me/identity.md` |
+| New task | "I need to update the API docs" | `tasks/active.md` |
+| Decision | "Let's go with PostgreSQL" | `decisions/` |
+| Insight/lesson | "Never deploy on Fridays" | `me/learned.md` |
+| Personal info change | "I just moved to Berlin" | `me/identity.md` |
 | Goal update | "Pushing launch to April" | `plan.md` |
 
 **No signal = no save.** Five turns of chitchat produce zero writes. One turn with a major decision saves immediately.
@@ -40,7 +40,7 @@ Run `/loci-sync` anytime for a full manual sync:
 ```
 /loci-sync              → Distill + sync (default)
 /loci-sync --local      → Distill only, don't sync to sub-projects
-/loci-sync --dry-run    → Preview what would be saved, don't execute
+/loci-sync --dry-run    → Show what would be saved, don't execute
 ```
 
 ## Two Modes
@@ -93,7 +93,7 @@ Privacy is always a hard boundary — sub-projects cannot weaken it.
 
 ## File Format
 
-### Brain side: `loci-brain-settings.yml`
+### Brain side: `.loci/config.yml`
 
 ```yaml
 version: 1

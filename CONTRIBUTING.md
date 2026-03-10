@@ -42,7 +42,7 @@ See [README.md](README.md#directory-structure) for the full directory map. Key f
 
 - `CLAUDE.md` — The AI system prompt (core logic lives here)
 - `templates/commands/` — Slash command definitions
-- `10-dashboard/build.py` — Dashboard data generator
+- `.loci/dashboard/build.py` — Dashboard data generator
 - `examples/alex/` — Demo data for new users
 
 ## License

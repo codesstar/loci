@@ -2,9 +2,9 @@ Configure your Loci brain's Synapse settings — how your brain stores, processe
 
 Steps:
 
-1. **Check this is a brain**: Look for `.loci/` directory or check if `01-me/identity.md` exists. If not found, tell user: "This doesn't look like a Loci brain. Run this command from your brain directory."
+1. **Check this is a brain**: Look for `.loci/` directory or check if `me/identity.md` exists. If not found, tell user: "This doesn't look like a Loci brain. Run this command from your brain directory."
 
-2. **Check existing config**: Read `loci-brain-settings.yml` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
+2. **Check existing config**: Read `.loci/config.yml` if it exists. If it does, show current settings and ask what to change. If not, proceed with fresh setup.
 
 3. **Quick mode**: First ask using AskUserQuestion: "How do you want to configure your brain?"
    - **"Auto (recommended)"** — persistence: auto (signal-driven distill + one-line notifications), routing: tag-routed
@@ -77,9 +77,9 @@ Steps:
    - **180 days**
    - **Never** — Keep everything active forever
 
-   Note: "Archived information is still searchable, just moved to 08-archive/."
+   Note: "Archived information is still searchable, just moved to archive/."
 
-10. **Save config**: Write `loci-brain-settings.yml` in brain root directory:
+10. **Save config**: Write `.loci/config.yml` in brain directory:
    ```yaml
    version: 1
    preset: custom  # recommended | ask-first | manual | custom

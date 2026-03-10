@@ -6,7 +6,7 @@ Loci comes with a fictional persona (Alex Chen) as an example. Here's how to mak
 
 ## Essential Customizations
 
-### 1. Personal Identity (`01-me/identity.md`)
+### 1. Personal Identity (`me/identity.md`)
 
 This is the most important file to customize. Your AI reads this to understand who you are.
 
@@ -17,7 +17,7 @@ Include:
 - Communication preferences
 - Current focus areas
 
-### 2. Values & Principles (`01-me/values.md`)
+### 2. Values & Principles (`me/values.md`)
 
 Your decision-making framework. The AI uses this to give aligned advice.
 
@@ -30,7 +30,7 @@ Examples of good principles:
 
 Your north star. Set your mission, annual goals, and current quarter focus.
 
-### 4. Active Tasks (`05-tasks/active.md`)
+### 4. Active Tasks (`tasks/active.md`)
 
 Your daily command center. Keep P0 items to 3 or fewer.
 
@@ -82,6 +82,5 @@ The pixel-art theme is the default, but you can customize it. See `docs/dashboar
 
 ## What NOT to Customize
 
-- Don't change the folder numbering scheme (00-, 01-, etc.) — the dashboard depends on it
 - Don't rename `CLAUDE.md` — it's the entry point for AI tools
 - Don't delete `plan.md` or `inbox.md` — they're Layer 1 essentials
