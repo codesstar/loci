@@ -261,7 +261,9 @@ loci/
 
 ## Documentation
 
-Detailed guides are available in the `docs/` directory:
+**[How It Works](docs/how-it-works.md)** — The complete guide. Read one doc, understand everything.
+
+Detailed guides by topic:
 
 - **[Architecture](docs/architecture.md)** — Deep dive into the three-layer memory system
 - **[Synapse](docs/synapse.md)** — Cross-project information flow, persistence modes, routing
