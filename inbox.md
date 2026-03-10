@@ -9,3 +9,4 @@ updated:
 ## Unprocessed
 
 <!-- Drop anything here. Loci will help you sort it. -->
+<!-- For a complete example, see examples/alex/inbox.md -->
