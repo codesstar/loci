@@ -45,7 +45,7 @@ my-brain/
 │   ├── hooks/         ← Cross-terminal sync hooks
 │   ├── links/         ← Connected external projects
 │   ├── dashboard/     ← Visual panel
-│   ├── config.yml     ← Brain settings (persistence, privacy, routing)
+│   ├── config.yml     ← Brain settings (persistence mode, notifications)
 │   ├── status.yml     ← Current state (tired / energized / traveling)
 │   └── activity-log.md ← Last 14 days of activity timeline
 │
@@ -200,40 +200,26 @@ Local (.loci/memory.md): Project-specific knowledge
   Facts, decisions, and lessons that stay within this project
 ```
 
-### Routing Modes
+### Tag-Based Sync (v1.0)
 
-When the brain produces new information (e.g. you made a decision), Synapse decides which projects should know:
+When you work in a sub-project, entries in `.loci/memory.md` are tagged. Tags determine what syncs to the brain:
 
-| Mode | How it distributes |
-|------|-------------------|
-| **Tag-routed** (default) | Auto-tags info (urgent/decision/fyi/log), matches to each project's `interest_tags` |
-| **Open** | All info visible to all projects, each pulls what it needs |
-| **Manual** | Asks you "send to which project?" each time |
-| **Silent** | Brain keeps everything to itself |
+**Push tags** (auto-sync to brain via `to-hq.md`):
+- `[decision]` — architectural or strategic choices
+- `[architecture]` — system design, data models, tech stack
+- `[insight]` — learned patterns, performance findings
+- `[milestone]` — shipped features, releases
+
+**Local tags** (stay in sub-project only):
+- `[local]` — project-specific context
+- `[debug]` — bug fixes, workarounds
+- `[wip]` — work in progress
+
+> Advanced routing modes (open, manual, silent) are planned for v2.0. See [Roadmap](roadmap.md).
 
 ### Sub-Project Configuration (/loci-settings)
 
-Each project decides what to push to the brain:
-
-```json
-{
-  "sync": {
-    "decisions": true,      // Architecture decisions → push to brain
-    "milestones": true,     // Release milestones → push to brain
-    "lessons": true,        // Lessons learned → push to brain
-    "codeDetails": false,   // Actual code → don't push
-    "architecture": true,   // Architecture changes → push to brain
-    "blockers": true        // Stuck on something → push to brain
-  }
-}
-```
-
-### Privacy Boundary
-
-Brain-side config controls what never gets shared with sub-projects:
-- **Default blocked**: medical info, financial details, credentials/passwords
-- **Customizable**: add any category (e.g. "never share relationship details")
-- **Hard boundary**: sub-projects cannot override privacy rules
+Each project can configure which tags push to the brain via `/loci-settings`.
 
 > Deep dive: [Departments](departments.md)
 
@@ -253,29 +239,18 @@ Privacy is always a hard boundary — sub-projects can never weaken it.
 
 | Command | Where | Controls |
 |---------|-------|----------|
-| `/loci-brain-settings` | Brain | Persistence mode, privacy, distillation detail level, routing mode, archive timeline |
-| `/loci-settings` | Sub-project | What this project pushes/doesn't push to brain |
+| `/loci-brain-settings` | Brain | Persistence mode (auto/manual), notifications |
+| `/loci-settings` | Sub-project | What tags this project pushes to brain |
 
-### Full Brain Settings
+### Brain Settings (v1.0)
 
 ```yaml
 persistence:
   mode: auto              # auto (signal-driven) | manual
   notify: true            # Show notification after each save
-
-privacy:
-  blocked_tags: [medical, financial, credentials]
-
-distillation:
-  level: balanced         # verbose | balanced | minimal
-
-routing:
-  mode: tag-routed        # open | tag-routed | manual | silent
-  tags: [urgent, decision, fyi, log]
-
-retention:
-  archive_after_days: 90  # 90 days unreferenced → move to archive/
 ```
+
+> Advanced settings (privacy boundaries, distillation levels, routing modes, retention policies) are planned for v2.0. See [Roadmap](roadmap.md).
 
 ---
 
@@ -303,13 +278,13 @@ retention:
 
 > Deep dive: [Context Awareness](context-awareness.md), [Dashboard](dashboard.md)
 
-### Known Limitations (v0.1)
+### Known Limitations (v1.0)
 
 - **Concurrent editing**: Multiple terminals writing to the same brain file simultaneously may cause conflicts. Git tracks all changes, so no data is truly lost, but you may need to resolve a manual merge.
 - **Cross-terminal detection**: The hook system (`check-updates.sh`) detects when another terminal has modified files, but it cannot prevent two writes from overlapping.
 - **Best practice**: Avoid editing the same brain file from multiple terminals at the same time. In practice this is rare — most conversations touch different files — but it's worth knowing.
 
-This is a v0.1 limitation, not a fundamental design issue. Future versions will add file-level locking or conflict-free merge strategies.
+Future versions will add file-level locking or conflict-free merge strategies.
 
 ---
 
@@ -328,7 +303,8 @@ Day one, the user just feels "my AI remembers me." The complexity underneath rev
 | `/loci-link` | Week 2 | Connect a project folder to your brain |
 | `/loci-sync` | Anytime | Manual distill + sync (flags: `--local`, `--dry-run`) |
 | `/loci-settings` | Week 2+ | Configure what a project syncs to brain |
-| `/loci-brain-settings` | Week 3+ | Configure persistence, privacy, routing, retention |
+| `/loci-brain-settings` | Week 3+ | Configure persistence mode and notifications |
+| `/loci-consolidate` | Anytime | Manual memory consolidation (default 24h, or `/loci-consolidate 7` for weekly) |
 | `/loci-scan` | Occasional | Re-scan a project and update its profile |
 
 ## Further Reading
