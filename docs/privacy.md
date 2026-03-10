@@ -16,11 +16,9 @@ Every Loci user gets this automatically. No setup needed.
 
 ### .gitignore
 
-Pre-configured to exclude all personal content directories. Only structure files (README.md, templates, CLAUDE.md) are tracked by default.
+Pre-configured to exclude personal content directories (`01-me/`, `02-finance/`, `04-people/`, daily plans, journals). Only structure files (README.md, templates, CLAUDE.md) are tracked by default. After onboarding, your real data stays local.
 
-### Pre-commit Hook
-
-Automatically scans staged files for sensitive patterns (credit card numbers, emails, passwords, `sensitivity: high` tags). Blocks the commit if found.
+> **Important**: Clone, don't fork. If you fork, your fork is public. Set it to private immediately.
 
 ### Data Classification Tags
 
@@ -213,7 +211,7 @@ encryption:
 
 ### "I just want basic protection" (2 minutes)
 
-1. Run `bash setup.sh` — `.gitignore` and pre-commit hook are auto-configured
+1. `.gitignore` is already configured to exclude personal data directories
 2. Done. Your personal data won't accidentally leak via Git.
 
 ### "I want AI context control" (5 minutes)
