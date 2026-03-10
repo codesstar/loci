@@ -23,6 +23,13 @@
 - Improved setup.sh (conflict detection, dry-run mode)
 
 ## v1.0.0 — Power User
+- **Memory Consolidation（记忆整合）** — 模拟海马体睡眠整合机制：
+  - 每天首次对话时，LLM 回顾过去 24h 的蒸馏结果
+  - 发现跨领域模式（"你最近三个决策都在简化架构"）
+  - 生成洞察追加到 `me/insights.md` 或 `me/evolution.md`
+  - 灵感来源：Google Always-On Memory Agent 的 Consolidation 阶段
+  - 可手动触发（`/loci-consolidate`）或自动（每日首次对话）
+- **Source Citations（来源引用）** — 蒸馏时标注来源，查询时引用
 - Multiple routing modes (open, manual, silent)
 - Privacy boundary configuration (blocked_tags, custom rules)
 - Distillation level presets (verbose/balanced/minimal)
@@ -40,6 +47,13 @@
 - Native support for Cursor/Windsurf/Cline (beyond adapt.sh)
 - AI memory API (commercial offering)
 - Shareable brain stats card (/loci-stats)
+- Multi-modal inbox (文件监听目录，自动摄取非 markdown 内容)
+
+## Competitive Landscape
+- **Google Always-On Memory Agent** (2026-03) — 通用 Agent 记忆后端，SQLite + Gemini，三阶段流水线（Ingest → Consolidate → Query）。Loci 差异：身份层 + 多项目编排 + 零基础设施。
+- **Mem0** — API-first 记忆服务，向量数据库 + embedding。Loci 差异：纯 markdown、本地优先、透明可审计。
+- **Letta (MemGPT)** — 自管理记忆的 Agent 框架。Loci 差异：不需要运行时，寄生在宿主工具中。
+- **ChatGPT Memory** — 平台内置，扁平列表。Loci 差异：结构化三层、可导出、不锁定。
 
 ## Design Decisions Deferred
 These were discussed and designed but deliberately cut from v0.1 to ship faster:
