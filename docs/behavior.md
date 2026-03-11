@@ -9,13 +9,71 @@ When the user mentions something to do, **add immediately** without confirmation
 
 ## Reference Collection (references/)
 
-When the user mentions external content (articles, tweets, videos, quotes, products, ideas from others):
+An optional extension module for external content — articles, tweets, videos, quotes, products, ideas from others. Created on demand when user first saves external content.
 
-1. **Route**: External content → `references/inbox.md`. Own thoughts/tasks → root `inbox.md`
-2. **Zero friction**: User says "save this" + content → append to `references/inbox.md` immediately. No classification needed, no confirmation
-3. **Format**: `## [Short title]` + content + source + date
-4. **On "organize references"**: Split inbox entries into individual files in `references/entries/`, auto-generate frontmatter (date, type, source, tags)
-5. **On "what did I save about X"**: Search `references/inbox.md` + `entries/` for matches
+### 1. Routing
+- **External content** (someone else's ideas) → `references/inbox.md`
+- **Your own tasks/thoughts/reminders** → root `inbox.md`
+- Rule of thumb: came from outside you → references. Came from inside you → inbox/me/decisions.
+
+### 2. Zero-Friction Capture
+User says "save this" + content → append to `references/inbox.md` immediately. No classification, no confirmation.
+
+Format in inbox:
+```markdown
+## [Short title]
+[Content / summary / quote]
+Source: [URL or description]
+Date: YYYY-MM-DD
+```
+
+### 3. Organize Trigger
+On "organize references" or when inbox exceeds 10 entries:
+- Split inbox entries into individual files in `references/entries/YYYY-MM-DD-slug.md`
+- Auto-generate frontmatter: date, type, source, tags, one-line, use-for, status
+- Ask user to confirm tags and `use-for` field (this is the high-value metadata)
+
+### 4. Entry Frontmatter
+```yaml
+---
+date: 2026-03-10
+type: article    # article | book | video | quote | product | idea | tweet | paper
+source: "https://..."
+tags: [pricing, open-source]
+one-line: "Open-core pricing grows 3x faster than pure SaaS"
+use-for: "Loci pricing strategy"   # what this is useful for — key field
+status: raw      # raw → processed → applied → archived
+---
+```
+
+### 5. Proactive Recall
+When the user is working on a topic that matches saved references (by tags or `use-for`):
+- Surface relevant entries naturally: "By the way, you saved an article about X that might be relevant here."
+- Don't interrupt flow — mention at natural pauses or when directly relevant
+- Never surface the same reference twice in one session
+
+### 6. Collections
+User can group references: "make a collection about pricing". Creates `references/collections/pricing.md` — a curated list linking to entries, with optional commentary.
+
+### 7. Search
+On "what did I save about X": search `references/inbox.md` + `entries/` + `collections/` for matches by title, tags, one-line, and content.
+
+### 8. Lifecycle
+- `raw` → just captured, unprocessed
+- `processed` → organized with frontmatter, tagged
+- `applied` → actually used in a decision/project (auto-update when referenced in a decision file)
+- `archived` → no longer relevant, moved to `archive/references/`
+
+### 9. Structure
+```
+references/
+├── README.md           # Module overview
+├── inbox.md            # Quick dump — zero friction
+├── entries/            # Organized individual entries
+│   └── YYYY-MM-DD-slug.md
+└── collections/        # Curated topic groups
+    └── topic-name.md
+```
 
 ## Department Communication Protocol
 
