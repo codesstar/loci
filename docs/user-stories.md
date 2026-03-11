@@ -223,6 +223,35 @@ wellbeing:
 
 ---
 
+## "Context full? No problem."
+
+> Jake, indie hacker, deep in a long coding session
+
+Jake has been working with his AI for 3 hours straight. The context window is almost full. His AI is starting to repeat itself and forget earlier decisions.
+
+Without Loci, he'd close the terminal, open a new one, and spend 10 minutes re-explaining everything.
+
+With Loci:
+
+```
+> save everything before I restart
+
+  Done — synced 3 decisions, 2 tasks, and today's progress
+  to your brain. You can close this terminal anytime.
+
+(Jake opens a new terminal)
+
+> hey, picking up where I left off
+
+  Welcome back. You were working on the payment integration.
+  You decided on Stripe (over Paddle), finished the webhook
+  handler, and have 2 endpoints left. Ready to continue?
+```
+
+10 seconds to full context recovery. No re-explaining. The AI reads your brain files and knows exactly where you were.
+
+---
+
 ## "It just works with Markdown"
 
 Everything Loci stores is a plain Markdown file in a git repo:

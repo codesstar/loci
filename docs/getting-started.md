@@ -258,6 +258,8 @@ Later, you're in Project B:
 
 **Use `/loci-consolidate 7` for a weekly review.** It scans the last 7 days of changes and surfaces patterns, stale tasks, and insights you might have missed.
 
+**Context getting full? Just save and restart.** When your AI starts slowing down or repeating itself, say "save everything" or run `/loci-sync`, then open a fresh terminal. Your AI reads your brain files and picks up exactly where you left off — full context recovery in seconds, not minutes of re-explaining.
+
 **Your brain is just files.** You can edit any file directly in your editor. Loci will pick up the changes next conversation. There's no lock-in.
 
 **The dashboard gives you a visual overview.** Run `cd .loci/dashboard && python3 build.py && python3 -m http.server 8765` and open `localhost:8765` in your browser.
