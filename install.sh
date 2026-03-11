@@ -89,11 +89,23 @@ LOCIBLOCK
   echo -e "${GREEN}✓${NC} Global awareness enabled (~/.claude/CLAUDE.md)"
 fi
 
-# Copy slash commands
+# Copy slash commands (backup existing ones first)
 if [ -d "templates/commands" ]; then
   mkdir -p "$GLOBAL_COMMANDS"
+  for cmd_file in templates/commands/*.md; do
+    cmd_name="$(basename "$cmd_file")"
+    if [ -f "$GLOBAL_COMMANDS/$cmd_name" ]; then
+      cp "$GLOBAL_COMMANDS/$cmd_name" "$GLOBAL_COMMANDS/${cmd_name}.loci-backup"
+    fi
+  done
   cp templates/commands/*.md "$GLOBAL_COMMANDS/" 2>/dev/null
   echo -e "${GREEN}✓${NC} Slash commands installed (~/.claude/commands/)"
+fi
+
+# ─── Ensure hooks are executable ──────────────────────────────────────────────
+if [ -d ".loci/hooks" ]; then
+  chmod +x .loci/hooks/*.sh 2>/dev/null
+  echo -e "${GREEN}✓${NC} Hooks set to executable"
 fi
 
 # ─── Launch Claude for onboarding ─────────────────────────────────────────────
