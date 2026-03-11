@@ -53,6 +53,8 @@ cd my-brain
 
 That's it. Claude Code automatically detects a new brain, asks you a few questions, and sets everything up through conversation.
 
+> **What does setup do?** Creates your identity and task files inside `my-brain/`, adds a global awareness block to `~/.claude/CLAUDE.md` (so Loci works across all projects), and copies slash commands to `~/.claude/commands/`. Everything is reversible — just delete the `<!-- loci:start -->` block to remove global awareness.
+>
 > **Windows?** Use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) or Git Bash.
 >
 > **Want to see a populated brain first?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of decisions, tasks, and insights.

@@ -31,9 +31,10 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - `me/identity.md` — basics, work, current season (set status: active)
    - `plan.md` — mission + current focus as annual goals (set status: active)
    - `tasks/active.md` — first P0 task from "most important thing"
-4. **Offer global awareness** (optional):
-   - "Would you like to connect other project folders to your brain?"
-   - If yes: append the following block to `~/.claude/CLAUDE.md` (replace `<brain-path>` with the actual absolute path to this brain):
+4. **Enable global awareness** (automatic):
+   - Check if `~/.claude/CLAUDE.md` already contains `<!-- loci:start` — if yes, skip (idempotent)
+   - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
+   - Append the following block to `~/.claude/CLAUDE.md` (create file if needed, replace `<brain-path>` with actual absolute path):
      ```markdown
      <!-- loci:start v1 -->
      ## Loci Brain Connection
@@ -48,8 +49,12 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
      - Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
      <!-- loci:end -->
      ```
-   - Also copy `templates/commands/` to `~/.claude/commands/`
-   - Only say: "Done! Use `/loci-link` in any project folder to connect it."
+   - Copy `templates/commands/` to `~/.claude/commands/`
+   - Tell the user what was done (one-line, not a question):
+     ```
+     Global awareness enabled — Loci commands now work in all your projects.
+     Use `/loci-link` in any project folder to connect it to your brain.
+     ```
 5. **Done**: Keep it simple but guide next step:
    ```
    Your brain is ready! From now on, I will:
