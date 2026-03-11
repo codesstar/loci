@@ -21,3 +21,4 @@ wellbeing:
 #   Daytime (9am-6pm):    wake_up_time: "07:00", wind_down_time: "22:30"  (default)
 #   Evening (6pm-12am):   wake_up_time: "10:00", wind_down_time: "01:00"
 #   Night owl (10pm-6am): wake_up_time: "14:00", wind_down_time: "04:00"
+#   Irregular / varies:  wellbeing.enabled: false
