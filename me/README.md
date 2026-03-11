@@ -7,6 +7,7 @@ Everything about you — who you are, what you value, what you've learned.
 - `goals.md` — Long-term goals and life vision
 - `values.md` — Values and decision principles
 - `learned.md` — Lessons, insights, mistakes to remember
+- `insights.md` — Auto-generated patterns from Memory Consolidation
 - `evolution.md` — Timeline of all past changes (Layer 3, never auto-loaded)
 
 ## Rules

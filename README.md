@@ -5,7 +5,7 @@
 <h1 align="center">Loci — Memory Palace for AI</h1>
 
 <p align="center">
-  <strong>Give your AI a brain.</strong> | <strong>给 AI 装大脑。</strong>
+  <strong>Give your AI a brain that remembers everything.</strong> | <strong>给 AI 装大脑。</strong>
 </p>
 
 <p align="center">
@@ -17,26 +17,31 @@
 
 ---
 
-You tell your AI "I decided to use Postgres instead of MySQL" on Monday. By Wednesday, it's forgotten. You explain the same project context for the fifth time. You wish it just *knew* you.
+## The Problem
 
-**Loci fixes this.** It gives your AI a persistent, structured memory that grows with every conversation — and follows you across projects.
+You tell your AI assistant "let's use Postgres" on Monday. By Wednesday, it has no idea. You re-explain your project, your preferences, your decisions — every single conversation. Your AI is brilliant but has amnesia.
+
+**What if it just... remembered?**
+
+## The Solution
+
+Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
 
 ```
 Monday:    "Let's use Postgres for the new service."
-              → [Loci] Stored: decision → decisions/2026-03-10-postgres.md
+              AI saves your decision automatically.
 
 Wednesday: "Why did we pick Postgres again?"
-              → "You chose Postgres on Monday because of JSONB support
-                 and your team's existing expertise."
-                 <!-- source: decisions/2026-03-10-postgres.md @2026-03-10T14:32 -->
+              "You chose Postgres on Monday because of JSONB support
+               and your team's existing expertise."
 
-Friday:    (Daily consolidation)
-              → "This week you made 3 architecture decisions, all simplifying
-                 your stack. You're shifting from 'more features' to 'fewer,
-                 better ones'."
+Friday:    You open a DIFFERENT project. "Should I use MySQL here?"
+              "You chose PostgreSQL on Monday for the main service.
+               Unless this one has different requirements, staying
+               consistent makes sense."
 ```
 
-No database. No server. No account. Just Markdown files and git.
+Your AI remembers across conversations, across days, across projects. It knows your decisions, your goals, your patterns — and it gets smarter over time.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
@@ -52,71 +57,92 @@ cd my-brain
 claude
 ```
 
-Say anything — even just "hi". Claude detects the new brain, asks you a few questions, and sets everything up through conversation.
+That's it. Claude detects the new brain, asks you a few questions, and sets everything up through conversation. Takes about 2 minutes.
 
-> **Alternative**: Run `bash install.sh` instead of `claude` — it checks prerequisites and disconnects from the template repo before launching Claude.
-
-> **What does setup do?** Creates your identity and task files inside `my-brain/`, adds a global awareness block to `~/.claude/CLAUDE.md` (so Loci works across all projects), and copies slash commands to `~/.claude/commands/`. Everything is reversible — just delete the `<!-- loci:start -->` block to remove global awareness.
+> **Alternative**: Run `bash install.sh` instead of `claude` — it checks prerequisites, disconnects from the template repo, and installs slash commands before launching Claude.
 >
 > **Windows?** Use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) or Git Bash.
 >
-> **Want to see a populated brain first?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of decisions, tasks, and insights.
+> **Want to see what a brain looks like?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of history.
+>
+> **New to Loci?** Read the **[Getting Started Guide](docs/getting-started.md)** for a complete walkthrough.
 
 ---
 
-## What Happens Next
+## What Happens After Setup
 
-Once your brain is set up, Loci works invisibly:
+You don't learn Loci. You just talk to your AI, and four things start happening:
 
-**It remembers.** Mention a decision, a task, a goal — Loci distills it into the right file automatically. No manual note-taking.
+### It remembers
 
-```
-You: "Let's switch from REST to GraphQL for the mobile API."
-[Loci] Stored: decision "Switch to GraphQL for mobile API" → decisions/
-```
-
-**It connects.** Link your projects with `/loci-link`. Loci tracks decisions and insights across all of them — what you learn in Project A shows up when it's relevant in Project B.
+Mention a decision, a task, a preference — Loci saves it to the right file automatically. You never take notes manually.
 
 ```
-┌──────────────────────────────────┐
-│          Your Brain (HQ)         │
-│                                  │
-│  Identity  Tasks  Decisions      │
-│                                  │
-│           Synapse                │
-└──────┬────────┬────────┬─────────┘
-       ▼        ▼        ▼
-   Project A  Project B  Project C
-   .loci/     .loci/     .loci/
+You: "I decided to switch from REST to GraphQL for the mobile API."
+
+[Loci] Stored: decision "Switch to GraphQL" -> decisions/2026-03-10-graphql.md
 ```
 
-**It reflects.** Every morning, Loci reviews what changed yesterday, finds patterns you missed, and surfaces insights:
+You said it once. It's permanent. Next week, next month — your AI knows.
+
+### It connects your projects
+
+Link any project folder with one command. What you learn in Project A is available when it matters in Project B.
 
 ```
-[Loci] Your last 3 decisions all simplified your architecture.
-       Bloom Health migration is due in 5 days with 0 progress — flag this?
+Brain (your memory)
+ |-- Project A    "We chose GraphQL here"
+ |-- Project B    "You chose GraphQL in Project A — same pattern applies here"
+ |-- Project C    "Three projects now use GraphQL. Standardize the client?"
 ```
 
-**It grows with you.** Identity changes, value shifts, skill evolution — all tracked in `me/evolution.md`. Your AI doesn't just remember facts; it understands how you're changing.
+### It finds patterns you miss
+
+Every morning, Loci reviews what changed and surfaces insights:
+
+```
+Morning briefing:
+  - Your last 4 architecture decisions all simplified your stack.
+    You're shifting from "more features" to "fewer, better ones."
+  - "Set up CI/CD" has been on your task list for 9 days. Do it or drop it?
+```
+
+### It grows with you
+
+Your values change. Your goals shift. Loci tracks the evolution — current state stays lean and fast, history is preserved for when you want to reflect.
+
+```
+March:  identity.md says "backend developer, learning React"
+June:   identity.md says "full-stack developer, shipping products"
+        evolution.md records the transition and when it happened
+```
 
 ---
 
 ## How It Works
 
-| Layer | What it does |
-|-------|-------------|
-| **Distillation** | Extracts facts, decisions, tasks from conversations — never saves raw transcripts. Every entry has a source citation with timestamp for traceability |
-| **Three-Layer Context** | L1 loads every conversation (identity, goals, tasks). L2 loads on demand. L3 archives stay deep until needed |
-| **Synapse** | Hub-and-spoke info flow between your brain and linked projects. Signal-driven: meaningful info pushes automatically, noise stays local |
-| **Memory Consolidation** | Daily review of recent changes. Finds cross-domain patterns, tracks goal progress, flags stale tasks. Manual deep-dives with `/loci-consolidate 7` or `30` |
-| **Growth Tracking** | When your identity/values/goals change, the old version is archived to `me/evolution.md`. Current files stay lean |
-| **Git-Native** | Everything is Markdown + git. `git diff` shows what your AI learned today. `git log` is your memory timeline |
+| Concept | What it does | Why it matters |
+|---------|-------------|----------------|
+| **Smart saving** | Extracts decisions, tasks, and insights from conversation — never saves raw chat transcripts | Your memory stays clean and searchable, not a wall of text |
+| **Layered loading** | Loads only what's relevant to the current conversation. Archives stay out of the way until needed | Fast responses, even after months of accumulated memory |
+| **Cross-project sync** | Hub-and-spoke architecture — your brain is the hub, projects are spokes. Important info flows automatically | Decisions in one project inform work in others |
+| **Daily review** | Morning briefing summarizes yesterday, surfaces patterns, flags stale tasks | You start each day with full context in 10 seconds |
+| **Growth tracking** | When your identity or goals change, old versions are archived automatically | You can look back and see how you've evolved |
+| **Git-native** | Everything is Markdown files in a git repo. `git diff` shows what your AI learned. `git log` is your memory timeline | Full version history, works offline, you own your data |
 
-> Full documentation: **[How It Works](docs/how-it-works.md)** — one doc, understand everything.
->
-> **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
->
-> Topic guides: [Architecture](docs/architecture.md) | [Synapse](docs/synapse.md) | [Distillation](docs/distillation.md) | [Dashboard](docs/dashboard.md) | [Privacy](docs/privacy.md) | [Roadmap](docs/roadmap.md)
+> **Deep dive**: [How It Works](docs/how-it-works.md) — one doc that covers the entire system.
+
+---
+
+## What Users Say It Feels Like
+
+**"It knows when I wake up"** — Zhang Wei opens his terminal in the morning. No re-explaining. His AI already knows what he was working on, what's next, and what's overdue.
+
+**"It remembers what I read"** — Rina saves an article about pricing while coding. Two weeks later, she's designing a pricing page. Her AI surfaces the article without being asked.
+
+**"It tells me to stop"** — It's 11pm. Zhang Wei is still debugging. His AI says "go sleep, this'll still be here tomorrow" — then respects his choice when he keeps going.
+
+> More stories: **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
 
 ---
 
@@ -132,7 +158,7 @@ my-brain/
 ├── decisions/             # Decision records with full context
 ├── archive/               # Completed items (never deleted)
 ├── .loci/                 # System internals (hooks, dashboard, config)
-│   └── links/             # Connected projects (Synapse)
+│   └── links/             # Connected projects
 ├── templates/             # File & command templates
 └── docs/                  # Full documentation
 ```
@@ -141,26 +167,55 @@ Extension modules created on demand: `finance/`, `people/`, `content/`, `referen
 
 ---
 
+## Commands
+
+| Command | What it does |
+|---------|-------------|
+| `/loci-link` | Connect a project folder to your brain |
+| `/loci-sync` | Manual save + sync (flags: `--local`, `--dry-run`) |
+| `/loci-consolidate` | Review recent changes and surface patterns (e.g. `/loci-consolidate 7` for a weekly review) |
+| `/loci-settings` | Configure what a project syncs to your brain |
+| `/loci-brain-settings` | Configure persistence mode and notifications |
+| `/loci-scan` | Re-scan a project and update its profile |
+
+---
+
 ## Compatibility
 
-Loci is **built for Claude Code**. Other editors can use the memory files but won't have the full experience.
+Loci is **built for Claude Code**. Other AI editors can read the memory files but won't have the full experience.
 
 | Tool | Support | Notes |
 |------|---------|-------|
 | **Claude Code** | **Full** | All features work natively |
-| **Cursor** | Partial | Memory + distillation via `.cursorrules` |
-| **Windsurf** | Partial | Memory + distillation via `.windsurfrules` |
-| **Cline** | Partial | Memory + distillation via `.clinerules` |
+| **Cursor** | Partial | Memory + auto-save via `.cursorrules` |
+| **Windsurf** | Partial | Memory + auto-save via `.windsurfrules` |
+| **Cline** | Partial | Memory + auto-save via `.clinerules` |
 
-> Using Cursor, Windsurf, or another editor? See **[Other Editors Guide](docs/other-editors.md)**.
+> Using another editor? See **[Other Editors Guide](docs/other-editors.md)**.
 >
-> Loci's memory is plain Markdown — any AI can read it. The full experience (slash commands, auto-persistence, hooks) requires Claude Code.
+> Loci's memory is plain Markdown — any AI tool can read it. The full experience (slash commands, auto-save, hooks) requires Claude Code.
+
+---
+
+## Documentation
+
+| Doc | What you'll learn |
+|-----|-------------------|
+| **[Getting Started](docs/getting-started.md)** | Step-by-step setup and first conversation |
+| **[How It Works](docs/how-it-works.md)** | Complete system overview in one page |
+| **[User Stories](docs/user-stories.md)** | What Loci feels like in daily use |
+| **[Architecture](docs/architecture.md)** | Three-layer memory system in depth |
+| **[Synapse](docs/synapse.md)** | Multi-project sync and routing |
+| **[Distillation](docs/distillation.md)** | How conversations become structured knowledge |
+| **[Dashboard](docs/dashboard.md)** | Visual overview of your brain |
+| **[Privacy](docs/privacy.md)** | Data protection and what stays where |
+| **[Roadmap](docs/roadmap.md)** | What's coming next |
 
 ---
 
 ## Contributing
 
-Contributions welcome — bug fixes, features, docs, or just sharing how you use it. Please open an issue first for large changes. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions welcome — bug fixes, features, docs, or just sharing how you use Loci. Please open an issue first for large changes. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

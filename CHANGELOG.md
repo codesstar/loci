@@ -11,13 +11,16 @@ All notable changes to this project will be documented in this file.
 - Tag-based sync (`push_tags` / `local_tags`)
 - Global awareness block for `~/.claude/CLAUDE.md`
 - Sub-project files consolidated into `.loci/` directory
-- `adapt.sh` for multi-tool compatibility (Cursor, Windsurf, Cline)
+- Progressive feature discovery (context-triggered feature introduction)
+- Wellbeing system with schedule presets and configurable reminders
+- Multi-language support (en/zh/mix) with config-driven notifications
 
 ### Fixed
 - `build.py` LOCI_ROOT path (3 dirname levels instead of 2)
 - `check-updates.sh` timestamp race condition (line-count-based checkpoint)
 - `.gitignore` comment false match on config.yml
-- `adapt.sh` codex note leaking slash command names
+- Notification format: natural language instead of `[Loci]` prefix
+- Example brain name consistency (Alex Rivera throughout)
 
 ### Removed
 - Routing modes (deferred to v2.0 — see [roadmap](docs/roadmap.md))

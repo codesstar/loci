@@ -86,7 +86,7 @@ if ! grep -q '<!-- loci:start' "$GLOBAL_CLAUDE" 2>/dev/null; then
 <!-- loci:end -->
 LOCIBLOCK
 
-  echo -e "${GREEN}✓${NC} Global awareness enabled (~/. claude/CLAUDE.md)"
+  echo -e "${GREEN}✓${NC} Global awareness enabled (~/.claude/CLAUDE.md)"
 fi
 
 # Copy slash commands
@@ -102,4 +102,4 @@ echo -e "${DIM}Launching Claude Code for setup...${NC}"
 echo -e "${DIM}Claude will ask you a few questions to personalize your brain.${NC}"
 echo ""
 
-claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the 4 onboarding questions using AskUserQuestion. NOTE: Git remote disconnect, global awareness, and slash commands have already been set up by install.sh — skip Steps 3 and 4 in the onboarding flow."
+claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the onboarding questions using AskUserQuestion. NOTE: Git remote disconnect, global awareness, and slash commands have already been set up by install.sh — skip Steps 3 and 4 in the onboarding flow."

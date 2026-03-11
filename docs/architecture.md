@@ -12,7 +12,7 @@ These files are read at the start of every conversation. They define who you are
 |------|---------|
 | `CLAUDE.md` | System rules, behavior protocols, directory map |
 | `plan.md` | Life direction, annual goals, current focus |
-| `tasks/daily/today.md` | Today's schedule, priorities, energy state |
+| `tasks/daily/YYYY-MM-DD.md` | Today's schedule, priorities, energy state |
 | `inbox.md` | Quick capture, pending items |
 | `.claude/memory/MEMORY.md` | AI's persistent auto-memory |
 
@@ -26,7 +26,7 @@ These files are read when the conversation enters a specific domain.
 |---------|-------------|
 | Discussing tasks | `tasks/active.md`, `tasks/README.md` |
 | Mentioning a person | `people/person-name.md` |
-| Planning | `tasks/daily/today.md`, module README |
+| Planning | `tasks/daily/YYYY-MM-DD.md`, module README |
 | Financial discussion | `finance/overview.md` |
 | Content creation | `content/platforms.md` |
 
@@ -94,7 +94,7 @@ This is also why competitors fall short:
 - **Mem0**: has storage and retrieval, but no intelligent dispatch — like a filing cabinet without a librarian
 - **Loci**: **layered storage + on-demand loading + active forgetting** — the three things that make memory systems actually work
 
-> The name isn't a coincidence. The hippocampus (our seahorse mascot 🐴) is the brain's memory scheduler. Loci is the AI's.
+> The name isn't a coincidence. The hippocampus (our seahorse mascot) is the brain's memory scheduler. Loci is the AI's.
 
 ## Context Awareness
 

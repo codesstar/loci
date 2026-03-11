@@ -134,7 +134,7 @@ He never told this project about Monday's decision. Loci synced it automatically
 
 > Rina, startup founder, Tokyo
 
-Rina has been making decisions all week. Friday morning, Loci's daily consolidation runs:
+Rina has been making decisions all week. Friday morning, Loci's daily review runs:
 
 ```
   Weekly insight: You made 5 architecture decisions this week,
@@ -146,28 +146,6 @@ Rina has been making decisions all week. Friday morning, Loci's daily consolidat
 ```
 
 She didn't ask for this. Loci noticed the pattern and surfaced it at the right time.
-
----
-
-## "I can configure it my way"
-
-Loci's wellbeing features are on by default, but fully configurable:
-
-```yaml
-# .loci/config.yml
-wellbeing:
-  enabled: true
-  wind_down_time: "23:00"    # night owl? push it back
-  wake_up_time: "06:00"      # early riser? pull it forward
-  max_reminders: 2           # max nudges per night, then silence
-```
-
-Or turn it off entirely:
-
-```yaml
-wellbeing:
-  enabled: false
-```
 
 ---
 
@@ -200,17 +178,62 @@ She never asked Loci to find that article. It connected the dots automatically.
 
 ---
 
+## "It connects dots I forgot about"
+
+> Marcus, full-stack developer, working across projects
+
+Marcus has been debugging performance issues in Project A all week. On Friday, he opens Project B to start a new feature:
+
+```
+> I need to add real-time notifications. Thinking WebSockets.
+
+  Heads up — you spent 3 days this week debugging connection
+  pooling issues in Project A. Two of those were related to
+  long-lived connections under load.
+
+  If this service will have many concurrent users, you might
+  want to consider SSE (Server-Sent Events) instead. Simpler
+  connection model, no pooling headaches. Want me to outline
+  the trade-offs?
+```
+
+He wasn't thinking about Project A at all. But the lesson he learned there was exactly relevant here — and Loci made the connection.
+
+---
+
+## "I can configure it my way"
+
+Loci's wellbeing features are on by default, but fully configurable:
+
+```yaml
+# .loci/config.yml
+wellbeing:
+  enabled: true
+  wind_down_time: "23:00"    # night owl? push it back
+  wake_up_time: "06:00"      # early riser? pull it forward
+  max_reminders: 2           # max nudges per night, then silence
+```
+
+Or turn it off entirely:
+
+```yaml
+wellbeing:
+  enabled: false
+```
+
+---
+
 ## "It just works with Markdown"
 
 Everything Loci stores is a plain Markdown file in a git repo:
 
 ```
 my-brain/
-├── me/identity.md          ← who you are
-├── plan.md                 ← your goals
-├── tasks/active.md         ← what you're doing
-├── decisions/              ← why you chose X over Y
-└── .loci/                  ← system internals
+├── me/identity.md          <- who you are
+├── plan.md                 <- your goals
+├── tasks/active.md         <- what you're doing
+├── decisions/              <- why you chose X over Y
+└── .loci/                  <- system internals
 ```
 
 `git diff` shows what your AI learned today. `git log` is your memory timeline. No database, no server, no account.

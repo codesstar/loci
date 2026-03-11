@@ -2,9 +2,9 @@
 
 Example data showing what a fully populated Loci brain looks like.
 
-## Alex Chen (Fictional)
+## Alex Rivera (Fictional)
 
-`alex/` — A freelance UX designer & frontend developer in San Francisco building a SaaS side project. Demonstrates:
+`alex/` — A full-stack developer in Portland, OR building a SaaS side project (CloudMetrics). Demonstrates:
 
 - **me/**: Identity, values, learned insights, goals, evolution tracking
 - **tasks/**: Active task management with priority levels, daily plans
