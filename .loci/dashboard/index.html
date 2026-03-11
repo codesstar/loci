@@ -34,71 +34,544 @@
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
+
+    /* ===== Theme CSS Variables ===== */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f0f0f0;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fafafa;
+      --bg-input: #ffffff;
+      --bg-sidebar: #f0f0f0;
+      --bg-header: #000000;
+      --bg-badge: #f5f5f5;
+      --bg-code: #f0f0f0;
+      --bg-blockquote: #f0f0f0;
+      --bg-scrollbar-track: #f5f5f5;
+      --bg-scrollbar-thumb: #000000;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #000000;
+      --bg-event: #000000;
+      --bg-priority-panel: #fafafa;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f0f0f0;
+      --bg-tab-active: #000000;
+      --bg-avatar: #000000;
+      --bg-status-active: #000000;
+      --bg-status-inactive: #f0f0f0;
+      --bg-hp-bar: #e0e0e0;
+      --bg-hp-fill: #000000;
+      --bg-sidebar-hover: #e0e0e0;
+      --bg-sidebar-active: #000000;
+      --text-primary: #000000;
+      --text-secondary: #333333;
+      --text-tertiary: #666666;
+      --text-muted: #888888;
+      --text-faint: #aaaaaa;
+      --text-inverse: #ffffff;
+      --text-link: #000000;
+      --text-link-hover: #666666;
+      --text-event: #ffffff;
+      --text-tab: #666666;
+      --text-tab-hover: #000000;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #888888;
+      --text-sidebar-active: #ffffff;
+      --border-primary: #000000;
+      --border-secondary: #cccccc;
+      --border-light: #e0e0e0;
+      --border-faint: #eeeeee;
+      --border-card: #000000;
+      --border-input: #000000;
+      --border-tab: #cccccc;
+      --border-tab-hover: #000000;
+      --border-tab-active: #000000;
+      --border-sidebar: #000000;
+      --border-checkbox: #000000;
+      --shadow-card: 2px 2px 0px #000000;
+      --shadow-tab: 2px 2px 0px #cccccc;
+      --shadow-tab-active: 2px 2px 0px #666666;
+      --shadow-avatar: 2px 2px 0px #888888;
+      --shadow-badge: 2px 2px 0px #888888;
+      --shadow-date: 2px 2px 0px #cccccc;
+      --font-body: 'Patrick Hand', 'ZCOOL QingKe HuangYou', 'Silkscreen', monospace;
+      --font-heading: 'Press Start 2P', monospace;
+      --font-mono: 'Silkscreen', monospace;
+      --font-size-body: 18px;
+      --radius: 0px;
+      --radius-card: 0px;
+      --image-rendering: pixelated;
+      --timeline-dot-radius: 0px;
+      --list-marker: '> ';
+      --transition-speed: 0s;
+      --current-time-color: #e00;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+
+    /* ===== Minimal Theme ===== */
+    [data-theme="minimal"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8f9fa;
+      --bg-input: #ffffff;
+      --bg-sidebar: #f8f9fa;
+      --bg-header: #1a1a2e;
+      --bg-badge: #f1f3f5;
+      --bg-code: #f1f3f5;
+      --bg-blockquote: #f8f9fa;
+      --bg-scrollbar-track: #f1f3f5;
+      --bg-scrollbar-thumb: #adb5bd;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #1a1a2e;
+      --bg-event: #1a1a2e;
+      --bg-priority-panel: #f8f9fa;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f1f3f5;
+      --bg-tab-active: #1a1a2e;
+      --bg-avatar: #1a1a2e;
+      --bg-status-active: #1a1a2e;
+      --bg-status-inactive: #f1f3f5;
+      --bg-hp-bar: #e9ecef;
+      --bg-hp-fill: #1a1a2e;
+      --bg-sidebar-hover: #e9ecef;
+      --bg-sidebar-active: #1a1a2e;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --text-tertiary: #6c757d;
+      --text-muted: #868e96;
+      --text-faint: #adb5bd;
+      --text-inverse: #ffffff;
+      --text-link: #364fc7;
+      --text-link-hover: #5c7cfa;
+      --text-event: #ffffff;
+      --text-tab: #6c757d;
+      --text-tab-hover: #212529;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #868e96;
+      --text-sidebar-active: #ffffff;
+      --border-primary: #dee2e6;
+      --border-secondary: #e9ecef;
+      --border-light: #f1f3f5;
+      --border-faint: #f8f9fa;
+      --border-card: #e9ecef;
+      --border-input: #dee2e6;
+      --border-tab: #e9ecef;
+      --border-tab-hover: #dee2e6;
+      --border-tab-active: #1a1a2e;
+      --border-sidebar: #e9ecef;
+      --border-checkbox: #dee2e6;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-tab: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-tab-active: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-avatar: 0 2px 4px rgba(0,0,0,0.08);
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-size-body: 15px;
+      --radius: 8px;
+      --radius-card: 12px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.15s;
+      --current-time-color: #e03131;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+
+    /* ===== ASCII Theme ===== */
+    [data-theme="ascii"] {
+      --bg-primary: #111111;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #0d0d0d;
+      --bg-card-hover: #1a1a1a;
+      --bg-input: #0d0d0d;
+      --bg-sidebar: #0a0a0a;
+      --bg-header: #00ff00;
+      --bg-badge: #1a1a1a;
+      --bg-code: #1a1a1a;
+      --bg-blockquote: #1a1a1a;
+      --bg-scrollbar-track: #111111;
+      --bg-scrollbar-thumb: #00ff00;
+      --bg-checkbox: #111111;
+      --bg-checkbox-checked: #00ff00;
+      --bg-event: #003300;
+      --bg-priority-panel: #1a1a1a;
+      --bg-tab: #111111;
+      --bg-tab-hover: #1a1a1a;
+      --bg-tab-active: #00ff00;
+      --bg-avatar: #003300;
+      --bg-status-active: #00ff00;
+      --bg-status-inactive: #1a1a1a;
+      --bg-hp-bar: #1a1a1a;
+      --bg-hp-fill: #00ff00;
+      --bg-sidebar-hover: #1a1a1a;
+      --bg-sidebar-active: #00ff00;
+      --text-primary: #00ff00;
+      --text-secondary: #00cc00;
+      --text-tertiary: #009900;
+      --text-muted: #007700;
+      --text-faint: #005500;
+      --text-inverse: #000000;
+      --text-link: #00ff00;
+      --text-link-hover: #66ff66;
+      --text-event: #00ff00;
+      --text-tab: #009900;
+      --text-tab-hover: #00ff00;
+      --text-tab-active: #000000;
+      --text-status-active: #000000;
+      --text-status-inactive: #005500;
+      --text-sidebar-active: #000000;
+      --border-primary: #00ff00;
+      --border-secondary: #005500;
+      --border-light: #003300;
+      --border-faint: #002200;
+      --border-card: #005500;
+      --border-input: #00ff00;
+      --border-tab: #005500;
+      --border-tab-hover: #00ff00;
+      --border-tab-active: #00ff00;
+      --border-sidebar: #005500;
+      --border-checkbox: #00ff00;
+      --shadow-card: none;
+      --shadow-tab: none;
+      --shadow-tab-active: none;
+      --shadow-avatar: none;
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: 'JetBrains Mono', 'Courier New', monospace;
+      --font-heading: 'JetBrains Mono', monospace;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-size-body: 14px;
+      --radius: 0px;
+      --radius-card: 0px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 0px;
+      --list-marker: '> ';
+      --transition-speed: 0s;
+      --current-time-color: #ff0000;
+      --scanline-opacity: 0.03;
+      --grid-pattern: none;
+    }
+
+    /* ===== Sci-fi Theme ===== */
+    [data-theme="scifi"] {
+      --bg-primary: #0a0e27;
+      --bg-secondary: #0f1538;
+      --bg-card: #0d1233;
+      --bg-card-hover: #111842;
+      --bg-input: #0d1233;
+      --bg-sidebar: #080c22;
+      --bg-header: #1a1f4e;
+      --bg-badge: #111842;
+      --bg-code: #0f1538;
+      --bg-blockquote: #0f1538;
+      --bg-scrollbar-track: #0a0e27;
+      --bg-scrollbar-thumb: #00e5ff;
+      --bg-checkbox: #0d1233;
+      --bg-checkbox-checked: #00e5ff;
+      --bg-event: #1a1f4e;
+      --bg-priority-panel: #0f1538;
+      --bg-tab: #0d1233;
+      --bg-tab-hover: #111842;
+      --bg-tab-active: #00e5ff;
+      --bg-avatar: #1a1f4e;
+      --bg-status-active: #00e5ff;
+      --bg-status-inactive: #111842;
+      --bg-hp-bar: #111842;
+      --bg-hp-fill: #00e5ff;
+      --bg-sidebar-hover: #111842;
+      --bg-sidebar-active: #00e5ff;
+      --text-primary: #e0e8ff;
+      --text-secondary: #b0b8d0;
+      --text-tertiary: #7080a0;
+      --text-muted: #506080;
+      --text-faint: #304060;
+      --text-inverse: #0a0e27;
+      --text-link: #00e5ff;
+      --text-link-hover: #b388ff;
+      --text-event: #e0e8ff;
+      --text-tab: #506080;
+      --text-tab-hover: #00e5ff;
+      --text-tab-active: #0a0e27;
+      --text-status-active: #0a0e27;
+      --text-status-inactive: #506080;
+      --text-sidebar-active: #0a0e27;
+      --border-primary: #00e5ff;
+      --border-secondary: #1a2555;
+      --border-light: #141a44;
+      --border-faint: #0f1538;
+      --border-card: #1a2555;
+      --border-input: #00e5ff;
+      --border-tab: #1a2555;
+      --border-tab-hover: #00e5ff;
+      --border-tab-active: #00e5ff;
+      --border-sidebar: #1a2555;
+      --border-checkbox: #00e5ff;
+      --shadow-card: 0 0 15px rgba(0,229,255,0.08);
+      --shadow-tab: 0 0 8px rgba(0,229,255,0.05);
+      --shadow-tab-active: 0 0 12px rgba(0,229,255,0.3);
+      --shadow-avatar: 0 0 10px rgba(0,229,255,0.2);
+      --shadow-badge: 0 0 6px rgba(0,229,255,0.15);
+      --shadow-date: 0 0 8px rgba(0,229,255,0.1);
+      --font-body: 'Orbitron', 'Inter', sans-serif;
+      --font-heading: 'Orbitron', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-size-body: 14px;
+      --radius: 4px;
+      --radius-card: 4px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 2px;
+      --list-marker: '// ';
+      --transition-speed: 0.2s;
+      --current-time-color: #ff1744;
+      --scanline-opacity: 0;
+      --grid-pattern: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,229,255,0.03) 40px, rgba(0,229,255,0.03) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,229,255,0.03) 40px, rgba(0,229,255,0.03) 41px);
+    }
+
+    /* ===== Journal Theme ===== */
+    [data-theme="journal"] {
+      --bg-primary: #faf3e8;
+      --bg-secondary: #f5ecdf;
+      --bg-card: #fffcf5;
+      --bg-card-hover: #fdf8ed;
+      --bg-input: #fffcf5;
+      --bg-sidebar: #f0e6d6;
+      --bg-header: #c9a96e;
+      --bg-badge: #f5ecdf;
+      --bg-code: #f5ecdf;
+      --bg-blockquote: #f5ecdf;
+      --bg-scrollbar-track: #f5ecdf;
+      --bg-scrollbar-thumb: #c9a96e;
+      --bg-checkbox: #fffcf5;
+      --bg-checkbox-checked: #b8956a;
+      --bg-event: #c9a96e;
+      --bg-priority-panel: #fdf8ed;
+      --bg-tab: #fffcf5;
+      --bg-tab-hover: #f5ecdf;
+      --bg-tab-active: #b8956a;
+      --bg-avatar: #d4b896;
+      --bg-status-active: #b8956a;
+      --bg-status-inactive: #f5ecdf;
+      --bg-hp-bar: #e8dcc8;
+      --bg-hp-fill: #b8956a;
+      --bg-sidebar-hover: #e8dcc8;
+      --bg-sidebar-active: #b8956a;
+      --text-primary: #5c4033;
+      --text-secondary: #6d5243;
+      --text-tertiary: #8b7355;
+      --text-muted: #a89070;
+      --text-faint: #c4b098;
+      --text-inverse: #fffcf5;
+      --text-link: #8b5e3c;
+      --text-link-hover: #b8956a;
+      --text-event: #fffcf5;
+      --text-tab: #8b7355;
+      --text-tab-hover: #5c4033;
+      --text-tab-active: #fffcf5;
+      --text-status-active: #fffcf5;
+      --text-status-inactive: #a89070;
+      --text-sidebar-active: #fffcf5;
+      --border-primary: #c9a96e;
+      --border-secondary: #dbc9a8;
+      --border-light: #e8dcc8;
+      --border-faint: #f0e6d6;
+      --border-card: #dbc9a8;
+      --border-input: #c9a96e;
+      --border-tab: #dbc9a8;
+      --border-tab-hover: #c9a96e;
+      --border-tab-active: #b8956a;
+      --border-sidebar: #c9a96e;
+      --border-checkbox: #c9a96e;
+      --shadow-card: 2px 3px 6px rgba(140,110,70,0.12);
+      --shadow-tab: 1px 2px 4px rgba(140,110,70,0.08);
+      --shadow-tab-active: 2px 3px 6px rgba(140,110,70,0.15);
+      --shadow-avatar: 2px 2px 6px rgba(140,110,70,0.15);
+      --shadow-badge: 1px 1px 3px rgba(140,110,70,0.1);
+      --shadow-date: 1px 2px 4px rgba(140,110,70,0.1);
+      --font-body: 'Caveat', 'Patrick Hand', cursive;
+      --font-heading: 'Caveat', cursive;
+      --font-mono: 'Patrick Hand', cursive;
+      --font-size-body: 20px;
+      --radius: 6px;
+      --radius-card: 10px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: '~ ';
+      --transition-speed: 0.2s;
+      --current-time-color: #c0392b;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+
+    /* ===== Claude Theme ===== */
+    [data-theme="claude"] {
+      --bg-primary: #faf8f5;
+      --bg-secondary: #f5f0ea;
+      --bg-card: #ffffff;
+      --bg-card-hover: #faf8f5;
+      --bg-input: #ffffff;
+      --bg-sidebar: #f5f0ea;
+      --bg-header: #d4a0a0;
+      --bg-badge: #f5f0ea;
+      --bg-code: #f5f0ea;
+      --bg-blockquote: #faf5f0;
+      --bg-scrollbar-track: #f5f0ea;
+      --bg-scrollbar-thumb: #d4a0a0;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #d4a0a0;
+      --bg-event: #d4a0a0;
+      --bg-priority-panel: #faf8f5;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f5f0ea;
+      --bg-tab-active: #d4a0a0;
+      --bg-avatar: #d4a0a0;
+      --bg-status-active: #d4a0a0;
+      --bg-status-inactive: #f5f0ea;
+      --bg-hp-bar: #ece4dc;
+      --bg-hp-fill: #d4a0a0;
+      --bg-sidebar-hover: #ece4dc;
+      --bg-sidebar-active: #d4a0a0;
+      --text-primary: #3d2c2c;
+      --text-secondary: #5a4444;
+      --text-tertiary: #7a6666;
+      --text-muted: #9a8888;
+      --text-faint: #baa8a8;
+      --text-inverse: #ffffff;
+      --text-link: #c08080;
+      --text-link-hover: #d4a0a0;
+      --text-event: #ffffff;
+      --text-tab: #7a6666;
+      --text-tab-hover: #3d2c2c;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #9a8888;
+      --text-sidebar-active: #ffffff;
+      --border-primary: #d4a0a0;
+      --border-secondary: #e0c8c8;
+      --border-light: #ece0e0;
+      --border-faint: #f5eeee;
+      --border-card: #e8d4d4;
+      --border-input: #d4a0a0;
+      --border-tab: #e0c8c8;
+      --border-tab-hover: #d4a0a0;
+      --border-tab-active: #d4a0a0;
+      --border-sidebar: #e0c8c8;
+      --border-checkbox: #d4a0a0;
+      --shadow-card: 0 2px 8px rgba(180,120,120,0.08);
+      --shadow-tab: 0 1px 3px rgba(180,120,120,0.06);
+      --shadow-tab-active: 0 2px 8px rgba(180,120,120,0.15);
+      --shadow-avatar: 0 2px 8px rgba(180,120,120,0.12);
+      --shadow-badge: none;
+      --shadow-date: 0 1px 4px rgba(180,120,120,0.08);
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-size-body: 15px;
+      --radius: 12px;
+      --radius-card: 16px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.2s;
+      --current-time-color: #d4a0a0;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', 'Silkscreen', monospace;
-      background: #ffffff;
-      color: #000000;
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
-      image-rendering: pixelated;
-      font-size: 18px;
+      image-rendering: var(--image-rendering);
+      font-size: var(--font-size-body);
+      background-image: var(--grid-pattern);
+    }
+
+    /* Scanline effect for ASCII theme */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 2px,
+        rgba(0,0,0,var(--scanline-opacity)) 2px,
+        rgba(0,0,0,var(--scanline-opacity)) 4px
+      );
     }
 
     /* ===== Pixel heading font ===== */
     .pixel-font {
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
     }
 
-    /* ===== Scrollbar - pixel style ===== */
+    /* ===== Scrollbar ===== */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #f5f5f5; }
+    ::-webkit-scrollbar-track { background: var(--bg-scrollbar-track); }
     ::-webkit-scrollbar-thumb {
-      background: #000000;
-      border: 2px solid #f5f5f5;
+      background: var(--bg-scrollbar-thumb);
+      border: 2px solid var(--bg-scrollbar-track);
+      border-radius: var(--radius);
     }
-    ::-webkit-scrollbar-thumb:hover { background: #444444; }
+    ::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
 
-    /* ===== Pixel card ===== */
+    /* ===== Card ===== */
     .card {
-      background: #ffffff;
-      border: 1px solid #000000;
-      box-shadow: 2px 2px 0px #000000;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-card);
       padding: 0;
-      border-radius: 0;
+      border-radius: var(--radius-card);
       position: relative;
     }
     .card:hover {
-      background: #fafafa;
+      background: var(--bg-card-hover);
     }
 
-    /* ===== Card header - black bar with white text ===== */
+    /* ===== Card header ===== */
     .card-header {
-      background: #000000;
-      color: #ffffff;
+      background: var(--bg-header);
+      color: var(--text-inverse);
       padding: 8px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 0.6rem;
       width: 100%;
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
     }
     .card-header span,
     .card-header h3 {
-      color: #ffffff;
-      font-family: 'Press Start 2P', monospace;
+      color: var(--text-inverse);
+      font-family: var(--font-heading);
       font-size: 0.6rem;
       margin: 0;
     }
 
-    /* ===== Card body - content area with breathing room ===== */
+    /* ===== Card body ===== */
     .card-body {
       padding: 24px;
     }
 
-    /* ===== Stat card - clean style ===== */
+    /* ===== Stat card ===== */
     .stat-card {
       position: relative;
       overflow: hidden;
@@ -108,15 +581,16 @@
     /* Progress bar */
     .hp-bar {
       height: 7px;
-      background: #e0e0e0;
-      border: 1px solid #cccccc;
+      background: var(--bg-hp-bar);
+      border: 1px solid var(--border-secondary);
       margin-top: 8px;
       position: relative;
       overflow: hidden;
+      border-radius: var(--radius);
     }
     .hp-bar-fill {
       height: 100%;
-      background: #000000;
+      background: var(--bg-hp-fill);
     }
 
     .goal-slider::-webkit-slider-thumb {
@@ -129,11 +603,11 @@
       background: #000; cursor: pointer; border-radius: 0; border: none;
     }
 
-    /* Stat numbers - bigger for prominence */
+    /* Stat numbers */
     .stat-number {
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 40px;
-      color: #000000;
+      color: var(--text-primary);
       line-height: 1.2;
     }
 
@@ -141,180 +615,180 @@
     .sidebar-item {
       cursor: pointer;
       border: 2px solid transparent;
-      border-radius: 0;
+      border-radius: var(--radius);
       position: relative;
     }
     .sidebar-item:hover {
-      background: #e0e0e0;
+      background: var(--bg-sidebar-hover);
     }
     .sidebar-item.active {
-      background: #000000;
-      color: #ffffff;
+      background: var(--bg-sidebar-active);
+      color: var(--text-sidebar-active);
     }
     .sidebar-item .cursor-indicator {
       opacity: 0;
-      color: #000000;
-      font-family: 'Press Start 2P', monospace;
+      color: var(--text-primary);
+      font-family: var(--font-heading);
       font-size: 10px;
     }
     .sidebar-item.active .cursor-indicator {
       opacity: 1;
-      color: #ffffff;
+      color: var(--text-sidebar-active);
     }
     .sidebar-item:hover .cursor-indicator {
       opacity: 0.5;
     }
 
-    /* ===== Pixel sub-tab buttons ===== */
+    /* ===== Sub-tab buttons ===== */
     .pixel-tab {
-      border: 1px solid #cccccc;
-      background: #ffffff;
-      color: #666666;
-      font-family: 'Silkscreen', monospace;
-      border-radius: 0;
-      box-shadow: 2px 2px 0px #cccccc;
+      border: 1px solid var(--border-tab);
+      background: var(--bg-tab);
+      color: var(--text-tab);
+      font-family: var(--font-mono);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-tab);
       cursor: pointer;
       padding: 0.5rem 1rem;
       font-size: 0.75rem;
     }
     .pixel-tab:hover {
-      border-color: #000000;
-      color: #000000;
-      background: #f0f0f0;
-      box-shadow: 2px 2px 0px #000000;
+      border-color: var(--border-tab-hover);
+      color: var(--text-tab-hover);
+      background: var(--bg-tab-hover);
+      box-shadow: var(--shadow-tab-active);
     }
     .pixel-tab.active {
-      border-color: #000000;
-      background: #000000;
-      color: #ffffff;
-      box-shadow: 2px 2px 0px #666666;
+      border-color: var(--border-tab-active);
+      background: var(--bg-tab-active);
+      color: var(--text-tab-active);
+      box-shadow: var(--shadow-tab-active);
     }
 
-    /* ===== Pixel checkboxes ===== */
+    /* ===== Checkboxes ===== */
     input[type="checkbox"] {
       appearance: none;
       -webkit-appearance: none;
       width: 16px;
       height: 16px;
-      border: 2px solid #000000;
-      background: #ffffff;
+      border: 2px solid var(--border-checkbox);
+      background: var(--bg-checkbox);
       cursor: default;
       position: relative;
       flex-shrink: 0;
-      border-radius: 0;
+      border-radius: var(--radius);
     }
     input[type="checkbox"]:checked {
-      background: #000000;
+      background: var(--bg-checkbox-checked);
     }
     input[type="checkbox"]:checked::after {
       content: '';
       position: absolute;
       top: 2px; left: 2px;
       width: 8px; height: 8px;
-      background: #ffffff;
+      background: var(--text-inverse);
       clip-path: polygon(15% 50%, 40% 75%, 85% 20%, 85% 40%, 40% 95%, 0% 50%);
     }
 
-    /* ===== Markdown content styling - pixel b&w theme ===== */
+    /* ===== Markdown content styling ===== */
     .md-content h1 {
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 1.45em;
       font-weight: 700;
       margin: 1.2rem 0 0.6rem;
-      color: #000000;
+      color: var(--text-primary);
       line-height: 1.4;
     }
     .md-content h2 {
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 1rem;
       font-weight: 400;
       margin: 1.2rem 0 0.5rem;
-      color: #000000;
-      border-bottom: 1px solid #dddddd;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-light);
       padding-bottom: 0.4rem;
     }
     .md-content h3 {
-      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', sans-serif;
+      font-family: var(--font-body);
       font-size: 1.1rem;
       font-weight: 700;
       margin: 0.75rem 0 0.4rem;
-      color: #000000;
+      color: var(--text-primary);
     }
     .md-content h4 {
-      font-family: 'Patrick Hand', 'ZCOOL QingKe HuangYou', sans-serif;
+      font-family: var(--font-body);
       font-size: 1rem;
       font-weight: 400;
       margin: 0.5rem 0 0.3rem;
-      color: #444444;
+      color: var(--text-tertiary);
     }
     .md-content p {
       margin-bottom: 1em;
       line-height: 1.8;
-      color: #333333;
+      color: var(--text-secondary);
     }
     .md-content ul, .md-content ol { margin: 0.4rem 0 0.4rem 1.5rem; }
     .md-content li {
       margin: 0.2rem 0;
       line-height: 1.7;
-      color: #333333;
-      list-style-type: '> ';
+      color: var(--text-secondary);
+      list-style-type: var(--list-marker);
     }
     .md-content li::marker {
-      color: #000000;
+      color: var(--text-primary);
     }
     .md-content li.task { list-style: none; margin-left: -1.5rem; }
     .md-content li.task input { margin-right: 0.5rem; }
-    .md-content li.task.done { color: #aaaaaa; text-decoration: line-through; }
+    .md-content li.task.done { color: var(--text-faint); text-decoration: line-through; }
     .md-content blockquote {
-      border-left: 4px solid #000000;
+      border-left: 4px solid var(--border-primary);
       padding: 0.5rem 1rem;
       margin: 0.5rem 0;
-      background: #f0f0f0;
-      color: #444444;
+      background: var(--bg-blockquote);
+      color: var(--text-tertiary);
       font-style: normal;
-      border-radius: 0;
+      border-radius: var(--radius);
     }
     .md-content code {
-      background: #f0f0f0;
+      background: var(--bg-code);
       padding: 0.15rem 0.4rem;
-      border: 1px solid #cccccc;
+      border: 1px solid var(--border-secondary);
       font-size: 0.85rem;
-      color: #000000;
-      font-family: 'Silkscreen', monospace;
-      border-radius: 0;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      border-radius: var(--radius);
     }
     .md-content pre {
-      background: #f5f5f5;
+      background: var(--bg-badge);
       padding: 1rem;
-      border: 1px solid #000000;
+      border: 1px solid var(--border-primary);
       overflow-x: auto;
       margin: 0.5rem 0;
-      border-radius: 0;
-      box-shadow: 2px 2px 0px #000000;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-card);
     }
     .md-content pre code { background: none; padding: 0; border: none; }
-    .md-content hr { border: none; border-top: 2px dashed #cccccc; margin: 1rem 0; }
+    .md-content hr { border: none; border-top: 2px dashed var(--border-secondary); margin: 1rem 0; }
     .md-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
     .md-content th {
       text-align: left;
       padding: 0.5rem;
-      border-bottom: 2px solid #000000;
-      color: #000000;
+      border-bottom: 2px solid var(--border-primary);
+      color: var(--text-primary);
       font-weight: 400;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 0.65rem;
     }
     .md-content td {
       padding: 0.5rem;
-      border-bottom: 1px solid #e0e0e0;
-      color: #333333;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
     }
-    .md-content a { color: #000000; text-decoration: underline; }
-    .md-content a:hover { color: #666666; }
-    .md-content strong { color: #000000; font-weight: bold; }
-    .md-content img { max-width: 100%; margin: 0.5rem 0; border: 1px solid #000000; border-radius: 0; }
+    .md-content a { color: var(--text-link); text-decoration: underline; }
+    .md-content a:hover { color: var(--text-link-hover); }
+    .md-content strong { color: var(--text-primary); font-weight: bold; }
+    .md-content img { max-width: 100%; margin: 0.5rem 0; border: 1px solid var(--border-primary); border-radius: var(--radius); }
 
-    /* ===== Timeline - pixel style ===== */
+    /* ===== Timeline ===== */
     .timeline-item {
       position: relative;
       padding-left: 2rem;
@@ -328,8 +802,8 @@
       width: 2px;
       background: repeating-linear-gradient(
         to bottom,
-        #000000 0px,
-        #000000 4px,
+        var(--border-primary) 0px,
+        var(--border-primary) 4px,
         transparent 4px,
         transparent 8px
       );
@@ -343,27 +817,27 @@
       top: 0.35rem;
       width: 1rem;
       height: 1rem;
-      background: #000000;
-      border: 2px solid #ffffff;
-      border-radius: 0;
+      background: var(--text-primary);
+      border: 2px solid var(--bg-primary);
+      border-radius: var(--timeline-dot-radius);
     }
 
-    /* ===== Priority badges - grayscale pixel ===== */
-    .badge-p0 { background: #000000; color: #ffffff; border: 2px solid #000000; box-shadow: 2px 2px 0px #888888; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
-    .badge-p1 { background: #444444; color: #ffffff; border: 2px solid #444444; box-shadow: 2px 2px 0px #888888; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
-    .badge-p2 { background: #888888; color: #ffffff; border: 2px solid #888888; box-shadow: 2px 2px 0px #cccccc; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
-    .badge-p3 { background: #cccccc; color: #444444; border: 2px solid #cccccc; box-shadow: 2px 2px 0px #e0e0e0; font-family: 'Press Start 2P', monospace; font-size: 0.55rem; }
+    /* ===== Priority badges ===== */
+    .badge-p0 { background: var(--bg-header); color: var(--text-inverse); border: 2px solid var(--bg-header); box-shadow: var(--shadow-badge); font-family: var(--font-heading); font-size: 0.55rem; border-radius: var(--radius); }
+    .badge-p1 { background: var(--text-tertiary); color: var(--text-inverse); border: 2px solid var(--text-tertiary); box-shadow: var(--shadow-badge); font-family: var(--font-heading); font-size: 0.55rem; border-radius: var(--radius); }
+    .badge-p2 { background: var(--text-muted); color: var(--text-inverse); border: 2px solid var(--text-muted); box-shadow: var(--shadow-badge); font-family: var(--font-heading); font-size: 0.55rem; border-radius: var(--radius); }
+    .badge-p3 { background: var(--border-secondary); color: var(--text-tertiary); border: 2px solid var(--border-secondary); box-shadow: var(--shadow-badge); font-family: var(--font-heading); font-size: 0.55rem; border-radius: var(--radius); }
 
     /* ===== Empty state ===== */
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
-      color: #aaaaaa;
+      color: var(--text-faint);
     }
     .empty-state .icon {
       font-size: 2rem;
       margin-bottom: 1rem;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
     }
 
     /* ===== Blink cursor for loading ===== */
@@ -385,85 +859,166 @@
       }
     }
 
-    /* ===== Pixel tag/badge ===== */
+    /* ===== Tag/badge ===== */
     .pixel-tag {
       display: inline-block;
       padding: 2px 8px;
-      border: 1px solid #cccccc;
-      background: #f5f5f5;
-      color: #666666;
+      border: 1px solid var(--border-secondary);
+      background: var(--bg-badge);
+      color: var(--text-tertiary);
       font-size: 0.7rem;
-      border-radius: 0;
+      border-radius: var(--radius);
     }
 
-    /* ===== Pixel person avatar ===== */
+    /* ===== Person avatar ===== */
     .pixel-avatar {
       width: 40px;
       height: 40px;
-      background: #000000;
-      border: 2px solid #000000;
+      background: var(--bg-avatar);
+      border: 2px solid var(--bg-avatar);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 0.7rem;
-      color: #ffffff;
-      box-shadow: 2px 2px 0px #888888;
+      color: var(--text-inverse);
+      box-shadow: var(--shadow-avatar);
       flex-shrink: 0;
+      border-radius: var(--radius);
     }
 
     /* ===== Status badges ===== */
     .pixel-status-active {
-      border: 2px solid #000000;
-      background: #000000;
-      color: #ffffff;
+      border: 2px solid var(--bg-status-active);
+      background: var(--bg-status-active);
+      color: var(--text-status-active);
       padding: 2px 8px;
       font-size: 0.65rem;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
+      border-radius: var(--radius);
     }
     .pixel-status-inactive {
-      border: 2px solid #cccccc;
-      background: #f0f0f0;
-      color: #888888;
+      border: 2px solid var(--border-secondary);
+      background: var(--bg-status-inactive);
+      color: var(--text-status-inactive);
       padding: 2px 8px;
       font-size: 0.65rem;
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
+      border-radius: var(--radius);
     }
 
-    /* ===== Pixel date label ===== */
+    /* ===== Date label ===== */
     .pixel-date {
-      font-family: 'Press Start 2P', monospace;
+      font-family: var(--font-heading);
       font-size: 0.55rem;
-      color: #000000;
-      background: #f5f5f5;
-      border: 1px solid #000000;
+      color: var(--text-primary);
+      background: var(--bg-badge);
+      border: 1px solid var(--border-primary);
       padding: 3px 8px;
-      box-shadow: 2px 2px 0px #cccccc;
+      box-shadow: var(--shadow-date);
+      border-radius: var(--radius);
     }
 
     /* ===== Priority grid panels ===== */
     .priority-panel {
-      background: #fafafa;
-      border: 1px solid #e0e0e0;
+      background: var(--bg-priority-panel);
+      border: 1px solid var(--border-light);
       padding: 1rem;
-      border-radius: 0;
+      border-radius: var(--radius);
     }
 
-    /* ===== No transitions for retro feel ===== */
+    /* ===== Transitions controlled by theme ===== */
     * {
-      transition: none !important;
+      transition-duration: var(--transition-speed) !important;
+    }
+
+    /* ===== Synapse visualization ===== */
+    .synapse-node {
+      cursor: pointer;
+    }
+    .synapse-node:hover .synapse-circle {
+      filter: brightness(1.2);
+    }
+    @keyframes synapse-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+    .synapse-line {
+      animation: synapse-pulse 3s ease-in-out infinite;
+    }
+    .synapse-line:nth-child(2n) { animation-delay: 0.5s; }
+    .synapse-line:nth-child(3n) { animation-delay: 1s; }
+
+    /* ===== Journal theme dashed borders ===== */
+    [data-theme="journal"] .card {
+      border-style: dashed;
+    }
+    [data-theme="journal"] .card-header {
+      border-bottom: 2px dashed var(--border-primary);
+    }
+
+    /* ===== Sci-fi glow effects ===== */
+    [data-theme="scifi"] .card:hover {
+      box-shadow: 0 0 20px rgba(0,229,255,0.15);
+    }
+    [data-theme="scifi"] .pixel-font,
+    [data-theme="scifi"] .stat-number {
+      text-shadow: 0 0 8px rgba(0,229,255,0.4);
+    }
+    [data-theme="scifi"] .card-header {
+      border-bottom: 1px solid rgba(0,229,255,0.2);
+    }
+
+    /* ===== Theme picker ===== */
+    .theme-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .theme-btn {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+    .theme-btn:hover {
+      border-color: var(--border-primary);
+    }
+    .theme-btn.active-theme {
+      border-color: var(--border-primary);
+      background: var(--bg-sidebar-active);
+      color: var(--text-sidebar-active);
+    }
+
+    /* ===== Yesterday card ===== */
+    .yesterday-toggle {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .yesterday-toggle:hover {
+      background: var(--bg-card-hover);
     }
   </style>
 </head>
 <body>
-  <div id="app">
+  <div id="app" :data-theme="currentTheme === 'pixel' ? null : currentTheme">
     <!-- Mobile header -->
-    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-white px-4 py-3 flex items-center justify-between" style="border-bottom: 2px solid #000; box-shadow: 0 2px 0 #ccc;">
-      <button @click="sidebarOpen = !sidebarOpen" class="pixel-font text-black text-xs">
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between" :style="'background:' + 'var(--bg-secondary)' + '; border-bottom: 2px solid var(--border-sidebar); box-shadow: var(--shadow-card);'">
+      <button @click="sidebarOpen = !sidebarOpen" class="pixel-font text-xs" :style="'color: var(--text-primary);'">
         {{ sidebarOpen ? '[X]' : '[=]' }}
       </button>
-      <span class="pixel-font text-black text-xs">{{ dashboardTitle }}</span>
-      <span class="text-xs text-ink-600">{{ currentNavItem?.icon }}</span>
+      <span class="pixel-font text-xs" style="color: var(--text-primary);">{{ dashboardTitle }}</span>
+      <span class="text-xs" style="color: var(--text-tertiary);">{{ currentNavItem?.icon }}</span>
     </div>
 
     <!-- Sidebar overlay (mobile) -->
@@ -474,17 +1029,17 @@
       'fixed top-0 left-0 h-full w-64 z-50',
       'flex flex-col',
       sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-    ]" style="background: #f0f0f0; border-right: 2px solid #000; box-shadow: 2px 0 0 #ccc;">
+    ]" style="background: var(--bg-sidebar); border-right: 2px solid var(--border-sidebar); box-shadow: var(--shadow-card);">
 
       <!-- Logo / Title Screen -->
-      <div class="px-5 py-5" style="border-bottom: 2px solid #000;">
-        <div class="pixel-font text-black text-sm">
+      <div class="px-5 py-5" style="border-bottom: 2px solid var(--border-sidebar);">
+        <div class="pixel-font text-sm" style="color: var(--text-primary);">
           {{ dashboardTitle }}
         </div>
-        <div class="text-ink-600 text-xs mt-2" style="font-family: 'Silkscreen', monospace;">
+        <div class="text-xs mt-2" style="font-family: var(--font-mono); color: var(--text-tertiary);">
           &#9608;&#9608; Personal System &#9608;&#9608;
         </div>
-        <div class="mt-2 text-black text-xs" style="font-size: 0.6rem;">
+        <div class="mt-2 text-xs" style="font-size: 0.6rem; color: var(--text-primary);">
           &#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;
         </div>
       </div>
@@ -492,7 +1047,7 @@
       <!-- Nav items - Game Menu style -->
       <nav class="flex-1 py-3 overflow-y-auto">
         <div class="px-4 mb-2">
-          <span class="pixel-font text-black text-xs" style="font-size: 0.55rem;">-- MENU --</span>
+          <span class="pixel-font text-xs" style="font-size: 0.55rem; color: var(--text-primary);">-- MENU --</span>
         </div>
         <div
           v-for="item in navItems"
@@ -511,24 +1066,37 @@
         </div>
       </nav>
 
+      <!-- Theme picker -->
+      <div class="px-4 py-3" style="border-top: 2px solid var(--border-sidebar);">
+        <div style="font-size: 0.6rem; margin-bottom: 6px; color: var(--text-muted); font-family: var(--font-mono);">THEME</div>
+        <div class="theme-picker">
+          <button v-for="t in themes" :key="t.id"
+            @click="setTheme(t.id)"
+            :class="['theme-btn', currentTheme === t.id ? 'active-theme' : '']"
+            :title="t.label">
+            {{ t.icon }}
+          </button>
+        </div>
+      </div>
+
       <!-- Footer - System info -->
-      <div class="px-4 py-4 text-xs text-ink-600" style="border-top: 2px solid #000; font-family: 'Silkscreen', monospace;">
+      <div class="px-4 py-4 text-xs" style="border-top: 2px solid var(--border-sidebar); font-family: var(--font-mono); color: var(--text-muted);">
         <div v-if="data">
           <div class="flex items-center gap-1.5 mb-1">
-            <span class="text-black">&#9632;</span>
+            <span style="color: var(--text-primary);">&#9632;</span>
             <span>{{ data.build_time }}</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <span class="text-black">&#9632;</span>
+            <span style="color: var(--text-primary);">&#9632;</span>
             <span>{{ data.stats?.total_files || 0 }} files</span>
           </div>
         </div>
-        <div v-else class="text-ink-500">LOADING...<span class="blink">_</span></div>
+        <div v-else style="color: var(--text-muted);">LOADING...<span class="blink">_</span></div>
       </div>
     </aside>
 
     <!-- Main content -->
-    <main class="md:ml-64 min-h-screen pt-14 md:pt-0" style="background: #ffffff;">
+    <main class="md:ml-64 min-h-screen pt-14 md:pt-0" style="background: var(--bg-primary);">
 
       <!-- Loading state -->
       <div v-if="loading" class="flex items-center justify-center h-screen">
@@ -579,6 +1147,25 @@
               <div style="text-align: right;">
                 <div class="pixel-font" style="font-size: 1.5rem; color: #000;">{{ currentTime }}</div>
                 <div style="font-size: 0.9rem; color: #888; margin-top: 4px;">{{ greeting }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.5 Yesterday's Review -->
+          <div class="card mb-6" v-if="yesterdayJournal || true">
+            <div class="yesterday-toggle" @click="yesterdayExpanded = !yesterdayExpanded"
+              style="border-bottom: 1px solid var(--border-light);">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">{{ yesterdayExpanded ? '&#9660;' : '&#9654;' }}</span>
+              <span style="font-family: var(--font-heading); font-size: 0.55rem; color: var(--text-muted);">&#9668; YESTERDAY</span>
+              <span v-if="yesterdayJournal" style="font-size: 0.85rem; color: var(--text-tertiary); flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                {{ yesterdaySummary }}
+              </span>
+              <span v-else style="font-size: 0.85rem; color: var(--text-faint); font-style: italic;">No journal entry</span>
+            </div>
+            <div v-if="yesterdayExpanded" class="card-body">
+              <div v-if="yesterdayJournal" class="md-content" v-html="yesterdayJournal.content"></div>
+              <div v-else class="empty-state" style="padding: 1.5rem;">
+                <p class="text-sm" style="color: var(--text-faint);">No journal entry for yesterday. Consider writing a reflection.</p>
               </div>
             </div>
           </div>
@@ -1247,9 +1834,158 @@
           <div v-else class="card">
             <div class="card-body">
               <div class="empty-state">
-                <div class="icon text-ink-300">&#9830; &#9830; &#9830;</div>
-                <p class="text-sm text-ink-500">No decision records yet</p>
-                <p class="text-xs text-ink-500 mt-2">Create in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">07-decisions/YYYY-MM-DD-slug.md</code></p>
+                <div class="icon" style="color: var(--text-faint);">&#9830; &#9830; &#9830;</div>
+                <p class="text-sm" style="color: var(--text-muted);">No decision records yet</p>
+                <p class="text-xs mt-2" style="color: var(--text-muted);">Create in <code style="background: var(--bg-code); border: 1px solid var(--border-secondary); padding: 2px 6px; color: var(--text-primary);">07-decisions/YYYY-MM-DD-slug.md</code></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Synapse ========== -->
+        <section v-if="currentPage === 'synapse'">
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            &#9608; &#129504; Synapse &#129504; &#9608;
+          </h2>
+
+          <div v-if="synapseLinks.length" class="card mb-6">
+            <div class="card-header">
+              <span>&#9671;</span>
+              <h3>Network Map</h3>
+            </div>
+            <div class="card-body" style="display: flex; justify-content: center; padding: 40px;">
+              <svg :width="synapseSvgSize" :height="synapseSvgSize" :viewBox="'0 0 ' + synapseSvgSize + ' ' + synapseSvgSize">
+                <!-- Connection lines -->
+                <line v-for="(link, i) in synapseLinks" :key="'line-'+i"
+                  class="synapse-line"
+                  :x1="synapseSvgSize / 2" :y1="synapseSvgSize / 2"
+                  :x2="synapseNodePos(i, synapseLinks.length).x"
+                  :y2="synapseNodePos(i, synapseLinks.length).y"
+                  :stroke="link.recent_activity > 0 ? 'var(--text-link)' : 'var(--border-secondary)'"
+                  stroke-width="2"
+                  :stroke-dasharray="link.recent_activity > 0 ? 'none' : '6,4'"
+                  :style="link.recent_activity > 0 ? '' : 'animation: none; opacity: 0.4;'" />
+                <!-- Center node (Brain) -->
+                <circle :cx="synapseSvgSize / 2" :cy="synapseSvgSize / 2" r="40"
+                  :fill="'var(--bg-header)'" :stroke="'var(--border-primary)'" stroke-width="2" class="synapse-circle" />
+                <text :x="synapseSvgSize / 2" :y="synapseSvgSize / 2 - 6"
+                  text-anchor="middle" :fill="'var(--text-inverse)'"
+                  :style="'font-family: var(--font-heading); font-size: 0.5rem;'">LOCI</text>
+                <text :x="synapseSvgSize / 2" :y="synapseSvgSize / 2 + 10"
+                  text-anchor="middle" :fill="'var(--text-inverse)'"
+                  :style="'font-family: var(--font-heading); font-size: 0.4rem; opacity: 0.7;'">BRAIN</text>
+                <!-- Satellite nodes -->
+                <g v-for="(link, i) in synapseLinks" :key="'node-'+i" class="synapse-node">
+                  <circle
+                    :cx="synapseNodePos(i, synapseLinks.length).x"
+                    :cy="synapseNodePos(i, synapseLinks.length).y"
+                    r="30"
+                    :fill="link.recent_activity > 0 ? 'var(--bg-tab-active)' : 'var(--bg-badge)'"
+                    :stroke="link.recent_activity > 0 ? 'var(--border-primary)' : 'var(--border-secondary)'"
+                    stroke-width="2" class="synapse-circle" />
+                  <text
+                    :x="synapseNodePos(i, synapseLinks.length).x"
+                    :y="synapseNodePos(i, synapseLinks.length).y - 4"
+                    text-anchor="middle"
+                    :fill="link.recent_activity > 0 ? 'var(--text-tab-active)' : 'var(--text-tertiary)'"
+                    :style="'font-family: var(--font-mono); font-size: 0.55rem;'">
+                    {{ link.name.length > 8 ? link.name.slice(0, 8) + '..' : link.name }}
+                  </text>
+                  <text
+                    :x="synapseNodePos(i, synapseLinks.length).x"
+                    :y="synapseNodePos(i, synapseLinks.length).y + 10"
+                    text-anchor="middle"
+                    :fill="link.recent_activity > 0 ? 'var(--text-tab-active)' : 'var(--text-muted)'"
+                    :style="'font-size: 0.45rem; opacity: 0.8;'">
+                    {{ link.recent_activity > 0 ? link.recent_activity + ' active' : 'idle' }}
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Links list detail -->
+          <div v-if="synapseLinks.length" class="space-y-4">
+            <div v-for="link in synapseLinks" :key="link.name" class="card">
+              <div class="card-body" style="display: flex; align-items: center; gap: 16px;">
+                <div class="pixel-avatar" style="width: 36px; height: 36px; font-size: 0.6rem;">
+                  {{ link.name.charAt(0).toUpperCase() }}
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-family: var(--font-heading); font-size: 0.6rem; color: var(--text-primary);">{{ link.name }}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Activity: {{ link.recent_activity }} |
+                    HQ &#8596; {{ link.has_to_hq && link.has_from_hq ? 'Bidirectional' : link.has_to_hq ? 'To HQ' : link.has_from_hq ? 'From HQ' : 'No comms' }}
+                  </div>
+                </div>
+                <span :class="link.recent_activity > 0 ? 'pixel-status-active' : 'pixel-status-inactive'">
+                  {{ link.recent_activity > 0 ? 'ACTIVE' : 'IDLE' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div v-else class="card">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon" style="color: var(--text-faint);">&#129504;</div>
+                <p class="text-sm" style="color: var(--text-muted);">No connected projects yet</p>
+                <p class="text-xs mt-2" style="color: var(--text-muted);">
+                  Connect a sub-project with <code style="background: var(--bg-code); border: 1px solid var(--border-secondary); padding: 2px 6px; color: var(--text-primary);">loci link &lt;path&gt;</code>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== Files ========== -->
+        <section v-if="currentPage === 'files'">
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            &#9608; &#128193; Files &#128193; &#9608;
+          </h2>
+
+          <div v-if="referenceFiles.length" class="space-y-4">
+            <div class="card mb-4">
+              <div class="card-header">
+                <span>&#128196;</span>
+                <h3>References & Archive</h3>
+                <span style="margin-left: auto; font-size: 0.5rem; opacity: 0.7;">{{ data.references?.total || 0 }} total</span>
+              </div>
+            </div>
+            <div v-for="file in referenceFiles" :key="file.filename || file.path" class="card">
+              <div class="card-body">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                  <span style="font-size: 1.2rem; flex-shrink: 0;">&#128196;</span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-family: var(--font-heading); font-size: 0.6rem; color: var(--text-primary); margin-bottom: 4px;">
+                      {{ file.meta?.title || file.filename || file.path?.split('/').pop() || 'Untitled' }}
+                    </div>
+                    <div v-if="file.meta?.date" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">
+                      {{ file.meta.date }}
+                    </div>
+                    <div v-if="file.meta?.tags?.length" style="margin-bottom: 6px;">
+                      <span v-for="tag in file.meta.tags" :key="tag" class="pixel-tag" style="margin-right: 4px;">{{ tag }}</span>
+                    </div>
+                    <div v-if="file.content" class="md-content text-sm"
+                      style="max-height: 80px; overflow: hidden; position: relative;"
+                      v-html="file.content">
+                    </div>
+                    <div v-if="file.content" style="height: 20px; background: linear-gradient(transparent, var(--bg-card)); margin-top: -20px; position: relative;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="card">
+            <div class="card-body">
+              <div class="empty-state">
+                <div class="icon" style="color: var(--text-faint);">&#128193;</div>
+                <p class="text-sm" style="color: var(--text-muted);">No reference files yet</p>
+                <p class="text-xs mt-2" style="color: var(--text-muted);">
+                  Add files to <code style="background: var(--bg-code); border: 1px solid var(--border-secondary); padding: 2px 6px; color: var(--text-primary);">08-references/</code> to see them here
+                </p>
               </div>
             </div>
           </div>
@@ -1272,7 +2008,67 @@
         const memoryTab = ref('identity');
         const planningTab = ref('monthly');
 
-        const emptyHtml = '<p style="color: #aaaaaa;">\u25A0 No data</p>';
+        const emptyHtml = '<p style="color: var(--text-faint);">\u25A0 No data</p>';
+
+        // --- Theme system ---
+        const themes = [
+          { id: 'pixel',   label: 'Pixel',   icon: '\uD83D\uDFE5' },
+          { id: 'minimal', label: 'Minimal', icon: '\u25CB' },
+          { id: 'ascii',   label: 'ASCII',   icon: '>' },
+          { id: 'scifi',   label: 'Sci-fi',  icon: '\u2726' },
+          { id: 'journal', label: 'Journal', icon: '\u270D' },
+          { id: 'claude',  label: 'Claude',  icon: '\u2764' },
+        ];
+        const currentTheme = ref(localStorage.getItem('lociTheme') || 'pixel');
+        function setTheme(themeId) {
+          currentTheme.value = themeId;
+          localStorage.setItem('lociTheme', themeId);
+          if (themeId === 'pixel') {
+            document.documentElement.removeAttribute('data-theme');
+          } else {
+            document.documentElement.setAttribute('data-theme', themeId);
+          }
+        }
+        // Apply theme on load
+        if (currentTheme.value !== 'pixel') {
+          document.documentElement.setAttribute('data-theme', currentTheme.value);
+        }
+
+        // --- Yesterday journal ---
+        const yesterdayExpanded = ref(false);
+        const yesterdayJournal = computed(() => {
+          const d = new Date();
+          d.setDate(d.getDate() - 1);
+          const yesterday = d.toISOString().slice(0, 10);
+          const entries = data.value?.planning?.journal || [];
+          return entries.find(e => e.filename.includes(yesterday)) || null;
+        });
+        const yesterdaySummary = computed(() => {
+          if (!yesterdayJournal.value?.content) return '';
+          const text = yesterdayJournal.value.content.replace(/<[^>]*>/g, '').trim();
+          return text.length > 80 ? text.slice(0, 80) + '...' : text;
+        });
+
+        // --- Synapse (links) ---
+        const synapseLinks = computed(() => data.value?.links || []);
+        const synapseSvgSize = computed(() => {
+          const count = synapseLinks.value.length;
+          if (count <= 3) return 360;
+          if (count <= 6) return 420;
+          return 500;
+        });
+        function synapseNodePos(index, total) {
+          const center = synapseSvgSize.value / 2;
+          const radius = center - 50;
+          const angle = (2 * Math.PI * index / total) - Math.PI / 2;
+          return {
+            x: center + radius * Math.cos(angle),
+            y: center + radius * Math.sin(angle)
+          };
+        }
+
+        // --- Files (references) ---
+        const referenceFiles = computed(() => data.value?.references?.files || []);
 
         // Learning log expand/collapse state
         const expandedLearning = reactive({});
@@ -1300,6 +2096,8 @@
           { id: 'today',     label: 'Today',     icon: '\u2600' },
           { id: 'journal',   label: 'Journal',   icon: '\u25C6' },
           { id: 'memory',    label: 'Memory',    icon: '\u2665' },
+          { id: 'synapse',   label: 'Synapse',   icon: '\uD83E\uDDE0' },
+          { id: 'files',     label: 'Files',     icon: '\uD83D\uDCC1' },
           { id: 'planning',  label: 'Planning',  icon: '\u25C6' },
           { id: 'people',    label: 'People',    icon: '\u2665' },
           { id: 'decisions', label: 'Decisions', icon: '\u25C6' },
@@ -2232,6 +3030,14 @@
           getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress,
           taskSectionTitle, weeklyTasks, monthlyTaskSummary,
           showAddTask, newTaskText, newTaskPriority, addNewTask,
+          // Theme
+          themes, currentTheme, setTheme,
+          // Yesterday
+          yesterdayExpanded, yesterdayJournal, yesterdaySummary,
+          // Synapse
+          synapseLinks, synapseSvgSize, synapseNodePos,
+          // Files
+          referenceFiles,
         };
       }
     }).mount('#app');
