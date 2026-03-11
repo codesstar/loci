@@ -1,0 +1,14 @@
+# Loci Configuration
+# Modify these settings to customize your brain's behavior.
+
+version: 1
+
+persistence:
+  mode: auto          # auto | manual — auto saves signals automatically, manual only on /loci-sync
+  notify: true        # show "[Loci] Stored: ..." notifications
+
+wellbeing:
+  enabled: true
+  wind_down_time: "22:30"    # nudge to wind down after this time
+  wake_up_time: "07:00"      # morning greeting after this time
+  max_reminders: 2           # max late-night nudges per session, then silence
