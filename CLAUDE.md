@@ -92,7 +92,7 @@ At the start of every conversation:
 5. Read `.loci/activity-log.md` (last 7 days) for recent session context
 6. Run `.loci/hooks/check-updates.sh` for cross-terminal changes
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
-8. **Inbox overflow check**: If `inbox.md` has more than 20 items, nudge the user: "Your inbox has N items — want to sort them now?" Help sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → keep or `tasks/someday.md`
+8. **Inbox overflow check**: If `inbox.md` has more than 20 items, nudge the user: "Your inbox has N items — want to sort them now?" Help sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → keep or `tasks/someday.md`. Also trigger this check **after writing to inbox.md** during a session — don't wait until next startup.
 
 > **State > productivity.** Never push tasks without understanding the user's current state.
 
