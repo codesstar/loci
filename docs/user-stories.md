@@ -68,22 +68,22 @@ It doesn't lecture. It helps first, then nudges. And when he chooses to stay, it
 
 ## "It picks up where I left off"
 
-> Amara, full-stack developer, Lagos
+> Amara, developer, Lagos
 
-Amara spent the morning untangling a gnarly state management bug. She found the root cause — a race condition between two API calls — but hadn't written the fix yet. Lunch break.
+Amara spent the morning redesigning how the app handles user uploads. She figured out the approach — compress images on the client side before sending them to the server — but hadn't started coding the fix yet. Lunch break.
 
 At 2:15pm she's back:
 
 ```
 > continue
 
-  Welcome back. You were fixing the race condition in the
-  checkout flow — the cart total and inventory check fire
-  at the same time, and sometimes inventory returns stale data.
+  Welcome back. You were fixing the slow upload problem.
+  The plan: compress images on the client before uploading
+  (you tested it this morning — 4MB photos drop to ~800KB).
 
-  You decided to chain them sequentially instead of running
-  them in parallel, and you were about to update the checkout
-  hook. The file is src/hooks/useCheckout.ts, line 47. Ready?
+  You were about to add the compression step to the upload
+  form. The file is src/components/UploadForm.tsx, line 32.
+  Ready?
 ```
 
 Not "what were we doing?" — it knows the exact file, the exact problem, and the exact approach she'd chosen.
@@ -192,53 +192,78 @@ She didn't ask for this. Loci noticed the pattern across a week of scattered dec
 
 > Tomas, developer, Mexico City
 
-Tomas reads a blog post about database connection pooling while debugging something unrelated. He mentions it in passing:
+Tomas reads a blog post comparing Python web frameworks while working on something else. He mentions it in passing:
 
 ```
-> interesting post — apparently PgBouncer in transaction mode
-  breaks prepared statements. save this:
-  https://example.com/pgbouncer-gotchas
+> interesting post — apparently FastAPI is 3x faster than Flask
+  for the kind of endpoints we're building. save this:
+  https://example.com/python-framework-benchmarks
 
-  Saved — PgBouncer transaction mode breaks prepared statements.
+  Saved — FastAPI vs Flask benchmark for API-heavy projects.
 ```
 
-Three weeks later, he's setting up a new project's database:
+Three weeks later, he's starting a new Python project:
 
 ```
-> should I use PgBouncer for connection pooling?
+> I need to build an API for this. Flask or Django?
 
-  You saved an article 3 weeks ago about PgBouncer gotchas.
-  The key issue: transaction pooling mode breaks prepared
-  statements, which your ORM relies on heavily.
+  You saved an article 3 weeks ago comparing Python frameworks.
+  The key finding: FastAPI was 3x faster than Flask for
+  API-heavy projects like this one.
 
-  You'd need to either use session mode (less efficient) or
-  switch to a different pooler. Want me to pull up the full
-  article?
+  Might be worth considering FastAPI instead of Flask or Django.
+  Want me to pull up the full article?
 ```
 
-He'd completely forgotten saving that. But it was exactly the thing that would have cost him a day of debugging.
+He'd completely forgotten saving that. But it was exactly the insight that would have saved him from picking the wrong framework.
 
 ---
 
 ## "It connects dots I forgot about"
 
-> Amara, full-stack developer, starting a new service
+> Kai, developer, Seoul
 
-Amara spent three days last month fighting memory leaks in a Node.js service. She found the culprit — event listeners not being cleaned up in a long-running connection. This week, she starts a new project:
+Last month Kai spent two days figuring out why his app was super slow on first load. Turned out the homepage was loading every single image at once instead of only loading what's visible on screen. He fixed it with lazy loading. This week, he starts building a new app:
 
 ```
-> I'm building a real-time notification service with WebSockets
+> I'm building a photo gallery page. Lots of images.
 
-  Heads up — you spent 3 days last month debugging memory leaks
-  in your other project. The root cause was event listeners piling
-  up on long-running connections.
+  Heads up — you spent 2 days last month fixing slow page loads
+  in your other project. The problem was loading all images at
+  once instead of lazy loading them as the user scrolls.
 
-  For this service: set up listener cleanup from day one, and add
-  a memory usage monitor to your health check endpoint. Want me to
-  outline the pattern that worked?
+  For this gallery: set up lazy loading from the start so you
+  don't hit the same problem. Want me to show the approach
+  that worked?
 ```
 
-She wasn't thinking about the old project at all. But the pain she went through there was exactly the lesson she needed here — and Loci made the connection before she repeated the mistake.
+He wasn't thinking about the old project at all. But the pain he went through there was exactly the lesson he needed here — and Loci made the connection before he repeated the mistake.
+
+---
+
+## "Three weeks in, it still remembers day one"
+
+> Lin, developer, Taipei
+
+Lin has been working on the same project for three weeks — a complete rewrite of the company's admin panel. On day one, she and her AI spent an hour deciding on the tech stack and page structure. Since then, she's restarted her terminal dozens of times. Context has been lost and recovered over and over.
+
+On day 18:
+
+```
+> I'm building the reports page. Should I use the same layout
+  as the other pages?
+
+  On day one you decided all detail pages use a two-column
+  layout (sidebar + content), but list pages use a single
+  full-width table. Reports are list-style, so full-width
+  table — consistent with Users and Orders pages.
+
+  You also noted that the sidebar should only appear when
+  there's a single record to inspect. Want to follow the
+  same pattern here?
+```
+
+She's reset her context a dozen times. She couldn't remember what she decided on day one. But her AI never forgot.
 
 ---
 
