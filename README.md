@@ -19,9 +19,11 @@
 
 ## The Problem
 
-You spend an hour with your AI working through a tricky architecture decision. You compare three approaches, weigh the tradeoffs, pick one. The next day, you open a new conversation. Your AI has no idea. You spend 15 minutes re-explaining what you decided and why.
+You've been working with your AI for two hours. It knows your project inside out — the file structure, the decisions you made, the problems you solved, what you're about to do next.
 
-Every. Single. Day.
+Then the context window fills up. Or the session crashes. Or it just starts getting... dumb. Repeating itself. Forgetting things you said 20 minutes ago.
+
+You close the terminal. Open a new one. And spend the next 15 minutes re-explaining everything from scratch.
 
 **What if it just... remembered?**
 
@@ -30,22 +32,19 @@ Every. Single. Day.
 Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
 
 ```
-Monday:    You and your AI spend an hour debugging a flaky test.
-           Root cause: database connections aren't closing in CI.
-           Fix: add explicit teardown + connection pooling.
+2 hours in:  Your AI is slowing down. Context is almost full.
+             "Save everything — I need to restart."
+             Done. All decisions, progress, and context saved.
 
-Wednesday: "The tests are flaky again."
-           "Last Monday we traced this to unclosed DB connections in CI.
-            We fixed it with explicit teardown. Check if the new test
-            is missing that — same pattern."
-
-Friday:    You open a DIFFERENT project. Same test framework.
-           "Should I worry about test isolation here?"
-           "Yes — you hit connection leaks in your other project.
-            Set up teardown hooks from the start. Here's what worked."
+10 seconds   You open a fresh terminal.
+later:       "Pick up where I left off."
+             "You were building the user dashboard. You decided on
+              a card layout over a table view because mobile matters
+              more. The header and sidebar are done. Next up: the
+              activity feed component. Ready to continue?"
 ```
 
-Your AI remembers across conversations, across days, across projects. It knows your decisions, your debugging war stories, your hard-won lessons — and it gets smarter over time.
+Full recovery. No re-explaining. Your AI reads its memory files and picks up exactly where you were — even across days, weeks, or different projects.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
@@ -77,37 +76,36 @@ That's it. Claude detects the new brain, asks you a few questions, and sets ever
 
 You don't learn Loci. You just talk to your AI, and four things start happening:
 
-### It remembers
+### It remembers what matters
 
-Mention a decision, a hard-won lesson, a task — Loci saves it automatically. You never take notes manually.
+Spend 30 minutes figuring something out with your AI? That knowledge is saved automatically — the decision, the reasoning, and the alternatives you rejected.
 
 ```
-You: "We tried three auth approaches — JWT with refresh tokens won.
-      Session-based had too much server state, and OAuth-only
-      doesn't work for our mobile app."
+You: "We compared Vercel, Railway, and self-hosted. Going with Railway
+      — Vercel is too expensive at our scale, self-hosted is too much
+      ops work for a two-person team."
 
-Got it — saved your auth decision with the reasoning.
+Got it — saved your hosting decision with the tradeoffs.
 ```
 
-You said it once. It's permanent. Next week, when someone asks "why didn't we use sessions?" — your AI already knows the full story.
+Next month, when you're wondering "why aren't we on Vercel?" — your AI already knows the full story. You figured it out once. You never have to figure it out again.
 
 ### It connects your projects
 
-Link any project folder with one command. Lessons you learn the hard way in Project A save you hours in Project B.
+Link any project folder with one command. Mistakes you made in Project A become warnings in Project B.
 
 ```
 Brain (your memory)
- ├── API Project       "Rate limiting: 100 req/min with token bucket.
- │                      Learned the hard way that fixed windows
- │                      cause thundering herd problems."
+ ├── Main App         "Deployment took 6 hours because we forgot
+ │                     to set up environment variables for the
+ │                     staging environment. Checklist created."
  │
- ├── CLI Tool          "You're adding API calls here — remember you
- │                      solved rate limiting in your API project.
- │                      Same approach applies."
+ ├── Side Project     "You're about to deploy this. Remember your
+ │                     main app took 6 hours because of missing
+ │                     env vars. Here's the checklist you made."
  │
- └── Client Project    "This client's API has rate limits too.
-                        Based on your experience, add retry logic
-                        with backoff from the start."
+ └── Client Work      "New deployment here too — applying your
+                       env var checklist from the start."
 ```
 
 ### It finds patterns you miss
@@ -116,12 +114,12 @@ Every morning, Loci reviews what changed and surfaces insights:
 
 ```
 Morning briefing:
-  - You've adopted 3 new tools this month but finished zero
-    integration tasks. Maybe close one loop before opening another.
-  - "Research caching strategies" has been on your list for 12 days.
-    Kill it or do it today?
-  - Your last 3 API integrations took 2x your estimates.
-    Budget extra time for the next one.
+  - You've started 3 new side projects this month but finished
+    none of them. Maybe ship one before starting another?
+  - "Write the project README" has been on your list for 12 days.
+    Do it today or drop it?
+  - You estimated the payment integration would take 2 days.
+    Your last 3 integrations took 2x your estimates.
 ```
 
 ### It survives context resets
@@ -135,13 +133,13 @@ Long session? Context window full? AI getting slow? Just save and restart.
 (open a new terminal)
 
 > picking up where I left off
-  You were debugging why the webhook handler drops events
-  under load. You narrowed it to the async queue — it fails
-  when the payload exceeds 256KB. You were about to add
-  payload chunking. Ready to continue?
+  You were building the notification system. You decided on
+  email + in-app (no SMS — too expensive for now). The email
+  templates are done, you were about to wire up the trigger
+  logic. The file is src/notifications/triggers.ts. Ready?
 ```
 
-Not "what project are you working on?" — it knows exactly where you were and what you were about to try next.
+Not "what project are you working on?" — it knows exactly where you were, what you decided, and what file you had open.
 
 ### It grows with you
 
