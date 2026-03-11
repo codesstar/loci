@@ -32,15 +32,39 @@ journal/     → Daily summaries (buffer.md → end-of-day journal)
 
 ## Calendar Events (calendar.json)
 
-Format:
+Used by the Dashboard to display a timeline view. The AI auto-adds events when the user mentions times.
+
+**Schema:**
 ```json
 {
-  "YYYY-MM-DD": [
-    { "title": "Event name", "startKey": 480, "endKey": 600, "note": "Notes" }
+  "2026-03-11": [
+    {
+      "title": "Design review",
+      "startKey": 840,
+      "endKey": 900,
+      "note": "With Sarah, discuss new color system"
+    }
+  ],
+  "2026-03-12": [
+    {
+      "title": "Standup",
+      "startKey": 570,
+      "endKey": 585,
+      "note": ""
+    }
   ]
 }
 ```
-- `startKey`/`endKey` = minutes from 00:00 (e.g., 8:00 = 480, 10:00 = 600)
+
+**Fields:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | yes | Event name |
+| `startKey` | number | yes | Start time in minutes from 00:00 (e.g., 9:30am = 570) |
+| `endKey` | number | yes | End time in minutes from 00:00 (e.g., 10:00am = 600) |
+| `note` | string | no | Additional context |
+
+**Common time conversions:** 6:00=360, 8:00=480, 9:00=540, 9:30=570, 10:00=600, 12:00=720, 14:00=840, 18:00=1080, 22:00=1320
 
 ## Journal System
 

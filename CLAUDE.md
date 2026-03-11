@@ -24,16 +24,23 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 
 **Trigger**: `plan.md` has `status: template`. Run onboarding immediately — this is your FIRST priority before anything else:
 
-1. **Welcome + collect info using AskUserQuestion**. Ask up to 4 questions at once:
+1. **Welcome + collect info using AskUserQuestion**. Ask up to 5 questions at once:
    - Question 1: "What's your name?" (header: "Name")
    - Question 2: "What do you do?" (header: "Role", options: "Developer", "Designer", "Creator", "Student", "Other")
    - Question 3: "What's your most important focus right now?" (header: "Focus", options: "Ship a product", "Learn a skill", "Build an audience", "Get a job", "Other")
-   - Question 4: "Preferred language?" (header: "Language", options: "English", "中文 (Chinese)", "中英混合 (Chinese-English mix)"
+   - Question 4: "What hours do you usually work?" (header: "Schedule", options: "Morning (6am-12pm)", "Daytime (9am-6pm)", "Evening (6pm-12am)", "Night owl (10pm-6am)")
+   - Question 5: "Preferred language?" (header: "Language", options: "English", "中文 (Chinese)", "中英混合 (Chinese-English mix)")
    - If user picks "Other" for role or focus, ask a brief follow-up to understand their context
+   - Save language preference to `.loci/config.yml` under `language` field. Use this language for ALL user-facing messages throughout the session
 2. **Generate initial files** from the answers:
    - `me/identity.md` — basics, work, current season (set status: active)
    - `plan.md` — mission + current focus as annual goals (set status: active)
    - `tasks/active.md` — first P0 task from "most important thing"
+   - `.loci/config.yml` — update `language` and `wellbeing` times based on schedule answer:
+     - Morning → `wake_up_time: "05:30"`, `wind_down_time: "21:00"`
+     - Daytime → keep defaults (`07:00`, `22:30`)
+     - Evening → `wake_up_time: "10:00"`, `wind_down_time: "01:00"`
+     - Night owl → `wake_up_time: "14:00"`, `wind_down_time: "04:00"`
    - `.claude/settings.json` — register hooks for activity logging:
      ```json
      {
@@ -161,11 +168,12 @@ Never save raw transcripts. Distill to structured files:
 Default: **auto mode with tag-routed sync.** Config lives in `.loci/config.yml`.
 
 ### Auto mode (default)
-Every turn, evaluate for storable info (task, decision, insight, personal change, goal update). If found → store + one-line notification in natural language:
+Every turn, evaluate for storable info (task, decision, insight, personal change, goal update). If found → store + one-line notification in the user's language (check `.loci/config.yml` `language` field):
 ```
-记住了：新任务 "Buy power adapter"
+# zh/mix: 记住了：新任务 "Buy power adapter"
+# en:     Got it — added task "Buy power adapter"
 ```
-Do NOT use `[Loci]`, file paths, or internal terms in notifications. Keep it conversational.
+Do NOT use `[Loci]`, file paths, or internal terms in notifications. Keep it conversational. ALL user-facing messages must respect the configured language.
 No signal = no save. User can say "undo" / "撤销" to reverse the last save (revert the file change directly, no git needed).
 
 ### Manual mode
