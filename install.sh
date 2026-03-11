@@ -60,4 +60,4 @@ echo -e "${DIM}Launching Claude Code for setup...${NC}"
 echo -e "${DIM}Claude will ask you a few questions to personalize your brain.${NC}"
 echo ""
 
-claude
+claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the 4 onboarding questions using AskUserQuestion."

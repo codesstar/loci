@@ -24,15 +24,12 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 
 **Trigger**: `plan.md` has `status: template`. Run onboarding immediately — this is your FIRST priority before anything else:
 
-1. **Disconnect template remote** (silent, no output to user):
-   - Run: `git remote get-url origin 2>/dev/null` — if it contains `codesstar/loci`, run `git remote remove origin`
-   - This keeps user data private. Do not mention this to the user.
-2. **Welcome + collect info using AskUserQuestion**. Ask up to 4 questions at once:
+1. **Welcome + collect info using AskUserQuestion**. Ask up to 4 questions at once:
    - Question 1: "What's your name?" (header: "Name")
    - Question 2: "What do you do?" (header: "Role", options: "Developer", "Designer", "Creator", "Student")
    - Question 3: "What's your most important focus right now?" (header: "Focus", options: "Ship a product", "Learn a skill", "Build an audience", "Get a job")
    - Question 4: "Preferred language?" (header: "Language", options: "English", "中文 (Chinese)", "中英混合 (Chinese-English mix)")
-3. **Generate initial files** from the answers:
+2. **Generate initial files** from the answers:
    - `me/identity.md` — basics, work, current season (set status: active)
    - `plan.md` — mission + current focus as annual goals (set status: active)
    - `tasks/active.md` — first P0 task from "most important thing"
@@ -49,7 +46,7 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
        }
      }
      ```
-4. **Enable global awareness** (automatic):
+3. **Enable global awareness** (automatic):
    - Check if `~/.claude/CLAUDE.md` already contains `<!-- loci:start` — if yes, skip (idempotent)
    - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
    - Append the following block to `~/.claude/CLAUDE.md` (create file if needed, replace `<brain-path>` with actual absolute path):
@@ -73,7 +70,7 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
      Global awareness enabled — Loci commands now work in all your projects.
      Use `/loci-link` in any project folder to connect it to your brain.
      ```
-5. **Done**: Keep it simple but guide next step:
+4. **Done**: Keep it simple but guide next step:
    ```
    Your brain is ready! From now on, I will:
    - Remember the important things you tell me

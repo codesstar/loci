@@ -44,14 +44,15 @@ No database. No server. No account. Just Markdown files and git.
 
 ## Quick Start
 
-Two commands. Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
+Three commands. Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
 
 ```bash
 git clone https://github.com/codesstar/loci.git my-brain
 cd my-brain
+bash install.sh
 ```
 
-That's it. Claude Code automatically detects a new brain, asks you a few questions, and sets everything up through conversation.
+The installer checks prerequisites, then launches Claude Code. Claude asks you a few questions and sets everything up through conversation.
 
 > **What does setup do?** Creates your identity and task files inside `my-brain/`, adds a global awareness block to `~/.claude/CLAUDE.md` (so Loci works across all projects), and copies slash commands to `~/.claude/commands/`. Everything is reversible — just delete the `<!-- loci:start -->` block to remove global awareness.
 >
