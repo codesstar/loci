@@ -393,6 +393,60 @@ def build_content():
     return {"files": files, "platforms": platforms}
 
 
+def build_links():
+    """Scan .loci/links/ for connected sub-projects."""
+    links_dir = os.path.join(LOCI_ROOT, ".loci", "links")
+    links = []
+    if not os.path.isdir(links_dir):
+        return links
+
+    # Read registry if it exists
+    registry_path = os.path.join(links_dir, "registry.md")
+    registry = read_md_file_simple(registry_path)
+
+    for entry in os.listdir(links_dir):
+        entry_path = os.path.join(links_dir, entry)
+        if entry == "registry.md" or entry.startswith("."):
+            continue
+
+        # Could be a directory or symlink
+        if os.path.isdir(entry_path):
+            profile = read_md_file_simple(os.path.join(entry_path, "profile.md"))
+            to_hq = read_md_file_simple(os.path.join(entry_path, "to-hq.md"))
+            from_hq = read_md_file_simple(os.path.join(entry_path, "from-hq.md"))
+
+            # Count recent activity (entries in to-hq.md)
+            recent_count = 0
+            if to_hq:
+                raw = read_md_file(os.path.join(entry_path, "to-hq.md"))
+                if raw:
+                    recent_count = len(re.findall(r"^\d{4}-\d{2}-\d{2}", raw["raw"], re.MULTILINE))
+
+            link_data = {
+                "name": entry,
+                "path": os.path.realpath(entry_path) if os.path.islink(entry_path) else entry_path,
+                "is_symlink": os.path.islink(entry_path),
+                "profile": profile.get("meta", {}) if profile else {},
+                "profile_content": profile.get("content", "") if profile else "",
+                "recent_activity": recent_count,
+                "has_to_hq": to_hq is not None,
+                "has_from_hq": from_hq is not None,
+            }
+            links.append(link_data)
+
+    return links
+
+
+def build_references():
+    """Scan references/ folder for collected articles, links, ideas."""
+    refs_dir = os.path.join(LOCI_ROOT, "references")
+    if not os.path.isdir(refs_dir):
+        return {"files": [], "total": 0}
+    files = scan_md_files_recursive(refs_dir)
+    files.sort(key=lambda f: f.get("meta", {}).get("date", ""), reverse=True)
+    return {"files": files, "total": len(files)}
+
+
 def build_learning():
     learning_dir = os.path.join(LOCI_ROOT, "content", "learning")
     entries = scan_md_files(learning_dir)
@@ -447,6 +501,8 @@ def main():
         ("finance", build_finance),
         ("content", build_content),
         ("learning", build_learning),
+        ("links", build_links),
+        ("references", build_references),
     ]
 
     for name, builder in sections:
