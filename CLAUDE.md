@@ -101,7 +101,7 @@ At the start of every conversation:
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
 8. **Inbox management** (three-layer mechanism):
    - **L1 display**: Only load the **most recent 7 items** from `inbox.md` into context. Older items stay in the file but don't consume attention. If user asks to see full inbox, read the whole file on demand.
-   - **Sort nudge**: After 10+ new items since last sort, mention it **at the end of a conversation** (never at the start, never interrupt work). Offer to sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → `tasks/someday.md`. Also integrate inbox review into the journal flow.
+   - **Sort nudge**: After 10+ new items since last sort, mention it **at the end of a conversation** (never at the start, never interrupt work). Say "你的待办里积了不少东西，要整理一下吗？" — never use internal terms like "inbox" or "sort". Offer to sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → `tasks/someday.md`. Also integrate inbox review into the journal flow.
    - **Auto-decay**: When inbox exceeds 20 items, auto-move entries older than 14 days to `tasks/someday.md` (exempt items containing dates/deadlines). Log the move in journal so user stays informed.
 
 > **State > productivity.** Never push tasks without understanding the user's current state.
@@ -160,3 +160,4 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 4. **Don't guess** — Ask the user if unsure
 5. **Use frontmatter** — YAML headers (date, tags, status) on content files
 6. **Auto-refresh dashboard** — After modifying content files: `cd .loci/dashboard && python3 build.py`
+7. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure

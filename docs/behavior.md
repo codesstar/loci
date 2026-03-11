@@ -28,10 +28,11 @@ Date: YYYY-MM-DD
 ```
 
 ### 3. Organize Trigger
-On "organize references" or when inbox exceeds 10 entries:
+On "organize references" / "整理收藏" or when inbox exceeds 10 entries:
 - Split inbox entries into individual files in `references/entries/YYYY-MM-DD-slug.md`
 - Auto-generate frontmatter: date, type, source, tags, one-line, use-for, status
 - Ask user to confirm tags and `use-for` field (this is the high-value metadata)
+- **User-facing language**: Say "你的收藏夹积了不少东西，要整理一下吗？" — never expose internal terms like "inbox", "references module", "frontmatter" to the user
 
 ### 4. Entry Frontmatter
 ```yaml
