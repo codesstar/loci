@@ -66,6 +66,7 @@ The longer you use it, the better it knows you. Your preferences, your patterns,
 - **It's private.** Your identity, your decisions, your goals — stored locally. No one else can see it. Not even us.
 - **It grows with you.** Day one, it knows your name. Month three, it knows your patterns. Year one, it can tell you how you've changed.
 - **It never crashes.** Session dies? Context full? Computer restarts? Save and recover in 10 seconds. Your AI picks up exactly where you left off.
+- **It collects for you.** Toss in an article, a link, a half-formed idea. Forget about it. Weeks later, when it's relevant, your AI surfaces it at exactly the right moment.
 
 ### "I already have CLAUDE.md — why do I need this?"
 
