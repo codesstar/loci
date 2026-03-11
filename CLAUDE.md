@@ -33,10 +33,20 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - `me/identity.md` — basics, work, current season (set status: active)
    - `plan.md` — mission + current focus as annual goals (set status: active)
    - `tasks/active.md` — first P0 task from "most important thing"
-   - `.claude/settings.json` — register hooks for activity logging:
+   - `.claude/settings.json` — register hooks:
      ```json
      {
        "hooks": {
+         "UserPromptSubmit": [
+           {
+             "hooks": [
+               {
+                 "type": "command",
+                 "command": "date '+Current time: %Y-%m-%d %H:%M %Z'"
+               }
+             ]
+           }
+         ],
          "PostToolUse": [
            {
              "matcher": "Write|Edit",
@@ -84,13 +94,10 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 
 ## Time & State Awareness
 
-**Long session detection**: You have no internal clock. To stay time-aware in long sessions, run `date` when:
-- User mentions time words (morning, evening, tomorrow, 早上, 晚上, 明天)
-- Every 30 messages (count roughly, doesn't need to be exact)
-If the **date has changed** since you last checked, re-run steps 1, 3, and 7 below (daily plan, task check, consolidation).
+**Real-time clock**: A `UserPromptSubmit` hook injects the current time (e.g. `Current time: 2026-03-11 14:32 AEDT`) into every message. You always know the exact date and time — no need to run `date` manually. If the **date has changed** since conversation start, re-run steps 1, 3, and 7 below (daily plan, task check, consolidation).
 
 At the start of every conversation:
-1. Confirm today's date, read today's daily plan (`tasks/daily/YYYY-MM-DD.md`)
+1. Read today's date from the injected timestamp, read today's daily plan (`tasks/daily/YYYY-MM-DD.md`)
 2. Read `.loci/status.yml` — check user state. If expired, infer from daily plan + time
 3. Cross-reference `plan.md` and `tasks/active.md` for today's key tasks
 4. Scan `.loci/links/*/to-hq.md` Active sections — flag entries from last 7 days
