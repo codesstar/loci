@@ -19,7 +19,9 @@
 
 ## The Problem
 
-You tell your AI assistant your plan on Monday. By Wednesday, it has no idea. You re-explain your project, your preferences, your decisions — every single conversation. Your AI is brilliant but has amnesia.
+You spend an hour with your AI working through a tricky architecture decision. You compare three approaches, weigh the tradeoffs, pick one. The next day, you open a new conversation. Your AI has no idea. You spend 15 minutes re-explaining what you decided and why.
+
+Every. Single. Day.
 
 **What if it just... remembered?**
 
@@ -28,20 +30,22 @@ You tell your AI assistant your plan on Monday. By Wednesday, it has no idea. Yo
 Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
 
 ```
-Monday:    "I'm going with a subscription model, not one-time purchase."
-              AI saves your decision automatically.
+Monday:    You and your AI spend an hour debugging a flaky test.
+           Root cause: database connections aren't closing in CI.
+           Fix: add explicit teardown + connection pooling.
 
-Wednesday: "Why did I pick subscriptions again?"
-              "You chose subscriptions on Monday — recurring revenue
-               and it fits your target audience better."
+Wednesday: "The tests are flaky again."
+           "Last Monday we traced this to unclosed DB connections in CI.
+            We fixed it with explicit teardown. Check if the new test
+            is missing that — same pattern."
 
-Friday:    You open a DIFFERENT project. "How should I monetize this one?"
-              "You went with subscriptions for your main project.
-               Unless this one has different users, staying consistent
-               makes sense."
+Friday:    You open a DIFFERENT project. Same test framework.
+           "Should I worry about test isolation here?"
+           "Yes — you hit connection leaks in your other project.
+            Set up teardown hooks from the start. Here's what worked."
 ```
 
-Your AI remembers across conversations, across days, across projects. It knows your decisions, your goals, your patterns — and it gets smarter over time.
+Your AI remembers across conversations, across days, across projects. It knows your decisions, your debugging war stories, your hard-won lessons — and it gets smarter over time.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
@@ -75,25 +79,35 @@ You don't learn Loci. You just talk to your AI, and four things start happening:
 
 ### It remembers
 
-Mention a decision, a task, a preference — Loci saves it to the right file automatically. You never take notes manually.
+Mention a decision, a hard-won lesson, a task — Loci saves it automatically. You never take notes manually.
 
 ```
-You: "Let's go with Tailwind instead of writing custom CSS."
+You: "We tried three auth approaches — JWT with refresh tokens won.
+      Session-based had too much server state, and OAuth-only
+      doesn't work for our mobile app."
 
-Got it — noted your decision to use Tailwind.
+Got it — saved your auth decision with the reasoning.
 ```
 
-You said it once. It's permanent. Next week, next month — your AI still knows.
+You said it once. It's permanent. Next week, when someone asks "why didn't we use sessions?" — your AI already knows the full story.
 
 ### It connects your projects
 
-Link any project folder with one command. What you learn in Project A is available when it matters in Project B.
+Link any project folder with one command. Lessons you learn the hard way in Project A save you hours in Project B.
 
 ```
 Brain (your memory)
- |-- Project A    "We went with dark mode as default here"
- |-- Project B    "You chose dark mode as default in Project A — same here?"
- |-- Project C    "All three projects use dark mode default. Make it a standard?"
+ ├── API Project       "Rate limiting: 100 req/min with token bucket.
+ │                      Learned the hard way that fixed windows
+ │                      cause thundering herd problems."
+ │
+ ├── CLI Tool          "You're adding API calls here — remember you
+ │                      solved rate limiting in your API project.
+ │                      Same approach applies."
+ │
+ └── Client Project    "This client's API has rate limits too.
+                        Based on your experience, add retry logic
+                        with backoff from the start."
 ```
 
 ### It finds patterns you miss
@@ -102,10 +116,12 @@ Every morning, Loci reviews what changed and surfaces insights:
 
 ```
 Morning briefing:
-  - Your last 4 decisions all simplified things. You're shifting
-    from "more features" to "fewer, better ones."
-  - "Reply to that partnership email" has been on your list for
-    9 days. Do it or drop it?
+  - You've adopted 3 new tools this month but finished zero
+    integration tasks. Maybe close one loop before opening another.
+  - "Research caching strategies" has been on your list for 12 days.
+    Kill it or do it today?
+  - Your last 3 API integrations took 2x your estimates.
+    Budget extra time for the next one.
 ```
 
 ### It survives context resets
@@ -119,21 +135,23 @@ Long session? Context window full? AI getting slow? Just save and restart.
 (open a new terminal)
 
 > picking up where I left off
-  You were redesigning the onboarding flow. You decided on a
-  3-step wizard, finished the first two screens, and had the
-  final screen left. Ready to continue?
+  You were debugging why the webhook handler drops events
+  under load. You narrowed it to the async queue — it fails
+  when the payload exceeds 256KB. You were about to add
+  payload chunking. Ready to continue?
 ```
 
-Full recovery in seconds. No re-explaining your project for the fifth time.
+Not "what project are you working on?" — it knows exactly where you were and what you were about to try next.
 
 ### It grows with you
 
-Your values change. Your goals shift. Loci tracks the evolution — current state stays lean and fast, history is preserved for when you want to reflect.
+Your skills change. Your focus shifts. Loci tracks the evolution — current state stays lean, history is preserved for when you want to reflect.
 
 ```
-March:  identity.md says "learning to code, building my first app"
-June:   identity.md says "indie developer, shipped 2 products"
-        evolution.md records the transition and when it happened
+January:  "data engineer, mass-producing dashboards"
+April:    "data engineer → building my own analytics product"
+July:     "founder, shipped v1, first 50 users"
+          evolution.md records each transition and what triggered it
 ```
 
 ---
@@ -153,15 +171,15 @@ June:   identity.md says "indie developer, shipped 2 products"
 
 ---
 
-## What Users Say It Feels Like
+## What It Feels Like In Practice
 
-**"It knows when I wake up"** — Zhang Wei opens his terminal in the morning. No re-explaining. His AI already knows what he was working on, what's next, and what's overdue.
+**"I stopped re-explaining my architecture"** — Marcus opens his terminal Monday morning. His AI already knows the migration strategy they debated on Friday, the edge cases they found, and why they rejected the simpler approach.
 
-**"It remembers what I read"** — Rina saves an article about pricing while coding. Two weeks later, she's designing a pricing page. Her AI surfaces the article without being asked.
+**"It saved me from repeating a mistake"** — Priya is setting up deployment for a new service. Her AI reminds her that the last time she used that hosting provider, DNS propagation took 48 hours and broke the launch timeline. She switches providers before wasting a day.
 
-**"It tells me to stop"** — It's 11pm. Zhang Wei is still debugging. His AI says "go sleep, this'll still be here tomorrow" — then respects his choice when he keeps going.
+**"It told me to go to bed"** — It's 11:30pm and Dev is still chasing a bug. His AI says "you've been circling the same 3 files for an hour — sleep on it" — then saves exactly where he was so tomorrow's first message picks up mid-thought.
 
-> More stories: **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
+> More: **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
 
 ---
 
