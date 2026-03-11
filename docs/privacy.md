@@ -14,11 +14,19 @@ Loci stores your entire life context — identity, goals, finances, contacts, de
 
 Every Loci user gets this automatically. No setup needed.
 
-### .gitignore
+### Git remote disconnect
 
-Pre-configured to exclude personal content directories (`me/`, `finance/`, `people/`, daily plans, journals). Only structure files (README.md, templates, CLAUDE.md) are tracked by default. After onboarding, your real data stays local.
+During setup (both `install.sh` and conversational onboarding), Loci automatically disconnects from the public template repo. This prevents accidental pushes of personal data to the public repository.
+
+If you want to back up your brain, push to a **private** remote — your data is safe there because only you have access.
 
 > **Important**: Clone, don't fork. If you fork, your fork is public. Set it to private immediately.
+
+### .gitignore
+
+Pre-configured to exclude system state files (`.loci/status.yml`, `.loci/activity-log.md`, `.loci/last-consolidation.txt`, `.loci/dashboard/data.json`) and editor/OS artifacts. Your content files (`me/`, `tasks/`, `decisions/`, etc.) are **tracked by git** — this is intentional, so you get full version history of your memory via `git log`.
+
+Since the template remote is disconnected during setup, tracked files stay local unless you explicitly add your own remote.
 
 ### Data Classification Tags
 
@@ -208,10 +216,9 @@ encryption:
 
 ## Quick Setup Guide
 
-### "I just want basic protection" (2 minutes)
+### "I just want basic protection" (0 minutes)
 
-1. `.gitignore` is already configured to exclude personal data directories
-2. Done. Your personal data won't accidentally leak via Git.
+1. Done. Setup already disconnected the template remote — your data can't accidentally leak to the public repo. If you push to your own private remote, all files are safe to track.
 
 ### "I want AI context control" (5 minutes)
 
