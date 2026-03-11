@@ -1,82 +1,82 @@
 # Synapse — 跨项目信息流
 
-## 什么是 Synapse?
+## Synapse 是什么？
 
-Synapse 是信息在你的 Loci brain 和连接的子项目之间流动的方式——就像神经元之间的突触，选择性地传递重要信息。
+你有一个 brain，下面挂了好几个子项目。Synapse 就是它们之间的信息管道——像神经突触一样，只把重要的东西传过去，其他的不管。
 
-## 信号驱动的持久化
+## 信号驱动，不定时保存
 
-Loci 不会按固定时间表保存。它会监听每一轮对话中的**信号**——值得存储的有意义信息：
+Loci 不搞定时存档那一套。它盯着你每轮对话里的**信号**——也就是真正值得记下来的东西：
 
-| 信号 | 示例 | 存储位置 |
+| 信号 | 举个例子 | 存到哪 |
 |--------|---------|-------------|
-| 新任务 | "我需要更新 API 文档" | `tasks/active.md` |
-| 决策 | "就用 PostgreSQL 吧" | `decisions/` |
-| 认知/经验 | "永远不要在周五部署" | `me/learned.md` |
-| 个人信息变更 | "我刚搬到柏林" | `me/identity.md` |
-| 目标更新 | "发布推迟到四月" | `plan.md` |
+| 新任务 | "我得更新一下 API 文档" | `tasks/active.md` |
+| 做了决策 | "就用 PostgreSQL 吧" | `decisions/` |
+| 踩了坑 | "千万别周五部署" | `me/learned.md` |
+| 个人信息变了 | "我刚搬到柏林" | `me/identity.md` |
+| 目标调整 | "发布推迟到四月" | `plan.md` |
 
-**没有信号 = 不保存。** 五轮闲聊不会产生任何写入。一轮包含重大决策的对话则会立即保存。
+**没信号就不存。** 你扯五轮闲天，一个字不写。但一轮对话里定了个大方向，马上就存。
 
-### 信号检测清单
+### 信号怎么检测
 
-AI 会检查每一轮对话是否匹配以下模式：
+AI 每轮对话都会过一遍这些模式：
 
-- **任务信号**: 用户提到要做的事（"need to", "should", "要做", "记得"）
-- **决策信号**: 用户做出选择（"decided", "going with", "chose", "定了", "选"）
-- **认知信号**: 用户表达某种领悟（"learned", "realized", "turns out", "原来", "发现"）
-- **身份信号**: 用户陈述个人信息（"I am", "I moved to", "my job is", "我是", "我住"）
-- **目标信号**: 用户更新目标（"pushing to", "new target", "目标改成"）
-- **引用信号**: 用户提到要保存的外部内容（"save this article", "记一下这个链接"）
+- **任务信号**：你说到要做什么事（"need to"、"should"、"要做"、"记得"）
+- **决策信号**：你拍了板（"decided"、"going with"、"定了"、"选"）
+- **认知信号**：你悟了（"learned"、"realized"、"原来"、"发现"）
+- **身份信号**：你说了自己的事（"I am"、"I moved to"、"我是"、"我住"）
+- **目标信号**：你改了目标（"pushing to"、"new target"、"目标改成"）
+- **引用信号**：你想存点外部内容（"save this article"、"记一下这个链接"）
 
-如果都不匹配，就不保存。如果匹配多个，一次操作保存所有类别。
+一个都没中？不存。中了好几个？一次全存。
 
-### 通知格式
+### 通知长什么样
 
-每次自动保存后，你会看到一行通知：
+每次自动存了东西，你会看到一行提示：
 
 ```
 Got it — added task "Update API docs"
 Noted — synced decision "Use PostgreSQL" to project-alpha
 ```
 
-通知使用自然语言，不用系统术语。你的对话流程不会被打断。
+说人话，不说系统术语。不打断你聊天。
 
-### 撤销
+### 存错了？撤
 
-说 "undo" 或 "撤销" 即可回退上一次自动保存。AI 会还原文件更改并确认。
+说 "undo" 或者 "撤销" 就行。AI 把文件改回去，跟你确认一下。
 
 ### 手动触发
 
-随时运行 `/loci-sync` 进行完整的手动同步：
+随时可以跑 `/loci-sync` 做一次完整同步：
 
 ```
 /loci-sync              → 蒸馏 + 同步（默认）
-/loci-sync --local      → 仅蒸馏，不同步到子项目
-/loci-sync --dry-run    → 预览会保存什么，不实际执行
+/loci-sync --local      → 只蒸馏，不往子项目同步
+/loci-sync --dry-run    → 看看会存什么，不真的写
 ```
 
 ## 两种模式
 
-通过 `/loci-brain-settings` 配置：
+在 `/loci-brain-settings` 里选：
 
-| 模式 | 行为 | 适合 |
+| 模式 | 怎么运作 | 适合谁 |
 |------|----------|----------|
-| **Auto**（默认） | 信号驱动保存 + 一行通知 | 大多数用户 |
-| **Manual** | 仅在 `/loci-sync` 或明确请求时保存 | 想要完全控制的高级用户 |
+| **Auto**（默认） | 检测到信号自动存 + 一行通知 | 大多数人 |
+| **Manual** | 只在 `/loci-sync` 或你明确说的时候存 | 控制欲强的人 |
 
-## 基于 Tag 的路由
+## 用 Tag 做路由
 
-当信息保存到 brain 中时，Synapse 使用 tag 来决定哪些子项目应该知道：
+信息存进 brain 之后，Synapse 靠 tag 决定哪些子项目需要知道：
 
-1. 每条信息会被自动打上 tag：`urgent`, `decision`, `fyi`, `log`
-2. 每个子项目在 `.loci/config.json` 中声明 `interest_tags`
-3. Synapse 将 tag 与兴趣匹配——只有相关的内容才会被路由
-4. 没有匹配 tag 的项目不会收到任何信息（零噪音）
+1. 每条信息自动打 tag：`urgent`、`decision`、`fyi`、`log`
+2. 每个子项目在 `.loci/config.json` 里声明自己关心的 `interest_tags`
+3. Synapse 做匹配——只有相关的才发过去
+4. tag 对不上的项目啥也收不到，零噪音
 
-例如：一个标记为 `[decision, backend]` 的决策会路由到 `interest_tags` 包含 `decision` 或 `backend` 的项目，但会跳过一个纯前端项目。
+举个例子：一条标了 `[decision, backend]` 的决策，会发给 `interest_tags` 里有 `decision` 或 `backend` 的项目，纯前端的项目看都看不到。
 
-敏感文件（医疗、财务、凭证）默认不会同步到子项目。
+敏感文件（医疗、财务、密钥之类的）默认不往子项目同步。
 
 ## 文件格式
 
@@ -108,7 +108,7 @@ persistence:
 
 ### 子项目端：`.loci/memory.md`
 
-项目专属的本地持久化层，用于存储与该项目相关的知识。AI 会把蒸馏后的事实、决策和经验追加到这里。与 brain 级别的记忆不同，这些内容留在项目内部，在该项目中工作时作为 L1 上下文加载。
+项目自己的本地记忆。AI 会把蒸馏出来的事实、决策、经验追加到这里。跟 brain 级别的记忆不一样，这些内容只留在项目内部，在这个项目里干活时作为 L1 上下文加载。
 
 ```markdown
 # Project Memory
@@ -126,9 +126,9 @@ persistence:
 
 ### 子项目通信：`.loci/to-hq.md` 和 `.loci/from-hq.md`
 
-子项目与 brain 之间的双向通信文件：
+子项目和 brain 之间的双向通信文件：
 
-- **`.loci/to-hq.md`**（项目 -> brain）：里程碑、阻塞项、需要决策的问题
-- **`.loci/from-hq.md`**（brain -> 项目）：战略决策、优先级变更、跨项目信息
+- **`.loci/to-hq.md`**（项目 -> brain）：里程碑、卡住了、需要拍板的事
+- **`.loci/from-hq.md`**（brain -> 项目）：战略决策、优先级变了、跨项目的消息
 
-这些文件位于子项目的 `.loci/` 目录中。从 brain 的角度来看，它们通过符号链接访问：`.loci/links/<project-name>/.loci/to-hq.md`。Brain 会在每次会话开始时扫描所有连接的项目。
+这些文件放在子项目的 `.loci/` 目录里。Brain 那边通过符号链接访问：`.loci/links/<project-name>/.loci/to-hq.md`。每次开新会话，brain 都会扫一遍所有连接的项目。
