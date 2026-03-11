@@ -11,9 +11,12 @@ Everything you've read, watched, heard, or encountered that you want to remember
 
 ```
 references/
-├── inbox.md      # Quick dump — just throw it here
-├── entries/      # Organized individual entries (AI sorts from inbox)
-└── README.md
+├── README.md           # This file
+├── inbox.md            # Quick dump — just throw it here
+├── entries/            # Organized individual entries
+│   └── YYYY-MM-DD-slug.md
+└── collections/        # Curated topic groups (optional)
+    └── topic-name.md
 ```
 
 No sub-folders by type. Use frontmatter tags instead — easier to search, no "where does this go?" friction.
@@ -27,20 +30,34 @@ No sub-folders by type. Use frontmatter tags instead — easier to search, no "w
 
 ## How to use
 
-**Quick capture**: Just tell the AI "save this" — it appends to `inbox.md` instantly.
+**Quick capture**: Just tell the AI "save this" — it appends to `inbox.md` instantly. No classification needed.
 
-**Organized entry** (in `entries/`): AI creates these when you say "organize references".
+**Organize**: Say "organize references" or the AI will offer when inbox exceeds 10 entries. Entries get moved to `entries/` with full frontmatter.
+
+**Collections**: Say "make a collection about [topic]" to group related references with commentary.
+
+**Recall**: The AI proactively surfaces relevant saved references when you're working on a matching topic.
+
+## Entry Frontmatter
 
 ```yaml
 ---
 date: 2026-03-10
-type: article    # article | book | video | quote | product | idea | tweet
+type: article    # article | book | video | quote | product | idea | tweet | paper
 source: "https://..."
 tags: [pricing, open-source]
-use-for: "Loci pricing strategy video"   # optional
-status: raw      # raw | processed
+one-line: "Open-core pricing grows 3x faster than pure SaaS"
+use-for: "Loci pricing strategy"   # what this is useful for — key field
+status: raw      # raw → processed → applied → archived
 ---
 ```
+
+### Status Lifecycle
+
+- **raw** — just captured, unprocessed
+- **processed** — organized with frontmatter and tags
+- **applied** — used in a decision or project (auto-updates when referenced)
+- **archived** — no longer relevant
 
 ## Layer
 

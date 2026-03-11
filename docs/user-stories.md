@@ -171,6 +171,35 @@ wellbeing:
 
 ---
 
+## "It remembers what I read"
+
+> Rina, startup founder, researching pricing
+
+Rina reads a great article about open-core pricing. She's in the middle of coding:
+
+```
+> save this — https://opencoreventures.com/blog/...
+  interesting take on usage-based pricing for dev tools
+
+  [Loci] Saved to references/inbox.md
+```
+
+Two weeks later, she's designing her own pricing page:
+
+```
+> what pricing models should I consider?
+
+  Based on your product type, here are the main options...
+
+  By the way, you saved an article about open-core pricing
+  two weeks ago that argued usage-based pricing grows 3x
+  faster for dev tools. Want me to pull up the details?
+```
+
+She never asked Loci to find that article. It connected the dots automatically.
+
+---
+
 ## "It just works with Markdown"
 
 Everything Loci stores is a plain Markdown file in a git repo:
