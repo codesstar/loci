@@ -148,28 +148,33 @@ Open your terminal in any project (or in your brain folder) and start a conversa
 Your AI already knows what day it is, what you worked on yesterday, and what's on your plate today. It will give you a briefing:
 
 ```
-  Morning! Yesterday you finished the landing page. Today:
+  Morning! Yesterday you got the API pagination working but
+  the cursor-based approach had an edge case with deleted records.
 
-  - P0: Write the launch announcement
-  - P1: Design review at 2pm
-  - P2: Clean up the settings page
+  Today:
+  - P0: Fix the pagination edge case (you left a note: "deleted
+    records cause cursor gaps, try soft deletes")
+  - P1: Code review for Kai's PR — it's been open 3 days
+  - P2: Start writing the deployment docs
 
-  "Update the FAQ" has been P1 for a week — want to
-  schedule it or move it to someday?
+  "Refactor the auth middleware" has been P1 for 9 days —
+  do it today or move it to someday?
 ```
 
 ### During Work
 
-Just work normally. When you make a decision, mention a new task, or share an insight, your AI saves it automatically:
+Just work normally. When you make decisions, uncover insights, or mention tasks, your AI saves them automatically:
 
 ```
-> let's keep the free tier, but limit it to 3 projects
+> we tried server-side rendering but it adds too much complexity
+  for our use case. Let's stick with client-side + a loading skeleton.
 
-  Got it — noted your decision on the free tier limit.
+  Got it — saved your rendering decision with the tradeoff reasoning.
 
-> oh also remind me to email the client about the deadline
+> oh also, the staging deploy is broken. Something about the
+  Docker build failing on the new dependency.
 
-  Got it — added "Email client about deadline" to your tasks.
+  Added "Fix staging Docker build" to your tasks as P1.
 ```
 
 You don't need to say "save this" or use any special syntax. Just talk.
@@ -182,16 +187,16 @@ When you're wrapping up:
 > I'm done for today
 
   Good session. Here's what happened:
-  - Finished the launch announcement
-  - Decided on free tier limits
-  - Added 2 new tasks
+  - Fixed the pagination edge case with soft deletes
+  - Decided to stick with client-side rendering
+  - Reviewed Kai's PR (approved with 2 comments)
 
   Tomorrow's priorities:
-  - P0: Send the announcement
-  - P1: Email client about deadline
-  - P1: Design review follow-ups
+  - P0: Fix the broken staging deploy
+  - P1: Deployment docs (you'll need these before Friday's release)
+  - P1: Follow up on Kai's PR comments
 
-  It's 10:30 — good time to stop. See you tomorrow.
+  It's 10:45 — good time to stop. See you tomorrow.
 ```
 
 If you say "summarize" or "journal", your AI will write a daily journal entry in `tasks/journal/`.
@@ -233,18 +238,21 @@ You can configure this per project with `/loci-settings`.
 
 You're in Project A:
 ```
-> let's go with a dark theme as the default
+> the S3 upload was failing silently. Turns out you need to
+  set the ACL explicitly even with bucket policies.
 
-  Got it — noted your decision on default theme.
+  Got it — saved your S3 upload fix with the root cause.
 ```
 
 Later, you're in Project B:
 ```
-> I'm designing the settings page. Should I default to light or dark?
+> I need to add file uploads. Thinking S3.
 
-  You went with dark theme as default in Project A on Monday.
-  Unless this project targets a different audience, staying
-  consistent keeps your brand cohesive.
+  You debugged an S3 upload issue in Project A last week — uploads
+  fail silently if you don't set the ACL explicitly, even with
+  bucket policies configured.
+
+  Worth setting that up correctly from the start here.
 ```
 
 ---
