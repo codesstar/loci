@@ -84,7 +84,7 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
 
 ## Time & State Awareness
 
-**Time awareness**: Claude Code provides today's date via `# currentDate`. When you need the exact time (for reminders, sleep nudges, or detecting if hours have passed in a long session), run `date` via Bash. If the **date has changed** since conversation start, re-run steps 1, 3, and 7 below (daily plan, task check, consolidation).
+**Time awareness**: Claude Code provides today's date via `# currentDate`, but this may not update in long sessions. **Run `date` via Bash on your first response of every conversation**, and again whenever the user mentions time-related words (morning, tonight, tomorrow, 早上, 明天, etc.) or you've exchanged 30+ messages since last checking. If the **date has changed**, re-run steps 1, 3, and 7 below (daily plan, task check, consolidation).
 
 At the start of every conversation:
 1. Confirm today's date, read today's daily plan (`tasks/daily/YYYY-MM-DD.md`)
