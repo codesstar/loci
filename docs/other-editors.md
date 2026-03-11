@@ -23,17 +23,7 @@ Loci is built for Claude Code, but its memory is plain Markdown — any AI codin
    cd my-brain
    ```
 
-2. Generate your editor's rule file:
-   ```bash
-   # Pick one:
-   bash scripts/adapt.sh cursor      # generates .cursorrules
-   bash scripts/adapt.sh windsurf    # generates .windsurfrules
-   bash scripts/adapt.sh cline       # generates .clinerules
-   ```
-
-3. Open the brain folder in your editor. The AI will read the generated rules file and understand the memory structure.
-
-4. **Manual onboarding**: Since auto-detection won't trigger, create your initial files by telling the AI:
+2. **Manual onboarding**: Since auto-detection won't trigger, create your initial files by telling the AI:
    ```
    "I just set up Loci. My name is [X], I'm a [role], and my current focus is [Y].
     Please create me/identity.md, plan.md, and tasks/active.md."
