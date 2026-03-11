@@ -31,6 +31,19 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - `me/identity.md` — basics, work, current season (set status: active)
    - `plan.md` — mission + current focus as annual goals (set status: active)
    - `tasks/active.md` — first P0 task from "most important thing"
+   - `.claude/settings.json` — register hooks for activity logging:
+     ```json
+     {
+       "hooks": {
+         "PostToolUse": [
+           {
+             "matcher": "Write|Edit",
+             "command": ".loci/hooks/on-file-change.sh \"$FILE_PATH\""
+           }
+         ]
+       }
+     }
+     ```
 4. **Enable global awareness** (automatic):
    - Check if `~/.claude/CLAUDE.md` already contains `<!-- loci:start` — if yes, skip (idempotent)
    - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
