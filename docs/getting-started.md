@@ -148,13 +148,13 @@ Open your terminal in any project (or in your brain folder) and start a conversa
 Your AI already knows what day it is, what you worked on yesterday, and what's on your plate today. It will give you a briefing:
 
 ```
-  Morning! Yesterday you shipped the auth module. Today:
+  Morning! Yesterday you finished the landing page. Today:
 
-  - P0: API integration testing (3 endpoints left)
+  - P0: Write the launch announcement
   - P1: Design review at 2pm
-  - P2: Refactor dashboard components
+  - P2: Clean up the settings page
 
-  "Set up monitoring" has been P1 for a week — want to
+  "Update the FAQ" has been P1 for a week — want to
   schedule it or move it to someday?
 ```
 
@@ -163,9 +163,9 @@ Your AI already knows what day it is, what you worked on yesterday, and what's o
 Just work normally. When you make a decision, mention a new task, or share an insight, your AI saves it automatically:
 
 ```
-> let's go with Redis for the cache layer, Memcached is overkill
+> let's keep the free tier, but limit it to 3 projects
 
-  Got it — noted your decision to use Redis for caching.
+  Got it — noted your decision on the free tier limit.
 
 > oh also remind me to email the client about the deadline
 
@@ -182,12 +182,12 @@ When you're wrapping up:
 > I'm done for today
 
   Good session. Here's what happened:
-  - Finished 2 of 3 API endpoints
-  - Decided on Redis for caching
+  - Finished the launch announcement
+  - Decided on free tier limits
   - Added 2 new tasks
 
   Tomorrow's priorities:
-  - P0: Finish last API endpoint
+  - P0: Send the announcement
   - P1: Email client about deadline
   - P1: Design review follow-ups
 
@@ -221,10 +221,10 @@ From now on, when you work in that project, your AI knows about your brain — d
 
 Not everything syncs. That would be noisy. By default:
 
-- **Decisions** sync to brain (architectural choices should be known everywhere)
+- **Decisions** sync to brain (important choices should be known everywhere)
 - **Milestones** sync to brain (shipped features, releases)
 - **Insights** sync to brain (learned patterns)
-- **Debug notes** stay local (no one else needs to know about that CSS hack)
+- **Debug notes** stay local (temporary fixes don't need to travel)
 - **Work-in-progress** stays local (unfinished thoughts stay in context)
 
 You can configure this per project with `/loci-settings`.
@@ -233,17 +233,18 @@ You can configure this per project with `/loci-settings`.
 
 You're in Project A:
 ```
-> let's use PostgreSQL, the JSONB support is exactly what we need
-  Got it — noted your decision to use PostgreSQL.
+> let's go with a dark theme as the default
+
+  Got it — noted your decision on default theme.
 ```
 
 Later, you're in Project B:
 ```
-> I need a database for this service. What should I use?
+> I'm designing the settings page. Should I default to light or dark?
 
-  You chose PostgreSQL in Project A on Monday for JSONB support.
-  Unless this service has different data requirements, using the
-  same database simplifies ops and lets you reuse connection logic.
+  You went with dark theme as default in Project A on Monday.
+  Unless this project targets a different audience, staying
+  consistent keeps your brand cohesive.
 ```
 
 ---
@@ -252,7 +253,7 @@ Later, you're in Project B:
 
 **Say "undo" if it saves something wrong.** Loci's auto-save is smart but not perfect. If it misinterprets something, just say "undo" and it reverses the last save.
 
-**Use `inbox.md` for half-baked ideas.** When you mention something vague ("maybe I should learn Rust"), Loci puts it in `inbox.md` rather than creating a task. Review it weekly.
+**Half-baked ideas go to a separate list.** When you mention something vague ("maybe I should learn video editing"), Loci saves it separately rather than creating a task. Review it weekly.
 
 **Run `git log --oneline` to see your memory timeline.** Every save is a git-trackable file change. You can see exactly what your AI learned and when.
 

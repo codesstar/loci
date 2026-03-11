@@ -19,7 +19,7 @@
 
 ## The Problem
 
-You tell your AI assistant "let's use Postgres" on Monday. By Wednesday, it has no idea. You re-explain your project, your preferences, your decisions — every single conversation. Your AI is brilliant but has amnesia.
+You tell your AI assistant your plan on Monday. By Wednesday, it has no idea. You re-explain your project, your preferences, your decisions — every single conversation. Your AI is brilliant but has amnesia.
 
 **What if it just... remembered?**
 
@@ -28,17 +28,17 @@ You tell your AI assistant "let's use Postgres" on Monday. By Wednesday, it has 
 Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
 
 ```
-Monday:    "Let's use Postgres for the new service."
+Monday:    "I'm going with a subscription model, not one-time purchase."
               AI saves your decision automatically.
 
-Wednesday: "Why did we pick Postgres again?"
-              "You chose Postgres on Monday because of JSONB support
-               and your team's existing expertise."
+Wednesday: "Why did I pick subscriptions again?"
+              "You chose subscriptions on Monday — recurring revenue
+               and it fits your target audience better."
 
-Friday:    You open a DIFFERENT project. "Should I use MySQL here?"
-              "You chose PostgreSQL on Monday for the main service.
-               Unless this one has different requirements, staying
-               consistent makes sense."
+Friday:    You open a DIFFERENT project. "How should I monetize this one?"
+              "You went with subscriptions for your main project.
+               Unless this one has different users, staying consistent
+               makes sense."
 ```
 
 Your AI remembers across conversations, across days, across projects. It knows your decisions, your goals, your patterns — and it gets smarter over time.
@@ -78,9 +78,9 @@ You don't learn Loci. You just talk to your AI, and four things start happening:
 Mention a decision, a task, a preference — Loci saves it to the right file automatically. You never take notes manually.
 
 ```
-You: "I decided to switch from REST to GraphQL for the mobile API."
+You: "Let's go with Tailwind instead of writing custom CSS."
 
-Got it — noted your decision to switch to GraphQL.
+Got it — noted your decision to use Tailwind.
 ```
 
 You said it once. It's permanent. Next week, next month — your AI still knows.
@@ -91,9 +91,9 @@ Link any project folder with one command. What you learn in Project A is availab
 
 ```
 Brain (your memory)
- |-- Project A    "We chose GraphQL here"
- |-- Project B    "You chose GraphQL in Project A — same pattern applies here"
- |-- Project C    "Three projects now use GraphQL. Standardize the client?"
+ |-- Project A    "We went with dark mode as default here"
+ |-- Project B    "You chose dark mode as default in Project A — same here?"
+ |-- Project C    "All three projects use dark mode default. Make it a standard?"
 ```
 
 ### It finds patterns you miss
@@ -102,9 +102,10 @@ Every morning, Loci reviews what changed and surfaces insights:
 
 ```
 Morning briefing:
-  - Your last 4 architecture decisions all simplified your stack.
-    You're shifting from "more features" to "fewer, better ones."
-  - "Set up CI/CD" has been on your task list for 9 days. Do it or drop it?
+  - Your last 4 decisions all simplified things. You're shifting
+    from "more features" to "fewer, better ones."
+  - "Reply to that partnership email" has been on your list for
+    9 days. Do it or drop it?
 ```
 
 ### It survives context resets
@@ -118,8 +119,9 @@ Long session? Context window full? AI getting slow? Just save and restart.
 (open a new terminal)
 
 > picking up where I left off
-  You were on the payment integration. Stripe chosen, webhook
-  done, 2 endpoints left. Ready to continue?
+  You were redesigning the onboarding flow. You decided on a
+  3-step wizard, finished the first two screens, and had the
+  final screen left. Ready to continue?
 ```
 
 Full recovery in seconds. No re-explaining your project for the fifth time.
@@ -129,8 +131,8 @@ Full recovery in seconds. No re-explaining your project for the fifth time.
 Your values change. Your goals shift. Loci tracks the evolution — current state stays lean and fast, history is preserved for when you want to reflect.
 
 ```
-March:  identity.md says "backend developer, learning React"
-June:   identity.md says "full-stack developer, shipping products"
+March:  identity.md says "learning to code, building my first app"
+June:   identity.md says "indie developer, shipped 2 products"
         evolution.md records the transition and when it happened
 ```
 
@@ -142,7 +144,7 @@ June:   identity.md says "full-stack developer, shipping products"
 |---------|-------------|----------------|
 | **Smart saving** | Extracts decisions, tasks, and insights from conversation — never saves raw chat transcripts | Your memory stays clean and searchable, not a wall of text |
 | **Layered loading** | Loads only what's relevant to the current conversation. Archives stay out of the way until needed | Fast responses, even after months of accumulated memory |
-| **Cross-project sync** | Hub-and-spoke architecture — your brain is the hub, projects are spokes. Important info flows automatically | Decisions in one project inform work in others |
+| **Cross-project sync** | Your brain is the hub, projects are spokes. Important info flows automatically | Decisions in one project inform work in others |
 | **Daily review** | Morning briefing summarizes yesterday, surfaces patterns, flags stale tasks | You start each day with full context in 10 seconds |
 | **Growth tracking** | When your identity or goals change, old versions are archived automatically | You can look back and see how you've evolved |
 | **Git-native** | Everything is Markdown files in a git repo. `git diff` shows what your AI learned. `git log` is your memory timeline | Full version history, works offline, you own your data |
