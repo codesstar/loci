@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/badge/storage-100%25_local_Markdown-green" alt="Local Markdown" />
 </p>
 
+<p align="center">
+  English | <a href="README.zh-CN.md">中文</a>
+</p>
+
 ---
 
 ## The Problem
