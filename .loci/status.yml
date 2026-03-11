@@ -1,3 +1,19 @@
+# User State — Auto-updated by the AI based on conversation signals.
+# You can also set it manually by telling the AI how you feel.
+#
+# Fields:
+#   state:    fresh-start | focused | exploring | winding-down | low-energy | away
+#   energy:   low | moderate | high
+#   updated:  ISO timestamp of last update
+#   ttl:      how long this state is valid (e.g. "4h", "1d")
+#   context:  free-text description of current situation
+#   override: user-set values (highest priority, expires after ttl)
+#
+# The AI reads this at session start to understand your current state
+# before suggesting tasks or making plans.
+
 state: fresh-start
+energy: null
 updated: null
 ttl: 4h
+context: "New brain — not yet personalized"
