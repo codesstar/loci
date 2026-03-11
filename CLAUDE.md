@@ -92,7 +92,10 @@ At the start of every conversation:
 5. Read `.loci/activity-log.md` (last 7 days) for recent session context
 6. Run `.loci/hooks/check-updates.sh` for cross-terminal changes
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
-8. **Inbox overflow check**: If `inbox.md` has more than 10 items, nudge the user: "Your inbox has N items — want to sort them now?" Help sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → keep or `tasks/someday.md`. Also trigger this check **after writing to inbox.md** during a session — don't wait until next startup.
+8. **Inbox management** (three-layer mechanism):
+   - **L1 display**: Only load the **most recent 7 items** from `inbox.md` into context. Older items stay in the file but don't consume attention. If user asks to see full inbox, read the whole file on demand.
+   - **Sort nudge**: After 10+ new items since last sort, mention it **at the end of a conversation** (never at the start, never interrupt work). Offer to sort: actionable → `tasks/active.md`, decisions → `decisions/`, resolved → delete, vague → `tasks/someday.md`. Also integrate inbox review into the journal flow.
+   - **Auto-decay**: When inbox exceeds 20 items, auto-move entries older than 14 days to `tasks/someday.md` (exempt items containing dates/deadlines). Log the move in journal so user stays informed.
 
 > **State > productivity.** Never push tasks without understanding the user's current state.
 
