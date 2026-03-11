@@ -19,39 +19,56 @@
 
 ## The Problem
 
-Every time you open a new conversation, your AI has amnesia. It doesn't know your name. It doesn't know your project. It doesn't know that you spent all of yesterday debugging the same issue it's about to suggest a wrong fix for.
+Your AI doesn't remember you.
 
-You re-explain your tech stack. You re-explain your decisions. You re-explain your preferences. And when the context window fills up mid-session — or the session just crashes — you lose everything and start over. Again.
+Every conversation starts from zero. You re-introduce yourself. You re-explain your project. You re-describe your preferences. The thing you spent an hour figuring out yesterday? Gone. The decision you made last week? Never happened.
 
-Your AI is brilliant. But it's a stranger every single time.
+And it's not just forgetting between sessions. Chat long enough and the context fills up — your AI starts repeating itself, getting confused, forgetting things you said 20 minutes ago. You restart. Everything you built up is gone.
 
-**What if it actually knew you?**
+Worse: your memories are trapped. Cancel your ChatGPT subscription? Months of context, gone. Switch tools? Start over. Your AI's memory belongs to the platform, not to you.
+
+**What if your AI actually knew you — and that knowledge was yours forever?**
 
 ## The Solution
 
-Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
+Loci gives your AI a real brain. Everything it learns about you is saved as plain Markdown files on your machine. No server, no subscription, no lock-in. Your memories belong to you.
 
 ```
-Week 1:      "I'm a frontend developer working on a React app.
-              I prefer TypeScript, dark themes, and simple solutions."
+Day 1:       "I'm a frontend developer. I prefer simple solutions
+              over clever ones. I'm building a fitness app."
               Your AI remembers. Permanently.
 
-Week 3:      Context window is full. Session is getting slow.
-             "Save everything — I need to restart."
-              Done. 10 seconds later, in a fresh terminal:
+Week 2:      Context is full. AI is slowing down. You restart.
              "Pick up where I left off."
-             "You were building the settings page. You decided on
-              a tab layout over a sidebar because of mobile. The
-              general tab is done. Next up: notifications. Ready?"
+             "You were building the workout tracker. You decided on
+              a card layout because of mobile. The exercise list is
+              done. Next up: the timer component. Ready?"
 
-Month 2:     You open a brand new project.
-             "How should I set up the folder structure?"
-             "Based on your preferences: TypeScript, minimal config,
-              and the component structure you've used in your last
-              two projects. Here's what I'd suggest..."
+Month 3:     You open a completely different project.
+             "How should I structure this?"
+             "Based on what I know about you: you like flat folder
+              structures, you always regret adding too many abstractions
+              early, and you prefer starting with a working prototype.
+              Here's what I'd suggest..."
+
+Year 1:      You look back.
+             "How have I changed this year?"
+             "In January you called yourself 'learning to code.' By June
+              you were mass-shipping features. Your decision-making got
+              faster — early decisions took days, now you decide in hours.
+              You've grown a lot."
 ```
 
-The longer you use it, the better it gets. Your AI learns your decisions, your habits, your growth — and it carries that knowledge across every conversation, every project, every context reset.
+The longer you use it, the better it knows you. Your preferences, your patterns, your growth — across every conversation, every project, every context reset. It never forgets, and it never disappears.
+
+**Your AI is no longer a stranger. It's the one assistant that actually knows who you are.**
+
+### Why Loci?
+
+- **It's yours.** Every memory is a file on your machine. No server, no subscription. Cancel anything, switch any tool — your brain stays with you.
+- **It's private.** Your identity, your decisions, your goals — stored locally. No one else can see it. Not even us.
+- **It grows with you.** Day one, it knows your name. Month three, it knows your patterns. Year one, it can tell you how you've changed.
+- **It never crashes.** Session dies? Context full? Computer restarts? Save and recover in 10 seconds. Your AI picks up exactly where you left off.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
