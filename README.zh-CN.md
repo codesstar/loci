@@ -52,11 +52,6 @@
               抽象层你事后都会后悔，而且你习惯先搞出能跑的原型再说。
               我建议这样..."
 
-第 1 年：     你想回头看看这一年。
-             "我有什么变化？"
-             "1 月你说自己'在学编程'。到 6 月你已经在批量交付功能了。
-              决策速度也变了——年初一个决策要纠结好几天，现在几小时
-              就能拍板。你成长了很多。"
 ```
 
 用得越久，它越懂你。你的偏好、你的习惯、你的成长轨迹——跨对话、跨项目、跨 context 重置，全都在。它不会忘，也不会消失。
@@ -103,7 +98,7 @@ claude
 >
 > **想先看看效果？** [`examples/alex/`](examples/alex/) 是一个用了 3 个月的完整大脑示例。
 >
-> **第一次用？** 看**[入门指南](docs/getting-started.md)**，手把手带你跑通。
+> **第一次用？** 看**[入门指南](docs/getting-started.zh-CN.md)**，手把手带你跑通。
 
 ---
 
@@ -195,7 +190,7 @@ claude
 | **成长追踪** | 身份或目标变化时，旧版本自动归档 | 随时回头看自己是怎么一步步走过来的 |
 | **Git 原生** | 全是 git 仓库里的 Markdown 文件。`git diff` 看 AI 今天学了什么，`git log` 就是你的记忆时间线 | 完整版本历史，离线可用，数据完全属于你 |
 
-> **想深入了解？** [工作原理](docs/how-it-works.md)——一篇文档讲透整个系统。
+> **想深入了解？** [工作原理](docs/how-it-works.zh-CN.md)——一篇文档讲透整个系统。
 
 ---
 
@@ -207,7 +202,7 @@ claude
 
 **"它催我去睡觉"** —— 晚上 11 点半，Dev 还在追一个 bug。AI 说："你已经在同样 3 个文件之间转了一小时了，睡一觉明天再看。"——然后把他调试到哪里存得一清二楚，明天第一条消息就能接着来。
 
-> 更多故事：**[用户故事](docs/user-stories.md)**——Loci 在日常开发中到底是什么体感。
+> 更多故事：**[用户故事](docs/user-stories.zh-CN.md)**——Loci 在日常开发中到底是什么体感。
 
 ---
 
@@ -256,7 +251,7 @@ Loci **为 Claude Code 而生**。其他 AI 编辑器可以读取记忆文件，
 | **Windsurf** | 部分支持 | 通过 `.windsurfrules` 实现记忆 + 自动保存 |
 | **Cline** | 部分支持 | 通过 `.clinerules` 实现记忆 + 自动保存 |
 
-> 用其他编辑器？看**[其他编辑器指南](docs/other-editors.md)**。
+> 用其他编辑器？看**[其他编辑器指南](docs/other-editors.zh-CN.md)**。
 >
 > Loci 的记忆是纯 Markdown——任何 AI 工具都能读。完整体验（slash 命令、自动保存、hooks）需要 Claude Code。
 
@@ -266,15 +261,15 @@ Loci **为 Claude Code 而生**。其他 AI 编辑器可以读取记忆文件，
 
 | 文档 | 讲什么 |
 |------|--------|
-| **[入门指南](docs/getting-started.md)** | 从零开始，手把手带你跑通 |
-| **[工作原理](docs/how-it-works.md)** | 一篇文档讲透整个系统 |
-| **[用户故事](docs/user-stories.md)** | 日常用起来到底什么感觉 |
-| **[架构设计](docs/architecture.md)** | 三层记忆系统详解 |
-| **[Synapse](docs/synapse.md)** | 多项目同步和路由 |
-| **[蒸馏机制](docs/distillation.md)** | 对话怎么变成结构化知识 |
-| **[Dashboard](docs/dashboard.md)** | 可视化大脑概览 |
-| **[隐私保护](docs/privacy.md)** | 数据安全和存储方式 |
-| **[路线图](docs/roadmap.md)** | 接下来要做什么 |
+| **[入门指南](docs/getting-started.zh-CN.md)** | 从零开始，手把手带你跑通 |
+| **[工作原理](docs/how-it-works.zh-CN.md)** | 一篇文档讲透整个系统 |
+| **[用户故事](docs/user-stories.zh-CN.md)** | 日常用起来到底什么感觉 |
+| **[架构设计](docs/architecture.zh-CN.md)** | 三层记忆系统详解 |
+| **[Synapse](docs/synapse.zh-CN.md)** | 多项目同步和路由 |
+| **[蒸馏机制](docs/distillation.zh-CN.md)** | 对话怎么变成结构化知识 |
+| **[Dashboard](docs/dashboard.zh-CN.md)** | 可视化大脑概览 |
+| **[隐私保护](docs/privacy.zh-CN.md)** | 数据安全和存储方式 |
+| **[路线图](docs/roadmap.zh-CN.md)** | 接下来要做什么 |
 
 ---
 

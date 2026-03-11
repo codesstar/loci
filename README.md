@@ -54,13 +54,6 @@ Month 3:     You open a completely different project.
               structures, you always regret adding too many abstractions
               early, and you prefer starting with a working prototype.
               Here's what I'd suggest..."
-
-Year 1:      You look back.
-             "How have I changed this year?"
-             "In January you called yourself 'learning to code.' By June
-              you were mass-shipping features. Your decision-making got
-              faster — early decisions took days, now you decide in hours.
-              You've grown a lot."
 ```
 
 The longer you use it, the better it knows you. Your preferences, your patterns, your growth — across every conversation, every project, every context reset. It never forgets, and it never disappears.
