@@ -2,7 +2,7 @@
 
 ## Making Loci Yours
 
-Loci comes with a fictional persona (Alex Chen) as an example. Here's how to make it truly yours.
+Loci comes with a fictional persona (Alex Rivera) as an example. Here's how to make it truly yours.
 
 ## Essential Customizations
 

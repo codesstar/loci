@@ -36,11 +36,11 @@ If none match, no save. If multiple match, save all categories in one operation.
 After each auto-save, you see a one-line notification:
 
 ```
-[Loci] Stored: new task "Update API docs" → active.md
-[Loci] Synced: decision "Use PostgreSQL" → .loci/from-hq.md (project-alpha)
+Got it — added task "Update API docs"
+Noted — synced decision "Use PostgreSQL" to project-alpha
 ```
 
-This is a notification, not a question. Your conversation flow is never interrupted.
+Notifications use natural language, not system jargon. Your conversation flow is never interrupted.
 
 ### Undo
 

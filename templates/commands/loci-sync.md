@@ -27,11 +27,7 @@ Steps:
 
 4. **Sync (brain → sub-projects)** (skip if `--local`):
    a. Auto-tag each stored item (urgent/decision/fyi/log + custom tags)
-   b. Based on routing mode:
-      - **open**: write to shared info pool, all sub-projects can see
-      - **tag-routed**: match tags to sub-project `interest_tags`, write to each matched sub-project's `from-hq.md`
-      - **manual**: ask user "Send this to which projects?" for each item
-      - **silent**: skip routing entirely
+   b. Match tags to sub-project `interest_tags`, write to each matched sub-project's `from-hq.md` (tag-routed sync)
    c. Respect Privacy rules — never route blocked categories
 
 5. **Pull (scan sub-projects)**:
@@ -107,16 +103,16 @@ When persistence mode is `auto` (default), the AI performs signal-driven sync au
 1. **Every turn**, AI evaluates whether the current exchange contains storable information (new task, decision, insight, personal info change, etc.)
 2. **If yes**: silently distill and **append** to `.loci/memory.md` (in sub-projects) or the appropriate brain file. If the tag matches `push_tags`, **immediately** write to both `memory.md` and `to-hq.md` in the same operation. Output a one-line notification:
    ```
-   [Loci] Stored: [decision] 2026-03-11 Loci pricing set to $49 → memory.md + to-hq.md
+   Got it — noted pricing decision, synced to linked projects
    ```
    For local-only entries:
    ```
-   [Loci] Stored: [debug] 2026-03-11 Fixed race condition in auth flow → memory.md
+   Got it — logged the auth fix
    ```
    In the brain:
    ```
-   [Loci] Stored: new task "Buy power adapter" → active.md
-   [Loci] Synced: decision "Loci pricing $49" → from-hq.md (cyc, ai-resume)
+   Got it — added task "Buy power adapter"
+   Noted — synced pricing decision to cyc, ai-resume
    ```
 3. **If no**: do nothing, no notification
 4. User can say "undo" / "撤销" to reverse the last auto-save

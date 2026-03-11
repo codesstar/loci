@@ -162,7 +162,7 @@ Git tracks `.age` files only — encrypted at rest, decrypted on demand.
 For users who cannot risk any data leaving their machine:
 
 ```yaml
-# .loci-config.yml
+# .loci/config.yml
 paranoid_mode: true
 ai:
   provider: local
