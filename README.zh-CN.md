@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="docs/assets/seahorse-logo.png" alt="Loci Seahorse" width="200" />
+  <img src="docs/assets/loci-banner-v2.png" alt="Loci — Memory Palace for AI" width="600" />
 </p>
-
-<h1 align="center">Loci — 给 AI 装一颗真正的大脑</h1>
 
 <p align="center">
   <strong>不是一个配置文件，是一整套记忆系统。为 Claude Code 而生。</strong>
