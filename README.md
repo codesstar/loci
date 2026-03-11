@@ -19,32 +19,39 @@
 
 ## The Problem
 
-You've been working with your AI for two hours. It knows your project inside out — the file structure, the decisions you made, the problems you solved, what you're about to do next.
+Every time you open a new conversation, your AI has amnesia. It doesn't know your name. It doesn't know your project. It doesn't know that you spent all of yesterday debugging the same issue it's about to suggest a wrong fix for.
 
-Then the context window fills up. Or the session crashes. Or it just starts getting... dumb. Repeating itself. Forgetting things you said 20 minutes ago.
+You re-explain your tech stack. You re-explain your decisions. You re-explain your preferences. And when the context window fills up mid-session — or the session just crashes — you lose everything and start over. Again.
 
-You close the terminal. Open a new one. And spend the next 15 minutes re-explaining everything from scratch.
+Your AI is brilliant. But it's a stranger every single time.
 
-**What if it just... remembered?**
+**What if it actually knew you?**
 
 ## The Solution
 
 Loci gives your AI persistent, structured memory using plain Markdown files and git. No database, no server, no account. Everything stays on your machine.
 
 ```
-2 hours in:  Your AI is slowing down. Context is almost full.
-             "Save everything — I need to restart."
-             Done. All decisions, progress, and context saved.
+Week 1:      "I'm a frontend developer working on a React app.
+              I prefer TypeScript, dark themes, and simple solutions."
+              Your AI remembers. Permanently.
 
-10 seconds   You open a fresh terminal.
-later:       "Pick up where I left off."
-             "You were building the user dashboard. You decided on
-              a card layout over a table view because mobile matters
-              more. The header and sidebar are done. Next up: the
-              activity feed component. Ready to continue?"
+Week 3:      Context window is full. Session is getting slow.
+             "Save everything — I need to restart."
+              Done. 10 seconds later, in a fresh terminal:
+             "Pick up where I left off."
+             "You were building the settings page. You decided on
+              a tab layout over a sidebar because of mobile. The
+              general tab is done. Next up: notifications. Ready?"
+
+Month 2:     You open a brand new project.
+             "How should I set up the folder structure?"
+             "Based on your preferences: TypeScript, minimal config,
+              and the component structure you've used in your last
+              two projects. Here's what I'd suggest..."
 ```
 
-Full recovery. No re-explaining. Your AI reads its memory files and picks up exactly where you were — even across days, weeks, or different projects.
+The longer you use it, the better it gets. Your AI learns your decisions, your habits, your growth — and it carries that knowledge across every conversation, every project, every context reset.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
