@@ -5,7 +5,7 @@
 <h1 align="center">Loci — Memory Palace for AI</h1>
 
 <p align="center">
-  <strong>Give your AI a brain that remembers everything.</strong> | <strong>给 AI 装大脑。</strong>
+  <strong>Not a single file. A full brain architecture for Claude Code.</strong>
 </p>
 
 <p align="center">
@@ -69,6 +69,17 @@ The longer you use it, the better it knows you. Your preferences, your patterns,
 - **It's private.** Your identity, your decisions, your goals — stored locally. No one else can see it. Not even us.
 - **It grows with you.** Day one, it knows your name. Month three, it knows your patterns. Year one, it can tell you how you've changed.
 - **It never crashes.** Session dies? Context full? Computer restarts? Save and recover in 10 seconds. Your AI picks up exactly where you left off.
+
+### "I already have CLAUDE.md — why do I need this?"
+
+CLAUDE.md is a sticky note. Loci is a second brain.
+
+- **CLAUDE.md is one file.** Loci is 30+ structured modules — identity, decisions, tasks, daily plans, journal, evolution — that stay clean no matter how much you use them.
+- **CLAUDE.md is per-project.** Loci connects all your projects. A lesson you learned in Project A becomes a warning in Project B — automatically.
+- **CLAUDE.md degrades with use.** The file grows, context bloats, AI slows down. Loci uses layered loading — only relevant memory enters context. Heavy use makes it smarter, not slower.
+- **CLAUDE.md doesn't manage your work.** Loci gives you morning briefings, task tracking, pattern detection, daily journals, and a visual dashboard.
+
+Loci actually *uses* CLAUDE.md — it's one of the 30+ files in the system. The difference is everything else around it.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
