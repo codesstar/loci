@@ -105,6 +105,18 @@ That's it. Claude detects the new brain, asks you a few questions, and sets ever
 
 ---
 
+## Why "Loci"? And Why a Seahorse?
+
+The **Method of Loci** is one of the oldest memory techniques in human history. Ancient Greek orators would mentally place each point of their speech in a room of an imaginary palace. To recall, they simply walked through the palace — every room held a memory, exactly where they left it.
+
+That's what Loci does for your AI. Every decision, every preference, every lesson you've learned — placed in its own room, ready to be recalled at the right moment.
+
+And the seahorse? In your brain, the **hippocampus** is the region responsible for forming and retrieving memories. The word "hippocampus" comes from Greek: *hippos* (horse) + *kampos* (sea creature) — it literally means **seahorse**. Neuroscientists named it that because the structure looks like one.
+
+Our logo is a seahorse because Loci is the hippocampus of your AI — the part that turns fleeting conversations into lasting memory.
+
+---
+
 ## What Happens After Setup
 
 You don't learn Loci. You just talk to your AI, and four things start happening:
@@ -214,68 +226,15 @@ July:     "founder, shipped v1, first 50 users"
 
 ---
 
-## Directory Structure
+## Learn More
 
-```
-my-brain/
-├── CLAUDE.md              # AI operating system (reads this first)
-├── plan.md                # Life direction & goals
-├── inbox.md               # Quick capture
-├── me/                    # Identity, values, skills, evolution
-├── tasks/                 # active.md, daily plans, journal
-├── decisions/             # Decision records with full context
-├── archive/               # Completed items (never deleted)
-├── .loci/                 # System internals (hooks, dashboard, config)
-│   └── links/             # Connected projects
-├── templates/             # File & command templates
-└── docs/                  # Full documentation
-```
-
-Extension modules created on demand: `finance/`, `people/`, `content/`, `references/`
-
----
-
-## Commands
-
-| Command | What it does |
-|---------|-------------|
-| `/loci-link` | Connect a project folder to your brain |
-| `/loci-sync` | Manual save + sync (flags: `--local`, `--dry-run`) |
-| `/loci-consolidate` | Review recent changes and surface patterns (e.g. `/loci-consolidate 7` for a weekly review) |
-| `/loci-settings` | Configure what a project syncs to your brain |
-| `/loci-brain-settings` | Configure persistence mode and notifications |
-| `/loci-scan` | Re-scan a project and update its profile |
-
----
-
-## Compatibility
-
-Loci is **built for Claude Code**. Other AI editors can read the memory files but won't have the full experience.
-
-| Tool | Support | Notes |
-|------|---------|-------|
-| **Claude Code** | **Full** | All features work natively |
-| **Cursor** | Partial | Memory + auto-save via `.cursorrules` |
-| **Windsurf** | Partial | Memory + auto-save via `.windsurfrules` |
-| **Cline** | Partial | Memory + auto-save via `.clinerules` |
-
-> Using another editor? See **[Other Editors Guide](docs/other-editors.md)**.
->
-> Loci's memory is plain Markdown — any AI tool can read it. The full experience (slash commands, auto-save, hooks) requires Claude Code.
-
----
-
-## Documentation
-
-| Doc | What you'll learn |
-|-----|-------------------|
-| **[Getting Started](docs/getting-started.md)** | Step-by-step setup and first conversation |
-| **[How It Works](docs/how-it-works.md)** | Complete system overview in one page |
-| **[User Stories](docs/user-stories.md)** | What Loci feels like in daily use |
-| **[Architecture](docs/architecture.md)** | Three-layer memory system in depth |
-| **[Synapse](docs/synapse.md)** | Multi-project sync and routing |
-| **[Distillation](docs/distillation.md)** | How conversations become structured knowledge |
-| **[Dashboard](docs/dashboard.md)** | Visual overview of your brain |
+| | |
+|---|---|
+| **[Getting Started](docs/getting-started.md)** | Setup walkthrough and first conversation |
+| **[How It Works](docs/how-it-works.md)** | Complete system overview |
+| **[User Stories](docs/user-stories.md)** | What daily use feels like |
+| **[Commands & Structure](docs/getting-started.md#understanding-your-brain)** | Directory layout, slash commands, config |
+| **[Other Editors](docs/other-editors.md)** | Cursor, Windsurf, Cline support |
 | **[Privacy](docs/privacy.md)** | Data protection and what stays where |
 | **[Roadmap](docs/roadmap.md)** | What's coming next |
 

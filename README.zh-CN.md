@@ -103,6 +103,18 @@ claude
 
 ---
 
+## 为什么叫 "Loci"？为什么是海马？
+
+**记忆宫殿法**（Method of Loci）是人类历史上最古老的记忆术之一。古希腊的演说家会在脑海中建一座宫殿，把演讲的每个要点放进一个房间。要回忆的时候，只需要走一遍宫殿——每个房间都放着一段记忆，就在你放它的地方。
+
+Loci 对你的 AI 做的就是这件事。每一个决策、每一个偏好、每一个踩过的坑——都放进自己的房间，在需要的时候随时调出来。
+
+那为什么 logo 是一只海马？因为在你的大脑里，负责形成和提取记忆的区域叫**海马体**（hippocampus）。这个词来自希腊语：*hippos*（马）+ *kampos*（海怪）——字面意思就是**海马**。神经科学家这么叫它，是因为它的形状真的像一只海马。
+
+我们的 logo 是海马，因为 Loci 就是你 AI 的海马体——把转瞬即逝的对话，变成持久的记忆。
+
+---
+
 ## 装完之后你不需要学任何东西
 
 正常跟 AI 聊天就行，这四件事会自动发生：
@@ -207,68 +219,15 @@ claude
 
 ---
 
-## 目录结构
+## 了解更多
 
-```
-my-brain/
-├── CLAUDE.md              # AI 的操作系统（最先读取）
-├── plan.md                # 人生方向和目标
-├── inbox.md               # 随手记
-├── me/                    # 身份、价值观、技能、成长轨迹
-├── tasks/                 # active.md、日计划、日记
-├── decisions/             # 决策记录（附完整上下文）
-├── archive/               # 归档内容（永不删除）
-├── .loci/                 # 系统内部（hooks、Dashboard、配置）
-│   └── links/             # 已连接的项目
-├── templates/             # 文件和命令模板
-└── docs/                  # 完整文档
-```
-
-按需扩展：`finance/`、`people/`、`content/`、`references/`
-
----
-
-## 命令
-
-| 命令 | 干什么 |
-|------|--------|
-| `/loci-link` | 把一个项目文件夹连接到你的大脑 |
-| `/loci-sync` | 手动保存 + 同步（支持 `--local`、`--dry-run`） |
-| `/loci-consolidate` | 回顾最近变化、发现规律（比如 `/loci-consolidate 7` 做周回顾） |
-| `/loci-settings` | 配置项目同步到大脑的内容 |
-| `/loci-brain-settings` | 配置持久化模式和通知 |
-| `/loci-scan` | 重新扫描项目、更新档案 |
-
----
-
-## 兼容性
-
-Loci **为 Claude Code 而生**。其他 AI 编辑器可以读取记忆文件，但拿不到完整体验。
-
-| 工具 | 支持程度 | 说明 |
-|------|---------|------|
-| **Claude Code** | **完整支持** | 所有功能开箱即用 |
-| **Cursor** | 部分支持 | 通过 `.cursorrules` 实现记忆 + 自动保存 |
-| **Windsurf** | 部分支持 | 通过 `.windsurfrules` 实现记忆 + 自动保存 |
-| **Cline** | 部分支持 | 通过 `.clinerules` 实现记忆 + 自动保存 |
-
-> 用其他编辑器？看**[其他编辑器指南](docs/other-editors.zh-CN.md)**。
->
-> Loci 的记忆是纯 Markdown——任何 AI 工具都能读。完整体验（slash 命令、自动保存、hooks）需要 Claude Code。
-
----
-
-## 文档
-
-| 文档 | 讲什么 |
-|------|--------|
-| **[入门指南](docs/getting-started.zh-CN.md)** | 从零开始，手把手带你跑通 |
+| | |
+|---|---|
+| **[入门指南](docs/getting-started.zh-CN.md)** | 手把手带你跑通 |
 | **[工作原理](docs/how-it-works.zh-CN.md)** | 一篇文档讲透整个系统 |
-| **[用户故事](docs/user-stories.zh-CN.md)** | 日常用起来到底什么感觉 |
-| **[架构设计](docs/architecture.zh-CN.md)** | 三层记忆系统详解 |
-| **[Synapse](docs/synapse.zh-CN.md)** | 多项目同步和路由 |
-| **[蒸馏机制](docs/distillation.zh-CN.md)** | 对话怎么变成结构化知识 |
-| **[Dashboard](docs/dashboard.zh-CN.md)** | 可视化大脑概览 |
+| **[用户故事](docs/user-stories.zh-CN.md)** | 日常用起来什么感觉 |
+| **[命令和结构](docs/getting-started.zh-CN.md#理解你的大脑)** | 目录结构、命令、配置 |
+| **[其他编辑器](docs/other-editors.zh-CN.md)** | Cursor、Windsurf、Cline 支持 |
 | **[隐私保护](docs/privacy.zh-CN.md)** | 数据安全和存储方式 |
 | **[路线图](docs/roadmap.zh-CN.md)** | 接下来要做什么 |
 
