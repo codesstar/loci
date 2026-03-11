@@ -42,7 +42,8 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
              "hooks": [
                {
                  "type": "command",
-                 "command": "date '+Current time: %Y-%m-%d %H:%M %Z'"
+                 "command": "node -e \"var d=new Date();console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'UserPromptSubmit',additionalContext:'Current time: '+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}}))\"",
+                 "timeout": 5
                }
              ]
            }
