@@ -107,6 +107,23 @@ Morning briefing:
   - "Set up CI/CD" has been on your task list for 9 days. Do it or drop it?
 ```
 
+### It survives context resets
+
+Long session? Context window full? AI getting slow? Just save and restart.
+
+```
+> save everything before I restart
+  Done — synced all decisions and progress to your brain.
+
+(open a new terminal)
+
+> picking up where I left off
+  You were on the payment integration. Stripe chosen, webhook
+  done, 2 endpoints left. Ready to continue?
+```
+
+Full recovery in seconds. No re-explaining your project for the fifth time.
+
 ### It grows with you
 
 Your values change. Your goals shift. Loci tracks the evolution — current state stays lean and fast, history is preserved for when you want to reflect.
