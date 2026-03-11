@@ -29,7 +29,7 @@ Every conversation starts from zero. You re-introduce yourself. You re-explain y
 
 And it's not just forgetting between sessions. Chat long enough and the context fills up — your AI starts repeating itself, getting confused, forgetting things you said 20 minutes ago. You restart. Everything you built up is gone.
 
-Worse: your memories are trapped. Cancel your ChatGPT subscription? Months of context, gone. Switch tools? Start over. Your AI's memory belongs to the platform, not to you.
+Worse: your memories are scattered. Claude Code's auto-memory is a flat file that gets messy over time. Cursor's memory lives in `.cursorrules` and breaks across projects. Every tool remembers its own fragments, but nothing holds the full picture of you.
 
 **What if your AI actually knew you — and that knowledge was yours forever?**
 
