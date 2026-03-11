@@ -149,7 +149,7 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 ### What It Does
 
-1. Scan recent changes: `decisions/`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, `.loci/links/*/to-hq.md`
+1. Scan recent changes: `decisions/`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, `.loci/links/*/.loci/to-hq.md`
 2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
 3. If insights found → append to `me/insights.md` with source citations
 4. Report in one conversational sentence, or stay silent if nothing notable
@@ -200,9 +200,9 @@ File changes are automatically recorded to `.loci/activity-log.md` via `.loci/ho
 
 - User says "undo" or "撤销" to reverse the **last** auto-save operation
 - If the last save touched multiple files (e.g., a task was added to `tasks/active.md` AND a decision was written to `decisions/`), undo reverts **all** of them in one operation
-- Implementation: since every auto-save produces a trackable file change (and ideally a git commit), undo = `git revert` the last auto-save's changes
-- Selective undo: user can say "undo the task but keep the decision" — the AI manually reverts only the specified file(s) while leaving others intact
-- Undo only works for the **most recent** save. For older saves, user should manually edit the files or use `git log` to find and revert specific commits
+- Implementation: the AI remembers what it wrote and where. On undo, it reads the file, removes/reverts the added content, and writes the file back. No git dependency required
+- Selective undo: user can say "undo the task but keep the decision" — the AI reverts only the specified file(s) while leaving others intact
+- Undo only works for the **most recent** save within the current session. For older saves, user should manually edit the files or use `git log` if commits exist
 - After undo, the AI confirms what was reverted with a one-line notification
 
 ## Creating Extension Modules

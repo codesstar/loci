@@ -128,5 +128,7 @@ Local persistence layer for project-specific knowledge. The AI appends distilled
 
 Two-way communication files between the sub-project and the brain:
 
-- **`.loci/to-hq.md`** (project -> brain): Milestones, blockers, questions needing decision
-- **`.loci/from-hq.md`** (brain -> project): Strategic decisions, priority changes, cross-project info
+- **`.loci/to-hq.md`** (project → brain): Milestones, blockers, questions needing decision
+- **`.loci/from-hq.md`** (brain → project): Strategic decisions, priority changes, cross-project info
+
+These files live inside the sub-project's `.loci/` directory. From the brain's perspective, they are accessed via symlinks: `.loci/links/<project-name>/.loci/to-hq.md`. The brain scans all linked projects at session start.
