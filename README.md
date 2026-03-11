@@ -114,6 +114,8 @@ You: "Let's switch from REST to GraphQL for the mobile API."
 
 > Full documentation: **[How It Works](docs/how-it-works.md)** — one doc, understand everything.
 >
+> **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
+>
 > Topic guides: [Architecture](docs/architecture.md) | [Synapse](docs/synapse.md) | [Distillation](docs/distillation.md) | [Dashboard](docs/dashboard.md) | [Privacy](docs/privacy.md) | [Roadmap](docs/roadmap.md)
 
 ---
