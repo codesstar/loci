@@ -165,11 +165,11 @@ Just work normally. When you make a decision, mention a new task, or share an in
 ```
 > let's go with Redis for the cache layer, Memcached is overkill
 
-  [Loci] Stored: decision "Use Redis for caching" -> decisions/
+  Got it — noted your decision to use Redis for caching.
 
 > oh also remind me to email the client about the deadline
 
-  [Loci] Added task: "Email client about deadline" (P2) -> tasks/active.md
+  Got it — added "Email client about deadline" to your tasks.
 ```
 
 You don't need to say "save this" or use any special syntax. Just talk.
@@ -234,7 +234,7 @@ You can configure this per project with `/loci-settings`.
 You're in Project A:
 ```
 > let's use PostgreSQL, the JSONB support is exactly what we need
-  [Loci] Stored: decision "Use PostgreSQL" -> decisions/
+  Got it — noted your decision to use PostgreSQL.
 ```
 
 Later, you're in Project B:
