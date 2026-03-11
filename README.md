@@ -80,10 +80,10 @@ Mention a decision, a task, a preference — Loci saves it to the right file aut
 ```
 You: "I decided to switch from REST to GraphQL for the mobile API."
 
-[Loci] Stored: decision "Switch to GraphQL" -> decisions/2026-03-10-graphql.md
+Got it — noted your decision to switch to GraphQL.
 ```
 
-You said it once. It's permanent. Next week, next month — your AI knows.
+You said it once. It's permanent. Next week, next month — your AI still knows.
 
 ### It connects your projects
 
