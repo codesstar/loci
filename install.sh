@@ -55,9 +55,51 @@ if git remote get-url origin &> /dev/null 2>&1; then
   fi
 fi
 
+# ─── Enable global awareness ──────────────────────────────────────────────────
+BRAIN_PATH="$(pwd)"
+GLOBAL_CLAUDE="$HOME/.claude/CLAUDE.md"
+GLOBAL_COMMANDS="$HOME/.claude/commands"
+
+# Create ~/.claude/ if needed
+mkdir -p "$HOME/.claude"
+
+# Inject global awareness block (idempotent)
+if ! grep -q '<!-- loci:start' "$GLOBAL_CLAUDE" 2>/dev/null; then
+  # Backup existing file
+  if [ -f "$GLOBAL_CLAUDE" ]; then
+    cp "$GLOBAL_CLAUDE" "$GLOBAL_CLAUDE.loci-backup"
+  fi
+
+  cat >> "$GLOBAL_CLAUDE" << LOCIBLOCK
+
+<!-- loci:start v1 -->
+## Loci Brain Connection
+- Brain: ${BRAIN_PATH}
+- In projects with \`.loci/\` directory:
+  1. Read \`.loci/memory.md\` at session start for project context
+  2. Append project knowledge during conversation: \`[tag] YYYY-MM-DD content\`
+  3. Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` stay local
+  4. At session end, check for push-tagged new entries → write to \`.loci/to-hq.md\`
+  5. Read \`.loci/from-hq.md\` for brain directives
+  6. Compress memory.md when >200 lines (summarize entries >30 days old)
+- Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+<!-- loci:end -->
+LOCIBLOCK
+
+  echo -e "${GREEN}✓${NC} Global awareness enabled (~/. claude/CLAUDE.md)"
+fi
+
+# Copy slash commands
+if [ -d "templates/commands" ]; then
+  mkdir -p "$GLOBAL_COMMANDS"
+  cp templates/commands/*.md "$GLOBAL_COMMANDS/" 2>/dev/null
+  echo -e "${GREEN}✓${NC} Slash commands installed (~/.claude/commands/)"
+fi
+
 # ─── Launch Claude for onboarding ─────────────────────────────────────────────
+echo ""
 echo -e "${DIM}Launching Claude Code for setup...${NC}"
 echo -e "${DIM}Claude will ask you a few questions to personalize your brain.${NC}"
 echo ""
 
-claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the 4 onboarding questions using AskUserQuestion."
+claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the 4 onboarding questions using AskUserQuestion. NOTE: Global awareness and slash commands have already been set up by install.sh — skip Step 3 (global awareness) in the onboarding flow."
