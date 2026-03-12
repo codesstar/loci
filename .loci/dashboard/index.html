@@ -2019,8 +2019,22 @@
       max-width: 100%; border-radius: var(--radius); margin: 12px 0;
       display: block; cursor: pointer; transition: opacity 0.15s;
     }
-    .journal-editor img:hover { opacity: 0.85; }
+    .journal-editor img:hover { outline: 2px solid var(--border-primary); outline-offset: 2px; }
+    .journal-editor img.je-selected { outline: 2px solid var(--border-tab-active); outline-offset: 2px; }
     .journal-editor hr { border: none; border-top: 1px solid var(--border-secondary); margin: 16px 0; }
+    .je-resize-bar {
+      display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+      background: var(--bg-secondary); border: 1px solid var(--border-secondary);
+      border-radius: var(--radius); position: absolute; bottom: -36px; left: 50%;
+      transform: translateX(-50%); z-index: 10; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .je-resize-bar button {
+      background: none; border: 1px solid var(--border-secondary); padding: 2px 8px;
+      font-size: 0.65rem; cursor: pointer; border-radius: 3px; font-family: var(--font-body);
+      color: var(--text-secondary); transition: all 0.1s;
+    }
+    .je-resize-bar button:hover { background: var(--bg-card); border-color: var(--border-primary); }
+    .je-resize-bar button.active { background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active); }
     .journal-editor .video-embed {
       position: relative; padding-bottom: 56.25%; height: 0;
       overflow: hidden; border-radius: var(--radius); margin: 12px 0;
@@ -4056,7 +4070,104 @@
             e.preventDefault();
             document.execCommand(e.shiftKey ? 'outdent' : 'indent');
           }
+          // Delete selected image
+          if ((e.key === 'Backspace' || e.key === 'Delete') && selectedJournalImg.value) {
+            e.preventDefault();
+            removeImageResizeBar();
+            selectedJournalImg.value.remove();
+            selectedJournalImg.value = null;
+            onJournalEditorInput();
+          }
         }
+
+        // --- Image resize ---
+        const selectedJournalImg = ref(null);
+        let resizeBarEl = null;
+
+        function onEditorClickForImg(e) {
+          const editor = journalEditorRef.value;
+          if (!editor) return;
+          const img = e.target.closest('.journal-editor img');
+
+          // Deselect old
+          editor.querySelectorAll('img.je-selected').forEach(i => i.classList.remove('je-selected'));
+          removeImageResizeBar();
+
+          if (img) {
+            img.classList.add('je-selected');
+            selectedJournalImg.value = img;
+            showImageResizeBar(img);
+          } else {
+            selectedJournalImg.value = null;
+          }
+        }
+
+        function showImageResizeBar(img) {
+          removeImageResizeBar();
+          const bar = document.createElement('div');
+          bar.className = 'je-resize-bar';
+          bar.contentEditable = 'false';
+
+          const sizes = [
+            { label: '25%', value: '25%' },
+            { label: '50%', value: '50%' },
+            { label: '75%', value: '75%' },
+            { label: '100%', value: '100%' },
+          ];
+          const currentW = img.style.width || '100%';
+
+          sizes.forEach(s => {
+            const btn = document.createElement('button');
+            btn.textContent = s.label;
+            if (currentW === s.value) btn.classList.add('active');
+            btn.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              img.style.width = s.value;
+              img.style.height = 'auto';
+              // Update active state
+              bar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              onJournalEditorInput();
+            };
+            bar.appendChild(btn);
+          });
+
+          // Wrap img in relative container if not already
+          const wrapper = document.createElement('span');
+          wrapper.style.cssText = 'position: relative; display: inline-block;';
+          wrapper.contentEditable = 'false';
+          img.parentNode.insertBefore(wrapper, img);
+          wrapper.appendChild(img);
+          wrapper.appendChild(bar);
+          resizeBarEl = wrapper;
+        }
+
+        function removeImageResizeBar() {
+          if (resizeBarEl) {
+            // Unwrap: move img back out of wrapper
+            const img = resizeBarEl.querySelector('img');
+            const bar = resizeBarEl.querySelector('.je-resize-bar');
+            if (img && resizeBarEl.parentNode) {
+              resizeBarEl.parentNode.insertBefore(img, resizeBarEl);
+              resizeBarEl.remove();
+            }
+            resizeBarEl = null;
+          }
+        }
+
+        // Attach click listener when entering personal mode
+        watch(journalMode, (mode) => {
+          if (mode === 'personal') {
+            setTimeout(() => {
+              journalEditorRef.value?.addEventListener('click', onEditorClickForImg);
+            }, 100);
+          } else {
+            journalEditorRef.value?.removeEventListener('click', onEditorClickForImg);
+            removeImageResizeBar();
+            selectedJournalImg.value = null;
+          }
+        });
 
         function jExec(cmd, value) {
           document.execCommand(cmd, false, value || null);
@@ -5371,7 +5482,7 @@
           showJournalCalendar, journalCalMonth, journalCalendarTitle, journalCalendarDays,
           journalMemories, journalMemorySeed, shuffleJournalMemories,
           journalSummaries, activeSummary, toggleJournalMode,
-          journalEditorRef, journalAutoSaveStatus, onJournalEditorInput, onJournalEditorPaste, onJournalEditorKeydown, onJournalEditorDrop,
+          journalEditorRef, journalAutoSaveStatus, onJournalEditorInput, onJournalEditorPaste, onJournalEditorKeydown, onJournalEditorDrop, selectedJournalImg,
           jExec, journalInsertImage, confirmInsertImage, journalInsertVideo, confirmInsertVideo,
           showImageDialog, showVideoDialog, imageDialogUrl, videoDialogUrl,
           imageFileInput, onImageFileSelected,
