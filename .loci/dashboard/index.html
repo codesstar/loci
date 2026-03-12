@@ -1990,6 +1990,46 @@
     .journal-memories-scroll::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 4px; }
     .journal-summary-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 
+    /* Journal rich editor */
+    .j-tb {
+      background: transparent; border: 1px solid transparent; padding: 4px 8px;
+      cursor: pointer; font-family: var(--font-body); font-size: 0.75rem;
+      color: var(--text-secondary); border-radius: var(--radius); transition: all 0.1s;
+      display: flex; align-items: center; justify-content: center; min-width: 28px; height: 28px;
+    }
+    .j-tb:hover { background: var(--bg-card); border-color: var(--border-secondary); color: var(--text-primary); }
+    .j-tb-sep { width: 1px; height: 20px; background: var(--border-secondary); margin: 0 4px; }
+
+    .journal-editor:empty:before {
+      content: attr(data-placeholder);
+      color: var(--text-faint);
+      pointer-events: none;
+      font-style: italic;
+    }
+    .journal-editor h2 { font-size: 1.3rem; font-weight: 700; margin: 20px 0 8px; line-height: 1.3; }
+    .journal-editor h3 { font-size: 1.1rem; font-weight: 600; margin: 16px 0 6px; line-height: 1.3; }
+    .journal-editor p { margin: 4px 0; }
+    .journal-editor ul, .journal-editor ol { padding-left: 24px; margin: 8px 0; }
+    .journal-editor li { margin: 2px 0; }
+    .journal-editor blockquote {
+      border-left: 3px solid var(--border-secondary); padding-left: 16px;
+      margin: 12px 0; color: var(--text-muted); font-style: italic;
+    }
+    .journal-editor img {
+      max-width: 100%; border-radius: var(--radius); margin: 12px 0;
+      display: block; cursor: pointer; transition: opacity 0.15s;
+    }
+    .journal-editor img:hover { opacity: 0.85; }
+    .journal-editor hr { border: none; border-top: 1px solid var(--border-secondary); margin: 16px 0; }
+    .journal-editor .video-embed {
+      position: relative; padding-bottom: 56.25%; height: 0;
+      overflow: hidden; border-radius: var(--radius); margin: 12px 0;
+    }
+    .journal-editor .video-embed iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+    }
+    .journal-editor:focus { background: transparent; }
+
     /* ===== Card ===== */
     .card {
       background: var(--bg-card);
@@ -2995,7 +3035,7 @@
 
             <!-- Main journal card with integrated date nav -->
             <div class="card mb-6" style="border-width: 2px;">
-              <!-- Date navigation header -->
+              <!-- Date navigation header with mode toggle icon -->
               <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--border-secondary);">
                 <button @click="journalDateNav(-1)" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9664;</button>
                 <div style="text-align: center; position: relative;">
@@ -3033,21 +3073,25 @@
                     </div>
                   </div>
                 </div>
-                <button @click="journalDateNav(1)" :disabled="journalDayOffset >= 0" :style="journalDayOffset >= 0 ? 'opacity: 0.25; cursor: not-allowed;' : ''" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9654;</button>
-              </div>
-
-              <!-- Mode toggle: AI Report / My Journal -->
-              <div style="display: flex; border-bottom: 1px solid var(--border-secondary);">
-                <button @click="journalMode = 'ai'"
-                  :style="journalMode === 'ai' ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-bottom: 2px solid var(--text-tab-active);' : 'background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent;'"
-                  style="flex: 1; padding: 10px 16px; border: none; border-right: 1px solid var(--border-secondary); cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; transition: all 0.15s;">
-                  AI Report
-                </button>
-                <button @click="journalMode = 'personal'"
-                  :style="journalMode === 'personal' ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-bottom: 2px solid var(--text-tab-active);' : 'background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent;'"
-                  style="flex: 1; padding: 10px 16px; border: none; cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; transition: all 0.15s;">
-                  My Journal
-                </button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <!-- Mode toggle icon (small, top-right) -->
+                  <button @click="toggleJournalMode()" :title="journalMode === 'ai' ? 'Switch to personal journal' : 'Switch to AI report'"
+                    style="background: none; border: 1px solid var(--border-secondary); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: var(--radius); transition: all 0.15s; position: relative;"
+                    :style="journalMode === 'personal' ? 'background: var(--bg-tab-active); border-color: var(--border-tab-active);' : ''"
+                    onmouseover="this.style.background=this.style.background||'var(--bg-secondary)'" onmouseout="if(!this.classList.contains('active'))this.style.background=this.getAttribute('data-bg')||''">
+                    <svg v-if="journalMode === 'ai'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="'color: var(--text-muted)'">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="'color: var(--text-tab-active)'">
+                      <path d="M12 8V4H8"/>
+                      <rect width="16" height="12" x="4" y="8" rx="2"/>
+                      <path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+                    </svg>
+                  </button>
+                  <!-- Date forward nav -->
+                  <button @click="journalDateNav(1)" :disabled="journalDayOffset >= 0" :style="journalDayOffset >= 0 ? 'opacity: 0.25; cursor: not-allowed;' : ''" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9654;</button>
+                </div>
               </div>
 
               <!-- AI Report mode -->
@@ -3063,54 +3107,58 @@
                 </div>
               </template>
 
-              <!-- Personal Journal mode (view + edit) -->
+              <!-- Personal Journal mode (Notion-style rich editor) -->
               <template v-if="journalMode === 'personal'">
-                <!-- Toolbar -->
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; border-bottom: 1px solid var(--border-secondary); background: var(--bg-secondary);">
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <button v-if="!journalEditing" @click="startJournalEdit()"
-                      style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; cursor: pointer; border-radius: var(--radius);">
-                      Edit
-                    </button>
-                    <template v-if="journalEditing">
-                      <button @click="saveJournalEntry()" :disabled="journalSaving"
-                        style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; cursor: pointer; border-radius: var(--radius);">
-                        {{ journalSaving ? 'Saving...' : 'Save' }}
-                      </button>
-                      <button @click="journalEditing = false"
-                        style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius);">
-                        Cancel
-                      </button>
-                    </template>
-                  </div>
-                  <div v-if="journalSaveMsg" style="font-size: 0.7rem; color: var(--text-muted);">{{ journalSaveMsg }}</div>
+                <!-- Floating toolbar -->
+                <div class="journal-toolbar" style="display: flex; align-items: center; gap: 2px; padding: 6px 16px; border-bottom: 1px solid var(--border-secondary); background: var(--bg-secondary); flex-wrap: wrap; position: sticky; top: 0; z-index: 10;">
+                  <button @click="jExec('formatBlock', '<h2>')" class="j-tb" title="Heading 2">H2</button>
+                  <button @click="jExec('formatBlock', '<h3>')" class="j-tb" title="Heading 3">H3</button>
+                  <button @click="jExec('formatBlock', '<p>')" class="j-tb" title="Paragraph">P</button>
+                  <div class="j-tb-sep"></div>
+                  <button @click="jExec('bold')" class="j-tb" title="Bold" style="font-weight: 700;">B</button>
+                  <button @click="jExec('italic')" class="j-tb" title="Italic" style="font-style: italic;">I</button>
+                  <button @click="jExec('strikeThrough')" class="j-tb" title="Strikethrough" style="text-decoration: line-through;">S</button>
+                  <div class="j-tb-sep"></div>
+                  <button @click="jExec('insertUnorderedList')" class="j-tb" title="Bullet List">&#8226; List</button>
+                  <button @click="jExec('insertOrderedList')" class="j-tb" title="Numbered List">1.</button>
+                  <button @click="jExec('formatBlock', '<blockquote>')" class="j-tb" title="Quote">&#8220;</button>
+                  <div class="j-tb-sep"></div>
+                  <button @click="journalInsertImage()" class="j-tb" title="Insert Image">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  </button>
+                  <button @click="journalInsertVideo()" class="j-tb" title="Insert Video">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </button>
+                  <button @click="jExec('insertHorizontalRule')" class="j-tb" title="Divider">&#8212;</button>
+                  <div style="flex: 1;"></div>
+                  <span style="font-size: 0.65rem; color: var(--text-faint); font-family: var(--font-body);">{{ journalAutoSaveStatus }}</span>
                 </div>
 
-                <!-- Editor -->
-                <div v-if="journalEditing" style="padding: 16px 24px;">
-                  <textarea v-model="journalDraftContent"
-                    :placeholder="'Write about your day...\n\nSupports markdown. You can also add:\n- Images: ![alt](url)\n- Videos: [video](url)'"
-                    style="width: 100%; min-height: 280px; padding: 12px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.7; resize: vertical; border-radius: var(--radius); outline: none; box-sizing: border-box;"
-                    @focus="$event.target.style.borderColor = 'var(--border-primary)'"
-                    @blur="$event.target.style.borderColor = 'var(--border-secondary)'"
-                  ></textarea>
-                  <!-- Media hints -->
-                  <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-                    <span style="font-size: 0.7rem; color: var(--text-faint); font-family: var(--font-body);">Tip: Use ![](image-url) for images, [video](video-url) for videos</span>
-                  </div>
+                <!-- Contenteditable editor area -->
+                <div ref="journalEditorRef"
+                  contenteditable="true"
+                  class="journal-editor"
+                  @input="onJournalEditorInput"
+                  @paste="onJournalEditorPaste"
+                  @keydown="onJournalEditorKeydown"
+                  style="min-height: 300px; padding: 24px; outline: none; font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--text-primary); cursor: text;"
+                  data-placeholder="Start writing your journal..."
+                ></div>
+
+                <!-- Image URL dialog -->
+                <div v-if="showImageDialog" style="padding: 12px 24px; border-top: 1px solid var(--border-secondary); background: var(--bg-secondary); display: flex; align-items: center; gap: 8px;">
+                  <input v-model="imageDialogUrl" placeholder="Paste image URL..." @keydown.enter="confirmInsertImage()" @keydown.esc="showImageDialog = false"
+                    style="flex: 1; padding: 6px 10px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; border-radius: var(--radius); outline: none;">
+                  <button @click="confirmInsertImage()" style="padding: 6px 12px; background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Insert</button>
+                  <button @click="showImageDialog = false" style="padding: 6px 12px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
                 </div>
 
-                <!-- View personal journal content -->
-                <div v-else>
-                  <div v-if="personalJournalEntry" class="card-body">
-                    <div class="md-content" v-html="personalJournalEntry.contentHtml"></div>
-                  </div>
-                  <div v-else class="card-body">
-                    <div class="empty-state">
-                      <p class="text-sm" style="color: var(--text-muted);">No personal journal for this date</p>
-                      <p class="text-xs mt-2" style="color: var(--text-muted);">Click "Edit" to start writing your own entry</p>
-                    </div>
-                  </div>
+                <!-- Video URL dialog -->
+                <div v-if="showVideoDialog" style="padding: 12px 24px; border-top: 1px solid var(--border-secondary); background: var(--bg-secondary); display: flex; align-items: center; gap: 8px;">
+                  <input v-model="videoDialogUrl" placeholder="Paste YouTube or video URL..." @keydown.enter="confirmInsertVideo()" @keydown.esc="showVideoDialog = false"
+                    style="flex: 1; padding: 6px 10px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; border-radius: var(--radius); outline: none;">
+                  <button @click="confirmInsertVideo()" style="padding: 6px 12px; background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Insert</button>
+                  <button @click="showVideoDialog = false" style="padding: 6px 12px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
                 </div>
               </template>
             </div>
@@ -3126,18 +3174,14 @@
                   @click="activeSummary = sum"
                   class="card journal-summary-card" style="min-width: 200px; max-width: 220px; min-height: 300px; flex-shrink: 0; cursor: pointer; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;"
                   onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-                  <!-- Cover color band -->
                   <div :style="'height: 6px; background: ' + sum.color + '; border-radius: var(--radius-card) var(--radius-card) 0 0;'"></div>
-                  <!-- Type badge -->
                   <div style="padding: 16px 16px 8px;">
                     <div style="display: inline-block; font-size: 0.65rem; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border: 1px solid var(--border-secondary); padding: 2px 8px; border-radius: var(--radius);">{{ sum.type }}</div>
                   </div>
-                  <!-- Title -->
                   <div style="padding: 4px 16px 8px;">
                     <div style="font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;">{{ sum.title }}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-family: var(--font-body);">{{ sum.dateRange }}</div>
                   </div>
-                  <!-- Preview snippet -->
                   <div style="padding: 8px 16px 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                     <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; font-family: var(--font-body); max-height: 100px; overflow: hidden; position: relative;">
                       {{ sum.preview }}
@@ -3892,46 +3936,159 @@
           journalMemorySeed.value++;
         }
 
-        // Personal journal entries (mock data for now — stored separately from AI reports)
-        const personalJournalData = ref({
-          '2026-03-12': {
-            content: '## My thoughts\n\nToday felt really productive. Got into a great flow state working on the Bloom component docs. The trick is treating docs like tutorials instead of reference material — makes it way more fun to write.\n\n### Highlights\n- 3-hour uninterrupted focus session in the afternoon\n- Acme team loved the dashboard redesign\n- The new Journal page for Loci is coming together nicely\n\n### Photos\n![Afternoon coffee](https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400)\n\nGood day overall. Energy was high. Need to maintain this momentum.',
-          },
-          '2026-03-11': {
-            content: '## Auth Bug Deep Dive\n\nSpent 3 hours hunting down a race condition in the auth token interceptor. The issue: when multiple API calls fire simultaneously and the token expires, each one tries to refresh independently, causing duplicate refresh calls.\n\n**Solution:** Implemented a queue pattern — first caller refreshes, others wait for the promise.\n\n### Run Stats\n- Distance: 8km\n- Pace: 5:45/km (improving!)\n- Route: Bay Run loop\n\nAlso had a great call with Jake. He is in for the $4k/mo retainer starting April. Excited about this partnership.',
-          },
-          '2026-03-10': {
-            content: '## Bloom README Draft\n\nWrote the first draft of the Bloom README. Structure:\n1. Pain point (component libraries suck)\n2. Solution (what Bloom does differently)\n3. Proof (demo GIF)\n4. Quick start\n5. Full docs link\n\nStill needs the install section. Will finish tomorrow.\n\n### Invoice\nSent Meridian invoice: $3,200. Should arrive in 14 days.\n\n### Decision\nNot hiring a contractor yet — wait until Bloom ships to see if revenue justifies it.',
-          },
-          '2026-03-08': {
-            content: '## Weekend Project Day\n\nSpent the morning setting up the Loci project structure. The idea of a "Memory Palace for AI" keeps getting clearer. Every AI system needs persistent memory, and nobody has built a good open-source solution yet.\n\n### Key insight\nThe hippocampus metaphor works on multiple levels:\n- Biological hippocampus = memory consolidation\n- Method of Loci = spatial memory technique\n- Our Loci = AI memory consolidation system\n\nThe naming is perfect.',
-          },
-        });
+        // --- Rich editor for personal journal ---
+        const journalEditorRef = ref(null);
+        const journalAutoSaveStatus = ref('');
+        const showImageDialog = ref(false);
+        const showVideoDialog = ref(false);
+        const imageDialogUrl = ref('');
+        const videoDialogUrl = ref('');
+        let journalAutoSaveTimer = null;
 
-        const personalJournalEntry = computed(() => {
-          const key = journalViewingDateKey.value;
-          const entry = personalJournalData.value[key];
-          if (!entry) return null;
-          // Simple markdown to HTML (basic — headings, bold, images, lists, paragraphs)
-          let html = entry.content
-            .replace(/^### (.+)$/gm, '<h4>$1</h4>')
-            .replace(/^## (.+)$/gm, '<h3>$1</h3>')
-            .replace(/^# (.+)$/gm, '<h2>$1</h2>')
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: var(--radius); margin: 8px 0;">')
-            .replace(/^- (.+)$/gm, '<li>$1</li>')
-            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/^(?!<[hul])/gm, '');
-          return { contentHtml: '<div style="line-height: 1.8;">' + html + '</div>' };
-        });
-
-        function startJournalEdit() {
-          const key = journalViewingDateKey.value;
-          const existing = personalJournalData.value[key];
-          journalDraftContent.value = existing ? existing.content : '';
-          journalEditing.value = true;
+        // Mock initial data in localStorage (only once)
+        const JOURNAL_LS_PREFIX = 'loci-journal-';
+        function initMockJournalData() {
+          const mockEntries = {
+            '2026-03-12': '<h2>My thoughts</h2><p>Today felt really productive. Got into a great flow state working on the Bloom component docs. The trick is treating docs like tutorials instead of reference material — makes it way more fun to write.</p><h3>Highlights</h3><ul><li>3-hour uninterrupted focus session in the afternoon</li><li>Acme team loved the dashboard redesign</li><li>The new Journal page for Loci is coming together nicely</li></ul><h3>Photos</h3><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" alt="Afternoon coffee"><p>Good day overall. Energy was high. Need to maintain this momentum.</p>',
+            '2026-03-11': '<h2>Auth Bug Deep Dive</h2><p>Spent 3 hours hunting down a race condition in the auth token interceptor. The issue: when multiple API calls fire simultaneously and the token expires, each one tries to refresh independently, causing duplicate refresh calls.</p><p><strong>Solution:</strong> Implemented a queue pattern — first caller refreshes, others wait for the promise.</p><h3>Run Stats</h3><ul><li>Distance: 8km</li><li>Pace: 5:45/km (improving!)</li><li>Route: Bay Run loop</li></ul><p>Also had a great call with Jake. He\'s in for the $4k/mo retainer starting April. Excited about this partnership.</p>',
+            '2026-03-10': '<h2>Bloom README Draft</h2><p>Wrote the first draft of the Bloom README. Structure:</p><ol><li>Pain point (component libraries suck)</li><li>Solution (what Bloom does differently)</li><li>Proof (demo GIF)</li><li>Quick start</li><li>Full docs link</li></ol><p>Still needs the install section. Will finish tomorrow.</p><h3>Invoice</h3><p>Sent Meridian invoice: $3,200. Should arrive in 14 days.</p><h3>Decision</h3><p>Not hiring a contractor yet — wait until Bloom ships to see if revenue justifies it.</p>',
+            '2026-03-08': '<h2>Weekend Project Day</h2><p>Spent the morning setting up the Loci project structure. The idea of a "Memory Palace for AI" keeps getting clearer. Every AI system needs persistent memory, and nobody has built a good open-source solution yet.</p><h3>Key insight</h3><p>The hippocampus metaphor works on multiple levels:</p><ul><li>Biological hippocampus = memory consolidation</li><li>Method of Loci = spatial memory technique</li><li>Our Loci = AI memory consolidation system</li></ul><p>The naming is perfect.</p>',
+          };
+          for (const [date, html] of Object.entries(mockEntries)) {
+            if (!localStorage.getItem(JOURNAL_LS_PREFIX + date)) {
+              localStorage.setItem(JOURNAL_LS_PREFIX + date, html);
+            }
+          }
         }
+        initMockJournalData();
+
+        function loadJournalEditor() {
+          if (!journalEditorRef.value) return;
+          const key = journalViewingDateKey.value;
+          const saved = localStorage.getItem(JOURNAL_LS_PREFIX + key);
+          journalEditorRef.value.innerHTML = saved || '';
+          journalAutoSaveStatus.value = saved ? 'Loaded' : '';
+        }
+
+        function saveJournalToLS() {
+          if (!journalEditorRef.value) return;
+          const key = journalViewingDateKey.value;
+          const html = journalEditorRef.value.innerHTML;
+          if (html && html !== '<br>') {
+            localStorage.setItem(JOURNAL_LS_PREFIX + key, html);
+            journalAutoSaveStatus.value = 'Saved';
+          } else {
+            localStorage.removeItem(JOURNAL_LS_PREFIX + key);
+            journalAutoSaveStatus.value = '';
+          }
+          setTimeout(() => { if (journalAutoSaveStatus.value === 'Saved') journalAutoSaveStatus.value = ''; }, 2000);
+        }
+
+        function onJournalEditorInput() {
+          clearTimeout(journalAutoSaveTimer);
+          journalAutoSaveStatus.value = 'Editing...';
+          journalAutoSaveTimer = setTimeout(saveJournalToLS, 1000);
+        }
+
+        function onJournalEditorPaste(e) {
+          // Handle image paste
+          const items = e.clipboardData?.items;
+          if (items) {
+            for (const item of items) {
+              if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  document.execCommand('insertHTML', false, '<img src="' + ev.target.result + '" alt="pasted image" style="max-width:100%;">');
+                  onJournalEditorInput();
+                };
+                reader.readAsDataURL(file);
+                return;
+              }
+            }
+          }
+          // For text paste: clean up and insert as clean HTML
+          const text = e.clipboardData?.getData('text/html');
+          if (text) {
+            e.preventDefault();
+            // Strip dangerous/messy tags but keep structure
+            const temp = document.createElement('div');
+            temp.innerHTML = text;
+            // Remove scripts, styles, meta
+            temp.querySelectorAll('script, style, meta, link').forEach(el => el.remove());
+            document.execCommand('insertHTML', false, temp.innerHTML);
+            onJournalEditorInput();
+          }
+        }
+
+        function onJournalEditorKeydown(e) {
+          // Tab = indent
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            document.execCommand(e.shiftKey ? 'outdent' : 'indent');
+          }
+        }
+
+        function jExec(cmd, value) {
+          document.execCommand(cmd, false, value || null);
+          journalEditorRef.value?.focus();
+          onJournalEditorInput();
+        }
+
+        function journalInsertImage() {
+          showImageDialog.value = true;
+          showVideoDialog.value = false;
+          imageDialogUrl.value = '';
+        }
+
+        function confirmInsertImage() {
+          const url = imageDialogUrl.value.trim();
+          if (!url) return;
+          journalEditorRef.value?.focus();
+          document.execCommand('insertHTML', false, '<img src="' + url + '" alt="image" style="max-width:100%;"><br>');
+          showImageDialog.value = false;
+          imageDialogUrl.value = '';
+          onJournalEditorInput();
+        }
+
+        function journalInsertVideo() {
+          showVideoDialog.value = true;
+          showImageDialog.value = false;
+          videoDialogUrl.value = '';
+        }
+
+        function confirmInsertVideo() {
+          const url = videoDialogUrl.value.trim();
+          if (!url) return;
+          // Convert YouTube URLs to embed
+          let embedUrl = url;
+          const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          if (ytMatch) {
+            embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+          }
+          journalEditorRef.value?.focus();
+          document.execCommand('insertHTML', false,
+            '<div class="video-embed"><iframe src="' + embedUrl + '" allowfullscreen></iframe></div><br>');
+          showVideoDialog.value = false;
+          videoDialogUrl.value = '';
+          onJournalEditorInput();
+        }
+
+        function toggleJournalMode() {
+          journalMode.value = journalMode.value === 'ai' ? 'personal' : 'ai';
+          if (journalMode.value === 'personal') {
+            // Load editor content after Vue renders the contenteditable div
+            setTimeout(loadJournalEditor, 50);
+          }
+        }
+
+        // Reload editor when date changes while in personal mode
+        watch(journalViewingDateKey, () => {
+          if (journalMode.value === 'personal') {
+            setTimeout(loadJournalEditor, 50);
+          }
+        });
 
         // Mock summaries (these would normally be AI-generated)
         const journalSummaries = ref([
@@ -5131,10 +5288,13 @@
           // Journal page
           journalDayOffset, journalMode, journalEditing, journalDraftContent, journalSaving, journalSaveMsg,
           journalViewingDateKey, journalDateLabel, journalWeekdayLabel, journalDateNav,
-          journalSelectedEntry, journalRecentEntries, jumpToJournalDate, saveJournalEntry, startJournalEdit,
+          journalSelectedEntry, journalRecentEntries, jumpToJournalDate, saveJournalEntry,
           showJournalCalendar, journalCalMonth, journalCalendarTitle, journalCalendarDays,
           journalMemories, journalMemorySeed, shuffleJournalMemories,
-          personalJournalEntry, personalJournalData, journalSummaries, activeSummary,
+          journalSummaries, activeSummary, toggleJournalMode,
+          journalEditorRef, journalAutoSaveStatus, onJournalEditorInput, onJournalEditorPaste, onJournalEditorKeydown,
+          jExec, journalInsertImage, confirmInsertImage, journalInsertVideo, confirmInsertVideo,
+          showImageDialog, showVideoDialog, imageDialogUrl, videoDialogUrl,
           tasksExpanded, calendarExpanded, goalsExpanded,
           // Synapse
           synapseLinks, synapseSvgSize, synapseNodePos,
