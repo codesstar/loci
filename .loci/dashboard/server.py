@@ -183,6 +183,22 @@ class LociHandler(http.server.SimpleHTTPRequestHandler):
             filepath = ASSETS_DIR / out_name
             filepath.write_bytes(base64.b64decode(b64data))
 
+            # Convert HEIC/HEIF to JPEG (browsers can't display HEIC)
+            if ext.lower() in ("heic", "heif"):
+                jpg_name = filepath.stem + ".jpg"
+                jpg_path = ASSETS_DIR / jpg_name
+                try:
+                    subprocess.run(
+                        ["sips", "-s", "format", "jpeg", str(filepath), "--out", str(jpg_path)],
+                        capture_output=True, timeout=15,
+                    )
+                    if jpg_path.exists():
+                        filepath.unlink()  # remove original heic
+                        filepath = jpg_path
+                        out_name = jpg_name
+                except Exception:
+                    pass  # keep original if conversion fails
+
             # Return URL relative to server
             url = f"/api/journal/assets/{out_name}"
             self._json_response(200, {"ok": True, "url": url, "path": str(filepath)})
