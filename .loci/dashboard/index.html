@@ -38,6 +38,22 @@
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
+
+    /* ===== Font Variables ===== */
+    :root {
+      --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-caveat: 'Caveat', cursive;
+      --font-lora: 'Lora', serif;
+      --font-sf-pro: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-sf-mono: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+      --font-m-plus: 'M PLUS Rounded 1c', sans-serif;
+      --font-fira-code: 'Fira Code', 'Courier New', monospace;
+    }
 
     /* ===== Theme CSS Variables ===== */
     :root {
@@ -47,7 +63,7 @@
       --bg-card-hover: #fafafa;
       --bg-input: #ffffff;
       --bg-sidebar: #f0f0f0;
-      --bg-header: #000000;
+      --bg-header: transparent;
       --bg-badge: #f5f5f5;
       --bg-code: #f0f0f0;
       --bg-blockquote: #f0f0f0;
@@ -66,7 +82,7 @@
       --bg-hp-bar: #e0e0e0;
       --bg-hp-fill: #000000;
       --bg-sidebar-hover: #e0e0e0;
-      --bg-sidebar-active: #000000;
+      --bg-sidebar-active: #e8e8e8;
       --text-primary: #000000;
       --text-secondary: #333333;
       --text-tertiary: #666666;
@@ -81,28 +97,28 @@
       --text-tab-active: #ffffff;
       --text-status-active: #ffffff;
       --text-status-inactive: #888888;
-      --text-sidebar-active: #ffffff;
-      --border-primary: #000000;
+      --text-sidebar-active: #000000;
+      --border-primary: #222222;
       --border-secondary: #cccccc;
-      --border-light: #e0e0e0;
-      --border-faint: #eeeeee;
-      --border-card: #000000;
-      --border-input: #000000;
+      --border-light: #e8e8e8;
+      --border-faint: #f0f0f0;
+      --border-card: #333333;
+      --border-input: #999999;
       --border-tab: #cccccc;
       --border-tab-hover: #000000;
       --border-tab-active: #000000;
-      --border-sidebar: #000000;
+      --border-sidebar: #d0d0d0;
       --border-checkbox: #000000;
-      --shadow-card: 2px 2px 0px #000000;
-      --shadow-tab: 2px 2px 0px #cccccc;
-      --shadow-tab-active: 2px 2px 0px #666666;
-      --shadow-avatar: 2px 2px 0px #888888;
-      --shadow-badge: 2px 2px 0px #888888;
-      --shadow-date: 2px 2px 0px #cccccc;
-      --font-body: 'Patrick Hand', 'ZCOOL QingKe HuangYou', 'Silkscreen', monospace;
+      --shadow-card: 2px 2px 0px #cccccc;
+      --shadow-tab: 1px 1px 0px #e0e0e0;
+      --shadow-tab-active: 1px 1px 0px #aaaaaa;
+      --shadow-avatar: 1px 1px 0px #cccccc;
+      --shadow-badge: 1px 1px 0px #cccccc;
+      --shadow-date: 1px 1px 0px #e0e0e0;
+      --font-body: 'Inter', -apple-system, sans-serif;
       --font-heading: 'Press Start 2P', monospace;
-      --font-mono: 'Silkscreen', monospace;
-      --font-size-body: 18px;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-size-body: 14px;
       --radius: 0px;
       --radius-card: 0px;
       --image-rendering: pixelated;
@@ -489,6 +505,1158 @@
       --grid-pattern: none;
     }
 
+    /* ==========================================================================
+       GEMINI THEMES — g- prefix (redesigned)
+       ========================================================================== */
+
+    /* G-Minimal: Dieter Rams — dark sidebar, pure white content, zero ornament */
+    [data-theme="g-minimal"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f6f6;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fafafa;
+      --bg-input: #ffffff;
+      --bg-sidebar: #0e0e0e;
+      --bg-header: #f6f6f6;
+      --bg-badge: #ececec;
+      --bg-code: #f6f6f6;
+      --bg-blockquote: #f9f9f9;
+      --bg-event: #333333;
+      --bg-priority-panel: #fafafa;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f6f6f6;
+      --bg-tab-active: #0e0e0e;
+      --bg-sidebar-hover: #1c1c1c;
+      --bg-sidebar-active: #2a2a2a;
+      --bg-hp-bar: #e0e0e0;
+      --bg-hp-fill: #333333;
+      --bg-avatar: #e0e0e0;
+      --bg-status-active: #333333;
+      --bg-status-inactive: #e0e0e0;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #333333;
+      --bg-scrollbar-track: #f6f6f6;
+      --bg-scrollbar-thumb: #c0c0c0;
+      --text-primary: #111111;
+      --text-secondary: #3a3a3a;
+      --text-tertiary: #666666;
+      --text-muted: #999999;
+      --text-faint: #c0c0c0;
+      --text-inverse: #ffffff;
+      --text-link: #111111;
+      --text-link-hover: #555555;
+      --text-event: #ffffff;
+      --text-tab: #666666;
+      --text-tab-hover: #111111;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #999999;
+      --text-sidebar-active: #ffffff;
+      --border-primary: #d0d0d0;
+      --border-secondary: #e0e0e0;
+      --border-light: #eeeeee;
+      --border-faint: #f6f6f6;
+      --border-card: #e8e8e8;
+      --border-input: #d0d0d0;
+      --border-tab: #e0e0e0;
+      --border-tab-hover: #999999;
+      --border-tab-active: #0e0e0e;
+      --border-sidebar: #0e0e0e;
+      --border-checkbox: #999999;
+      --shadow-card: none;
+      --shadow-tab: none;
+      --shadow-tab-active: none;
+      --shadow-avatar: none;
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-inter);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 0px;
+      --radius-card: 0px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 0px;
+      --list-marker: square;
+      --transition-speed: 0s;
+      --current-time-color: #e03131;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-minimal"] .card-header {
+      background: #f6f6f6 !important;
+      color: #111111 !important;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    [data-theme="g-minimal"] .card-header span,
+    [data-theme="g-minimal"] .card-header h3 { color: #111111 !important; }
+    [data-theme="g-minimal"] .card {
+      border: 1px solid #e8e8e8;
+    }
+
+    /* G-Terminal: Deep blue-black + bright green, Fira Code, scanlines */
+    [data-theme="g-terminal"] {
+      --bg-primary: #0c0e1a;
+      --bg-secondary: #12152a;
+      --bg-card: #0f1225;
+      --bg-card-hover: #161a35;
+      --bg-input: #0f1225;
+      --bg-sidebar: #080a14;
+      --bg-header: #161a35;
+      --bg-badge: #1a1e3a;
+      --bg-code: #161a35;
+      --bg-blockquote: #0f1225;
+      --bg-event: #a6e3a1;
+      --bg-priority-panel: #0f1225;
+      --bg-tab: #0f1225;
+      --bg-tab-hover: #161a35;
+      --bg-tab-active: #1a1e3a;
+      --bg-sidebar-hover: #12152a;
+      --bg-sidebar-active: #161a35;
+      --bg-hp-bar: #1a1e3a;
+      --bg-hp-fill: #a6e3a1;
+      --bg-avatar: #1a1e3a;
+      --bg-status-active: #a6e3a1;
+      --bg-status-inactive: #1a1e3a;
+      --bg-checkbox: #0f1225;
+      --bg-checkbox-checked: #a6e3a1;
+      --bg-scrollbar-track: #0c0e1a;
+      --bg-scrollbar-thumb: #2a3050;
+      --text-primary: #a6e3a1;
+      --text-secondary: #8bc986;
+      --text-tertiary: #5fa35a;
+      --text-muted: #3d7040;
+      --text-faint: #2a4e2c;
+      --text-inverse: #0c0e1a;
+      --text-link: #a6e3a1;
+      --text-link-hover: #c8f0c5;
+      --text-event: #0c0e1a;
+      --text-tab: #5fa35a;
+      --text-tab-hover: #a6e3a1;
+      --text-tab-active: #a6e3a1;
+      --text-status-active: #0c0e1a;
+      --text-status-inactive: #5fa35a;
+      --text-sidebar-active: #a6e3a1;
+      --border-primary: #2a3050;
+      --border-secondary: #1e2240;
+      --border-light: #161a35;
+      --border-faint: #12152a;
+      --border-card: #2a3050;
+      --border-input: #3d7040;
+      --border-tab: #2a3050;
+      --border-tab-hover: #a6e3a1;
+      --border-tab-active: #a6e3a1;
+      --border-sidebar: #1e2240;
+      --border-checkbox: #a6e3a1;
+      --shadow-card: 0 0 20px rgba(166, 227, 161, 0.05), 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 0 12px rgba(166, 227, 161, 0.3);
+      --shadow-avatar: 0 0 8px rgba(166, 227, 161, 0.15);
+      --shadow-badge: none;
+      --shadow-date: 0 0 6px rgba(166, 227, 161, 0.15);
+      --font-body: var(--font-fira-code);
+      --font-heading: var(--font-fira-code);
+      --font-mono: var(--font-fira-code);
+      --font-size-body: 13px;
+      --radius: 2px;
+      --radius-card: 4px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 2px;
+      --list-marker: '> ';
+      --transition-speed: 0.05s;
+      --current-time-color: #a6e3a1;
+      --scanline-opacity: 0.04;
+      --grid-pattern: none;
+    }
+    [data-theme="g-terminal"] .card-header {
+      background: #161a35 !important;
+      color: #a6e3a1 !important;
+      border-bottom: 1px solid #2a3050;
+    }
+    [data-theme="g-terminal"] .card-header span,
+    [data-theme="g-terminal"] .card-header h3 { color: #a6e3a1 !important; }
+    [data-theme="g-terminal"] .card {
+      border: 1px solid #2a3050;
+    }
+    [data-theme="g-terminal"] .pixel-font,
+    [data-theme="g-terminal"] .stat-number {
+      text-shadow: 0 0 10px rgba(166, 227, 161, 0.5);
+    }
+
+    /* G-Journal: Solarized warm paper, Caveat headings, dashed borders, terracotta */
+    [data-theme="g-journal"] {
+      --bg-primary: #fdf6e3;
+      --bg-secondary: #f5eed8;
+      --bg-card: #fefbf2;
+      --bg-card-hover: #fcf7ea;
+      --bg-input: #fffdf7;
+      --bg-sidebar: #f0e7d0;
+      --bg-header: #f5eed8;
+      --bg-badge: #ecdfc8;
+      --bg-code: #f5eed8;
+      --bg-blockquote: #faf3e0;
+      --bg-event: #b16a4b;
+      --bg-priority-panel: #fefbf2;
+      --bg-tab: #fdf6e3;
+      --bg-tab-hover: #f5eed8;
+      --bg-tab-active: #b16a4b;
+      --bg-sidebar-hover: #e5dcbf;
+      --bg-sidebar-active: #e0d5b5;
+      --bg-hp-bar: #e5dcbf;
+      --bg-hp-fill: #b16a4b;
+      --bg-avatar: #e5dcbf;
+      --bg-status-active: #b16a4b;
+      --bg-status-inactive: #e5dcbf;
+      --bg-checkbox: #fffdf7;
+      --bg-checkbox-checked: #b16a4b;
+      --bg-scrollbar-track: #f0e7d0;
+      --bg-scrollbar-thumb: #d3c9ac;
+      --text-primary: #4a3728;
+      --text-secondary: #6b5344;
+      --text-tertiary: #8c7566;
+      --text-muted: #b09888;
+      --text-faint: #d4c4b4;
+      --text-inverse: #fdf6e3;
+      --text-link: #b16a4b;
+      --text-link-hover: #c8825e;
+      --text-event: #fdf6e3;
+      --text-tab: #8c7566;
+      --text-tab-hover: #4a3728;
+      --text-tab-active: #fdf6e3;
+      --text-status-active: #fdf6e3;
+      --text-status-inactive: #8c7566;
+      --text-sidebar-active: #4a3728;
+      --border-primary: #d3c9ac;
+      --border-secondary: #e0d5b5;
+      --border-light: #ecdfc8;
+      --border-faint: #f5eed8;
+      --border-card: #e0d5b5;
+      --border-input: #d3c9ac;
+      --border-tab: #e0d5b5;
+      --border-tab-hover: #b16a4b;
+      --border-tab-active: #b16a4b;
+      --border-sidebar: #d3c9ac;
+      --border-checkbox: #b16a4b;
+      --shadow-card: 0 2px 8px rgba(74, 55, 40, 0.06);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 6px rgba(177, 106, 75, 0.2);
+      --shadow-avatar: 0 1px 4px rgba(74, 55, 40, 0.1);
+      --shadow-badge: none;
+      --shadow-date: 0 1px 4px rgba(74, 55, 40, 0.08);
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-caveat);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 15px;
+      --radius: 6px;
+      --radius-card: 8px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: circle;
+      --transition-speed: 0.15s;
+      --current-time-color: #b16a4b;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-journal"] .card-header {
+      background: #f5eed8 !important;
+      color: #4a3728 !important;
+      border-bottom: 1px dashed #d3c9ac;
+    }
+    [data-theme="g-journal"] .card-header span,
+    [data-theme="g-journal"] .card-header h3 { color: #4a3728 !important; }
+    [data-theme="g-journal"] .card {
+      border-style: dashed;
+      border-color: #e0d5b5;
+    }
+    [data-theme="g-journal"] .pixel-font {
+      font-size: 1.6em;
+    }
+
+    /* G-Claude: Dusty pink atmosphere, Lora serif headings, warm & soft */
+    [data-theme="g-claude"] {
+      --bg-primary: #faf7f4;
+      --bg-secondary: #f2ece5;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fdfbf9;
+      --bg-input: #ffffff;
+      --bg-sidebar: #efe8df;
+      --bg-header: #f8f0ea;
+      --bg-badge: #f0ddd4;
+      --bg-code: #f5ede6;
+      --bg-blockquote: #faf5ef;
+      --bg-event: #da8d7e;
+      --bg-priority-panel: #fdfbf9;
+      --bg-tab: #faf7f4;
+      --bg-tab-hover: #f2ece5;
+      --bg-tab-active: #da8d7e;
+      --bg-sidebar-hover: #e6ddd2;
+      --bg-sidebar-active: #e0d5c8;
+      --bg-hp-bar: #f0ddd4;
+      --bg-hp-fill: #da8d7e;
+      --bg-avatar: #f0ddd4;
+      --bg-status-active: #da8d7e;
+      --bg-status-inactive: #f0ddd4;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #da8d7e;
+      --bg-scrollbar-track: #f2ece5;
+      --bg-scrollbar-thumb: #dcc8bc;
+      --text-primary: #2e2320;
+      --text-secondary: #55453e;
+      --text-tertiary: #7a6860;
+      --text-muted: #a09088;
+      --text-faint: #c8b8b0;
+      --text-inverse: #ffffff;
+      --text-link: #c07868;
+      --text-link-hover: #da8d7e;
+      --text-event: #ffffff;
+      --text-tab: #7a6860;
+      --text-tab-hover: #2e2320;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #7a6860;
+      --text-sidebar-active: #2e2320;
+      --border-primary: #e0cfc5;
+      --border-secondary: #ecddd4;
+      --border-light: #f2ece5;
+      --border-faint: #f7f2ed;
+      --border-card: #ecddd4;
+      --border-input: #e0cfc5;
+      --border-tab: #ecddd4;
+      --border-tab-hover: #da8d7e;
+      --border-tab-active: #da8d7e;
+      --border-sidebar: #e0cfc5;
+      --border-checkbox: #da8d7e;
+      --shadow-card: 0 2px 12px rgba(218, 141, 126, 0.08);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 10px rgba(218, 141, 126, 0.15);
+      --shadow-avatar: 0 2px 8px rgba(218, 141, 126, 0.1);
+      --shadow-badge: none;
+      --shadow-date: 0 2px 8px rgba(218, 141, 126, 0.1);
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-lora);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14.5px;
+      --radius: 12px;
+      --radius-card: 14px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.2s;
+      --current-time-color: #da8d7e;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-claude"] .card-header {
+      background: #f8f0ea !important;
+      color: #2e2320 !important;
+      border-bottom: 1px solid #ecddd4;
+    }
+    [data-theme="g-claude"] .card-header span,
+    [data-theme="g-claude"] .card-header h3 { color: #2e2320 !important; }
+
+    /* G-Apple: Pure white, light gray bg, 20px radius, no borders, subtle shadow, SF Pro */
+    [data-theme="g-apple"] {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fcfcfe;
+      --bg-input: #ffffff;
+      --bg-sidebar: #fbfbfd;
+      --bg-header: #fafafa;
+      --bg-badge: #ececee;
+      --bg-code: #f5f5f7;
+      --bg-blockquote: #fbfbfd;
+      --bg-event: #424245;
+      --bg-priority-panel: #ffffff;
+      --bg-tab: #f0f0f2;
+      --bg-tab-hover: #e8e8ea;
+      --bg-tab-active: #1d1d1f;
+      --bg-sidebar-hover: #f0f0f2;
+      --bg-sidebar-active: #e8e8ea;
+      --bg-hp-bar: #e8e8ea;
+      --bg-hp-fill: #1d1d1f;
+      --bg-avatar: #e8e8ea;
+      --bg-status-active: #1d1d1f;
+      --bg-status-inactive: #e8e8ea;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #1d1d1f;
+      --bg-scrollbar-track: transparent;
+      --bg-scrollbar-thumb: #d1d1d6;
+      --text-primary: #1d1d1f;
+      --text-secondary: #3a3a3c;
+      --text-tertiary: #636366;
+      --text-muted: #8e8e93;
+      --text-faint: #c7c7cc;
+      --text-inverse: #ffffff;
+      --text-link: #1d1d1f;
+      --text-link-hover: #3a3a3c;
+      --text-event: #ffffff;
+      --text-tab: #636366;
+      --text-tab-hover: #1d1d1f;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #8e8e93;
+      --text-sidebar-active: #1d1d1f;
+      --border-primary: #e5e5ea;
+      --border-secondary: #ebebf0;
+      --border-light: #f2f2f7;
+      --border-faint: #fbfbfd;
+      --border-card: transparent;
+      --border-input: #d1d1d6;
+      --border-tab: transparent;
+      --border-tab-hover: transparent;
+      --border-tab-active: #1d1d1f;
+      --border-sidebar: #ebebf0;
+      --border-checkbox: #c7c7cc;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-avatar: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-badge: none;
+      --shadow-date: 0 1px 4px rgba(0,0,0,0.04);
+      --font-body: var(--font-sf-pro);
+      --font-heading: var(--font-sf-pro);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 12px;
+      --radius-card: 20px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.25s;
+      --current-time-color: #ff3b30;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-apple"] .card-header {
+      background: #fafafa !important;
+      color: #1d1d1f !important;
+      border-bottom: 1px solid #ebebf0;
+    }
+    [data-theme="g-apple"] .card-header span,
+    [data-theme="g-apple"] .card-header h3 { color: #1d1d1f !important; font-weight: 600; }
+    [data-theme="g-apple"] .card {
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    }
+    [data-theme="g-apple"] .pixel-font {
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* G-Notion: Warm off-white, Lora serif headings, muted taupe, very subtle */
+    [data-theme="g-notion"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #fbfaf8;
+      --bg-card: #ffffff;
+      --bg-card-hover: #faf9f7;
+      --bg-input: #ffffff;
+      --bg-sidebar: #fbfaf8;
+      --bg-header: #faf9f7;
+      --bg-badge: #f0eeea;
+      --bg-code: #f4f3f0;
+      --bg-blockquote: #fbfaf8;
+      --bg-event: #9f8170;
+      --bg-priority-panel: #ffffff;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f4f3f0;
+      --bg-tab-active: #37352f;
+      --bg-sidebar-hover: #f4f3f0;
+      --bg-sidebar-active: #f0eeea;
+      --bg-hp-bar: #ededea;
+      --bg-hp-fill: #9f8170;
+      --bg-avatar: #f0eeea;
+      --bg-status-active: #37352f;
+      --bg-status-inactive: #f0eeea;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #37352f;
+      --bg-scrollbar-track: #fbfaf8;
+      --bg-scrollbar-thumb: #dcdad6;
+      --text-primary: #37352f;
+      --text-secondary: #55534e;
+      --text-tertiary: #787774;
+      --text-muted: #a3a29f;
+      --text-faint: #d0cfcb;
+      --text-inverse: #ffffff;
+      --text-link: #37352f;
+      --text-link-hover: #787774;
+      --text-event: #ffffff;
+      --text-tab: #787774;
+      --text-tab-hover: #37352f;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #787774;
+      --text-sidebar-active: #37352f;
+      --border-primary: #e8e7e4;
+      --border-secondary: #ededea;
+      --border-light: #f4f3f0;
+      --border-faint: #fbfaf8;
+      --border-card: #ededea;
+      --border-input: #e3e2df;
+      --border-tab: transparent;
+      --border-tab-hover: #e3e2df;
+      --border-tab-active: #37352f;
+      --border-sidebar: #ededea;
+      --border-checkbox: #d0cfcb;
+      --shadow-card: 0 1px 2px rgba(55, 53, 47, 0.04), 0 1px 6px rgba(55, 53, 47, 0.02);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 1px 4px rgba(55, 53, 47, 0.08);
+      --shadow-avatar: none;
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-lora);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 4px;
+      --radius-card: 6px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.1s;
+      --current-time-color: #eb5757;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-notion"] .card-header {
+      background: #faf9f7 !important;
+      color: #37352f !important;
+      border-bottom: 1px solid #ededea;
+    }
+    [data-theme="g-notion"] .card-header span,
+    [data-theme="g-notion"] .card-header h3 { color: #37352f !important; }
+    /* Notion: date hero — minimal serif throughout */
+    [data-theme="g-notion"] .date-hero { font-family: 'Georgia', 'Times New Roman', serif !important; }
+    [data-theme="g-notion"] .date-hero .pixel-font { font-family: 'Georgia', 'Times New Roman', serif !important; }
+    [data-theme="g-notion"] .date-hero-day { font-weight: 700; color: #37352f; }
+    [data-theme="g-notion"] .date-hero-time { font-weight: 300; color: #787774; }
+    [data-theme="g-notion"] .card {
+      border: 1px solid #ededea;
+    }
+
+    /* G-Sage: Pale green-gray, forest green accent, natural & organic */
+    [data-theme="g-sage"] {
+      --bg-primary: #f2f5f0;
+      --bg-secondary: #e8ede4;
+      --bg-card: #fafcf8;
+      --bg-card-hover: #f5f8f3;
+      --bg-input: #fafcf8;
+      --bg-sidebar: #e0e6db;
+      --bg-header: #edf2ea;
+      --bg-badge: #d4ddd0;
+      --bg-code: #e8ede4;
+      --bg-blockquote: #edf2ea;
+      --bg-event: #5a7a64;
+      --bg-priority-panel: #fafcf8;
+      --bg-tab: #f2f5f0;
+      --bg-tab-hover: #e8ede4;
+      --bg-tab-active: #5a7a64;
+      --bg-sidebar-hover: #d4ddd0;
+      --bg-sidebar-active: #ccd6c6;
+      --bg-hp-bar: #d4ddd0;
+      --bg-hp-fill: #5a7a64;
+      --bg-avatar: #ccd6c6;
+      --bg-status-active: #5a7a64;
+      --bg-status-inactive: #d4ddd0;
+      --bg-checkbox: #fafcf8;
+      --bg-checkbox-checked: #5a7a64;
+      --bg-scrollbar-track: #e8ede4;
+      --bg-scrollbar-thumb: #b8c4b2;
+      --text-primary: #1a2b1e;
+      --text-secondary: #344038;
+      --text-tertiary: #556355;
+      --text-muted: #7d8c7d;
+      --text-faint: #b0bab0;
+      --text-inverse: #ffffff;
+      --text-link: #486351;
+      --text-link-hover: #5a7a64;
+      --text-event: #ffffff;
+      --text-tab: #556355;
+      --text-tab-hover: #1a2b1e;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #556355;
+      --text-sidebar-active: #1a2b1e;
+      --border-primary: #c4d0be;
+      --border-secondary: #d4ddd0;
+      --border-light: #e4ebe0;
+      --border-faint: #edf2ea;
+      --border-card: #d4ddd0;
+      --border-input: #b8c4b2;
+      --border-tab: #d4ddd0;
+      --border-tab-hover: #5a7a64;
+      --border-tab-active: #5a7a64;
+      --border-sidebar: #c4d0be;
+      --border-checkbox: #5a7a64;
+      --shadow-card: 0 2px 8px rgba(26, 43, 30, 0.05);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 8px rgba(90, 122, 100, 0.15);
+      --shadow-avatar: 0 2px 6px rgba(26, 43, 30, 0.08);
+      --shadow-badge: none;
+      --shadow-date: 0 1px 4px rgba(26, 43, 30, 0.06);
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-inter);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 10px;
+      --radius-card: 12px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.2s;
+      --current-time-color: #5a7a64;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-sage"] .card-header {
+      background: #edf2ea !important;
+      color: #1a2b1e !important;
+      border-bottom: 1px solid #d4ddd0;
+    }
+    [data-theme="g-sage"] .card-header span,
+    [data-theme="g-sage"] .card-header h3 { color: #1a2b1e !important; }
+
+    /* G-Kawaii: Macaron pink, lavender accents, M PLUS Rounded, soft & playful */
+    [data-theme="g-kawaii"] {
+      --bg-primary: #fff8f9;
+      --bg-secondary: #fef0f2;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fffbfc;
+      --bg-input: #ffffff;
+      --bg-sidebar: #fde8ec;
+      --bg-header: #fef0f2;
+      --bg-badge: #e8e0f0;
+      --bg-code: #fef0f2;
+      --bg-blockquote: #fdf5f8;
+      --bg-event: #f5a0b2;
+      --bg-priority-panel: #fffbfc;
+      --bg-tab: #fff8f9;
+      --bg-tab-hover: #fef0f2;
+      --bg-tab-active: #f5a0b2;
+      --bg-sidebar-hover: #f8d8de;
+      --bg-sidebar-active: #f4ccd4;
+      --bg-hp-bar: #e8e0f0;
+      --bg-hp-fill: #f5a0b2;
+      --bg-avatar: #e8e0f0;
+      --bg-status-active: #f5a0b2;
+      --bg-status-inactive: #e8e0f0;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #f5a0b2;
+      --bg-scrollbar-track: #fef0f2;
+      --bg-scrollbar-thumb: #e8c0cc;
+      --text-primary: #4a2a35;
+      --text-secondary: #6b4555;
+      --text-tertiary: #8e6878;
+      --text-muted: #b8909e;
+      --text-faint: #d8bcc6;
+      --text-inverse: #ffffff;
+      --text-link: #e07090;
+      --text-link-hover: #f5a0b2;
+      --text-event: #ffffff;
+      --text-tab: #8e6878;
+      --text-tab-hover: #4a2a35;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #8e6878;
+      --text-sidebar-active: #4a2a35;
+      --border-primary: #f0d0d8;
+      --border-secondary: #f4dce2;
+      --border-light: #f8e8ee;
+      --border-faint: #fdf4f6;
+      --border-card: #f4dce2;
+      --border-input: #f0d0d8;
+      --border-tab: transparent;
+      --border-tab-hover: #f5a0b2;
+      --border-tab-active: #f5a0b2;
+      --border-sidebar: #f0d0d8;
+      --border-checkbox: #f5a0b2;
+      --shadow-card: 0 2px 12px rgba(245, 160, 178, 0.12);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 10px rgba(245, 160, 178, 0.25);
+      --shadow-avatar: 0 2px 8px rgba(232, 224, 240, 0.4);
+      --shadow-badge: none;
+      --shadow-date: 0 2px 6px rgba(245, 160, 178, 0.15);
+      --font-body: var(--font-m-plus);
+      --font-heading: var(--font-m-plus);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 15px;
+      --radius-card: 18px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.25s;
+      --current-time-color: #f5a0b2;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="g-kawaii"] .card-header {
+      background: #fef0f2 !important;
+      color: #4a2a35 !important;
+      border-bottom: 1px solid #f4dce2;
+    }
+    [data-theme="g-kawaii"] .card-header span,
+    [data-theme="g-kawaii"] .card-header h3 { color: #4a2a35 !important; }
+    [data-theme="g-kawaii"] .pixel-font {
+      font-weight: 700;
+    }
+
+    /* ===== Apple Dark Theme ===== */
+    /* macOS Dark Mode: deep grays, SF Pro, vibrant blue accent, frosted glass feel */
+    [data-theme="apple-dark"] {
+      --bg-primary: #1c1c1e;
+      --bg-secondary: #2c2c2e;
+      --bg-card: #2c2c2e;
+      --bg-card-hover: #3a3a3c;
+      --bg-input: #3a3a3c;
+      --bg-sidebar: #1c1c1e;
+      --bg-header: #2c2c2e;
+      --bg-badge: #3a3a3c;
+      --bg-code: #3a3a3c;
+      --bg-blockquote: #2c2c2e;
+      --bg-event: #78787D;
+      --bg-priority-panel: #2c2c2e;
+      --bg-tab: #2c2c2e;
+      --bg-tab-hover: #3a3a3c;
+      --bg-tab-active: #78787D;
+      --bg-sidebar-hover: #3a3a3c;
+      --bg-sidebar-active: #2c2c2e;
+      --bg-hp-bar: #48484a;
+      --bg-hp-fill: #d1d1d6;
+      --bg-avatar: #48484a;
+      --bg-status-active: #78787D;
+      --bg-status-inactive: #3a3a3c;
+      --bg-checkbox: transparent;
+      --bg-checkbox-checked: #78787D;
+      --bg-scrollbar-track: transparent;
+      --bg-scrollbar-thumb: #48484a;
+      --text-primary: #d1d1d6;
+      --text-secondary: #b0b0b5;
+      --text-tertiary: #8e8e93;
+      --text-muted: #6e6e73;
+      --text-faint: #545458;
+      --text-inverse: #f5f5f7;
+      --text-link: #78787D;
+      --text-link-hover: #AEAEB2;
+      --text-event: #ffffff;
+      --text-tab: #8e8e93;
+      --text-tab-hover: #d1d1d6;
+      --text-tab-active: #ffffff;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #8e8e93;
+      --text-sidebar-active: #78787D;
+      --border-primary: #38383a;
+      --border-secondary: #48484a;
+      --border-light: #38383a;
+      --border-faint: #2c2c2e;
+      --border-card: #38383a;
+      --border-input: #48484a;
+      --border-tab: transparent;
+      --border-tab-hover: transparent;
+      --border-tab-active: transparent;
+      --border-sidebar: #38383a;
+      --border-checkbox: #636366;
+      --shadow-card: 0 2px 8px rgba(0,0,0,0.3);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 8px rgba(120,120,125,0.3);
+      --shadow-avatar: 0 2px 8px rgba(0,0,0,0.3);
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: var(--font-sf-pro);
+      --font-heading: var(--font-sf-pro);
+      --font-mono: var(--font-sf-mono);
+      --font-size-body: 14px;
+      --radius: 10px;
+      --radius-card: 12px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.25s;
+      --current-time-color: #ff453a;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    [data-theme="apple-dark"] .card-header {
+      background: #2c2c2e !important;
+      color: #d1d1d6 !important;
+      border-bottom: 1px solid #38383a;
+    }
+    [data-theme="apple-dark"] .card-header span,
+    [data-theme="apple-dark"] .card-header h3 { color: #d1d1d6 !important; font-weight: 600; }
+    /* Apple Dark: date hero — watchface inspired, ultra-thin */
+    [data-theme="apple-dark"] .date-hero { background: #1c1c1e !important; border-color: transparent; }
+    [data-theme="apple-dark"] .date-hero-day { font-weight: 100; color: #f5f5f7; letter-spacing: -3px; }
+    [data-theme="apple-dark"] .date-hero-time { font-weight: 100; color: #f5f5f7; font-variant-numeric: tabular-nums; }
+    [data-theme="apple-dark"] .card {
+      border: 1px solid #38383a;
+      background: #2c2c2e;
+    }
+    [data-theme="apple-dark"] .pixel-font {
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    [data-theme="apple-dark"] .sidebar-item {
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: #d1d1d6;
+    }
+    [data-theme="apple-dark"] .sidebar-item.active {
+      background: rgba(245,245,247,0.08);
+      color: #f5f5f7;
+      font-weight: 500;
+    }
+    [data-theme="apple-dark"] .sidebar-item:hover {
+      background: #3a3a3c;
+    }
+    [data-theme="apple-dark"] input[type="checkbox"] {
+      border-radius: 4px;
+      border-width: 2px;
+      border-color: #636366;
+      width: 18px;
+      height: 18px;
+    }
+    [data-theme="apple-dark"] input[type="checkbox"]:checked {
+      background: #78787D;
+      border-color: #78787D;
+    }
+    [data-theme="apple-dark"] .pixel-tag {
+      border-radius: 6px;
+      padding: 4px 10px;
+      border: 1px solid #48484a;
+      background: #3a3a3c;
+      color: #d1d1d6;
+      font-weight: 500;
+    }
+    [data-theme="apple-dark"] .pixel-status-active {
+      border-radius: 6px;
+      border: none;
+      background: #78787D;
+      color: #fff;
+    }
+    [data-theme="apple-dark"] .pixel-avatar {
+      border-radius: 50%;
+      border: none;
+      background: #48484a;
+    }
+    [data-theme="apple-dark"] .hp-bar {
+      border-radius: 4px;
+      border: none;
+      height: 8px;
+    }
+    [data-theme="apple-dark"] .hp-bar-fill {
+      border-radius: 4px;
+    }
+    [data-theme="apple-dark"] .pixel-tab {
+      border-radius: 8px;
+      border: 1px solid #48484a;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    [data-theme="apple-dark"] .pixel-tab.active {
+      background: #78787D;
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    /* ===== Google Calendar Theme ===== */
+    /* Faithful Google Calendar: pure white, #039be5 event blue, ultra-light borders, airy */
+    [data-theme="gcal"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8f9fa;
+      --bg-input: #ffffff;
+      --bg-sidebar: #f8f9fa;
+      --bg-header: #ffffff;
+      --bg-badge: #e8f0fe;
+      --bg-code: #f8f9fa;
+      --bg-blockquote: #f8f9fa;
+      --bg-scrollbar-track: #ffffff;
+      --bg-scrollbar-thumb: #dadce0;
+      --bg-checkbox: #ffffff;
+      --bg-checkbox-checked: #039be5;
+      --bg-event: #039be5;
+      --bg-priority-panel: #ffffff;
+      --bg-tab: #ffffff;
+      --bg-tab-hover: #f1f3f4;
+      --bg-tab-active: #e8f0fe;
+      --bg-avatar: #039be5;
+      --bg-status-active: #039be5;
+      --bg-status-inactive: #f1f3f4;
+      --bg-hp-bar: #e8eaed;
+      --bg-hp-fill: #039be5;
+      --bg-sidebar-hover: #f1f3f4;
+      --bg-sidebar-active: #d2e3fc;
+      --text-primary: #3c4043;
+      --text-secondary: #3c4043;
+      --text-tertiary: #5f6368;
+      --text-muted: #70757a;
+      --text-faint: #9aa0a6;
+      --text-inverse: #ffffff;
+      --text-link: #1a73e8;
+      --text-link-hover: #174ea6;
+      --text-event: #ffffff;
+      --text-tab: #5f6368;
+      --text-tab-hover: #202124;
+      --text-tab-active: #1a73e8;
+      --text-status-active: #ffffff;
+      --text-status-inactive: #70757a;
+      --text-sidebar-active: #1a73e8;
+      --border-primary: #e0e0e0;
+      --border-secondary: #e8eaed;
+      --border-light: #dadce0;
+      --border-faint: #e8eaed;
+      --border-card: #e0e0e0;
+      --border-input: #dadce0;
+      --border-tab: transparent;
+      --border-tab-hover: transparent;
+      --border-tab-active: transparent;
+      --border-sidebar: transparent;
+      --border-checkbox: #5f6368;
+      --shadow-card: none;
+      --shadow-tab: none;
+      --shadow-tab-active: none;
+      --shadow-avatar: none;
+      --shadow-badge: none;
+      --shadow-date: none;
+      --font-body: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Google Sans', 'Roboto', -apple-system, sans-serif;
+      --font-mono: 'Roboto Mono', 'JetBrains Mono', monospace;
+      --font-size-body: 14px;
+      --radius: 4px;
+      --radius-card: 8px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.2s;
+      --current-time-color: #ea4335;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+    /* --- gcal: Google Material overrides --- */
+    [data-theme="gcal"] .pixel-font {
+      font-family: 'Google Sans', 'Roboto', -apple-system, sans-serif;
+      letter-spacing: 0;
+    }
+    [data-theme="gcal"] .card {
+      border: 1px solid #dadce0;
+      box-shadow: none;
+      border-radius: 8px;
+    }
+    [data-theme="gcal"] .card:hover {
+      background: #ffffff;
+    }
+    [data-theme="gcal"] .card-header {
+      background: #ffffff !important;
+      color: #3c4043 !important;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0;
+    }
+    [data-theme="gcal"] .card-header span,
+    [data-theme="gcal"] .card-header h3 {
+      color: #3c4043 !important;
+      font-weight: 500;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0;
+    }
+    /* Base date-hero-time default color */
+    .date-hero-time { color: var(--text-primary); }
+    /* Pixel theme: scale down — pixel font renders wider/chunkier */
+    [data-theme="pixel"] .date-hero-day { font-size: 3.5rem !important; }
+    [data-theme="pixel"] .date-hero-time { font-size: 2.5rem !important; }
+
+    /* Google: date hero — Material style, blue accent, light weights */
+    [data-theme="gcal"] .date-hero { border-left: 4px solid #039be5 !important; }
+    [data-theme="gcal"] .date-hero-day { font-weight: 400; color: #039be5; }
+    [data-theme="gcal"] .date-hero-time { font-weight: 300; color: #039be5; }
+    [data-theme="gcal"] .date-hero .pixel-font { font-weight: 300 !important; }
+    /* Sidebar */
+    [data-theme="gcal"] .sidebar-item {
+      border: none;
+      border-radius: 0 25px 25px 0;
+      font-size: 0.875rem;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0.01em;
+    }
+    [data-theme="gcal"] .sidebar-item.active {
+      background: #d2e3fc;
+      color: #1967d2;
+      font-weight: 500;
+    }
+    [data-theme="gcal"] .sidebar-item:hover {
+      background: #f1f3f4;
+    }
+    /* Checkboxes — Google rounded */
+    [data-theme="gcal"] input[type="checkbox"] {
+      border-radius: 3px;
+      border-width: 2px;
+      border-color: #5f6368;
+      width: 18px;
+      height: 18px;
+    }
+    [data-theme="gcal"] input[type="checkbox"]:checked {
+      background: #1a73e8;
+      border-color: #1a73e8;
+    }
+    /* Tags / badges — Google chip style */
+    [data-theme="gcal"] .pixel-tag {
+      border-radius: 16px;
+      padding: 4px 12px;
+      border: 1px solid #dadce0;
+      background: #f1f3f4;
+      color: #3c4043;
+      font-size: 0.75rem;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+    }
+    /* Status badges — Google pill */
+    [data-theme="gcal"] .pixel-status-active {
+      border-radius: 16px;
+      border: none;
+      background: #1a73e8;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 0.7rem;
+      padding: 3px 12px;
+    }
+    [data-theme="gcal"] .pixel-status-inactive {
+      border-radius: 16px;
+      border: 1px solid #dadce0;
+      background: #f1f3f4;
+      color: #5f6368;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 0.7rem;
+      padding: 3px 12px;
+    }
+    /* Avatar — Google circle */
+    [data-theme="gcal"] .pixel-avatar {
+      border-radius: 50%;
+      border: none;
+      background: #1a73e8;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    /* Progress bar — Google rounded */
+    [data-theme="gcal"] .hp-bar {
+      border-radius: 4px;
+      border: none;
+      height: 8px;
+      background: #e8eaed;
+    }
+    [data-theme="gcal"] .hp-bar-fill {
+      border-radius: 4px;
+      background: #039be5;
+    }
+    /* Goal slider — Google style */
+    [data-theme="gcal"] .goal-slider::-webkit-slider-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1a73e8;
+      margin-top: -4px;
+    }
+    [data-theme="gcal"] .goal-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1a73e8;
+      border: none;
+    }
+    [data-theme="gcal"] .goal-slider::-webkit-slider-runnable-track {
+      height: 4px;
+      background: #e8eaed;
+      border-radius: 2px;
+    }
+    /* Tabs — Google pill style */
+    [data-theme="gcal"] .pixel-tab {
+      border-radius: 20px;
+      border: 1px solid #dadce0;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      font-size: 0.8rem;
+      padding: 6px 16px;
+      font-weight: 500;
+    }
+    [data-theme="gcal"] .pixel-tab.active {
+      background: #d2e3fc;
+      border-color: transparent;
+      color: #1967d2;
+    }
+    [data-theme="gcal"] .pixel-tab:hover {
+      background: #f1f3f4;
+    }
+    /* Date badge */
+    [data-theme="gcal"] .pixel-date {
+      border-radius: 16px;
+      border: 1px solid #dadce0;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 0.7rem;
+    }
+    /* Priority panel */
+    [data-theme="gcal"] .priority-panel {
+      border-radius: 8px;
+      border-color: #e8eaed;
+    }
+    /* Synapse circles */
+    [data-theme="gcal"] .synapse-circle {
+      stroke-width: 1.5;
+    }
+    /* Section headings: no uppercase pixel feel */
+    [data-theme="gcal"] h2 {
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0;
+      font-weight: 400;
+    }
+    /* Task: FOCUS / P1 / FINISHED labels — scoped to task section only */
+    [data-theme="gcal"] .card-body .pixel-font.text-xs {
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0.02em;
+      font-weight: 500;
+      font-size: 0.85rem !important;
+      color: #039be5 !important;
+    }
+    /* General pixel-font in gcal: Google Sans, not blue */
+    [data-theme="gcal"] .card-body .pixel-font {
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      letter-spacing: 0;
+      color: var(--text-primary);
+    }
+    /* Priority badges — Google colored pills */
+    [data-theme="gcal"] .badge-p0 {
+      background: #1a73e8; border-color: #1a73e8; border-radius: 16px;
+      font-family: 'Google Sans', sans-serif; font-size: 0.7rem; font-weight: 500; padding: 2px 10px;
+    }
+    [data-theme="gcal"] .badge-p1 {
+      background: #5f6368; border-color: #5f6368; border-radius: 16px;
+      font-family: 'Google Sans', sans-serif; font-size: 0.7rem; font-weight: 500; padding: 2px 10px;
+    }
+    [data-theme="gcal"] .badge-p2 {
+      background: #9aa0a6; border-color: #9aa0a6; border-radius: 16px;
+      font-family: 'Google Sans', sans-serif; font-size: 0.7rem; font-weight: 500; padding: 2px 10px;
+    }
+    [data-theme="gcal"] .badge-p3 {
+      background: #e8eaed; border-color: #e8eaed; color: #5f6368; border-radius: 16px;
+      font-family: 'Google Sans', sans-serif; font-size: 0.7rem; font-weight: 500; padding: 2px 10px;
+    }
+    /* P0 task items — lighter border, no heavy black frame */
+    [data-theme="gcal"] .card-body div[style*="border: 2px solid var(--border-primary)"] {
+      border: 1px solid #dadce0 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    /* Finished divider — lighter */
+    [data-theme="gcal"] .card-body div[style*="border-top: 2px dashed"] {
+      border-top: 1px solid #e8eaed !important;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -536,7 +1704,7 @@
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      box-shadow: var(--shadow-card);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06), inset 0 0 0 1px var(--border-light);
       padding: 0;
       border-radius: var(--radius-card);
       position: relative;
@@ -548,21 +1716,23 @@
     /* ===== Card header ===== */
     .card-header {
       background: var(--bg-header);
-      color: var(--text-inverse);
-      padding: 8px 12px;
+      color: var(--text-primary);
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: var(--font-heading);
-      font-size: 0.6rem;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
       width: 100%;
       border-radius: var(--radius-card) var(--radius-card) 0 0;
+      border-bottom: 1px solid var(--border-card);
     }
     .card-header span,
     .card-header h3 {
-      color: var(--text-inverse);
-      font-family: var(--font-heading);
-      font-size: 0.6rem;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
       margin: 0;
     }
 
@@ -591,6 +1761,23 @@
     .hp-bar-fill {
       height: 100%;
       background: var(--bg-hp-fill);
+      transition: width 0.05s ease-out;
+    }
+    .hp-bar:focus {
+      box-shadow: 0 0 0 2px var(--bg-hp-fill);
+    }
+    .hp-bar-active {
+      box-shadow: 0 0 0 2px var(--bg-hp-fill) !important;
+      transform: scaleY(1.3);
+      transition: transform 0.15s ease;
+    }
+    .hp-bar-maxed .hp-bar-fill {
+      animation: hp-pulse 0.4s ease-out;
+    }
+    @keyframes hp-pulse {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+      100% { filter: brightness(1); }
     }
 
     .goal-slider::-webkit-slider-thumb {
@@ -614,9 +1801,11 @@
     /* ===== Sidebar ===== */
     .sidebar-item {
       cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: var(--radius);
+      border: none;
+      border-radius: 6px;
       position: relative;
+      font-family: var(--font-body);
+      transition: background 0.15s;
     }
     .sidebar-item:hover {
       background: var(--bg-sidebar-hover);
@@ -624,19 +1813,7 @@
     .sidebar-item.active {
       background: var(--bg-sidebar-active);
       color: var(--text-sidebar-active);
-    }
-    .sidebar-item .cursor-indicator {
-      opacity: 0;
-      color: var(--text-primary);
-      font-family: var(--font-heading);
-      font-size: 10px;
-    }
-    .sidebar-item.active .cursor-indicator {
-      opacity: 1;
-      color: var(--text-sidebar-active);
-    }
-    .sidebar-item:hover .cursor-indicator {
-      opacity: 0.5;
+      font-weight: 600;
     }
 
     /* ===== Sub-tab buttons ===== */
@@ -1029,25 +2206,30 @@
       'fixed top-0 left-0 h-full w-64 z-50',
       'flex flex-col',
       sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-    ]" style="background: var(--bg-sidebar); border-right: 2px solid var(--border-sidebar); box-shadow: var(--shadow-card);">
+    ]" style="background: var(--bg-sidebar); border-right: 1px solid var(--border-secondary); box-shadow: none;">
 
       <!-- Logo / Title Screen -->
-      <div class="px-5 py-5" style="border-bottom: 2px solid var(--border-sidebar);">
-        <div class="pixel-font text-sm" style="color: var(--text-primary);">
-          {{ dashboardTitle }}
-        </div>
-        <div class="text-xs mt-2" style="font-family: var(--font-mono); color: var(--text-tertiary);">
-          &#9608;&#9608; Personal System &#9608;&#9608;
-        </div>
-        <div class="mt-2 text-xs" style="font-size: 0.6rem; color: var(--text-primary);">
-          &#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;&#9604;
+      <div class="px-5 py-5" style="border-bottom: 1px solid var(--border-secondary);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img v-if="isPixel" src="seahorse-logo.png" alt="Loci" style="width: 36px; height: auto; image-rendering: auto;" />
+          <div>
+            <div class="pixel-font" style="font-size: 0.7rem; color: var(--text-primary); letter-spacing: 1px;">
+              {{ dashboardTitle }}
+            </div>
+            <div style="font-size: 0.7rem; margin-top: 3px; font-family: var(--font-body); color: var(--text-muted);">
+              <template v-if="isPixel">Personal System</template>
+              <template v-else>Personal Memory System</template>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Nav items - Game Menu style -->
       <nav class="flex-1 py-3 overflow-y-auto">
         <div class="px-4 mb-2">
-          <span class="pixel-font text-xs" style="font-size: 0.55rem; color: var(--text-primary);">-- MENU --</span>
+          <span class="pixel-font text-xs" style="font-size: 0.55rem; color: var(--text-primary);">
+            MENU
+          </span>
         </div>
         <div
           v-for="item in navItems"
@@ -1058,16 +2240,15 @@
             currentPage === item.id ? 'active' : ''
           ]"
         >
-          <span class="cursor-indicator" style="width: 12px;">&#9658;</span>
-          <span class="text-sm w-6 text-center">{{ item.icon }}</span>
-          <span class="text-sm">
+          <span class="w-5 text-center" style="font-size: 0.85rem; opacity: 0.7;">{{ item.icon }}</span>
+          <span style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;">
             {{ item.label }}
           </span>
         </div>
       </nav>
 
       <!-- Theme picker -->
-      <div class="px-4 py-3" style="border-top: 2px solid var(--border-sidebar);">
+      <div class="px-4 py-3" style="border-top: 1px solid var(--border-secondary);">
         <div style="font-size: 0.6rem; margin-bottom: 6px; color: var(--text-muted); font-family: var(--font-mono);">THEME</div>
         <div class="theme-picker">
           <button v-for="t in themes" :key="t.id"
@@ -1082,14 +2263,7 @@
       <!-- Footer - System info -->
       <div class="px-4 py-4 text-xs" style="border-top: 2px solid var(--border-sidebar); font-family: var(--font-mono); color: var(--text-muted);">
         <div v-if="data">
-          <div class="flex items-center gap-1.5 mb-1">
-            <span style="color: var(--text-primary);">&#9632;</span>
-            <span>{{ data.build_time }}</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span style="color: var(--text-primary);">&#9632;</span>
-            <span>{{ data.stats?.total_files || 0 }} files</span>
-          </div>
+          <!-- build info removed -->
         </div>
         <div v-else style="color: var(--text-muted);">LOADING...<span class="blink">_</span></div>
       </div>
@@ -1118,7 +2292,7 @@
               <p class="text-black text-sm mb-3">&#9608; SYSTEM FAILURE &#9608;</p>
               <p class="text-ink-600 text-xs mb-4">{{ error }}</p>
               <p class="text-xs text-ink-600">
-                RUN: <code class="text-black" style="background: #f0f0f0; border: 1px solid #000; padding: 2px 6px;">python build.py</code>
+                RUN: <code style="background: var(--bg-code); border: 1px solid var(--border-primary); padding: 2px 6px; color: var(--text-primary);">python build.py</code>
               </p>
             </div>
           </div>
@@ -1130,37 +2304,33 @@
 
         <!-- ========== Today ========== -->
         <section v-if="currentPage === 'today'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9788; Today &#9788; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            Today
           </h2>
 
           <!-- 1. Date & Time -->
-          <div class="card mb-6" style="padding: 32px 28px;">
+          <div class="card mb-10 date-hero" style="padding: 32px 28px;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 20px;">
-                <span class="pixel-font" style="font-size: 3.5rem; line-height: 1;">{{ currentDay }}</span>
+                <span class="pixel-font date-hero-day" style="font-size: 4.5rem; line-height: 1;">{{ currentDay }}</span>
                 <div>
-                  <div class="pixel-font" style="font-size: 0.75rem; color: #000;">{{ currentDateFull }}</div>
-                  <div style="font-size: 1.1rem; color: #666; margin-top: 6px;">{{ currentWeekday }}</div>
+                  <div class="pixel-font" style="font-size: 1.1rem; color: var(--text-secondary);">{{ currentDateFull }}</div>
+                  <div style="font-size: 1.5rem; color: var(--text-tertiary); margin-top: 6px; font-weight: 300;">{{ currentWeekday }}</div>
                 </div>
               </div>
               <div style="text-align: right;">
-                <div class="pixel-font" style="font-size: 1.5rem; color: #000;">{{ currentTime }}</div>
-                <div style="font-size: 0.9rem; color: #888; margin-top: 4px;">{{ greeting }}</div>
+                <div class="pixel-font date-hero-time" style="font-size: 3.5rem; font-weight: 200; letter-spacing: -2px;">{{ currentTime }}</div>
+                <div style="font-size: 1.15rem; color: var(--text-muted); margin-top: 6px;">{{ greeting }}</div>
               </div>
             </div>
           </div>
 
           <!-- 1.5 Yesterday's Review -->
-          <div class="card mb-6" v-if="yesterdayJournal || true">
-            <div class="yesterday-toggle" @click="yesterdayExpanded = !yesterdayExpanded"
-              style="border-bottom: 1px solid var(--border-light);">
-              <span style="font-size: 0.8rem; color: var(--text-muted);">{{ yesterdayExpanded ? '&#9660;' : '&#9654;' }}</span>
-              <span style="font-family: var(--font-heading); font-size: 0.55rem; color: var(--text-muted);">&#9668; YESTERDAY</span>
-              <span v-if="yesterdayJournal" style="font-size: 0.85rem; color: var(--text-tertiary); flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                {{ yesterdaySummary }}
-              </span>
-              <span v-else style="font-size: 0.85rem; color: var(--text-faint); font-style: italic;">No journal entry</span>
+          <div class="card mb-10" v-if="yesterdayJournal || true">
+            <div class="card-header" @click="yesterdayExpanded = !yesterdayExpanded"
+              style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.7rem; color: var(--text-muted);">{{ yesterdayExpanded ? '&#9660;' : '&#9654;' }}</span>
+              <h3 style="white-space: nowrap;">Yesterday</h3>
             </div>
             <div v-if="yesterdayExpanded" class="card-body">
               <div v-if="yesterdayJournal" class="md-content" v-html="yesterdayJournal.content"></div>
@@ -1171,73 +2341,73 @@
           </div>
 
           <!-- 2. Today's Tasks (reactive to calendar view) -->
-          <div class="card mb-6">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card mb-10">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" @click="tasksExpanded = !tasksExpanded">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span>&#9632;</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">{{ tasksExpanded ? '&#9660;' : '&#9654;' }}</span>
                 <h3>{{ taskSectionTitle }}</h3>
               </div>
-              <button @click="showAddTask = !showAddTask"
-                style="width: 28px; height: 28px; border: 2px solid #000; background: #fff; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;"
-                :style="showAddTask ? 'background: #000; color: #fff;' : ''">+</button>
+              <button @click.stop="showAddTask = !showAddTask"
+                style="width: 28px; height: 28px; border: 2px solid var(--border-primary); background: var(--bg-card); cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--text-primary);"
+                :style="showAddTask ? 'background: var(--bg-header); color: var(--text-inverse);' : ''">+</button>
             </div>
             <!-- Quick-add task inline form -->
-            <div v-if="showAddTask" style="padding: 12px 16px; border-bottom: 2px solid #eee; display: flex; gap: 8px; align-items: center;">
+            <div v-if="tasksExpanded && showAddTask" style="padding: 12px 16px; border-bottom: 2px solid var(--border-light); display: flex; gap: 8px; align-items: center;">
               <input v-model="newTaskText" @keyup.enter="addNewTask()" placeholder="New task..."
-                style="flex: 1; padding: 6px 10px; border: 2px solid #000; font-size: 0.9rem; outline: none;">
-              <select v-model="newTaskPriority" style="padding: 6px 8px; border: 2px solid #000; font-size: 0.8rem; cursor: pointer;">
+                style="flex: 1; padding: 6px 10px; border: 2px solid var(--border-primary); font-size: 0.9rem; outline: none; border-radius: var(--radius); font-family: var(--font-body); background: var(--bg-input); color: var(--text-primary);">
+              <select v-model="newTaskPriority" style="padding: 6px 8px; border: 2px solid var(--border-primary); font-size: 0.8rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body); background: var(--bg-input); color: var(--text-primary);">
                 <option value="P0">Focus</option>
                 <option value="P1">P1</option>
               </select>
-              <button @click="addNewTask()" style="padding: 6px 14px; border: 2px solid #000; background: #000; color: #fff; cursor: pointer; font-size: 0.8rem;">Add</button>
+              <button @click="addNewTask()" style="padding: 6px 14px; border: 2px solid var(--border-primary); background: var(--text-primary); color: var(--text-inverse); cursor: pointer; font-size: 0.8rem; border-radius: var(--radius); font-family: var(--font-body);">Add</button>
             </div>
-            <div class="card-body">
+            <div v-if="tasksExpanded" class="card-body">
               <!-- === DAY VIEW === -->
               <div v-if="calendarView === 'day'">
                 <!-- Focus: P0 tasks -->
                 <div @dragover.prevent @drop="dropTask($event, 'P0')"
-                  style="min-height: 20px;" :style="dragOverGroup === 'P0' ? 'background: #f5f5f5;' : ''"
+                  style="min-height: 20px;" :style="dragOverGroup === 'P0' ? 'background: var(--bg-secondary);' : ''"
                   @dragenter.prevent="dragOverGroup = 'P0'" @dragleave="dragOverGroup = null"
                   class="mb-4">
-                  <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #000;">&#9733; FOCUS</div>
+                  <div class="pixel-font text-xs mb-3" style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); display: inline-block; border: 1.5px solid var(--border-primary); padding: 4px 12px; letter-spacing: 1px;">&#9733; FOCUS</div>
                   <div v-for="(task, i) in undoneTasks('P0')" :key="'p0-'+i"
                     draggable="true" @dragstart="dragTask($event, 'P0', task)"
-                    style="padding: 12px 16px; border: 2px solid #000; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; cursor: grab;"
+                    style="padding: 8px 12px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
                     :style="draggingTask === task ? 'opacity: 0.4;' : ''">
                     <input type="checkbox" :checked="task.done" @change="task.done = true">
-                    <span style="color: #000; font-weight: bold; font-size: 1.05rem;">{{ task.text }}</span>
+                    <span style="color: var(--text-primary); font-size: 1.05rem;">{{ task.text }}</span>
                   </div>
                 </div>
                 <!-- P1 tasks -->
                 <div v-for="p in ['P1']" :key="p"
                   @dragover.prevent @drop="dropTask($event, p)"
-                  :style="dragOverGroup === p ? 'background: #f5f5f5;' : ''"
+                  :style="dragOverGroup === p ? 'background: var(--bg-secondary);' : ''"
                   @dragenter.prevent="dragOverGroup = p" @dragleave="dragOverGroup = null"
                   style="min-height: 20px;" class="mb-3">
-                  <span :class="['inline-block px-2 py-0.5 text-xs mb-2', priorityClass(p)]">{{ p }}</span>
+                  <div class="pixel-font text-xs mb-3" style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: inline-block; border: 1.5px solid var(--border-secondary); padding: 4px 12px; letter-spacing: 1px;">{{ p }}</div>
                   <div v-for="(task, i) in undoneTasks(p)" :key="p+'-'+i"
                     draggable="true" @dragstart="dragTask($event, p, task)"
-                    style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
+                    style="padding: 8px 12px; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
                     :style="draggingTask === task ? 'opacity: 0.4;' : ''">
                     <input type="checkbox" :checked="task.done" @change="task.done = true">
-                    <span style="color: #333;">{{ task.text }}</span>
+                    <span style="color: var(--text-secondary); font-size: 1.05rem;">{{ task.text }}</span>
                   </div>
                 </div>
-                <div v-if="!hasAnyTodayTasks" style="color: #aaa; padding: 20px 0; text-align: center;">
-                  &#9632; No tasks for today. Enjoy the day!
+                <div v-if="!hasAnyTodayTasks" style="color: var(--text-faint); padding: 20px 0; text-align: center;">
+                  No tasks for today. Enjoy the day!
                 </div>
                 <!-- Finished -->
                 <div @dragover.prevent @drop="dropTask($event, 'done')"
-                  :style="dragOverGroup === 'done' ? 'background: #f5f5f5;' : ''"
+                  :style="dragOverGroup === 'done' ? 'background: var(--bg-secondary);' : ''"
                   @dragenter.prevent="dragOverGroup = 'done'" @dragleave="dragOverGroup = null"
-                  style="margin-top: 20px; padding-top: 16px; border-top: 2px dashed #e0e0e0; min-height: 40px;">
-                  <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #888;">&#9632; FINISHED ({{ finishedTasks.length }})</div>
+                  style="margin-top: 20px; padding-top: 16px; border-top: 2px dashed var(--border-secondary); min-height: 40px;">
+                  <div class="pixel-font text-xs mb-3" style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: inline-block; border: 1.5px solid var(--border-secondary); padding: 4px 12px; letter-spacing: 1px;">FINISHED ({{ finishedTasks.length }})</div>
                   <div v-for="(task, i) in finishedTasks" :key="'done-'+i"
                     draggable="true" @dragstart="dragTask($event, 'done', task)"
                     style="padding: 6px 12px; display: flex; align-items: flex-start; gap: 10px; cursor: grab;"
                     :style="draggingTask === task ? 'opacity: 0.4;' : ''">
                     <input type="checkbox" checked @change="task.done = false">
-                    <span style="color: #aaa;">{{ task.text }}</span>
+                    <span style="color: var(--text-faint); font-size: 1.05rem;">{{ task.text }}</span>
                   </div>
                 </div>
               </div>
@@ -1245,14 +2415,14 @@
               <div v-if="calendarView === 'week'">
                 <div v-for="wd in weeklyTasks" :key="wd.day" style="margin-bottom: 16px;">
                   <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span class="pixel-font" style="font-size: 0.6rem; min-width: 36px;" :style="wd.isToday ? 'color: #000; font-weight: bold;' : 'color: #888;'">{{ wd.day }}</span>
-                    <span style="font-size: 0.75rem; color: #aaa;">{{ wd.date }}</span>
+                    <span class="pixel-font" style="font-size: 0.6rem; min-width: 36px;" :style="wd.isToday ? 'color: var(--text-primary); font-weight: bold;' : 'color: var(--text-muted);'">{{ wd.day }}</span>
+                    <span style="font-size: 0.75rem; color: var(--text-faint);">{{ wd.date }}</span>
                   </div>
-                  <div v-if="wd.tasks.length === 0" style="color: #ccc; font-size: 0.85rem; padding-left: 44px;">--</div>
+                  <div v-if="wd.tasks.length === 0" style="color: var(--border-secondary); font-size: 0.85rem; padding-left: 44px;">--</div>
                   <div v-for="(task, i) in wd.tasks" :key="i"
                     style="padding: 6px 12px 6px 44px; display: flex; align-items: center; gap: 8px;">
                     <span :class="['inline-block px-2 py-0.5 text-xs', priorityClass(task.priority)]" style="font-size: 0.65rem;">{{ task.priority }}</span>
-                    <span :style="task.done ? 'color: #aaa; text-decoration: line-through;' : 'color: #333;'">{{ task.text }}</span>
+                    <span :style="task.done ? 'color: var(--text-faint); text-decoration: line-through;' : 'color: var(--text-secondary);'">{{ task.text }}</span>
                   </div>
                 </div>
               </div>
@@ -1260,24 +2430,24 @@
               <div v-if="calendarView === 'month'">
                 <!-- Monthly summary -->
                 <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
-                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.total }}</div>
-                    <div style="font-size: 0.75rem; color: #888;">Total Tasks</div>
+                  <div style="flex: 1; padding: 12px; border: 2px solid var(--border-primary); text-align: center; border-radius: var(--radius);">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: var(--text-primary);">{{ monthlyTaskSummary.total }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Total Tasks</div>
                   </div>
-                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
-                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.done }}</div>
-                    <div style="font-size: 0.75rem; color: #888;">Completed</div>
+                  <div style="flex: 1; padding: 12px; border: 2px solid var(--border-primary); text-align: center; border-radius: var(--radius);">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: var(--text-primary);">{{ monthlyTaskSummary.done }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Completed</div>
                   </div>
-                  <div style="flex: 1; padding: 12px; border: 2px solid #000; text-align: center;">
-                    <div class="pixel-font" style="font-size: 1.4rem; color: #000;">{{ monthlyTaskSummary.rate }}%</div>
-                    <div style="font-size: 0.75rem; color: #888;">Completion</div>
+                  <div style="flex: 1; padding: 12px; border: 2px solid var(--border-primary); text-align: center; border-radius: var(--radius);">
+                    <div class="pixel-font" style="font-size: 1.4rem; color: var(--text-primary);">{{ monthlyTaskSummary.rate }}%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Completion</div>
                   </div>
                 </div>
                 <!-- Goals with progress -->
-                <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: #000;">&#9632; MONTHLY GOALS</div>
+                <div class="pixel-font text-xs mb-3" style="font-size: 0.5rem; color: var(--text-primary);"><span v-if="isPixel">&#9632;</span> MONTHLY GOALS</div>
                 <div v-for="(goal, i) in goalsList" :key="'mg-'+i" style="margin-bottom: 14px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="font-size: 0.9rem; color: #333;">{{ goal.name }}</span>
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">{{ goal.name }}</span>
                     <span style="font-size: 0.8rem; color: #888;">{{ goal.progress }}%</span>
                   </div>
                   <div style="width: 100%; height: 8px; background: #eee; border: 1px solid #ddd;">
@@ -1292,13 +2462,13 @@
           </div>
 
           <!-- 3. Calendar Timeline -->
-          <div class="card mb-6">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card mb-10">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" @click="calendarExpanded = !calendarExpanded">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span>&#9654;</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">{{ calendarExpanded ? '&#9660;' : '&#9654;' }}</span>
                 <h3>Calendar</h3>
               </div>
-              <div style="display: flex; gap: 4px;">
+              <div style="display: flex; gap: 4px;" @click.stop>
                 <button v-for="v in ['day','week','month']" :key="v"
                   @click="switchCalendarView(v)"
                   :class="['pixel-tab', calendarView === v ? 'active' : '']"
@@ -1307,21 +2477,30 @@
                 </button>
               </div>
             </div>
-            <div class="card-body" style="position: relative;">
-              <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 1;">
-                <button @click="calendarNav(-1)" style="background: #fff; border: 1px solid #ccc; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: #666;">&#9664;</button>
-                <button @click="calendarNav(1)" style="background: #fff; border: 1px solid #ccc; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: #666;">&#9654;</button>
+            <div v-if="calendarExpanded" class="card-body">
+              <div style="display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 8px;">
+                <button @click="calendarNav(-1)" style="background: var(--bg-card); border: 1px solid var(--border-secondary); padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: var(--text-tertiary); border-radius: var(--radius);">&#9664;</button>
+                <button @click="calendarNav(1)" style="background: var(--bg-card); border: 1px solid var(--border-secondary); padding: 3px 8px; font-size: 0.7rem; cursor: pointer; color: var(--text-tertiary); border-radius: var(--radius);">&#9654;</button>
               </div>
               <div v-if="calendarView === 'day'" style="user-select: none;">
-                <div style="display: flex;">
+                <div ref="calendarScrollRef" style="display: flex; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;"
+                  :style="'max-height: ' + calendarVisibleHeight + 'px;'">
                   <!-- Hour labels column -->
-                  <div style="width: 60px; flex-shrink: 0;">
-                    <div v-for="hour in dayHours" :key="hour" :style="'height: ' + PX_PER_HOUR + 'px;'" style="text-align: right; padding-right: 12px; padding-top: 0;">
-                      <span class="pixel-font" style="font-size: 0.45rem; color: #888;">{{ String(hour).padStart(2,'0') }}:00</span>
+                  <div style="width: 60px; flex-shrink: 0; position: relative;">
+                    <div v-for="hour in allDayHours" :key="hour" :style="'height: ' + PX_PER_HOUR + 'px;'" style="text-align: right; padding-right: 12px; padding-top: 0;">
+                      <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-body);">{{ String(hour).padStart(2,'0') }}:00</span>
                     </div>
                   </div>
                   <!-- Timeline interaction area -->
-                  <div data-timeline style="flex: 1; position: relative; border-left: 1px solid #e0e0e0; cursor: crosshair;"
+                  <div style="flex: 1; position: relative;"
+                    :style="'height: ' + TIMELINE_HEIGHT + 'px;'">
+                  <!-- Current time label on the RIGHT -->
+                  <div v-if="calendarDayOffset === 0"
+                    style="position: absolute; right: 8px; pointer-events: none; z-index: 6;"
+                    :style="'top: ' + (minuteToY(currentHour * 60 + new Date().getMinutes()) - 9) + 'px;'">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--current-time-color); background: var(--bg-card); padding: 1px 4px; border-radius: 3px;">{{ currentTime.slice(0,5) }}</span>
+                  </div>
+                  <div data-timeline style="position: absolute; left: 0; right: 0; cursor: crosshair;"
                     :style="'height: ' + TIMELINE_HEIGHT + 'px;'"
                     @click.stop
                     @mousedown="onTimelineMousedown"
@@ -1329,25 +2508,21 @@
                     @mouseup="onTimelineMouseup"
                     @mouseleave="isDraggingTime = false">
                     <!-- Hour grid lines -->
-                    <div v-for="hour in dayHours" :key="'line'+hour"
-                      style="position: absolute; left: 0; right: 0; border-top: 1px solid #e8e8e8; pointer-events: none;"
+                    <div v-for="hour in allDayHours" :key="'line'+hour"
+                      style="position: absolute; left: 0; right: 0; border-top: 1px solid var(--border-light); pointer-events: none;"
                       :style="'top: ' + minuteToY(hour * 60) + 'px;'">
                     </div>
-                    <!-- Half-hour lines -->
-                    <div v-for="hour in dayHours" :key="'half'+hour"
-                      style="position: absolute; left: 0; right: 0; border-top: 1px dotted #f0f0f0; pointer-events: none;"
-                      :style="'top: ' + minuteToY(hour * 60 + 30) + 'px;'">
-                    </div>
+                    <!-- Half-hour lines removed -->
                     <!-- Current time indicator -->
                     <div v-if="calendarDayOffset === 0"
-                      style="position: absolute; left: 0; right: 0; height: 2px; background: #e00; z-index: 5; pointer-events: none;"
+                      style="position: absolute; left: 0; right: 0; height: 2px; background: var(--current-time-color); z-index: 5; pointer-events: none;"
                       :style="'top: ' + minuteToY(currentHour * 60 + new Date().getMinutes()) + 'px;'">
-                      <div style="position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; background: #e00; border-radius: 50%;"></div>
+                      <div style="position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; background: var(--current-time-color); border-radius: 50%;"></div>
                     </div>
                     <!-- Events -->
                     <div v-for="(event, ei) in getEventsForDay()" :key="'ev'+ei"
                       @click.stop="onEventClick(event._ref || event, $event)" @mousedown.stop="onEventMousedown(event._ref || event, $event, ei)"
-                      style="position: absolute; background: #000; color: #fff; padding: 0; font-size: 0.85rem; border-radius: 4px; z-index: 3; overflow: visible; cursor: grab; display: flex; flex-direction: column;"
+                      style="position: absolute; background: var(--bg-event); color: var(--text-event); padding: 0; font-size: 0.85rem; border-radius: 4px; z-index: 3; overflow: visible; cursor: grab; display: flex; flex-direction: column;"
                       :style="'top: ' + minuteToY(event.startKey) + 'px; height: ' + Math.max(minuteToY(event.endKey) - minuteToY(event.startKey), 14) + 'px; left: calc(' + (event._col || 0) + ' * (100% - 8px) / ' + (event._totalCols || 1) + ' + 4px); width: calc((100% - 8px) / ' + (event._totalCols || 1) + ' - 2px);'">
                       <!-- Top resize handle -->
                       <div @mousedown.stop="onResizeMousedown(event._ref || event, 'top', $event)"
@@ -1355,8 +2530,8 @@
                       <!-- Event content -->
                       <div style="padding: 3px 8px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="min-width: 0; overflow: hidden;">
-                          <div style="font-weight: 500; line-height: 1.2; font-size: 0.8rem;">{{ event.title }}</div>
-                          <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 24" style="opacity: 0.6; font-size: 0.65rem; margin-top: 1px;">{{ keyToTime(event.startKey) }} - {{ keyToTime(event.endKey) }}</div>
+                          <div style="font-weight: 400; line-height: 1.3; font-size: 0.9rem;">{{ event.title }}</div>
+                          <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 30" style="opacity: 0.8; font-size: 0.75rem; margin-top: 2px;">{{ keyToTime(event.startKey) }} - {{ keyToTime(event.endKey) }}</div>
                           <div v-if="event.location && minuteToY(event.endKey) - minuteToY(event.startKey) >= 36" style="opacity: 0.5; font-size: 0.6rem; margin-top: 1px; display: flex; align-items: center; gap: 3px;"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5S12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.5"/></svg>{{ event.location }}</div>
                         </div>
                         <span @click.stop="removeEvent(event._ref || event)" style="cursor: pointer; opacity: 0.5; font-size: 0.8rem; flex-shrink: 0; margin-left: 4px;">&times;</span>
@@ -1367,53 +2542,53 @@
                     </div>
                     <!-- Drag selection preview -->
                     <div v-if="isDraggingTime && dragStartKey !== null"
-                      style="position: absolute; left: 4px; right: 4px; background: rgba(0,0,0,0.08); border: 2px solid #000; border-radius: 4px; z-index: 4; pointer-events: none;"
+                      style="position: absolute; left: 4px; right: 4px; background: var(--bg-event); opacity: 0.4; border-radius: 4px; z-index: 4; pointer-events: none;"
                       :style="'top: ' + minuteToY(Math.min(dragStartKey, dragEndKey)) + 'px; height: ' + Math.max(minuteToY(Math.max(dragStartKey, dragEndKey)) - minuteToY(Math.min(dragStartKey, dragEndKey)), 4) + 'px;'">
-                      <div style="position: absolute; bottom: -18px; left: 4px; font-size: 0.65rem; color: #666; white-space: nowrap;">
+                      <div style="position: absolute; bottom: -18px; left: 4px; font-size: 0.65rem; color: var(--text-muted); white-space: nowrap;">
                         {{ keyToTime(Math.min(dragStartKey, dragEndKey)) }} - {{ keyToTime(Math.max(dragStartKey, dragEndKey)) }}
                       </div>
                     </div>
                     <!-- Inline add form -->
                     <div v-if="addingEventStart !== null" @click.stop @mousedown.stop
-                      style="position: absolute; left: 4px; right: 4px; background: #fff; border: 2px solid #000; padding: 12px; border-radius: 6px; z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.18);"
-                      :style="'top: ' + minuteToY(addingEventStart) + 'px;'">
+                      style="position: fixed; left: 50%; top: 30%; transform: translateX(-50%); width: 400px; max-width: 90vw; background: var(--bg-card); border: 1px solid var(--border-secondary); padding: 16px; border-radius: 8px; z-index: 100; box-shadow: 0 8px 28px rgba(0,0,0,0.22);">
                       <!-- Title -->
                       <input v-model="newEventTitle" @keyup.enter="confirmAddEvent" @keyup.escape="addingEventStart = null"
                         placeholder="Add title"
-                        style="width: 100%; border: none; border-bottom: 2px solid #000; padding: 4px 0; font-size: 1rem; font-family: inherit; outline: none; margin-bottom: 10px; font-weight: 500;">
+                        style="width: 100%; border: none; border-bottom: 2px solid var(--bg-event); padding: 4px 0; font-size: 1rem; font-family: inherit; outline: none; margin-bottom: 10px; font-weight: 500; background: transparent; color: var(--text-primary);">
                       <!-- Time -->
                       <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><circle cx="8" cy="8" r="6.5" stroke="#999" stroke-width="1.2"/><line x1="8" y1="4" x2="8" y2="8" stroke="#999" stroke-width="1.2" stroke-linecap="round"/><line x1="8" y1="8" x2="11" y2="10" stroke="#999" stroke-width="1.2" stroke-linecap="round"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><circle cx="8" cy="8" r="6.5" :stroke="'var(--text-muted)'" stroke-width="1.2"/><line x1="8" y1="4" x2="8" y2="8" :stroke="'var(--text-muted)'" stroke-width="1.2" stroke-linecap="round"/><line x1="8" y1="8" x2="11" y2="10" :stroke="'var(--text-muted)'" stroke-width="1.2" stroke-linecap="round"/></svg>
                         <input type="time" v-model="editStartTime"
-                          style="border: 1px solid #ddd; padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px;">
-                        <span style="color: #888;">-</span>
+                          style="border: 1px solid var(--border-secondary); padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px; background: var(--bg-input); color: var(--text-primary);">
+                        <span style="color: var(--text-muted);">-</span>
                         <input type="time" v-model="editEndTime"
-                          style="border: 1px solid #ddd; padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px;">
+                          style="border: 1px solid var(--border-secondary); padding: 3px 6px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; width: 90px; background: var(--bg-input); color: var(--text-primary);">
                       </div>
                       <!-- Location -->
                       <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5S12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" stroke="#999" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="6" r="1.8" stroke="#999" stroke-width="1"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0;"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5S12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" :stroke="'var(--text-muted)'" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="6" r="1.8" :stroke="'var(--text-muted)'" stroke-width="1"/></svg>
                         <input v-model="newEventLocation" placeholder="Add location"
-                          style="flex: 1; border: 1px solid #ddd; padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px;">
+                          style="flex: 1; border: 1px solid var(--border-secondary); padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; background: var(--bg-input); color: var(--text-primary);">
                       </div>
                       <!-- Note -->
                       <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 10px;">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0; margin-top: 4px;"><rect x="2" y="1.5" width="12" height="13" rx="1" stroke="#999" stroke-width="1.2"/><line x1="5" y1="5" x2="11" y2="5" stroke="#999" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8" x2="11" y2="8" stroke="#999" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="11" x2="9" y2="11" stroke="#999" stroke-width="1" stroke-linecap="round"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink: 0; margin-top: 4px;"><rect x="2" y="1.5" width="12" height="13" rx="1" :stroke="'var(--text-muted)'" stroke-width="1.2"/><line x1="5" y1="5" x2="11" y2="5" :stroke="'var(--text-muted)'" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="8" x2="11" y2="8" :stroke="'var(--text-muted)'" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="11" x2="9" y2="11" :stroke="'var(--text-muted)'" stroke-width="1" stroke-linecap="round"/></svg>
                         <textarea v-model="newEventNote" placeholder="Add note" rows="2"
-                          style="flex: 1; border: 1px solid #ddd; padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; resize: vertical;"></textarea>
+                          style="flex: 1; border: 1px solid var(--border-secondary); padding: 4px 8px; font-size: 0.8rem; font-family: inherit; outline: none; border-radius: 3px; resize: vertical; background: var(--bg-input); color: var(--text-primary);"></textarea>
                       </div>
                       <!-- Actions -->
                       <div style="display: flex; justify-content: space-between; align-items: center;">
                         <button v-if="editingEvent" @click.stop="removeEvent(editingEvent); editingEvent = null; addingEventStart = null;"
-                          style="background: #fff; color: #c00; border: 1px solid #c00; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Delete</button>
+                          style="background: transparent; color: #ff453a; border: 1px solid #ff453a; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Delete</button>
                         <span v-else></span>
                         <div style="display: flex; gap: 6px;">
-                          <button @click="editingEvent = null; addingEventStart = null;" style="background: #fff; color: #666; border: 1px solid #ddd; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Cancel</button>
-                          <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" style="background: #000; color: #fff; border: none; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Save</button>
+                          <button @click="editingEvent = null; addingEventStart = null;" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border-secondary); padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Cancel</button>
+                          <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" style="background: var(--bg-event); color: var(--text-event); border: none; padding: 5px 14px; cursor: pointer; font-family: inherit; border-radius: 3px; font-size: 0.8rem;">Save</button>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
                 </div>
               </div>
               <!-- Week View -->
@@ -1421,13 +2596,12 @@
                 <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
                   <div v-for="(day, i) in weekDays" :key="i"
                     @click="goToDay(day.date)"
-                    :style="day.isToday ? 'border: 2px solid #000; background: #fafafa;' : 'border: 1px solid #e0e0e0;'"
-                    style="padding: 12px 10px; min-height: 140px; cursor: pointer; transition: background 0.15s;"
-                    onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background=''">
-                    <div class="pixel-font" style="font-size: 0.45rem; color: #888; margin-bottom: 4px;">{{ day.label }}</div>
-                    <div :style="day.isToday ? 'font-weight: bold;' : ''" style="font-size: 1.4rem; margin-bottom: 10px;">{{ day.date }}</div>
+                    :style="day.isToday ? 'border: 2px solid var(--border-primary); background: var(--bg-card-hover);' : 'border: 1px solid var(--border-light);'"
+                    style="padding: 12px 10px; min-height: 140px; cursor: pointer; transition: background 0.15s; border-radius: var(--radius);">
+                    <div class="pixel-font" style="font-size: 0.55rem; color: var(--text-muted); margin-bottom: 4px;">{{ day.label }}</div>
+                    <div :style="day.isToday ? 'font-weight: bold; color: var(--text-primary);' : 'color: var(--text-primary);'" style="font-size: 1.4rem; margin-bottom: 10px;">{{ day.date }}</div>
                     <div v-for="event in day.events" :key="event.title"
-                      style="background: #000; color: #fff; padding: 4px 8px; margin-bottom: 4px; font-size: 0.8rem; line-height: 1.3; word-wrap: break-word;">
+                      style="background: var(--bg-event); color: var(--text-event); padding: 4px 8px; margin-bottom: 4px; font-size: 0.8rem; line-height: 1.3; word-wrap: break-word; border-radius: 3px;">
                       {{ event.title }}
                     </div>
                   </div>
@@ -1435,22 +2609,21 @@
               </div>
               <!-- Month View -->
               <div v-if="calendarView === 'month'">
-                <div class="pixel-font text-center mb-4" style="font-size: 0.65rem;">{{ monthLabel }}</div>
+                <div class="pixel-font text-center mb-4" style="font-size: 0.65rem; color: var(--text-primary);">{{ monthLabel }}</div>
                 <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
                   <div v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d"
-                    class="pixel-font" style="text-align: center; font-size: 0.45rem; color: #888; padding: 6px;">{{ d }}</div>
+                    class="pixel-font" style="text-align: center; font-size: 0.55rem; color: var(--text-muted); padding: 6px;">{{ d }}</div>
                   <div v-for="(cell, i) in monthCells" :key="i"
                     @click="cell.day ? goToDay(cell.day) : null"
-                    :style="cell.isToday ? 'border: 2px solid #000; background: #fafafa;' : 'border: 1px solid #eee;'"
-                    style="padding: 8px 6px; min-height: 90px; font-size: 0.95rem; cursor: pointer; transition: background 0.15s;"
-                    :class="cell.day ? '' : 'opacity-0 pointer-events-none'"
-                    onmouseover="if(!this.classList.contains('opacity-0'))this.style.background='#f0f0f0'" onmouseout="this.style.background=''">
+                    :style="cell.isToday ? 'border: 2px solid var(--border-primary); background: var(--bg-card-hover);' : 'border: 1px solid var(--border-light);'"
+                    style="padding: 8px 6px; min-height: 90px; font-size: 0.95rem; cursor: pointer; transition: background 0.15s; color: var(--text-primary); border-radius: var(--radius);"
+                    :class="cell.day ? '' : 'opacity-0 pointer-events-none'">
                     <div style="margin-bottom: 6px;" :style="cell.isToday ? 'font-weight: bold;' : ''">{{ cell.day || '' }}</div>
                     <div v-if="cell.events" v-for="event in cell.events.slice(0, 3)" :key="event.title"
-                      style="background: #000; color: #fff; padding: 2px 5px; margin-bottom: 3px; font-size: 0.65rem; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                      style="background: var(--bg-event); color: var(--text-event); padding: 2px 5px; margin-bottom: 3px; font-size: 0.65rem; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-radius: 3px;">
                       {{ event.title }}
                     </div>
-                    <div v-if="cell.events?.length > 3" style="font-size: 0.6rem; color: #888;">
+                    <div v-if="cell.events?.length > 3" style="font-size: 0.6rem; color: var(--text-muted);">
                       +{{ cell.events.length - 3 }} more
                     </div>
                   </div>
@@ -1460,21 +2633,25 @@
           </div>
 
           <!-- 4. Goal Progress -->
-          <div class="card mb-6">
-            <div class="card-header">
-              <span>&#9733;</span>
+          <div class="card mb-10">
+            <div class="card-header" style="cursor: pointer;" @click="goalsExpanded = !goalsExpanded">
+              <span style="font-size: 0.7rem; color: var(--text-muted);">{{ goalsExpanded ? '&#9660;' : '&#9654;' }}</span>
               <h3>Goal Progress</h3>
             </div>
-            <div class="card-body">
+            <div v-if="goalsExpanded" class="card-body">
               <div v-for="(goal, i) in goalsList" :key="i" style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <span style="font-size: 1rem; color: #000;">{{ goal.name }}</span>
-                  <span class="pixel-font" style="font-size: 0.5rem; color: #666;">{{ goal.progress }}%</span>
+                  <span style="font-size: 0.9rem; color: var(--text-primary);">{{ goal.name }}</span>
+                  <span class="pixel-font" style="font-size: 0.7rem; color: var(--text-muted);">{{ goal.progress }}%</span>
                 </div>
-                <input type="range" min="0" max="100" :value="goal.progress"
-                  @input="setGoalProgress(goal.name, $event.target.value)"
-                  :style="'width: 100%; height: 12px; -webkit-appearance: none; appearance: none; outline: none; cursor: pointer; border-radius: 0; background: linear-gradient(to right, #000 ' + goal.progress + '%, #e0e0e0 ' + goal.progress + '%);'"
-                  class="goal-slider">
+                <div class="hp-bar" tabindex="0"
+                  @mousedown="startGoalDrag($event, goal)"
+                  @touchstart.prevent="startGoalDrag($event, goal)"
+                  @keydown="goalKeyboard($event, goal)"
+                  :class="{ 'hp-bar-active': activeGoal === goal.name, 'hp-bar-maxed': goal.progress >= 100 }"
+                  style="cursor: pointer; outline: none;">
+                  <div class="hp-bar-fill" :style="'width: ' + goal.progress + '%;'"></div>
+                </div>
               </div>
               <div v-if="!goalsList.length" style="color: #aaa; padding: 20px 0; text-align: center;">
                 &#9632; No goals defined yet. Add them in plan.md
@@ -1486,12 +2663,13 @@
 
         <!-- ========== Journal ========== -->
         <section v-if="currentPage === 'journal'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9670; Journal &#9670; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            <template v-if="isPixel">Journal</template>
+            <template v-else>Journal</template>
           </h2>
 
           <!-- Today's entry highlighted -->
-          <div v-if="todayJournal" class="card mb-6" style="border-width: 2px;">
+          <div v-if="todayJournal" class="card mb-10" style="border-width: 2px;">
             <div class="card-header">
               <span>&#9788;</span>
               <h3>Today</h3>
@@ -1501,7 +2679,7 @@
               <div class="md-content" v-html="todayJournal.content"></div>
             </div>
           </div>
-          <div v-else class="card mb-6" style="border-width: 2px;">
+          <div v-else class="card mb-10" style="border-width: 2px;">
             <div class="card-header">
               <span>&#9788;</span>
               <h3>Today</h3>
@@ -1534,8 +2712,9 @@
 
         <!-- ========== Memory ========== -->
         <section v-if="currentPage === 'memory'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9829; Memory &#9829; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            <template v-if="isPixel">Memory</template>
+            <template v-else>Memory</template>
           </h2>
 
           <!-- Sub-tabs -->
@@ -1566,7 +2745,7 @@
 
           <!-- Learned -->
           <div v-if="memoryTab === 'learned'">
-            <div class="card mb-6">
+            <div class="card mb-10">
               <div class="card-body">
                 <div class="md-content" v-html="data.me?.learned?.content || emptyHtml"></div>
               </div>
@@ -1644,8 +2823,9 @@
 
         <!-- ========== Planning ========== -->
         <section v-if="currentPage === 'planning'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9830; Planning &#9830; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            <template v-if="isPixel">Planning</template>
+            <template v-else>Planning</template>
           </h2>
 
           <!-- Sub-tabs -->
@@ -1745,8 +2925,9 @@
 
         <!-- ========== People ========== -->
         <section v-if="currentPage === 'people'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9829; People &#9829; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            <template v-if="isPixel">People</template>
+            <template v-else>People</template>
           </h2>
 
           <div v-if="data.people?.contacts?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1757,7 +2938,7 @@
                     {{ getPersonInitial(person) }}
                   </div>
                   <div>
-                    <div class="text-black text-sm" style="font-family: 'Press Start 2P', monospace; font-size: 0.6rem;">{{ person.meta?.name || person.filename.replace('.md', '') }}</div>
+                    <div class="text-black text-sm pixel-font" style="font-size: 0.6rem;">{{ person.meta?.name || person.filename.replace('.md', '') }}</div>
                     <div v-if="person.meta?.relation" class="text-xs text-ink-600 mt-1">&#9658; {{ person.meta.relation }}</div>
                   </div>
                 </div>
@@ -1803,8 +2984,9 @@
 
         <!-- ========== Decisions ========== -->
         <section v-if="currentPage === 'decisions'">
-          <h2 class="pixel-font text-black text-sm mb-6">
-            &#9608; &#9830; Decision Log &#9830; &#9608;
+          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
+            <template v-if="isPixel">Decision Log</template>
+            <template v-else>Decision Log</template>
           </h2>
 
           <div v-if="data.decisions?.length" class="space-y-6">
@@ -1845,10 +3027,11 @@
         <!-- ========== Synapse ========== -->
         <section v-if="currentPage === 'synapse'">
           <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
-            &#9608; &#129504; Synapse &#129504; &#9608;
+            <template v-if="isPixel">Synapse</template>
+            <template v-else>Synapse</template>
           </h2>
 
-          <div v-if="synapseLinks.length" class="card mb-6">
+          <div v-if="synapseLinks.length" class="card mb-10">
             <div class="card-header">
               <span>&#9671;</span>
               <h3>Network Map</h3>
@@ -1942,7 +3125,8 @@
         <!-- ========== Files ========== -->
         <section v-if="currentPage === 'files'">
           <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
-            &#9608; &#128193; Files &#128193; &#9608;
+            <template v-if="isPixel">Files</template>
+            <template v-else>Files</template>
           </h2>
 
           <div v-if="referenceFiles.length" class="space-y-4">
@@ -2011,15 +3195,18 @@
         const emptyHtml = '<p style="color: var(--text-faint);">\u25A0 No data</p>';
 
         // --- Theme system ---
+        // Main 4 themes (others preserved in CSS but hidden from picker)
         const themes = [
-          { id: 'pixel',   label: 'Pixel',   icon: '\uD83D\uDFE5' },
-          { id: 'minimal', label: 'Minimal', icon: '\u25CB' },
-          { id: 'ascii',   label: 'ASCII',   icon: '>' },
-          { id: 'scifi',   label: 'Sci-fi',  icon: '\u2726' },
-          { id: 'journal', label: 'Journal', icon: '\u270D' },
-          { id: 'claude',  label: 'Claude',  icon: '\u2764' },
+          { id: 'pixel',      label: 'Pixel',      icon: '\uD83D\uDFE5' },
+          { id: 'gcal',       label: 'Google',      icon: '\uD83D\uDDD3' },
+          { id: 'g-notion',   label: 'Notion',      icon: 'N' },
+          { id: 'apple-dark', label: 'Dark',        icon: '\uD83C\uDF19' },
         ];
+        // Archived themes (CSS still exists, re-add to themes[] to restore):
+        // pixel, minimal, ascii, scifi, journal, claude,
+        // g-minimal, g-terminal, g-journal, g-claude, g-apple, g-sage, g-kawaii
         const currentTheme = ref(localStorage.getItem('lociTheme') || 'pixel');
+        const isPixel = computed(() => currentTheme.value === 'pixel');
         function setTheme(themeId) {
           currentTheme.value = themeId;
           localStorage.setItem('lociTheme', themeId);
@@ -2036,6 +3223,9 @@
 
         // --- Yesterday journal ---
         const yesterdayExpanded = ref(false);
+        const tasksExpanded = ref(true);
+        const calendarExpanded = ref(true);
+        const goalsExpanded = ref(true);
         const yesterdayJournal = computed(() => {
           const d = new Date();
           d.setDate(d.getDate() - 1);
@@ -2045,7 +3235,9 @@
         });
         const yesterdaySummary = computed(() => {
           if (!yesterdayJournal.value?.content) return '';
-          const text = yesterdayJournal.value.content.replace(/<[^>]*>/g, '').trim();
+          let text = yesterdayJournal.value.content.replace(/<[^>]*>/g, '').trim();
+          // Skip date/title line (e.g. "2026-03-11 Tuesday")
+          text = text.replace(/^\d{4}-\d{2}-\d{2}\s+\S+\s*/, '');
           return text.length > 80 ? text.slice(0, 80) + '...' : text;
         });
 
@@ -2093,14 +3285,14 @@
         const calendarScrollRef = ref(null);
 
         const navItems = [
-          { id: 'today',     label: 'Today',     icon: '\u2600' },
-          { id: 'journal',   label: 'Journal',   icon: '\u25C6' },
-          { id: 'memory',    label: 'Memory',    icon: '\u2665' },
-          { id: 'synapse',   label: 'Synapse',   icon: '\uD83E\uDDE0' },
-          { id: 'files',     label: 'Files',     icon: '\uD83D\uDCC1' },
-          { id: 'planning',  label: 'Planning',  icon: '\u25C6' },
-          { id: 'people',    label: 'People',    icon: '\u2665' },
-          { id: 'decisions', label: 'Decisions', icon: '\u25C6' },
+          { id: 'today',     label: 'Today',     icon: '\u25CB' },
+          { id: 'journal',   label: 'Journal',   icon: '\u270E' },
+          { id: 'memory',    label: 'Memory',    icon: '\u25C7' },
+          { id: 'synapse',   label: 'Synapse',   icon: '\u2B21' },
+          { id: 'files',     label: 'Files',     icon: '\u25A1' },
+          { id: 'planning',  label: 'Planning',  icon: '\u25B3' },
+          { id: 'people',    label: 'People',    icon: '\u25D1' },
+          { id: 'decisions', label: 'Decisions', icon: '\u25C8' },
         ];
 
         const memoryTabs = [
@@ -2193,17 +3385,37 @@
         }
 
         // Today page computed
+        const userName = computed(() => {
+          const content = data.value?.me?.identity?.content || '';
+          const match = content.match(/<strong>([^<]+)<\/strong>/);
+          if (match) return match[1].split(/[\s—–-]/)[0]; // first name only
+          return '';
+        });
         const greeting = computed(() => {
           const h = now.value.getHours();
-          if (h < 6) return 'Night owl mode';
-          if (h < 12) return 'Good morning';
-          if (h < 18) return 'Good afternoon';
-          return 'Good evening';
+          let g = '';
+          if (h < 6) g = 'Night owl mode';
+          else if (h < 12) g = 'Good morning';
+          else if (h < 18) g = 'Good afternoon';
+          else g = 'Good evening';
+          return userName.value ? g + ', ' + userName.value : g;
         });
 
         const currentHour = computed(() => now.value.getHours());
 
+        const visibleStartHour = computed(() => {
+          if (calendarDayOffset.value !== 0) return START_HOUR; // show full day for other days
+          return Math.max(START_HOUR, currentHour.value - 2);
+        });
+
         const dayHours = computed(() => {
+          const hours = [];
+          for (let i = visibleStartHour.value; i <= END_HOUR; i++) hours.push(i);
+          return hours;
+        });
+
+        // All hours for scrollable calendar
+        const allDayHours = computed(() => {
           const hours = [];
           for (let i = START_HOUR; i <= END_HOUR; i++) hours.push(i);
           return hours;
@@ -2215,10 +3427,25 @@
 
         const START_HOUR = 0;
         const END_HOUR = 23;
-        const PX_PER_HOUR = 40;
+        const PX_PER_HOUR = 48;
         const SNAP_MINUTES = 15;
         const PX_PER_MIN = PX_PER_HOUR / 60; // 0.8
         const TIMELINE_HEIGHT = (END_HOUR - START_HOUR + 1) * PX_PER_HOUR;
+        const visibleTimelineHeight = computed(() => (END_HOUR - visibleStartHour.value + 1) * PX_PER_HOUR);
+        const timelineClipTop = computed(() => visibleStartHour.value * PX_PER_HOUR);
+
+        // Calendar scroll container height:
+        // Today: exactly fits from current time to end of day (no scrolling down needed, scroll up for past)
+        // Other days: show full timeline
+        const calendarVisibleHeight = computed(() => {
+          if (calendarDayOffset.value !== 0) return TIMELINE_HEIGHT;
+          const nowMinutes = currentHour.value * 60 + new Date().getMinutes();
+          const nowY = (nowMinutes - START_HOUR * 60) * PX_PER_MIN;
+          // max-height = exactly from current time to end of timeline + tiny buffer
+          // This way: scrollTop maxes out at nowY, so user is AT bottom (can't scroll down)
+          // but CAN scroll up to see past hours
+          return TIMELINE_HEIGHT - nowY + 10;
+        });
 
         function yToMinute(y) {
           const raw = Math.round(y / PX_PER_MIN + START_HOUR * 60);
@@ -2753,7 +3980,54 @@
         });
 
         function setGoalProgress(name, val) {
-          goalProgresses[name] = Number(val);
+          goalProgresses[name] = Math.max(0, Math.min(100, Number(val)));
+        }
+
+        // Goal progress: drag + keyboard
+        const activeGoal = ref(null);
+        let draggingGoal = null;
+        let draggingBar = null;
+
+        function startGoalDrag(e, goal) {
+          draggingGoal = goal;
+          draggingBar = e.currentTarget;
+          activeGoal.value = goal.name;
+          e.currentTarget.focus();
+          updateGoalFromEvent(e);
+          document.addEventListener('mousemove', onGoalDrag);
+          document.addEventListener('mouseup', stopGoalDrag);
+          document.addEventListener('touchmove', onGoalDrag);
+          document.addEventListener('touchend', stopGoalDrag);
+        }
+        function onGoalDrag(e) {
+          if (!draggingGoal || !draggingBar) return;
+          updateGoalFromEvent(e);
+        }
+        function updateGoalFromEvent(e) {
+          const rect = draggingBar.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const ratio = (clientX - rect.left) / rect.width;
+          setGoalProgress(draggingGoal.name, Math.round(ratio * 100));
+        }
+        function stopGoalDrag() {
+          activeGoal.value = null;
+          draggingGoal = null;
+          draggingBar = null;
+          document.removeEventListener('mousemove', onGoalDrag);
+          document.removeEventListener('mouseup', stopGoalDrag);
+          document.removeEventListener('touchmove', onGoalDrag);
+          document.removeEventListener('touchend', stopGoalDrag);
+        }
+
+        function goalKeyboard(e, goal) {
+          const step = e.shiftKey ? 10 : 1;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            setGoalProgress(goal.name, goal.progress + step);
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            setGoalProgress(goal.name, goal.progress - step);
+          }
         }
 
         // --- Task section reactive to calendar view ---
@@ -2852,10 +4126,21 @@
           }
         }
 
+        function scrollCalendarToNow() {
+          const container = calendarScrollRef.value;
+          if (!container) return;
+          // Scroll to maximum = positions current time at the very top of visible area
+          // Since max-height = TIMELINE_HEIGHT - nowY + 10, maxScrollTop = nowY - 10
+          // This puts current time at top, everything below visible, can only scroll UP
+          container.scrollTop = container.scrollHeight;
+        }
+
         onMounted(async () => {
           await refreshData();
           loading.value = false;
           setInterval(refreshData, 3000);
+          // Auto-scroll calendar to current time
+          setTimeout(scrollCalendarToNow, 100);
 
           // Close event form when clicking outside
           document.addEventListener('click', (e) => {
@@ -2908,8 +4193,10 @@
 
             // --- Goals ---
             setGoalProgress(name, val) {
-              goalProgresses[name] = Number(val);
+              goalProgresses[name] = Math.max(0, Math.min(100, Number(val)));
             },
+            startGoalDrag(e, goal) { startGoalDrag(e, goal); },
+            goalKeyboard(e, goal) { goalKeyboard(e, goal); },
             getGoals() {
               return goalsList.value;
             },
@@ -3016,7 +4303,7 @@
           navigateTo, priorityClass, priorityLabel, getPersonInitial,
           expandedLearning, toggleLearning,
           calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
-          greeting, currentHour, dayHours,
+          greeting, currentHour, dayHours, allDayHours,
           viewingDate, viewingDayLabel, viewingWeekLabel, goToDay,
           switchCalendarView, calendarNav,
           todayP0Tasks, todayPriorityTasks, undoneTasks, finishedTasks, hasAnyTodayTasks,
@@ -3024,16 +4311,17 @@
           editingEvent, startEditEvent, saveEditEvent,
           onEventMousedown, onResizeMousedown, onEventClick, eventDragState,
           isDraggingTime, dragStartKey, dragEndKey, onTimelineMousedown, onTimelineMousemove, onTimelineMouseup,
-          formatTime, keyToTime, getEventsForDay, TIMELINE_HEIGHT, PX_PER_HOUR, minuteToY, editStartTime, editEndTime,
+          formatTime, keyToTime, getEventsForDay, TIMELINE_HEIGHT, PX_PER_HOUR, minuteToY, editStartTime, editEndTime, visibleTimelineHeight, timelineClipTop, visibleStartHour, calendarVisibleHeight,
           calendarScrollRef,
           draggingTask, draggingFrom, dragOverGroup, dragTask, dropTask,
-          getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress,
+          getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, startGoalDrag, activeGoal, goalKeyboard,
           taskSectionTitle, weeklyTasks, monthlyTaskSummary,
           showAddTask, newTaskText, newTaskPriority, addNewTask,
           // Theme
-          themes, currentTheme, setTheme,
+          themes, currentTheme, setTheme, isPixel,
           // Yesterday
           yesterdayExpanded, yesterdayJournal, yesterdaySummary,
+          tasksExpanded, calendarExpanded, goalsExpanded,
           // Synapse
           synapseLinks, synapseSvgSize, synapseNodePos,
           // Files
