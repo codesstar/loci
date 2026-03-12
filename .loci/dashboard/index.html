@@ -3147,16 +3147,31 @@
                   @input="onJournalEditorInput"
                   @paste="onJournalEditorPaste"
                   @keydown="onJournalEditorKeydown"
-                  style="min-height: 300px; padding: 24px; outline: none; font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--text-primary); cursor: text;"
+                  @drop.prevent="onJournalEditorDrop"
+                  @dragover.prevent
+                  @dragenter.prevent="$event.target.closest('.journal-editor').style.outline='2px dashed var(--border-primary)'"
+                  @dragleave.prevent="$event.target.closest('.journal-editor').style.outline='none'"
+                  style="min-height: 300px; padding: 24px; outline: none; font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--text-primary); cursor: text; transition: outline 0.15s;"
                   data-placeholder="Write about your day... what happened, how you felt, what you learned."
                 ></div>
 
-                <!-- Image URL dialog -->
-                <div v-if="showImageDialog" style="padding: 12px 24px; border-top: 1px solid var(--border-secondary); background: var(--bg-secondary); display: flex; align-items: center; gap: 8px;">
-                  <input v-model="imageDialogUrl" placeholder="Paste image URL..." @keydown.enter="confirmInsertImage()" @keydown.esc="showImageDialog = false"
-                    style="flex: 1; padding: 6px 10px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; border-radius: var(--radius); outline: none;">
-                  <button @click="confirmInsertImage()" style="padding: 6px 12px; background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Insert</button>
-                  <button @click="showImageDialog = false" style="padding: 6px 12px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
+                <!-- Hidden file input for image upload -->
+                <input type="file" ref="imageFileInput" accept="image/*" style="display: none;" @change="onImageFileSelected">
+
+                <!-- Image insert panel (upload + URL) -->
+                <div v-if="showImageDialog" style="padding: 12px 24px; border-top: 1px solid var(--border-secondary); background: var(--bg-secondary);">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <button @click="$refs.imageFileInput.click()" style="padding: 6px 14px; background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body); display: flex; align-items: center; gap: 4px;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Upload
+                    </button>
+                    <span style="font-size: 0.7rem; color: var(--text-faint);">or</span>
+                    <input v-model="imageDialogUrl" placeholder="Paste image URL..." @keydown.enter="confirmInsertImage()" @keydown.esc="showImageDialog = false"
+                      style="flex: 1; padding: 6px 10px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: var(--font-body); font-size: 0.8rem; border-radius: var(--radius); outline: none;">
+                    <button @click="confirmInsertImage()" style="padding: 6px 12px; background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Insert</button>
+                    <button @click="showImageDialog = false" style="padding: 6px 12px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
+                  </div>
+                  <div style="font-size: 0.65rem; color: var(--text-faint); margin-top: 6px; font-family: var(--font-body);">You can also drag &amp; drop or paste images directly into the editor</div>
                 </div>
 
                 <!-- Video URL dialog -->
@@ -4042,6 +4057,20 @@
           onJournalEditorInput();
         }
 
+        const imageFileInput = ref(null);
+
+        function insertImageDataUri(dataUri) {
+          journalEditorRef.value?.focus();
+          document.execCommand('insertHTML', false, '<img src="' + dataUri + '" alt="image" style="max-width:100%;"><br>');
+          onJournalEditorInput();
+        }
+
+        function readFileAsDataUri(file, callback) {
+          const reader = new FileReader();
+          reader.onload = (ev) => callback(ev.target.result);
+          reader.readAsDataURL(file);
+        }
+
         function journalInsertImage() {
           showImageDialog.value = true;
           showVideoDialog.value = false;
@@ -4056,6 +4085,29 @@
           showImageDialog.value = false;
           imageDialogUrl.value = '';
           onJournalEditorInput();
+        }
+
+        function onImageFileSelected(e) {
+          const file = e.target.files?.[0];
+          if (!file || !file.type.startsWith('image/')) return;
+          readFileAsDataUri(file, (dataUri) => {
+            insertImageDataUri(dataUri);
+            showImageDialog.value = false;
+          });
+          e.target.value = ''; // reset so same file can be selected again
+        }
+
+        function onJournalEditorDrop(e) {
+          const el = e.target.closest('.journal-editor');
+          if (el) el.style.outline = 'none';
+          const files = e.dataTransfer?.files;
+          if (files) {
+            for (const file of files) {
+              if (file.type.startsWith('image/')) {
+                readFileAsDataUri(file, insertImageDataUri);
+              }
+            }
+          }
         }
 
         function journalInsertVideo() {
@@ -5298,9 +5350,10 @@
           showJournalCalendar, journalCalMonth, journalCalendarTitle, journalCalendarDays,
           journalMemories, journalMemorySeed, shuffleJournalMemories,
           journalSummaries, activeSummary, toggleJournalMode,
-          journalEditorRef, journalAutoSaveStatus, onJournalEditorInput, onJournalEditorPaste, onJournalEditorKeydown,
+          journalEditorRef, journalAutoSaveStatus, onJournalEditorInput, onJournalEditorPaste, onJournalEditorKeydown, onJournalEditorDrop,
           jExec, journalInsertImage, confirmInsertImage, journalInsertVideo, confirmInsertVideo,
           showImageDialog, showVideoDialog, imageDialogUrl, videoDialogUrl,
+          imageFileInput, onImageFileSelected,
           tasksExpanded, calendarExpanded, goalsExpanded,
           // Synapse
           synapseLinks, synapseSvgSize, synapseNodePos,
