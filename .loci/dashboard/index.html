@@ -42,6 +42,7 @@
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
 
     /* ===== Font Variables ===== */
@@ -53,6 +54,8 @@
       --font-sf-mono: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
       --font-m-plus: 'M PLUS Rounded 1c', sans-serif;
       --font-fira-code: 'Fira Code', 'Courier New', monospace;
+      --font-playfair: 'Playfair Display', Georgia, serif;
+      --font-patrick: 'Patrick Hand', 'Caveat', cursive;
     }
 
     /* ===== Theme CSS Variables ===== */
@@ -1657,6 +1660,287 @@
       border-top: 1px solid #e8eaed !important;
     }
 
+    /* ===== Bujo (Bullet Journal) Theme ===== */
+    /* Warm cream paper, handwriting nav, serif headings, torn paper edges, masking tape */
+    [data-theme="bujo"] {
+      --bg-primary: #FAF8F5;
+      --bg-secondary: #F5F0E8;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #FDFBF7;
+      --bg-input: #FFFFFF;
+      --bg-sidebar: #F5F0E8;
+      --bg-header: #F0EBE3;
+      --bg-badge: #F0EBE3;
+      --bg-code: #F5F0E8;
+      --bg-blockquote: #FAF5EF;
+      --bg-scrollbar-track: #F5F0E8;
+      --bg-scrollbar-thumb: #A08B70;
+      --bg-checkbox: #FFFFFF;
+      --bg-checkbox-checked: #8B7355;
+      --bg-event: #8B7355;
+      --bg-priority-panel: #FDFBF7;
+      --bg-tab: #FFFFFF;
+      --bg-tab-hover: #F5F0E8;
+      --bg-tab-active: #8B7355;
+      --bg-avatar: #8B7355;
+      --bg-status-active: #00BFA5;
+      --bg-status-inactive: #F0EBE3;
+      --bg-hp-bar: #E8E4E0;
+      --bg-hp-fill: #00BFA5;
+      --bg-sidebar-hover: #EDE7DC;
+      --bg-sidebar-active: #E8E0D4;
+      --text-primary: #2C3E50;
+      --text-secondary: #4A5568;
+      --text-tertiary: #666666;
+      --text-muted: #999999;
+      --text-faint: #C4B8A8;
+      --text-inverse: #FFFFFF;
+      --text-link: #8B7355;
+      --text-link-hover: #A08B70;
+      --text-event: #FFFFFF;
+      --text-tab: #666666;
+      --text-tab-hover: #2C3E50;
+      --text-tab-active: #FFFFFF;
+      --text-status-active: #FFFFFF;
+      --text-status-inactive: #999999;
+      --text-sidebar-active: #2C3E50;
+      --border-primary: #D4C8B8;
+      --border-secondary: #E8E4E0;
+      --border-light: #F0EBE3;
+      --border-faint: #F5F0E8;
+      --border-card: #E8E4E0;
+      --border-input: #D4C8B8;
+      --border-tab: #E8E4E0;
+      --border-tab-hover: #8B7355;
+      --border-tab-active: #8B7355;
+      --border-sidebar: #D4C8B8;
+      --border-checkbox: #8B7355;
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-tab: none;
+      --shadow-tab-active: 0 2px 6px rgba(139, 115, 85, 0.2);
+      --shadow-avatar: 0 2px 6px rgba(139, 115, 85, 0.15);
+      --shadow-badge: none;
+      --shadow-date: 0 1px 4px rgba(139, 115, 85, 0.1);
+      --font-body: var(--font-inter);
+      --font-heading: var(--font-playfair);
+      --font-mono: var(--font-patrick);
+      --font-size-body: 15px;
+      --radius: 6px;
+      --radius-card: 8px;
+      --image-rendering: auto;
+      --timeline-dot-radius: 50%;
+      --list-marker: disc;
+      --transition-speed: 0.2s;
+      --current-time-color: #D4574E;
+      --scanline-opacity: 0;
+      --grid-pattern: none;
+    }
+
+    /* Bujo: Card styling — torn paper effect + masking tape */
+    [data-theme="bujo"] .card {
+      border: 1px solid #E8E4E0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      position: relative;
+      background: #FFFFFF;
+    }
+    /* Torn paper top edge via SVG mask */
+    [data-theme="bujo"] .card::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 8px;
+      right: 8px;
+      height: 4px;
+      background: #FFFFFF;
+      clip-path: polygon(0% 100%, 2% 40%, 5% 80%, 8% 30%, 11% 70%, 14% 20%, 17% 60%, 20% 40%, 23% 80%, 26% 20%, 29% 60%, 32% 30%, 35% 70%, 38% 40%, 41% 80%, 44% 20%, 47% 60%, 50% 40%, 53% 80%, 56% 30%, 59% 70%, 62% 20%, 65% 60%, 68% 40%, 71% 80%, 74% 30%, 77% 60%, 80% 20%, 83% 70%, 86% 40%, 89% 80%, 92% 30%, 95% 60%, 98% 40%, 100% 100%);
+    }
+
+    /* Masking tape decoration on card headers */
+    [data-theme="bujo"] .card-header {
+      background: #F0EBE3 !important;
+      color: #2C3E50 !important;
+      border-bottom: 1px dashed #D4C8B8;
+      position: relative;
+    }
+    [data-theme="bujo"] .card-header::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 20px;
+      width: 48px;
+      height: 18px;
+      background: rgba(210, 195, 160, 0.55);
+      transform: rotate(-2deg);
+      border-radius: 1px;
+    }
+    [data-theme="bujo"] .card-header span,
+    [data-theme="bujo"] .card-header h3 {
+      color: #2C3E50 !important;
+      font-family: var(--font-playfair);
+    }
+
+    /* Bujo: Sidebar — handwriting feel */
+    [data-theme="bujo"] .sidebar-item {
+      font-family: var(--font-patrick);
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+    }
+    [data-theme="bujo"] .sidebar-item.active {
+      background: #E8E0D4;
+      color: #2C3E50;
+      font-weight: 700;
+    }
+
+    /* Bujo: Nav heading */
+    [data-theme="bujo"] .pixel-font {
+      font-family: var(--font-playfair);
+      letter-spacing: 0;
+    }
+
+    /* Bujo: Date hero — elegant serif */
+    [data-theme="bujo"] .date-hero {
+      background: #FAF8F5 !important;
+      border: 1px dashed #D4C8B8 !important;
+    }
+    [data-theme="bujo"] .date-hero-day {
+      font-weight: 400;
+      color: #8B7355;
+      font-family: var(--font-playfair);
+    }
+    [data-theme="bujo"] .date-hero-time {
+      font-weight: 300;
+      color: #8B7355;
+      font-family: var(--font-playfair);
+    }
+
+    /* Bujo: Tabs — rounded, warm */
+    [data-theme="bujo"] .pixel-tab {
+      font-family: var(--font-patrick);
+      font-size: 0.9rem;
+      border-radius: 16px;
+      padding: 4px 14px;
+    }
+    [data-theme="bujo"] .pixel-tab.active {
+      background: #8B7355;
+      border-color: #8B7355;
+      color: #FFFFFF;
+    }
+
+    /* Bujo: Tags — hand-drawn style */
+    [data-theme="bujo"] .pixel-tag {
+      font-family: var(--font-patrick);
+      font-size: 0.8rem;
+      border-style: dashed;
+      border-color: #C4B8A8;
+      border-radius: 4px;
+      background: #FAF5EF;
+    }
+
+    /* Bujo: Status badges — teal accent */
+    [data-theme="bujo"] .pixel-status-active {
+      background: #00BFA5;
+      border-color: #00BFA5;
+      color: #FFFFFF;
+      border-radius: 12px;
+      font-family: var(--font-patrick);
+      font-size: 0.8rem;
+    }
+
+    /* Bujo: Avatar — warm circle */
+    [data-theme="bujo"] .pixel-avatar {
+      border-radius: 50%;
+      background: #8B7355;
+      border: 2px solid #A08B70;
+      font-family: var(--font-playfair);
+      font-size: 0.9rem;
+    }
+
+    /* Bujo: Priority badges */
+    [data-theme="bujo"] .badge-p0 {
+      background: #8B7355; border-color: #8B7355; border-radius: 12px;
+      font-family: var(--font-patrick); font-size: 0.75rem; padding: 2px 10px;
+    }
+    [data-theme="bujo"] .badge-p1 {
+      background: #A08B70; border-color: #A08B70; border-radius: 12px;
+      font-family: var(--font-patrick); font-size: 0.75rem; padding: 2px 10px;
+    }
+    [data-theme="bujo"] .badge-p2 {
+      background: #C4B8A8; border-color: #C4B8A8; border-radius: 12px;
+      font-family: var(--font-patrick); font-size: 0.75rem; padding: 2px 10px;
+    }
+
+    /* Bujo: HP bar — rounded, teal fill */
+    [data-theme="bujo"] .hp-bar {
+      border-radius: 8px;
+      border: 1px solid #E8E4E0;
+      height: 10px;
+    }
+    [data-theme="bujo"] .hp-bar-fill {
+      border-radius: 8px;
+      background: #00BFA5;
+    }
+
+    /* Bujo: Checkboxes — rounded */
+    [data-theme="bujo"] input[type="checkbox"] {
+      border-radius: 4px;
+      border-color: #8B7355;
+      border-width: 2px;
+    }
+    [data-theme="bujo"] input[type="checkbox"]:checked {
+      background: #8B7355;
+      border-color: #8B7355;
+    }
+
+    /* Bujo: Section headings */
+    [data-theme="bujo"] h2 {
+      font-family: var(--font-playfair);
+      letter-spacing: 0;
+      font-weight: 600;
+    }
+
+    /* Bujo: Markdown headings */
+    [data-theme="bujo"] .md-content h1 {
+      font-family: var(--font-playfair);
+    }
+    [data-theme="bujo"] .md-content h2 {
+      font-family: var(--font-playfair);
+      border-bottom: 1px dashed #D4C8B8;
+    }
+
+    /* Bujo: Date labels */
+    [data-theme="bujo"] .pixel-date {
+      font-family: var(--font-patrick);
+      font-size: 0.8rem;
+      border: 1px dashed #C4B8A8;
+      background: #FAF5EF;
+      border-radius: 4px;
+    }
+
+    /* Bujo: Scrollbar */
+    [data-theme="bujo"] ::-webkit-scrollbar-thumb {
+      background: #A08B70;
+      border-radius: 4px;
+    }
+
+    /* Bujo: Paper texture on body */
+    [data-theme="bujo"] body {
+      background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+    }
+
+    /* Bujo: Masking tape on stat cards too */
+    [data-theme="bujo"] .stat-card::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 16px;
+      width: 40px;
+      height: 16px;
+      background: rgba(210, 195, 160, 0.5);
+      transform: rotate(1deg);
+      border-radius: 1px;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -1704,7 +1988,7 @@
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06), inset 0 0 0 1px var(--border-light);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08), inset 0 0 0 1px var(--border-light);
       padding: 0;
       border-radius: var(--radius-card);
       position: relative;
@@ -2172,6 +2456,14 @@
       border-color: var(--border-primary);
       background: var(--bg-sidebar-active);
       color: var(--text-sidebar-active);
+    }
+
+    /* ===== People card hover ===== */
+    .people-card {
+      transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease !important;
+    }
+    .people-card:hover {
+      transform: translateY(-2px);
     }
 
     /* ===== Yesterday card ===== */
@@ -2663,47 +2955,104 @@
 
         <!-- ========== Journal ========== -->
         <section v-if="currentPage === 'journal'">
-          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
-            <template v-if="isPixel">Journal</template>
-            <template v-else>Journal</template>
-          </h2>
+          <!-- Header with title + write button -->
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
+              Journal
+            </h2>
+            <button @click="journalEditing = !journalEditing"
+              style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 6px 16px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; border-radius: var(--radius); display: flex; align-items: center; gap: 6px;">
+              <span v-if="!journalEditing">+ Write</span>
+              <span v-else>Close</span>
+            </button>
+          </div>
 
-          <!-- Today's entry highlighted -->
-          <div v-if="todayJournal" class="card mb-10" style="border-width: 2px;">
-            <div class="card-header">
-              <span>&#9788;</span>
-              <h3>Today</h3>
-              <span style="margin-left: auto; font-size: 0.5rem; opacity: 0.7;">{{ todayJournal.filename.replace('.md', '') }}</span>
+          <!-- Date navigation bar -->
+          <div class="card mb-6" style="overflow: hidden;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;">
+              <button @click="journalDateNav(-1)" style="background: none; border: 1px solid var(--border-secondary); padding: 6px 12px; cursor: pointer; font-size: 1rem; color: var(--text-primary); border-radius: var(--radius);">&#9664;</button>
+              <div style="text-align: center;">
+                <div class="pixel-font" style="font-size: 0.7rem; color: var(--text-primary);">{{ journalDateLabel }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">{{ journalWeekdayLabel }}</div>
+              </div>
+              <button @click="journalDateNav(1)" style="background: none; border: 1px solid var(--border-secondary); padding: 6px 12px; cursor: pointer; font-size: 1rem; color: var(--text-primary); border-radius: var(--radius);">&#9654;</button>
             </div>
-            <div class="card-body">
-              <div class="md-content" v-html="todayJournal.content"></div>
+            <!-- Quick jump buttons -->
+            <div style="display: flex; gap: 6px; padding: 0 20px 12px; flex-wrap: wrap;">
+              <button @click="journalDayOffset = 0"
+                :style="journalDayOffset === 0 ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active);' : 'background: var(--bg-tab); color: var(--text-tab); border-color: var(--border-tab);'"
+                style="border: 1px solid; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-mono);">Today</button>
+              <button @click="journalDayOffset = -1"
+                :style="journalDayOffset === -1 ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active);' : 'background: var(--bg-tab); color: var(--text-tab); border-color: var(--border-tab);'"
+                style="border: 1px solid; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-mono);">Yesterday</button>
             </div>
           </div>
-          <div v-else class="card mb-10" style="border-width: 2px;">
+
+          <!-- Inline editor -->
+          <div v-if="journalEditing" class="card mb-6" style="border-width: 2px; border-color: var(--border-primary);">
+            <div class="card-header">
+              <span>&#9998;</span>
+              <h3>Write Entry for {{ journalViewingDateKey }}</h3>
+            </div>
+            <div class="card-body">
+              <textarea v-model="journalDraftContent"
+                :placeholder="'Write your journal entry for ' + journalViewingDateKey + '...\n\nMarkdown supported.'"
+                style="width: 100%; min-height: 200px; padding: 12px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.7; resize: vertical; border-radius: var(--radius); outline: none;"
+                @focus="$event.target.style.borderColor = 'var(--border-primary)'"
+                @blur="$event.target.style.borderColor = 'var(--border-secondary)'"
+              ></textarea>
+              <div style="display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;">
+                <button @click="journalEditing = false"
+                  style="padding: 6px 16px; border: 1px solid var(--border-secondary); background: var(--bg-tab); color: var(--text-tab); cursor: pointer; font-size: 0.8rem; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
+                <button @click="saveJournalEntry()" :disabled="journalSaving"
+                  style="padding: 6px 16px; border: 1px solid var(--border-tab-active); background: var(--bg-tab-active); color: var(--text-tab-active); cursor: pointer; font-size: 0.8rem; font-weight: 500; border-radius: var(--radius); font-family: var(--font-body);">
+                  {{ journalSaving ? 'Saving...' : 'Save' }}
+                </button>
+              </div>
+              <div v-if="journalSaveMsg" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted);">{{ journalSaveMsg }}</div>
+            </div>
+          </div>
+
+          <!-- Selected date's entry -->
+          <div v-if="journalSelectedEntry" class="card mb-6" style="border-width: 2px;">
             <div class="card-header">
               <span>&#9788;</span>
-              <h3>Today</h3>
+              <h3>{{ journalViewingDateKey }}</h3>
+              <span v-if="journalDayOffset === 0" style="margin-left: 8px; font-size: 0.65rem; background: var(--bg-tab-active); color: var(--text-tab-active); padding: 2px 8px; border-radius: var(--radius);">Today</span>
+            </div>
+            <div class="card-body">
+              <div class="md-content" v-html="journalSelectedEntry.content"></div>
+            </div>
+          </div>
+          <div v-else class="card mb-6" style="border-width: 2px;">
+            <div class="card-header">
+              <span>&#9788;</span>
+              <h3>{{ journalViewingDateKey }}</h3>
             </div>
             <div class="card-body">
               <div class="empty-state">
-                <div class="icon text-ink-300">&#9632;&#9632;&#9632;</div>
-                <p class="text-sm text-ink-500">No journal entry for today yet</p>
-                <p class="text-xs text-ink-500 mt-2">Say "summary" at the end of the day to generate one</p>
+                <div class="icon" style="color: var(--text-faint);">&#9632;&#9632;&#9632;</div>
+                <p class="text-sm" style="color: var(--text-muted);">No journal entry for this date</p>
+                <p class="text-xs mt-2" style="color: var(--text-muted);">
+                  <span v-if="journalDayOffset === 0">Click "Write" to add today's entry</span>
+                  <span v-else>Navigate to another date or write a new entry</span>
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- Past entries -->
-          <div v-if="pastJournals.length">
-            <h3 class="pixel-font text-xs text-black mb-4" style="font-size: 0.6rem;">&#9632; Past Entries</h3>
+          <!-- Recent entries list (excluding selected) -->
+          <div v-if="journalRecentEntries.length">
+            <h3 class="pixel-font text-xs mb-4" style="font-size: 0.6rem; color: var(--text-primary);">&#9632; Recent Entries</h3>
             <div class="space-y-4">
-              <div v-for="entry in pastJournals" :key="entry.filename" class="card">
-                <div class="card-header" style="background: #444;">
+              <div v-for="entry in journalRecentEntries" :key="entry.filename" class="card" style="cursor: pointer;" @click="jumpToJournalDate(entry.filename)">
+                <div class="card-header" style="background: var(--bg-header);">
                   <span>&#9670;</span>
                   <h3>{{ entry.filename.replace('.md', '') }}</h3>
                 </div>
                 <div class="card-body">
-                  <div class="md-content" v-html="entry.content"></div>
+                  <div class="md-content text-sm" style="max-height: 80px; overflow: hidden; position: relative;" v-html="entry.content"></div>
+                  <div style="height: 20px; background: linear-gradient(transparent, var(--bg-card)); margin-top: -20px; position: relative;"></div>
                 </div>
               </div>
             </div>
@@ -2925,32 +3274,88 @@
 
         <!-- ========== People ========== -->
         <section v-if="currentPage === 'people'">
-          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
-            <template v-if="isPixel">People</template>
-            <template v-else>People</template>
-          </h2>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
+              People
+            </h2>
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+              {{ data.people?.contacts?.length || 0 }} contacts
+            </div>
+          </div>
 
-          <div v-if="data.people?.contacts?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="person in data.people.contacts" :key="person.filename" class="card">
-              <div class="card-body">
-                <div class="flex items-center gap-3 mb-3">
-                  <div class="pixel-avatar">
-                    {{ getPersonInitial(person) }}
+          <div v-if="data.people?.contacts?.length" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-for="person in data.people.contacts" :key="person.filename" class="card people-card" style="overflow: hidden;">
+              <!-- Card top section: avatar + name + role -->
+              <div style="padding: 24px 24px 16px; display: flex; align-items: flex-start; gap: 16px;">
+                <!-- Large avatar with initials -->
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-avatar); display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 1rem; color: var(--text-inverse); flex-shrink: 0; box-shadow: var(--shadow-avatar);">
+                  {{ getPersonInitial(person) }}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <!-- Name -->
+                  <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); line-height: 1.3;">
+                    {{ person.meta?.name || person.filename.replace('.md', '') }}
                   </div>
-                  <div>
-                    <div class="text-black text-sm pixel-font" style="font-size: 0.6rem;">{{ person.meta?.name || person.filename.replace('.md', '') }}</div>
-                    <div v-if="person.meta?.relation" class="text-xs text-ink-600 mt-1">&#9658; {{ person.meta.relation }}</div>
+                  <!-- Relation / Role -->
+                  <div v-if="person.meta?.relation" style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4;">
+                    {{ person.meta.relation }}
+                  </div>
+                  <!-- Tags -->
+                  <div v-if="person.meta?.tags?.length" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;">
+                    <span v-for="tag in person.meta.tags" :key="tag" class="pixel-tag">{{ tag }}</span>
                   </div>
                 </div>
-                <div v-if="person.meta?.tags?.length" class="flex flex-wrap gap-1 mb-3">
-                  <span v-for="tag in person.meta.tags" :key="tag" class="pixel-tag" style="border-color: #000;">
-                    {{ tag }}
+              </div>
+
+              <!-- Info rows -->
+              <div style="padding: 0 24px 16px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- MBTI / Zodiac (if available) -->
+                <div v-if="person.meta?.mbti || person.meta?.zodiac" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <div v-if="person.meta?.mbti" style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary);">
+                    <span style="color: var(--text-muted);">MBTI</span>
+                    <span style="font-weight: 500; background: var(--bg-badge); padding: 2px 8px; border-radius: var(--radius); border: 1px solid var(--border-light);">{{ person.meta.mbti }}</span>
+                  </div>
+                  <div v-if="person.meta?.zodiac" style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary);">
+                    <span style="color: var(--text-muted);">Zodiac</span>
+                    <span style="font-weight: 500; background: var(--bg-badge); padding: 2px 8px; border-radius: var(--radius); border: 1px solid var(--border-light);">{{ person.meta.zodiac }}</span>
+                  </div>
+                </div>
+
+                <!-- How met / When met -->
+                <div v-if="person.meta?.how_met || person.meta?.met_date" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                  <div v-if="person.meta?.how_met" style="font-size: 0.75rem; color: var(--text-muted);">
+                    &#9670; {{ person.meta.how_met }}
+                  </div>
+                  <div v-if="person.meta?.met_date" style="font-size: 0.75rem; color: var(--text-muted);">
+                    Since {{ person.meta.met_date }}
+                  </div>
+                </div>
+
+                <!-- Contact info -->
+                <div v-if="person.meta?.email || person.meta?.phone" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                  <div v-if="person.meta?.email" style="font-size: 0.75rem; color: var(--text-tertiary); display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.7rem;">&#9993;</span> {{ person.meta.email }}
+                  </div>
+                  <div v-if="person.meta?.phone" style="font-size: 0.75rem; color: var(--text-tertiary); display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.7rem;">&#9742;</span> {{ person.meta.phone }}
+                  </div>
+                </div>
+
+                <!-- Last contact -->
+                <div v-if="person.meta?.last_contact" style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                  <span>Last contact:</span>
+                  <span style="font-weight: 500; color: var(--text-tertiary);">{{ person.meta.last_contact }}</span>
+                  <span v-if="getContactDaysAgo(person.meta.last_contact) !== null"
+                    :style="getContactDaysAgo(person.meta.last_contact) > 14 ? 'color: var(--current-time-color);' : 'color: var(--text-muted);'"
+                    style="font-size: 0.65rem;">
+                    ({{ getContactDaysAgo(person.meta.last_contact) }}d ago)
                   </span>
                 </div>
-                <div v-if="person.meta?.last_contact" class="text-xs text-ink-600 mb-2">
-                  &#9632; Last contact: {{ person.meta.last_contact }}
-                </div>
-                <div class="md-content text-sm" v-html="person.content"></div>
+              </div>
+
+              <!-- Divider + Notes -->
+              <div v-if="person.content" style="border-top: 1px solid var(--border-light); padding: 14px 24px;">
+                <div class="md-content text-sm" v-html="person.content" style="color: var(--text-secondary);"></div>
               </div>
             </div>
           </div>
@@ -2958,16 +3363,16 @@
           <div v-else class="card">
             <div class="card-body">
               <div class="empty-state">
-                <div class="icon text-ink-300">&#9829; &#9829; &#9829;</div>
-                <p class="text-sm text-ink-500">No contacts yet</p>
-                <p class="text-xs text-ink-500 mt-2">Create files with YAML frontmatter in <code style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; color: #000;">04-people/</code></p>
+                <div class="icon" style="color: var(--text-faint);">&#9829; &#9829; &#9829;</div>
+                <p class="text-sm" style="color: var(--text-muted);">No contacts yet</p>
+                <p class="text-xs mt-2" style="color: var(--text-muted);">Create files with YAML frontmatter in <code style="background: var(--bg-code); border: 1px solid var(--border-secondary); padding: 2px 6px; color: var(--text-primary);">04-people/</code></p>
               </div>
             </div>
           </div>
 
           <!-- Meetings -->
           <div v-if="data.people?.meetings?.length" class="mt-8">
-            <h3 class="pixel-font text-xs text-black mb-4" style="font-size: 0.6rem;">&#9632; Meeting Notes</h3>
+            <h3 class="pixel-font text-xs mb-4" style="font-size: 0.6rem; color: var(--text-primary);">&#9632; Meeting Notes</h3>
             <div class="space-y-6">
               <div v-for="meeting in data.people.meetings" :key="meeting.filename" class="card">
                 <div class="card-body">
@@ -3124,38 +3529,68 @@
 
         <!-- ========== Files ========== -->
         <section v-if="currentPage === 'files'">
-          <h2 class="pixel-font text-sm mb-6" style="color: var(--text-primary);">
-            <template v-if="isPixel">Files</template>
-            <template v-else>Files</template>
-          </h2>
-
-          <div v-if="referenceFiles.length" class="space-y-4">
-            <div class="card mb-4">
-              <div class="card-header">
-                <span>&#128196;</span>
-                <h3>References & Archive</h3>
-                <span style="margin-left: auto; font-size: 0.5rem; opacity: 0.7;">{{ data.references?.total || 0 }} total</span>
-              </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
+              Files
+            </h2>
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+              {{ data.references?.total || 0 }} files
             </div>
-            <div v-for="file in referenceFiles" :key="file.filename || file.path" class="card">
-              <div class="card-body">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                  <span style="font-size: 1.2rem; flex-shrink: 0;">&#128196;</span>
-                  <div style="flex: 1; min-width: 0;">
-                    <div style="font-family: var(--font-heading); font-size: 0.6rem; color: var(--text-primary); margin-bottom: 4px;">
-                      {{ file.meta?.title || file.filename || file.path?.split('/').pop() || 'Untitled' }}
+          </div>
+
+          <div v-if="referenceFiles.length">
+            <!-- File list - Finder style -->
+            <div class="card" style="overflow: hidden;">
+              <!-- List header -->
+              <div style="display: grid; grid-template-columns: 1fr 100px 120px; gap: 12px; padding: 10px 20px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-secondary); font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">
+                <span>Name</span>
+                <span>Date</span>
+                <span>Tags</span>
+              </div>
+              <!-- File rows -->
+              <div v-for="(file, idx) in referenceFiles" :key="file.filename || file.path"
+                @click="filesExpandedIdx === idx ? filesExpandedIdx = -1 : filesExpandedIdx = idx"
+                style="cursor: pointer; transition: background 0.1s;"
+                :style="idx < referenceFiles.length - 1 ? 'border-bottom: 1px solid var(--border-light);' : ''"
+              >
+                <!-- Main row -->
+                <div style="display: grid; grid-template-columns: 1fr 100px 120px; gap: 12px; padding: 14px 20px; align-items: center;"
+                  :style="filesExpandedIdx === idx ? 'background: var(--bg-card-hover);' : ''"
+                  @mouseenter="$event.currentTarget.style.background = 'var(--bg-card-hover)'"
+                  @mouseleave="filesExpandedIdx !== idx && ($event.currentTarget.style.background = '')">
+                  <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                    <!-- File type icon -->
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-badge); border: 1px solid var(--border-light); border-radius: var(--radius); font-size: 0.85rem;">
+                      <span v-if="file.filename?.includes('notes') || file.filename?.includes('book')">&#128214;</span>
+                      <span v-else-if="file.filename?.includes('cheatsheet') || file.filename?.includes('reference')">&#128203;</span>
+                      <span v-else-if="file.filename?.includes('github') || file.filename?.includes('actions')">&#9881;</span>
+                      <span v-else>&#128196;</span>
                     </div>
-                    <div v-if="file.meta?.date" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">
-                      {{ file.meta.date }}
+                    <div style="min-width: 0;">
+                      <div style="font-size: 0.85rem; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ file.meta?.title || file.filename || file.path?.split('/').pop() || 'Untitled' }}
+                      </div>
+                      <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ file.filename || file.path?.split('/').pop() || '' }}
+                      </div>
                     </div>
-                    <div v-if="file.meta?.tags?.length" style="margin-bottom: 6px;">
-                      <span v-for="tag in file.meta.tags" :key="tag" class="pixel-tag" style="margin-right: 4px;">{{ tag }}</span>
-                    </div>
-                    <div v-if="file.content" class="md-content text-sm"
-                      style="max-height: 80px; overflow: hidden; position: relative;"
-                      v-html="file.content">
-                    </div>
-                    <div v-if="file.content" style="height: 20px; background: linear-gradient(transparent, var(--bg-card)); margin-top: -20px; position: relative;"></div>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                    {{ file.meta?.date || '---' }}
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                    <span v-for="tag in (file.meta?.tags || []).slice(0, 2)" :key="tag" class="pixel-tag" style="font-size: 0.6rem; padding: 1px 6px;">{{ tag }}</span>
+                    <span v-if="(file.meta?.tags || []).length > 2" style="font-size: 0.6rem; color: var(--text-muted);">+{{ file.meta.tags.length - 2 }}</span>
+                  </div>
+                </div>
+                <!-- Expanded content -->
+                <div v-if="filesExpandedIdx === idx" style="padding: 0 20px 16px 64px; background: var(--bg-card-hover);">
+                  <div v-if="file.meta?.tags?.length" style="margin-bottom: 8px;">
+                    <span v-for="tag in file.meta.tags" :key="tag" class="pixel-tag" style="margin-right: 4px;">{{ tag }}</span>
+                  </div>
+                  <div v-if="file.content" class="md-content text-sm" v-html="file.content" style="color: var(--text-secondary); line-height: 1.7;"></div>
+                  <div v-if="file.path" style="margin-top: 10px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted);">
+                    &#128193; {{ file.path }}
                   </div>
                 </div>
               </div>
@@ -3201,6 +3636,7 @@
           { id: 'gcal',       label: 'Google',      icon: '\uD83D\uDDD3' },
           { id: 'g-notion',   label: 'Notion',      icon: 'N' },
           { id: 'apple-dark', label: 'Dark',        icon: '\uD83C\uDF19' },
+          { id: 'bujo',       label: 'Bujo',        icon: '\uD83D\uDCD3' },
         ];
         // Archived themes (CSS still exists, re-add to themes[] to restore):
         // pixel, minimal, ascii, scifi, journal, claude,
@@ -3219,6 +3655,99 @@
         // Apply theme on load
         if (currentTheme.value !== 'pixel') {
           document.documentElement.setAttribute('data-theme', currentTheme.value);
+        }
+
+        // --- Journal page state ---
+        const journalDayOffset = ref(0);
+        const journalEditing = ref(false);
+        const journalDraftContent = ref('');
+        const journalSaving = ref(false);
+        const journalSaveMsg = ref('');
+
+        const journalViewingDate = computed(() => {
+          const d = new Date(now.value);
+          d.setDate(d.getDate() + journalDayOffset.value);
+          return d;
+        });
+
+        const journalViewingDateKey = computed(() => {
+          const d = journalViewingDate.value;
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        });
+
+        const journalDateLabel = computed(() => {
+          const d = journalViewingDate.value;
+          const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        });
+
+        const journalWeekdayLabel = computed(() => {
+          const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          return days[journalViewingDate.value.getDay()];
+        });
+
+        function journalDateNav(dir) {
+          journalDayOffset.value += dir;
+        }
+
+        const journalSelectedEntry = computed(() => {
+          const entries = data.value?.planning?.journal || [];
+          const key = journalViewingDateKey.value;
+          return entries.find(e => e.filename.includes(key)) || null;
+        });
+
+        const journalRecentEntries = computed(() => {
+          const entries = data.value?.planning?.journal || [];
+          const key = journalViewingDateKey.value;
+          return entries
+            .filter(e => !e.filename.includes(key))
+            .sort((a, b) => b.filename.localeCompare(a.filename))
+            .slice(0, 5);
+        });
+
+        function jumpToJournalDate(filename) {
+          const match = filename.match(/(\d{4}-\d{2}-\d{2})/);
+          if (!match) return;
+          const target = new Date(match[1] + 'T12:00:00');
+          const today = new Date();
+          today.setHours(12, 0, 0, 0);
+          const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
+          journalDayOffset.value = diff;
+        }
+
+        async function saveJournalEntry() {
+          if (!journalDraftContent.value.trim()) return;
+          journalSaving.value = true;
+          journalSaveMsg.value = '';
+          try {
+            const res = await fetch('/api/journal', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                date: journalViewingDateKey.value,
+                content: journalDraftContent.value.trim()
+              })
+            });
+            const result = await res.json();
+            if (result.ok) {
+              journalSaveMsg.value = 'Saved successfully. Rebuilding data...';
+              // Trigger rebuild
+              await fetch('/api/rebuild', { method: 'POST' });
+              // Refresh data
+              await refreshData();
+              journalSaveMsg.value = 'Done!';
+              journalDraftContent.value = '';
+              setTimeout(() => {
+                journalEditing.value = false;
+                journalSaveMsg.value = '';
+              }, 1500);
+            } else {
+              journalSaveMsg.value = 'Error: ' + (result.error || 'unknown');
+            }
+          } catch (e) {
+            journalSaveMsg.value = 'Network error: ' + e.message;
+          }
+          journalSaving.value = false;
         }
 
         // --- Yesterday journal ---
@@ -3261,6 +3790,7 @@
 
         // --- Files (references) ---
         const referenceFiles = computed(() => data.value?.references?.files || []);
+        const filesExpandedIdx = ref(-1);
 
         // Learning log expand/collapse state
         const expandedLearning = reactive({});
@@ -3382,6 +3912,16 @@
         function getPersonInitial(person) {
           const name = person.meta?.name || person.filename?.replace('.md', '') || '?';
           return name.charAt(0).toUpperCase();
+        }
+
+        function getContactDaysAgo(dateStr) {
+          if (!dateStr) return null;
+          try {
+            const d = new Date(dateStr);
+            const today = new Date();
+            const diff = Math.floor((today - d) / (1000 * 60 * 60 * 24));
+            return diff >= 0 ? diff : null;
+          } catch { return null; }
         }
 
         // Today page computed
@@ -4300,7 +4840,7 @@
           navItems, memoryTabs, planningTabs,
           currentNavItem, hasActiveTasks, todayPlan, todayJournal, pastJournals,
           currentDay, currentDateFull, currentWeekday, currentWeekdayEn, currentTime,
-          navigateTo, priorityClass, priorityLabel, getPersonInitial,
+          navigateTo, priorityClass, priorityLabel, getPersonInitial, getContactDaysAgo,
           expandedLearning, toggleLearning,
           calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
           greeting, currentHour, dayHours, allDayHours,
@@ -4321,11 +4861,15 @@
           themes, currentTheme, setTheme, isPixel,
           // Yesterday
           yesterdayExpanded, yesterdayJournal, yesterdaySummary,
+          // Journal page
+          journalDayOffset, journalEditing, journalDraftContent, journalSaving, journalSaveMsg,
+          journalViewingDateKey, journalDateLabel, journalWeekdayLabel, journalDateNav,
+          journalSelectedEntry, journalRecentEntries, jumpToJournalDate, saveJournalEntry,
           tasksExpanded, calendarExpanded, goalsExpanded,
           // Synapse
           synapseLinks, synapseSvgSize, synapseNodePos,
           // Files
-          referenceFiles,
+          referenceFiles, filesExpandedIdx,
         };
       }
     }).mount('#app');
