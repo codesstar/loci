@@ -2022,19 +2022,16 @@
     .journal-editor img:hover { outline: 2px solid var(--border-primary); outline-offset: 2px; }
     .journal-editor img.je-selected { outline: 2px solid var(--border-tab-active); outline-offset: 2px; }
     .journal-editor hr { border: none; border-top: 1px solid var(--border-secondary); margin: 16px 0; }
-    .je-resize-bar {
-      display: flex; align-items: center; gap: 8px; padding: 6px 12px;
-      background: var(--bg-secondary); border: 1px solid var(--border-secondary);
-      border-radius: var(--radius); position: absolute; bottom: -36px; left: 50%;
-      transform: translateX(-50%); z-index: 10; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    .je-handle {
+      position: absolute; width: 6px; height: 40px; background: var(--border-tab-active);
+      border-radius: 3px; cursor: ew-resize; z-index: 10; top: 50%; transform: translateY(-50%);
+      opacity: 0; transition: opacity 0.15s;
     }
-    .je-resize-bar button {
-      background: none; border: 1px solid var(--border-secondary); padding: 2px 8px;
-      font-size: 0.65rem; cursor: pointer; border-radius: 3px; font-family: var(--font-body);
-      color: var(--text-secondary); transition: all 0.1s;
-    }
-    .je-resize-bar button:hover { background: var(--bg-card); border-color: var(--border-primary); }
-    .je-resize-bar button.active { background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active); }
+    .je-wrap:hover .je-handle, .je-wrap.je-dragging .je-handle { opacity: 1; }
+    .je-handle-l { left: -2px; }
+    .je-handle-r { right: -2px; }
+    .je-wrap { position: relative; display: inline-block; margin: 12px 0; max-width: 100%; }
+    .je-wrap img { margin: 0; display: block; pointer-events: none; }
     .journal-editor .video-embed {
       position: relative; padding-bottom: 56.25%; height: 0;
       overflow: hidden; border-radius: var(--radius); margin: 12px 0;
@@ -4080,92 +4077,97 @@
           }
         }
 
-        // --- Image resize ---
+        // --- Image drag-to-resize (Notion-style) ---
         const selectedJournalImg = ref(null);
-        let resizeBarEl = null;
+        let imgResizeState = null;
 
-        function onEditorClickForImg(e) {
+        function wrapImgForResize(img) {
+          // Already wrapped?
+          if (img.parentNode?.classList?.contains('je-wrap')) return img.parentNode;
+          const wrap = document.createElement('span');
+          wrap.className = 'je-wrap';
+          wrap.contentEditable = 'false';
+          // Left handle
+          const hl = document.createElement('div');
+          hl.className = 'je-handle je-handle-l';
+          hl.addEventListener('mousedown', (e) => startImgResize(e, img, 'left'));
+          // Right handle
+          const hr = document.createElement('div');
+          hr.className = 'je-handle je-handle-r';
+          hr.addEventListener('mousedown', (e) => startImgResize(e, img, 'right'));
+          img.parentNode.insertBefore(wrap, img);
+          wrap.appendChild(hl);
+          wrap.appendChild(img);
+          wrap.appendChild(hr);
+          return wrap;
+        }
+
+        function startImgResize(e, img, side) {
+          e.preventDefault();
+          e.stopPropagation();
+          const wrap = img.closest('.je-wrap');
+          if (wrap) wrap.classList.add('je-dragging');
+          const startX = e.clientX;
+          const startW = img.getBoundingClientRect().width;
+          const editorW = journalEditorRef.value?.getBoundingClientRect().width || 600;
+          imgResizeState = { img, side, startX, startW, editorW, wrap };
+
+          document.addEventListener('mousemove', onImgResizeMove);
+          document.addEventListener('mouseup', onImgResizeEnd);
+        }
+
+        function onImgResizeMove(e) {
+          if (!imgResizeState) return;
+          const { img, side, startX, startW, editorW, wrap } = imgResizeState;
+          const dx = e.clientX - startX;
+          // Right handle: drag right = bigger, Left handle: drag left = bigger
+          const delta = side === 'right' ? dx : -dx;
+          let newW = Math.max(60, Math.min(editorW, startW + delta));
+          img.style.width = newW + 'px';
+          img.style.height = 'auto';
+          if (wrap) wrap.style.width = newW + 'px';
+        }
+
+        function onImgResizeEnd() {
+          if (imgResizeState?.wrap) imgResizeState.wrap.classList.remove('je-dragging');
+          imgResizeState = null;
+          document.removeEventListener('mousemove', onImgResizeMove);
+          document.removeEventListener('mouseup', onImgResizeEnd);
+          onJournalEditorInput(); // auto-save
+        }
+
+        // When entering personal mode or loading content, wrap all images
+        function wrapAllEditorImages() {
           const editor = journalEditorRef.value;
           if (!editor) return;
-          const img = e.target.closest('.journal-editor img');
-
-          // Deselect old
-          editor.querySelectorAll('img.je-selected').forEach(i => i.classList.remove('je-selected'));
-          removeImageResizeBar();
-
-          if (img) {
-            img.classList.add('je-selected');
-            selectedJournalImg.value = img;
-            showImageResizeBar(img);
-          } else {
-            selectedJournalImg.value = null;
-          }
-        }
-
-        function showImageResizeBar(img) {
-          removeImageResizeBar();
-          const bar = document.createElement('div');
-          bar.className = 'je-resize-bar';
-          bar.contentEditable = 'false';
-
-          const sizes = [
-            { label: '25%', value: '25%' },
-            { label: '50%', value: '50%' },
-            { label: '75%', value: '75%' },
-            { label: '100%', value: '100%' },
-          ];
-          const currentW = img.style.width || '100%';
-
-          sizes.forEach(s => {
-            const btn = document.createElement('button');
-            btn.textContent = s.label;
-            if (currentW === s.value) btn.classList.add('active');
-            btn.onclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              img.style.width = s.value;
-              img.style.height = 'auto';
-              // Update active state
-              bar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-              btn.classList.add('active');
-              onJournalEditorInput();
-            };
-            bar.appendChild(btn);
-          });
-
-          // Wrap img in relative container if not already
-          const wrapper = document.createElement('span');
-          wrapper.style.cssText = 'position: relative; display: inline-block;';
-          wrapper.contentEditable = 'false';
-          img.parentNode.insertBefore(wrapper, img);
-          wrapper.appendChild(img);
-          wrapper.appendChild(bar);
-          resizeBarEl = wrapper;
-        }
-
-        function removeImageResizeBar() {
-          if (resizeBarEl) {
-            // Unwrap: move img back out of wrapper
-            const img = resizeBarEl.querySelector('img');
-            const bar = resizeBarEl.querySelector('.je-resize-bar');
-            if (img && resizeBarEl.parentNode) {
-              resizeBarEl.parentNode.insertBefore(img, resizeBarEl);
-              resizeBarEl.remove();
+          editor.querySelectorAll('img').forEach(img => {
+            if (!img.parentNode?.classList?.contains('je-wrap')) {
+              wrapImgForResize(img);
             }
-            resizeBarEl = null;
-          }
+          });
         }
 
-        // Attach click listener when entering personal mode
+        // Re-wrap images after content loads or changes
+        const origLoadJournalEditor = loadJournalEditor;
+        loadJournalEditor = async function() {
+          await origLoadJournalEditor();
+          setTimeout(wrapAllEditorImages, 100);
+        };
+
+        // Also wrap newly inserted images via MutationObserver
         watch(journalMode, (mode) => {
           if (mode === 'personal') {
             setTimeout(() => {
-              journalEditorRef.value?.addEventListener('click', onEditorClickForImg);
-            }, 100);
-          } else {
-            journalEditorRef.value?.removeEventListener('click', onEditorClickForImg);
-            removeImageResizeBar();
-            selectedJournalImg.value = null;
+              wrapAllEditorImages();
+              // Observe for new images
+              const editor = journalEditorRef.value;
+              if (editor && !editor._jeObserver) {
+                editor._jeObserver = new MutationObserver(() => {
+                  setTimeout(wrapAllEditorImages, 50);
+                });
+                editor._jeObserver.observe(editor, { childList: true, subtree: true });
+              }
+            }, 150);
           }
         });
 
