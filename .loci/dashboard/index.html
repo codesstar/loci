@@ -3073,33 +3073,32 @@
                     </div>
                   </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <!-- Mode toggle icon (small, top-right) -->
-                  <button @click="toggleJournalMode()" :title="journalMode === 'ai' ? 'Switch to personal journal' : 'Switch to AI report'"
-                    style="background: none; border: 1px solid var(--border-secondary); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: var(--radius); transition: all 0.15s; position: relative;"
-                    :style="journalMode === 'personal' ? 'background: var(--bg-tab-active); border-color: var(--border-tab-active);' : ''"
-                    onmouseover="this.style.background=this.style.background||'var(--bg-secondary)'" onmouseout="if(!this.classList.contains('active'))this.style.background=this.getAttribute('data-bg')||''">
-                    <svg v-if="journalMode === 'ai'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="'color: var(--text-muted)'">
-                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                      <path d="m15 5 4 4"/>
-                    </svg>
-                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="'color: var(--text-tab-active)'">
-                      <path d="M12 8V4H8"/>
-                      <rect width="16" height="12" x="4" y="8" rx="2"/>
-                      <path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
-                    </svg>
-                  </button>
-                  <!-- Date forward nav -->
-                  <button @click="journalDateNav(1)" :disabled="journalDayOffset >= 0" :style="journalDayOffset >= 0 ? 'opacity: 0.25; cursor: not-allowed;' : ''" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9654;</button>
-                </div>
+                <button @click="journalDateNav(1)" :disabled="journalDayOffset >= 0" :style="journalDayOffset >= 0 ? 'opacity: 0.25; cursor: not-allowed;' : ''" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9654;</button>
               </div>
 
               <!-- AI Report mode -->
               <template v-if="journalMode === 'ai'">
-                <div v-if="journalSelectedEntry" class="card-body">
+                <div v-if="journalSelectedEntry" class="card-body" style="position: relative;">
+                  <!-- Mode toggle icon floating top-right of content -->
+                  <button @click="toggleJournalMode()" title="Switch to personal journal"
+                    style="position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; padding: 4px; opacity: 0.35; transition: opacity 0.15s;"
+                    onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='0.35'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                  </button>
                   <div class="md-content" v-html="journalSelectedEntry.content"></div>
                 </div>
-                <div v-else class="card-body">
+                <div v-else class="card-body" style="position: relative;">
+                  <button @click="toggleJournalMode()" title="Switch to personal journal"
+                    style="position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; padding: 4px; opacity: 0.35; transition: opacity 0.15s;"
+                    onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='0.35'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                  </button>
                   <div class="empty-state">
                     <p class="text-sm" style="color: var(--text-muted);">No AI report for this date</p>
                     <p class="text-xs mt-2" style="color: var(--text-muted);">AI reports are generated from your daily activities</p>
@@ -3132,6 +3131,11 @@
                   <button @click="jExec('insertHorizontalRule')" class="j-tb" title="Divider">&#8212;</button>
                   <div style="flex: 1;"></div>
                   <span style="font-size: 0.65rem; color: var(--text-faint); font-family: var(--font-body);">{{ journalAutoSaveStatus }}</span>
+                  <button @click="toggleJournalMode()" class="j-tb" title="Switch to AI report" style="margin-left: 4px; opacity: 0.5;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+                    </svg>
+                  </button>
                 </div>
 
                 <!-- Contenteditable editor area -->
