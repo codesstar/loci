@@ -3999,10 +3999,27 @@
           journalAutoSaveStatus.value = '';
         }
 
+        // Strip resize handles from HTML before saving (clean content only)
+        function cleanEditorHtml() {
+          if (!journalEditorRef.value) return '';
+          const clone = journalEditorRef.value.cloneNode(true);
+          // Unwrap je-wrap: replace <span class="je-wrap">...<img>...</span> with just <img>
+          clone.querySelectorAll('.je-wrap').forEach(wrap => {
+            const img = wrap.querySelector('img');
+            if (img) {
+              wrap.parentNode.insertBefore(img, wrap);
+            }
+            wrap.remove();
+          });
+          // Remove any stray handles
+          clone.querySelectorAll('.je-handle').forEach(h => h.remove());
+          return clone.innerHTML;
+        }
+
         async function saveJournalToFile() {
           if (!journalEditorRef.value) return;
           const key = journalViewingDateKey.value;
-          const html = journalEditorRef.value.innerHTML;
+          const html = cleanEditorHtml();
           // Always save to localStorage as backup
           if (html && html !== '<br>') {
             localStorage.setItem(JOURNAL_LS_PREFIX + key, html);
@@ -4140,10 +4157,21 @@
         function wrapAllEditorImages() {
           const editor = journalEditorRef.value;
           if (!editor) return;
-          editor.querySelectorAll('img').forEach(img => {
-            if (!img.parentNode?.classList?.contains('je-wrap')) {
-              wrapImgForResize(img);
+          // First: strip any stale wraps loaded from saved HTML (no event listeners)
+          editor.querySelectorAll('.je-wrap').forEach(wrap => {
+            const img = wrap.querySelector('img');
+            if (img) {
+              // Preserve width if set
+              const w = img.style.width || wrap.style.width;
+              if (w) img.style.width = w;
+              wrap.parentNode.insertBefore(img, wrap);
             }
+            wrap.remove();
+          });
+          editor.querySelectorAll('.je-handle').forEach(h => h.remove());
+          // Now wrap all images fresh with working event listeners
+          editor.querySelectorAll('img').forEach(img => {
+            wrapImgForResize(img);
           });
         }
 
