@@ -3966,49 +3966,62 @@
         const videoDialogUrl = ref('');
         let journalAutoSaveTimer = null;
 
-        // Mock initial data in localStorage (only once)
+        // Save/load personal journal via server API (falls back to localStorage)
         const JOURNAL_LS_PREFIX = 'loci-journal-';
-        function initMockJournalData() {
-          const mockEntries = {
-            '2026-03-12': '<h2>My thoughts</h2><p>Today felt really productive. Got into a great flow state working on the Bloom component docs. The trick is treating docs like tutorials instead of reference material — makes it way more fun to write.</p><h3>Highlights</h3><ul><li>3-hour uninterrupted focus session in the afternoon</li><li>Acme team loved the dashboard redesign</li><li>The new Journal page for Loci is coming together nicely</li></ul><h3>Photos</h3><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" alt="Afternoon coffee"><p>Good day overall. Energy was high. Need to maintain this momentum.</p>',
-            '2026-03-11': '<h2>Auth Bug Deep Dive</h2><p>Spent 3 hours hunting down a race condition in the auth token interceptor. The issue: when multiple API calls fire simultaneously and the token expires, each one tries to refresh independently, causing duplicate refresh calls.</p><p><strong>Solution:</strong> Implemented a queue pattern — first caller refreshes, others wait for the promise.</p><h3>Run Stats</h3><ul><li>Distance: 8km</li><li>Pace: 5:45/km (improving!)</li><li>Route: Bay Run loop</li></ul><p>Also had a great call with Jake. He\'s in for the $4k/mo retainer starting April. Excited about this partnership.</p>',
-            '2026-03-10': '<h2>Bloom README Draft</h2><p>Wrote the first draft of the Bloom README. Structure:</p><ol><li>Pain point (component libraries suck)</li><li>Solution (what Bloom does differently)</li><li>Proof (demo GIF)</li><li>Quick start</li><li>Full docs link</li></ol><p>Still needs the install section. Will finish tomorrow.</p><h3>Invoice</h3><p>Sent Meridian invoice: $3,200. Should arrive in 14 days.</p><h3>Decision</h3><p>Not hiring a contractor yet — wait until Bloom ships to see if revenue justifies it.</p>',
-            '2026-03-08': '<h2>Weekend Project Day</h2><p>Spent the morning setting up the Loci project structure. The idea of a "Memory Palace for AI" keeps getting clearer. Every AI system needs persistent memory, and nobody has built a good open-source solution yet.</p><h3>Key insight</h3><p>The hippocampus metaphor works on multiple levels:</p><ul><li>Biological hippocampus = memory consolidation</li><li>Method of Loci = spatial memory technique</li><li>Our Loci = AI memory consolidation system</li></ul><p>The naming is perfect.</p>',
-          };
-          for (const [date, html] of Object.entries(mockEntries)) {
-            if (!localStorage.getItem(JOURNAL_LS_PREFIX + date)) {
-              localStorage.setItem(JOURNAL_LS_PREFIX + date, html);
-            }
-          }
-        }
-        initMockJournalData();
 
-        function loadJournalEditor() {
+        async function loadJournalEditor() {
           if (!journalEditorRef.value) return;
           const key = journalViewingDateKey.value;
+          // Try API first
+          try {
+            const res = await fetch('/api/journal/personal/' + key);
+            const data = await res.json();
+            if (data.ok && data.content) {
+              journalEditorRef.value.innerHTML = data.content;
+              journalAutoSaveStatus.value = '';
+              return;
+            }
+          } catch (e) { /* server not running, try localStorage */ }
+          // Fallback to localStorage
           const saved = localStorage.getItem(JOURNAL_LS_PREFIX + key);
           journalEditorRef.value.innerHTML = saved || '';
           journalAutoSaveStatus.value = '';
         }
 
-        function saveJournalToLS() {
+        async function saveJournalToFile() {
           if (!journalEditorRef.value) return;
           const key = journalViewingDateKey.value;
           const html = journalEditorRef.value.innerHTML;
+          // Always save to localStorage as backup
           if (html && html !== '<br>') {
             localStorage.setItem(JOURNAL_LS_PREFIX + key, html);
-            journalAutoSaveStatus.value = 'Saved';
           } else {
             localStorage.removeItem(JOURNAL_LS_PREFIX + key);
-            journalAutoSaveStatus.value = '';
           }
-          setTimeout(() => { if (journalAutoSaveStatus.value === 'Saved') journalAutoSaveStatus.value = ''; }, 2000);
+          // Save to server API (file system)
+          try {
+            const res = await fetch('/api/journal/personal', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ date: key, content: html })
+            });
+            const data = await res.json();
+            if (data.ok) {
+              journalAutoSaveStatus.value = 'Saved';
+            } else {
+              journalAutoSaveStatus.value = 'Error';
+            }
+          } catch (e) {
+            // Server not running — localStorage backup is fine
+            journalAutoSaveStatus.value = 'Saved (local)';
+          }
+          setTimeout(() => { journalAutoSaveStatus.value = ''; }, 2000);
         }
 
         function onJournalEditorInput() {
           clearTimeout(journalAutoSaveTimer);
           journalAutoSaveStatus.value = '';
-          journalAutoSaveTimer = setTimeout(saveJournalToLS, 1000);
+          journalAutoSaveTimer = setTimeout(saveJournalToFile, 1500);
         }
 
         function onJournalEditorPaste(e) {
@@ -4018,13 +4031,7 @@
             for (const item of items) {
               if (item.type.startsWith('image/')) {
                 e.preventDefault();
-                const file = item.getAsFile();
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                  document.execCommand('insertHTML', false, '<img src="' + ev.target.result + '" alt="pasted image" style="max-width:100%;">');
-                  onJournalEditorInput();
-                };
-                reader.readAsDataURL(file);
+                readFileAndUpload(item.getAsFile());
                 return;
               }
             }
@@ -4059,15 +4066,31 @@
 
         const imageFileInput = ref(null);
 
-        function insertImageDataUri(dataUri) {
+        async function uploadAndInsertImage(dataUri, filename) {
+          // Try uploading to server (saves as real file)
+          try {
+            const res = await fetch('/api/journal/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ data: dataUri, filename: filename || '' })
+            });
+            const data = await res.json();
+            if (data.ok && data.url) {
+              journalEditorRef.value?.focus();
+              document.execCommand('insertHTML', false, '<img src="' + data.url + '" alt="image" style="max-width:100%;"><br>');
+              onJournalEditorInput();
+              return;
+            }
+          } catch (e) { /* server not running, fallback to data URI */ }
+          // Fallback: embed as base64
           journalEditorRef.value?.focus();
           document.execCommand('insertHTML', false, '<img src="' + dataUri + '" alt="image" style="max-width:100%;"><br>');
           onJournalEditorInput();
         }
 
-        function readFileAsDataUri(file, callback) {
+        function readFileAndUpload(file) {
           const reader = new FileReader();
-          reader.onload = (ev) => callback(ev.target.result);
+          reader.onload = (ev) => uploadAndInsertImage(ev.target.result, file.name);
           reader.readAsDataURL(file);
         }
 
@@ -4090,11 +4113,9 @@
         function onImageFileSelected(e) {
           const file = e.target.files?.[0];
           if (!file || !file.type.startsWith('image/')) return;
-          readFileAsDataUri(file, (dataUri) => {
-            insertImageDataUri(dataUri);
-            showImageDialog.value = false;
-          });
-          e.target.value = ''; // reset so same file can be selected again
+          readFileAndUpload(file);
+          showImageDialog.value = false;
+          e.target.value = '';
         }
 
         function onJournalEditorDrop(e) {
@@ -4104,7 +4125,7 @@
           if (files) {
             for (const file of files) {
               if (file.type.startsWith('image/')) {
-                readFileAsDataUri(file, insertImageDataUri);
+                readFileAndUpload(file);
               }
             }
           }
