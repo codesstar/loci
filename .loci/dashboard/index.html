@@ -1984,6 +1984,12 @@
     }
     ::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
 
+    .journal-date-trigger:hover { opacity: 0.7; }
+    .journal-memories-scroll::-webkit-scrollbar { height: 4px; }
+    .journal-memories-scroll::-webkit-scrollbar-track { background: transparent; }
+    .journal-memories-scroll::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 4px; }
+    .journal-summary-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
     /* ===== Card ===== */
     .card {
       background: var(--bg-card);
@@ -2955,108 +2961,198 @@
 
         <!-- ========== Journal ========== -->
         <section v-if="currentPage === 'journal'">
-          <!-- Header with title + write button -->
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-            <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
-              Journal
-            </h2>
-            <button @click="journalEditing = !journalEditing"
-              style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 6px 16px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; border-radius: var(--radius); display: flex; align-items: center; gap: 6px;">
-              <span v-if="!journalEditing">+ Write</span>
-              <span v-else>Close</span>
-            </button>
-          </div>
 
-          <!-- Date navigation bar -->
-          <div class="card mb-6" style="overflow: hidden;">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;">
-              <button @click="journalDateNav(-1)" style="background: none; border: 1px solid var(--border-secondary); padding: 6px 12px; cursor: pointer; font-size: 1rem; color: var(--text-primary); border-radius: var(--radius);">&#9664;</button>
-              <div style="text-align: center;">
-                <div class="pixel-font" style="font-size: 0.7rem; color: var(--text-primary);">{{ journalDateLabel }}</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">{{ journalWeekdayLabel }}</div>
+          <!-- Expanded summary view (when a summary card is clicked) -->
+          <template v-if="activeSummary">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
+              <button @click="activeSummary = null"
+                style="background: none; border: 1px solid var(--border-secondary); padding: 6px 14px; cursor: pointer; font-size: 0.85rem; color: var(--text-primary); border-radius: var(--radius); font-family: var(--font-body);">
+                &#8592; Back
+              </button>
+              <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
+                {{ activeSummary.title }}
+              </h2>
+            </div>
+            <div class="card" style="border-width: 2px;">
+              <div style="padding: 20px 24px 16px; border-bottom: 1px solid var(--border-secondary);">
+                <div style="font-family: var(--font-body); font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">{{ activeSummary.dateRange }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">{{ activeSummary.type }} &middot; {{ activeSummary.entryCount }} entries</div>
               </div>
-              <button @click="journalDateNav(1)" style="background: none; border: 1px solid var(--border-secondary); padding: 6px 12px; cursor: pointer; font-size: 1rem; color: var(--text-primary); border-radius: var(--radius);">&#9654;</button>
+              <div class="card-body">
+                <div class="md-content" v-html="activeSummary.contentHtml"></div>
+              </div>
             </div>
-            <!-- Quick jump buttons -->
-            <div style="display: flex; gap: 6px; padding: 0 20px 12px; flex-wrap: wrap;">
-              <button @click="journalDayOffset = 0"
-                :style="journalDayOffset === 0 ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active);' : 'background: var(--bg-tab); color: var(--text-tab); border-color: var(--border-tab);'"
-                style="border: 1px solid; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-mono);">Today</button>
-              <button @click="journalDayOffset = -1"
-                :style="journalDayOffset === -1 ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-color: var(--border-tab-active);' : 'background: var(--bg-tab); color: var(--text-tab); border-color: var(--border-tab);'"
-                style="border: 1px solid; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-mono);">Yesterday</button>
-            </div>
-          </div>
+          </template>
 
-          <!-- Inline editor -->
-          <div v-if="journalEditing" class="card mb-6" style="border-width: 2px; border-color: var(--border-primary);">
-            <div class="card-header">
-              <span>&#9998;</span>
-              <h3>Write Entry for {{ journalViewingDateKey }}</h3>
+          <!-- Normal journal view -->
+          <template v-else>
+            <!-- Header with title -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+              <h2 class="pixel-font text-sm" style="color: var(--text-primary); margin: 0;">
+                Journal
+              </h2>
             </div>
-            <div class="card-body">
-              <textarea v-model="journalDraftContent"
-                :placeholder="'Write your journal entry for ' + journalViewingDateKey + '...\n\nMarkdown supported.'"
-                style="width: 100%; min-height: 200px; padding: 12px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.7; resize: vertical; border-radius: var(--radius); outline: none;"
-                @focus="$event.target.style.borderColor = 'var(--border-primary)'"
-                @blur="$event.target.style.borderColor = 'var(--border-secondary)'"
-              ></textarea>
-              <div style="display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;">
-                <button @click="journalEditing = false"
-                  style="padding: 6px 16px; border: 1px solid var(--border-secondary); background: var(--bg-tab); color: var(--text-tab); cursor: pointer; font-size: 0.8rem; border-radius: var(--radius); font-family: var(--font-body);">Cancel</button>
-                <button @click="saveJournalEntry()" :disabled="journalSaving"
-                  style="padding: 6px 16px; border: 1px solid var(--border-tab-active); background: var(--bg-tab-active); color: var(--text-tab-active); cursor: pointer; font-size: 0.8rem; font-weight: 500; border-radius: var(--radius); font-family: var(--font-body);">
-                  {{ journalSaving ? 'Saving...' : 'Save' }}
+
+            <!-- Main journal card with integrated date nav -->
+            <div class="card mb-6" style="border-width: 2px;">
+              <!-- Date navigation header -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--border-secondary);">
+                <button @click="journalDateNav(-1)" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9664;</button>
+                <div style="text-align: center; position: relative;">
+                  <div @click.stop="showJournalCalendar = !showJournalCalendar" class="journal-date-trigger" style="cursor: pointer;">
+                    <div style="font-family: var(--font-body); font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; transition: opacity 0.15s;">{{ journalDateLabel }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">{{ journalWeekdayLabel }}</div>
+                  </div>
+                  <!-- Quick jump: Today only -->
+                  <div v-if="journalDayOffset !== 0" style="margin-top: 8px;">
+                    <button @click="journalDayOffset = 0"
+                      style="background: var(--bg-tab); color: var(--text-tab); border: 1px solid var(--border-tab); padding: 3px 12px; font-size: 0.7rem; cursor: pointer; border-radius: var(--radius); font-family: var(--font-body);">Today</button>
+                  </div>
+                  <!-- Mini calendar popup -->
+                  <div v-if="showJournalCalendar" class="journal-calendar-popup" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 10px; z-index: 100; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-card); box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 12px; min-width: 280px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                      <button @click="journalCalMonth--" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; color: var(--text-primary); padding: 4px 8px;">&#9664;</button>
+                      <div style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ journalCalendarTitle }}</div>
+                      <button @click="journalCalMonth++" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; color: var(--text-primary); padding: 4px 8px;">&#9654;</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">
+                      <div v-for="d in ['Su','Mo','Tu','We','Th','Fr','Sa']" :key="d" style="font-size: 0.65rem; color: var(--text-muted); padding: 4px 0; font-family: var(--font-body);">{{ d }}</div>
+                      <div v-for="cell in journalCalendarDays" :key="cell.key"
+                        @click="cell.date && jumpToJournalDate(cell.dateStr); showJournalCalendar = false"
+                        :style="{
+                          padding: '6px 0',
+                          fontSize: '0.75rem',
+                          fontFamily: 'var(--font-body)',
+                          cursor: cell.date ? 'pointer' : 'default',
+                          color: cell.isSelected ? 'var(--text-tab-active)' : cell.isCurrentMonth ? 'var(--text-primary)' : 'var(--text-faint)',
+                          background: cell.isSelected ? 'var(--bg-tab-active)' : cell.isToday ? 'var(--bg-secondary)' : 'transparent',
+                          borderRadius: 'var(--radius)',
+                          fontWeight: cell.isToday ? '700' : cell.hasEntry ? '600' : '400',
+                          textDecoration: cell.hasEntry && !cell.isSelected ? 'underline' : 'none'
+                        }">{{ cell.day || '' }}</div>
+                    </div>
+                  </div>
+                </div>
+                <button @click="journalDateNav(1)" :disabled="journalDayOffset >= 0" :style="journalDayOffset >= 0 ? 'opacity: 0.25; cursor: not-allowed;' : ''" style="background: none; border: 1px solid var(--border-secondary); padding: 8px 14px; cursor: pointer; font-size: 1.1rem; color: var(--text-primary); border-radius: var(--radius); transition: background 0.15s;" onmouseover="if(!this.disabled)this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">&#9654;</button>
+              </div>
+
+              <!-- Mode toggle: AI Report / My Journal -->
+              <div style="display: flex; border-bottom: 1px solid var(--border-secondary);">
+                <button @click="journalMode = 'ai'"
+                  :style="journalMode === 'ai' ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-bottom: 2px solid var(--text-tab-active);' : 'background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent;'"
+                  style="flex: 1; padding: 10px 16px; border: none; border-right: 1px solid var(--border-secondary); cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; transition: all 0.15s;">
+                  AI Report
+                </button>
+                <button @click="journalMode = 'personal'"
+                  :style="journalMode === 'personal' ? 'background: var(--bg-tab-active); color: var(--text-tab-active); border-bottom: 2px solid var(--text-tab-active);' : 'background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent;'"
+                  style="flex: 1; padding: 10px 16px; border: none; cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; transition: all 0.15s;">
+                  My Journal
                 </button>
               </div>
-              <div v-if="journalSaveMsg" style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted);">{{ journalSaveMsg }}</div>
-            </div>
-          </div>
 
-          <!-- Selected date's entry -->
-          <div v-if="journalSelectedEntry" class="card mb-6" style="border-width: 2px;">
-            <div class="card-header">
-              <span>&#9788;</span>
-              <h3>{{ journalViewingDateKey }}</h3>
-              <span v-if="journalDayOffset === 0" style="margin-left: 8px; font-size: 0.65rem; background: var(--bg-tab-active); color: var(--text-tab-active); padding: 2px 8px; border-radius: var(--radius);">Today</span>
+              <!-- AI Report mode -->
+              <template v-if="journalMode === 'ai'">
+                <div v-if="journalSelectedEntry" class="card-body">
+                  <div class="md-content" v-html="journalSelectedEntry.content"></div>
+                </div>
+                <div v-else class="card-body">
+                  <div class="empty-state">
+                    <p class="text-sm" style="color: var(--text-muted);">No AI report for this date</p>
+                    <p class="text-xs mt-2" style="color: var(--text-muted);">AI reports are generated from your daily activities</p>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Personal Journal mode (view + edit) -->
+              <template v-if="journalMode === 'personal'">
+                <!-- Toolbar -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; border-bottom: 1px solid var(--border-secondary); background: var(--bg-secondary);">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <button v-if="!journalEditing" @click="startJournalEdit()"
+                      style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; cursor: pointer; border-radius: var(--radius);">
+                      Edit
+                    </button>
+                    <template v-if="journalEditing">
+                      <button @click="saveJournalEntry()" :disabled="journalSaving"
+                        style="background: var(--bg-tab-active); color: var(--text-tab-active); border: 1px solid var(--border-tab-active); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; cursor: pointer; border-radius: var(--radius);">
+                        {{ journalSaving ? 'Saving...' : 'Save' }}
+                      </button>
+                      <button @click="journalEditing = false"
+                        style="background: transparent; color: var(--text-muted); border: 1px solid var(--border-secondary); padding: 4px 12px; font-family: var(--font-body); font-size: 0.75rem; cursor: pointer; border-radius: var(--radius);">
+                        Cancel
+                      </button>
+                    </template>
+                  </div>
+                  <div v-if="journalSaveMsg" style="font-size: 0.7rem; color: var(--text-muted);">{{ journalSaveMsg }}</div>
+                </div>
+
+                <!-- Editor -->
+                <div v-if="journalEditing" style="padding: 16px 24px;">
+                  <textarea v-model="journalDraftContent"
+                    :placeholder="'Write about your day...\n\nSupports markdown. You can also add:\n- Images: ![alt](url)\n- Videos: [video](url)'"
+                    style="width: 100%; min-height: 280px; padding: 12px; border: 1px solid var(--border-secondary); background: var(--bg-input); color: var(--text-primary); font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.7; resize: vertical; border-radius: var(--radius); outline: none; box-sizing: border-box;"
+                    @focus="$event.target.style.borderColor = 'var(--border-primary)'"
+                    @blur="$event.target.style.borderColor = 'var(--border-secondary)'"
+                  ></textarea>
+                  <!-- Media hints -->
+                  <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                    <span style="font-size: 0.7rem; color: var(--text-faint); font-family: var(--font-body);">Tip: Use ![](image-url) for images, [video](video-url) for videos</span>
+                  </div>
+                </div>
+
+                <!-- View personal journal content -->
+                <div v-else>
+                  <div v-if="personalJournalEntry" class="card-body">
+                    <div class="md-content" v-html="personalJournalEntry.contentHtml"></div>
+                  </div>
+                  <div v-else class="card-body">
+                    <div class="empty-state">
+                      <p class="text-sm" style="color: var(--text-muted);">No personal journal for this date</p>
+                      <p class="text-xs mt-2" style="color: var(--text-muted);">Click "Edit" to start writing your own entry</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
-            <div class="card-body">
-              <div class="md-content" v-html="journalSelectedEntry.content"></div>
-            </div>
-          </div>
-          <div v-else class="card mb-6" style="border-width: 2px;">
-            <div class="card-header">
-              <span>&#9788;</span>
-              <h3>{{ journalViewingDateKey }}</h3>
-            </div>
-            <div class="card-body">
-              <div class="empty-state">
-                <div class="icon" style="color: var(--text-faint);">&#9632;&#9632;&#9632;</div>
-                <p class="text-sm" style="color: var(--text-muted);">No journal entry for this date</p>
-                <p class="text-xs mt-2" style="color: var(--text-muted);">
-                  <span v-if="journalDayOffset === 0">Click "Write" to add today's entry</span>
-                  <span v-else>Navigate to another date or write a new entry</span>
-                </p>
+
+            <!-- Summaries — tall portrait cards, horizontally scrollable -->
+            <div style="margin-top: 1.5rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <div style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Summaries</div>
+              </div>
+              <div v-if="journalSummaries.length" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"
+                class="journal-memories-scroll">
+                <div v-for="sum in journalSummaries" :key="sum.id"
+                  @click="activeSummary = sum"
+                  class="card journal-summary-card" style="min-width: 200px; max-width: 220px; min-height: 300px; flex-shrink: 0; cursor: pointer; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;"
+                  onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+                  <!-- Cover color band -->
+                  <div :style="'height: 6px; background: ' + sum.color + '; border-radius: var(--radius-card) var(--radius-card) 0 0;'"></div>
+                  <!-- Type badge -->
+                  <div style="padding: 16px 16px 8px;">
+                    <div style="display: inline-block; font-size: 0.65rem; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border: 1px solid var(--border-secondary); padding: 2px 8px; border-radius: var(--radius);">{{ sum.type }}</div>
+                  </div>
+                  <!-- Title -->
+                  <div style="padding: 4px 16px 8px;">
+                    <div style="font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;">{{ sum.title }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-family: var(--font-body);">{{ sum.dateRange }}</div>
+                  </div>
+                  <!-- Preview snippet -->
+                  <div style="padding: 8px 16px 16px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; font-family: var(--font-body); max-height: 100px; overflow: hidden; position: relative;">
+                      {{ sum.preview }}
+                      <div style="height: 20px; background: linear-gradient(transparent, var(--bg-card)); position: absolute; bottom: 0; left: 0; right: 0;"></div>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-faint); margin-top: 12px; font-family: var(--font-body);">{{ sum.entryCount }} entries</div>
+                  </div>
+                </div>
+              </div>
+              <div v-else style="padding: 24px 0; text-align: center;">
+                <p class="text-sm" style="color: var(--text-muted);">No summaries yet</p>
+                <p class="text-xs mt-2" style="color: var(--text-faint);">Ask your AI to "summarize this week" or "summarize March" to create one</p>
               </div>
             </div>
-          </div>
-
-          <!-- Recent entries list (excluding selected) -->
-          <div v-if="journalRecentEntries.length">
-            <h3 class="pixel-font text-xs mb-4" style="font-size: 0.6rem; color: var(--text-primary);">&#9632; Recent Entries</h3>
-            <div class="space-y-4">
-              <div v-for="entry in journalRecentEntries" :key="entry.filename" class="card" style="cursor: pointer;" @click="jumpToJournalDate(entry.filename)">
-                <div class="card-header" style="background: var(--bg-header);">
-                  <span>&#9670;</span>
-                  <h3>{{ entry.filename.replace('.md', '') }}</h3>
-                </div>
-                <div class="card-body">
-                  <div class="md-content text-sm" style="max-height: 80px; overflow: hidden; position: relative;" v-html="entry.content"></div>
-                  <div style="height: 20px; background: linear-gradient(transparent, var(--bg-card)); margin-top: -20px; position: relative;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </template>
         </section>
 
         <!-- ========== Memory ========== -->
@@ -3659,13 +3755,17 @@
 
         // --- Journal page state ---
         const journalDayOffset = ref(0);
+        const journalMode = ref('ai'); // 'ai' or 'personal'
         const journalEditing = ref(false);
         const journalDraftContent = ref('');
         const journalSaving = ref(false);
         const journalSaveMsg = ref('');
+        const showJournalCalendar = ref(false);
+        const journalCalMonth = ref(new Date().getMonth() + new Date().getFullYear() * 12);
+        const activeSummary = ref(null);
 
         const journalViewingDate = computed(() => {
-          const d = new Date(now.value);
+          const d = new Date();
           d.setDate(d.getDate() + journalDayOffset.value);
           return d;
         });
@@ -3687,8 +3787,54 @@
         });
 
         function journalDateNav(dir) {
+          if (dir > 0 && journalDayOffset.value >= 0) return; // can't go past today
           journalDayOffset.value += dir;
         }
+
+        // Sync calendar month when date changes
+        watch(journalViewingDate, (d) => {
+          journalCalMonth.value = d.getMonth() + d.getFullYear() * 12;
+        });
+
+        const journalCalendarTitle = computed(() => {
+          const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          const m = journalCalMonth.value % 12;
+          const y = Math.floor(journalCalMonth.value / 12);
+          return `${months[m]} ${y}`;
+        });
+
+        const journalCalendarDays = computed(() => {
+          const m = journalCalMonth.value % 12;
+          const y = Math.floor(journalCalMonth.value / 12);
+          const firstDay = new Date(y, m, 1).getDay();
+          const daysInMonth = new Date(y, m + 1, 0).getDate();
+          const today = new Date();
+          const selectedKey = journalViewingDateKey.value;
+          const entries = data.value?.planning?.journal || [];
+          const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
+          const cells = [];
+          // padding before first day
+          for (let i = 0; i < firstDay; i++) {
+            cells.push({ key: 'pad-' + i, day: '', date: null, isCurrentMonth: false });
+          }
+          for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = today.getFullYear() === y && today.getMonth() === m && today.getDate() === d;
+            const isFuture = new Date(y, m, d) > today;
+            cells.push({
+              key: dateStr,
+              day: d,
+              date: true,
+              dateStr,
+              isCurrentMonth: true,
+              isToday,
+              isSelected: dateStr === selectedKey,
+              hasEntry: entryDates.has(dateStr),
+              isFuture
+            });
+          }
+          return cells;
+        });
 
         const journalSelectedEntry = computed(() => {
           const entries = data.value?.planning?.journal || [];
@@ -3705,12 +3851,129 @@
             .slice(0, 5);
         });
 
-        function jumpToJournalDate(filename) {
-          const match = filename.match(/(\d{4}-\d{2}-\d{2})/);
+        // Memories: random past entries with meaningful labels
+        const journalMemorySeed = ref(0);
+        const journalMemories = computed(() => {
+          const _ = journalMemorySeed.value; // reactive trigger for shuffle
+          const entries = data.value?.planning?.journal || [];
+          if (entries.length < 2) return [];
+          const today = new Date();
+          today.setHours(12, 0, 0, 0);
+          const key = journalViewingDateKey.value;
+          const candidates = entries.filter(e => !e.filename.includes(key));
+          if (!candidates.length) return [];
+
+          // Build labeled memories
+          const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          const memories = candidates.map(e => {
+            const match = e.filename.match(/(\d{4}-\d{2}-\d{2})/);
+            if (!match) return null;
+            const d = new Date(match[1] + 'T12:00:00');
+            const daysAgo = Math.round((today - d) / (1000 * 60 * 60 * 24));
+            let label = '';
+            if (daysAgo === 1) label = 'Yesterday';
+            else if (daysAgo <= 7) label = `${daysAgo} days ago`;
+            else if (daysAgo <= 14) label = 'Last week';
+            else if (daysAgo <= 31) label = `${Math.floor(daysAgo / 7)} weeks ago`;
+            else if (daysAgo <= 60) label = 'Last month';
+            else if (daysAgo <= 365) label = `${Math.floor(daysAgo / 30)} months ago`;
+            else label = `${Math.floor(daysAgo / 365)} year(s) ago`;
+            const dateFormatted = `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} — ${dayNames[d.getDay()]}`;
+            return { ...e, label, dateFormatted, daysAgo };
+          }).filter(Boolean);
+
+          // Shuffle and pick up to 6
+          const shuffled = [...memories].sort(() => Math.random() - 0.5);
+          return shuffled.slice(0, 6);
+        });
+
+        function shuffleJournalMemories() {
+          journalMemorySeed.value++;
+        }
+
+        // Personal journal entries (mock data for now — stored separately from AI reports)
+        const personalJournalData = ref({
+          '2026-03-12': {
+            content: '## My thoughts\n\nToday felt really productive. Got into a great flow state working on the Bloom component docs. The trick is treating docs like tutorials instead of reference material — makes it way more fun to write.\n\n### Highlights\n- 3-hour uninterrupted focus session in the afternoon\n- Acme team loved the dashboard redesign\n- The new Journal page for Loci is coming together nicely\n\n### Photos\n![Afternoon coffee](https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400)\n\nGood day overall. Energy was high. Need to maintain this momentum.',
+          },
+          '2026-03-11': {
+            content: '## Auth Bug Deep Dive\n\nSpent 3 hours hunting down a race condition in the auth token interceptor. The issue: when multiple API calls fire simultaneously and the token expires, each one tries to refresh independently, causing duplicate refresh calls.\n\n**Solution:** Implemented a queue pattern — first caller refreshes, others wait for the promise.\n\n### Run Stats\n- Distance: 8km\n- Pace: 5:45/km (improving!)\n- Route: Bay Run loop\n\nAlso had a great call with Jake. He is in for the $4k/mo retainer starting April. Excited about this partnership.',
+          },
+          '2026-03-10': {
+            content: '## Bloom README Draft\n\nWrote the first draft of the Bloom README. Structure:\n1. Pain point (component libraries suck)\n2. Solution (what Bloom does differently)\n3. Proof (demo GIF)\n4. Quick start\n5. Full docs link\n\nStill needs the install section. Will finish tomorrow.\n\n### Invoice\nSent Meridian invoice: $3,200. Should arrive in 14 days.\n\n### Decision\nNot hiring a contractor yet — wait until Bloom ships to see if revenue justifies it.',
+          },
+          '2026-03-08': {
+            content: '## Weekend Project Day\n\nSpent the morning setting up the Loci project structure. The idea of a "Memory Palace for AI" keeps getting clearer. Every AI system needs persistent memory, and nobody has built a good open-source solution yet.\n\n### Key insight\nThe hippocampus metaphor works on multiple levels:\n- Biological hippocampus = memory consolidation\n- Method of Loci = spatial memory technique\n- Our Loci = AI memory consolidation system\n\nThe naming is perfect.',
+          },
+        });
+
+        const personalJournalEntry = computed(() => {
+          const key = journalViewingDateKey.value;
+          const entry = personalJournalData.value[key];
+          if (!entry) return null;
+          // Simple markdown to HTML (basic — headings, bold, images, lists, paragraphs)
+          let html = entry.content
+            .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+            .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: var(--radius); margin: 8px 0;">')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/^(?!<[hul])/gm, '');
+          return { contentHtml: '<div style="line-height: 1.8;">' + html + '</div>' };
+        });
+
+        function startJournalEdit() {
+          const key = journalViewingDateKey.value;
+          const existing = personalJournalData.value[key];
+          journalDraftContent.value = existing ? existing.content : '';
+          journalEditing.value = true;
+        }
+
+        // Mock summaries (these would normally be AI-generated)
+        const journalSummaries = ref([
+          {
+            id: 'week-2026-03-10',
+            type: 'Weekly',
+            title: 'Week of Mar 10',
+            dateRange: 'Mar 10 - Mar 13, 2026',
+            color: 'linear-gradient(135deg, #667eea, #764ba2)',
+            preview: 'A highly productive week focused on Bloom component docs, Acme dashboard delivery, and the Loci journal redesign. Fixed a critical auth bug and secured Jake\'s retainer deal.',
+            entryCount: 4,
+            contentHtml: '<h3>Week Summary: Mar 10 - Mar 13</h3><p>This week was defined by strong execution across multiple projects.</p><h4>Key Accomplishments</h4><ul><li>Finished Button and Input component docs for Bloom with interactive playground</li><li>Fixed auth token refresh race condition (queue pattern solution)</li><li>Delivered Acme dashboard hi-fi mockups — client loved it, analytics next sprint</li><li>Redesigned Loci Journal page with integrated date picker + memories carousel</li><li>Secured Jake retainer: $4k/mo, 20hrs/mo starting April</li></ul><h4>Decisions Made</h4><ul><li>Bloom v1.0 scope: 20 core components + docs site, no themes in v1</li><li>Not hiring contractor yet — wait for Bloom revenue data</li></ul><h4>Health &amp; Wellness</h4><ul><li>8km run at 5:45/km pace (improving)</li><li>Morning yoga + walks</li><li>Multiple flow state sessions</li></ul><h4>Revenue</h4><ul><li>Meridian invoice sent: $3,200</li><li>Jake retainer confirmed: $4k/mo from April</li></ul>',
+          },
+          {
+            id: 'week-2026-03-07',
+            type: 'Weekly',
+            title: 'Week of Mar 3',
+            dateRange: 'Mar 3 - Mar 9, 2026',
+            color: 'linear-gradient(135deg, #f093fb, #f5576c)',
+            preview: 'Wrapped up Acme mockups, researched CDN options for Bloom (going with Cloudflare R2), and took a proper rest day with friends and reading.',
+            entryCount: 3,
+            contentHtml: '<h3>Week Summary: Mar 3 - Mar 9</h3><h4>Key Accomplishments</h4><ul><li>Acme dashboard: delivered hi-fi mockups for 3 pages</li><li>Researched Cloudflare R2 vs S3 for Bloom asset hosting</li><li>Read 50 pages of "Obviously Awesome" (positioning book)</li><li>Sketched TaskFlow onboarding concepts (analog)</li></ul><h4>Decisions</h4><ul><li>Going with Cloudflare R2 — free egress is ideal for a component library CDN</li></ul><h4>Insight</h4><p>Positioning is not messaging — it\'s the context that makes the messaging obvious.</p>',
+          },
+          {
+            id: 'month-2026-02',
+            type: 'Monthly',
+            title: 'February Recap',
+            dateRange: 'Feb 1 - Feb 28, 2026',
+            color: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+            preview: 'The month that kicked off the Loci vision. Went from idea to decision to initial architecture. Also started the short video content strategy.',
+            entryCount: 12,
+            contentHtml: '<h3>February 2026 Recap</h3><p>February was a pivotal month — the Loci concept crystallized and the content strategy shifted to product-first.</p><h4>Major Themes</h4><ul><li>Loci concept born and validated through research</li><li>Content strategy pivot: product first, content as byproduct</li><li>Short video strategy formalized (12-15 videos/month target)</li><li>Academic semester started (Week 1-4)</li></ul><h4>Key Metrics</h4><ul><li>WeChat followers: ~100</li><li>Twitter followers: ~1,000</li><li>Videos published: 2</li></ul>',
+          },
+        ]);
+
+        function jumpToJournalDate(dateOrFilename) {
+          const match = dateOrFilename.match(/(\d{4}-\d{2}-\d{2})/);
           if (!match) return;
           const target = new Date(match[1] + 'T12:00:00');
           const today = new Date();
           today.setHours(12, 0, 0, 0);
+          if (target > today) return; // can't navigate to future
           const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
           journalDayOffset.value = diff;
         }
@@ -4682,11 +4945,15 @@
           // Auto-scroll calendar to current time
           setTimeout(scrollCalendarToNow, 100);
 
-          // Close event form when clicking outside
+          // Close popups when clicking outside
           document.addEventListener('click', (e) => {
             if (addingEventStart.value !== null) {
               addingEventStart.value = null;
               editingEvent.value = null;
+            }
+            // Close journal calendar if clicking outside it
+            if (showJournalCalendar.value && !e.target.closest('.journal-calendar-popup') && !e.target.closest('.journal-date-trigger')) {
+              showJournalCalendar.value = false;
             }
           });
 
@@ -4862,9 +5129,12 @@
           // Yesterday
           yesterdayExpanded, yesterdayJournal, yesterdaySummary,
           // Journal page
-          journalDayOffset, journalEditing, journalDraftContent, journalSaving, journalSaveMsg,
+          journalDayOffset, journalMode, journalEditing, journalDraftContent, journalSaving, journalSaveMsg,
           journalViewingDateKey, journalDateLabel, journalWeekdayLabel, journalDateNav,
-          journalSelectedEntry, journalRecentEntries, jumpToJournalDate, saveJournalEntry,
+          journalSelectedEntry, journalRecentEntries, jumpToJournalDate, saveJournalEntry, startJournalEdit,
+          showJournalCalendar, journalCalMonth, journalCalendarTitle, journalCalendarDays,
+          journalMemories, journalMemorySeed, shuffleJournalMemories,
+          personalJournalEntry, personalJournalData, journalSummaries, activeSummary,
           tasksExpanded, calendarExpanded, goalsExpanded,
           // Synapse
           synapseLinks, synapseSvgSize, synapseNodePos,
