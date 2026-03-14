@@ -2023,14 +2023,17 @@
     .journal-editor img.je-selected { outline: 2px solid var(--border-tab-active); outline-offset: 2px; }
     .journal-editor hr { border: none; border-top: 1px solid var(--border-secondary); margin: 16px 0; }
     .je-handle {
-      position: absolute; width: 6px; height: 40px; background: var(--border-tab-active);
-      border-radius: 3px; cursor: ew-resize; z-index: 10; top: 50%; transform: translateY(-50%);
-      opacity: 0; transition: opacity 0.15s;
+      position: absolute; width: 10px; height: 64px; background: rgba(255,255,255,0.92);
+      border: 2px solid rgba(100,130,180,0.6); border-radius: 5px; cursor: ew-resize;
+      z-index: 10; top: 50%; transform: translateY(-50%);
+      opacity: 0; transition: opacity 0.2s; box-shadow: 0 1px 6px rgba(0,0,0,0.25);
     }
     .je-wrap:hover .je-handle, .je-wrap.je-dragging .je-handle { opacity: 1; }
-    .je-handle-l { left: -2px; }
-    .je-handle-r { right: -2px; }
+    .je-handle:hover { background: rgba(100,130,180,0.35); }
+    .je-handle-l { left: 6px; }
+    .je-handle-r { right: 6px; }
     .je-wrap { position: relative; display: inline-block; margin: 12px 0; max-width: 100%; }
+    .je-wrap:hover { outline: 2px solid color-mix(in srgb, var(--border-tab-active) 40%, transparent); outline-offset: 2px; border-radius: 4px; }
     .je-wrap img { margin: 0; display: block; pointer-events: none; }
     .journal-editor .video-embed {
       position: relative; padding-bottom: 56.25%; height: 0;
@@ -4154,9 +4157,11 @@
         }
 
         // When entering personal mode or loading content, wrap all images
+        let _jeWrapping = false;
         function wrapAllEditorImages() {
           const editor = journalEditorRef.value;
-          if (!editor) return;
+          if (!editor || _jeWrapping) return;
+          _jeWrapping = true;
           // First: strip any stale wraps loaded from saved HTML (no event listeners)
           editor.querySelectorAll('.je-wrap').forEach(wrap => {
             const img = wrap.querySelector('img');
@@ -4173,6 +4178,7 @@
           editor.querySelectorAll('img').forEach(img => {
             wrapImgForResize(img);
           });
+          _jeWrapping = false;
         }
 
         // Re-wrap images after content loads or changes
@@ -4187,15 +4193,23 @@
           if (mode === 'personal') {
             setTimeout(() => {
               wrapAllEditorImages();
-              // Observe for new images
               const editor = journalEditorRef.value;
               if (editor && !editor._jeObserver) {
                 editor._jeObserver = new MutationObserver(() => {
-                  setTimeout(wrapAllEditorImages, 50);
+                  if (_jeWrapping) return;
+                  // Check for unwrapped images
+                  const hasUnwrapped = editor.querySelector('img:not(.je-wrap img)');
+                  if (hasUnwrapped) wrapAllEditorImages();
                 });
                 editor._jeObserver.observe(editor, { childList: true, subtree: true });
               }
             }, 150);
+          } else {
+            const editor = journalEditorRef.value;
+            if (editor?._jeObserver) {
+              editor._jeObserver.disconnect();
+              delete editor._jeObserver;
+            }
           }
         });
 
