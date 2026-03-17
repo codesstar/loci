@@ -65,17 +65,28 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
    - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
    - Append the following block to `~/.claude/CLAUDE.md` (create file if needed, replace `<brain-path>` with actual absolute path):
      ```markdown
-     <!-- loci:start v1 -->
-     ## Loci Brain Connection
-     - Brain: <brain-path>
-     - In projects with `.loci/` directory:
-       1. Read `.loci/memory.md` at session start for project context
-       2. Append project knowledge during conversation: `[tag] YYYY-MM-DD content`
-       3. Tags: `[decision]` `[architecture]` `[insight]` `[milestone]` auto-push to brain; `[local]` `[debug]` `[wip]` stay local
-       4. At session end, check for push-tagged new entries → write to `.loci/to-hq.md`
-       5. Read `.loci/from-hq.md` for brain directives
-       6. Compress memory.md when >200 lines (summarize entries >30 days old)
-     - Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+     <!-- loci:start v2 -->
+     ## Loci Brain
+     Brain: <brain-path>
+
+     ### Always (any directory)
+     When the user mentions tasks, decisions, plans, or personal info — save to the brain:
+     - Tasks → `<brain-path>/tasks/active.md`
+     - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
+     - Personal facts → `<brain-path>/me/identity.md`
+     - Quick thoughts → `<brain-path>/inbox.md`
+     - Plans/goals → `<brain-path>/plan.md`
+     When the user asks about their tasks, plans, or schedule — read from the brain first.
+     Factual: auto-save + one-line confirm. Subjective: ask before saving.
+
+     ### In linked projects (has `.loci/` directory)
+     Also read `.loci/memory.md` for project context, use `.loci/to-hq.md` / `.loci/from-hq.md` for cross-project sync.
+
+     ### Commands
+     /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+
+     ### Opt-out
+     User says "disable Loci" → stop reading/writing brain for this session.
      <!-- loci:end -->
      ```
    - Copy `templates/commands/` to `~/.claude/commands/`
