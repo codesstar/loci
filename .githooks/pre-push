@@ -5,7 +5,10 @@
 remote="$1"
 url="$2"
 
-if [[ "$url" == *"codesstar/loci"* ]]; then
+# Only block if brain has personal data (plan.md status: active)
+# Template status = no personal data yet = safe to push
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+if [[ "$url" == *"codesstar/loci"* ]] && grep -q "status: active" "$SCRIPT_DIR/plan.md" 2>/dev/null; then
   echo ""
   echo "⚠️  BLOCKED: You're pushing to the public Loci template repo."
   echo "   Your brain contains personal data — this would make it public."
