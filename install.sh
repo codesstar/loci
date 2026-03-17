@@ -108,6 +108,42 @@ if [ -d ".loci/hooks" ]; then
   echo -e "${GREEN}✓${NC} Hooks set to executable"
 fi
 
+# ─── Configure Claude Code hooks ─────────────────────────────────────────────
+CLAUDE_SETTINGS=".claude/settings.json"
+mkdir -p ".claude/hooks"
+
+# Make daily-context hook executable
+chmod +x .claude/hooks/daily-context.sh 2>/dev/null
+
+if [ -f "$CLAUDE_SETTINGS" ]; then
+  # Check if hooks already configured
+  if ! grep -q "daily-context.sh" "$CLAUDE_SETTINGS" 2>/dev/null; then
+    # Merge hooks into existing settings using python3
+    if command -v python3 &> /dev/null; then
+      python3 -c "
+import json
+try:
+    with open('$CLAUDE_SETTINGS') as f:
+        settings = json.load(f)
+except:
+    settings = {}
+hooks = settings.setdefault('hooks', {})
+hooks['SessionStart'] = [{'matcher': 'startup|resume|compact', 'hooks': [{'type': 'command', 'command': '\"\\$CLAUDE_PROJECT_DIR\"/.claude/hooks/daily-context.sh'}]}]
+hooks.setdefault('PostToolUse', [{'matcher': 'Write|Edit', 'hooks': [{'type': 'command', 'command': '\"\\$CLAUDE_PROJECT_DIR\"/.loci/hooks/on-file-change.sh'}]}])
+with open('$CLAUDE_SETTINGS', 'w') as f:
+    json.dump(settings, f, indent=2)
+"
+      echo -e "${GREEN}✓${NC} Claude Code hooks configured (.claude/settings.json)"
+    else
+      echo -e "${DIM}Note: python3 not found, skipping hook configuration. Add hooks manually.${NC}"
+    fi
+  else
+    echo -e "${DIM}Hooks already configured${NC}"
+  fi
+else
+  echo -e "${DIM}Using pre-configured .claude/settings.json from repository${NC}"
+fi
+
 # ─── Launch Claude for onboarding ─────────────────────────────────────────────
 echo ""
 echo -e "${DIM}Launching Claude Code for setup...${NC}"
