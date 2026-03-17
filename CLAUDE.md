@@ -56,9 +56,10 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
        }
      }
      ```
-3. **Disconnect template remote** (safety):
+3. **Disconnect template remote + safety hooks**:
    - Run `git remote get-url origin` — if it contains `codesstar/loci`, run `git remote remove origin` to prevent accidental push of personal data to the public repo
    - If origin doesn't exist or points elsewhere, skip
+   - Configure git to use the bundled pre-push hook: `git config core.hooksPath .githooks`
 4. **Enable global awareness** (automatic):
    - Check if `~/.claude/CLAUDE.md` already contains `<!-- loci:start` — if yes, skip (idempotent)
    - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
@@ -83,13 +84,14 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
      Global awareness enabled — Loci commands now work in all your projects.
      Use `/loci-link` in any project folder to connect it to your brain.
      ```
-5. **Done**: Keep it simple but guide next step (use the user's chosen language):
+5. **Done**: Keep it simple, then verify the magic works (use the user's chosen language):
    ```
    Your brain is ready! From now on, I will:
    - Remember the important things you tell me
    - Help you track tasks and project progress
 
-   Try it now — tell me what you're working on, or ask me to help plan your day.
+   Want to see it work? Close this conversation, start a new one, and ask me:
+   "Do you know who I am?"
    ```
    - Do NOT dump all features at once. Introduce them progressively (see below).
    - The "try it now" prompt gives the user a clear next action instead of leaving them wondering what to do.
