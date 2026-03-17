@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loci Lite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08080f;
+      --glow: rgba(255,180,50,1);
+      --glow-dim: rgba(255,180,50,0.4);
+      --glow-faint: rgba(255,180,50,0.12);
+      --glow-ghost: rgba(255,180,50,0.05);
+      --text: rgba(255,255,255,0.9);
+      --text-dim: rgba(255,255,255,0.45);
+      --text-faint: rgba(255,255,255,0.2);
+      --green: rgba(100,220,180,1);
+      --green-dim: rgba(100,220,180,0.4);
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.08);
+    }
+
+    html, body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    /* ===== Layout ===== */
+    .shell {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,180,50,0.08);
+    }
+    .header-icon {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--glow-dim);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      color: var(--glow);
+      text-shadow: 0 0 12px rgba(255,180,50,0.4);
+      box-shadow: 0 0 20px rgba(255,180,50,0.08);
+    }
+    .header-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      letter-spacing: 6px;
+      color: var(--glow-dim);
+      text-shadow: 0 0 20px rgba(255,180,50,0.15);
+    }
+    .header-date {
+      margin-left: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* ===== Navigation tabs ===== */
+    .nav {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 32px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 3px;
+      border: 1px solid var(--card-border);
+    }
+    .nav-item {
+      flex: 1;
+      padding: 10px 16px;
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.25s;
+    }
+    .nav-item:hover {
+      color: var(--glow-dim);
+      background: var(--glow-ghost);
+    }
+    .nav-item.active {
+      color: var(--glow);
+      background: var(--glow-faint);
+      text-shadow: 0 0 12px rgba(255,180,50,0.3);
+      box-shadow: 0 0 16px rgba(255,180,50,0.06);
+    }
+
+    /* ===== Card ===== */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      backdrop-filter: blur(20px);
+    }
+    .card-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--glow-dim);
+      text-shadow: 0 0 8px rgba(255,180,50,0.15);
+    }
+    .card-count {
+      margin-left: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+    .card-body { padding: 16px 20px; }
+
+    /* ===== Stats bar ===== */
+    .stats {
+      display: flex;
+      gap: 24px;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .stat strong {
+      color: var(--glow);
+      font-size: 14px;
+      margin-right: 4px;
+    }
+
+    /* ===== Task items ===== */
+    .task-group-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--glow-dim);
+      padding: 12px 20px 4px;
+      text-shadow: 0 0 6px rgba(255,180,50,0.1);
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.025);
+      transition: background 0.2s;
+    }
+    .task:hover { background: rgba(255,180,50,0.02); }
+    .task:last-child { border-bottom: none; }
+    .task-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-faint);
+      min-width: 22px;
+    }
+    .task-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--glow-dim);
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .task-dot.focus {
+      border-color: var(--glow);
+      box-shadow: 0 0 8px rgba(255,180,50,0.3);
+    }
+    .task-dot.done {
+      background: var(--green-dim);
+      border-color: var(--green-dim);
+    }
+    .task-text {
+      flex: 1;
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.5;
+    }
+    .task-text.done {
+      text-decoration: line-through;
+      color: var(--text-dim);
+    }
+    .task-priority {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--text-faint);
+    }
+
+    /* ===== Week grid ===== */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      padding: 16px 20px;
+    }
+    .week-day {
+      text-align: center;
+      padding: 12px 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .week-day.today {
+      border-color: var(--glow-dim);
+      background: rgba(255,180,50,0.06);
+      box-shadow: 0 0 16px rgba(255,180,50,0.06);
+    }
+    .week-day.has-plan {
+      border-color: rgba(255,180,50,0.15);
+    }
+    .week-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .week-day.today .week-label { color: var(--glow); }
+    .week-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      color: var(--text-faint);
+      margin-bottom: 4px;
+    }
+    .week-day.today .week-date {
+      color: var(--glow);
+      text-shadow: 0 0 12px rgba(255,180,50,0.3);
+    }
+    .week-day.has-plan .week-date { color: var(--text-dim); }
+    .week-dots {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .week-dots span {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+    }
+    .dot-plan { background: var(--glow-dim); }
+    .dot-journal { background: var(--green-dim); }
+
+    /* ===== Journal entries ===== */
+    .journal-entry {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .journal-entry:last-child { border-bottom: none; }
+    .journal-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--glow-dim);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .journal-mood {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', monospace;
+    }
+    .mood-good { background: rgba(100,220,180,0.1); color: var(--green-dim); }
+    .mood-neutral { background: rgba(255,180,50,0.08); color: var(--glow-dim); }
+    .mood-tough { background: rgba(255,68,102,0.1); color: rgba(255,100,120,0.6); }
+    .journal-body {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+    }
+    .journal-body h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      margin: 12px 0 4px;
+    }
+    .journal-body h2:first-child { margin-top: 0; }
+    .journal-body ul {
+      list-style: none;
+      padding: 0;
+    }
+    .journal-body li {
+      padding: 3px 0 3px 16px;
+      position: relative;
+    }
+    .journal-body li::before {
+      content: '';
+      position: absolute;
+      left: 4px; top: 11px;
+      width: 4px; height: 4px;
+      background: var(--glow-faint);
+      border-radius: 50%;
+    }
+
+    /* ===== Empty state ===== */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--text-faint);
+      letter-spacing: 2px;
+    }
+
+    /* ===== Ambient particles ===== */
+    .particle {
+      position: fixed;
+      width: 1px; height: 1px;
+      background: rgba(255,180,50,0.25);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 600px) {
+      .shell { padding: 20px 16px 40px; }
+      .header-title { font-size: 10px; letter-spacing: 4px; }
+      .week-grid { grid-template-columns: repeat(7, 1fr); gap: 3px; }
+      .week-day { padding: 8px 2px; }
+      .week-date { font-size: 13px; }
+      .week-label { font-size: 7px; }
+      .nav-item { font-size: 8px; letter-spacing: 2px; padding: 8px 8px; }
+      .stats { gap: 12px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Ambient particles -->
+    <div v-for="p in particles" :key="p.id" class="particle"
+      :style="{left: p.x + '%', bottom: '-5px', width: p.size + 'px', height: p.size + 'px', animationDuration: p.dur + 's', animationDelay: p.delay + 's'}">
+    </div>
+
+    <div class="shell">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-icon">L</div>
+        <div class="header-title">LOCI LITE</div>
+        <div class="header-date">{{ todayFormatted }}</div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav">
+        <div v-for="tab in tabs" :key="tab.id"
+          class="nav-item" :class="{active: page === tab.id}"
+          @click="page = tab.id">{{ tab.label }}</div>
+      </div>
+
+      <!-- ═══ TODAY PAGE ═══ -->
+      <div v-if="page === 'today'">
+        <!-- Stats -->
+        <div class="card">
+          <div class="stats">
+            <div class="stat"><strong>{{ pendingTasks.length }}</strong>PENDING</div>
+            <div class="stat"><strong>{{ doneTasks.length }}</strong>DONE</div>
+            <div class="stat"><strong>{{ progressPct }}</strong>%</div>
+          </div>
+
+          <!-- P0 Focus -->
+          <div v-if="tasksByGroup('P0').length">
+            <div class="task-group-label">FOCUS</div>
+            <div v-for="(t, i) in tasksByGroup('P0')" :key="'p0-'+i" class="task">
+              <div class="task-num">{{ pad(globalIndex('P0', i)) }}</div>
+              <div class="task-dot" :class="{focus: !t.done, done: t.done}"></div>
+              <div class="task-text" :class="{done: t.done}">{{ t.text }}</div>
+              <div class="task-priority">CRITICAL</div>
+            </div>
+          </div>
+
+          <!-- P1 Queue -->
+          <div v-if="tasksByGroup('P1').length">
+            <div class="task-group-label">QUEUE</div>
+            <div v-for="(t, i) in tasksByGroup('P1')" :key="'p1-'+i" class="task">
+              <div class="task-num">{{ pad(globalIndex('P1', i)) }}</div>
+              <div class="task-dot" :class="{done: t.done}"></div>
+              <div class="task-text" :class="{done: t.done}">{{ t.text }}</div>
+              <div class="task-priority">NORMAL</div>
+            </div>
+          </div>
+
+          <!-- P2 Later -->
+          <div v-if="tasksByGroup('P2').length">
+            <div class="task-group-label">LATER</div>
+            <div v-for="(t, i) in tasksByGroup('P2')" :key="'p2-'+i" class="task">
+              <div class="task-num">{{ pad(globalIndex('P2', i)) }}</div>
+              <div class="task-dot" :class="{done: t.done}"></div>
+              <div class="task-text" :class="{done: t.done}">{{ t.text }}</div>
+              <div class="task-priority">LOW</div>
+            </div>
+          </div>
+
+          <div v-if="allTasks.length === 0" class="empty">NO ACTIVE MISSIONS</div>
+        </div>
+
+        <!-- Today's daily plan content -->
+        <div v-if="todayPlan" class="card">
+          <div class="card-head">
+            <div class="card-label">TODAY'S PLAN</div>
+          </div>
+          <div class="card-body journal-body" v-html="todayPlan.content"></div>
+        </div>
+      </div>
+
+      <!-- ═══ WEEK PAGE ═══ -->
+      <div v-if="page === 'week'">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-label">THIS WEEK</div>
+          </div>
+          <div class="week-grid">
+            <div v-for="d in weekDays" :key="d.date"
+              class="week-day" :class="{'today': d.is_today, 'has-plan': d.has_plan}">
+              <div class="week-label">{{ d.weekday }}</div>
+              <div class="week-date">{{ d.date.slice(-2) }}</div>
+              <div class="week-dots">
+                <span v-if="d.has_plan" class="dot-plan"></span>
+                <span v-if="d.has_journal" class="dot-journal"></span>
+              </div>
+              <div v-if="d.tasks_total" style="margin-top: 4px;">
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-faint);">
+                  {{ d.tasks_done || 0 }}/{{ d.tasks_total }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily plans list -->
+        <div class="card" v-if="dailyPlans.length">
+          <div class="card-head">
+            <div class="card-label">DAILY PLANS</div>
+            <div class="card-count">{{ dailyPlans.length }} entries</div>
+          </div>
+          <div v-for="dp in dailyPlans" :key="dp.filename" class="journal-entry">
+            <div class="journal-date">{{ dp.meta.date || dp.filename }}</div>
+            <div class="journal-body" v-html="dp.content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ JOURNAL PAGE ═══ -->
+      <div v-if="page === 'journal'">
+        <div class="card" v-if="journalEntries.length">
+          <div class="card-head">
+            <div class="card-label">JOURNAL</div>
+            <div class="card-count">{{ journalEntries.length }} entries</div>
+          </div>
+          <div v-for="j in journalEntries" :key="j.filename" class="journal-entry">
+            <div class="journal-date">
+              {{ j.meta.date || j.filename }}
+              <span v-if="j.meta.mood" class="journal-mood"
+                :class="'mood-' + j.meta.mood">{{ j.meta.mood.toUpperCase() }}</span>
+            </div>
+            <div class="journal-body" v-html="j.content"></div>
+          </div>
+        </div>
+        <div v-else class="card">
+          <div class="empty">NO JOURNAL ENTRIES YET<br><span style="font-size: 10px; color: var(--text-faint);">Tell your AI "summarize my day" to create one</span></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align: center; margin-top: 40px; font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-faint); letter-spacing: 2px;">
+        LOCI LITE v1.0 &middot; BUILT {{ buildTime }}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const data = ref(null);
+        const page = ref('today');
+
+        const tabs = [
+          { id: 'today',   label: 'TODAY' },
+          { id: 'week',    label: 'WEEK' },
+          { id: 'journal', label: 'JOURNAL' },
+        ];
+
+        // Particles
+        const particles = [];
+        for (let i = 0; i < 15; i++) {
+          particles.push({
+            id: i,
+            x: Math.random() * 100,
+            size: 0.5 + Math.random() * 1.5,
+            dur: 12 + Math.random() * 18,
+            delay: Math.random() * 15,
+          });
+        }
+
+        // Load data
+        onMounted(async () => {
+          try {
+            const res = await fetch('data.json?t=' + Date.now());
+            data.value = await res.json();
+          } catch (e) {
+            console.warn('Could not load data.json:', e);
+          }
+        });
+
+        // Date
+        const todayFormatted = computed(() => {
+          const d = new Date();
+          const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+          return `${days[d.getDay()]} ${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+        });
+
+        const buildTime = computed(() => data.value?.build_time || '---');
+
+        // Tasks
+        const activeTasks = computed(() => data.value?.tasks?.active_tasks || {});
+        const allTasks = computed(() => {
+          const t = activeTasks.value;
+          return [...(t.P0 || []), ...(t.P1 || []), ...(t.P2 || [])];
+        });
+        const pendingTasks = computed(() => allTasks.value.filter(t => !t.done));
+        const doneTasks = computed(() => allTasks.value.filter(t => t.done));
+        const progressPct = computed(() => {
+          if (allTasks.value.length === 0) return 0;
+          return Math.round(doneTasks.value.length / allTasks.value.length * 100);
+        });
+
+        function tasksByGroup(group) {
+          return activeTasks.value[group] || [];
+        }
+
+        function globalIndex(group, i) {
+          const order = ['P0', 'P1', 'P2'];
+          let offset = 0;
+          for (const g of order) {
+            if (g === group) return offset + i + 1;
+            offset += (activeTasks.value[g] || []).length;
+          }
+          return i + 1;
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        // Today's plan
+        const todayPlan = computed(() => {
+          const plans = data.value?.daily_plans || [];
+          const today = new Date().toISOString().slice(0, 10);
+          return plans.find(p => p.meta?.date === today) || plans[plans.length - 1] || null;
+        });
+
+        // Week
+        const weekDays = computed(() => data.value?.week || []);
+
+        // Daily plans
+        const dailyPlans = computed(() => {
+          const plans = [...(data.value?.daily_plans || [])];
+          plans.reverse();
+          return plans;
+        });
+
+        // Journal
+        const journalEntries = computed(() => data.value?.journal || []);
+
+        return {
+          data, page, tabs, particles,
+          todayFormatted, buildTime,
+          allTasks, pendingTasks, doneTasks, progressPct,
+          tasksByGroup, globalIndex, pad,
+          todayPlan, weekDays, dailyPlans, journalEntries,
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
