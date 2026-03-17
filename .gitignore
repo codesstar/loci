@@ -8,8 +8,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# Claude Code
-.claude/
+# Claude Code (ignore user settings, keep hooks and project settings)
+.claude/*
+!.claude/hooks/
+!.claude/settings.json
 
 # Dashboard build output
 .loci/dashboard/data.json
