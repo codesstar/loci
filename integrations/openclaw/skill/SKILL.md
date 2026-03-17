@@ -1,91 +1,89 @@
 # Loci — Memory Palace for AI
 
-You have a Loci brain — a structured memory system that replaces flat MEMORY.md with layered, organized knowledge. Your brain lives at:
+## ⚠️ FIRST: Check if brain exists
 
-**Brain path: `~/.openclaw/workspace/brain/`**
+Run this check **before doing anything else**:
 
-> If this path doesn't exist yet, create it using the directory structure below.
+1. Check if `~/.loci/brain-path` exists → read the path inside → verify `plan.md` exists there
+2. If not, check if `~/.openclaw/workspace/brain/plan.md` exists
+3. If neither exists → **run Bootstrap below**
+4. If found → read `plan.md`. If `status: template` → run **First-Time Setup**. If `status: active` → brain is ready, skip to **Daily Use**
 
-## Directory Map
+## Bootstrap (auto-install for new users)
 
-```
-brain/
-├── plan.md          # Life direction & annual goals (your north star)
-├── inbox.md         # Quick capture — dump anything here, sort weekly
-├── me/
-│   ├── identity.md  # Name, role, location, current season
-│   ├── values.md    # Beliefs and principles
-│   ├── learned.md   # Lessons and patterns discovered
-│   ├── goals.md     # Detailed goal breakdown
-│   ├── insights.md  # Cross-domain patterns (auto-generated)
-│   └── evolution.md # How identity changed over time
-├── tasks/
-│   ├── active.md    # Current tasks: Focus (must-do) + Queue (backlog)
-│   ├── someday.md   # Maybe later
-│   ├── daily/       # Daily plans (YYYY-MM-DD.md)
-│   └── journal/     # Daily summaries (YYYY-MM-DD.md)
-├── decisions/       # One file per major decision (YYYY-MM-DD-slug.md)
-└── people/          # Contact profiles (name.md)
+The user doesn't need to do anything. You handle it:
+
+```bash
+# Clone Loci brain template
+git clone --depth 1 https://github.com/codesstar/loci.git ~/.openclaw/workspace/brain
+
+# Remove git remote (user's data stays private)
+cd ~/.openclaw/workspace/brain && git remote remove origin
+
+# Register brain location
+mkdir -p ~/.loci
+echo "$HOME/.openclaw/workspace/brain" > ~/.loci/brain-path
 ```
 
-## Three-Layer Context
-
-| Layer | When to load | What |
-|-------|-------------|------|
-| **L1** | Every conversation | plan.md, inbox.md (recent 7 items), today's daily plan, active.md |
-| **L2** | On demand | me/ files, specific decisions, people profiles |
-| **L3** | Never auto-load | Old journals, archived decisions, evolution.md |
-
-**At conversation start**, read these L1 files before responding. If today's daily plan doesn't exist, mention it and offer to create one.
-
-## Distillation Rules
-
-Never save raw conversations. Distill conclusions to the right file:
-
-| Signal | Destination | Example |
-|--------|-------------|---------|
-| New task | `tasks/active.md` | "I need to update the README" → add to Queue |
-| Decision | `decisions/YYYY-MM-DD-slug.md` | "Going with PostgreSQL" → new decision file |
-| Personal fact | `me/identity.md` | "I just moved to Sydney" → update location |
-| Insight / lesson | `me/learned.md` | "Never deploy on Fridays" → append |
-| Goal change | `plan.md` | "Pushing launch to April" → update |
-| Vague thought | `inbox.md` | "Maybe I should learn Rust" → append |
-
-**Factual info** (city, job, tool choice) → save immediately, one-line confirmation.
-**Subjective info** (values, goals, strategy) → ask the user before saving.
-
-Confirmation style — keep it natural, no system jargon:
-- "Got it — added task 'Update README'"
-- "记住了：新任务「更新 README」"
-
-## Behavior Rules
-
-1. **Read before answering** — Check relevant brain files before responding to questions about the user's life, work, or plans
-2. **Distill, don't hoard** — Extract the conclusion, not the conversation
-3. **Archive, never delete** — Old content moves to `archive/`, nothing gets deleted
-4. **Don't guess** — If unsure about the user's intent, ask
-5. **State > productivity** — Don't push tasks if the user seems tired or unfocused
-6. **Speak human** — Say "待办" not "inbox", "记住了" not "distilled". The user doesn't need to know file paths
-
-## Coexistence with OpenClaw Memory
-
-Your default MEMORY.md and memory/ files continue to work normally. Loci's `brain/` directory is an **additional** structured layer:
-
-- Quick notes, preferences, personality settings → MEMORY.md (as usual)
-- Structured life data (tasks, decisions, goals, identity) → brain/
-- Daily logs → memory/ (OpenClaw default) OR brain/tasks/journal/ (richer format)
-
-Don't move existing MEMORY.md content into brain/ unless the user asks. The two systems coexist.
+After cloning, run **First-Time Setup** below. Tell the user:
+- "我在帮你设置记忆系统，只需要回答几个问题。"
 
 ## First-Time Setup
 
-If `brain/plan.md` doesn't exist, this is a new brain. Ask the user:
+When `plan.md` has `status: template`:
 
-1. What's your name?
-2. What do you do? (Developer / Designer / Creator / Student / Other)
-3. What's your most important focus right now?
-4. Preferred language? (English / 中文 / Mix)
+1. Detect the user's language from their messages. Ask in that language.
+2. Ask these questions (can ask all at once):
+   - What's your name?
+   - What do you do? (Developer / Designer / Creator / Student / Other)
+   - What's your most important focus right now?
+   - What hours do you usually work? (Morning / Daytime / Evening / Night owl / Irregular)
+   - Preferred language? (English / 中文 / Mix)
+3. Generate initial files from answers:
+   - `me/identity.md` — name, role, current season
+   - `plan.md` — mission + focus as first goal (set `status: active`)
+   - `tasks/active.md` — first task from their focus
+4. Done. Say: "Your brain is ready. From now on, I'll remember the important things."
 
-Then generate: `me/identity.md`, `plan.md`, `tasks/active.md` with their first task.
+## Daily Use
 
-Keep it light — don't dump features. Introduce them naturally as the user works.
+**Brain path**: read from `~/.loci/brain-path`, or default `~/.openclaw/workspace/brain/`
+
+At conversation start, read L1 files before responding:
+- `plan.md` — life direction
+- `tasks/active.md` — current tasks
+- `tasks/daily/YYYY-MM-DD.md` — today's plan (if exists)
+- `inbox.md` — recent items only
+
+### Distillation — what to save where
+
+| Signal | Destination |
+|--------|-------------|
+| New task | `tasks/active.md` |
+| Decision | `decisions/YYYY-MM-DD-slug.md` |
+| Personal fact | `me/identity.md` |
+| Insight / lesson | `me/learned.md` |
+| Goal change | `plan.md` |
+| Vague thought | `inbox.md` |
+
+**Factual** → save immediately + one-line confirm ("记住了：...")
+**Subjective** (values, strategy) → ask user first
+
+### Behavior
+
+1. Read brain files before answering questions about the user
+2. Distill conclusions, not raw conversations
+3. Archive, never delete
+4. Don't guess — ask if unsure
+5. Speak human — say "待办" not "inbox", never expose file paths
+6. MEMORY.md and brain/ coexist — don't move content between them unless asked
+
+### Context Layers
+
+| Layer | Load when | Contents |
+|-------|----------|----------|
+| L1 | Every conversation | plan.md, active.md, today's daily, inbox (7 items) |
+| L2 | On demand | me/ files, decisions, people |
+| L3 | Never auto | Old journals, archive, evolution.md |
+
+For detailed behavior rules, read `docs/behavior.md` in the brain directory.

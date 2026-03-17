@@ -4,7 +4,12 @@
 # Hook injects DYNAMIC daily content; CLAUDE.md handles static rules + plan.md
 # Zero dependencies, just reads markdown files
 
-LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# Resolve brain path: ~/.loci/brain-path > script's own repo
+if [ -f "$HOME/.loci/brain-path" ]; then
+  LOCI_ROOT="$(cat "$HOME/.loci/brain-path")"
+else
+  LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+fi
 TODAY=$(date "+%Y-%m-%d")
 YESTERDAY=$(date -v-1d "+%Y-%m-%d" 2>/dev/null || date -d "yesterday" "+%Y-%m-%d")
 DAY_OF_WEEK=$(date "+%A")

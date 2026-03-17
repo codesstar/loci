@@ -17,8 +17,20 @@ echo -e "${BOLD}║   Loci — Memory Palace for AI            ║${NC}"
 echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
 echo ""
 
-# ─── If running via curl pipe, clone the repo first ─────────────────────────
-if [ ! -f "CLAUDE.md" ]; then
+# ─── Check if brain already exists ────────────────────────────────────────────
+EXISTING_BRAIN=""
+if [ -f "$HOME/.loci/brain-path" ]; then
+  EXISTING_BRAIN="$(cat "$HOME/.loci/brain-path")"
+  if [ -f "$EXISTING_BRAIN/plan.md" ]; then
+    echo -e "${DIM}Existing brain found at ${EXISTING_BRAIN}${NC}"
+    cd "$EXISTING_BRAIN"
+  else
+    EXISTING_BRAIN=""
+  fi
+fi
+
+# ─── If no existing brain, clone the repo ─────────────────────────────────────
+if [ -z "$EXISTING_BRAIN" ] && [ ! -f "CLAUDE.md" ]; then
   if ! command -v git &> /dev/null; then
     echo -e "${RED}git is not installed. Please install git first.${NC}"
     exit 1
@@ -89,6 +101,11 @@ LOCIBLOCK
   echo -e "${GREEN}✓${NC} Global awareness enabled (~/.claude/CLAUDE.md)"
 fi
 
+# ─── Register brain path globally ────────────────────────────────────────────
+mkdir -p "$HOME/.loci"
+echo "$BRAIN_PATH" > "$HOME/.loci/brain-path"
+echo -e "${GREEN}✓${NC} Brain registered (~/.loci/brain-path)"
+
 # Copy slash commands (backup existing ones first)
 if [ -d "templates/commands" ]; then
   mkdir -p "$GLOBAL_COMMANDS"
@@ -142,6 +159,18 @@ with open('$CLAUDE_SETTINGS', 'w') as f:
   fi
 else
   echo -e "${DIM}Using pre-configured .claude/settings.json from repository${NC}"
+fi
+
+# ─── Detect OpenClaw and install skill ────────────────────────────────────────
+OPENCLAW_DIR="$HOME/.openclaw"
+if [ -d "$OPENCLAW_DIR" ]; then
+  SKILL_SRC="integrations/openclaw/skill"
+  if [ -d "$SKILL_SRC" ]; then
+    SKILL_DEST="$OPENCLAW_DIR/workspace/skills/loci"
+    mkdir -p "$SKILL_DEST"
+    cp "$SKILL_SRC/SKILL.md" "$SKILL_DEST/"
+    echo -e "${GREEN}✓${NC} OpenClaw skill installed (~/.openclaw/workspace/skills/loci/)"
+  fi
 fi
 
 # ─── Launch Claude for onboarding ─────────────────────────────────────────────

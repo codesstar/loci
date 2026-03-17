@@ -9,26 +9,34 @@ Give your OpenClaw agent a structured brain.
 
 ## Install
 
-### Option A: One command
-```bash
-openclaw skill install https://github.com/codesstar/loci
-```
+### For OpenClaw users (easiest)
 
-### Option B: Manual
-Copy the `skill/` folder to your OpenClaw skills directory:
+Copy the skill folder to your OpenClaw skills directory:
+
 ```bash
 cp -r skill/ ~/.openclaw/workspace/skills/loci/
 ```
 
-That's it. Next conversation, your agent will set up your brain automatically.
+Then just start a conversation. Your agent will automatically:
+1. Download the brain template
+2. Ask you a few questions
+3. Set up your memory
 
-## What it does
+You don't need to do anything else.
 
-- Replaces flat MEMORY.md with a structured `brain/` directory
-- Three-layer context loading (daily stuff auto-loads, deep history on demand)
-- Auto-distills conversations into the right files (tasks, decisions, identity, etc.)
-- Coexists with OpenClaw's default memory — nothing breaks
+### For Claude Code users who also use OpenClaw
 
-## Works with Claude Code too
+If you already have a Loci brain via Claude Code, just copy the skill:
 
-If you also use Claude Code, your Loci brain is shared. Both tools read/write the same files.
+```bash
+cp -r skill/ ~/.openclaw/workspace/skills/loci/
+```
+
+Your agent will auto-detect your existing brain (via `~/.loci/brain-path`) and start using it immediately. No re-setup needed.
+
+## How it works
+
+- SKILL.md teaches your OpenClaw agent to use Loci's structured memory
+- Brain files are stored locally as markdown (you own your data)
+- If you also use Claude Code, both tools share the same brain
+- OpenClaw's default MEMORY.md continues to work alongside Loci
