@@ -2370,15 +2370,15 @@
         <canvas ref="clockCanvas" width="520" height="520" style="width: 200px; height: 200px;"></canvas>
         <div style="display: flex; gap: 18px; margin-top: 10px;">
           <div style="text-align: center;">
-            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">DATE</div>
+            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">{{ t('clock.date') }}</div>
             <div class="hud-display" style="font-size: 16px; color: rgba(255,180,50,0.85); margin-top: 2px;">{{ currentDateShort }}</div>
           </div>
           <div style="text-align: center;">
-            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">DAY</div>
+            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">{{ t('clock.day') }}</div>
             <div class="hud-display" style="font-size: 16px; color: rgba(255,180,50,0.85); margin-top: 2px;">{{ currentWeekdayShort }}</div>
           </div>
           <div style="text-align: center;">
-            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">ZONE</div>
+            <div class="hud-mono" style="font-size: 8px; letter-spacing: 2px; color: rgba(255,180,50,0.35);">{{ t('clock.zone') }}</div>
             <div class="hud-display" style="font-size: 16px; color: rgba(255,180,50,0.85); margin-top: 2px;">AEDT</div>
           </div>
         </div>
@@ -2387,7 +2387,7 @@
       <!-- System online -->
       <div class="sys-online">
         <div class="dot"></div>
-        <span>SYSTEM ONLINE</span>
+        <span>{{ t('sys.online') }}</span>
       </div>
 
       <!-- Heat gauge top -->
@@ -2406,19 +2406,38 @@
         </div>
       </nav>
 
+      <!-- Language toggle -->
+      <div style="padding: 6px 20px;">
+        <button @click="toggleLang()" style="
+          width: 100%; padding: 6px 12px;
+          background: rgba(255,180,50,0.04);
+          border: 1px solid rgba(255,180,50,0.15);
+          border-radius: 3px; cursor: pointer;
+          font-family: 'Share Tech Mono', monospace;
+          font-size: 10px; letter-spacing: 2px;
+          color: rgba(255,180,50,0.5);
+          transition: all 0.2s;
+          display: flex; align-items: center; justify-content: center; gap: 6px;
+        " onmouseover="this.style.borderColor='rgba(255,180,50,0.4)';this.style.color='rgba(255,180,50,0.8)';this.style.background='rgba(255,180,50,0.08)'"
+           onmouseout="this.style.borderColor='rgba(255,180,50,0.15)';this.style.color='rgba(255,180,50,0.5)';this.style.background='rgba(255,180,50,0.04)'">
+          <span style="font-size: 11px;">&#127760;</span>
+          {{ t('lang.toggle') }}
+        </button>
+      </div>
+
       <!-- Heat gauge bottom -->
       <div class="heat-gauge"><div class="fill"></div></div>
 
       <!-- Telemetry footer -->
       <div style="padding: 10px 20px 14px; font-family: 'Share Tech Mono'; font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px; border-top: 1px solid rgba(255,180,50,0.06); line-height: 1.7;">
-        <div class="tele-line" id="tele-tl-1" style="color: rgba(255,180,50,0.4);">SYS.NOMINAL</div>
+        <div class="tele-line" id="tele-tl-1" style="color: rgba(255,180,50,0.4);">{{ t('sys.nominal') }}</div>
         <div style="display: flex; justify-content: space-between;">
           <span class="tele-line" id="tele-tl-2">MEM: 847.2K</span>
           <span class="tele-line" id="tele-bl-2">IO: 2.4MB/s</span>
         </div>
         <div style="display: flex; justify-content: space-between;">
           <span class="tele-line" id="tele-tl-3">NET: ██░░ 42%</span>
-          <span class="tele-line" id="tele-bl-1">12 THREADS</span>
+          <span class="tele-line" id="tele-bl-1">12 {{ t('sys.threads') }}</span>
         </div>
         <div style="display: flex; justify-content: space-between; margin-top: 2px; color: rgba(255,180,50,0.18);">
           <span>LOCI v0.3.1</span>
@@ -2435,7 +2454,7 @@
       <!-- Loading -->
       <div v-if="loading" class="flex items-center justify-center h-screen">
         <div class="text-center">
-          <div class="section-title mb-4" style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">LOADING</div>
+          <div class="section-title mb-4" style="font-size: 0.9rem; color: rgba(255,255,255,0.5);">{{ t('sys.loading') }}</div>
           <div style="width: 200px; height: 3px; background: rgba(255,255,255,0.078); border-radius: 2px; overflow: hidden;">
             <div style="width: 60%; height: 100%; background: #7c5cfc; border-radius: 2px; animation: pulse 1.5s ease-in-out infinite;"></div>
           </div>
@@ -2445,7 +2464,7 @@
       <!-- Error -->
       <div v-else-if="error" class="flex items-center justify-center h-screen">
         <div class="text-center max-w-md mx-auto px-4">
-          <div class="section-title mb-4" style="color: #ff4466;">ERROR</div>
+          <div class="section-title mb-4" style="color: #ff4466;">{{ t('sys.error') }}</div>
           <div class="card">
             <div class="card-body">
               <p style="color: rgba(255,255,255,0.69); margin-bottom: 12px;">{{ error }}</p>
@@ -2464,7 +2483,7 @@
         <section v-if="currentPage === 'today'">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
             <div style="width: 4px; height: 20px; background: linear-gradient(180deg, rgba(255,180,50,0.92), rgba(255,180,50,0.135));"></div>
-            <h2 class="hud-display hud-title-glow" style="font-size: 0.75rem; color: rgba(255,180,50,0.72); letter-spacing: 6px; text-transform: uppercase; font-weight: 500;">Command Center</h2>
+            <h2 class="hud-display hud-title-glow" style="font-size: 0.75rem; color: rgba(255,180,50,0.72); letter-spacing: 6px; text-transform: uppercase; font-weight: 500;">{{ t('today.commandCenter') }}</h2>
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,180,50,0.203), transparent);"></div>
           </div>
 
@@ -2475,30 +2494,30 @@
             <!-- Header -->
             <div class="s7-header">
               <div class="s7-icon"></div>
-              <div class="s7-title hud-title-glow">MISSION LOG</div>
+              <div class="s7-title hud-title-glow">{{ t('today.missionLog') }}</div>
               <div style="flex: 1;"></div>
               <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px; margin-right: 8px;">{{ missionLogDateLabel }}</span>
-              <button @click="showAddTask = !showAddTask" class="s7-add-btn" :style="showAddTask ? 'background: rgba(255,160,50,0.28);' : ''">+ ADD</button>
+              <button @click="showAddTask = !showAddTask" class="s7-add-btn" :style="showAddTask ? 'background: rgba(255,160,50,0.28);' : ''">{{ t('today.add') }}</button>
             </div>
             <!-- Stats -->
             <div class="s7-stats">
-              <div class="s7-stat"><span>{{ allUndoneTasks.length }}</span> PENDING</div>
-              <div class="s7-stat"><span>{{ finishedTasks.length }}</span> COMPLETE</div>
-              <div class="s7-stat"><span>{{ allUndoneTasks.length + finishedTasks.length > 0 ? Math.round(finishedTasks.length / (allUndoneTasks.length + finishedTasks.length) * 100) : 0 }}</span>% PROGRESS</div>
+              <div class="s7-stat"><span>{{ allUndoneTasks.length }}</span> {{ t('today.pending') }}</div>
+              <div class="s7-stat"><span>{{ finishedTasks.length }}</span> {{ t('today.complete') }}</div>
+              <div class="s7-stat"><span>{{ allUndoneTasks.length + finishedTasks.length > 0 ? Math.round(finishedTasks.length / (allUndoneTasks.length + finishedTasks.length) * 100) : 0 }}</span>% {{ t('today.progress') }}</div>
             </div>
             <!-- Quick-add -->
             <div v-if="showAddTask" class="s7-add-bar" style="flex-wrap: wrap;">
               <div style="display: flex; gap: 4px; width: 100%; align-items: center;">
-                <input v-model="newTaskText" @keyup.enter="addNewTask()" placeholder="New mission..."
+                <input v-model="newTaskText" @keyup.enter="addNewTask()" :placeholder="t('today.newMission')"
                   class="s7-add-input" style="flex: 1;">
                 <select v-model="newTaskPriority" class="s7-add-input" style="flex: none; width: 80px; cursor: pointer;">
-                  <option value="P0">Focus</option>
-                  <option value="P1">Queue</option>
+                  <option value="P0">{{ t('priority.focus') }}</option>
+                  <option value="P1">{{ t('priority.queue') }}</option>
                 </select>
                 <button @click="showTaskTime = !showTaskTime"
                   class="s7-add-input" style="flex: none; width: 60px; cursor: pointer; text-align: center; font-size: 13px; letter-spacing: 1px;"
-                  :style="showTaskTime ? 'background: rgba(255,180,50,0.12); color: rgba(255,180,50,1); border-color: rgba(255,180,50,0.35);' : (taskScheduleStart !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.3);' : '')">Time</button>
-                <button @click="addNewTask()" class="s7-add-btn">EXEC</button>
+                  :style="showTaskTime ? 'background: rgba(255,180,50,0.12); color: rgba(255,180,50,1); border-color: rgba(255,180,50,0.35);' : (taskScheduleStart !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.3);' : '')">{{ t('today.time') }}</button>
+                <button @click="addNewTask()" class="s7-add-btn">{{ t('today.exec') }}</button>
               </div>
               <!-- Time picker row, shown on TIME click -->
               <div v-if="showTaskTime" style="display: flex; gap: 6px; align-items: center; width: 100%; margin-top: 6px;">
@@ -2529,7 +2548,7 @@
                       class="tp-item" @click="pickTime('taskEnd', s.key)">{{ s.label }}</div>
                   </div>
                 </div>
-                <span class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.2); letter-spacing: 1px; margin-left: 2px;">→ CALENDAR</span>
+                <span class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.2); letter-spacing: 1px; margin-left: 2px;">→ {{ t('today.toCalendar') }}</span>
               </div>
             </div>
             <!-- Always day view — shows tasks for selected date -->
@@ -2538,7 +2557,7 @@
               <div @dragover.prevent @drop="dropTask($event, 'P0')"
                 :style="dragOverGroup === 'P0' ? 'background: rgba(255,160,50,0.03);' : ''"
                 @dragenter.prevent="dragOverGroup = 'P0'" @dragleave="dragOverGroup = null">
-                <div class="s7-group-label">FOCUS</div>
+                <div class="s7-group-label">{{ t('today.focus') }}</div>
                 <div v-for="(task, i) in undoneTasks('P0')" :key="'p0-'+i"
                   draggable="true" @dragstart="dragTask($event, 'P0', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
@@ -2546,7 +2565,7 @@
                   <div class="s7-status active" @click="task.done = true"></div>
                   <div class="s7-content">
                     <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta">PRIORITY: CRITICAL</div>
+                    <div class="s7-content-meta">{{ t('today.priorityCritical') }}</div>
                   </div>
                 </div>
               </div>
@@ -2554,7 +2573,7 @@
               <div @dragover.prevent @drop="dropTask($event, 'P1')"
                 :style="dragOverGroup === 'P1' ? 'background: rgba(255,160,50,0.03);' : ''"
                 @dragenter.prevent="dragOverGroup = 'P1'" @dragleave="dragOverGroup = null">
-                <div class="s7-group-label">QUEUE</div>
+                <div class="s7-group-label">{{ t('today.queue') }}</div>
                 <div v-for="(task, i) in undoneTasks('P1')" :key="'p1-'+i"
                   draggable="true" @dragstart="dragTask($event, 'P1', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
@@ -2562,18 +2581,18 @@
                   <div class="s7-status pending" @click="task.done = true"></div>
                   <div class="s7-content">
                     <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta">PRIORITY: NORMAL</div>
+                    <div class="s7-content-meta">{{ t('today.priorityNormal') }}</div>
                   </div>
                 </div>
               </div>
               <!-- Empty state -->
-              <div v-if="!hasAnyTodayTasks" class="s7-empty">NO ACTIVE MISSIONS</div>
+              <div v-if="!hasAnyTodayTasks" class="s7-empty">{{ t('today.noMissions') }}</div>
               <!-- Completed -->
               <div @dragover.prevent @drop="dropTask($event, 'done')"
                 :style="dragOverGroup === 'done' ? 'background: rgba(255,160,50,0.03);' : ''"
                 @dragenter.prevent="dragOverGroup = 'done'" @dragleave="dragOverGroup = null"
                 v-if="finishedTasks.length">
-                <div class="s7-group-label" style="color: rgba(100,220,180,0.45); text-shadow: 0 0 8px rgba(100,220,180,0.15);">COMPLETED</div>
+                <div class="s7-group-label" style="color: rgba(100,220,180,0.45); text-shadow: 0 0 8px rgba(100,220,180,0.15);">{{ t('today.completed') }}</div>
                 <div v-for="(task, i) in finishedTasks" :key="'done-'+i"
                   draggable="true" @dragstart="dragTask($event, 'done', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
@@ -2581,7 +2600,7 @@
                   <div class="s7-status done" @click="task.done = false"></div>
                   <div class="s7-content">
                     <div class="s7-content-text done" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta done-meta">COMPLETED</div>
+                    <div class="s7-content-meta done-meta">{{ t('today.completed') }}</div>
                   </div>
                 </div>
               </div>
@@ -2593,12 +2612,12 @@
           <!-- Calendar — Mission Control -->
           <div class="card hud-card mb-6">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 class="hud-title-glow">DAY MANIFEST</h3>
+              <h3 class="hud-title-glow">{{ t('today.dayManifest') }}</h3>
               <div style="display: flex; gap: 4px; align-items: center;">
                 <button v-for="v in ['day','week','month']" :key="v"
                   @click="switchCalendarView(v)"
                   :class="['hud-tab', calendarView === v ? 'active' : '']">
-                  {{ v.toUpperCase() }}
+                  {{ t('today.' + v) }}
                 </button>
               </div>
             </div>
@@ -2616,8 +2635,8 @@
               <!-- Stats bar (day view) -->
               <template v-if="calendarView === 'day'">
                 <div style="display: flex; gap: 20px; margin-bottom: 10px;">
-                  <div style="font-family: 'Share Tech Mono'; font-size: 13px; color: rgba(255,180,50,0.35); letter-spacing: 1px;"><span style="color: rgba(255,180,50,0.72); font-size: 22px;">{{ getEventsForDay().length }}</span> EVENTS</div>
-                  <div style="font-family: 'Share Tech Mono'; font-size: 13px; color: rgba(255,180,50,0.35); letter-spacing: 1px;"><span style="color: rgba(255,180,50,0.72); font-size: 22px;">{{ dayScheduledHours }}</span>H SCHEDULED</div>
+                  <div style="font-family: 'Share Tech Mono'; font-size: 13px; color: rgba(255,180,50,0.35); letter-spacing: 1px;"><span style="color: rgba(255,180,50,0.72); font-size: 22px;">{{ getEventsForDay().length }}</span> {{ t('today.events') }}</div>
+                  <div style="font-family: 'Share Tech Mono'; font-size: 13px; color: rgba(255,180,50,0.35); letter-spacing: 1px;"><span style="color: rgba(255,180,50,0.72); font-size: 22px;">{{ dayScheduledHours }}</span>H {{ t('today.scheduled') }}</div>
                 </div>
                 <div style="height: 4px; background: rgba(255,180,50,0.045); border-radius: 2px; margin-bottom: 14px; position: relative; overflow: hidden;">
                   <div :style="'width: ' + dayProgressPct + '%; height: 100%; border-radius: 2px; background: linear-gradient(90deg, rgba(255,180,50,0.135), rgba(255,180,50,0.585));'"></div>
@@ -2692,10 +2711,10 @@
                       class="hud-form-popup"
                       :style="'top: ' + minuteToY(addingEventStart) + 'px;'">
                       <input v-model="newEventTitle" @keyup.enter="confirmAddEvent" @keyup.escape="addingEventStart = null"
-                        placeholder="Event designation..."
+                        :placeholder="t('today.eventDesignation')"
                         style="width: 100%; border: none; border-bottom: 1px solid rgba(255,180,50,0.203); padding: 6px 0; font-size: 1rem; background: transparent; color: rgba(255,255,255,0.99); outline: none; margin-bottom: 12px; font-weight: 400;">
                       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">TIME</span>
+                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">{{ t('today.time') }}</span>
                         <div style="position: relative;">
                           <input type="text" :value="eventStartLabel" @input="onTimeInput('eventStart', $event)"
                             @focus="openTimePicker = 'eventStart'; scrollToPicked()" @click.stop
@@ -2721,30 +2740,30 @@
                         </div>
                       </div>
                       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">LOC</span>
-                        <input v-model="newEventLocation" placeholder="Location" class="hud-input" style="flex: 1;">
+                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">{{ t('today.location') }}</span>
+                        <input v-model="newEventLocation" :placeholder="t('today.location')" class="hud-input" style="flex: 1;">
                       </div>
                       <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px; margin-top: 6px;">NOTE</span>
-                        <textarea v-model="newEventNote" placeholder="Additional data..." rows="2"
+                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px; margin-top: 6px;">{{ t('today.note') }}</span>
+                        <textarea v-model="newEventNote" :placeholder="t('today.additionalData')" rows="2"
                           class="hud-input" style="flex: 1; resize: vertical;"></textarea>
                       </div>
                       <div v-if="!editingEvent" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">TASK</span>
+                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">{{ t('today.task') }}</span>
                         <select v-model="newEventPriority" class="hud-input" style="width: 100px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
-                          <option value="">— NONE —</option>
-                          <option value="P0">FOCUS</option>
-                          <option value="P1">QUEUE</option>
+                          <option value="">{{ t('today.none') }}</option>
+                          <option value="P0">{{ t('today.focus') }}</option>
+                          <option value="P1">{{ t('today.queue') }}</option>
                         </select>
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.15); font-size: 0.55rem; letter-spacing: 0.5px;">OPTIONAL</span>
+                        <span class="hud-mono" style="color: rgba(255,180,50,0.15); font-size: 0.55rem; letter-spacing: 0.5px;">{{ t('today.optional') }}</span>
                       </div>
                       <div style="display: flex; justify-content: space-between; align-items: center;">
                         <button v-if="editingEvent" @click.stop="removeEvent(editingEvent); editingEvent = null; addingEventStart = null;"
-                          class="hud-btn-danger">DELETE</button>
+                          class="hud-btn-danger">{{ t('today.delete') }}</button>
                         <span v-else></span>
                         <div style="display: flex; gap: 6px;">
-                          <button @click="editingEvent = null; addingEventStart = null;" class="hud-btn-secondary">CANCEL</button>
-                          <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" class="hud-btn-primary">CONFIRM</button>
+                          <button @click="editingEvent = null; addingEventStart = null;" class="hud-btn-secondary">{{ t('today.cancel') }}</button>
+                          <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" class="hud-btn-primary">{{ t('today.confirm') }}</button>
                         </div>
                       </div>
                     </div>
@@ -2769,8 +2788,8 @@
                   </div>
                 </div>
                 <div style="display: flex; gap: 16px; margin-top: 14px; font-family: 'Share Tech Mono'; font-size: 11px; color: rgba(255,180,50,0.28); letter-spacing: 1px;">
-                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ weekTotalEvents }}</b> EVENTS</span>
-                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ weekActiveDays }}</b> ACTIVE DAYS</span>
+                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ weekTotalEvents }}</b> {{ t('today.events') }}</span>
+                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ weekActiveDays }}</b> {{ t('today.activeDays') }}</span>
                 </div>
               </div>
               <!-- MONTH CALENDAR — Mission Control -->
@@ -2793,8 +2812,8 @@
                   </div>
                 </div>
                 <div style="display: flex; gap: 16px; margin-top: 14px; font-family: 'Share Tech Mono'; font-size: 11px; color: rgba(255,180,50,0.28); letter-spacing: 1px;">
-                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ monthEventDays }}</b> DAYS W/ EVENTS</span>
-                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ monthTotalEvents }}</b> TOTAL EVENTS</span>
+                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ monthEventDays }}</b> {{ t('today.daysWithEvents') }}</span>
+                  <span><b style="font-weight: 400; color: rgba(255,180,50,0.585);">{{ monthTotalEvents }}</b> {{ t('today.totalEvents') }}</span>
                 </div>
               </div>
               <!-- Scanline -->
@@ -2880,23 +2899,23 @@
                   <div class="mc-header">
                     <div class="mc-icon" style="background: linear-gradient(135deg, rgba(100,220,180,0.2), rgba(80,200,160,0.1)); color: rgba(100,220,180,0.9);">AI</div>
                     <div class="mc-header-text">
-                      <h3>AI Summary</h3>
-                      <div class="mc-subtitle">NEURAL DIGEST // {{ journalDateLabel }}</div>
+                      <h3>{{ t('journal.aiSummary') }}</h3>
+                      <div class="mc-subtitle">{{ t('journal.neuralDigest') }} // {{ journalDateLabel }}</div>
                     </div>
                   </div>
                   <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                    <span class="hud-mono" style="font-size: 8px; color: rgba(100,220,180,0.35);">{{ journalDetailOpen ? 'FULL LOG' : 'AUTO-GENERATED' }}</span>
+                    <span class="hud-mono" style="font-size: 8px; color: rgba(100,220,180,0.35);">{{ journalDetailOpen ? t('journal.fullLog') : t('journal.autoGenerated') }}</span>
                     <button v-if="journalAISummary && journalAISummary.detail" @click.stop="journalDetailOpen = !journalDetailOpen"
                       style="background: none; border: 1px solid rgba(100,220,180,0.2); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 1px; color: rgba(100,220,180,0.5); transition: all 0.2s;"
                       @mouseenter="$event.target.style.borderColor='rgba(100,220,180,0.5)';$event.target.style.color='rgba(100,220,180,0.8)'"
                       @mouseleave="$event.target.style.borderColor='rgba(100,220,180,0.2)';$event.target.style.color='rgba(100,220,180,0.5)'"
-                    >{{ journalDetailOpen ? 'SUMMARY' : 'FULL LOG' }}</button>
+                    >{{ journalDetailOpen ? t('journal.summary') : t('journal.fullLog') }}</button>
                   </div>
                   <div v-if="journalAISummary && !journalDetailOpen" class="md-content" v-html="journalAISummary.content"></div>
                   <div v-else-if="journalAISummary && journalDetailOpen" class="md-content" v-html="journalAISummary.detail" style="max-height: 500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(100,220,180,0.15) transparent;"></div>
                   <div v-else class="empty-state">
-                    <p style="margin-bottom: 6px; color: rgba(255,255,255,0.3);">No AI summary for this day</p>
-                    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.15);">Say "summarize" at end of conversation to generate</p>
+                    <p style="margin-bottom: 6px; color: rgba(255,255,255,0.3);">{{ t('journal.noAiSummary') }}</p>
+                    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.15);">{{ t('journal.saySum') }}</p>
                   </div>
                 </div>
               </div>
@@ -2908,7 +2927,7 @@
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <h3 style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 10px; color: rgba(255,180,50,0.6);">&#9998;</span>
-                PERSONAL LOG
+                {{ t('journal.personalLog') }}
               </h3>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span v-if="journalNoteSaved" class="hud-mono" style="font-size: 8px; color: rgba(100,220,180,0.5);">{{ journalNoteSaved }}</span>
@@ -2982,26 +3001,26 @@
               @dragenter.prevent="$event.target.closest('.journal-editor') && ($event.target.closest('.journal-editor').style.outline='2px dashed rgba(255,180,50,0.3)')"
               @dragleave.prevent="$event.target.closest('.journal-editor') && ($event.target.closest('.journal-editor').style.outline='none')"
               style="min-height: 200px; padding: 16px 20px; outline: none; cursor: text; transition: outline 0.15s;"
-              data-placeholder="Write about your day... (supports ## heading, - list, > quote, **bold**, *italic*)"
+              :data-placeholder="t('journal.placeholder')"
             ></div>
 
             <!-- Hidden file input -->
             <input type="file" ref="imageFileInput" accept="image/*" style="display: none;" @change="onImageFileSelected">
             <!-- Image insert dialog -->
             <div v-if="showImageDialog" style="padding: 10px 16px; border-top: 1px solid rgba(255,180,50,0.06); display: flex; align-items: center; gap: 8px;">
-              <button @click="$refs.imageFileInput.click()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">Upload</button>
-              <span style="font-size: 10px; color: rgba(255,255,255,0.2);">or</span>
-              <input v-model="imageDialogUrl" placeholder="Paste image URL..." @keydown.enter="confirmInsertImage()" @keydown.esc="showImageDialog = false"
+              <button @click="$refs.imageFileInput.click()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">{{ t('journal.upload') }}</button>
+              <span style="font-size: 10px; color: rgba(255,255,255,0.2);">{{ t('journal.or') }}</span>
+              <input v-model="imageDialogUrl" :placeholder="t('journal.pasteUrl')" @keydown.enter="confirmInsertImage()" @keydown.esc="showImageDialog = false"
                 style="flex: 1; padding: 5px 10px; border: 1px solid rgba(255,180,50,0.12); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.7); font-family: 'Rajdhani'; font-size: 12px; border-radius: 4px; outline: none;">
-              <button @click="confirmInsertImage()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">Insert</button>
-              <button @click="showImageDialog = false" class="je-tb" style="padding: 4px 10px; font-size: 10px;">Cancel</button>
+              <button @click="confirmInsertImage()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">{{ t('journal.insert') }}</button>
+              <button @click="showImageDialog = false" class="je-tb" style="padding: 4px 10px; font-size: 10px;">{{ t('today.cancel') }}</button>
             </div>
             <!-- Video insert dialog -->
             <div v-if="showVideoDialog" style="padding: 10px 16px; border-top: 1px solid rgba(255,180,50,0.06); display: flex; align-items: center; gap: 8px;">
-              <input v-model="videoDialogUrl" placeholder="YouTube or video URL..." @keydown.enter="confirmInsertVideo()" @keydown.esc="showVideoDialog = false"
+              <input v-model="videoDialogUrl" :placeholder="t('journal.videoUrl')" @keydown.enter="confirmInsertVideo()" @keydown.esc="showVideoDialog = false"
                 style="flex: 1; padding: 5px 10px; border: 1px solid rgba(255,180,50,0.12); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.7); font-family: 'Rajdhani'; font-size: 12px; border-radius: 4px; outline: none;">
-              <button @click="confirmInsertVideo()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">Insert</button>
-              <button @click="showVideoDialog = false" class="je-tb" style="padding: 4px 10px; font-size: 10px;">Cancel</button>
+              <button @click="confirmInsertVideo()" class="je-tb" style="padding: 4px 10px; font-size: 10px;">{{ t('journal.insert') }}</button>
+              <button @click="showVideoDialog = false" class="je-tb" style="padding: 4px 10px; font-size: 10px;">{{ t('today.cancel') }}</button>
             </div>
           </div>
 
@@ -3145,7 +3164,7 @@
           <!-- Header -->
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
             <div style="width: 4px; height: 24px; background: linear-gradient(180deg, rgba(255,180,50,0.9), rgba(255,180,50,0.1)); border-radius: 2px;"></div>
-            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,180,50,0.75); letter-spacing: 8px; text-transform: uppercase;">Memory Core</h2>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,180,50,0.75); letter-spacing: 8px; text-transform: uppercase;">{{ t('memory.memoryCore') }}</h2>
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,180,50,0.2), transparent);"></div>
           </div>
 
@@ -3168,11 +3187,11 @@
             <div class="mem-stats-bar">
               <span class="mem-sync-indicator">
                 <span class="mem-sync-dot"></span>
-                <span class="stat-val">{{ memoryIdentityStats.fields }}</span> FIELDS
+                <span class="stat-val">{{ memoryIdentityStats.fields }}</span> {{ t('memory.fields') }}
               </span>
               <span class="mem-sync-indicator">
                 <span class="mem-sync-dot"></span>
-                <span class="stat-val">{{ memoryIdentityStats.updated }}</span> LAST UPDATED
+                <span class="stat-val">{{ memoryIdentityStats.updated }}</span> {{ t('memory.lastUpdated') }}
               </span>
             </div>
             <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
@@ -3191,8 +3210,8 @@
                     <div class="mc-header">
                       <div class="mc-icon">ID</div>
                       <div class="mc-header-text">
-                        <h3>Identity Profile</h3>
-                        <div class="mc-subtitle">NEURAL IDENTITY MAP // CORE MEMORY</div>
+                        <h3>{{ t('memory.identityProfile') }}</h3>
+                        <div class="mc-subtitle">{{ t('memory.neuralIdMap') }}</div>
                       </div>
                     </div>
                     <div class="md-content" v-html="memoryIdentityContent"></div>
@@ -3205,8 +3224,8 @@
           <!-- ═══ VALUES ═══ -->
           <div v-if="memoryTab === 'values'">
             <div class="mem-stats-bar">
-              <span><span class="stat-val">{{ memoryValuesStats.principles }}</span> PRINCIPLES</span>
-              <span>PRIORITY: <span class="stat-active">ACTIVE</span></span>
+              <span><span class="stat-val">{{ memoryValuesStats.principles }}</span> {{ t('memory.principles') }}</span>
+              <span>PRIORITY: <span class="stat-active">{{ t('memory.active') }}</span></span>
             </div>
             <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
               <div class="mem-crystal v-values mem-parallax-content">
@@ -3224,8 +3243,8 @@
                     <div class="mc-header">
                       <div class="mc-icon">DP</div>
                       <div class="mc-header-text">
-                        <h3>Decision Principles</h3>
-                        <div class="mc-subtitle">VALUE MATRIX // DECISION ENGINE</div>
+                        <h3>{{ t('memory.decisionPrinciples') }}</h3>
+                        <div class="mc-subtitle">{{ t('memory.valueMatrix') }}</div>
                       </div>
                     </div>
                     <div class="md-content" v-html="memoryValuesContent"></div>
@@ -3238,8 +3257,8 @@
           <!-- ═══ LEARNED ═══ -->
           <div v-if="memoryTab === 'learned'">
             <div class="mem-stats-bar">
-              <span><span class="stat-val">{{ memoryLearnedStats.insights }}</span> INSIGHTS</span>
-              <span>MODE: <span class="stat-active">ACCUMULATING</span></span>
+              <span><span class="stat-val">{{ memoryLearnedStats.insights }}</span> {{ t('memory.insights') }}</span>
+              <span>MODE: <span class="stat-active">{{ t('memory.accumulating') }}</span></span>
             </div>
             <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
               <div class="mem-crystal v-learned mem-parallax-content">
@@ -3257,8 +3276,8 @@
                     <div class="mc-header">
                       <div class="mc-icon">XP</div>
                       <div class="mc-header-text">
-                        <h3>Experience Database</h3>
-                        <div class="mc-subtitle">KNOWLEDGE ACCUMULATOR // INSIGHT ENGINE</div>
+                        <h3>{{ t('memory.experienceDb') }}</h3>
+                        <div class="mc-subtitle">{{ t('memory.knowledgeAccum') }}</div>
                       </div>
                     </div>
                     <div class="md-content" v-html="memoryLearnedContent"></div>
@@ -3268,7 +3287,7 @@
             </div>
             <!-- Learning log entries -->
             <div v-if="memoryLearningLog.length" style="margin-top: 24px;">
-              <div style="font-size: 9px; color: rgba(130,160,255,0.3); letter-spacing: 3px; margin-bottom: 12px; font-family: 'Share Tech Mono', monospace;">LEARNING LOG</div>
+              <div style="font-size: 9px; color: rgba(130,160,255,0.3); letter-spacing: 3px; margin-bottom: 12px; font-family: 'Share Tech Mono', monospace;">{{ t('memory.learningLog') }}</div>
               <div v-for="(entry, idx) in memoryLearningLog" :key="idx" class="mem-log-entry">
                 <div @click="toggleLearning(entry.id)" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px;">
                   <span style="font-size: 8px; color: rgba(130,160,255,0.4); font-family: 'Share Tech Mono';">{{ expandedLearning[entry.id] ? '&#9660;' : '&#9654;' }}</span>
@@ -3289,10 +3308,10 @@
           <!-- ═══ EVOLUTION ═══ -->
           <div v-if="memoryTab === 'evolution'">
             <div class="mem-stats-bar">
-              <span><span class="stat-val">{{ memoryEvolutionEntries.length }}</span> EVOLUTIONS</span>
-              <span>TRACKING: <span class="stat-active">IDENTITY + VALUES + COGNITION</span></span>
+              <span><span class="stat-val">{{ memoryEvolutionEntries.length }}</span> {{ t('memory.evolutions') }}</span>
+              <span>{{ t('memory.tracking') }}: <span class="stat-active">{{ t('memory.identityValCog') }}</span></span>
             </div>
-            <div style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 3px; margin-bottom: 16px; font-family: 'Share Tech Mono', monospace;">GROWTH TIMELINE</div>
+            <div style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 3px; margin-bottom: 16px; font-family: 'Share Tech Mono', monospace;">{{ t('memory.growthTimeline') }}</div>
             <div class="evo-timeline">
               <div v-for="(entry, i) in memoryEvolutionEntries" :key="i" style="position: relative; margin-bottom: 20px;">
                 <div class="evo-dot"></div>
@@ -3305,7 +3324,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="!memoryEvolutionEntries.length" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.15); font-size: 12px;">No evolution entries yet</div>
+            <div v-if="!memoryEvolutionEntries.length" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.15); font-size: 12px;">{{ t('memory.noEvolution') }}</div>
           </div>
         </section>
 
@@ -3314,7 +3333,7 @@
           <!-- HUD Header -->
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
             <div style="width: 4px; height: 20px; background: linear-gradient(180deg, rgba(100,220,180,0.8), rgba(100,220,180,0.1));"></div>
-            <h2 class="hud-display hud-title-glow" style="font-size: 0.75rem; color: rgba(100,220,180,0.65); letter-spacing: 6px; text-transform: uppercase; font-weight: 500;">Strategic Overview</h2>
+            <h2 class="hud-display hud-title-glow" style="font-size: 0.75rem; color: rgba(100,220,180,0.65); letter-spacing: 6px; text-transform: uppercase; font-weight: 500;">{{ t('plan.strategicOverview') }}</h2>
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(100,220,180,0.2), transparent);"></div>
           </div>
           <!-- Tabs -->
@@ -3329,8 +3348,8 @@
           <div v-if="planningTab === 'direction'">
             <div class="card hud-card mb-5">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">MISSION STATEMENT</h3>
-                <span class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.25);">FROM PLAN.MD</span>
+                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.missionStatement') }}</h3>
+                <span class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.25);">{{ t('plan.fromPlan') }}</span>
               </div>
               <div class="card-body">
                 <div style="font-size: 18px; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 12px; line-height: 1.5;">{{ mockPlanData.mission }}</div>
@@ -3339,7 +3358,7 @@
             </div>
             <!-- Annual Goals -->
             <div class="card hud-card mb-5">
-              <div class="card-header"><h3 class="hud-title-glow" style="font-size: 0.7rem;">2026 OBJECTIVES</h3></div>
+              <div class="card-header"><h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.objectives') }}</h3></div>
               <div class="card-body">
                 <div v-for="(goal, i) in mockPlanData.annualGoals" :key="i" style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,180,50,0.04);">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -3355,7 +3374,7 @@
             </div>
             <!-- Strategic Principles -->
             <div class="card hud-card mb-5">
-              <div class="card-header"><h3 class="hud-title-glow" style="font-size: 0.7rem;">STRATEGIC PRINCIPLES</h3></div>
+              <div class="card-header"><h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.strategicPrinciples') }}</h3></div>
               <div class="card-body">
                 <div v-for="(p, i) in mockPlanData.principles" :key="i" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start;">
                   <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.25); min-width: 20px; padding-top: 2px;">{{ String(i+1).padStart(2,'0') }}</span>
@@ -3371,8 +3390,8 @@
             <!-- WEEK -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">WEEK · MAR 16–22</h3>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planWeekItems.filter(t => !t.done).length }} ACTIVE</span>
+                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.weekLabel') }} · MAR 16–22</h3>
+                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planWeekItems.filter(item => !item.done).length }} {{ t('memory.active') }}</span>
               </div>
               <div class="card-body" @dragover="onPlanDragOver($event, 'week')" @dragleave="onPlanDragLeave('week')" @drop="onPlanDrop($event, planWeekItems, 'week')">
                 <div v-for="(item, i) in planWeekItems" :key="'w'+i"
@@ -3388,9 +3407,9 @@
                 </div>
                 <!-- Add -->
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanWeek" @keyup.enter="addPlanItem(planWeekItems, newPlanWeek)" placeholder="Add to week..."
+                  <input v-model="newPlanWeek" @keyup.enter="addPlanItem(planWeekItems, newPlanWeek)" :placeholder="t('plan.addToWeek')"
                     class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planWeekItems, newPlanWeek)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">ADD</button>
+                  <button @click="addPlanItem(planWeekItems, newPlanWeek)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
                 </div>
               </div>
             </div>
@@ -3401,8 +3420,8 @@
             <!-- MONTH -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">MONTH · MARCH 2026</h3>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planMonthItems.filter(t => !t.done).length }} ACTIVE</span>
+                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.monthLabel') }} · MARCH 2026</h3>
+                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planMonthItems.filter(item => !item.done).length }} {{ t('memory.active') }}</span>
               </div>
               <div class="card-body" @dragover="onPlanDragOver($event, 'month')" @dragleave="onPlanDragLeave('month')" @drop="onPlanDrop($event, planMonthItems, 'month')">
                 <div v-for="(item, i) in planMonthItems" :key="'m'+i"
@@ -3418,9 +3437,9 @@
                 </div>
                 <!-- Add -->
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanMonth" @keyup.enter="addPlanItem(planMonthItems, newPlanMonth)" placeholder="Add to month..."
+                  <input v-model="newPlanMonth" @keyup.enter="addPlanItem(planMonthItems, newPlanMonth)" :placeholder="t('plan.addToMonth')"
                     class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planMonthItems, newPlanMonth)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">ADD</button>
+                  <button @click="addPlanItem(planMonthItems, newPlanMonth)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
                 </div>
               </div>
             </div>
@@ -3431,8 +3450,8 @@
             <!-- SOMEDAY -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'someday' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">SOMEDAY / MAYBE</h3>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.2);">{{ planSomedayItems.length }} IDEAS</span>
+                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.someday') }}</h3>
+                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.2);">{{ planSomedayItems.length }} {{ t('plan.ideas') }}</span>
               </div>
               <div class="card-body" @dragover="onPlanDragOver($event, 'someday')" @dragleave="onPlanDragLeave('someday')" @drop="onPlanDrop($event, planSomedayItems, 'someday')">
                 <div v-for="(item, i) in planSomedayItems" :key="'s'+i"
@@ -3451,9 +3470,9 @@
                 </div>
                 <!-- Add -->
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanSomeday" @keyup.enter="addPlanItem(planSomedayItems, newPlanSomeday)" placeholder="Add idea..."
+                  <input v-model="newPlanSomeday" @keyup.enter="addPlanItem(planSomedayItems, newPlanSomeday)" :placeholder="t('plan.addIdea')"
                     class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planSomedayItems, newPlanSomeday)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">ADD</button>
+                  <button @click="addPlanItem(planSomedayItems, newPlanSomeday)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
                 </div>
               </div>
             </div>
@@ -3484,16 +3503,16 @@
 
               <!-- Top-left: system tag -->
               <div style="position: absolute; top: 20px; left: 24px; pointer-events: none;">
-                <div style="font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,160,50,0.35);">SYS.NEURAL // COGNITION</div>
-                <div style="font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 300; letter-spacing: 14px; color: rgba(255,160,50,0.55); text-transform: uppercase; margin-top: 4px; text-shadow: 0 0 20px rgba(255,160,50,0.1);">Memory Palace</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(255,160,50,0.35);">{{ t('brain.sysNeural') }}</div>
+                <div style="font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 300; letter-spacing: 14px; color: rgba(255,160,50,0.55); text-transform: uppercase; margin-top: 4px; text-shadow: 0 0 20px rgba(255,160,50,0.1);">{{ t('brain.memoryPalace') }}</div>
               </div>
 
               <!-- Top-right: system briefing -->
               <div style="position: absolute; top: 20px; right: 24px; pointer-events: none; text-align: right; border-right: 1px solid rgba(255,160,50,0.15); padding-right: 14px;">
                 <div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; color: rgba(255,160,50,0.35); line-height: 1.8;">
-                  STATUS: <span style="color: rgba(255,160,50,0.5);">ONLINE</span><br>
-                  <span style="color: rgba(255,160,50,0.22);">ACTIVE FOR {{ data?.network?.days_active || 0 }} CYCLES</span><br>
-                  <span style="color: rgba(255,160,50,0.22);">MODE: CONTINUOUS ABSORPTION</span>
+                  {{ t('brain.status') }}: <span style="color: rgba(255,160,50,0.5);">{{ t('brain.online') }}</span><br>
+                  <span style="color: rgba(255,160,50,0.22);">{{ t('brain.activeCycles') }} {{ data?.network?.days_active || 0 }} CYCLES</span><br>
+                  <span style="color: rgba(255,160,50,0.22);">{{ t('brain.mode') }}</span>
                 </div>
               </div>
 
@@ -3501,11 +3520,11 @@
               <div style="position: absolute; bottom: 20px; left: 24px; pointer-events: none; display: flex; gap: 36px; align-items: flex-end;">
                 <div>
                   <div style="font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 400; color: rgba(255,160,50,0.35); font-variant-numeric: tabular-nums;">{{ data?.network?.memories || 0 }}</div>
-                  <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(255,160,50,0.18); text-transform: uppercase; margin-top: 2px;">Memories</div>
+                  <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(255,160,50,0.18); text-transform: uppercase; margin-top: 2px;">{{ t('brain.memories') }}</div>
                 </div>
                 <div>
                   <div style="font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 400; color: rgba(255,160,50,0.35); font-variant-numeric: tabular-nums;">{{ data?.network?.connections || 0 }}</div>
-                  <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(255,160,50,0.18); text-transform: uppercase; margin-top: 2px;">Connections</div>
+                  <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(255,160,50,0.18); text-transform: uppercase; margin-top: 2px;">{{ t('brain.connections') }}</div>
                 </div>
                 <div>
                   <div style="font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 400; color: rgba(255,160,50,0.35); font-variant-numeric: tabular-nums;">{{ data?.network?.days_active || 0 }}</div>
@@ -3576,23 +3595,23 @@
 
         <!-- ========== PEOPLE ========== -->
         <section v-if="currentPage === 'people'" style="position: relative;">
-          <div class="people-page-title">// CREW ROSTER v3.0</div>
-          <div class="people-page-sub">NEURAL IDENTITY MATRIX — {{ peopleData.length }} ENTITIES MAPPED</div>
+          <div class="people-page-title">{{ t('people.crewRoster') }}</div>
+          <div class="people-page-sub">{{ t('people.neuralMatrix') }} — {{ peopleData.length }} {{ t('people.entitiesMapped') }}</div>
 
           <div class="people-stats">
-            <span>TOTAL: <span class="ps-val">{{ peopleData.length }}</span></span>
-            <span>SHIELD: <span class="ps-val">{{ shieldPeople.length }}</span></span>
-            <span>NEURAL: <span class="ps-val">{{ neuralPeople.length }}</span></span>
-            <span>CREW: <span class="ps-val">{{ crewPeople.length }}</span></span>
-            <span>SIGNAL: <span class="ps-val">{{ signalPeople.length }}</span></span>
+            <span>{{ t('people.total') }}: <span class="ps-val">{{ peopleData.length }}</span></span>
+            <span>{{ t('people.shield') }}: <span class="ps-val">{{ shieldPeople.length }}</span></span>
+            <span>{{ t('people.neural') }}: <span class="ps-val">{{ neuralPeople.length }}</span></span>
+            <span>{{ t('people.crew') }}: <span class="ps-val">{{ crewPeople.length }}</span></span>
+            <span>{{ t('people.signal') }}: <span class="ps-val">{{ signalPeople.length }}</span></span>
           </div>
 
           <!-- SHIELD MATRIX -->
           <div v-if="shieldPeople.length" class="people-category">
             <div class="people-cat-header">
-              <span class="people-cat-label">SHIELD MATRIX</span>
-              <span class="people-cat-sub">BUSINESS · INVESTORS · PARTNERS</span>
-              <span class="people-cat-count">{{ shieldPeople.length }} CONTACTS</span>
+              <span class="people-cat-label">{{ t('people.shieldMatrix') }}</span>
+              <span class="people-cat-sub">{{ t('people.shieldSub') }}</span>
+              <span class="people-cat-count">{{ shieldPeople.length }} {{ t('people.contacts') }}</span>
             </div>
             <div class="people-cards">
               <div v-for="person in shieldPeople" :key="person.name">
@@ -3603,7 +3622,7 @@
                   <canvas class="cc-neural"></canvas>
                   <div class="cc-corner tl"></div><div class="cc-corner tr"></div>
                   <div class="cc-corner bl"></div><div class="cc-corner br"></div>
-                  <div class="cc-status"><div class="cc-status-dot" :class="person.strength > 70 ? 'active' : 'pending'"></div><span class="cc-status-text">{{ person.strength > 70 ? 'LINKED' : 'SYNC' }}</span></div>
+                  <div class="cc-status"><div class="cc-status-dot" :class="person.strength > 70 ? 'active' : 'pending'"></div><span class="cc-status-text">{{ person.strength > 70 ? t('people.linked') : t('people.sync') }}</span></div>
                   <div class="cc-content">
                     <div class="cc-avatar">
                       <div class="av-ring"></div><div class="av-ring2"></div>
@@ -3629,9 +3648,9 @@
           <!-- NEURAL NODE -->
           <div v-if="neuralPeople.length" class="people-category">
             <div class="people-cat-header">
-              <span class="people-cat-label">NEURAL NODE</span>
-              <span class="people-cat-sub">TECHNICAL · DEVS · OPEN SOURCE</span>
-              <span class="people-cat-count">{{ neuralPeople.length }} CONTACTS</span>
+              <span class="people-cat-label">{{ t('people.neuralNode') }}</span>
+              <span class="people-cat-sub">{{ t('people.neuralSub') }}</span>
+              <span class="people-cat-count">{{ neuralPeople.length }} {{ t('people.contacts') }}</span>
             </div>
             <div class="people-cards">
               <div v-for="person in neuralPeople" :key="person.name">
@@ -3642,7 +3661,7 @@
                   <canvas class="cc-neural"></canvas>
                   <div class="cc-corner tl"></div><div class="cc-corner tr"></div>
                   <div class="cc-corner bl"></div><div class="cc-corner br"></div>
-                  <div class="cc-status"><div class="cc-status-dot" :class="person.strength > 50 ? 'pending' : 'weak'"></div><span class="cc-status-text">{{ person.strength > 50 ? 'SYNC' : 'IDLE' }}</span></div>
+                  <div class="cc-status"><div class="cc-status-dot" :class="person.strength > 50 ? 'pending' : 'weak'"></div><span class="cc-status-text">{{ person.strength > 50 ? t('people.sync') : t('people.idle') }}</span></div>
                   <div class="cc-content">
                     <div class="cc-avatar">
                       <div class="av-ring"></div><div class="av-ring2"></div>
@@ -3668,9 +3687,9 @@
           <!-- CREW MATE -->
           <div v-if="crewPeople.length" class="people-category">
             <div class="people-cat-header">
-              <span class="people-cat-label">CREW MATE</span>
-              <span class="people-cat-sub">INNER CIRCLE · FRIENDS · FAMILY</span>
-              <span class="people-cat-count">{{ crewPeople.length }} CONTACTS</span>
+              <span class="people-cat-label">{{ t('people.crewMate') }}</span>
+              <span class="people-cat-sub">{{ t('people.crewSub') }}</span>
+              <span class="people-cat-count">{{ crewPeople.length }} {{ t('people.contacts') }}</span>
             </div>
             <div class="people-cards">
               <div v-for="person in crewPeople" :key="person.name">
@@ -3710,9 +3729,9 @@
           <!-- SIGNAL -->
           <div v-if="signalPeople.length" class="people-category">
             <div class="people-cat-header">
-              <span class="people-cat-label">SIGNAL</span>
-              <span class="people-cat-sub">PERIPHERAL · ACQUAINTANCES · WEAK TIES</span>
-              <span class="people-cat-count">{{ signalPeople.length }} CONTACTS</span>
+              <span class="people-cat-label">{{ t('people.signalRecon') }}</span>
+              <span class="people-cat-sub">{{ t('people.signalSub') }}</span>
+              <span class="people-cat-count">{{ signalPeople.length }} {{ t('people.contacts') }}</span>
             </div>
             <div class="people-cards">
               <div v-for="person in signalPeople" :key="person.name">
@@ -3854,7 +3873,7 @@
         <!-- ========== DECISIONS ========== -->
         <!-- ========== TIMETABLE ========== -->
         <section v-if="currentPage === 'timetable'">
-          <h2 class="section-title mb-6">Timetable</h2>
+          <h2 class="section-title mb-6">{{ t('timetable.title') }}</h2>
           <div class="card mb-6" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <span style="font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.69);">{{ data.timetable?.semester || 'N/A' }}</span>
@@ -3866,7 +3885,7 @@
             </div>
           </div>
           <div class="card mb-6" v-if="data.timetable?.courses?.length">
-            <div class="card-header"><h3>Courses</h3></div>
+            <div class="card-header"><h3>{{ t('timetable.courses') }}</h3></div>
             <div class="card-body" style="padding: 0;">
               <div v-for="course in data.timetable.courses" :key="course.code"
                 style="display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.052);">
@@ -3885,7 +3904,7 @@
             </div>
           </div>
           <div class="card mb-6">
-            <div class="card-header"><h3>Weekly Schedule</h3></div>
+            <div class="card-header"><h3>{{ t('timetable.weeklySchedule') }}</h3></div>
             <div style="overflow-x: auto;">
               <div class="timetable-grid" style="min-width: 600px;">
                 <div class="time-header"></div>
@@ -3919,18 +3938,18 @@
             </div>
           </div>
           <div class="mb-6">
-            <div class="section-title mb-4" style="font-size: 0.65rem;">DAILY DETAIL</div>
+            <div class="section-title mb-4" style="font-size: 0.65rem;">{{ t('timetable.dailyDetail') }}</div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div v-for="day in data.timetable?.days || []" :key="day.en" class="card"
                 :style="currentWeekdayEn === day.en ? 'border-color: rgba(124,92,252,0.3);' : ''">
                 <div class="card-header">
                   <h3>{{ day.cn }} {{ day.en }}</h3>
                   <span v-if="currentWeekdayEn === day.en"
-                    style="margin-left: auto; font-size: 0.6rem; background: #7c5cfc; color: #fff; padding: 1px 8px; border-radius: 4px;">TODAY</span>
+                    style="margin-left: auto; font-size: 0.6rem; background: #7c5cfc; color: #fff; padding: 1px 8px; border-radius: 4px;">{{ t('timetable.today') }}</span>
                 </div>
                 <div class="card-body">
                   <div v-if="day.classes.length === 0" style="text-align: center; color: rgba(255,255,255,0.195); padding: 16px 0;">
-                    No classes — free day
+                    {{ t('timetable.noClasses') }}
                   </div>
                   <div v-for="(cls, idx) in day.classes" :key="idx">
                     <div :style="idx > 0 ? 'border-top: 1px solid rgba(255,255,255,0.052); margin-top: 10px; padding-top: 10px;' : ''">
@@ -3954,7 +3973,7 @@
 
         <!-- ========== FINANCE ========== -->
         <section v-if="currentPage === 'finance'">
-          <h2 class="section-title mb-6">Finance</h2>
+          <h2 class="section-title mb-6">{{ t('finance.title') }}</h2>
           <div v-if="data.finance?.files?.length" class="space-y-6">
             <div v-for="file in data.finance.files" :key="file.filename" class="card">
               <div class="card-body">
@@ -3963,14 +3982,14 @@
               </div>
             </div>
           </div>
-          <div v-else class="card"><div class="card-body"><div class="empty-state">No finance records</div></div></div>
+          <div v-else class="card"><div class="card-body"><div class="empty-state">{{ t('finance.noRecords') }}</div></div></div>
         </section>
 
         <!-- ========== CONTENT ========== -->
         <section v-if="currentPage === 'content'">
-          <h2 class="section-title mb-6">Content</h2>
+          <h2 class="section-title mb-6">{{ t('content.title') }}</h2>
           <div class="mb-8">
-            <div class="section-title mb-4" style="font-size: 0.65rem;">BRANDS</div>
+            <div class="section-title mb-4" style="font-size: 0.65rem;">{{ t('content.brands') }}</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" v-if="data.content?.platforms?.brands">
               <div v-for="brand in data.content.platforms.brands" :key="brand.name" class="card">
                 <div class="card-header"><h3>{{ brand.name }}</h3></div>
@@ -4419,7 +4438,360 @@ createApp({
     const memoryTab = ref('identity');
     const planningTab = ref('direction');
 
-    const emptyHtml = '<p style="color: #aaaaaa;">\u25A0 \u6682\u65E0\u6570\u636E</p>';
+    // ===== i18n System =====
+    const savedLang = localStorage.getItem('loci-dashboard-lang');
+    const defaultLang = savedLang || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+    const lang = ref(defaultLang);
+    watch(lang, (v) => localStorage.setItem('loci-dashboard-lang', v));
+    function toggleLang() { lang.value = lang.value === 'zh' ? 'en' : 'zh'; }
+
+    const i18n = {
+      zh: {
+        // Nav
+        'nav.today': '今天',
+        'nav.plan': '规划',
+        'nav.journal': '日记',
+        'nav.memory': '记忆',
+        'nav.people': '人脉',
+        'nav.brain': '大脑',
+        // System
+        'sys.online': '系统在线',
+        'sys.nominal': '系统正常',
+        'sys.loading': '加载中',
+        'sys.error': '错误',
+        'sys.threads': '线程',
+        // Today page
+        'today.commandCenter': '指挥中心',
+        'today.missionLog': '任务日志',
+        'today.add': '+ 添加',
+        'today.pending': '待办',
+        'today.complete': '已完成',
+        'today.progress': '进度',
+        'today.focus': '专注',
+        'today.queue': '队列',
+        'today.completed': '已完成',
+        'today.noMissions': '暂无任务',
+        'today.priorityCritical': '优先级: 关键',
+        'today.priorityNormal': '优先级: 普通',
+        'today.newMission': '新任务...',
+        'today.exec': '执行',
+        'today.time': '时间',
+        'today.toCalendar': '同步日历',
+        'today.dayManifest': '日程面板',
+        'today.day': '日',
+        'today.week': '周',
+        'today.month': '月',
+        'today.events': '事件',
+        'today.scheduled': '已排期',
+        'today.activeDays': '活跃天数',
+        'today.daysWithEvents': '有事件天数',
+        'today.totalEvents': '总事件',
+        'today.eventDesignation': '事件名称...',
+        'today.location': '地点',
+        'today.note': '备注',
+        'today.additionalData': '额外信息...',
+        'today.task': '任务',
+        'today.none': '— 无 —',
+        'today.optional': '可选',
+        'today.delete': '删除',
+        'today.cancel': '取消',
+        'today.confirm': '确认',
+        // Sidebar clock
+        'clock.date': '日期',
+        'clock.day': '星期',
+        'clock.zone': '时区',
+        // Journal
+        'journal.aiSummary': 'AI 摘要',
+        'journal.neuralDigest': '智能摘要',
+        'journal.autoGenerated': '自动生成',
+        'journal.fullLog': '完整记录',
+        'journal.summary': '摘要',
+        'journal.noAiSummary': '当天暂无 AI 摘要',
+        'journal.saySum': '对话结束时说"总结"即可生成',
+        'journal.personalLog': '个人日志',
+        'journal.placeholder': '写下你的一天... (支持 ## 标题, - 列表, > 引用, **加粗**, *斜体*)',
+        'journal.upload': '上传',
+        'journal.or': '或',
+        'journal.pasteUrl': '粘贴图片链接...',
+        'journal.insert': '插入',
+        'journal.videoUrl': 'YouTube 或视频链接...',
+        // Memory
+        'memory.memoryCore': '记忆核心',
+        'memory.identity': '身份',
+        'memory.values': '价值观',
+        'memory.learned': '经验',
+        'memory.evolution': '成长',
+        'memory.fields': '字段',
+        'memory.lastUpdated': '最后更新',
+        'memory.principles': '原则',
+        'memory.active': '活跃',
+        'memory.insights': '洞见',
+        'memory.accumulating': '积累中',
+        'memory.evolutions': '演变',
+        'memory.tracking': '追踪',
+        'memory.identityValCog': '身份 + 价值观 + 认知',
+        'memory.growthTimeline': '成长时间线',
+        'memory.noEvolution': '暂无成长记录',
+        'memory.learningLog': '学习日志',
+        'memory.identityProfile': '身份档案',
+        'memory.neuralIdMap': '神经身份图谱 // 核心记忆',
+        'memory.decisionPrinciples': '决策原则',
+        'memory.valueMatrix': '价值矩阵 // 决策引擎',
+        'memory.experienceDb': '经验数据库',
+        'memory.knowledgeAccum': '知识累积器 // 洞见引擎',
+        // Planning
+        'plan.strategicOverview': '战略总览',
+        'plan.planning': '规划',
+        'plan.direction': '方向',
+        'plan.missionStatement': '使命宣言',
+        'plan.fromPlan': '来自 PLAN.MD',
+        'plan.objectives': '年度目标',
+        'plan.strategicPrinciples': '战略原则',
+        'plan.weekLabel': '本周',
+        'plan.monthLabel': '本月',
+        'plan.someday': '有空再说',
+        'plan.ideas': '想法',
+        'plan.addToWeek': '添加到本周...',
+        'plan.addToMonth': '添加到本月...',
+        'plan.addIdea': '添加想法...',
+        'plan.add': '添加',
+        // Brain
+        'brain.sysNeural': '系统.神经 // 认知',
+        'brain.memoryPalace': '记忆宫殿',
+        'brain.status': '状态',
+        'brain.online': '在线',
+        'brain.activeCycles': '活跃周期',
+        'brain.mode': '模式: 持续吸收',
+        'brain.memories': '记忆',
+        'brain.connections': '连接',
+        // People
+        'people.crewRoster': '// 人脉档案 v3.0',
+        'people.neuralMatrix': '神经身份矩阵',
+        'people.entitiesMapped': '个实体已录入',
+        'people.total': '总计',
+        'people.shield': '商务',
+        'people.neural': '技术',
+        'people.crew': '挚友',
+        'people.signal': '弱连接',
+        'people.shieldMatrix': '商务矩阵',
+        'people.shieldSub': '商务 · 投资人 · 合作伙伴',
+        'people.neuralNode': '技术节点',
+        'people.neuralSub': '技术 · 开发者 · 开源',
+        'people.crewMate': '挚友圈',
+        'people.crewSub': '至亲 · 好友 · 家人',
+        'people.signalRecon': '弱连接侦测',
+        'people.signalSub': '社交 · 互关 · 初识',
+        'people.contacts': '联系人',
+        'people.linked': '已连接',
+        'people.sync': '同步中',
+        'people.idle': '闲置',
+        // Timetable
+        'timetable.title': '课程表',
+        'timetable.courses': '课程',
+        'timetable.weeklySchedule': '每周日程',
+        'timetable.dailyDetail': '每日详情',
+        'timetable.today': '今天',
+        'timetable.noClasses': '无课 — 自由日',
+        // Finance
+        'finance.title': '财务',
+        'finance.noRecords': '暂无财务记录',
+        // Content
+        'content.title': '内容',
+        'content.brands': '品牌',
+        // Greeting
+        'greeting.night': '夜猫子模式',
+        'greeting.morning': '早上好',
+        'greeting.afternoon': '下午好',
+        'greeting.evening': '晚上好',
+        // Calendar days
+        'cal.sun': '周日',
+        'cal.mon': '周一',
+        'cal.tue': '周二',
+        'cal.wed': '周三',
+        'cal.thu': '周四',
+        'cal.fri': '周五',
+        'cal.sat': '周六',
+        'cal.sunShort': '日',
+        'cal.monShort': '一',
+        'cal.tueShort': '二',
+        'cal.wedShort': '三',
+        'cal.thuShort': '四',
+        'cal.friShort': '五',
+        'cal.satShort': '六',
+        // Task priority select
+        'priority.focus': '专注',
+        'priority.queue': '队列',
+        // Lang toggle
+        'lang.toggle': 'EN',
+      },
+      en: {
+        'nav.today': 'Today',
+        'nav.plan': 'Plan',
+        'nav.journal': 'Journal',
+        'nav.memory': 'Memory',
+        'nav.people': 'People',
+        'nav.brain': 'Brain',
+        'sys.online': 'SYSTEM ONLINE',
+        'sys.nominal': 'SYS.NOMINAL',
+        'sys.loading': 'LOADING',
+        'sys.error': 'ERROR',
+        'sys.threads': 'THREADS',
+        'today.commandCenter': 'Command Center',
+        'today.missionLog': 'MISSION LOG',
+        'today.add': '+ ADD',
+        'today.pending': 'PENDING',
+        'today.complete': 'COMPLETE',
+        'today.progress': 'PROGRESS',
+        'today.focus': 'FOCUS',
+        'today.queue': 'QUEUE',
+        'today.completed': 'COMPLETED',
+        'today.noMissions': 'NO ACTIVE MISSIONS',
+        'today.priorityCritical': 'PRIORITY: CRITICAL',
+        'today.priorityNormal': 'PRIORITY: NORMAL',
+        'today.newMission': 'New mission...',
+        'today.exec': 'EXEC',
+        'today.time': 'Time',
+        'today.toCalendar': 'CALENDAR',
+        'today.dayManifest': 'DAY MANIFEST',
+        'today.day': 'DAY',
+        'today.week': 'WEEK',
+        'today.month': 'MONTH',
+        'today.events': 'EVENTS',
+        'today.scheduled': 'SCHEDULED',
+        'today.activeDays': 'ACTIVE DAYS',
+        'today.daysWithEvents': 'DAYS W/ EVENTS',
+        'today.totalEvents': 'TOTAL EVENTS',
+        'today.eventDesignation': 'Event designation...',
+        'today.location': 'Location',
+        'today.note': 'NOTE',
+        'today.additionalData': 'Additional data...',
+        'today.task': 'TASK',
+        'today.none': '— NONE —',
+        'today.optional': 'OPTIONAL',
+        'today.delete': 'DELETE',
+        'today.cancel': 'CANCEL',
+        'today.confirm': 'CONFIRM',
+        'clock.date': 'DATE',
+        'clock.day': 'DAY',
+        'clock.zone': 'ZONE',
+        'journal.aiSummary': 'AI Summary',
+        'journal.neuralDigest': 'NEURAL DIGEST',
+        'journal.autoGenerated': 'AUTO-GENERATED',
+        'journal.fullLog': 'FULL LOG',
+        'journal.summary': 'SUMMARY',
+        'journal.noAiSummary': 'No AI summary for this day',
+        'journal.saySum': 'Say "summarize" at end of conversation to generate',
+        'journal.personalLog': 'PERSONAL LOG',
+        'journal.placeholder': 'Write about your day... (supports ## heading, - list, > quote, **bold**, *italic*)',
+        'journal.upload': 'Upload',
+        'journal.or': 'or',
+        'journal.pasteUrl': 'Paste image URL...',
+        'journal.insert': 'Insert',
+        'journal.videoUrl': 'YouTube or video URL...',
+        'memory.memoryCore': 'Memory Core',
+        'memory.identity': '身份',
+        'memory.values': '价值观',
+        'memory.learned': '经验',
+        'memory.evolution': '成长',
+        'memory.fields': 'FIELDS',
+        'memory.lastUpdated': 'LAST UPDATED',
+        'memory.principles': 'PRINCIPLES',
+        'memory.active': 'ACTIVE',
+        'memory.insights': 'INSIGHTS',
+        'memory.accumulating': 'ACCUMULATING',
+        'memory.evolutions': 'EVOLUTIONS',
+        'memory.tracking': 'TRACKING',
+        'memory.identityValCog': 'IDENTITY + VALUES + COGNITION',
+        'memory.growthTimeline': 'GROWTH TIMELINE',
+        'memory.noEvolution': 'No evolution entries yet',
+        'memory.learningLog': 'LEARNING LOG',
+        'memory.identityProfile': 'Identity Profile',
+        'memory.neuralIdMap': 'NEURAL IDENTITY MAP // CORE MEMORY',
+        'memory.decisionPrinciples': 'Decision Principles',
+        'memory.valueMatrix': 'VALUE MATRIX // DECISION ENGINE',
+        'memory.experienceDb': 'Experience Database',
+        'memory.knowledgeAccum': 'KNOWLEDGE ACCUMULATOR // INSIGHT ENGINE',
+        'plan.strategicOverview': 'Strategic Overview',
+        'plan.planning': '规划',
+        'plan.direction': '方向',
+        'plan.missionStatement': 'MISSION STATEMENT',
+        'plan.fromPlan': 'FROM PLAN.MD',
+        'plan.objectives': '2026 OBJECTIVES',
+        'plan.strategicPrinciples': 'STRATEGIC PRINCIPLES',
+        'plan.weekLabel': 'WEEK',
+        'plan.monthLabel': 'MONTH',
+        'plan.someday': 'SOMEDAY / MAYBE',
+        'plan.ideas': 'IDEAS',
+        'plan.addToWeek': 'Add to week...',
+        'plan.addToMonth': 'Add to month...',
+        'plan.addIdea': 'Add idea...',
+        'plan.add': 'ADD',
+        'brain.sysNeural': 'SYS.NEURAL // COGNITION',
+        'brain.memoryPalace': 'Memory Palace',
+        'brain.status': 'STATUS',
+        'brain.online': 'ONLINE',
+        'brain.activeCycles': 'ACTIVE FOR',
+        'brain.mode': 'MODE: CONTINUOUS ABSORPTION',
+        'brain.memories': 'Memories',
+        'brain.connections': 'Connections',
+        'people.crewRoster': '// CREW ROSTER v3.0',
+        'people.neuralMatrix': 'NEURAL IDENTITY MATRIX',
+        'people.entitiesMapped': 'ENTITIES MAPPED',
+        'people.total': 'TOTAL',
+        'people.shield': 'SHIELD',
+        'people.neural': 'NEURAL',
+        'people.crew': 'CREW',
+        'people.signal': 'SIGNAL',
+        'people.shieldMatrix': 'SHIELD MATRIX',
+        'people.shieldSub': 'BUSINESS · INVESTORS · PARTNERS',
+        'people.neuralNode': 'NEURAL NODE',
+        'people.neuralSub': 'TECHNICAL · DEVS · OPEN SOURCE',
+        'people.crewMate': 'CREW MATE',
+        'people.crewSub': 'INNER CIRCLE · FRIENDS · FAMILY',
+        'people.signalRecon': 'SIGNAL RECON',
+        'people.signalSub': 'SOCIAL · MUTUAL FOLLOWS · ACQUAINTANCES',
+        'people.contacts': 'CONTACTS',
+        'people.linked': 'LINKED',
+        'people.sync': 'SYNC',
+        'people.idle': 'IDLE',
+        'timetable.title': 'Timetable',
+        'timetable.courses': 'Courses',
+        'timetable.weeklySchedule': 'Weekly Schedule',
+        'timetable.dailyDetail': 'DAILY DETAIL',
+        'timetable.today': 'TODAY',
+        'timetable.noClasses': 'No classes — free day',
+        'finance.title': 'Finance',
+        'finance.noRecords': 'No finance records',
+        'content.title': 'Content',
+        'content.brands': 'BRANDS',
+        'greeting.night': 'Night owl mode',
+        'greeting.morning': 'Good morning',
+        'greeting.afternoon': 'Good afternoon',
+        'greeting.evening': 'Good evening',
+        'cal.sun': 'SUNDAY',
+        'cal.mon': 'MONDAY',
+        'cal.tue': 'TUESDAY',
+        'cal.wed': 'WEDNESDAY',
+        'cal.thu': 'THURSDAY',
+        'cal.fri': 'FRIDAY',
+        'cal.sat': 'SATURDAY',
+        'cal.sunShort': 'S',
+        'cal.monShort': 'M',
+        'cal.tueShort': 'T',
+        'cal.wedShort': 'W',
+        'cal.thuShort': 'T',
+        'cal.friShort': 'F',
+        'cal.satShort': 'S',
+        'priority.focus': 'Focus',
+        'priority.queue': 'Queue',
+        'lang.toggle': '中文',
+      }
+    };
+
+    function t(key) { return i18n[lang.value]?.[key] || i18n['en']?.[key] || key; }
+    // ===== End i18n System =====
+
+    const emptyHtml = computed(() => lang.value === 'zh' ? '<p style="color: #aaaaaa;">\u25A0 暂无数据</p>' : '<p style="color: #aaaaaa;">\u25A0 No data</p>');
 
     // Learning log expand/collapse state
     const expandedLearning = reactive({});
@@ -5968,29 +6340,29 @@ createApp({
       nextTick(() => { setTimeout(initMemoryCanvases, 50); });
     });
 
-    const navItems = [
-      { id: 'today',     label: 'Today',     icon: '\u2600', termIcon: '[>]' },
-      { id: 'planning',  label: 'Plan',      icon: '\u25C6', termIcon: '[#]' },
-      { id: 'journal',   label: 'Journal',   icon: '\u25C6', termIcon: '[~]' },
-      { id: 'memory',    label: 'Memory',    icon: '\u2665', termIcon: '[&]' },
-      { id: 'people',    label: 'People',    icon: '\u2665', termIcon: '[@]' },
-      { id: 'brain',     label: 'Brain',     icon: '\u25CE', termIcon: '[B]' },
-    ];
+    const navItems = computed(() => [
+      { id: 'today',     label: t('nav.today'),    icon: '\u2600', termIcon: '[>]' },
+      { id: 'planning',  label: t('nav.plan'),     icon: '\u25C6', termIcon: '[#]' },
+      { id: 'journal',   label: t('nav.journal'),  icon: '\u25C6', termIcon: '[~]' },
+      { id: 'memory',    label: t('nav.memory'),   icon: '\u2665', termIcon: '[&]' },
+      { id: 'people',    label: t('nav.people'),   icon: '\u2665', termIcon: '[@]' },
+      { id: 'brain',     label: t('nav.brain'),    icon: '\u25CE', termIcon: '[B]' },
+    ]);
 
-    const memoryTabs = [
-      { id: 'identity',  label: '\u8EAB\u4EFD',     icon: '\u25BA' },
-      { id: 'values',    label: '\u4EF7\u503C\u89C2', icon: '\u25C6' },
-      { id: 'learned',   label: '\u7ECF\u9A8C',     icon: '\u25A0' },
-      { id: 'evolution', label: '\u6210\u957F',     icon: '\u2665' },
-    ];
+    const memoryTabs = computed(() => [
+      { id: 'identity',  label: t('memory.identity'),  icon: '\u25BA' },
+      { id: 'values',    label: t('memory.values'),    icon: '\u25C6' },
+      { id: 'learned',   label: t('memory.learned'),   icon: '\u25A0' },
+      { id: 'evolution', label: t('memory.evolution'),  icon: '\u2665' },
+    ]);
 
-    const planningTabs = [
-      { id: 'planning',  label: '\u89C4\u5212' },
-      { id: 'direction', label: '\u65B9\u5411' },
-    ];
+    const planningTabs = computed(() => [
+      { id: 'planning',  label: t('plan.planning') },
+      { id: 'direction', label: t('plan.direction') },
+    ]);
 
     const currentNavItem = computed(() => {
-      return navItems.find(i => i.id === currentPage.value);
+      return navItems.value.find(i => i.id === currentPage.value);
     });
 
     const hasActiveTasks = computed(() => {
@@ -6016,7 +6388,8 @@ createApp({
     const journalDateLabel = computed(() => journalViewDate.value);
     const journalWeekdayLabel = computed(() => {
       const d = new Date(journalViewDate.value + 'T12:00:00');
-      return ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][d.getDay()];
+      const keys = ['cal.sun','cal.mon','cal.tue','cal.wed','cal.thu','cal.fri','cal.sat'];
+      return t(keys[d.getDay()]);
     });
     function journalNav(dir) {
       if (dir > 0 && journalIsToday.value) return;
@@ -7198,10 +7571,10 @@ createApp({
     // Today page computed
     const greeting = computed(() => {
       const h = now.value.getHours();
-      if (h < 6) return 'Night owl mode';
-      if (h < 12) return 'Good morning';
-      if (h < 18) return 'Good afternoon';
-      return 'Good evening';
+      if (h < 6) return t('greeting.night');
+      if (h < 12) return t('greeting.morning');
+      if (h < 18) return t('greeting.afternoon');
+      return t('greeting.evening');
     });
 
     const currentHour = computed(() => now.value.getHours());
@@ -8540,6 +8913,7 @@ createApp({
       currentPage, sidebarOpen,
       memoryTab, planningTab,
       emptyHtml,
+      lang, toggleLang, t,
       navItems, memoryTabs, planningTabs,
       currentNavItem, hasActiveTasks, todayPlan, todayJournal, pastJournals,
       journalDayOffset, journalViewDate, journalIsToday, journalDateLabel, journalWeekdayLabel,

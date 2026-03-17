@@ -13,6 +13,10 @@ Thumbs.db
 !.claude/hooks/
 !.claude/settings.json
 
+# Python
+__pycache__/
+*.pyc
+
 # Dashboard build output
 .loci/dashboard/data.json
 
