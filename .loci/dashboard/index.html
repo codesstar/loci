@@ -8537,14 +8537,28 @@ createApp({
     }
 
     onMounted(async () => {
-      // Clear stale localStorage for clean demo
-      ['loci_calendar_events', 'loci_goal_progresses', 'loci_task_done_states'].forEach(k => localStorage.removeItem(k));
+      // Clear stale demo states (keep calendar events from localStorage)
+      ['loci_goal_progresses', 'loci_task_done_states'].forEach(k => localStorage.removeItem(k));
 
       // Load real data from build.py, fallback to mock
       try {
         const resp = await fetch('data.json');
         if (resp.ok) {
           data.value = await resp.json();
+          // Merge calendar_events from data.json into reactive calendarEvents
+          const djEvents = data.value?.planning?.calendar_events;
+          if (djEvents && typeof djEvents === 'object') {
+            Object.keys(djEvents).forEach(dateKey => {
+              if (!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
+              const existing = calendarEvents[dateKey];
+              (djEvents[dateKey] || []).forEach(ev => {
+                // Avoid duplicates by checking title + startKey
+                const dup = existing.some(e => e.title === ev.title && e.startKey === ev.startKey);
+                if (!dup) existing.push(ev);
+              });
+              calendarEvents[dateKey] = [...existing];
+            });
+          }
         } else {
           loadMockData();
         }
