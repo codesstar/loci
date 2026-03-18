@@ -3390,10 +3390,17 @@
             <!-- WEEK -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.weekLabel') }} · MAR 16–22</h3>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button @click="planWeekOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
+                  <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planWeekLabel }}</h3>
+                  <button @click="planWeekOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
+                </div>
                 <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planWeekItems.filter(item => !item.done).length }} {{ t('memory.active') }}</span>
               </div>
-              <div class="card-body" @dragover="onPlanDragOver($event, 'week')" @dragleave="onPlanDragLeave('week')" @drop="onPlanDrop($event, planWeekItems, 'week')">
+              <div class="card-body" @dragover="onPlanDragOver($event, 'week')" @dragleave="onPlanDragLeave('week')" @drop="onPlanDrop($event, 'week', 'week')">
+                <div v-if="planWeekItems.length === 0" style="padding: 12px 0; text-align: center;">
+                  <span style="font-size: 11px; color: rgba(255,180,50,0.15); font-style: italic;">No daily plans for this week</span>
+                </div>
                 <div v-for="(item, i) in planWeekItems" :key="'w'+i"
                   draggable="true" @dragstart="onPlanDragStart($event, item)"
                   @contextmenu.prevent="openPlanCtx($event, item)"
@@ -3403,13 +3410,13 @@
                     <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
                   </div>
                   <span style="flex: 1; font-size: 13px;" :style="item.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.5);'">{{ item.text }}</span>
-                  <button @click="removePlanItem(planWeekItems, i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
+                  <button @click="removePlanItem('week', i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
                 </div>
                 <!-- Add -->
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanWeek" @keyup.enter="addPlanItem(planWeekItems, newPlanWeek)" :placeholder="t('plan.addToWeek')"
+                  <input v-model="newPlanWeek" @keyup.enter="addPlanItem('week', newPlanWeek)" :placeholder="t('plan.addToWeek')"
                     class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planWeekItems, newPlanWeek)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
+                  <button @click="addPlanItem('week', newPlanWeek)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
                 </div>
               </div>
             </div>
@@ -3420,10 +3427,23 @@
             <!-- MONTH -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.monthLabel') }} · MARCH 2026</h3>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planMonthItems.filter(item => !item.done).length }} {{ t('memory.active') }}</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button @click="planMonthOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
+                  <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planMonthLabel }}</h3>
+                  <button @click="planMonthOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
+                </div>
+                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planMonthItems.length }} TASKS</span>
               </div>
-              <div class="card-body" @dragover="onPlanDragOver($event, 'month')" @dragleave="onPlanDragLeave('month')" @drop="onPlanDrop($event, planMonthItems, 'month')">
+              <div class="card-body" @dragover="onPlanDragOver($event, 'month')" @dragleave="onPlanDragLeave('month')" @drop="onPlanDrop($event, 'month', 'month')">
+                <!-- Month summary stats -->
+                <div v-if="planMonthItems.length > 0" style="display: flex; gap: 16px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,180,50,0.06);">
+                  <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.3);">{{ planMonthDailyCount }} DAYS</span>
+                  <span class="hud-mono" style="font-size: 10px; color: rgba(100,220,180,0.4);">{{ planMonthItems.filter(t => t.done).length }}/{{ planMonthItems.length }} DONE</span>
+                  <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.3);">{{ planMonthItems.length > 0 ? Math.round(planMonthItems.filter(t => t.done).length / planMonthItems.length * 100) : 0 }}%</span>
+                </div>
+                <div v-if="planMonthItems.length === 0" style="padding: 12px 0; text-align: center;">
+                  <span style="font-size: 11px; color: rgba(255,180,50,0.15); font-style: italic;">No daily plans for this month</span>
+                </div>
                 <div v-for="(item, i) in planMonthItems" :key="'m'+i"
                   draggable="true" @dragstart="onPlanDragStart($event, item)"
                   @contextmenu.prevent="openPlanCtx($event, item)"
@@ -3433,13 +3453,13 @@
                     <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
                   </div>
                   <span style="flex: 1; font-size: 13px;" :style="item.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.5);'">{{ item.text }}</span>
-                  <button @click="removePlanItem(planMonthItems, i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
+                  <button @click="removePlanItem('month', i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
                 </div>
                 <!-- Add -->
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanMonth" @keyup.enter="addPlanItem(planMonthItems, newPlanMonth)" :placeholder="t('plan.addToMonth')"
+                  <input v-model="newPlanMonth" @keyup.enter="addPlanItem('month', newPlanMonth)" :placeholder="t('plan.addToMonth')"
                     class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planMonthItems, newPlanMonth)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
+                  <button @click="addPlanItem('month', newPlanMonth)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
                 </div>
               </div>
             </div>
@@ -4919,17 +4939,126 @@ createApp({
       ],
     };
 
-    // --- Planning lists (reactive, with add/delete/toggle) ---
-    const planMonthItems = reactive(
-      mockPlanData.monthlyPlan.flatMap(w => w.items.map(item => ({ text: item.text, done: item.done, week: w.label })))
-    );
-    const planWeekItems = reactive([
-      { text: 'Finalize README and demo', done: false },
-      { text: 'Complete dashboard memory page', done: true },
-      { text: 'Record demo video clips', done: false },
-      { text: 'Research integration options', done: false },
-      { text: 'Draft announcement post', done: false },
-    ]);
+    // --- Planning lists (data-driven with week/month navigation) ---
+    const planWeekOffset = ref(0);  // 0 = current week
+    const planMonthOffset = ref(0); // 0 = current month
+
+    // Month names for labels
+    const MONTH_NAMES_EN = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+    const MONTH_NAMES_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+    // Get the Monday-based week range for a given offset from the current week
+    function getWeekRange(offset) {
+      const now = new Date();
+      const day = now.getDay(); // 0=Sun, 1=Mon, ...
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday + offset * 7);
+      monday.setHours(0,0,0,0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23,59,59,999);
+      return { start: monday, end: sunday };
+    }
+
+    // Get the week number within its month (1-based)
+    function getWeekNumberInMonth(date) {
+      const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const dayOfFirst = firstOfMonth.getDay() || 7; // Mon=1
+      return Math.ceil((date.getDate() + dayOfFirst - 2) / 7) + 1;
+    }
+
+    // Week label: "W3 · MAR 16–22"
+    const planWeekLabel = computed(() => {
+      const { start, end } = getWeekRange(planWeekOffset.value);
+      const wn = getWeekNumberInMonth(start);
+      const startMonth = MONTH_NAMES_SHORT[start.getMonth()];
+      const endMonth = MONTH_NAMES_SHORT[end.getMonth()];
+      const startDay = start.getDate();
+      const endDay = end.getDate();
+      if (start.getMonth() === end.getMonth()) {
+        return `W${wn} \u00B7 ${startMonth} ${startDay}\u2013${endDay}`;
+      } else {
+        return `W${wn} \u00B7 ${startMonth} ${startDay}\u2013${endMonth} ${endDay}`;
+      }
+    });
+
+    // Month label: "MARCH 2026"
+    const planMonthLabel = computed(() => {
+      const now = new Date();
+      const target = new Date(now.getFullYear(), now.getMonth() + planMonthOffset.value, 1);
+      return `${MONTH_NAMES_EN[target.getMonth()]} ${target.getFullYear()}`;
+    });
+
+    // Helper: get month start/end for an offset
+    function getMonthRange(offset) {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      start.setHours(0,0,0,0);
+      const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
+      end.setHours(23,59,59,999);
+      return { start, end };
+    }
+
+    // Extract date from daily plan filename (e.g., "2026-03-10.md" -> Date)
+    function extractDateFromFilename(filename) {
+      const m = filename.match(/(\d{4}-\d{2}-\d{2})/);
+      if (!m) return null;
+      return new Date(m[1] + 'T12:00:00');
+    }
+
+    // Filter daily plans by date range and parse their tasks
+    function getDailyPlanTasksInRange(start, end) {
+      const daily = data.value?.planning?.daily || [];
+      const items = [];
+      for (const plan of daily) {
+        const d = extractDateFromFilename(plan.filename);
+        if (!d || d < start || d > end) continue;
+        if (!plan.content) continue;
+        const re = /<li class="task(\s+done)?"><input[^>]*>\s*(.+?)<\/li>/g;
+        let m;
+        while ((m = re.exec(plan.content)) !== null) {
+          items.push({ text: m[2].trim(), done: !!m[1], date: plan.filename });
+        }
+      }
+      return items;
+    }
+
+    // Computed week items from daily plans
+    const planWeekItemsComputed = computed(() => {
+      const { start, end } = getWeekRange(planWeekOffset.value);
+      return getDailyPlanTasksInRange(start, end);
+    });
+
+    // Computed month items from daily plans
+    const planMonthItemsComputed = computed(() => {
+      const { start, end } = getMonthRange(planMonthOffset.value);
+      return getDailyPlanTasksInRange(start, end);
+    });
+
+    // Count of daily plan files in selected month
+    const planMonthDailyCount = computed(() => {
+      const { start, end } = getMonthRange(planMonthOffset.value);
+      const daily = data.value?.planning?.daily || [];
+      let count = 0;
+      for (const plan of daily) {
+        const d = extractDateFromFilename(plan.filename);
+        if (d && d >= start && d <= end) count++;
+      }
+      return count;
+    });
+
+    // Reactive arrays that merge computed (from data) + manually added items
+    // When computed source changes, we rebuild the list
+    const planWeekItemsExtra = reactive([]);
+    const planMonthItemsExtra = reactive([]);
+
+    const planWeekItems = computed(() => {
+      return [...planWeekItemsComputed.value, ...planWeekItemsExtra];
+    });
+    const planMonthItems = computed(() => {
+      return [...planMonthItemsComputed.value, ...planMonthItemsExtra];
+    });
     const planSomedayItems = reactive(
       mockPlanData.someday.map(s => ({ text: s.text, note: s.note || '', done: false }))
     );
@@ -4938,13 +5067,31 @@ createApp({
     const newPlanWeek = ref('');
     const newPlanSomeday = ref('');
 
-    function addPlanItem(list, textRef) {
+    function addPlanItem(listOrName, textRef) {
       if (!textRef.value.trim()) return;
-      list.push({ text: textRef.value.trim(), done: false });
+      if (listOrName === 'week') {
+        planWeekItemsExtra.push({ text: textRef.value.trim(), done: false });
+      } else if (listOrName === 'month') {
+        planMonthItemsExtra.push({ text: textRef.value.trim(), done: false });
+      } else {
+        listOrName.push({ text: textRef.value.trim(), done: false });
+      }
       textRef.value = '';
     }
-    function removePlanItem(list, index) {
-      list.splice(index, 1);
+    function removePlanItem(listOrName, index) {
+      if (listOrName === 'week') {
+        const computedLen = planWeekItemsComputed.value.length;
+        if (index >= computedLen) {
+          planWeekItemsExtra.splice(index - computedLen, 1);
+        }
+      } else if (listOrName === 'month') {
+        const computedLen = planMonthItemsComputed.value.length;
+        if (index >= computedLen) {
+          planMonthItemsExtra.splice(index - computedLen, 1);
+        }
+      } else {
+        listOrName.splice(index, 1);
+      }
     }
 
     // Drag-copy between plan lists
@@ -4963,15 +5110,21 @@ createApp({
     function onPlanDragLeave(target) {
       if (planDropTarget.value === target) planDropTarget.value = null;
     }
-    function onPlanDrop(e, targetList, targetName) {
+    function onPlanDrop(e, targetListOrName, targetName) {
       e.preventDefault();
       planDropTarget.value = null;
       const text = planDragText.value;
       if (!text) return;
       // Copy — add if not already in target
-      const exists = targetList.some(t => t.text === text);
-      if (!exists) {
-        targetList.push({ text, done: false });
+      if (targetListOrName === 'week') {
+        const exists = planWeekItems.value.some(t => t.text === text);
+        if (!exists) planWeekItemsExtra.push({ text, done: false });
+      } else if (targetListOrName === 'month') {
+        const exists = planMonthItems.value.some(t => t.text === text);
+        if (!exists) planMonthItemsExtra.push({ text, done: false });
+      } else {
+        const exists = targetListOrName.some(t => t.text === text);
+        if (!exists) targetListOrName.push({ text, done: false });
       }
       planDragText.value = '';
     }
@@ -8996,6 +9149,10 @@ createApp({
       navigateTo, priorityClass, priorityLabel, getPersonInitial, getClassOffset,
       expandedLearning, toggleLearning, mockPlanData,
       planMonthItems, planWeekItems, planSomedayItems,
+      planWeekOffset, planMonthOffset,
+      planWeekLabel, planMonthLabel,
+      planWeekItemsComputed, planMonthItemsComputed,
+      planMonthDailyCount,
       newPlanMonth, newPlanWeek, newPlanSomeday,
       addPlanItem, removePlanItem,
       planDragText, planDropTarget, onPlanDragStart, onPlanDragOver, onPlanDragLeave, onPlanDrop,
