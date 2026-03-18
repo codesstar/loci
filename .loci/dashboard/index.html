@@ -2487,7 +2487,42 @@
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,180,50,0.203), transparent);"></div>
           </div>
 
-          <!-- Clock moved to sidebar -->
+          <!-- Date selector — same style as Journal -->
+          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
+            <button @click="calendarDayOffset--" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&larr;</button>
+            <div style="text-align: center; cursor: pointer; user-select: none; min-width: 180px;" @click="todayCalOpen = !todayCalOpen">
+              <div class="hud-mono" style="font-size: 8px; letter-spacing: 3px; color: rgba(255,180,50,0.35);">{{ todayWeekdayLabel }}</div>
+              <div class="hud-display" style="font-size: 18px; color: rgba(255,180,50,0.75); margin-top: 2px; display: inline-flex; align-items: center; gap: 6px;">
+                {{ todayDateLabel }}
+                <span style="font-size: 8px; color: rgba(255,180,50,0.25);">&#9660;</span>
+              </div>
+            </div>
+            <button @click="calendarDayOffset++" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&rarr;</button>
+          </div>
+
+          <!-- Mini calendar picker for Today page -->
+          <div v-if="todayCalOpen" style="max-width: 320px; margin: 0 auto 20px; background: rgba(255,180,50,0.03); border: 1px solid rgba(255,180,50,0.08); border-radius: 8px; padding: 12px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <button @click="todayCalMonth--" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&larr;</button>
+              <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.6); letter-spacing: 2px;">{{ todayCalMonthLabel }}</span>
+              <button @click="todayCalMonth++" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&rarr;</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">
+              <div v-for="d in ['M','T','W','T','F','S','S']" :key="d" class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.25); padding: 4px 0;">{{ d }}</div>
+              <div v-for="cell in todayCalCells" :key="cell.key"
+                @click.stop="cell.day ? todayPickDate(cell.dateStr) : null"
+                :style="{
+                  padding: '5px 0', fontSize: '11px', borderRadius: '4px', cursor: cell.day ? 'pointer' : 'default',
+                  fontFamily: 'Share Tech Mono',
+                  color: cell.dateStr === todayDateLabel ? '#08080f' : cell.hasPlan ? 'rgba(100,220,180,0.8)' : cell.isToday ? 'rgba(255,180,50,0.9)' : cell.inMonth ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
+                  background: cell.dateStr === todayDateLabel ? 'rgba(255,180,50,0.7)' : 'transparent',
+                  border: cell.isToday && cell.dateStr !== todayDateLabel ? '1px solid rgba(255,180,50,0.5)' : '1px solid transparent',
+                  boxShadow: cell.isToday ? '0 0 6px rgba(255,180,50,0.2)' : 'none',
+                  fontWeight: cell.isToday ? '700' : '400',
+                }"
+              >{{ cell.day || '' }}</div>
+            </div>
+          </div>
 
           <!-- Tasks — Starship Mission Log (always shows selected day) -->
           <div class="s7-card mb-6">
@@ -2562,7 +2597,7 @@
                   draggable="true" @dragstart="dragTask($event, 'P0', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
                   <div class="s7-num">{{ String(i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status active" @click="task.done = true"></div>
+                  <div class="s7-status active" @click="toggleMissionTask(task)"></div>
                   <div class="s7-content">
                     <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
                     <div class="s7-content-meta">{{ t('today.priorityCritical') }}</div>
@@ -2578,7 +2613,7 @@
                   draggable="true" @dragstart="dragTask($event, 'P1', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
                   <div class="s7-num">{{ String(undoneTasks('P0').length + i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status pending" @click="task.done = true"></div>
+                  <div class="s7-status pending" @click="toggleMissionTask(task)"></div>
                   <div class="s7-content">
                     <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
                     <div class="s7-content-meta">{{ t('today.priorityNormal') }}</div>
@@ -2597,7 +2632,7 @@
                   draggable="true" @dragstart="dragTask($event, 'done', task)"
                   class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
                   <div class="s7-num" style="color: rgba(100,220,180,0.2);">{{ String(allUndoneTasks.length + i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status done" @click="task.done = false"></div>
+                  <div class="s7-status done" @click="toggleMissionTask(task)"></div>
                   <div class="s7-content">
                     <div class="s7-content-text done" v-html="taskHtml(task.text)"></div>
                     <div class="s7-content-meta done-meta">{{ t('today.completed') }}</div>
@@ -3387,10 +3422,12 @@
           <!-- PLANNING (Month + Week + Someday stacked) -->
           <div v-if="planningTab === 'planning'">
 
-            <!-- WEEK -->
+            <!-- WEEK PLAN -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">WEEK PLAN</span>
+                  <span style="color: rgba(255,180,50,0.1);">|</span>
                   <button @click="planWeekOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
                   <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planWeekLabel }}</h3>
                   <button @click="planWeekOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
@@ -3405,7 +3442,7 @@
                   draggable="true" @dragstart="onPlanDragStart($event, item)"
                   @contextmenu.prevent="openPlanCtx($event, item)"
                   style="display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
-                  <div @click="item.done = !item.done" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
                     :style="item.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.15);'">
                     <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
                   </div>
@@ -3424,10 +3461,12 @@
             <!-- Separator -->
             <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.12), transparent); margin: 8px 0 20px;"></div>
 
-            <!-- MONTH -->
+            <!-- MONTH PLAN -->
             <div class="card hud-card mb-5" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">MONTH PLAN</span>
+                  <span style="color: rgba(255,180,50,0.1);">|</span>
                   <button @click="planMonthOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
                   <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planMonthLabel }}</h3>
                   <button @click="planMonthOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
@@ -3448,7 +3487,7 @@
                   draggable="true" @dragstart="onPlanDragStart($event, item)"
                   @contextmenu.prevent="openPlanCtx($event, item)"
                   style="display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
-                  <div @click="item.done = !item.done" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
                     :style="item.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.15);'">
                     <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
                   </div>
@@ -3478,7 +3517,7 @@
                   draggable="true" @dragstart="onPlanDragStart($event, item)"
                   @contextmenu.prevent="openPlanCtx($event, item)"
                   style="display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,180,50,0.02); cursor: grab;">
-                  <div @click="item.done = !item.done" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
                     :style="item.done ? 'background: rgba(100,220,180,0.2); border: 1px solid rgba(100,220,180,0.35);' : 'border: 1px solid rgba(255,180,50,0.08);'">
                     <span v-if="item.done" style="color: rgba(100,220,180,0.7); font-size: 10px;">&#10003;</span>
                   </div>
@@ -4456,7 +4495,7 @@ createApp({
     const currentPage = ref('today');
     const sidebarOpen = ref(false);
     const memoryTab = ref('identity');
-    const planningTab = ref('direction');
+    const planningTab = ref('planning');
 
     // ===== i18n System =====
     const savedLang = localStorage.getItem('loci-dashboard-lang');
@@ -4961,11 +5000,9 @@ createApp({
       return { start: monday, end: sunday };
     }
 
-    // Get the week number within its month (1-based)
+    // Get the week number within its month (W1-W4): days 1-7=W1, 8-14=W2, etc.
     function getWeekNumberInMonth(date) {
-      const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-      const dayOfFirst = firstOfMonth.getDay() || 7; // Mon=1
-      return Math.ceil((date.getDate() + dayOfFirst - 2) / 7) + 1;
+      return Math.ceil(date.getDate() / 7);
     }
 
     // Week label: "W3 · MAR 16–22"
@@ -5048,17 +5085,37 @@ createApp({
       return count;
     });
 
-    // Reactive arrays that merge computed (from data) + manually added items
-    // When computed source changes, we rebuild the list
-    const planWeekItemsExtra = reactive([]);
-    const planMonthItemsExtra = reactive([]);
+    // Stable reactive arrays — smart-merge from computed source
+    const planWeekItems = reactive([]);
+    const planMonthItems = reactive([]);
+    // Track removed items so smartMerge doesn't re-add them
+    const planRemovedKeys = new Set();
 
-    const planWeekItems = computed(() => {
-      return [...planWeekItemsComputed.value, ...planWeekItemsExtra];
-    });
-    const planMonthItems = computed(() => {
-      return [...planMonthItemsComputed.value, ...planMonthItemsExtra];
-    });
+    function smartMerge(target, source) {
+      const srcMap = new Map();
+      source.forEach(s => srcMap.set(s.text + '|' + (s.date || ''), s));
+      // Remove items no longer in source
+      for (let i = target.length - 1; i >= 0; i--) {
+        const key = target[i].text + '|' + (target[i].date || '');
+        if (!srcMap.has(key) && target[i].date) target.splice(i, 1);
+      }
+      // Add or update from source (skip removed items)
+      const targetMap = new Map();
+      target.forEach((t, i) => targetMap.set(t.text + '|' + (t.date || ''), i));
+      for (const s of source) {
+        const key = s.text + '|' + (s.date || '');
+        if (planRemovedKeys.has(key)) continue;
+        if (targetMap.has(key)) {
+          const idx = targetMap.get(key);
+          if (target[idx].done !== s.done) target[idx].done = s.done;
+        } else {
+          target.push({ ...s });
+        }
+      }
+    }
+
+    watch(planWeekItemsComputed, (newItems) => smartMerge(planWeekItems, newItems), { immediate: true });
+    watch(planMonthItemsComputed, (newItems) => smartMerge(planMonthItems, newItems), { immediate: true });
     const planSomedayItems = reactive(
       mockPlanData.someday.map(s => ({ text: s.text, note: s.note || '', done: false }))
     );
@@ -5067,30 +5124,82 @@ createApp({
     const newPlanWeek = ref('');
     const newPlanSomeday = ref('');
 
-    function addPlanItem(listOrName, textRef) {
-      if (!textRef.value.trim()) return;
-      if (listOrName === 'week') {
-        planWeekItemsExtra.push({ text: textRef.value.trim(), done: false });
-      } else if (listOrName === 'month') {
-        planMonthItemsExtra.push({ text: textRef.value.trim(), done: false });
-      } else {
-        listOrName.push({ text: textRef.value.trim(), done: false });
-      }
-      textRef.value = '';
+    async function togglePlanItem(item) {
+      const newDone = !item.done;
+      item.done = newDone;
+      if (!item.date) return;
+      const rawText = item.text.replace(/<[^>]*>/g, '').trim();
+      const dateStr = item.date.replace('.md', '');
+      try {
+        await fetch('/api/daily/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: dateStr, taskText: rawText, done: newDone })
+        });
+      } catch (e) {}
     }
-    function removePlanItem(listOrName, index) {
+
+    async function addPlanItem(listOrName, textVal) {
+      // textVal is a string (Vue template auto-unwraps refs)
+      if (!textVal || !textVal.trim()) return;
+      const taskText = textVal.trim();
       if (listOrName === 'week') {
-        const computedLen = planWeekItemsComputed.value.length;
-        if (index >= computedLen) {
-          planWeekItemsExtra.splice(index - computedLen, 1);
-        }
+        const { start } = getWeekRange(planWeekOffset.value);
+        const dateStr = start.getFullYear() + '-' + String(start.getMonth()+1).padStart(2,'0') + '-' + String(start.getDate()).padStart(2,'0');
+        planWeekItems.push({ text: taskText, done: false, date: dateStr + '.md' });
+        newPlanWeek.value = '';
+        try {
+          await fetch('/api/daily/add-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateStr, task: taskText })
+          });
+        } catch (e) {}
       } else if (listOrName === 'month') {
-        const computedLen = planMonthItemsComputed.value.length;
-        if (index >= computedLen) {
-          planMonthItemsExtra.splice(index - computedLen, 1);
-        }
+        const { start } = getMonthRange(planMonthOffset.value);
+        const dateStr = start.getFullYear() + '-' + String(start.getMonth()+1).padStart(2,'0') + '-' + String(start.getDate()).padStart(2,'0');
+        planMonthItems.push({ text: taskText, done: false, date: dateStr + '.md' });
+        newPlanMonth.value = '';
+        try {
+          await fetch('/api/daily/add-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateStr, task: taskText })
+          });
+        } catch (e) {}
+      } else {
+        listOrName.push({ text: taskText, done: false });
+        newPlanSomeday.value = '';
+      }
+    }
+    async function removePlanItem(listOrName, index) {
+      let item;
+      if (listOrName === 'week') {
+        item = planWeekItems[index];
+        planWeekItems.splice(index, 1);
+      } else if (listOrName === 'month') {
+        item = planMonthItems[index];
+        planMonthItems.splice(index, 1);
       } else {
         listOrName.splice(index, 1);
+        return;
+      }
+      // Track removal so smartMerge won't re-add it
+      if (item) {
+        const key = item.text + '|' + (item.date || '');
+        planRemovedKeys.add(key);
+        // Also remove from the markdown file
+        if (item.date) {
+          const rawText = item.text.replace(/<[^>]*>/g, '').trim();
+          const dateStr = item.date.replace('.md', '');
+          try {
+            await fetch('/api/daily/remove-task', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ date: dateStr, task: rawText })
+            });
+          } catch (e) {}
+        }
       }
     }
 
@@ -7809,6 +7918,33 @@ createApp({
       return tasks;
     }
 
+    // Toggle any task — calls server API to persist, with optimistic UI
+    async function toggleMissionTask(task) {
+      const newDone = !task.done;
+      task.done = newDone; // optimistic UI update
+      const rawText = task.text.replace(/<[^>]*>/g, '').trim();
+      try {
+        if (calendarDayOffset.value === 0) {
+          // Today: toggle in active.md
+          await fetch('/api/tasks/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task: rawText, checked: newDone })
+          });
+        } else {
+          // Other dates: toggle in daily plan markdown
+          const d = new Date();
+          d.setDate(d.getDate() + calendarDayOffset.value);
+          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+          await fetch('/api/daily/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateStr, taskText: rawText, done: newDone })
+          });
+        }
+      } catch (e) { /* server unavailable, UI already updated */ }
+    }
+
     // Date-aware task source — reactive, updates when viewingDate changes
     // Today: active_tasks. Other dates: daily plan tasks, then mock data fallback.
     const viewingTasks = computed(() => {
@@ -8224,37 +8360,47 @@ createApp({
       event.dataTransfer.setData('text/plain', 'task');
     }
 
-    function dropTask(event, toGroup) {
+    async function dropTask(event, toGroup) {
       dragOverGroup.value = null;
       const task = draggingTask.value;
       const from = draggingFrom.value;
-      if (!task || !from) return;
+      if (!task || !from || from === toGroup) { draggingTask.value = null; draggingFrom.value = null; return; }
 
       const at = data.value?.tasks?.active_tasks;
       if (!at) return;
 
+      const rawText = task.text.replace(/<[^>]*>/g, '').trim();
+
+      // Optimistic UI update
       if (toGroup === 'done') {
         task.done = true;
+      } else if (from === 'done') {
+        task.done = false;
+        // Move from current array to target
+        ['P0','P1','P2','P3'].forEach(p => {
+          const arr = at[p] || [];
+          const idx = arr.indexOf(task);
+          if (idx > -1) arr.splice(idx, 1);
+        });
+        if (!at[toGroup]) at[toGroup] = [];
+        at[toGroup].push(task);
       } else {
-        if (from !== 'done' && from !== toGroup) {
-          const srcArr = at[from];
-          const idx = srcArr.indexOf(task);
-          if (idx > -1) srcArr.splice(idx, 1);
-          if (!at[toGroup]) at[toGroup] = [];
-          at[toGroup].push(task);
-        } else if (from === 'done') {
-          task.done = false;
-          ['P0','P1','P2','P3'].forEach(p => {
-            const arr = at[p] || [];
-            const idx = arr.indexOf(task);
-            if (idx > -1 && p !== toGroup) {
-              arr.splice(idx, 1);
-              if (!at[toGroup]) at[toGroup] = [];
-              at[toGroup].push(task);
-            }
-          });
-        }
+        // Move between priority groups
+        const srcArr = at[from];
+        const idx = srcArr ? srcArr.indexOf(task) : -1;
+        if (idx > -1) srcArr.splice(idx, 1);
+        if (!at[toGroup]) at[toGroup] = [];
+        at[toGroup].push(task);
       }
+
+      // Persist via API
+      try {
+        await fetch('/api/tasks/move', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task: rawText, from, to: toGroup })
+        });
+      } catch (e) {}
 
       draggingTask.value = null;
       draggingFrom.value = null;
@@ -8412,6 +8558,64 @@ createApp({
       if (calendarView.value === 'day') calendarDayOffset.value += dir;
       else if (calendarView.value === 'week') calendarWeekOffset.value += dir;
       else if (calendarView.value === 'month') calendarMonthOffset.value += dir;
+    }
+
+    // --- Today page date picker ---
+    const todayCalOpen = ref(false);
+    const todayCalMonth = ref(0);
+    const todayWeekdayLabel = computed(() => {
+      const days = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+      return days[viewingDate.value.getDay()];
+    });
+    const todayDateLabel = computed(() => {
+      const d = viewingDate.value;
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    });
+    const todayCalMonthLabel = computed(() => {
+      const d = new Date();
+      d.setMonth(d.getMonth() + todayCalMonth.value, 1);
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).toUpperCase();
+    });
+    const todayCalCells = computed(() => {
+      const d = new Date();
+      d.setMonth(d.getMonth() + todayCalMonth.value, 1);
+      const year = d.getFullYear(), month = d.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const startPad = (firstDay + 6) % 7;
+      const today = new Date().toISOString().slice(0, 10);
+      const selected = todayDateLabel.value;
+      // Check which dates have daily plans
+      const dailyPlans = data.value?.planning?.daily || [];
+      const planDates = new Set(dailyPlans.map(e => e.filename.replace('.md', '')));
+      const cells = [];
+      const prevDays = new Date(year, month, 0).getDate();
+      for (let i = startPad - 1; i >= 0; i--) {
+        const pd = prevDays - i;
+        const pm = month === 0 ? 11 : month - 1;
+        const py = month === 0 ? year - 1 : year;
+        const ds = `${py}-${String(pm+1).padStart(2,'0')}-${String(pd).padStart(2,'0')}`;
+        cells.push({ key: 'p'+pd, day: pd, inMonth: false, dateStr: ds, isToday: ds===today, hasPlan: planDates.has(ds) });
+      }
+      for (let i = 1; i <= daysInMonth; i++) {
+        const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        cells.push({ key: 'd'+i, day: i, inMonth: true, dateStr: ds, isToday: ds===today, hasPlan: planDates.has(ds) });
+      }
+      const rem = 7 - (cells.length % 7);
+      if (rem < 7) for (let i = 1; i <= rem; i++) {
+        const nm = month === 11 ? 0 : month + 1;
+        const ny = month === 11 ? year + 1 : year;
+        const ds = `${ny}-${String(nm+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        cells.push({ key: 'n'+i, day: i, inMonth: false, dateStr: ds, isToday: ds===today, hasPlan: planDates.has(ds) });
+      }
+      return cells;
+    });
+    function todayPickDate(dateStr) {
+      const parts = dateStr.split('-').map(Number);
+      const target = new Date(parts[0], parts[1]-1, parts[2]);
+      const today = new Date(); today.setHours(0,0,0,0);
+      calendarDayOffset.value = Math.round((target - today) / 86400000);
+      todayCalOpen.value = false;
     }
 
     function getEventsForDay() {
@@ -8652,22 +8856,46 @@ createApp({
     const showAddTask = ref(false);
     const newTaskText = ref('');
     const newTaskPriority = ref('P0');
-    function addNewTask() {
+    async function addNewTask() {
       if (!newTaskText.value.trim()) return;
+      const taskText = newTaskText.value.trim();
+      const priority = newTaskPriority.value;
       const key = dateToKey(viewingDate.value);
-      // Determine target task store
+
+      // Optimistic UI update
       let target;
-      if (mockDayTasks[key]) {
-        target = mockDayTasks[key];
-      } else if (calendarDayOffset.value === 0) {
+      if (calendarDayOffset.value === 0) {
         target = data.value?.tasks?.active_tasks;
       } else {
-        mockDayTasks[key] = {};
+        if (!mockDayTasks[key]) mockDayTasks[key] = {};
         target = mockDayTasks[key];
       }
-      if (!target) return;
-      if (!target[newTaskPriority.value]) target[newTaskPriority.value] = [];
-      target[newTaskPriority.value].push({ text: newTaskText.value.trim(), done: false });
+      if (target) {
+        if (!target[priority]) target[priority] = [];
+        target[priority].push({ text: taskText, done: false });
+      }
+
+      // Persist via API
+      try {
+        if (calendarDayOffset.value === 0) {
+          // Today: add to active.md
+          await fetch('/api/tasks/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: taskText, priority })
+          });
+        } else {
+          // Other date: add to daily plan markdown
+          const d = new Date();
+          d.setDate(d.getDate() + calendarDayOffset.value);
+          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+          await fetch('/api/daily/add-task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateStr, task: taskText })
+          });
+        }
+      } catch (e) { /* server unavailable, UI already updated */ }
 
       // If time is provided, also create a calendar event
       if (taskScheduleStart.value !== null) {
@@ -8675,13 +8903,24 @@ createApp({
         const endMin = taskScheduleEnd.value !== null ? taskScheduleEnd.value : startMin + 60;
         if (!calendarEvents[key]) calendarEvents[key] = [];
         calendarEvents[key].push({
-          title: newTaskText.value.trim(),
+          title: taskText,
           startKey: startMin,
           endKey: endMin,
           hour: Math.floor(startMin / 60),
           fromTask: true,
         });
         calendarEvents[key] = [...calendarEvents[key]];
+        // Also persist calendar event
+        try {
+          const d = new Date();
+          d.setDate(d.getDate() + calendarDayOffset.value);
+          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+          await fetch('/api/calendar/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateStr, title: taskText, startMin, endMin })
+          });
+        } catch (e) {}
       }
 
       newTaskText.value = '';
@@ -9154,7 +9393,7 @@ createApp({
       planWeekItemsComputed, planMonthItemsComputed,
       planMonthDailyCount,
       newPlanMonth, newPlanWeek, newPlanSomeday,
-      addPlanItem, removePlanItem,
+      addPlanItem, removePlanItem, togglePlanItem,
       planDragText, planDropTarget, onPlanDragStart, onPlanDragOver, onPlanDragLeave, onPlanDrop,
       planCtx, openPlanCtx, closePlanCtx, planCtxAddToToday,
       memoryIdentityContent, memoryIdentityStats,
@@ -9163,7 +9402,8 @@ createApp({
       memoryLearningLog, memoryEvolutionEntries,
       calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
       greeting, currentHour, dayHours,
-      viewingDate, viewingDayLabel, viewingWeekLabel, goToDay, missionLogDateLabel,
+      viewingDate, viewingDayLabel, viewingWeekLabel, goToDay, missionLogDateLabel, toggleMissionTask,
+      todayCalOpen, todayCalMonth, todayWeekdayLabel, todayDateLabel, todayCalMonthLabel, todayCalCells, todayPickDate,
       switchCalendarView, calendarNav,
       todayP0Tasks, todayPriorityTasks, undoneTasks, finishedTasks, hasAnyTodayTasks, allUndoneTasks,
       addingEventStart, addingEventEnd, addingEventHour, newEventTitle, newEventLocation, newEventNote, confirmAddEvent, removeEvent,

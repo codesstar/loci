@@ -8,8 +8,8 @@ updated: 2026-03-18
 
 ## P0
 
-- [ ] Get a job
 
+- [x] Ship a product
 ## P1
 
 ## P2
