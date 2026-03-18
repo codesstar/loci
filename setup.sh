@@ -23,6 +23,7 @@ USER_NAME=""
 USER_ROLE=""
 USER_FOCUS=""
 USER_SCHEDULE=""
+USER_ABOUT=""
 TOTAL_STEPS=4
 CURRENT_STEP=0
 
@@ -360,11 +361,12 @@ collect_info() {
   CURRENT_STEP=1
   LANG_LABEL=""
   SCHEDULE_LABEL=""
-  local Q_TOTAL=5
+  local Q_TOTAL=6
+  USER_ABOUT=""
 
-  local step=0  # 0=lang, 1=name, 2=role, 3=focus, 4=schedule
+  local step=0  # 0=lang, 1=name, 2=role, 3=focus, 4=schedule, 5=about
 
-  while [ "$step" -le 4 ]; do
+  while [ "$step" -le 5 ]; do
     local q_num=$((step + 1))
 
     # Render screen: header + previous answers + current question
@@ -378,15 +380,15 @@ collect_info() {
     [ "$step" -gt 1 ] && [ -n "$USER_NAME" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
     [ "$step" -gt 2 ] && [ -n "$USER_ROLE" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
     [ "$step" -gt 3 ] && [ -n "$USER_FOCUS" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}\n"
+    [ "$step" -gt 4 ] && [ -n "$SCHEDULE_LABEL" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}\n"
 
     case "$step" in
       0) # Language
         ALLOW_BACK=0 QUESTION_NUM=$q_num QUESTION_TOTAL=$Q_TOTAL \
-          choose "Language / 语言" "English" "中文" "中英混合 (Mixed)"
+          choose "Language / 语言" "English" "中文"
         case $MENU_RESULT in
           1) LANG_CHOICE="en"; LANG_LABEL="English" ;;
           2) LANG_CHOICE="zh"; LANG_LABEL="中文" ;;
-          3) LANG_CHOICE="mix"; LANG_LABEL="中英混合" ;;
         esac
         step=1
         ;;
@@ -519,6 +521,27 @@ collect_info() {
         esac
         step=5
         ;;
+
+      5) # About you (optional)
+        printf "\n"
+        # Progress dots
+        printf "  "
+        for (( i=1; i<=Q_TOTAL; i++ )); do
+          if [ "$i" -lt "$q_num" ]; then printf "${GREEN}●${NC} "
+          elif [ "$i" -eq "$q_num" ]; then printf "${CYAN}●${NC} "
+          else printf "${DIM}○${NC} "; fi
+        done
+        printf "\n"
+        printf "  ${WHITE}$(t "Anything else you'd like me to know?" "还有什么想让我知道的吗？")${NC}\n"
+        printf "  ${DIM}$(t "Habits, birthday, hobbies — optional, press Enter to skip" "习惯、生日、爱好——可选，按回车跳过")${NC}\n"
+        read_text
+        if [ "$INPUT_RESULT" = "__BACK__" ]; then
+          step=4; continue
+        else
+          USER_ABOUT="$INPUT_RESULT"
+          step=6
+        fi
+        ;;
     esac
   done
 
@@ -532,6 +555,7 @@ collect_info() {
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}\n"
+  [ -n "$USER_ABOUT" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "About" "关于你")${NC}    ${WHITE}${USER_ABOUT}${NC}\n"
   printf "\n"
   printf "  ${GREEN}✓${NC} $(t "Got it, ${USER_NAME}!" "收到，${USER_NAME}！")\n"
   sleep 1
@@ -564,6 +588,7 @@ status: active
 
 ## Current Season
 - **Focus**: ${USER_FOCUS}
+$([ -n "${USER_ABOUT}" ] && printf "\n## About Me\n${USER_ABOUT}")
 IDEOF
   ) &
   spin "$(t "me/identity.md" "me/identity.md")"
