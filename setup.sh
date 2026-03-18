@@ -92,8 +92,11 @@ ask() {
 }
 
 # Flush stdin buffer (prevents arrow key leaking into next read)
+# Uses perl for sub-second timeout (bash 3.2 on macOS doesn't support fractional -t)
 flush_input() {
-  while read -rsn1 -t 0.05 _discard 2>/dev/null; do :; done
+  if command -v perl &>/dev/null; then
+    perl -e 'use IO::Select; my $s=IO::Select->new(\*STDIN); while($s->can_read(0.05)){sysread(STDIN,$_,1)}' 2>/dev/null
+  fi
 }
 
 # Interactive arrow-key menu selection (Claude Code style)
@@ -122,7 +125,7 @@ choose() {
   while true; do
     read -rsn1 key
     if [[ "$key" == $'\x1b' ]]; then
-      read -rsn2 -t 0.1 arrow
+      read -rsn2 arrow
       case "$arrow" in
         '[A') # Up
           if [ "$selected" -gt 0 ]; then
@@ -250,6 +253,7 @@ show_logo() {
 
 # ─── Step 0: Pre-flight Checks ──────────────────────────────────────────────
 preflight() {
+  clear
   CURRENT_STEP=0
   print_step "Pre-flight checks"
 
@@ -302,6 +306,7 @@ preflight() {
   fi
 
   echo ""
+  sleep 1
 }
 
 # Show answered questions summary at top of screen
@@ -716,6 +721,8 @@ show_success() {
 # ─── Main ────────────────────────────────────────────────────────────────────
 main() {
   show_logo
+  echo -e "  ${DIM}$(t "Press Enter to begin setup..." "按回车开始设置...")${NC}"
+  read -rs
   preflight
   collect_info
   generate_files
