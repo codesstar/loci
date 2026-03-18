@@ -199,5 +199,5 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 3. **Archive, never delete** — Move expired content to `archive/`
 4. **Don't guess** — Ask the user if unsure
 5. **Use frontmatter** — YAML headers (date, tags, status) on content files
-6. **Auto-refresh dashboard** — After modifying content files, update `.loci/dashboard/data.json` **directly** (read the current JSON, modify the relevant section, write it back). See `.loci/dashboard/schema.md` for the expected format. **Do NOT run `build.py`** — direct JSON update is the default method and works without Python. Only run `build.py` if the user explicitly asks for a full rebuild
+6. **Auto-refresh dashboard** — After modifying content files, update `.loci/dashboard/data.json` **directly** (read the current JSON, modify the relevant section, write it back). See `.loci/dashboard/schema.md` for the expected format. Direct JSON update is the **preferred** method (works without Python). `build.py` is an alternative for full rebuilds but should not be the default
 7. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure
