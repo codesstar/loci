@@ -642,6 +642,75 @@ function handleTaskToggle(body) {
   return { ok: true, task, checked };
 }
 
+function handleTaskMove(body) {
+  const { task, from, to } = body;
+  if (!task || !to) return { error: 'Missing task or target priority' };
+
+  const filePath = path.join(LOCI_ROOT, 'tasks', 'active.md');
+  let content;
+  try {
+    content = fs.readFileSync(filePath, 'utf-8');
+  } catch (e) {
+    return { error: 'Cannot read active.md: ' + e.message };
+  }
+
+  const lines = content.split('\n');
+
+  // Find and remove the task line
+  let taskLine = null;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^- \[[ x]\]\s+(.+)$/);
+    if (m && m[1].trim() === task.trim()) {
+      taskLine = lines[i];
+      lines.splice(i, 1);
+      break;
+    }
+  }
+  if (!taskLine) return { error: 'Task not found: ' + task };
+
+  // If moving to 'done', just mark as checked and put back in original section
+  if (to === 'done') {
+    taskLine = taskLine.replace(/^- \[ \]/, '- [x]');
+    // Find the 'from' section header, or default to P0
+    const target = from || 'P0';
+    let inserted = false;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].match(new RegExp(`^## ${target}\\b`))) {
+        // Insert after the header (skip blank lines)
+        let j = i + 1;
+        while (j < lines.length && lines[j].trim() === '') j++;
+        // Insert before the first non-blank line or at j
+        while (j < lines.length && lines[j].match(/^- \[/)) j++;
+        lines.splice(j, 0, taskLine);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) lines.push(taskLine);
+  } else {
+    // Uncheck if moving from done
+    if (from === 'done') {
+      taskLine = taskLine.replace(/^- \[x\]/, '- [ ]');
+    }
+    // Find target section and insert
+    let inserted = false;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].match(new RegExp(`^## ${to}\\b`))) {
+        let j = i + 1;
+        while (j < lines.length && lines[j].trim() === '') j++;
+        while (j < lines.length && lines[j].match(/^- \[/)) j++;
+        lines.splice(j, 0, taskLine);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) lines.push(taskLine);
+  }
+
+  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  return { ok: true, task, from, to };
+}
+
 function handleTaskAdd(body) {
   const { text, priority } = body;
   if (!text) return { error: 'Missing task text' };
@@ -822,6 +891,80 @@ function handleDailyPlanSave(body) {
   return { ok: true, date, path: filePath };
 }
 
+function handleDailyPlanToggle(body) {
+  const { date, taskText, done } = body;
+  if (!date || !taskText) return { error: 'Missing date or taskText' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format' };
+
+  const filePath = path.join(LOCI_ROOT, 'tasks', 'daily', `${date}.md`);
+  if (!fs.existsSync(filePath)) return { error: 'Daily plan not found' };
+
+  let content = fs.readFileSync(filePath, 'utf-8');
+  const escapedText = taskText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  if (done) {
+    // Check off: - [ ] taskText → - [x] taskText
+    const re = new RegExp(`^(- \\[ \\] )${escapedText}`, 'm');
+    if (re.test(content)) {
+      content = content.replace(re, `- [x] ${taskText}`);
+    }
+  } else {
+    // Uncheck: - [x] taskText → - [ ] taskText
+    const re = new RegExp(`^(- \\[x\\] )${escapedText}`, 'm');
+    if (re.test(content)) {
+      content = content.replace(re, `- [ ] ${taskText}`);
+    }
+  }
+
+  fs.writeFileSync(filePath, content, 'utf-8');
+  return { ok: true, date, taskText, done };
+}
+
+function handleDailyPlanAddTask(body) {
+  const { date, task } = body;
+  if (!date || !task) return { error: 'Missing date or task' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format' };
+
+  const dailyDir = path.join(LOCI_ROOT, 'tasks', 'daily');
+  if (!fs.existsSync(dailyDir)) fs.mkdirSync(dailyDir, { recursive: true });
+
+  const filePath = path.join(dailyDir, `${date}.md`);
+  let content;
+  if (fs.existsSync(filePath)) {
+    content = fs.readFileSync(filePath, 'utf-8');
+    // Append task to end of file
+    content = content.trimEnd() + '\n- [ ] ' + task + '\n';
+  } else {
+    // Create new daily plan
+    const d = new Date(date + 'T00:00:00');
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    content = `---\ndate: ${date}\nstatus: planned\n---\n\n# ${date} ${days[d.getDay()]}\n\n## 日程\n\n- [ ] ${task}\n`;
+  }
+
+  fs.writeFileSync(filePath, content, 'utf-8');
+  return { ok: true, date, task };
+}
+
+function handleDailyPlanRemoveTask(body) {
+  const { date, task } = body;
+  if (!date || !task) return { error: 'Missing date or task' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format' };
+
+  const filePath = path.join(LOCI_ROOT, 'tasks', 'daily', `${date}.md`);
+  if (!fs.existsSync(filePath)) return { error: 'Daily plan not found' };
+
+  let content = fs.readFileSync(filePath, 'utf-8');
+  const escapedTask = task.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Remove the line (checked or unchecked)
+  const re = new RegExp(`^- \\[[x ]\\] ${escapedTask}\\n?`, 'm');
+  if (re.test(content)) {
+    content = content.replace(re, '');
+    fs.writeFileSync(filePath, content, 'utf-8');
+    return { ok: true, date, task };
+  }
+  return { error: 'Task not found in file' };
+}
+
 function buildMdWithFrontmatter(meta, body) {
   let yaml = '---\n';
   for (const [key, value] of Object.entries(meta)) {
@@ -917,6 +1060,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (pathname === '/api/tasks/move' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleTaskMove(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   if (pathname === '/api/tasks/toggle' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -981,6 +1139,51 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleCalendarAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/daily/remove-task' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleDailyPlanRemoveTask(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/daily/add-task' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleDailyPlanAddTask(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/daily/toggle' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleDailyPlanToggle(body);
       if (result.error) {
         sendError(res, result.error);
       } else {
