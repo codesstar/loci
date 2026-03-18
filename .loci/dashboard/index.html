@@ -2609,17 +2609,6 @@
             <div class="s7-scan"></div>
           </div>
 
-          <!-- Daily Plan Content -->
-          <div v-if="todayPlan" class="card hud-card mb-6">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 class="hud-title-glow">{{ t('today.dailyPlan') }}</h3>
-              <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px;">{{ todayPlan.filename }}</span>
-            </div>
-            <div class="card-body" style="padding: 16px 24px;">
-              <div v-html="todayPlan.content" style="font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.72);"></div>
-            </div>
-          </div>
-
           <!-- Calendar — Mission Control -->
           <div class="card hud-card mb-6">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -7654,10 +7643,29 @@ createApp({
       },
     };
 
+    // Parse tasks from a daily plan's HTML content
+    function parseDailyPlanTasks(htmlContent) {
+      if (!htmlContent) return {};
+      const tasks = { P0: [] };
+      // Match checkbox list items: <li class="task done"> or <li class="task">
+      const re = /<li class="task(\s+done)?"><input[^>]*>\s*(.+?)<\/li>/g;
+      let m;
+      while ((m = re.exec(htmlContent)) !== null) {
+        tasks.P0.push({ text: m[2].trim(), done: !!m[1] });
+      }
+      return tasks;
+    }
+
     // Date-aware task source — reactive, updates when viewingDate changes
-    // Today always reads real data from data.json; other dates use mock data
+    // Today: active_tasks. Other dates: daily plan tasks, then mock data fallback.
     const viewingTasks = computed(() => {
       if (calendarDayOffset.value === 0) return data.value?.tasks?.active_tasks || {};
+      // Check if there's a daily plan for this date
+      const plan = todayPlan.value;
+      if (plan && plan.content) {
+        const parsed = parseDailyPlanTasks(plan.content);
+        if (parsed.P0 && parsed.P0.length > 0) return parsed;
+      }
       const key = dateToKey(viewingDate.value);
       if (mockDayTasks[key]) return mockDayTasks[key];
       return {};
