@@ -8540,31 +8540,49 @@ createApp({
       // Clear stale demo states (keep calendar events from localStorage)
       ['loci_goal_progresses', 'loci_task_done_states'].forEach(k => localStorage.removeItem(k));
 
-      // Load real data from build.py, fallback to mock
+      // Load data: try live API first (server.js), fallback to static data.json
+      let dataLoaded = false;
       try {
-        const resp = await fetch('data.json');
+        const resp = await fetch('/api/data');
         if (resp.ok) {
           data.value = await resp.json();
-          // Merge calendar_events from data.json into reactive calendarEvents
-          const djEvents = data.value?.planning?.calendar_events;
-          if (djEvents && typeof djEvents === 'object') {
-            Object.keys(djEvents).forEach(dateKey => {
-              if (!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
-              const existing = calendarEvents[dateKey];
-              (djEvents[dateKey] || []).forEach(ev => {
-                // Avoid duplicates by checking title + startKey
-                const dup = existing.some(e => e.title === ev.title && e.startKey === ev.startKey);
-                if (!dup) existing.push(ev);
-              });
-              calendarEvents[dateKey] = [...existing];
-            });
-          }
-        } else {
-          loadMockData();
+          dataLoaded = true;
+          // Auto-refresh every 5s when server is available
+          setInterval(async () => {
+            try {
+              const r = await fetch('/api/data');
+              if (r.ok) data.value = await r.json();
+            } catch {}
+          }, 5000);
         }
-      } catch (e) {
-        console.warn('Failed to load data.json, using mock data:', e);
+      } catch {}
+
+      if (!dataLoaded) {
+        try {
+          const resp = await fetch('data.json');
+          if (resp.ok) {
+            data.value = await resp.json();
+            dataLoaded = true;
+          }
+        } catch {}
+      }
+
+      if (!dataLoaded) {
         loadMockData();
+      }
+
+      // Merge calendar_events from loaded data into reactive calendarEvents
+      const djEvents = data.value?.planning?.calendar_events;
+      if (djEvents && typeof djEvents === 'object') {
+        Object.keys(djEvents).forEach(dateKey => {
+          if (!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
+          const existing = calendarEvents[dateKey];
+          (djEvents[dateKey] || []).forEach(ev => {
+            const dup = existing.some(e => e.title === ev.title && e.startKey === ev.startKey);
+            if (!dup) existing.push(ev);
+          });
+          calendarEvents[dateKey] = [...existing];
+        });
       }
       loading.value = false;
 
