@@ -91,23 +91,77 @@ ask() {
   eval "$var_name=\"\$input\""
 }
 
-# Numbered menu selection
+# Interactive arrow-key menu selection (Claude Code style)
 choose() {
   local prompt="$1"
   shift
   local options=("$@")
+  local selected=0
+  local count=${#options[@]}
+
   echo ""
   echo -e "  ${WHITE}${prompt}${NC}"
+
+  tput civis 2>/dev/null  # hide cursor
+
+  # Draw initial menu
   for i in "${!options[@]}"; do
-    echo -e "    ${CYAN}$((i+1)).${NC} ${options[$i]}"
+    if [ "$i" -eq "$selected" ]; then
+      echo -e "    ${CYAN}● ${WHITE}${options[$i]}${NC}"
+    else
+      echo -e "    ${DIM}○ ${options[$i]}${NC}"
+    fi
   done
-  printf "  ${DIM}Enter number${NC}: "
-  read -r choice
-  # Validate
-  if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#options[@]}" ]; then
-    choice=1
-  fi
-  MENU_RESULT=$choice
+
+  # Read arrow keys and enter
+  while true; do
+    read -rsn1 key
+    if [[ "$key" == $'\x1b' ]]; then
+      read -rsn2 arrow
+      case "$arrow" in
+        '[A') # Up
+          if [ "$selected" -gt 0 ]; then
+            selected=$((selected - 1))
+          fi
+          ;;
+        '[B') # Down
+          if [ "$selected" -lt $((count - 1)) ]; then
+            selected=$((selected + 1))
+          fi
+          ;;
+      esac
+    elif [[ "$key" == "" ]]; then
+      # Enter pressed
+      break
+    elif [[ "$key" =~ ^[0-9]$ ]] && [ "$key" -ge 1 ] && [ "$key" -le "$count" ]; then
+      # Number key shortcut
+      selected=$((key - 1))
+      break
+    fi
+
+    # Redraw menu (move cursor up N lines)
+    printf "\033[${count}A"
+    for i in "${!options[@]}"; do
+      printf "\r\033[K"  # clear line
+      if [ "$i" -eq "$selected" ]; then
+        echo -e "    ${CYAN}● ${WHITE}${options[$i]}${NC}"
+      else
+        echo -e "    ${DIM}○ ${options[$i]}${NC}"
+      fi
+    done
+  done
+
+  tput cnorm 2>/dev/null  # restore cursor
+
+  # Replace menu with final selection
+  printf "\033[${count}A"
+  for i in "${!options[@]}"; do
+    printf "\r\033[K"
+  done
+  printf "\033[${count}A"
+  echo -e "    ${GREEN}● ${WHITE}${options[$selected]}${NC}"
+
+  MENU_RESULT=$((selected + 1))
 }
 
 # Bilingual text helper — returns text based on language choice
