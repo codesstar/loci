@@ -6,28 +6,28 @@
   <title>Loci — Setup Your Brain</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0e1a;
-      --card: #111827;
-      --card-border: rgba(255,255,255,0.08);
-      --primary: #00d4aa;
-      --primary-dim: rgba(0,212,170,0.15);
-      --primary-glow: rgba(0,212,170,0.4);
-      --accent: #7c3aed;
-      --accent-dim: rgba(124,58,237,0.15);
-      --text: #e5e7eb;
-      --text-dim: rgba(229,231,235,0.5);
-      --success: #10b981;
+      --bg: #0a0a1a;
+      --primary: rgb(155,89,182);
+      --primary-dim: rgba(155,89,182,0.15);
+      --primary-glow: rgba(155,89,182,0.4);
+      --secondary: rgb(26,188,156);
+      --secondary-dim: rgba(26,188,156,0.15);
+      --text: #c0c0c0;
+      --text-dim: rgba(200,200,220,0.5);
+      --card: rgba(15,15,30,0.85);
+      --card-border: rgba(155,89,182,0.15);
+      --surface: rgba(155,89,182,0.04);
+      --success: #1abc9c;
       --error: #ef4444;
-      --surface: rgba(255,255,255,0.04);
     }
 
     html, body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -35,31 +35,95 @@
       overflow-x: hidden;
     }
 
-    /* Grid background */
-    body::before {
-      content: '';
+    /* ── Deep-sea ambient glow ── */
+    .ambient-glow {
       position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
       pointer-events: none;
+      border-radius: 50%;
+      filter: blur(120px);
       z-index: 0;
     }
+    .glow-1 {
+      width: 600px; height: 600px;
+      left: 10%; top: 30%;
+      background: radial-gradient(circle, rgba(155,89,182,0.12) 0%, transparent 70%);
+    }
+    .glow-2 {
+      width: 400px; height: 400px;
+      right: 15%; bottom: 20%;
+      background: radial-gradient(circle, rgba(26,188,156,0.08) 0%, transparent 70%);
+    }
+    .glow-3 {
+      width: 300px; height: 300px;
+      left: 35%; top: 15%;
+      background: radial-gradient(circle, rgba(155,89,182,0.06) 0%, transparent 70%);
+    }
 
-    /* Radial glow */
-    body::after {
-      content: '';
+    /* ── Particles ── */
+    .particle {
       position: fixed;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+      border-radius: 50%;
       pointer-events: none;
-      z-index: 0;
+      animation: drift linear infinite;
+    }
+    .bubble {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      border: 1px solid rgba(155,89,182,0.12);
+      background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.06), transparent);
+      animation: bubbleUp linear infinite;
+    }
+    @keyframes drift {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+    @keyframes bubbleUp {
+      0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      10% { opacity: 1; }
+      50% { transform: translateY(50vh) scale(1); }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    /* ── Jellyfish trail ── */
+    .jellyfish {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2;
+      animation: jellyDrift 4s ease-out forwards;
+    }
+    .jellyfish svg {
+      overflow: visible;
+      filter: drop-shadow(0 0 6px rgba(155,89,182,0.4));
+    }
+    .jelly-bell {
+      animation: jellyPulse 1.2s ease-in-out infinite;
+      transform-origin: center top;
+    }
+    @keyframes jellyPulse {
+      0%, 100% { transform: scaleX(1) scaleY(1); }
+      50% { transform: scaleX(1.08) scaleY(0.92); }
+    }
+    .jelly-tentacle {
+      animation: tentacleWave 1.8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+    .jelly-tentacle:nth-child(2) { animation-delay: -0.3s; }
+    .jelly-tentacle:nth-child(3) { animation-delay: -0.6s; }
+    .jelly-tentacle:nth-child(4) { animation-delay: -0.9s; }
+    @keyframes tentacleWave {
+      0%, 100% { transform: skewX(0deg); }
+      25% { transform: skewX(6deg); }
+      75% { transform: skewX(-6deg); }
+    }
+    @keyframes jellyDrift {
+      0% { opacity: 0.7; transform: translate(0, 0) scale(1) rotate(0deg); }
+      30% { opacity: 0.5; }
+      60% { transform: translate(var(--drift, 10px), -80px) scale(0.8) rotate(3deg); }
+      100% { opacity: 0; transform: translate(var(--drift, 10px), -140px) scale(0.5) rotate(-2deg); }
     }
 
     /* ===== Layout ===== */
@@ -73,45 +137,77 @@
       padding: 40px 20px;
     }
 
-    /* ===== Logo ===== */
-    .logo-container {
-      margin-bottom: 8px;
-      text-align: center;
-    }
-
-    .logo-seahorse {
-      width: 72px;
-      height: 72px;
-      animation: logoPulse 4s ease-in-out infinite;
-    }
-
-    @keyframes logoPulse {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(0,212,170,0.3)); transform: scale(1); }
-      50% { filter: drop-shadow(0 0 20px rgba(0,212,170,0.6)); transform: scale(1.03); }
-    }
-
-    .logo-text {
-      font-family: 'Orbitron', monospace;
-      font-size: 28px;
+    /* ===== LOCI title (block text) ===== */
+    .loci-title {
+      white-space: pre;
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: 8px;
-      color: var(--primary);
-      text-shadow: 0 0 30px var(--primary-glow);
-      margin-top: 12px;
+      line-height: 1.1;
+      letter-spacing: 2px;
+      color: #9b59b6;
+      text-align: center;
+      animation: titleGlow 2.8s ease-in-out infinite;
+      margin-bottom: 8px;
+    }
+    @keyframes titleGlow {
+      0%, 100% { text-shadow: 0 0 10px rgba(155,89,182,0.4), 0 0 30px rgba(155,89,182,0.15); }
+      50% { text-shadow: 0 0 15px rgba(155,89,182,0.7), 0 0 40px rgba(155,89,182,0.3), 0 0 60px rgba(26,188,156,0.15); }
     }
 
     .logo-subtitle {
-      font-size: 13px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(26,188,156,0.8);
+      text-shadow: 0 0 12px rgba(26,188,156,0.3);
+      text-align: center;
+      margin-bottom: 24px;
+      animation: subtitlePulse 3.5s ease-in-out infinite;
+    }
+    @keyframes subtitlePulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== Seahorse (welcome step only) ===== */
+    .seahorse-wrap {
+      position: relative;
+      line-height: 1.15;
+      font-size: 10px;
+      letter-spacing: 1px;
+      white-space: pre;
+      flex-shrink: 0;
+      animation: breathe 2.8s ease-in-out infinite;
+      cursor: default;
+      margin: 0 auto 20px;
+      text-align: center;
+    }
+    .seahorse-wrap .char {
+      display: inline;
+      transition: color 0.15s, text-shadow 0.15s;
+    }
+    .seahorse-wrap .char.spark {
+      color: #fff !important;
+      text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
+      transition: none;
+    }
+    @keyframes breathe {
+      0%, 100% {
+        text-shadow: 0 0 4px rgba(155,89,182,0.3), 0 0 12px rgba(155,89,182,0.15), 0 0 24px rgba(26,188,156,0.08);
+        filter: brightness(1);
+      }
+      50% {
+        text-shadow: 0 0 8px rgba(155,89,182,0.6), 0 0 24px rgba(155,89,182,0.3), 0 0 48px rgba(26,188,156,0.2);
+        filter: brightness(1.15);
+      }
     }
 
     /* ===== Progress dots ===== */
     .progress-bar {
       display: flex;
       gap: 12px;
-      margin: 32px 0 24px;
+      margin: 0 0 24px;
       align-items: center;
     }
 
@@ -119,9 +215,8 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.1);
+      background: rgba(200,200,220,0.1);
       transition: all 0.4s ease;
-      position: relative;
     }
 
     .progress-dot.done {
@@ -131,19 +226,19 @@
 
     .progress-dot.current {
       background: var(--primary);
-      box-shadow: 0 0 12px var(--primary-glow), 0 0 24px rgba(0,212,170,0.2);
+      box-shadow: 0 0 12px var(--primary-glow), 0 0 24px rgba(155,89,182,0.2);
       animation: dotPulse 2s ease-in-out infinite;
     }
 
     @keyframes dotPulse {
       0%, 100% { box-shadow: 0 0 12px var(--primary-glow); }
-      50% { box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(0,212,170,0.15); }
+      50% { box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(155,89,182,0.15); }
     }
 
     .progress-line {
       width: 20px;
       height: 2px;
-      background: rgba(255,255,255,0.08);
+      background: rgba(200,200,220,0.08);
       transition: background 0.4s ease;
     }
 
@@ -157,10 +252,11 @@
       max-width: 580px;
       background: var(--card);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 80px rgba(155,89,182,0.05);
       position: relative;
+      backdrop-filter: blur(20px);
     }
 
     .wizard-card::before {
@@ -170,7 +266,7 @@
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--primary-dim), transparent);
+      background: linear-gradient(90deg, transparent, rgba(155,89,182,0.3), transparent);
     }
 
     /* ===== Steps container ===== */
@@ -187,17 +283,10 @@
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .step.active {
-      display: block;
-    }
+    .step.active { display: block; }
 
-    .step.slide-in-right {
-      animation-name: slideInRight;
-    }
-
-    .step.slide-in-left {
-      animation-name: slideInLeft;
-    }
+    .step.slide-in-right { animation-name: slideInRight; }
+    .step.slide-in-left { animation-name: slideInLeft; }
 
     @keyframes slideInRight {
       from { opacity: 0; transform: translateX(40px); }
@@ -211,16 +300,50 @@
 
     /* ===== Step typography ===== */
     .step-title {
-      font-size: 22px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
       margin-bottom: 6px;
+      color: rgba(200,200,220,0.92);
+      letter-spacing: 1px;
     }
 
     .step-desc {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-dim);
       margin-bottom: 28px;
-      line-height: 1.6;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== Divider ===== */
+    .divider {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(155,89,182,0.4), transparent);
+      margin: 0 auto 20px;
+    }
+
+    /* ===== Reveal lines (welcome step) ===== */
+    .reveal-line {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 14px;
+      line-height: 1.9;
+      letter-spacing: 1px;
+      color: rgba(200,200,220,0.08);
+      text-shadow: none;
+      transition: color 1.2s ease, text-shadow 1.2s ease, transform 1.2s ease;
+      transform: translateY(0);
+      text-align: center;
+    }
+    .reveal-line.bright {
+      color: rgba(200,200,220,0.92);
+      text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
+      transform: translateY(-1.5px);
+    }
+    .reveal-line.fading {
+      color: rgba(200,200,220,0.25);
+      text-shadow: 0 0 8px rgba(155,89,182,0.1);
+      transform: translateY(0);
     }
 
     /* ===== Option cards ===== */
@@ -236,20 +359,21 @@
     .option-card {
       background: var(--surface);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 18px 16px;
       cursor: pointer;
       text-align: center;
-      transition: all 0.25s ease;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
       user-select: none;
     }
 
     .option-card:hover {
-      border-color: rgba(0,212,170,0.3);
-      background: rgba(0,212,170,0.05);
+      border-color: rgba(155,89,182,0.35);
+      background: rgba(155,89,182,0.06);
       transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(155,89,182,0.1);
     }
 
     .option-card:active {
@@ -259,7 +383,7 @@
     .option-card.selected {
       border-color: var(--primary);
       background: var(--primary-dim);
-      box-shadow: 0 0 20px rgba(0,212,170,0.1);
+      box-shadow: 0 0 20px rgba(155,89,182,0.15), 0 0 40px rgba(155,89,182,0.05);
     }
 
     .option-card .icon {
@@ -269,21 +393,23 @@
     }
 
     .option-card .label {
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 1px;
     }
 
     .option-card .sublabel {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
       margin-top: 4px;
+      letter-spacing: 0.5px;
     }
 
     /* Ripple effect */
     .option-card .ripple {
       position: absolute;
       border-radius: 50%;
-      background: rgba(0,212,170,0.3);
+      background: rgba(155,89,182,0.25);
       transform: scale(0);
       animation: ripple 0.6s linear;
       pointer-events: none;
@@ -302,15 +428,16 @@
     .input-group input,
     .input-group textarea {
       width: 100%;
-      background: var(--surface);
+      background: rgba(155,89,182,0.04);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 18px 16px 8px;
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text);
-      font-family: inherit;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       outline: none;
       transition: border-color 0.3s, box-shadow 0.3s;
+      letter-spacing: 1px;
     }
 
     .input-group textarea {
@@ -321,7 +448,7 @@
     .input-group input:focus,
     .input-group textarea:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+      box-shadow: 0 0 0 3px rgba(155,89,182,0.1), 0 0 20px rgba(155,89,182,0.08);
     }
 
     .input-group label {
@@ -329,10 +456,11 @@
       left: 16px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-dim);
       pointer-events: none;
       transition: all 0.25s ease;
+      letter-spacing: 1px;
     }
 
     .input-group textarea ~ label {
@@ -344,14 +472,15 @@
     .input-group input.has-value ~ label {
       top: 8px;
       transform: none;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--primary);
+      letter-spacing: 2px;
     }
 
     .input-group textarea:focus ~ label,
     .input-group textarea.has-value ~ label {
       top: 4px;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--primary);
     }
 
@@ -379,100 +508,93 @@
 
     .btn {
       padding: 12px 28px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      font-family: inherit;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       cursor: pointer;
       border: none;
-      transition: all 0.25s ease;
+      transition: all 0.3s ease;
       outline: none;
+      letter-spacing: 2px;
     }
 
     .btn:focus-visible {
-      box-shadow: 0 0 0 3px rgba(0,212,170,0.3);
+      box-shadow: 0 0 0 3px rgba(155,89,182,0.3);
     }
 
     .btn-ghost {
       background: transparent;
       color: var(--text-dim);
-      border: 1px solid var(--card-border);
+      border: 1px solid rgba(155,89,182,0.15);
     }
 
     .btn-ghost:hover {
       color: var(--text);
-      border-color: rgba(255,255,255,0.2);
+      border-color: rgba(155,89,182,0.35);
+      text-shadow: 0 0 12px rgba(155,89,182,0.2);
     }
 
     .btn-primary {
-      background: var(--primary);
-      color: #0a0e1a;
-      font-weight: 600;
+      background: rgba(155,89,182,0.15);
+      color: #c9a0dc;
+      border: 1px solid rgba(155,89,182,0.3);
     }
 
     .btn-primary:hover {
-      background: #00e6b8;
-      box-shadow: 0 0 20px rgba(0,212,170,0.3);
+      background: rgba(155,89,182,0.25);
+      box-shadow: 0 0 20px rgba(155,89,182,0.2);
+      transform: translateY(-1px);
     }
 
     .btn-primary:disabled {
-      opacity: 0.4;
+      opacity: 0.3;
       cursor: not-allowed;
       box-shadow: none;
+      transform: none;
     }
 
     .btn-primary:disabled:hover {
-      background: var(--primary);
+      background: rgba(155,89,182,0.15);
     }
 
-    /* ===== Create Brain button ===== */
+    /* ===== Create Brain button (v3 btn-star-wrap style) ===== */
+    .create-btn-wrap {
+      position: relative;
+      border-radius: 10px;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(155,89,182,0.4), rgba(26,188,156,0.3), rgba(155,89,182,0.4));
+      background-size: 200% 200%;
+      animation: borderFlow 3s ease-in-out infinite;
+      margin-top: 24px;
+    }
+
+    @keyframes borderFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
     .create-btn {
       display: block;
       width: 100%;
-      padding: 20px;
-      border: none;
-      border-radius: 16px;
-      font-size: 18px;
-      font-weight: 700;
-      font-family: 'Orbitron', monospace;
+      padding: 16px 40px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
       letter-spacing: 3px;
-      color: #0a0e1a;
-      background: linear-gradient(135deg, var(--primary), #00e6b8);
+      text-decoration: none;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
+      background: var(--bg);
+      color: #c9a0dc;
+      border: none;
       transition: all 0.3s ease;
-      animation: createPulse 3s ease-in-out infinite;
     }
 
     .create-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0,212,170,0.4);
-    }
-
-    .create-btn:active {
-      transform: translateY(0);
-    }
-
-    @keyframes createPulse {
-      0%, 100% { box-shadow: 0 4px 20px rgba(0,212,170,0.2); }
-      50% { box-shadow: 0 4px 32px rgba(0,212,170,0.4), 0 0 60px rgba(0,212,170,0.1); }
-    }
-
-    .create-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      animation: shimmer 3s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      50%, 100% { left: 100%; }
+      background: rgba(155,89,182,0.12);
+      box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.08);
+      transform: translateY(-1px);
     }
 
     /* ===== Review list ===== */
@@ -487,36 +609,47 @@
       padding: 14px 16px;
       background: var(--surface);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 10px;
       margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .review-item:hover {
+      border-color: rgba(155,89,182,0.3);
     }
 
     .review-item .review-label {
-      font-size: 12px;
+      font-size: 10px;
       color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 3px;
     }
 
     .review-item .review-value {
-      font-size: 15px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(200,200,220,0.9);
+      letter-spacing: 1px;
     }
 
     .review-item .edit-btn {
       background: none;
-      border: none;
-      color: var(--primary);
-      font-size: 12px;
+      border: 1px solid rgba(155,89,182,0.15);
+      color: rgba(155,89,182,0.6);
+      font-size: 10px;
       cursor: pointer;
-      font-family: inherit;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: background 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
     }
 
     .review-item .edit-btn:hover {
-      background: var(--primary-dim);
+      color: rgba(155,89,182,0.9);
+      border-color: rgba(155,89,182,0.4);
+      text-shadow: 0 0 12px rgba(155,89,182,0.2);
     }
 
     /* ===== Progress animation ===== */
@@ -537,7 +670,7 @@
 
     .progress-ring-bg {
       fill: none;
-      stroke: rgba(255,255,255,0.06);
+      stroke: rgba(155,89,182,0.08);
       stroke-width: 4;
     }
 
@@ -557,10 +690,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-family: 'Orbitron', monospace;
-      font-size: 24px;
-      font-weight: 600;
+      font-size: 22px;
+      font-weight: 700;
       color: var(--primary);
+      letter-spacing: 2px;
     }
 
     .progress-log {
@@ -574,11 +707,12 @@
       align-items: center;
       gap: 10px;
       padding: 8px 0;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
       opacity: 0;
       transform: translateY(8px);
       transition: all 0.3s ease;
+      letter-spacing: 1px;
     }
 
     .progress-log-item.visible {
@@ -594,7 +728,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      border: 1.5px solid var(--card-border);
+      border: 1.5px solid rgba(155,89,182,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -606,7 +740,7 @@
     .progress-log-item.done .check {
       background: var(--primary);
       border-color: var(--primary);
-      color: #0a0e1a;
+      color: var(--bg);
     }
 
     /* ===== Success ===== */
@@ -620,13 +754,13 @@
       height: 80px;
       margin: 0 auto 20px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-dim), rgba(124,58,237,0.15));
+      background: linear-gradient(135deg, var(--primary-dim), var(--secondary-dim));
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 36px;
       animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 0 40px rgba(0,212,170,0.2);
+      box-shadow: 0 0 40px rgba(155,89,182,0.2), 0 0 80px rgba(26,188,156,0.1);
     }
 
     @keyframes successPop {
@@ -635,32 +769,59 @@
     }
 
     .success-title {
-      font-family: 'Orbitron', monospace;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--primary);
       margin-bottom: 8px;
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(155,89,182,0.3);
     }
 
     .success-desc {
       color: var(--text-dim);
-      font-size: 14px;
+      font-size: 13px;
       margin-bottom: 28px;
-      line-height: 1.6;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Feature tag pills (v3 style) ── */
+    .feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .feature-tag {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(155,89,182,0.45);
+      padding: 6px 14px;
+      border: 1px solid rgba(155,89,182,0.15);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    .feature-tag:hover {
+      color: rgba(155,89,182,0.7);
+      border-color: rgba(155,89,182,0.35);
+      text-shadow: 0 0 12px rgba(155,89,182,0.2);
     }
 
     .next-steps {
       text-align: left;
       background: var(--surface);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 20px;
     }
 
     .next-steps h3 {
-      font-size: 13px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 3px;
       color: var(--text-dim);
       margin-bottom: 14px;
     }
@@ -670,7 +831,8 @@
       align-items: flex-start;
       gap: 12px;
       padding: 8px 0;
-      font-size: 14px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
     }
 
     .next-step-item .num {
@@ -682,37 +844,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       flex-shrink: 0;
     }
 
     .next-step-item code {
-      background: rgba(0,212,170,0.1);
-      color: var(--primary);
+      background: rgba(155,89,182,0.1);
+      color: #c9a0dc;
       padding: 2px 8px;
       border-radius: 6px;
-      font-size: 13px;
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* ===== Error ===== */
     .error-box {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 12px;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 10px;
       padding: 16px;
       margin-top: 16px;
       display: none;
     }
 
-    .error-box.visible {
-      display: block;
-    }
+    .error-box.visible { display: block; }
 
     .error-box p {
       color: var(--error);
-      font-size: 13px;
+      font-size: 12px;
+      letter-spacing: 0.5px;
     }
 
     .error-box .retry-btn {
@@ -723,21 +884,14 @@
       background: transparent;
       color: var(--error);
       cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
       transition: all 0.2s;
     }
 
     .error-box .retry-btn:hover {
       background: rgba(239,68,68,0.1);
-    }
-
-    /* ===== Particles ===== */
-    .particles-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
     }
 
     /* ===== Confetti ===== */
@@ -757,12 +911,17 @@
     }
 
     /* ===== Responsive ===== */
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       .step { padding: 28px 20px; }
       .btn-row { padding: 0 20px 24px; }
       .option-grid.cols-3 { grid-template-columns: 1fr; }
-      .logo-text { font-size: 22px; letter-spacing: 5px; }
-      .create-btn { font-size: 15px; letter-spacing: 2px; }
+      .loci-title { font-size: 10px; }
+      .logo-subtitle { font-size: 11px; letter-spacing: 3px; }
+      .seahorse-wrap { font-size: 7px; }
+      .create-btn { font-size: 13px; letter-spacing: 2px; }
+      .glow-1 { width: 300px; height: 300px; }
+      .glow-2 { width: 200px; height: 200px; }
+      .glow-3 { display: none; }
     }
 
     /* ===== Focus visible ===== */
@@ -774,796 +933,940 @@
     /* ===== Scrollbar ===== */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.15); border-radius: 3px; }
   </style>
 </head>
 <body>
-  <canvas class="particles-canvas" id="particles"></canvas>
 
-  <div class="app" id="app">
-    <!-- Logo -->
-    <div class="logo-container">
-      <svg class="logo-seahorse" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="seahorseGrad" x1="30" y1="10" x2="70" y2="90" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#00d4aa"/>
-            <stop offset="100%" stop-color="#7c3aed"/>
-          </linearGradient>
-        </defs>
-        <path d="M55 8c-8 0-15 5-18 12-2 5-1 10 1 14-3-2-7-3-10-2-5 2-8 7-7 12 1 4 4 7 8 8l-2 4c-3 6-4 13-2 19 2 8 8 14 15 17 3 1 6 2 9 1 2-1 4-3 5-5l1-4c0-3-1-5-2-7l-3-4c-2-2-4-3-6-3 2-3 3-7 3-11 0-3-1-6-3-8 4 2 8 2 12 1 5-2 9-6 11-11 1-4 1-8-1-12-2-5-6-9-11-11-2-1-4-2-6-2l4-4c3-3 4-8 2-12z" fill="url(#seahorseGrad)" opacity="0.9"/>
-        <circle cx="42" cy="30" r="2.5" fill="#0a0e1a"/>
-        <path d="M48 76c1 3 0 6-2 8M38 72c-3-1-5-4-5-7M60 28c3 2 5 5 5 9" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <div class="logo-text">LOCI</div>
-      <div class="logo-subtitle" id="logoSubtitle">Memory Palace for AI</div>
-    </div>
+<!-- Ambient deep-sea glow -->
+<div class="ambient-glow glow-1"></div>
+<div class="ambient-glow glow-2"></div>
+<div class="ambient-glow glow-3"></div>
 
-    <!-- Progress dots -->
-    <div class="progress-bar" id="progressBar"></div>
+<div class="app" id="app">
+  <!-- LOCI block title -->
+  <div class="loci-title" id="lociTitle"></div>
+  <div class="logo-subtitle" id="logoSubtitle">Memory Palace for AI</div>
 
-    <!-- Wizard card -->
-    <div class="wizard-card">
-      <div class="steps-viewport">
+  <!-- Progress dots -->
+  <div class="progress-bar" id="progressBar"></div>
 
-        <!-- Step 0: Language -->
-        <div class="step active" id="step-0" data-step="0">
-          <div class="step-title">Choose your language</div>
-          <div class="step-desc">This will set the language for your entire Loci experience.</div>
-          <div class="option-grid cols-3" id="langOptions">
-            <div class="option-card" data-value="en" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-              <span class="icon">EN</span>
-              <span class="label">English</span>
-            </div>
-            <div class="option-card" data-value="zh" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-              <span class="icon" style="font-size:22px">中文</span>
-              <span class="label">Chinese</span>
-            </div>
-            <div class="option-card" data-value="mix" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-              <span class="icon" style="font-size:18px">Mix</span>
-              <span class="label">中英混合</span>
-            </div>
+  <!-- Wizard card -->
+  <div class="wizard-card">
+    <div class="steps-viewport">
+
+      <!-- Step 0: Language (with seahorse) -->
+      <div class="step active" id="step-0" data-step="0">
+        <div class="seahorse-wrap" id="seahorse"></div>
+        <div class="divider"></div>
+        <div class="reveal-line">Your AI forgets you. Every. Single. Time.</div>
+        <div class="reveal-line">What if it didn't?</div>
+        <div class="reveal-line">Loci gives your AI a real brain.</div>
+        <div style="height:24px"></div>
+        <div class="step-title" style="text-align:center;">Choose your language</div>
+        <div class="step-desc" style="text-align:center;">This will set the language for your entire Loci experience.</div>
+        <div class="option-grid cols-3" id="langOptions">
+          <div class="option-card" data-value="en" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
+            <span class="icon">EN</span>
+            <span class="label">English</span>
+          </div>
+          <div class="option-card" data-value="zh" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
+            <span class="icon" style="font-size:22px">中文</span>
+            <span class="label">Chinese</span>
+          </div>
+          <div class="option-card" data-value="mix" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
+            <span class="icon" style="font-size:18px">Mix</span>
+            <span class="label">中英混合</span>
           </div>
         </div>
-
-        <!-- Step 1: Name -->
-        <div class="step" id="step-1" data-step="1">
-          <div class="step-title" data-i18n="name_title">What's your name?</div>
-          <div class="step-desc" data-i18n="name_desc">This is how your AI will address you.</div>
-          <div class="input-group">
-            <input type="text" id="nameInput" autocomplete="off" spellcheck="false"
-                   oninput="this.classList.toggle('has-value', this.value.length > 0); validateStep();"
-                   onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-            <label for="nameInput" data-i18n="name_label">Your name</label>
-          </div>
-        </div>
-
-        <!-- Step 2: Role -->
-        <div class="step" id="step-2" data-step="2">
-          <div class="step-title" data-i18n="role_title">What do you do?</div>
-          <div class="step-desc" data-i18n="role_desc">This helps Loci understand your context.</div>
-          <div class="option-grid" id="roleOptions">
-            <div class="option-card" data-value="Developer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-              <span class="icon">&#9000;</span>
-              <span class="label" data-i18n="role_dev">Developer</span>
-            </div>
-            <div class="option-card" data-value="Designer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-              <span class="icon">&#9998;</span>
-              <span class="label" data-i18n="role_design">Designer</span>
-            </div>
-            <div class="option-card" data-value="Creator" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-              <span class="icon">&#9733;</span>
-              <span class="label" data-i18n="role_creator">Creator</span>
-            </div>
-            <div class="option-card" data-value="Student" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-              <span class="icon">&#9734;</span>
-              <span class="label" data-i18n="role_student">Student</span>
-            </div>
-            <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-              <span class="icon">...</span>
-              <span class="label" data-i18n="role_other">Other</span>
-            </div>
-          </div>
-          <div class="other-input" id="roleOther">
-            <div class="input-group">
-              <input type="text" id="roleOtherInput" autocomplete="off"
-                     oninput="this.classList.toggle('has-value', this.value.length > 0); formData.roleOther = this.value; validateStep();"
-                     onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-              <label for="roleOtherInput" data-i18n="role_other_label">Describe your role</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Focus -->
-        <div class="step" id="step-3" data-step="3">
-          <div class="step-title" data-i18n="focus_title">What's your main focus right now?</div>
-          <div class="step-desc" data-i18n="focus_desc">Your most important priority — Loci will help you stay on track.</div>
-          <div class="option-grid" id="focusOptions">
-            <div class="option-card" data-value="Ship a product" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-              <span class="icon">&#128640;</span>
-              <span class="label" data-i18n="focus_ship">Ship a product</span>
-            </div>
-            <div class="option-card" data-value="Learn a skill" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-              <span class="icon">&#128218;</span>
-              <span class="label" data-i18n="focus_learn">Learn a skill</span>
-            </div>
-            <div class="option-card" data-value="Build an audience" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-              <span class="icon">&#127908;</span>
-              <span class="label" data-i18n="focus_audience">Build an audience</span>
-            </div>
-            <div class="option-card" data-value="Get a job" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-              <span class="icon">&#128188;</span>
-              <span class="label" data-i18n="focus_job">Get a job</span>
-            </div>
-            <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-              <span class="icon">...</span>
-              <span class="label" data-i18n="focus_other">Other</span>
-            </div>
-          </div>
-          <div class="other-input" id="focusOther">
-            <div class="input-group">
-              <input type="text" id="focusOtherInput" autocomplete="off"
-                     oninput="this.classList.toggle('has-value', this.value.length > 0); formData.focusOther = this.value; validateStep();"
-                     onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-              <label for="focusOtherInput" data-i18n="focus_other_label">Describe your focus</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Schedule -->
-        <div class="step" id="step-4" data-step="4">
-          <div class="step-title" data-i18n="schedule_title">When do you usually work?</div>
-          <div class="step-desc" data-i18n="schedule_desc">Loci will adapt its check-ins to your rhythm.</div>
-          <div class="option-grid" id="scheduleOptions">
-            <div class="option-card" data-value="Morning" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-              <span class="icon">&#127749;</span>
-              <span class="label" data-i18n="sched_morning">Morning</span>
-              <span class="sublabel">6am - 12pm</span>
-            </div>
-            <div class="option-card" data-value="Daytime" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-              <span class="icon">&#9728;</span>
-              <span class="label" data-i18n="sched_day">Daytime</span>
-              <span class="sublabel">9am - 6pm</span>
-            </div>
-            <div class="option-card" data-value="Evening" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-              <span class="icon">&#127761;</span>
-              <span class="label" data-i18n="sched_evening">Evening</span>
-              <span class="sublabel">6pm - 12am</span>
-            </div>
-            <div class="option-card" data-value="Night owl" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-              <span class="icon">&#127770;</span>
-              <span class="label" data-i18n="sched_night">Night owl</span>
-              <span class="sublabel">10pm - 6am</span>
-            </div>
-            <div class="option-card" data-value="Irregular" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-              <span class="icon">&#8734;</span>
-              <span class="label" data-i18n="sched_irregular">Irregular</span>
-              <span class="sublabel" data-i18n="sched_varies">Varies</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 5: Review -->
-        <div class="step" id="step-5" data-step="5">
-          <div class="step-title" data-i18n="review_title">Review your setup</div>
-          <div class="step-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
-          <ul class="review-list" id="reviewList"></ul>
-          <div style="margin-top: 24px;">
-            <button class="create-btn" id="createBtn" onclick="createBrain()">
-              <span data-i18n="create_btn">CREATE MY BRAIN</span>
-            </button>
-          </div>
-          <div class="error-box" id="errorBox">
-            <p id="errorMsg"></p>
-            <button class="retry-btn" onclick="createBrain()" data-i18n="retry">Retry</button>
-          </div>
-        </div>
-
-        <!-- Step 6: Progress -->
-        <div class="step" id="step-6" data-step="6">
-          <div class="progress-section">
-            <div class="progress-ring-container">
-              <svg class="progress-ring" width="120" height="120">
-                <circle class="progress-ring-bg" cx="60" cy="60" r="50"/>
-                <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="50"/>
-              </svg>
-              <div class="progress-percent" id="progressPercent">0%</div>
-            </div>
-            <div class="step-title" style="margin-bottom: 20px;" data-i18n="creating_title">Creating your brain...</div>
-            <div class="progress-log" id="progressLog"></div>
-          </div>
-        </div>
-
-        <!-- Step 7: Success -->
-        <div class="step" id="step-7" data-step="7">
-          <div class="success-section">
-            <div class="success-icon">&#10003;</div>
-            <div class="success-title" data-i18n="success_title">Brain Ready!</div>
-            <div class="success-desc" id="successDesc" data-i18n="success_desc">
-              Your memory palace has been initialized. Start a conversation and Loci will remember everything important.
-            </div>
-            <div class="next-steps">
-              <h3 data-i18n="next_steps_title">Next Steps</h3>
-              <div class="next-step-item">
-                <span class="num">1</span>
-                <span data-i18n="next_step_1">Open your terminal in the brain folder</span>
-              </div>
-              <div class="next-step-item">
-                <span class="num">2</span>
-                <span>Run <code>claude</code></span>
-              </div>
-              <div class="next-step-item">
-                <span class="num">3</span>
-                <span data-i18n="next_step_3">Start talking — Loci handles the rest</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /steps-viewport -->
-
-      <!-- Navigation buttons -->
-      <div class="btn-row" id="btnRow">
-        <button class="btn btn-ghost" id="prevBtn" onclick="goPrev()" style="visibility:hidden;" data-i18n="back">Back</button>
-        <button class="btn btn-primary" id="nextBtn" onclick="goNext()" disabled data-i18n="next">Next</button>
       </div>
+
+      <!-- Step 1: Name -->
+      <div class="step" id="step-1" data-step="1">
+        <div class="step-title" data-i18n="name_title">What's your name?</div>
+        <div class="step-desc" data-i18n="name_desc">This is how your AI will address you.</div>
+        <div class="input-group">
+          <input type="text" id="nameInput" autocomplete="off" spellcheck="false"
+                 oninput="this.classList.toggle('has-value', this.value.length > 0); validateStep();"
+                 onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
+          <label for="nameInput" data-i18n="name_label">Your name</label>
+        </div>
+      </div>
+
+      <!-- Step 2: Role -->
+      <div class="step" id="step-2" data-step="2">
+        <div class="step-title" data-i18n="role_title">What do you do?</div>
+        <div class="step-desc" data-i18n="role_desc">This helps Loci understand your context.</div>
+        <div class="option-grid" id="roleOptions">
+          <div class="option-card" data-value="Developer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
+            <span class="icon">&#9000;</span>
+            <span class="label" data-i18n="role_dev">Developer</span>
+          </div>
+          <div class="option-card" data-value="Designer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
+            <span class="icon">&#9998;</span>
+            <span class="label" data-i18n="role_design">Designer</span>
+          </div>
+          <div class="option-card" data-value="Creator" tabindex="0" role="button" onclick="selectOption(this, 'role')">
+            <span class="icon">&#9733;</span>
+            <span class="label" data-i18n="role_creator">Creator</span>
+          </div>
+          <div class="option-card" data-value="Student" tabindex="0" role="button" onclick="selectOption(this, 'role')">
+            <span class="icon">&#9734;</span>
+            <span class="label" data-i18n="role_student">Student</span>
+          </div>
+          <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'role')">
+            <span class="icon">...</span>
+            <span class="label" data-i18n="role_other">Other</span>
+          </div>
+        </div>
+        <div class="other-input" id="roleOther">
+          <div class="input-group">
+            <input type="text" id="roleOtherInput" autocomplete="off"
+                   oninput="this.classList.toggle('has-value', this.value.length > 0); formData.roleOther = this.value; validateStep();"
+                   onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
+            <label for="roleOtherInput" data-i18n="role_other_label">Describe your role</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Focus -->
+      <div class="step" id="step-3" data-step="3">
+        <div class="step-title" data-i18n="focus_title">What's your main focus right now?</div>
+        <div class="step-desc" data-i18n="focus_desc">Your most important priority — Loci will help you stay on track.</div>
+        <div class="option-grid" id="focusOptions">
+          <div class="option-card" data-value="Ship a product" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
+            <span class="icon">&#128640;</span>
+            <span class="label" data-i18n="focus_ship">Ship a product</span>
+          </div>
+          <div class="option-card" data-value="Learn a skill" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
+            <span class="icon">&#128218;</span>
+            <span class="label" data-i18n="focus_learn">Learn a skill</span>
+          </div>
+          <div class="option-card" data-value="Build an audience" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
+            <span class="icon">&#127908;</span>
+            <span class="label" data-i18n="focus_audience">Build an audience</span>
+          </div>
+          <div class="option-card" data-value="Get a job" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
+            <span class="icon">&#128188;</span>
+            <span class="label" data-i18n="focus_job">Get a job</span>
+          </div>
+          <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
+            <span class="icon">...</span>
+            <span class="label" data-i18n="focus_other">Other</span>
+          </div>
+        </div>
+        <div class="other-input" id="focusOther">
+          <div class="input-group">
+            <input type="text" id="focusOtherInput" autocomplete="off"
+                   oninput="this.classList.toggle('has-value', this.value.length > 0); formData.focusOther = this.value; validateStep();"
+                   onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
+            <label for="focusOtherInput" data-i18n="focus_other_label">Describe your focus</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Schedule -->
+      <div class="step" id="step-4" data-step="4">
+        <div class="step-title" data-i18n="schedule_title">When do you usually work?</div>
+        <div class="step-desc" data-i18n="schedule_desc">Loci will adapt its check-ins to your rhythm.</div>
+        <div class="option-grid" id="scheduleOptions">
+          <div class="option-card" data-value="Morning" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
+            <span class="icon">&#127749;</span>
+            <span class="label" data-i18n="sched_morning">Morning</span>
+            <span class="sublabel">6am - 12pm</span>
+          </div>
+          <div class="option-card" data-value="Daytime" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
+            <span class="icon">&#9728;</span>
+            <span class="label" data-i18n="sched_day">Daytime</span>
+            <span class="sublabel">9am - 6pm</span>
+          </div>
+          <div class="option-card" data-value="Evening" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
+            <span class="icon">&#127761;</span>
+            <span class="label" data-i18n="sched_evening">Evening</span>
+            <span class="sublabel">6pm - 12am</span>
+          </div>
+          <div class="option-card" data-value="Night owl" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
+            <span class="icon">&#127770;</span>
+            <span class="label" data-i18n="sched_night">Night owl</span>
+            <span class="sublabel">10pm - 6am</span>
+          </div>
+          <div class="option-card" data-value="Irregular" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
+            <span class="icon">&#8734;</span>
+            <span class="label" data-i18n="sched_irregular">Irregular</span>
+            <span class="sublabel" data-i18n="sched_varies">Varies</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Review -->
+      <div class="step" id="step-5" data-step="5">
+        <div class="step-title" data-i18n="review_title">Review your setup</div>
+        <div class="step-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
+        <ul class="review-list" id="reviewList"></ul>
+        <div class="create-btn-wrap">
+          <button class="create-btn" id="createBtn" onclick="createBrain()">
+            <span data-i18n="create_btn">CREATE MY BRAIN</span>
+          </button>
+        </div>
+        <div class="error-box" id="errorBox">
+          <p id="errorMsg"></p>
+          <button class="retry-btn" onclick="createBrain()" data-i18n="retry">Retry</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Progress -->
+      <div class="step" id="step-6" data-step="6">
+        <div class="progress-section">
+          <div class="progress-ring-container">
+            <svg class="progress-ring" width="120" height="120">
+              <circle class="progress-ring-bg" cx="60" cy="60" r="50"/>
+              <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="50"/>
+            </svg>
+            <div class="progress-percent" id="progressPercent">0%</div>
+          </div>
+          <div class="step-title" style="margin-bottom: 20px;" data-i18n="creating_title">Creating your brain...</div>
+          <div class="progress-log" id="progressLog"></div>
+        </div>
+      </div>
+
+      <!-- Step 7: Success -->
+      <div class="step" id="step-7" data-step="7">
+        <div class="success-section">
+          <div class="success-icon">&#10003;</div>
+          <div class="success-title" data-i18n="success_title">Brain Ready!</div>
+          <div class="success-desc" id="successDesc" data-i18n="success_desc">
+            Your memory palace has been initialized. Start a conversation and Loci will remember everything important.
+          </div>
+          <div class="feature-tags">
+            <span class="feature-tag">100% Local</span>
+            <span class="feature-tag">Plain Markdown</span>
+            <span class="feature-tag">Claude Code Native</span>
+            <span class="feature-tag">Open Source</span>
+          </div>
+          <div class="next-steps">
+            <h3 data-i18n="next_steps_title">Next Steps</h3>
+            <div class="next-step-item">
+              <span class="num">1</span>
+              <span data-i18n="next_step_1">Open your terminal in the brain folder</span>
+            </div>
+            <div class="next-step-item">
+              <span class="num">2</span>
+              <span>Run <code>claude</code></span>
+            </div>
+            <div class="next-step-item">
+              <span class="num">3</span>
+              <span data-i18n="next_step_3">Start talking — Loci handles the rest</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /steps-viewport -->
+
+    <!-- Navigation buttons -->
+    <div class="btn-row" id="btnRow">
+      <button class="btn btn-ghost" id="prevBtn" onclick="goPrev()" style="visibility:hidden;" data-i18n="back">Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="goNext()" disabled data-i18n="next">Next</button>
     </div>
   </div>
+</div>
 
-  <script>
-    // ===== State =====
-    const TOTAL_STEPS = 5; // 0-4 are form steps, 5 is review, 6 is progress, 7 is success
-    let currentStep = 0;
+<script>
+// ===== Constants from v3 =====
+const SEAHORSE_ART = `
+                    ,
+               ,   /^\\     ___
+              /^\\_/   \`...'  /\`
+           ,__\\    ,'     ~ (
+        ,___\\ ,,    .,       \\
+         \\__ \\\\ .'.'   .-.  )
+           .'.-\\\\' \\'.  '-. (
+          / (==== ."".  ( \u25c9 ) \\
+        ,/   \`~~~'|  /   \`-'   )
+       "")      |~| \`""".  ~_ /
+         /       \\~\\     ".  \\\\
+ _      /    \u00b7    ~\\      ". \\\\
+( \\     )  \u2500\u2500\u253c\u2500\u2500 \\~\\      ". \\\\
+(_ (\\   /    \u00b7     ~|       ". \`\\
+(_ _ \\  )  \u2500\u253c\u2500\u253c\u2500 |~|        ". \`\\.
+(_ = _\\ \\   \u00b7  \u00b7   ~|          ".\`.;
+(_ -(   \\_) \u2500\u253c\u2500\u253c\u2500 |~|            ""
+(_ =   (     \u00b7  \u00b7   ~|
+(_ -  ( ~  =      \u2550\u2550\u2550\u2550|~/
+ (_  =     (_           /
+  (_-   ~_( /\\        ,"
+   (_ =  _/   |     ."
+    (_  (/    |    .(
+     (\\_/     )    /
+             /    (
+            |     /
+            |    (       ____
+            |    (    .-'    \`-.
+             \\    \\  / ' .--.  \\
+              \\    \\ |  '  \`  ;  |
+               \\    :\`. \`-'  ;  |
+                \`-   \`._ _ _.'^'./
+                   "-  .-\`\`\`_=~._/
+                      \`"------"'
+`;
 
-    const formData = {
-      language: '',
-      name: '',
-      role: '',
-      roleOther: '',
-      focus: '',
-      focusOther: '',
-      schedule: ''
-    };
+const LOCI_TEXT = ` \u2588\u2588       \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588`;
 
-    // ===== i18n =====
-    const i18n = {
-      en: {
-        name_title: "What's your name?",
-        name_desc: "This is how your AI will address you.",
-        name_label: "Your name",
-        role_title: "What do you do?",
-        role_desc: "This helps Loci understand your context.",
-        role_dev: "Developer",
-        role_design: "Designer",
-        role_creator: "Creator",
-        role_student: "Student",
-        role_other: "Other",
-        role_other_label: "Describe your role",
-        focus_title: "What's your main focus right now?",
-        focus_desc: "Your most important priority — Loci will help you stay on track.",
-        focus_ship: "Ship a product",
-        focus_learn: "Learn a skill",
-        focus_audience: "Build an audience",
-        focus_job: "Get a job",
-        focus_other: "Other",
-        focus_other_label: "Describe your focus",
-        schedule_title: "When do you usually work?",
-        schedule_desc: "Loci will adapt its check-ins to your rhythm.",
-        sched_morning: "Morning",
-        sched_day: "Daytime",
-        sched_evening: "Evening",
-        sched_night: "Night owl",
-        sched_irregular: "Irregular",
-        sched_varies: "Varies",
-        review_title: "Review your setup",
-        review_desc: "Everything look good? You can edit anything before creating your brain.",
-        create_btn: "CREATE MY BRAIN",
-        creating_title: "Creating your brain...",
-        success_title: "Brain Ready!",
-        success_desc: "Your memory palace has been initialized. Start a conversation and Loci will remember everything important.",
-        next_steps_title: "Next Steps",
-        next_step_1: "Open your terminal in the brain folder",
-        next_step_3: "Start talking — Loci handles the rest",
-        back: "Back",
-        next: "Next",
-        retry: "Retry",
-        review_language: "Language",
-        review_name: "Name",
-        review_role: "Role",
-        review_focus: "Focus",
-        review_schedule: "Schedule",
-        edit: "Edit",
-        subtitle: "Memory Palace for AI",
-        prog_identity: "Writing identity...",
-        prog_plan: "Setting up life plan...",
-        prog_tasks: "Creating task system...",
-        prog_config: "Configuring preferences...",
-        prog_brain_path: "Registering brain path...",
-        prog_global: "Enabling global awareness...",
-        prog_commands: "Installing commands...",
-        prog_hooks: "Setting up hooks...",
-        prog_git: "Configuring git safety...",
-        prog_done: "All done!"
-      },
-      zh: {
-        name_title: "你叫什么名字?",
-        name_desc: "AI 会用这个名字称呼你。",
-        name_label: "你的名字",
-        role_title: "你是做什么的?",
-        role_desc: "帮助 Loci 理解你的背景。",
-        role_dev: "开发者",
-        role_design: "设计师",
-        role_creator: "创作者",
-        role_student: "学生",
-        role_other: "其他",
-        role_other_label: "描述你的角色",
-        focus_title: "你现在最重要的事是什么?",
-        focus_desc: "你的首要目标 — Loci 会帮你保持专注。",
-        focus_ship: "发布产品",
-        focus_learn: "学习技能",
-        focus_audience: "积累受众",
-        focus_job: "找工作",
-        focus_other: "其他",
-        focus_other_label: "描述你的重点",
-        schedule_title: "你通常什么时候工作?",
-        schedule_desc: "Loci 会根据你的作息来调整提醒。",
-        sched_morning: "早起型",
-        sched_day: "白天",
-        sched_evening: "傍晚",
-        sched_night: "夜猫子",
-        sched_irregular: "不固定",
-        sched_varies: "随机应变",
-        review_title: "确认你的设置",
-        review_desc: "看看是否都对? 创建前可以随时修改。",
-        create_btn: "创建我的大脑",
-        creating_title: "正在创建你的大脑...",
-        success_title: "大脑就绪!",
-        success_desc: "你的记忆宫殿已经初始化。开始对话吧，Loci 会帮你记住重要的一切。",
-        next_steps_title: "下一步",
-        next_step_1: "在 brain 文件夹打开终端",
-        next_step_3: "开始聊天 — Loci 搞定一切",
-        back: "返回",
-        next: "下一步",
-        retry: "重试",
-        review_language: "语言",
-        review_name: "名字",
-        review_role: "角色",
-        review_focus: "重点",
-        review_schedule: "作息",
-        edit: "编辑",
-        subtitle: "AI 的记忆宫殿",
-        prog_identity: "写入身份信息...",
-        prog_plan: "设置人生方向...",
-        prog_tasks: "创建任务系统...",
-        prog_config: "配置偏好...",
-        prog_brain_path: "注册大脑路径...",
-        prog_global: "启用全局感知...",
-        prog_commands: "安装命令...",
-        prog_hooks: "配置钩子...",
-        prog_git: "设置 git 安全...",
-        prog_done: "全部完成!"
-      },
-      mix: {
-        name_title: "你叫什么名字?",
-        name_desc: "AI 会用这个名字称呼你。",
-        name_label: "你的名字",
-        role_title: "你是做什么的?",
-        role_desc: "帮 Loci 理解你的 context.",
-        role_dev: "Developer",
-        role_design: "Designer",
-        role_creator: "Creator",
-        role_student: "Student",
-        role_other: "Other",
-        role_other_label: "描述你的 role",
-        focus_title: "现在最 focus 的事是什么?",
-        focus_desc: "你的 top priority — Loci 帮你 stay on track.",
-        focus_ship: "Ship a product",
-        focus_learn: "学习 skill",
-        focus_audience: "Build audience",
-        focus_job: "找工作",
-        focus_other: "Other",
-        focus_other_label: "描述你的 focus",
-        schedule_title: "你通常什么时候 work?",
-        schedule_desc: "Loci 会 adapt 到你的节奏。",
-        sched_morning: "Morning",
-        sched_day: "Daytime",
-        sched_evening: "Evening",
-        sched_night: "Night owl",
-        sched_irregular: "不固定",
-        sched_varies: "Varies",
-        review_title: "Review 你的设置",
-        review_desc: "都对吗? Create 前可以随时改。",
-        create_btn: "CREATE MY BRAIN",
-        creating_title: "正在 creating 你的 brain...",
-        success_title: "Brain Ready!",
-        success_desc: "你的 memory palace 已经 ready. Start 对话，Loci 会 remember everything important.",
-        next_steps_title: "Next Steps",
-        next_step_1: "在 brain 文件夹打开 terminal",
-        next_step_3: "Start chatting — Loci handles the rest",
-        back: "Back",
-        next: "Next",
-        retry: "Retry",
-        review_language: "Language",
-        review_name: "Name",
-        review_role: "Role",
-        review_focus: "Focus",
-        review_schedule: "Schedule",
-        edit: "Edit",
-        subtitle: "AI 的 Memory Palace",
-        prog_identity: "Writing identity...",
-        prog_plan: "Setting up plan...",
-        prog_tasks: "Creating tasks...",
-        prog_config: "Configuring...",
-        prog_brain_path: "Registering brain path...",
-        prog_global: "Enabling global awareness...",
-        prog_commands: "Installing commands...",
-        prog_hooks: "Setting up hooks...",
-        prog_git: "Configuring git...",
-        prog_done: "All done!"
+// ===== State =====
+const TOTAL_STEPS = 5;
+let currentStep = 0;
+
+const formData = {
+  language: '',
+  name: '',
+  role: '',
+  roleOther: '',
+  focus: '',
+  focusOther: '',
+  schedule: ''
+};
+
+// ===== i18n =====
+const i18n = {
+  en: {
+    name_title: "What's your name?",
+    name_desc: "This is how your AI will address you.",
+    name_label: "Your name",
+    role_title: "What do you do?",
+    role_desc: "This helps Loci understand your context.",
+    role_dev: "Developer",
+    role_design: "Designer",
+    role_creator: "Creator",
+    role_student: "Student",
+    role_other: "Other",
+    role_other_label: "Describe your role",
+    focus_title: "What's your main focus right now?",
+    focus_desc: "Your most important priority — Loci will help you stay on track.",
+    focus_ship: "Ship a product",
+    focus_learn: "Learn a skill",
+    focus_audience: "Build an audience",
+    focus_job: "Get a job",
+    focus_other: "Other",
+    focus_other_label: "Describe your focus",
+    schedule_title: "When do you usually work?",
+    schedule_desc: "Loci will adapt its check-ins to your rhythm.",
+    sched_morning: "Morning",
+    sched_day: "Daytime",
+    sched_evening: "Evening",
+    sched_night: "Night owl",
+    sched_irregular: "Irregular",
+    sched_varies: "Varies",
+    review_title: "Review your setup",
+    review_desc: "Everything look good? You can edit anything before creating your brain.",
+    create_btn: "CREATE MY BRAIN",
+    creating_title: "Creating your brain...",
+    success_title: "Brain Ready!",
+    success_desc: "Your memory palace has been initialized. Start a conversation and Loci will remember everything important.",
+    next_steps_title: "Next Steps",
+    next_step_1: "Open your terminal in the brain folder",
+    next_step_3: "Start talking — Loci handles the rest",
+    back: "Back",
+    next: "Next",
+    retry: "Retry",
+    review_language: "Language",
+    review_name: "Name",
+    review_role: "Role",
+    review_focus: "Focus",
+    review_schedule: "Schedule",
+    edit: "Edit",
+    subtitle: "Memory Palace for AI",
+    prog_identity: "Writing identity...",
+    prog_plan: "Setting up life plan...",
+    prog_tasks: "Creating task system...",
+    prog_config: "Configuring preferences...",
+    prog_brain_path: "Registering brain path...",
+    prog_global: "Enabling global awareness...",
+    prog_commands: "Installing commands...",
+    prog_hooks: "Setting up hooks...",
+    prog_git: "Configuring git safety...",
+    prog_done: "All done!"
+  },
+  zh: {
+    name_title: "你叫什么名字?",
+    name_desc: "AI 会用这个名字称呼你。",
+    name_label: "你的名字",
+    role_title: "你是做什么的?",
+    role_desc: "帮助 Loci 理解你的背景。",
+    role_dev: "开发者",
+    role_design: "设计师",
+    role_creator: "创作者",
+    role_student: "学生",
+    role_other: "其他",
+    role_other_label: "描述你的角色",
+    focus_title: "你现在最重要的事是什么?",
+    focus_desc: "你的首要目标 — Loci 会帮你保持专注。",
+    focus_ship: "发布产品",
+    focus_learn: "学习技能",
+    focus_audience: "积累受众",
+    focus_job: "找工作",
+    focus_other: "其他",
+    focus_other_label: "描述你的重点",
+    schedule_title: "你通常什么时候工作?",
+    schedule_desc: "Loci 会根据你的作息来调整提醒。",
+    sched_morning: "早起型",
+    sched_day: "白天",
+    sched_evening: "傍晚",
+    sched_night: "夜猫子",
+    sched_irregular: "不固定",
+    sched_varies: "随机应变",
+    review_title: "确认你的设置",
+    review_desc: "看看是否都对? 创建前可以随时修改。",
+    create_btn: "创建我的大脑",
+    creating_title: "正在创建你的大脑...",
+    success_title: "大脑就绪!",
+    success_desc: "你的记忆宫殿已经初始化。开始对话吧，Loci 会帮你记住重要的一切。",
+    next_steps_title: "下一步",
+    next_step_1: "在 brain 文件夹打开终端",
+    next_step_3: "开始聊天 — Loci 搞定一切",
+    back: "返回",
+    next: "下一步",
+    retry: "重试",
+    review_language: "语言",
+    review_name: "名字",
+    review_role: "角色",
+    review_focus: "重点",
+    review_schedule: "作息",
+    edit: "编辑",
+    subtitle: "AI 的记忆宫殿",
+    prog_identity: "写入身份信息...",
+    prog_plan: "设置人生方向...",
+    prog_tasks: "创建任务系统...",
+    prog_config: "配置偏好...",
+    prog_brain_path: "注册大脑路径...",
+    prog_global: "启用全局感知...",
+    prog_commands: "安装命令...",
+    prog_hooks: "配置钩子...",
+    prog_git: "设置 git 安全...",
+    prog_done: "全部完成!"
+  },
+  mix: {
+    name_title: "你叫什么名字?",
+    name_desc: "AI 会用这个名字称呼你。",
+    name_label: "你的名字",
+    role_title: "你是做什么的?",
+    role_desc: "帮 Loci 理解你的 context.",
+    role_dev: "Developer",
+    role_design: "Designer",
+    role_creator: "Creator",
+    role_student: "Student",
+    role_other: "Other",
+    role_other_label: "描述你的 role",
+    focus_title: "现在最 focus 的事是什么?",
+    focus_desc: "你的 top priority — Loci 帮你 stay on track.",
+    focus_ship: "Ship a product",
+    focus_learn: "学习 skill",
+    focus_audience: "Build audience",
+    focus_job: "找工作",
+    focus_other: "Other",
+    focus_other_label: "描述你的 focus",
+    schedule_title: "你通常什么时候 work?",
+    schedule_desc: "Loci 会 adapt 到你的节奏。",
+    sched_morning: "Morning",
+    sched_day: "Daytime",
+    sched_evening: "Evening",
+    sched_night: "Night owl",
+    sched_irregular: "不固定",
+    sched_varies: "Varies",
+    review_title: "Review 你的设置",
+    review_desc: "都对吗? Create 前可以随时改。",
+    create_btn: "CREATE MY BRAIN",
+    creating_title: "正在 creating 你的 brain...",
+    success_title: "Brain Ready!",
+    success_desc: "你的 memory palace 已经 ready. Start 对话，Loci 会 remember everything important.",
+    next_steps_title: "Next Steps",
+    next_step_1: "在 brain 文件夹打开 terminal",
+    next_step_3: "Start chatting — Loci handles the rest",
+    back: "Back",
+    next: "Next",
+    retry: "Retry",
+    review_language: "Language",
+    review_name: "Name",
+    review_role: "Role",
+    review_focus: "Focus",
+    review_schedule: "Schedule",
+    edit: "Edit",
+    subtitle: "AI 的 Memory Palace",
+    prog_identity: "Writing identity...",
+    prog_plan: "Setting up plan...",
+    prog_tasks: "Creating tasks...",
+    prog_config: "Configuring...",
+    prog_brain_path: "Registering brain path...",
+    prog_global: "Enabling global awareness...",
+    prog_commands: "Installing commands...",
+    prog_hooks: "Setting up hooks...",
+    prog_git: "Configuring git...",
+    prog_done: "All done!"
+  }
+};
+
+function t(key) {
+  const lang = formData.language || 'en';
+  return (i18n[lang] && i18n[lang][key]) || i18n.en[key] || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = t(key);
+    if (text) el.textContent = text;
+  });
+  document.getElementById('logoSubtitle').textContent = t('subtitle');
+}
+
+// ===== Seahorse rendering (from v3) =====
+function getGradientColor(row, total) {
+  const t = row / total;
+  return `rgb(${Math.round(155+(26-155)*t)},${Math.round(89+(188-89)*t)},${Math.round(182+(156-182)*t)})`;
+}
+
+let seahorseChars = [];
+
+function renderSeahorse() {
+  const el = document.getElementById('seahorse');
+  if (!el) return [];
+  const lines = SEAHORSE_ART.split('\n');
+  const chars = [];
+  lines.forEach((line, ri) => {
+    const color = getGradientColor(ri, lines.length);
+    for (const ch of line) {
+      if (ch === ' ') {
+        el.appendChild(document.createTextNode(' '));
+      } else {
+        const s = document.createElement('span');
+        s.className = 'char';
+        s.textContent = ch;
+        s.style.color = color;
+        s.dataset.origColor = color;
+        el.appendChild(s);
+        chars.push(s);
       }
-    };
-
-    function t(key) {
-      const lang = formData.language || 'en';
-      return (i18n[lang] && i18n[lang][key]) || i18n.en[key] || key;
     }
+    el.appendChild(document.createTextNode('\n'));
+  });
+  return chars;
+}
 
-    function applyI18n() {
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        const text = t(key);
-        if (text) el.textContent = text;
-      });
-      document.getElementById('logoSubtitle').textContent = t('subtitle');
+function fireSpark(chars) {
+  if (!chars.length) return;
+  const el = chars[Math.random() * chars.length | 0];
+  const orig = el.textContent;
+  const sparks = '\u25c6\u25c8\u223f\u25cf\u25c9\u2b21\u2b22\u2726\u2727';
+  el.classList.add('spark');
+  if (Math.random() > 0.5) el.textContent = sparks[Math.random() * sparks.length | 0];
+  setTimeout(() => { el.classList.remove('spark'); el.textContent = orig; }, 150 + Math.random() * 200);
+}
+
+// ===== Particles & Bubbles (from v3) =====
+function createParticles() {
+  const colors = ['rgba(155,89,182,0.35)', 'rgba(26,188,156,0.3)', 'rgba(255,255,255,0.15)'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.random() * colors.length | 0];
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = -(Math.random() * 20) + 's';
+    const size = 1.5 + Math.random() * 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    document.body.appendChild(p);
+  }
+  for (let i = 0; i < 15; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = Math.random() * 100 + 'vw';
+    const size = 4 + Math.random() * 10;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.animationDuration = (12 + Math.random() * 20) + 's';
+    b.style.animationDelay = -(Math.random() * 25) + 's';
+    document.body.appendChild(b);
+  }
+}
+
+// ===== Jellyfish trail (from v3) =====
+const jellyColors = [
+  { bell: 'rgba(155,89,182,0.35)', tentacle: 'rgba(155,89,182,0.2)' },
+  { bell: 'rgba(120,100,200,0.3)', tentacle: 'rgba(120,100,200,0.18)' },
+  { bell: 'rgba(26,188,156,0.25)', tentacle: 'rgba(26,188,156,0.15)' },
+  { bell: 'rgba(180,120,220,0.3)', tentacle: 'rgba(180,120,220,0.18)' },
+];
+
+let lastJellyTime = 0;
+
+function spawnJellyfish(x, y) {
+  const c = jellyColors[Math.random() * jellyColors.length | 0];
+  const size = 12 + Math.random() * 16;
+  const el = document.createElement('div');
+  el.className = 'jellyfish';
+  el.style.left = (x - size/2) + 'px';
+  el.style.top = (y - size/3) + 'px';
+  const drift = (Math.random() - 0.5) * 40;
+  el.style.setProperty('--drift', drift + 'px');
+
+  const w = size, h = size * 1.8;
+  const bellH = size * 0.55;
+  const tentacleCount = 3 + (Math.random() * 2 | 0);
+
+  let tentacles = '';
+  for (let i = 0; i < tentacleCount; i++) {
+    const tx = w * 0.2 + (w * 0.6 / (tentacleCount - 1)) * i;
+    const tLen = h * 0.35 + Math.random() * h * 0.2;
+    const cp1x = tx + (Math.random() - 0.5) * 6;
+    const cp1y = bellH + tLen * 0.4;
+    const endX = tx + (Math.random() - 0.5) * 8;
+    tentacles += `<path class="jelly-tentacle" d="M${tx},${bellH} Q${cp1x},${cp1y} ${endX},${bellH + tLen}" stroke="${c.tentacle}" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  }
+
+  el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <ellipse class="jelly-bell" cx="${w/2}" cy="${bellH * 0.6}" rx="${w * 0.45}" ry="${bellH * 0.55}" fill="${c.bell}" stroke="${c.tentacle}" stroke-width="0.5"/>
+    <ellipse cx="${w/2}" cy="${bellH * 0.4}" rx="${w * 0.2}" ry="${bellH * 0.2}" fill="rgba(255,255,255,0.08)"/>
+    ${tentacles}
+  </svg>`;
+
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+document.addEventListener('mousemove', (e) => {
+  const now = Date.now();
+  if (now - lastJellyTime > 200) {
+    lastJellyTime = now;
+    if (Math.random() > 0.35) {
+      spawnJellyfish(e.clientX, e.clientY);
     }
+  }
+});
 
-    // ===== Progress dots =====
-    function renderProgressDots() {
-      const bar = document.getElementById('progressBar');
-      bar.innerHTML = '';
-      const formSteps = 6; // steps 0-5 (lang, name, role, focus, schedule, review)
-      for (let i = 0; i < formSteps; i++) {
-        if (i > 0) {
-          const line = document.createElement('div');
-          line.className = 'progress-line' + (i <= currentStep ? ' done' : '');
-          bar.appendChild(line);
-        }
-        const dot = document.createElement('div');
-        dot.className = 'progress-dot';
-        if (i < currentStep) dot.classList.add('done');
-        if (i === currentStep) dot.classList.add('current');
-        bar.appendChild(dot);
+// ===== Reveal lines (from v3, welcome step only) =====
+const revealLines = document.querySelectorAll('.reveal-line');
+let currentLine = 0;
+let prevLine = -1;
+const BREATHE_DURATION = 1800;
+
+function cycleRevealLines() {
+  revealLines.forEach((l, i) => {
+    if (i !== currentLine) {
+      l.classList.remove('bright');
+      if (i === prevLine) {
+        l.classList.add('fading');
+        setTimeout(() => l.classList.remove('fading'), 1200);
       }
     }
+  });
+  revealLines[currentLine].classList.remove('fading');
+  revealLines[currentLine].classList.add('bright');
+  prevLine = currentLine;
+  currentLine = (currentLine + 1) % revealLines.length;
+  setTimeout(cycleRevealLines, BREATHE_DURATION);
+}
 
-    // ===== Option selection =====
-    function selectOption(card, field) {
-      const container = card.parentElement;
-      container.querySelectorAll('.option-card').forEach(c => {
-        c.classList.remove('selected');
-        c.setAttribute('aria-pressed', 'false');
-      });
-      card.classList.add('selected');
-      card.setAttribute('aria-pressed', 'true');
-      formData[field] = card.dataset.value;
-
-      // Ripple effect
-      const ripple = document.createElement('span');
-      ripple.className = 'ripple';
-      const rect = card.getBoundingClientRect();
-      ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
-      ripple.style.left = '0px';
-      ripple.style.top = '0px';
-      card.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
-
-      // Show/hide "Other" input
-      if (field === 'role') {
-        const otherDiv = document.getElementById('roleOther');
-        otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
-        if (card.dataset.value === 'Other') {
-          setTimeout(() => document.getElementById('roleOtherInput').focus(), 300);
-        }
-      }
-      if (field === 'focus') {
-        const otherDiv = document.getElementById('focusOther');
-        otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
-        if (card.dataset.value === 'Other') {
-          setTimeout(() => document.getElementById('focusOtherInput').focus(), 300);
-        }
-      }
-
-      validateStep();
-
-      // Auto-advance for language step (after short delay)
-      if (field === 'language') {
-        applyI18n();
-        setTimeout(goNext, 400);
-      }
+// ===== Progress dots =====
+function renderProgressDots() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  const formSteps = 6;
+  for (let i = 0; i < formSteps; i++) {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'progress-line' + (i <= currentStep ? ' done' : '');
+      bar.appendChild(line);
     }
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (i < currentStep) dot.classList.add('done');
+    if (i === currentStep) dot.classList.add('current');
+    bar.appendChild(dot);
+  }
+}
 
-    // Keyboard support for option cards
-    document.addEventListener('keydown', (e) => {
-      if (e.target.classList.contains('option-card') && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault();
-        e.target.click();
-      }
+// ===== Option selection =====
+function selectOption(card, field) {
+  const container = card.parentElement;
+  container.querySelectorAll('.option-card').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  card.classList.add('selected');
+  card.setAttribute('aria-pressed', 'true');
+  formData[field] = card.dataset.value;
+
+  // Ripple effect
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  const rect = card.getBoundingClientRect();
+  ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+  ripple.style.left = '0px';
+  ripple.style.top = '0px';
+  card.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+
+  // Show/hide "Other" input
+  if (field === 'role') {
+    const otherDiv = document.getElementById('roleOther');
+    otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
+    if (card.dataset.value === 'Other') {
+      setTimeout(() => document.getElementById('roleOtherInput').focus(), 300);
+    }
+  }
+  if (field === 'focus') {
+    const otherDiv = document.getElementById('focusOther');
+    otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
+    if (card.dataset.value === 'Other') {
+      setTimeout(() => document.getElementById('focusOtherInput').focus(), 300);
+    }
+  }
+
+  validateStep();
+
+  // Auto-advance for language step
+  if (field === 'language') {
+    applyI18n();
+    setTimeout(goNext, 400);
+  }
+}
+
+// Keyboard support for option cards
+document.addEventListener('keydown', (e) => {
+  if (e.target.classList.contains('option-card') && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    e.target.click();
+  }
+});
+
+// ===== Validation =====
+function validateStep() {
+  const nextBtn = document.getElementById('nextBtn');
+  let valid = false;
+
+  switch (currentStep) {
+    case 0: valid = !!formData.language; break;
+    case 1: valid = document.getElementById('nameInput').value.trim().length > 0; break;
+    case 2:
+      valid = !!formData.role;
+      if (formData.role === 'Other') valid = !!formData.roleOther.trim();
+      break;
+    case 3:
+      valid = !!formData.focus;
+      if (formData.focus === 'Other') valid = !!formData.focusOther.trim();
+      break;
+    case 4: valid = !!formData.schedule; break;
+    case 5: valid = true; break;
+  }
+
+  nextBtn.disabled = !valid;
+}
+
+// ===== Navigation =====
+function showStep(step, direction) {
+  const oldStep = document.querySelector('.step.active');
+  const newStep = document.getElementById('step-' + step);
+  if (!newStep) return;
+
+  if (oldStep) {
+    oldStep.classList.remove('active', 'slide-in-right', 'slide-in-left');
+  }
+
+  newStep.classList.add('active');
+  newStep.classList.add(direction === 'forward' ? 'slide-in-right' : 'slide-in-left');
+
+  currentStep = step;
+  renderProgressDots();
+  validateStep();
+
+  // Show/hide nav buttons
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const btnRow = document.getElementById('btnRow');
+
+  if (step >= 6) {
+    btnRow.style.display = 'none';
+  } else {
+    btnRow.style.display = 'flex';
+    prevBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
+    nextBtn.style.display = step === 5 ? 'none' : 'inline-flex';
+  }
+
+  // Focus management
+  if (step === 1) {
+    setTimeout(() => document.getElementById('nameInput').focus(), 400);
+  }
+
+  // Build review
+  if (step === 5) buildReview();
+}
+
+function goNext() {
+  if (currentStep === 1) {
+    formData.name = document.getElementById('nameInput').value.trim();
+  }
+  if (currentStep < 7) {
+    showStep(currentStep + 1, 'forward');
+  }
+}
+
+function goPrev() {
+  if (currentStep > 0) {
+    showStep(currentStep - 1, 'backward');
+  }
+}
+
+// ===== Review =====
+function buildReview() {
+  const list = document.getElementById('reviewList');
+  const langDisplay = { en: 'English', zh: '中文', mix: '中英混合' };
+  const role = formData.role === 'Other' ? formData.roleOther : formData.role;
+  const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
+
+  const items = [
+    { key: 'review_language', value: langDisplay[formData.language] || formData.language, step: 0 },
+    { key: 'review_name', value: formData.name, step: 1 },
+    { key: 'review_role', value: role, step: 2 },
+    { key: 'review_focus', value: focus, step: 3 },
+    { key: 'review_schedule', value: formData.schedule, step: 4 }
+  ];
+
+  list.innerHTML = items.map(item => `
+    <li class="review-item">
+      <div>
+        <div class="review-label">${t(item.key)}</div>
+        <div class="review-value">${item.value}</div>
+      </div>
+      <button class="edit-btn" onclick="showStep(${item.step}, 'backward')">${t('edit')}</button>
+    </li>
+  `).join('');
+}
+
+// ===== Create Brain =====
+async function createBrain() {
+  document.getElementById('errorBox').classList.remove('visible');
+
+  // Go to progress step
+  showStep(6, 'forward');
+
+  const progressSteps = [
+    'prog_identity', 'prog_plan', 'prog_tasks', 'prog_config',
+    'prog_brain_path', 'prog_global', 'prog_commands', 'prog_hooks',
+    'prog_git', 'prog_done'
+  ];
+
+  // Build progress log
+  const logEl = document.getElementById('progressLog');
+  logEl.innerHTML = progressSteps.map((key, i) => `
+    <div class="progress-log-item" id="prog-${i}">
+      <span class="check"></span>
+      <span>${t(key)}</span>
+    </div>
+  `).join('');
+
+  // Animate items appearing
+  progressSteps.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById('prog-' + i);
+      if (el) el.classList.add('visible');
+    }, i * 100);
+  });
+
+  try {
+    const role = formData.role === 'Other' ? formData.roleOther : formData.role;
+    const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
+
+    const res = await fetch('/api/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        language: formData.language,
+        name: formData.name,
+        role: role,
+        focus: focus,
+        schedule: formData.schedule
+      })
     });
 
-    // ===== Validation =====
-    function validateStep() {
-      const nextBtn = document.getElementById('nextBtn');
-      let valid = false;
+    const data = await res.json();
 
-      switch (currentStep) {
-        case 0: valid = !!formData.language; break;
-        case 1: valid = document.getElementById('nameInput').value.trim().length > 0; break;
-        case 2:
-          valid = !!formData.role;
-          if (formData.role === 'Other') valid = !!formData.roleOther.trim();
-          break;
-        case 3:
-          valid = !!formData.focus;
-          if (formData.focus === 'Other') valid = !!formData.focusOther.trim();
-          break;
-        case 4: valid = !!formData.schedule; break;
-        case 5: valid = true; break;
-      }
-
-      nextBtn.disabled = !valid;
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Setup failed');
     }
 
-    // ===== Navigation =====
-    function showStep(step, direction) {
-      const oldStep = document.querySelector('.step.active');
-      const newStep = document.getElementById('step-' + step);
-      if (!newStep) return;
+    // Animate progress
+    const ring = document.getElementById('progressRing');
+    const percentEl = document.getElementById('progressPercent');
+    const totalItems = progressSteps.length;
 
-      if (oldStep) {
-        oldStep.classList.remove('active', 'slide-in-right', 'slide-in-left');
+    for (let i = 0; i < totalItems; i++) {
+      await new Promise(r => setTimeout(r, 300));
+      const el = document.getElementById('prog-' + i);
+      if (el) {
+        el.classList.add('done');
+        el.querySelector('.check').textContent = '\u2713';
       }
-
-      newStep.classList.add('active');
-      newStep.classList.add(direction === 'forward' ? 'slide-in-right' : 'slide-in-left');
-
-      currentStep = step;
-      renderProgressDots();
-      validateStep();
-
-      // Show/hide nav buttons
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const btnRow = document.getElementById('btnRow');
-
-      if (step >= 6) {
-        btnRow.style.display = 'none';
-      } else {
-        btnRow.style.display = 'flex';
-        prevBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
-        nextBtn.style.display = step === 5 ? 'none' : 'inline-flex';
-      }
-
-      // Focus management
-      if (step === 1) {
-        setTimeout(() => document.getElementById('nameInput').focus(), 400);
-      }
-
-      // Build review
-      if (step === 5) buildReview();
+      const pct = Math.round(((i + 1) / totalItems) * 100);
+      percentEl.textContent = pct + '%';
+      ring.style.strokeDashoffset = 314 - (314 * pct / 100);
     }
 
-    function goNext() {
-      if (currentStep === 1) {
-        formData.name = document.getElementById('nameInput').value.trim();
-      }
-      if (currentStep < 7) {
-        showStep(currentStep + 1, 'forward');
-      }
-    }
+    // Show success
+    await new Promise(r => setTimeout(r, 500));
+    showStep(7, 'forward');
 
-    function goPrev() {
-      if (currentStep > 0) {
-        showStep(currentStep - 1, 'backward');
-      }
-    }
+    // Confetti
+    launchConfetti();
 
-    // ===== Review =====
-    function buildReview() {
-      const list = document.getElementById('reviewList');
-      const langDisplay = { en: 'English', zh: '中文', mix: '中英混合' };
-      const role = formData.role === 'Other' ? formData.roleOther : formData.role;
-      const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
+  } catch (err) {
+    // Go back to review and show error
+    showStep(5, 'backward');
+    const errorBox = document.getElementById('errorBox');
+    document.getElementById('errorMsg').textContent = err.message;
+    errorBox.classList.add('visible');
+  }
+}
 
-      const items = [
-        { key: 'review_language', value: langDisplay[formData.language] || formData.language, step: 0 },
-        { key: 'review_name', value: formData.name, step: 1 },
-        { key: 'review_role', value: role, step: 2 },
-        { key: 'review_focus', value: focus, step: 3 },
-        { key: 'review_schedule', value: formData.schedule, step: 4 }
-      ];
+// ===== Confetti =====
+function launchConfetti() {
+  const colors = ['#9b59b6', '#1abc9c', '#c9a0dc', '#44aaff', '#e67e22', '#e74c3c'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.top = '-10px';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (4 + Math.random() * 8) + 'px';
+      piece.style.height = (4 + Math.random() * 8) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 5000);
+    }, i * 30);
+  }
+}
 
-      list.innerHTML = items.map(item => `
-        <li class="review-item">
-          <div>
-            <div class="review-label">${t(item.key)}</div>
-            <div class="review-value">${item.value}</div>
-          </div>
-          <button class="edit-btn" onclick="showStep(${item.step}, 'backward')">${t('edit')}</button>
-        </li>
-      `).join('');
-    }
+// ===== Init =====
+document.getElementById('lociTitle').textContent = LOCI_TEXT;
+seahorseChars = renderSeahorse();
+createParticles();
+renderProgressDots();
 
-    // ===== Create Brain =====
-    async function createBrain() {
-      document.getElementById('errorBox').classList.remove('visible');
+// Start reveal lines animation
+setTimeout(cycleRevealLines, 600);
 
-      // Go to progress step
-      showStep(6, 'forward');
-
-      const progressSteps = [
-        'prog_identity', 'prog_plan', 'prog_tasks', 'prog_config',
-        'prog_brain_path', 'prog_global', 'prog_commands', 'prog_hooks',
-        'prog_git', 'prog_done'
-      ];
-
-      // Build progress log
-      const logEl = document.getElementById('progressLog');
-      logEl.innerHTML = progressSteps.map((key, i) => `
-        <div class="progress-log-item" id="prog-${i}">
-          <span class="check"></span>
-          <span>${t(key)}</span>
-        </div>
-      `).join('');
-
-      // Animate items appearing
-      progressSteps.forEach((_, i) => {
-        setTimeout(() => {
-          const el = document.getElementById('prog-' + i);
-          if (el) el.classList.add('visible');
-        }, i * 100);
-      });
-
-      try {
-        const role = formData.role === 'Other' ? formData.roleOther : formData.role;
-        const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
-
-        const res = await fetch('/api/setup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language: formData.language,
-            name: formData.name,
-            role: role,
-            focus: focus,
-            schedule: formData.schedule
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Setup failed');
-        }
-
-        // Animate progress
-        const ring = document.getElementById('progressRing');
-        const percentEl = document.getElementById('progressPercent');
-        const totalItems = progressSteps.length;
-
-        for (let i = 0; i < totalItems; i++) {
-          await new Promise(r => setTimeout(r, 300));
-          const el = document.getElementById('prog-' + i);
-          if (el) {
-            el.classList.add('done');
-            el.querySelector('.check').textContent = '\u2713';
-          }
-          const pct = Math.round(((i + 1) / totalItems) * 100);
-          percentEl.textContent = pct + '%';
-          ring.style.strokeDashoffset = 314 - (314 * pct / 100);
-        }
-
-        // Show success
-        await new Promise(r => setTimeout(r, 500));
-        showStep(7, 'forward');
-
-        // Confetti
-        launchConfetti();
-
-      } catch (err) {
-        // Go back to review and show error
-        showStep(5, 'backward');
-        const errorBox = document.getElementById('errorBox');
-        document.getElementById('errorMsg').textContent = err.message;
-        errorBox.classList.add('visible');
-      }
-    }
-
-    // ===== Confetti =====
-    function launchConfetti() {
-      const colors = ['#00d4aa', '#7c3aed', '#10b981', '#44aaff', '#ffaa44', '#ff4466'];
-      for (let i = 0; i < 80; i++) {
-        setTimeout(() => {
-          const piece = document.createElement('div');
-          piece.className = 'confetti-piece';
-          piece.style.left = Math.random() * 100 + 'vw';
-          piece.style.top = '-10px';
-          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-          piece.style.width = (4 + Math.random() * 8) + 'px';
-          piece.style.height = (4 + Math.random() * 8) + 'px';
-          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-          piece.style.animationDuration = (2 + Math.random() * 3) + 's';
-          document.body.appendChild(piece);
-          setTimeout(() => piece.remove(), 5000);
-        }, i * 30);
-      }
-    }
-
-    // ===== Background particles =====
-    function initParticles() {
-      const canvas = document.getElementById('particles');
-      const ctx = canvas.getContext('2d');
-      let particles = [];
-      let w, h;
-
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-      }
-
-      resize();
-      window.addEventListener('resize', resize);
-
-      for (let i = 0; i < 40; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          r: Math.random() * 1.5 + 0.5,
-          a: Math.random() * 0.3 + 0.1
-        });
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0) p.x = w;
-          if (p.x > w) p.x = 0;
-          if (p.y < 0) p.y = h;
-          if (p.y > h) p.y = 0;
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0, 212, 170, ${p.a})`;
-          ctx.fill();
-        });
-
-        // Draw connections
-        for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 150) {
-              ctx.beginPath();
-              ctx.moveTo(particles[i].x, particles[i].y);
-              ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(0, 212, 170, ${0.05 * (1 - dist / 150)})`;
-              ctx.stroke();
-            }
-          }
-        }
-
-        requestAnimationFrame(draw);
-      }
-
-      draw();
-    }
-
-    // ===== Init =====
-    renderProgressDots();
-    initParticles();
-  </script>
+// Seahorse spark animation
+(function sparkLoop() {
+  setTimeout(() => {
+    for (let i = 0; i < 1 + (Math.random() * 3 | 0); i++) fireSpark(seahorseChars);
+    sparkLoop();
+  }, 300 + Math.random() * 700);
+})();
+</script>
 </body>
 </html>
