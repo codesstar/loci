@@ -3,7 +3,7 @@
 # Interactive setup script. Pure bash, zero dependencies.
 # Inspired by oh-my-zsh, rustup, and create-next-app.
 
-set -e
+# Note: NOT using set -e — interactive reads return non-zero which would kill the script
 
 # ─── Colors & Formatting ────────────────────────────────────────────────────
 CYAN='\033[0;36m'
@@ -204,51 +204,27 @@ LIGHT_TEAL='\033[96m'
 # ─── ASCII Art Logo ──────────────────────────────────────────────────────────
 show_logo() {
   clear
-  echo ""
-  # Seahorse — purple-to-teal gradient, matching v3.html
-  echo -e "${LIGHT_PURPLE}                    ,${NC}"
-  echo -e "${LIGHT_PURPLE}               ,   /^\\     ___${NC}"
-  echo -e "${LIGHT_PURPLE}              /^\\_/   \`...'  /\`${NC}"
-  echo -e "${LIGHT_PURPLE}           ,__\\    ,'     ~ (${NC}"
-  echo -e "${LIGHT_PURPLE}        ,___\\ ,,    .,       \\${NC}"
-  echo -e "${PURPLE}         \\__ \\\\ .'.'   .-.  )${NC}"
-  echo -e "${PURPLE}           .'.-\\\\' \\'.  '-. (${NC}"
-  echo -e "${PURPLE}          / (==== .\"\".  ( ◉ ) \\${NC}"
-  echo -e "${PURPLE}        ,/   \`~~~'|  /   \`-'   )${NC}"
-  echo -e "${PURPLE}       \"\")      |~| \`\"\"\".  ~_ /${NC}"
-  echo -e "${PURPLE}         /       \\~\\     \".  \\\\${NC}"
-  echo -e "${TEAL} _      /    ·    ~\\      \". \\\\${NC}"
-  echo -e "${TEAL}( \\     )  ──┼── \\~\\      \". \\\\${NC}"
-  echo -e "${TEAL}(_ (\\   /    ·     ~|       \". \`\\${NC}"
-  echo -e "${TEAL}(_ _ \\  )  ─┼─┼─ |~|        \". \`\\.${NC}"
-  echo -e "${TEAL}(_ = _\\ \\   ·  ·   ~|          \".\`.;${NC}"
-  echo -e "${TEAL}(_ -(   \\_) ─┼─┼─ |~|            \"\"${NC}"
-  echo -e "${LIGHT_TEAL}(_ =   (     ·  ·   ~|${NC}"
-  echo -e "${LIGHT_TEAL}(_ -  ( ~  =      ════|~/${NC}"
-  echo -e "${LIGHT_TEAL} (_  =     (_           /${NC}"
-  echo -e "${LIGHT_TEAL}  (_-   ~_( /\\        ,\"${NC}"
-  echo -e "${LIGHT_TEAL}   (_ =  _/   |     .\"${NC}"
-  echo -e "${LIGHT_TEAL}    (_  (/    |    .(${NC}"
-  echo -e "${LIGHT_TEAL}     (\\_/     )    /${NC}"
-  echo -e "${LIGHT_TEAL}             /    (${NC}"
-  echo -e "${LIGHT_TEAL}            |     /${NC}"
-  echo -e "${LIGHT_TEAL}            |    (       ____${NC}"
-  echo -e "${LIGHT_TEAL}            |    (    .-'    \`-.${NC}"
-  echo -e "${LIGHT_TEAL}             \\    \\  / ' .--.  \\${NC}"
-  echo -e "${LIGHT_TEAL}              \\    \\ |  '  \`  ;  |${NC}"
-  echo -e "${LIGHT_TEAL}               \\    :\`. \`-'  ;  |${NC}"
-  echo -e "${LIGHT_TEAL}                \`-   \`._ _ _.'^'./${NC}"
-  echo -e "${LIGHT_TEAL}                   \"-  .-\`\`\`_=~._/${NC}"
-  echo -e "${LIGHT_TEAL}                      \`\"------\"'${NC}"
-  echo ""
-  echo -e "${PURPLE} ██       ██████   ██████  ██${NC}"
-  echo -e "${PURPLE} ██      ██    ██ ██       ██${NC}"
-  echo -e "${PURPLE} ██      ██    ██ ██       ██${NC}"
-  echo -e "${PURPLE} ██      ██    ██ ██       ██${NC}"
-  echo -e "${PURPLE} ███████  ██████   ██████  ██${NC}"
-  echo ""
-  echo -e "  ${DIM}Memory Palace for AI${NC}"
-  echo ""
+  printf "\n"
+  # Compact seahorse — fits any terminal
+  printf "${LIGHT_PURPLE}           ,  /^\\    ___${NC}\n"
+  printf "${LIGHT_PURPLE}          /^\\_/ '...'  /\`${NC}\n"
+  printf "${PURPLE}        ,__\\   ,'    ~ (${NC}\n"
+  printf "${PURPLE}        \\__ \\\\.'  .-.  )${NC}\n"
+  printf "${PURPLE}         / (=== ( ${LIGHT_TEAL}◉${PURPLE} ) \\${NC}\n"
+  printf "${TEAL}       ,/  ~~~|  \`-'  )${NC}\n"
+  printf "${TEAL}      \"\")   |~| \"\"\" ~/${NC}\n"
+  printf "${TEAL}       /    \\~\\   \". \\\\${NC}\n"
+  printf "${LIGHT_TEAL}      (_  =  (_    /${NC}\n"
+  printf "${LIGHT_TEAL}       (_   _/ | .\"${NC}\n"
+  printf "${LIGHT_TEAL}        (\\_/   )/${NC}\n"
+  printf "\n"
+  printf "${PURPLE}  ██       ██████   ██████  ██${NC}\n"
+  printf "${PURPLE}  ██      ██    ██ ██       ██${NC}\n"
+  printf "${PURPLE}  ██      ██    ██ ██       ██${NC}\n"
+  printf "${PURPLE}  ███████  ██████   ██████  ██${NC}\n"
+  printf "\n"
+  printf "  ${DIM}Memory Palace for AI${NC}\n"
+  printf "\n"
 }
 
 # ─── Step 0: Pre-flight Checks ──────────────────────────────────────────────
@@ -688,41 +664,33 @@ show_success() {
   esac
 
   clear
-  echo ""
-  echo -e "${LIGHT_PURPLE}               ,   /^\\     ___${NC}"
-  echo -e "${LIGHT_PURPLE}              /^\\_/   \`...'  /\`${NC}"
-  echo -e "${PURPLE}           ,__\\    ,'     ~ (${NC}"
-  echo -e "${PURPLE}          / (==== .\"\".  ( ◉ ) \\${NC}    ${GREEN}$(t "Your brain is ready!" "你的大脑准备好了！")${NC}"
-  echo -e "${TEAL}( \\     )  ──┼── \\~\\      \". \\\\${NC}"
-  echo -e "${TEAL}(_ _ \\  )  ─┼─┼─ |~|        \". \`\\.${NC}"
-  echo -e "${LIGHT_TEAL} (_  =     (_           /${NC}"
-  echo -e "${LIGHT_TEAL}    (_  (/    |    .(${NC}"
-  echo -e "${LIGHT_TEAL}             /    (${NC}"
-  echo ""
-  echo -e "  ${BOLD_CYAN}┌─────────────────────────────────────────────────────┐${NC}"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${DIM}$(t "Name" "名字")${NC}        ${WHITE}${USER_NAME}${NC}"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${DIM}$(t "Language" "语言")${NC}    ${WHITE}${lang_label}${NC}"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${DIM}$(t "Schedule" "作息")${NC}    ${WHITE}${schedule_label}${NC}"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${DIM}$(t "Brain" "路径")${NC}       ${WHITE}${BRAIN_PATH}${NC}"
-  echo -e "  ${BOLD_CYAN}├─────────────────────────────────────────────────────┤${NC}"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${GREEN}✓${NC} me/identity.md      ${GREEN}✓${NC} .loci/config.yml"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${GREEN}✓${NC} plan.md              ${GREEN}✓${NC} ~/.claude/CLAUDE.md"
-  echo -e "  ${BOLD_CYAN}│${NC}  ${GREEN}✓${NC} tasks/active.md      ${GREEN}✓${NC} ~/.claude/commands/"
-  echo -e "  ${BOLD_CYAN}└─────────────────────────────────────────────────────┘${NC}"
-  echo ""
-  echo -e "  $(t "Next step" "下一步"):"
-  echo ""
-  echo -e "    ${BOLD}cd ${BRAIN_PATH} && claude${NC}"
-  echo ""
-  echo -e "  $(t "Your AI will remember the important things from now on." "从现在开始，你的 AI 会记住重要的事情。")"
-  echo ""
+  printf "\n"
+  printf "  ${GREEN}✓${NC} ${BOLD}$(t "Your brain is ready!" "你的大脑准备好了！")${NC}\n"
+  printf "\n"
+  printf "  ${DIM}$(t "Name" "名字")${NC}        ${WHITE}${USER_NAME}${NC}\n"
+  printf "  ${DIM}$(t "Language" "语言")${NC}    ${WHITE}${lang_label}${NC}\n"
+  printf "  ${DIM}$(t "Schedule" "作息")${NC}    ${WHITE}${schedule_label}${NC}\n"
+  printf "  ${DIM}$(t "Brain" "路径")${NC}       ${WHITE}${BRAIN_PATH}${NC}\n"
+  printf "\n"
+  printf "  ${DIM}$(t "Created" "已创建")${NC}\n"
+  printf "  ${GREEN}✓${NC} me/identity.md    ${GREEN}✓${NC} .loci/config.yml\n"
+  printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} ~/.claude/CLAUDE.md\n"
+  printf "  ${GREEN}✓${NC} tasks/active.md    ${GREEN}✓${NC} ~/.claude/commands/\n"
+  printf "\n"
+  printf "  $(t "Next step" "下一步"):\n"
+  printf "\n"
+  printf "    ${BOLD}cd ${BRAIN_PATH} && claude${NC}\n"
+  printf "\n"
+  printf "  $(t "Your AI will remember the important things from now on." "从现在开始，你的 AI 会记住重要的事情。")\n"
+  printf "\n"
 }
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 main() {
   show_logo
-  echo -e "  ${DIM}$(t "Press Enter to begin setup..." "按回车开始设置...")${NC}"
+  printf "  ${DIM}$(t "Press Enter to begin setup..." "按回车开始设置...")${NC}"
   read -rs
+  printf "\n"
   preflight
   collect_info
   generate_files
