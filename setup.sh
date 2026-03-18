@@ -675,6 +675,75 @@ CFGEOF
   ) &
   spin "$(t ".loci/config.yml" ".loci/config.yml")"
 
+  # --- .loci/dashboard/data.json (zero-dependency dashboard) ---
+  local about_json=""
+  if [ -n "$USER_ABOUT" ]; then
+    # Escape quotes and newlines for JSON
+    local escaped_about
+    escaped_about=$(printf '%s' "$USER_ABOUT" | sed 's/\\/\\\\/g; s/"/\\"/g; s/$/\\n/' | tr -d '\n' | sed 's/\\n$//')
+    about_json="<h2>About Me</h2><p>${escaped_about}</p>"
+  fi
+
+  mkdir -p "$BRAIN_PATH/.loci/dashboard"
+  (
+    cat > "$BRAIN_PATH/.loci/dashboard/data.json" << DJEOF
+{
+  "config": {
+    "title": "Loci Dashboard",
+    "username": "${USER_NAME}",
+    "description": "Memory Palace for AI"
+  },
+  "plan": {
+    "meta": { "created": "${today_date}", "updated": "${today_date}", "status": "active" },
+    "content": "<h1>Life Direction &amp; Goals</h1><blockquote>Your north star.</blockquote><h2>Current Goals</h2><h3>Goal 1: ${USER_FOCUS}</h3><ul><li>Status: Just started</li></ul>",
+    "filename": "plan.md",
+    "path": "plan.md"
+  },
+  "inbox": {
+    "content": "<h1>Inbox</h1><blockquote>Brain dump. Sort weekly.</blockquote>",
+    "meta": { "updated": "${today_date}" },
+    "items": []
+  },
+  "me": {
+    "identity": {
+      "meta": { "created": "${today_date}", "updated": "${today_date}", "tags": ["identity", "core"], "status": "active" },
+      "content": "<h1>Who I Am</h1><h2>Basics</h2><ul><li><strong>Name</strong>: ${USER_NAME}</li><li><strong>Role</strong>: ${USER_ROLE}</li></ul><h2>Current Season</h2><ul><li><strong>Focus</strong>: ${USER_FOCUS}</li></ul>${about_json}",
+      "filename": "identity.md",
+      "path": "me/identity.md"
+    },
+    "goals": { "meta": { "created": "${today_date}", "tags": ["goals"], "status": "template" }, "content": "<h1>Long-term Goals</h1>", "filename": "goals.md", "path": "me/goals.md" },
+    "values": { "meta": { "created": "${today_date}", "tags": ["values"], "status": "template" }, "content": "<h1>Values &amp; Principles</h1>", "filename": "values.md", "path": "me/values.md" },
+    "learned": { "meta": { "created": "${today_date}", "tags": ["learning"], "status": "template" }, "content": "<h1>What I've Learned</h1>", "filename": "learned.md", "path": "me/learned.md" },
+    "evolution": { "meta": { "created": "${today_date}", "tags": ["evolution"] }, "content": "<h1>Evolution Timeline</h1>", "filename": "evolution.md", "path": "me/evolution.md" },
+    "evolution_entries": []
+  },
+  "tasks": {
+    "active": {
+      "meta": { "updated": "${today_date}" },
+      "content": "<h1>Active Tasks</h1>",
+      "filename": "active.md",
+      "path": "tasks/active.md"
+    },
+    "someday": { "meta": { "updated": "" }, "content": "<h1>Someday / Maybe</h1>", "filename": "someday.md", "path": "tasks/someday.md" },
+    "active_tasks": { "P0": [{ "text": "${USER_FOCUS}", "done": false }], "P1": [], "P2": [], "P3": [] },
+    "finished": []
+  },
+  "planning": { "daily": [], "monthly": [], "quarterly": [], "reviews": [], "journal": [], "calendar_events": {} },
+  "people": { "contacts": [], "meetings": [] },
+  "decisions": [],
+  "finance": { "files": [] },
+  "content": { "files": [], "platforms": { "brands": [], "accounts": [] } },
+  "learning": [],
+  "links": [],
+  "references": { "files": [], "total": 0 },
+  "network": { "nodes": [], "memories": 0, "connections": 0, "days_active": 0 },
+  "stats": { "total_files": 5, "total_tasks": 1, "done_tasks": 0, "total_people": 0, "total_decisions": 0, "total_daily_plans": 0, "total_monthly_plans": 0, "total_quarterly_plans": 0 },
+  "build_time": "${today_date} $(date '+%H:%M:%S')"
+}
+DJEOF
+  ) &
+  spin "$(t ".loci/dashboard/data.json" ".loci/dashboard/data.json")"
+
   echo ""
 }
 
