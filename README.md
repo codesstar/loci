@@ -212,6 +212,38 @@ July:     "founder, shipped v1, first 50 users"
 
 ---
 
+## Dashboard
+
+Loci includes an optional visual dashboard — a sci-fi command center for your brain. Zero dependencies, runs with `node server.js`.
+
+![Loci Dashboard](docs/assets/dashboard-preview.png)
+
+- **Today**: Task management with drag-drop between Focus/Queue/Complete, calendar timeline
+- **Plan**: Week and month planning with independent goal tracking
+- **Journal**: Rich text editor with image support, AI summaries, daily/weekly/monthly views
+- **Memory**: Your identity, values, and growth — all rendered from your markdown files
+- **Brain**: Full file browser for your memory palace
+
+Everything persists to your markdown files via a local API. The dashboard is a window into your brain, not a separate system.
+
+> **API docs**: [docs/api.md](docs/api.md) — 11 REST endpoints for reading and writing your brain.
+
+---
+
+## Integrations
+
+Loci is **CLI-first** — it works anywhere Claude Code runs, no GUI needed. The dashboard is optional.
+
+| Platform | Status |
+|----------|--------|
+| **Claude Code** | Full support (built for this) |
+| **Cursor / Windsurf / Cline** | Supported via [adapter](docs/other-editors.md) |
+| **OpenClaw** | Coming soon — memory plugin that replaces OpenClaw's default memory |
+
+> **OpenClaw users**: Loci fixes OpenClaw's memory problem. One install command, and your lobster gets a real brain. [Learn more](docs/roadmap.md)
+
+---
+
 ## What It Feels Like In Practice
 
 **"I stopped re-explaining my architecture"** — Marcus opens his terminal Monday morning. His AI already knows the migration strategy they debated on Friday, the edge cases they found, and why they rejected the simpler approach.
