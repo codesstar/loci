@@ -99,25 +99,76 @@ flush_input() {
   fi
 }
 
+# Text input with left-arrow-to-go-back support
+# Sets INPUT_RESULT to the text, or "__BACK__" if user pressed left arrow on empty input
+read_text() {
+  INPUT_RESULT=""
+  printf "    ${CYAN}▸ ${NC}"
+  tput cnorm 2>/dev/null
+  while true; do
+    read -rsn1 ch
+    if [[ "$ch" == $'\x1b' ]]; then
+      # Read arrow sequence — bash 3.2 supports integer timeout only
+      read -rsn2 -t 1 seq
+      if [[ "$seq" == '[D' ]] && [ -z "$INPUT_RESULT" ]; then
+        # Left arrow on empty input = go back
+        INPUT_RESULT="__BACK__"
+        return
+      fi
+      # All other escape sequences (up/down/right) silently ignored
+    elif [[ "$ch" == "" ]]; then
+      return
+    elif [[ "$ch" == $'\x7f' ]] || [[ "$ch" == $'\x08' ]]; then
+      if [ -n "$INPUT_RESULT" ]; then
+        INPUT_RESULT="${INPUT_RESULT%?}"
+        printf "\b \b"
+      fi
+    else
+      INPUT_RESULT="${INPUT_RESULT}${ch}"
+      printf "%s" "$ch"
+    fi
+  done
+}
+
 # Interactive arrow-key menu selection (Claude Code style)
+# Up/Down = select option, Left = previous question, Right/Enter = confirm
+# Returns MENU_RESULT=1..N for selection, MENU_RESULT=0 for "go back"
+# Accepts ALLOW_BACK, QUESTION_NUM, QUESTION_TOTAL as env vars
 choose() {
   local prompt="$1"
+  local allow_back="${ALLOW_BACK:-0}"
+  local q_num="${QUESTION_NUM:-0}"
+  local q_total="${QUESTION_TOTAL:-0}"
   shift
   local options=("$@")
   local selected=0
   local count=${#options[@]}
 
-  echo ""
-  echo -e "  ${WHITE}${prompt}${NC}"
+  printf "\n"
+  # Progress dots: ● for current/done, ○ for remaining
+  if [ "$q_total" -gt 0 ]; then
+    printf "  "
+    for (( i=1; i<=q_total; i++ )); do
+      if [ "$i" -lt "$q_num" ]; then
+        printf "${GREEN}●${NC} "
+      elif [ "$i" -eq "$q_num" ]; then
+        printf "${CYAN}●${NC} "
+      else
+        printf "${DIM}○${NC} "
+      fi
+    done
+    printf "\n"
+  fi
+  printf "  ${WHITE}${prompt}${NC}\n"
 
   tput civis 2>/dev/null  # hide cursor
 
   # Draw initial menu
   for i in "${!options[@]}"; do
     if [ "$i" -eq "$selected" ]; then
-      echo -e "    ${CYAN}● ${WHITE}${options[$i]}${NC}"
+      printf "    ${CYAN}● ${WHITE}${options[$i]}${NC}\n"
     else
-      echo -e "    ${DIM}○ ${options[$i]}${NC}"
+      printf "    ${DIM}○ ${options[$i]}${NC}\n"
     fi
   done
 
@@ -125,24 +176,43 @@ choose() {
   while true; do
     read -rsn1 key
     if [[ "$key" == $'\x1b' ]]; then
-      read -rsn2 arrow
+      # Read arrow sequence (bash 3.2: only integer timeouts)
+      # 1s timeout distinguishes arrow keys (instant) from bare Esc
+      read -rsn2 -t 1 arrow
       case "$arrow" in
-        '[A') # Up
+        '[A') # Up = previous option
           if [ "$selected" -gt 0 ]; then
             selected=$((selected - 1))
           fi
           ;;
-        '[B') # Down
+        '[B') # Down = next option
           if [ "$selected" -lt $((count - 1)) ]; then
             selected=$((selected + 1))
           fi
           ;;
+        '[D') # Left = go back to previous question
+          if [ "$allow_back" = "1" ]; then
+            tput cnorm 2>/dev/null
+            MENU_RESULT=0
+            flush_input
+            return
+          fi
+          ;;
+        '[C') # Right = confirm selection (same as Enter)
+          break
+          ;;
+        '') # Bare Esc (timeout) = go back
+          if [ "$allow_back" = "1" ]; then
+            tput cnorm 2>/dev/null
+            MENU_RESULT=0
+            flush_input
+            return
+          fi
+          ;;
       esac
     elif [[ "$key" == "" ]]; then
-      # Enter pressed
       break
     elif [[ "$key" =~ ^[0-9]$ ]] && [ "$key" -ge 1 ] && [ "$key" -le "$count" ]; then
-      # Number key shortcut
       selected=$((key - 1))
       break
     fi
@@ -150,32 +220,29 @@ choose() {
     # Redraw menu (move cursor up N lines)
     printf "\033[${count}A"
     for i in "${!options[@]}"; do
-      printf "\r\033[K"  # clear line
+      printf "\r\033[K"
       if [ "$i" -eq "$selected" ]; then
-        echo -e "    ${CYAN}● ${WHITE}${options[$i]}${NC}"
+        printf "    ${CYAN}● ${WHITE}${options[$i]}${NC}\n"
       else
-        echo -e "    ${DIM}○ ${options[$i]}${NC}"
+        printf "    ${DIM}○ ${options[$i]}${NC}\n"
       fi
     done
   done
 
-  tput cnorm 2>/dev/null  # restore cursor
+  tput cnorm 2>/dev/null
 
-  # Replace menu with final selection — collapse to single line
+  # Collapse menu to single selected line
   printf "\033[${count}A"
   for i in "${!options[@]}"; do
     printf "\r\033[K"
   done
   printf "\033[${count}A"
-  echo -e "    ${GREEN}● ${WHITE}${options[$selected]}${NC}"
-  # Clear any remaining lines from the old menu
+  printf "    ${GREEN}● ${WHITE}${options[$selected]}${NC}\n"
   for (( i=1; i<count; i++ )); do
     printf "\033[K\n"
   done
 
   MENU_RESULT=$((selected + 1))
-
-  # Flush leftover escape sequences from stdin
   flush_input
 }
 
@@ -198,6 +265,7 @@ today() {
 # ─── Colors for gradient ─────────────────────────────────────────────────────
 PURPLE='\033[35m'
 LIGHT_PURPLE='\033[95m'
+BOLD_PURPLE='\033[1;35m'
 TEAL='\033[36m'
 LIGHT_TEAL='\033[96m'
 
@@ -205,36 +273,25 @@ LIGHT_TEAL='\033[96m'
 show_logo() {
   clear
   printf "\n"
-  # Complete seahorse (scaled down) + LOCI side by side
-  printf "${LIGHT_PURPLE}         ,  /^\\    ___${NC}\n"
-  printf "${LIGHT_PURPLE}        /^\\_/ '...'  /\`${NC}\n"
-  printf "${PURPLE}      ,__\\   ,'    ~ (${NC}\n"
-  printf "${PURPLE}       \\__ \\\\.'  .-.  )${NC}\n"
-  printf "${PURPLE}        / (=== ( ${LIGHT_TEAL}◉${PURPLE} ) \\${NC}\n"
-  printf "${TEAL}      ,/  ~~~|  \`-'  )${NC}\n"
-  printf "${TEAL}     \"\")   |~| \"\"\". ~/${NC}\n"
-  printf "${TEAL}       /    \\~\\   \". \\\\${NC}\n"
-  printf "${TEAL}  _   /   ·  ~\\   \". \\\\${NC}\n"
-  printf "${TEAL} ( \\  ) ─┼─ \\~\\   \". \\\\${NC}\n"
-  printf "${LIGHT_TEAL} (_ \\ /  ·   ~|    \". \\\\${NC}\n"
-  printf "${LIGHT_TEAL} (_ =\\ ─┼─  |~|     \".\`;${NC}\n"
-  printf "${LIGHT_TEAL}  (_ ( ~      ══|~/${NC}\n"
-  printf "${LIGHT_TEAL}   (_ =  _/  | .\"${NC}\n"
-  printf "${LIGHT_TEAL}    (\\_/    )/${NC}\n"
-  printf "${LIGHT_TEAL}         | (    ___${NC}\n"
-  printf "${LIGHT_TEAL}         | ( .-'   \`-.${NC}\n"
-  printf "${LIGHT_TEAL}          \\  / '.-. \\${NC}\n"
-  printf "${LIGHT_TEAL}           \`: \`-' ; |${NC}\n"
-  printf "${LIGHT_TEAL}            \`-._.'^'./${NC}\n"
+  # Seahorse: proportionally scaled ~50% of v3 original (16 lines, all sections kept)
+  printf "${LIGHT_PURPLE}            ,${NC}\n"
+  printf "${LIGHT_PURPLE}       ,  /^\\   ___${NC}\n"
+  printf "${LIGHT_PURPLE}      /^\\_/ '...' /\`${NC}\n"
+  printf "${PURPLE}     ,_\\   ,'  ~ (${NC}\n"
+  printf "${PURPLE}      \\__ \\\\.' .-.  )${NC}\n"
+  printf "${PURPLE}      / (== ( ${LIGHT_TEAL}◉${PURPLE} ) \\\\${NC}    ${BOLD_CYAN}██╗      ██████╗  ██████╗██╗${NC}\n"
+  printf "${TEAL}    ,/ ~~~| \`-'  )${NC}     ${BOLD_CYAN}██║     ██╔═══██╗██╔════╝██║${NC}\n"
+  printf "${TEAL}   \"\") |~| \"\"\". ~/${NC}     ${BOLD_CYAN}██║     ██║   ██║██║     ██║${NC}\n"
+  printf "${TEAL}     /  \\~\\  \". \\\\${NC}      ${BOLD_CYAN}██║     ██║   ██║██║     ██║${NC}\n"
+  printf "${LIGHT_TEAL} (_ =\\ ─┼─ |~| \".\`;${NC}    ${BOLD_CYAN}███████╗╚██████╔╝╚██████╗██║${NC}\n"
+  printf "${LIGHT_TEAL}  (_ ~   ══|~/${NC}         ${BOLD_CYAN}╚══════╝ ╚═════╝  ╚═════╝╚═╝${NC}\n"
+  printf "${LIGHT_TEAL}   (_ _/  | .\"${NC}\n"
+  printf "${LIGHT_TEAL}    (\\_/   )/${NC}\n"
+  printf "${LIGHT_TEAL}       | ( .-' \`-.${NC}\n"
+  printf "${LIGHT_TEAL}        \\ :\`. \`-' |${NC}\n"
+  printf "${LIGHT_TEAL}         \`-._.'^'./${NC}\n"
   printf "\n"
-  printf "${PURPLE}  ██╗      ██████╗  ██████╗██╗${NC}\n"
-  printf "${PURPLE}  ██║     ██╔═══██╗██╔════╝██║${NC}\n"
-  printf "${PURPLE}  ██║     ██║   ██║██║     ██║${NC}\n"
-  printf "${PURPLE}  ██║     ██║   ██║██║     ██║${NC}\n"
-  printf "${PURPLE}  ███████╗╚██████╔╝╚██████╗██║${NC}\n"
-  printf "${PURPLE}  ╚══════╝ ╚═════╝  ╚═════╝╚═╝${NC}\n"
-  printf "\n"
-  printf "  ${DIM}Memory Palace for AI${NC}\n"
+  printf "        ${DIM}──────${NC} ${BOLD_CYAN}Memory Palace for AI${NC} ${DIM}──────${NC}\n"
   printf "\n"
 }
 
@@ -296,105 +353,187 @@ preflight() {
   sleep 1
 }
 
-# Show answered questions summary at top of screen
-show_answers_so_far() {
-  clear
-  echo ""
-  echo -e "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}"
-  echo -e "  ${DIM}$(printf '%.0s─' {1..50})${NC}"
-  # Show previous answers as compact summary
-  [ -n "$LANG_CHOICE" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}"
-  [ -n "$USER_NAME" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}"
-  [ -n "$USER_ROLE" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}"
-  [ -n "$USER_FOCUS" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}"
-  [ -n "$SCHEDULE_LABEL" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}"
-}
 
-# ─── Step 1: Interactive Questions ───────────────────────────────────────────
+# ─── Step 1: Interactive Questions (state machine with back navigation) ──────
+# 5 questions total. Left/Right = prev/next question. Up/Down = select option.
 collect_info() {
   CURRENT_STEP=1
   LANG_LABEL=""
   SCHEDULE_LABEL=""
+  local Q_TOTAL=5
 
-  # Language (always show on fresh screen)
-  clear
-  echo ""
-  echo -e "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}Tell me about yourself${NC}"
-  echo -e "  ${DIM}$(printf '%.0s─' {1..50})${NC}"
-  choose "Language / 语言" "English" "中文" "中英混合 (Mixed)"
-  case $MENU_RESULT in
-    1) LANG_CHOICE="en"; LANG_LABEL="English" ;;
-    2) LANG_CHOICE="zh"; LANG_LABEL="中文" ;;
-    3) LANG_CHOICE="mix"; LANG_LABEL="中英混合" ;;
-  esac
+  local step=0  # 0=lang, 1=name, 2=role, 3=focus, 4=schedule
 
-  # Name
-  show_answers_so_far
-  echo ""
-  ask "$(t "Your name" "你的名字")" "" USER_NAME
-  while [ -z "$USER_NAME" ]; do
-    ask "$(t "Please enter your name" "请输入你的名字")" "" USER_NAME
+  while [ "$step" -le 4 ]; do
+    local q_num=$((step + 1))
+
+    # Render screen: header + previous answers + current question
+    clear
+    printf "\n"
+    printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}\n"
+    printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
+
+    # Show completed answers
+    [ "$step" -gt 0 ] && [ -n "$LANG_LABEL" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}\n"
+    [ "$step" -gt 1 ] && [ -n "$USER_NAME" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
+    [ "$step" -gt 2 ] && [ -n "$USER_ROLE" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
+    [ "$step" -gt 3 ] && [ -n "$USER_FOCUS" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}\n"
+
+    case "$step" in
+      0) # Language
+        ALLOW_BACK=0 QUESTION_NUM=$q_num QUESTION_TOTAL=$Q_TOTAL \
+          choose "Language / 语言" "English" "中文" "中英混合 (Mixed)"
+        case $MENU_RESULT in
+          1) LANG_CHOICE="en"; LANG_LABEL="English" ;;
+          2) LANG_CHOICE="zh"; LANG_LABEL="中文" ;;
+          3) LANG_CHOICE="mix"; LANG_LABEL="中英混合" ;;
+        esac
+        step=1
+        ;;
+
+      1) # Name
+        printf "\n"
+        # Progress dots
+        printf "  "
+        for (( i=1; i<=Q_TOTAL; i++ )); do
+          if [ "$i" -lt "$q_num" ]; then printf "${GREEN}●${NC} "
+          elif [ "$i" -eq "$q_num" ]; then printf "${CYAN}●${NC} "
+          else printf "${DIM}○${NC} "; fi
+        done
+        printf "\n"
+        printf "  ${WHITE}$(t "Your name" "你的名字")${NC}\n"
+        read_text
+        if [ "$INPUT_RESULT" = "__BACK__" ]; then
+          step=0; continue
+        elif [ -z "$INPUT_RESULT" ]; then
+          continue
+        else
+          USER_NAME="$INPUT_RESULT"
+          step=2
+        fi
+        ;;
+
+      2) # Role
+        ALLOW_BACK=1 QUESTION_NUM=$q_num QUESTION_TOTAL=$Q_TOTAL \
+          choose "$(t "What do you do?" "你是做什么的？")" \
+          "$(t "Developer" "开发者")" \
+          "$(t "Designer" "设计师")" \
+          "$(t "Creator" "创作者")" \
+          "$(t "Student" "学生")" \
+          "$(t "Other" "其他")"
+        if [ "$MENU_RESULT" -eq 0 ]; then
+          step=1; continue
+        fi
+        case $MENU_RESULT in
+          1) USER_ROLE="Developer" ;;
+          2) USER_ROLE="Designer" ;;
+          3) USER_ROLE="Creator" ;;
+          4) USER_ROLE="Student" ;;
+          5)
+            clear
+            printf "\n"
+            printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}\n"
+            printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
+            [ -n "$LANG_LABEL" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}\n"
+            [ -n "$USER_NAME" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
+            printf "\n"
+            printf "  "
+            for (( i=1; i<=Q_TOTAL; i++ )); do
+              if [ "$i" -lt "$q_num" ]; then printf "${GREEN}●${NC} "
+              elif [ "$i" -eq "$q_num" ]; then printf "${CYAN}●${NC} "
+              else printf "${DIM}○${NC} "; fi
+            done
+            printf "\n"
+            printf "  ${WHITE}$(t "What do you do?" "你是做什么的？")${NC}\n"
+            read_text
+            if [ "$INPUT_RESULT" = "__BACK__" ]; then
+              step=2; continue
+            fi
+            USER_ROLE="${INPUT_RESULT:-Other}"
+            ;;
+        esac
+        step=3
+        ;;
+
+      3) # Focus
+        ALLOW_BACK=1 QUESTION_NUM=$q_num QUESTION_TOTAL=$Q_TOTAL \
+          choose "$(t "Most important focus right now?" "你目前最重要的事情是什么？")" \
+          "$(t "Ship a product" "做产品上线")" \
+          "$(t "Learn a skill" "学一项技能")" \
+          "$(t "Build an audience" "做自媒体/涨粉")" \
+          "$(t "Get a job" "找工作")" \
+          "$(t "Other" "其他")"
+        if [ "$MENU_RESULT" -eq 0 ]; then
+          step=2; continue
+        fi
+        case $MENU_RESULT in
+          1) USER_FOCUS="Ship a product" ;;
+          2) USER_FOCUS="Learn a skill" ;;
+          3) USER_FOCUS="Build an audience" ;;
+          4) USER_FOCUS="Get a job" ;;
+          5)
+            clear
+            printf "\n"
+            printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}\n"
+            printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
+            [ -n "$LANG_LABEL" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}\n"
+            [ -n "$USER_NAME" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
+            [ -n "$USER_ROLE" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
+            printf "\n"
+            printf "  "
+            for (( i=1; i<=Q_TOTAL; i++ )); do
+              if [ "$i" -lt "$q_num" ]; then printf "${GREEN}●${NC} "
+              elif [ "$i" -eq "$q_num" ]; then printf "${CYAN}●${NC} "
+              else printf "${DIM}○${NC} "; fi
+            done
+            printf "\n"
+            printf "  ${WHITE}$(t "Most important focus right now?" "你目前最重要的事情是什么？")${NC}\n"
+            read_text
+            if [ "$INPUT_RESULT" = "__BACK__" ]; then
+              step=3; continue
+            fi
+            USER_FOCUS="${INPUT_RESULT:-My current project}"
+            ;;
+        esac
+        step=4
+        ;;
+
+      4) # Schedule
+        ALLOW_BACK=1 QUESTION_NUM=$q_num QUESTION_TOTAL=$Q_TOTAL \
+          choose "$(t "When do you usually work?" "你通常什么时候工作？")" \
+          "$(t "Morning (6am-12pm)" "早晨型 (6am-12pm)")" \
+          "$(t "Daytime (9am-6pm)" "白天型 (9am-6pm)")" \
+          "$(t "Evening (6pm-12am)" "晚间型 (6pm-12am)")" \
+          "$(t "Night owl (10pm-6am)" "夜猫子 (10pm-6am)")" \
+          "$(t "Irregular / varies" "不固定")"
+        if [ "$MENU_RESULT" -eq 0 ]; then
+          step=3; continue
+        fi
+        USER_SCHEDULE=$MENU_RESULT
+        case $USER_SCHEDULE in
+          1) SCHEDULE_LABEL="$(t "Morning" "早晨型")" ;;
+          2) SCHEDULE_LABEL="$(t "Daytime" "白天型")" ;;
+          3) SCHEDULE_LABEL="$(t "Evening" "晚间型")" ;;
+          4) SCHEDULE_LABEL="$(t "Night owl" "夜猫子")" ;;
+          5) SCHEDULE_LABEL="$(t "Irregular" "不固定")" ;;
+        esac
+        step=5
+        ;;
+    esac
   done
 
-  # Role
-  show_answers_so_far
-  choose "$(t "What do you do?" "你是做什么的？")" \
-    "$(t "Developer" "开发者")" \
-    "$(t "Designer" "设计师")" \
-    "$(t "Creator" "创作者")" \
-    "$(t "Student" "学生")" \
-    "$(t "Other" "其他")"
-  case $MENU_RESULT in
-    1) USER_ROLE="Developer" ;;
-    2) USER_ROLE="Designer" ;;
-    3) USER_ROLE="Creator" ;;
-    4) USER_ROLE="Student" ;;
-    5)
-      ask "$(t "What's your role?" "你的角色是？")" "" USER_ROLE
-      [ -z "$USER_ROLE" ] && USER_ROLE="Other"
-      ;;
-  esac
-
-  # Focus
-  show_answers_so_far
-  choose "$(t "What's your most important focus right now?" "你目前最重要的事情是什么？")" \
-    "$(t "Ship a product" "做产品上线")" \
-    "$(t "Learn a skill" "学一项技能")" \
-    "$(t "Build an audience" "做自媒体/涨粉")" \
-    "$(t "Get a job" "找工作")" \
-    "$(t "Other" "其他")"
-  case $MENU_RESULT in
-    1) USER_FOCUS="Ship a product" ;;
-    2) USER_FOCUS="Learn a skill" ;;
-    3) USER_FOCUS="Build an audience" ;;
-    4) USER_FOCUS="Get a job" ;;
-    5)
-      ask "$(t "What are you focused on?" "你在专注什么？")" "" USER_FOCUS
-      [ -z "$USER_FOCUS" ] && USER_FOCUS="My current project"
-      ;;
-  esac
-
-  # Schedule
-  show_answers_so_far
-  choose "$(t "When do you usually work?" "你通常什么时候工作？")" \
-    "$(t "Morning (6am-12pm)" "早晨型 (6am-12pm)")" \
-    "$(t "Daytime (9am-6pm)" "白天型 (9am-6pm)")" \
-    "$(t "Evening (6pm-12am)" "晚间型 (6pm-12am)")" \
-    "$(t "Night owl (10pm-6am)" "夜猫子 (10pm-6am)")" \
-    "$(t "Irregular / varies" "不固定")"
-  USER_SCHEDULE=$MENU_RESULT
-  case $USER_SCHEDULE in
-    1) SCHEDULE_LABEL="$(t "Morning" "早晨型")" ;;
-    2) SCHEDULE_LABEL="$(t "Daytime" "白天型")" ;;
-    3) SCHEDULE_LABEL="$(t "Evening" "晚间型")" ;;
-    4) SCHEDULE_LABEL="$(t "Night owl" "夜猫子")" ;;
-    5) SCHEDULE_LABEL="$(t "Irregular" "不固定")" ;;
-  esac
-
   # Show final summary
-  show_answers_so_far
-  echo ""
-  echo -e "  ${GREEN}✓${NC} $(t "Got it, ${USER_NAME}!" "收到，${USER_NAME}！")"
+  clear
+  printf "\n"
+  printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}\n"
+  printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
+  printf "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}\n"
+  printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
+  printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
+  printf "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}\n"
+  printf "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}\n"
+  printf "\n"
+  printf "  ${GREEN}✓${NC} $(t "Got it, ${USER_NAME}!" "收到，${USER_NAME}！")\n"
   sleep 1
 }
 
@@ -687,10 +826,6 @@ show_success() {
   printf "  ${GREEN}✓${NC} me/identity.md    ${GREEN}✓${NC} .loci/config.yml\n"
   printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} ~/.claude/CLAUDE.md\n"
   printf "  ${GREEN}✓${NC} tasks/active.md    ${GREEN}✓${NC} ~/.claude/commands/\n"
-  printf "\n"
-  printf "  $(t "Next step" "下一步"):\n"
-  printf "\n"
-  printf "    ${BOLD}cd ${BRAIN_PATH} && claude${NC}\n"
   printf "\n"
   printf "  $(t "Your AI will remember the important things from now on." "从现在开始，你的 AI 会记住重要的事情。")\n"
   printf "\n"

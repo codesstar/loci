@@ -1,940 +1,860 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loci — Setup Your Brain</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Setup Your Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --bg: #0a0a1a;
-      --primary: rgb(155,89,182);
-      --primary-dim: rgba(155,89,182,0.15);
-      --primary-glow: rgba(155,89,182,0.4);
-      --secondary: rgb(26,188,156);
-      --secondary-dim: rgba(26,188,156,0.15);
-      --text: #c0c0c0;
-      --text-dim: rgba(200,200,220,0.5);
-      --card: rgba(15,15,30,0.85);
-      --card-border: rgba(155,89,182,0.15);
-      --surface: rgba(155,89,182,0.04);
-      --success: #1abc9c;
-      --error: #ef4444;
-    }
+  body {
+    background: #0a0a1a;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    color: #c0c0c0;
+  }
 
-    html, body {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+  /* ── Deep-sea ambient glow ── */
+  .ambient-glow {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+  }
+  .glow-1 {
+    width: 600px; height: 600px;
+    left: 10%; top: 30%;
+    background: radial-gradient(circle, rgba(155,89,182,0.12) 0%, transparent 70%);
+  }
+  .glow-2 {
+    width: 400px; height: 400px;
+    right: 15%; bottom: 20%;
+    background: radial-gradient(circle, rgba(26,188,156,0.08) 0%, transparent 70%);
+  }
+  .glow-3 {
+    width: 300px; height: 300px;
+    left: 35%; top: 15%;
+    background: radial-gradient(circle, rgba(155,89,182,0.06) 0%, transparent 70%);
+  }
 
-    /* ── Deep-sea ambient glow ── */
-    .ambient-glow {
-      position: fixed;
-      pointer-events: none;
-      border-radius: 50%;
-      filter: blur(120px);
-      z-index: 0;
-    }
-    .glow-1 {
-      width: 600px; height: 600px;
-      left: 10%; top: 30%;
-      background: radial-gradient(circle, rgba(155,89,182,0.12) 0%, transparent 70%);
-    }
-    .glow-2 {
-      width: 400px; height: 400px;
-      right: 15%; bottom: 20%;
-      background: radial-gradient(circle, rgba(26,188,156,0.08) 0%, transparent 70%);
-    }
-    .glow-3 {
-      width: 300px; height: 300px;
-      left: 35%; top: 15%;
-      background: radial-gradient(circle, rgba(155,89,182,0.06) 0%, transparent 70%);
-    }
+  /* ── Seahorse ── */
+  .seahorse-wrap {
+    position: relative;
+    line-height: 1.15;
+    font-size: 14px;
+    letter-spacing: 1px;
+    white-space: pre;
+    flex-shrink: 0;
+    animation: breathe 2.8s ease-in-out infinite;
+    cursor: default;
+    transition: font-size 0.6s ease, opacity 0.6s ease;
+  }
+  .seahorse-wrap.mini {
+    font-size: 5px;
+  }
+  .seahorse-wrap .char {
+    display: inline;
+    transition: color 0.15s, text-shadow 0.15s, transform 0.3s ease;
+  }
+  .seahorse-wrap .char.spark {
+    color: #fff !important;
+    text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
+    transition: none;
+  }
+  .seahorse-wrap .char.scatter {
+    color: #fff !important;
+    text-shadow: 0 0 12px rgba(155,89,182,0.8), 0 0 24px rgba(26,188,156,0.4);
+    transition: none;
+  }
 
-    /* ── Particles ── */
-    .particle {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: drift linear infinite;
+  @keyframes breathe {
+    0%, 100% {
+      text-shadow:
+        0 0 4px rgba(155,89,182,0.3),
+        0 0 12px rgba(155,89,182,0.15),
+        0 0 24px rgba(26,188,156,0.08);
+      filter: brightness(1);
     }
-    .bubble {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      border: 1px solid rgba(155,89,182,0.12);
-      background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.06), transparent);
-      animation: bubbleUp linear infinite;
+    50% {
+      text-shadow:
+        0 0 8px rgba(155,89,182,0.6),
+        0 0 24px rgba(155,89,182,0.3),
+        0 0 48px rgba(26,188,156,0.2),
+        0 0 72px rgba(26,188,156,0.1);
+      filter: brightness(1.15);
     }
-    @keyframes drift {
-      0% { transform: translateY(100vh) scale(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  @keyframes breatheIntense {
+    0%, 100% {
+      text-shadow:
+        0 0 8px rgba(155,89,182,0.5),
+        0 0 20px rgba(155,89,182,0.3),
+        0 0 40px rgba(26,188,156,0.15);
+      filter: brightness(1.05);
     }
-    @keyframes bubbleUp {
-      0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-      10% { opacity: 1; }
-      50% { transform: translateY(50vh) scale(1); }
-      90% { opacity: 0.6; }
-      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    50% {
+      text-shadow:
+        0 0 16px rgba(155,89,182,0.8),
+        0 0 40px rgba(155,89,182,0.5),
+        0 0 80px rgba(26,188,156,0.3),
+        0 0 120px rgba(26,188,156,0.15);
+      filter: brightness(1.3);
     }
+  }
 
-    /* ── Jellyfish trail ── */
-    .jellyfish {
-      position: fixed;
-      pointer-events: none;
-      z-index: 2;
-      animation: jellyDrift 4s ease-out forwards;
-    }
-    .jellyfish svg {
-      overflow: visible;
-      filter: drop-shadow(0 0 6px rgba(155,89,182,0.4));
-    }
-    .jelly-bell {
-      animation: jellyPulse 1.2s ease-in-out infinite;
-      transform-origin: center top;
-    }
-    @keyframes jellyPulse {
-      0%, 100% { transform: scaleX(1) scaleY(1); }
-      50% { transform: scaleX(1.08) scaleY(0.92); }
-    }
-    .jelly-tentacle {
-      animation: tentacleWave 1.8s ease-in-out infinite;
-      transform-origin: top center;
-    }
-    .jelly-tentacle:nth-child(2) { animation-delay: -0.3s; }
-    .jelly-tentacle:nth-child(3) { animation-delay: -0.6s; }
-    .jelly-tentacle:nth-child(4) { animation-delay: -0.9s; }
-    @keyframes tentacleWave {
-      0%, 100% { transform: skewX(0deg); }
-      25% { transform: skewX(6deg); }
-      75% { transform: skewX(-6deg); }
-    }
-    @keyframes jellyDrift {
-      0% { opacity: 0.7; transform: translate(0, 0) scale(1) rotate(0deg); }
-      30% { opacity: 0.5; }
-      60% { transform: translate(var(--drift, 10px), -80px) scale(0.8) rotate(3deg); }
-      100% { opacity: 0; transform: translate(var(--drift, 10px), -140px) scale(0.5) rotate(-2deg); }
-    }
+  /* ── LOCI title ── */
+  .loci-title {
+    white-space: pre;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: #9b59b6;
+    animation: titleGlow 2.8s ease-in-out infinite;
+    transition: font-size 0.6s ease, opacity 0.6s ease;
+  }
+  .loci-title.mini {
+    font-size: 7px;
+  }
 
-    /* ===== Layout ===== */
-    .app {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 40px 20px;
+  @keyframes titleGlow {
+    0%, 100% {
+      text-shadow: 0 0 10px rgba(155,89,182,0.4), 0 0 30px rgba(155,89,182,0.15);
     }
+    50% {
+      text-shadow: 0 0 15px rgba(155,89,182,0.7), 0 0 40px rgba(155,89,182,0.3), 0 0 60px rgba(26,188,156,0.15);
+    }
+  }
 
-    /* ===== LOCI title (block text) ===== */
-    .loci-title {
-      white-space: pre;
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: 2px;
-      color: #9b59b6;
-      text-align: center;
-      animation: titleGlow 2.8s ease-in-out infinite;
-      margin-bottom: 8px;
-    }
-    @keyframes titleGlow {
-      0%, 100% { text-shadow: 0 0 10px rgba(155,89,182,0.4), 0 0 30px rgba(155,89,182,0.15); }
-      50% { text-shadow: 0 0 15px rgba(155,89,182,0.7), 0 0 40px rgba(155,89,182,0.3), 0 0 60px rgba(26,188,156,0.15); }
-    }
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(26,188,156,0.8);
+    text-shadow: 0 0 12px rgba(26,188,156,0.3);
+    margin-top: 20px;
+    margin-bottom: 32px;
+    animation: subtitlePulse 3.5s ease-in-out infinite;
+    transition: opacity 0.6s ease;
+  }
+  @keyframes subtitlePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
 
-    .logo-subtitle {
-      font-size: 14px;
-      font-weight: 300;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      color: rgba(26,188,156,0.8);
-      text-shadow: 0 0 12px rgba(26,188,156,0.3);
-      text-align: center;
-      margin-bottom: 24px;
-      animation: subtitlePulse 3.5s ease-in-out infinite;
-    }
-    @keyframes subtitlePulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
-    }
+  /* ── Divider ── */
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155,89,182,0.4), transparent);
+    margin-bottom: 24px;
+  }
 
-    /* ===== Seahorse (welcome step only) ===== */
-    .seahorse-wrap {
-      position: relative;
-      line-height: 1.15;
-      font-size: 10px;
-      letter-spacing: 1px;
-      white-space: pre;
-      flex-shrink: 0;
-      animation: breathe 2.8s ease-in-out infinite;
-      cursor: default;
-      margin: 0 auto 20px;
-      text-align: center;
-    }
-    .seahorse-wrap .char {
-      display: inline;
-      transition: color 0.15s, text-shadow 0.15s;
-    }
-    .seahorse-wrap .char.spark {
-      color: #fff !important;
-      text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
-      transition: none;
-    }
-    @keyframes breathe {
-      0%, 100% {
-        text-shadow: 0 0 4px rgba(155,89,182,0.3), 0 0 12px rgba(155,89,182,0.15), 0 0 24px rgba(26,188,156,0.08);
-        filter: brightness(1);
-      }
-      50% {
-        text-shadow: 0 0 8px rgba(155,89,182,0.6), 0 0 24px rgba(155,89,182,0.3), 0 0 48px rgba(26,188,156,0.2);
-        filter: brightness(1.15);
-      }
-    }
+  /* ── Reveal lines ── */
+  .reveal-line {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.08);
+    text-shadow: none;
+    transition: color 1.2s ease, text-shadow 1.2s ease, transform 1.2s ease;
+    transform: translateY(0);
+  }
+  .reveal-line.bright {
+    color: rgba(200,200,220,0.92);
+    text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
+    transform: translateY(-1.5px);
+  }
+  .reveal-line.fading {
+    color: rgba(200,200,220,0.25);
+    text-shadow: 0 0 8px rgba(155,89,182,0.1);
+    transform: translateY(0);
+  }
 
-    /* ===== Progress dots ===== */
-    .progress-bar {
-      display: flex;
-      gap: 12px;
-      margin: 0 0 24px;
-      align-items: center;
-    }
+  /* ── Logo header (inline, moves with step content) ── */
+  .logo-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    pointer-events: none;
+  }
+  .logo-header .seahorse-wrap {
+    font-size: 7px;
+    margin-bottom: 0;
+  }
+  .logo-header .logo-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .logo-header .loci-title {
+    font-size: 12px;
+    margin-bottom: 0;
+  }
+  .logo-header .subtitle {
+    font-size: 12px;
+    letter-spacing: 4px;
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
 
-    .progress-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(200,200,220,0.1);
-      transition: all 0.4s ease;
-    }
+  /* ── Hero (removed — kept for compatibility) ── */
+  .hero { display: none; }
+  .right-section { display: none; }
 
-    .progress-dot.done {
-      background: var(--primary);
-      box-shadow: 0 0 8px var(--primary-glow);
-    }
+  /* ── Mini header (hidden — replaced by logo-header) ── */
+  .mini-header { display: none; }
 
-    .progress-dot.current {
-      background: var(--primary);
-      box-shadow: 0 0 12px var(--primary-glow), 0 0 24px rgba(155,89,182,0.2);
-      animation: dotPulse 2s ease-in-out infinite;
-    }
+  /* ── Progress dots ── */
+  .progress-dots {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .progress-dots.visible { opacity: 1; }
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(200,200,220,0.1);
+    transition: all 0.4s ease;
+  }
+  .progress-dot.done {
+    background: rgb(155,89,182);
+    box-shadow: 0 0 8px rgba(155,89,182,0.4);
+  }
+  .progress-dot.current {
+    background: rgb(155,89,182);
+    box-shadow: 0 0 12px rgba(155,89,182,0.4), 0 0 24px rgba(155,89,182,0.2);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(155,89,182,0.4); }
+    50% { box-shadow: 0 0 20px rgba(155,89,182,0.4), 0 0 40px rgba(155,89,182,0.15); }
+  }
 
-    @keyframes dotPulse {
-      0%, 100% { box-shadow: 0 0 12px var(--primary-glow); }
-      50% { box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(155,89,182,0.15); }
-    }
+  /* ── Step container ── */
+  .step-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0s 0.4s;
+  }
+  .step-container.active {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease 0.15s, visibility 0s 0s;
+  }
 
-    .progress-line {
-      width: 20px;
-      height: 2px;
-      background: rgba(200,200,220,0.08);
-      transition: background 0.4s ease;
-    }
+  /* ── Question text (floating) ── */
+  .question-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: rgba(200,200,220,0.92);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(155,89,182,0.2);
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s;
+  }
+  .step-container.active .question-title {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .question-desc {
+    font-size: 14px;
+    color: rgba(200,200,220,0.4);
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+  }
+  .step-container.active .question-desc {
+    opacity: 1;
+    transform: translateX(0);
+  }
 
-    .progress-line.done {
-      background: var(--primary-dim);
-    }
+  /* ── Floating pill options ── */
+  .pill-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    max-width: 700px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+  }
+  .step-container.active .pill-options {
+    opacity: 1;
+    transform: translateX(0);
+  }
 
-    /* ===== Card ===== */
-    .wizard-card {
-      width: 100%;
-      max-width: 580px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 80px rgba(155,89,182,0.05);
-      position: relative;
-      backdrop-filter: blur(20px);
-    }
+  .pill-option {
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(175,120,200,0.95);
+    padding: 14px 28px;
+    border: 1px solid rgba(155,89,182,0.45);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    position: relative;
+    overflow: hidden;
+  }
+  .pill-option:hover {
+    color: rgba(155,89,182,0.85);
+    border-color: rgba(155,89,182,0.5);
+    text-shadow: 0 0 15px rgba(155,89,182,0.3);
+    box-shadow: 0 0 30px rgba(155,89,182,0.15);
+    transform: translateY(-2px);
+  }
+  .pill-option.selected {
+    color: #c9a0dc;
+    border-color: transparent;
+    background: transparent;
+    padding: 12px 26px;
+  }
+  .pill-option .pill-icon {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+  .pill-option .pill-sub {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.65);
+    margin-top: 4px;
+    text-transform: none;
+  }
 
-    .wizard-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(155,89,182,0.3), transparent);
-    }
+  /* ── Gradient border wrap for selected pill ── */
+  .pill-wrap {
+    border-radius: 30px;
+    padding: 2px;
+    background: transparent;
+    transition: background 0.3s ease;
+    display: inline-block;
+  }
+  .pill-wrap.selected {
+    background: linear-gradient(135deg, rgba(155,89,182,0.5), rgba(26,188,156,0.4), rgba(155,89,182,0.5));
+    background-size: 200% 200%;
+    animation: borderFlow 3s ease-in-out infinite;
+  }
 
-    /* ===== Steps container ===== */
-    .steps-viewport {
-      overflow: hidden;
-      position: relative;
-    }
+  /* ── Language pills (larger, welcome screen) ── */
+  .lang-pills {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  .lang-pills.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .lang-pill {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(155,89,182,0.5);
+    padding: 16px 36px;
+    border: 1px solid rgba(155,89,182,0.2);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .lang-pill:hover {
+    color: rgba(155,89,182,0.85);
+    border-color: rgba(155,89,182,0.5);
+    text-shadow: 0 0 15px rgba(155,89,182,0.3);
+    box-shadow: 0 0 30px rgba(155,89,182,0.15), 0 0 60px rgba(155,89,182,0.05);
+    transform: translateY(-3px);
+  }
 
-    .step {
-      padding: 40px 36px;
-      display: none;
-      animation-duration: 0.4s;
-      animation-fill-mode: forwards;
-      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    }
+  /* ── Text input (transparent, bottom border) ── */
+  .float-input-wrap {
+    position: relative;
+    width: 360px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+  }
+  .step-container.active .float-input-wrap {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .float-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(155,89,182,0.2);
+    padding: 16px 4px;
+    font-size: 20px;
+    color: #c0c0c0;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .float-input:focus {
+    border-bottom-color: rgb(155,89,182);
+    box-shadow: 0 4px 20px rgba(155,89,182,0.15);
+  }
+  .float-input::placeholder {
+    color: rgba(200,200,220,0.2);
+    letter-spacing: 3px;
+  }
 
-    .step.active { display: block; }
+  /* ── About textarea ── */
+  .about-textarea {
+    resize: none;
+    height: 120px;
+    border: 1px solid rgba(155,89,182,0.25);
+    border-radius: 12px;
+    padding: 16px !important;
+    font-size: 14px !important;
+    letter-spacing: 1px !important;
+    text-align: left !important;
+    line-height: 1.6;
+  }
+  .about-textarea:focus {
+    border-color: rgba(155,89,182,0.5);
+    box-shadow: 0 0 20px rgba(155,89,182,0.1);
+  }
+  .about-textarea::placeholder {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
 
-    .step.slide-in-right { animation-name: slideInRight; }
-    .step.slide-in-left { animation-name: slideInLeft; }
+  /* ── Other input expand ── */
+  .other-input-wrap {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease;
+    margin-top: 0;
+  }
+  .other-input-wrap.visible {
+    max-height: 100px;
+    opacity: 1;
+    margin-top: 24px;
+  }
 
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+  /* ── CTA with border glow ── */
+  .btn-star-wrap {
+    position: relative;
+    border-radius: 10px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(155,89,182,0.4), rgba(26,188,156,0.3), rgba(155,89,182,0.4));
+    background-size: 200% 200%;
+    animation: borderFlow 3s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes borderFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .btn-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 40px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    background: #0a0a1a;
+    color: #c9a0dc;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  .btn-star:hover {
+    background: rgba(155,89,182,0.12);
+    box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.08);
+    transform: translateY(-1px);
+  }
+  .btn-star-wrap.pop {
+    animation: borderFlow 3s ease-in-out infinite, btnPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes btnPop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
 
-    @keyframes slideInLeft {
-      from { opacity: 0; transform: translateX(-40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+  /* ── Review list ── */
+  .review-list {
+    list-style: none;
+    max-width: 500px;
+    width: 100%;
+    margin-bottom: 32px;
+  }
+  .review-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(155,89,182,0.08);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.08);
+  }
+  .review-item.bright {
+    opacity: 1;
+    transform: translateY(0);
+    color: rgba(200,200,220,0.92);
+    text-shadow: 0 0 20px rgba(155,89,182,0.15);
+  }
+  .review-label {
+    font-size: 10px;
+    color: rgba(200,200,220,0.35);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .review-value {
+    font-size: 15px;
+    color: rgba(200,200,220,0.9);
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .edit-btn {
+    background: none;
+    border: 1px solid rgba(155,89,182,0.15);
+    color: rgba(155,89,182,0.5);
+    font-size: 10px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  .edit-btn:hover {
+    color: rgba(155,89,182,0.9);
+    border-color: rgba(155,89,182,0.4);
+    text-shadow: 0 0 12px rgba(155,89,182,0.2);
+  }
 
-    /* ===== Step typography ===== */
-    .step-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: rgba(200,200,220,0.92);
-      letter-spacing: 1px;
-    }
+  /* ── Progress log items ── */
+  .progress-log {
+    max-width: 400px;
+    width: 100%;
+    text-align: left;
+  }
+  .progress-log-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.08);
+    transition: color 0.6s ease, text-shadow 0.6s ease;
+  }
+  .progress-log-item.bright {
+    color: rgba(200,200,220,0.92);
+    text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
+  }
+  .progress-log-item.done {
+    color: rgba(26,188,156,0.7);
+    text-shadow: 0 0 12px rgba(26,188,156,0.2);
+  }
+  .progress-log-item .check-mark {
+    color: rgba(26,188,156,0.8);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .progress-log-item.done .check-mark {
+    opacity: 1;
+  }
 
-    .step-desc {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 28px;
-      line-height: 1.8;
-      letter-spacing: 0.5px;
-    }
+  /* ── Feature tags ── */
+  .feature-tags {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .feature-tag {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(155,89,182,0.45);
+    padding: 6px 14px;
+    border: 1px solid rgba(155,89,182,0.15);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  .feature-tag:hover {
+    color: rgba(155,89,182,0.7);
+    border-color: rgba(155,89,182,0.35);
+    text-shadow: 0 0 12px rgba(155,89,182,0.2);
+  }
 
-    /* ===== Divider ===== */
-    .divider {
-      width: 120px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(155,89,182,0.4), transparent);
-      margin: 0 auto 20px;
-    }
+  /* ── Success glow ── */
+  .success-title {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(26,188,156,0.8);
+    text-shadow: 0 0 20px rgba(26,188,156,0.4), 0 0 40px rgba(26,188,156,0.2);
+    margin-bottom: 16px;
+    animation: subtitlePulse 3.5s ease-in-out infinite;
+  }
+  .success-desc {
+    font-size: 14px;
+    color: rgba(200,200,220,0.5);
+    letter-spacing: 1px;
+    line-height: 1.8;
+    margin-bottom: 32px;
+    max-width: 500px;
+    text-align: center;
+  }
 
-    /* ===== Reveal lines (welcome step) ===== */
-    .reveal-line {
-      font-family: 'Georgia', 'Times New Roman', serif;
-      font-size: 14px;
-      line-height: 1.9;
-      letter-spacing: 1px;
-      color: rgba(200,200,220,0.08);
-      text-shadow: none;
-      transition: color 1.2s ease, text-shadow 1.2s ease, transform 1.2s ease;
-      transform: translateY(0);
-      text-align: center;
-    }
-    .reveal-line.bright {
-      color: rgba(200,200,220,0.92);
-      text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
-      transform: translateY(-1.5px);
-    }
-    .reveal-line.fading {
-      color: rgba(200,200,220,0.25);
-      text-shadow: 0 0 8px rgba(155,89,182,0.1);
-      transform: translateY(0);
-    }
+  /* ── Error ── */
+  .error-box {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+    display: none;
+    max-width: 400px;
+  }
+  .error-box.visible { display: block; }
+  .error-box p { color: #ef4444; font-size: 12px; letter-spacing: 0.5px; }
+  .error-box .retry-btn {
+    margin-top: 10px;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid #ef4444;
+    background: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .error-box .retry-btn:hover { background: rgba(239,68,68,0.1); }
 
-    /* ===== Option cards ===== */
-    .option-grid {
-      display: grid;
-      gap: 12px;
-    }
+  /* ── Back button (floating) ── */
+  .back-btn {
+    position: fixed;
+    bottom: 32px;
+    left: 32px;
+    z-index: 10;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(200,200,220,0.2);
+    background: transparent;
+    border: 1px solid rgba(155,89,182,0.1);
+    border-radius: 20px;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .back-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .back-btn:hover {
+    color: rgba(200,200,220,0.5);
+    border-color: rgba(155,89,182,0.3);
+  }
 
-    .option-grid.cols-3 {
-      grid-template-columns: repeat(3, 1fr);
+  /* ── Jellyfish trail ── */
+  .jellyfish {
+    position: fixed;
+    pointer-events: none;
+    z-index: 2;
+    animation: jellyDrift 4s ease-out forwards;
+  }
+  .jellyfish svg {
+    overflow: visible;
+    filter: drop-shadow(0 0 6px rgba(155,89,182,0.4));
+  }
+  .jelly-bell {
+    animation: jellyPulse 1.2s ease-in-out infinite;
+    transform-origin: center top;
+  }
+  @keyframes jellyPulse {
+    0%, 100% { transform: scaleX(1) scaleY(1); }
+    50% { transform: scaleX(1.08) scaleY(0.92); }
+  }
+  .jelly-tentacle {
+    animation: tentacleWave 1.8s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  .jelly-tentacle:nth-child(2) { animation-delay: -0.3s; }
+  .jelly-tentacle:nth-child(3) { animation-delay: -0.6s; }
+  .jelly-tentacle:nth-child(4) { animation-delay: -0.9s; }
+  @keyframes tentacleWave {
+    0%, 100% { transform: skewX(0deg); }
+    25% { transform: skewX(6deg); }
+    75% { transform: skewX(-6deg); }
+  }
+  @keyframes jellyDrift {
+    0% {
+      opacity: 0.7;
+      transform: translate(0, 0) scale(1) rotate(0deg);
     }
-
-    .option-card {
-      background: var(--surface);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 18px 16px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    .option-card:hover {
-      border-color: rgba(155,89,182,0.35);
-      background: rgba(155,89,182,0.06);
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(155,89,182,0.1);
-    }
-
-    .option-card:active {
-      transform: translateY(0);
-    }
-
-    .option-card.selected {
-      border-color: var(--primary);
-      background: var(--primary-dim);
-      box-shadow: 0 0 20px rgba(155,89,182,0.15), 0 0 40px rgba(155,89,182,0.05);
-    }
-
-    .option-card .icon {
-      font-size: 28px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .option-card .label {
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 1px;
-    }
-
-    .option-card .sublabel {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 4px;
-      letter-spacing: 0.5px;
-    }
-
-    /* Ripple effect */
-    .option-card .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(155,89,182,0.25);
-      transform: scale(0);
-      animation: ripple 0.6s linear;
-      pointer-events: none;
-    }
-
-    @keyframes ripple {
-      to { transform: scale(4); opacity: 0; }
-    }
-
-    /* ===== Text input ===== */
-    .input-group {
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    .input-group input,
-    .input-group textarea {
-      width: 100%;
-      background: rgba(155,89,182,0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 18px 16px 8px;
-      font-size: 15px;
-      color: var(--text);
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
-      letter-spacing: 1px;
-    }
-
-    .input-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .input-group input:focus,
-    .input-group textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(155,89,182,0.1), 0 0 20px rgba(155,89,182,0.08);
-    }
-
-    .input-group label {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      color: var(--text-dim);
-      pointer-events: none;
-      transition: all 0.25s ease;
-      letter-spacing: 1px;
-    }
-
-    .input-group textarea ~ label {
-      top: 18px;
-      transform: none;
-    }
-
-    .input-group input:focus ~ label,
-    .input-group input.has-value ~ label {
-      top: 8px;
-      transform: none;
-      font-size: 10px;
-      color: var(--primary);
-      letter-spacing: 2px;
-    }
-
-    .input-group textarea:focus ~ label,
-    .input-group textarea.has-value ~ label {
-      top: 4px;
-      font-size: 10px;
-      color: var(--primary);
-    }
-
-    /* Other input expand */
-    .other-input {
-      margin-top: 12px;
-      overflow: hidden;
-      max-height: 0;
+    30% { opacity: 0.5; }
+    60% { transform: translate(var(--drift, 10px), -80px) scale(0.8) rotate(3deg); }
+    100% {
       opacity: 0;
-      transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+      transform: translate(var(--drift, 10px), -140px) scale(0.5) rotate(-2deg);
     }
+  }
 
-    .other-input.visible {
-      max-height: 100px;
-      opacity: 1;
-    }
+  /* ── Particles ── */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift linear infinite;
+  }
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1px solid rgba(155,89,182,0.12);
+    background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.06), transparent);
+    animation: bubbleUp linear infinite;
+  }
+  @keyframes drift {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  @keyframes bubbleUp {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(50vh) scale(1); }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
 
-    /* ===== Buttons ===== */
-    .btn-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0 36px 32px;
-      gap: 12px;
-    }
+  /* ── Footer ── */
+  .footer {
+    position: fixed;
+    bottom: 16px;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: rgba(200,200,220,0.12);
+    z-index: 1;
+  }
 
-    .btn {
-      padding: 12px 28px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 400;
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      cursor: pointer;
-      border: none;
-      transition: all 0.3s ease;
-      outline: none;
-      letter-spacing: 2px;
-    }
+  /* ── Confetti ── */
+  .confetti-piece {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 100;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
 
-    .btn:focus-visible {
-      box-shadow: 0 0 0 3px rgba(155,89,182,0.3);
-    }
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .logo-header { gap: 14px; margin-bottom: 16px; }
+    .logo-header .seahorse-wrap { font-size: 5px; }
+    .logo-header .loci-title { font-size: 8px; }
+    .logo-header .subtitle { font-size: 10px; letter-spacing: 3px; }
+    .question-title { font-size: 18px; }
+    .pill-options { gap: 10px; }
+    .pill-option { padding: 10px 20px; font-size: 11px; }
+    .lang-pill { padding: 12px 24px; font-size: 12px; }
+    .float-input-wrap { width: 280px; }
+    .float-input { font-size: 16px; }
+    .glow-1 { width: 300px; height: 300px; }
+    .glow-2 { width: 200px; height: 200px; }
+    .glow-3 { display: none; }
+  }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-dim);
-      border: 1px solid rgba(155,89,182,0.15);
-    }
+  /* ── Focus visible ── */
+  *:focus-visible {
+    outline: 2px solid rgb(155,89,182);
+    outline-offset: 2px;
+  }
 
-    .btn-ghost:hover {
-      color: var(--text);
-      border-color: rgba(155,89,182,0.35);
-      text-shadow: 0 0 12px rgba(155,89,182,0.2);
-    }
-
-    .btn-primary {
-      background: rgba(155,89,182,0.15);
-      color: #c9a0dc;
-      border: 1px solid rgba(155,89,182,0.3);
-    }
-
-    .btn-primary:hover {
-      background: rgba(155,89,182,0.25);
-      box-shadow: 0 0 20px rgba(155,89,182,0.2);
-      transform: translateY(-1px);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .btn-primary:disabled:hover {
-      background: rgba(155,89,182,0.15);
-    }
-
-    /* ===== Create Brain button (v3 btn-star-wrap style) ===== */
-    .create-btn-wrap {
-      position: relative;
-      border-radius: 10px;
-      padding: 2px;
-      background: linear-gradient(135deg, rgba(155,89,182,0.4), rgba(26,188,156,0.3), rgba(155,89,182,0.4));
-      background-size: 200% 200%;
-      animation: borderFlow 3s ease-in-out infinite;
-      margin-top: 24px;
-    }
-
-    @keyframes borderFlow {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .create-btn {
-      display: block;
-      width: 100%;
-      padding: 16px 40px;
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 15px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      text-decoration: none;
-      cursor: pointer;
-      background: var(--bg);
-      color: #c9a0dc;
-      border: none;
-      transition: all 0.3s ease;
-    }
-
-    .create-btn:hover {
-      background: rgba(155,89,182,0.12);
-      box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.08);
-      transform: translateY(-1px);
-    }
-
-    /* ===== Review list ===== */
-    .review-list {
-      list-style: none;
-    }
-
-    .review-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 16px;
-      background: var(--surface);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      margin-bottom: 10px;
-      transition: all 0.3s ease;
-    }
-
-    .review-item:hover {
-      border-color: rgba(155,89,182,0.3);
-    }
-
-    .review-item .review-label {
-      font-size: 10px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 3px;
-    }
-
-    .review-item .review-value {
-      font-size: 14px;
-      font-weight: 400;
-      color: rgba(200,200,220,0.9);
-      letter-spacing: 1px;
-    }
-
-    .review-item .edit-btn {
-      background: none;
-      border: 1px solid rgba(155,89,182,0.15);
-      color: rgba(155,89,182,0.6);
-      font-size: 10px;
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
-    }
-
-    .review-item .edit-btn:hover {
-      color: rgba(155,89,182,0.9);
-      border-color: rgba(155,89,182,0.4);
-      text-shadow: 0 0 12px rgba(155,89,182,0.2);
-    }
-
-    /* ===== Progress animation ===== */
-    .progress-section {
-      text-align: center;
-    }
-
-    .progress-ring-container {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 24px;
-    }
-
-    .progress-ring {
-      transform: rotate(-90deg);
-    }
-
-    .progress-ring-bg {
-      fill: none;
-      stroke: rgba(155,89,182,0.08);
-      stroke-width: 4;
-    }
-
-    .progress-ring-fill {
-      fill: none;
-      stroke: var(--primary);
-      stroke-width: 4;
-      stroke-linecap: round;
-      stroke-dasharray: 314;
-      stroke-dashoffset: 314;
-      transition: stroke-dashoffset 0.5s ease;
-      filter: drop-shadow(0 0 6px var(--primary-glow));
-    }
-
-    .progress-percent {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--primary);
-      letter-spacing: 2px;
-    }
-
-    .progress-log {
-      text-align: left;
-      max-width: 380px;
-      margin: 0 auto;
-    }
-
-    .progress-log-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      font-size: 12px;
-      color: var(--text-dim);
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.3s ease;
-      letter-spacing: 1px;
-    }
-
-    .progress-log-item.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .progress-log-item.done {
-      color: var(--text);
-    }
-
-    .progress-log-item .check {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(155,89,182,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      flex-shrink: 0;
-      transition: all 0.3s ease;
-    }
-
-    .progress-log-item.done .check {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: var(--bg);
-    }
-
-    /* ===== Success ===== */
-    .success-section {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-dim), var(--secondary-dim));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 0 40px rgba(155,89,182,0.2), 0 0 80px rgba(26,188,156,0.1);
-    }
-
-    @keyframes successPop {
-      from { transform: scale(0); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .success-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 8px;
-      letter-spacing: 4px;
-      text-shadow: 0 0 20px rgba(155,89,182,0.3);
-    }
-
-    .success-desc {
-      color: var(--text-dim);
-      font-size: 13px;
-      margin-bottom: 28px;
-      line-height: 1.8;
-      letter-spacing: 0.5px;
-    }
-
-    /* ── Feature tag pills (v3 style) ── */
-    .feature-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .feature-tag {
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: rgba(155,89,182,0.45);
-      padding: 6px 14px;
-      border: 1px solid rgba(155,89,182,0.15);
-      border-radius: 20px;
-      transition: all 0.3s ease;
-    }
-    .feature-tag:hover {
-      color: rgba(155,89,182,0.7);
-      border-color: rgba(155,89,182,0.35);
-      text-shadow: 0 0 12px rgba(155,89,182,0.2);
-    }
-
-    .next-steps {
-      text-align: left;
-      background: var(--surface);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 20px;
-    }
-
-    .next-steps h3 {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      margin-bottom: 14px;
-    }
-
-    .next-step-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 8px 0;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-    }
-
-    .next-step-item .num {
-      width: 24px;
-      height: 24px;
-      border-radius: 8px;
-      background: var(--primary-dim);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .next-step-item code {
-      background: rgba(155,89,182,0.1);
-      color: #c9a0dc;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* ===== Error ===== */
-    .error-box {
-      background: rgba(239,68,68,0.08);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 10px;
-      padding: 16px;
-      margin-top: 16px;
-      display: none;
-    }
-
-    .error-box.visible { display: block; }
-
-    .error-box p {
-      color: var(--error);
-      font-size: 12px;
-      letter-spacing: 0.5px;
-    }
-
-    .error-box .retry-btn {
-      margin-top: 10px;
-      padding: 8px 20px;
-      border-radius: 8px;
-      border: 1px solid var(--error);
-      background: transparent;
-      color: var(--error);
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 2px;
-      transition: all 0.2s;
-    }
-
-    .error-box .retry-btn:hover {
-      background: rgba(239,68,68,0.1);
-    }
-
-    /* ===== Confetti ===== */
-    .confetti-piece {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      pointer-events: none;
-      z-index: 100;
-      animation: confettiFall linear forwards;
-    }
-
-    @keyframes confettiFall {
-      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 600px) {
-      .step { padding: 28px 20px; }
-      .btn-row { padding: 0 20px 24px; }
-      .option-grid.cols-3 { grid-template-columns: 1fr; }
-      .loci-title { font-size: 10px; }
-      .logo-subtitle { font-size: 11px; letter-spacing: 3px; }
-      .seahorse-wrap { font-size: 7px; }
-      .create-btn { font-size: 13px; letter-spacing: 2px; }
-      .glow-1 { width: 300px; height: 300px; }
-      .glow-2 { width: 200px; height: 200px; }
-      .glow-3 { display: none; }
-    }
-
-    /* ===== Focus visible ===== */
-    *:focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
-    }
-
-    /* ===== Scrollbar ===== */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.15); border-radius: 3px; }
-  </style>
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.15); border-radius: 3px; }
+</style>
 </head>
 <body>
 
@@ -943,236 +863,150 @@
 <div class="ambient-glow glow-2"></div>
 <div class="ambient-glow glow-3"></div>
 
-<div class="app" id="app">
-  <!-- LOCI block title -->
-  <div class="loci-title" id="lociTitle"></div>
-  <div class="logo-subtitle" id="logoSubtitle">Memory Palace for AI</div>
+<!-- Progress dots -->
+<div class="progress-dots" id="progressDots"></div>
 
-  <!-- Progress dots -->
-  <div class="progress-bar" id="progressBar"></div>
+<!-- Back button -->
+<button class="back-btn" id="backBtn" onclick="goPrev()" data-i18n="back">BACK</button>
 
-  <!-- Wizard card -->
-  <div class="wizard-card">
-    <div class="steps-viewport">
+<!-- ======================== STEP 0: Language ======================== -->
+<div class="step-container active" id="step-0">
+  <div class="logo-header" id="logoHeader">
+    <div class="seahorse-wrap" id="seahorse"></div>
+    <div class="logo-text">
+      <div class="loci-title" id="lociTitle"></div>
+      <div class="subtitle" id="subtitle">Memory Palace for AI</div>
+    </div>
+  </div>
+  <div class="question-title" data-i18n="lang_title">Choose your language</div>
+  <div class="question-desc" data-i18n="lang_desc">This sets the language for your Loci brain.</div>
+  <div class="pill-options" id="langOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="en" onclick="selectLanguage(this)">English</button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="zh" onclick="selectLanguage(this)">中文</button></div>
+  </div>
+</div>
 
-      <!-- Step 0: Language (with seahorse) -->
-      <div class="step active" id="step-0" data-step="0">
-        <div class="seahorse-wrap" id="seahorse"></div>
-        <div class="divider"></div>
-        <div class="reveal-line">Your AI forgets you. Every. Single. Time.</div>
-        <div class="reveal-line">What if it didn't?</div>
-        <div class="reveal-line">Loci gives your AI a real brain.</div>
-        <div style="height:24px"></div>
-        <div class="step-title" style="text-align:center;">Choose your language</div>
-        <div class="step-desc" style="text-align:center;">This will set the language for your entire Loci experience.</div>
-        <div class="option-grid cols-3" id="langOptions">
-          <div class="option-card" data-value="en" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-            <span class="icon">EN</span>
-            <span class="label">English</span>
-          </div>
-          <div class="option-card" data-value="zh" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-            <span class="icon" style="font-size:22px">中文</span>
-            <span class="label">Chinese</span>
-          </div>
-          <div class="option-card" data-value="mix" tabindex="0" role="button" aria-pressed="false" onclick="selectOption(this, 'language')">
-            <span class="icon" style="font-size:18px">Mix</span>
-            <span class="label">中英混合</span>
-          </div>
-        </div>
-      </div>
+<!-- ======================== STEP 1: Name ======================== -->
+<div class="step-container" id="step-1">
+  <div class="question-title" data-i18n="name_title">What's your name?</div>
+  <div class="question-desc" data-i18n="name_desc">This is how your AI will address you.</div>
+  <div class="float-input-wrap">
+    <input class="float-input" type="text" id="nameInput" autocomplete="off" spellcheck="false"
+           data-i18n-placeholder="name_label" placeholder="Your name"
+           oninput="validateStep()"
+           onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
+  </div>
+</div>
 
-      <!-- Step 1: Name -->
-      <div class="step" id="step-1" data-step="1">
-        <div class="step-title" data-i18n="name_title">What's your name?</div>
-        <div class="step-desc" data-i18n="name_desc">This is how your AI will address you.</div>
-        <div class="input-group">
-          <input type="text" id="nameInput" autocomplete="off" spellcheck="false"
-                 oninput="this.classList.toggle('has-value', this.value.length > 0); validateStep();"
-                 onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-          <label for="nameInput" data-i18n="name_label">Your name</label>
-        </div>
-      </div>
-
-      <!-- Step 2: Role -->
-      <div class="step" id="step-2" data-step="2">
-        <div class="step-title" data-i18n="role_title">What do you do?</div>
-        <div class="step-desc" data-i18n="role_desc">This helps Loci understand your context.</div>
-        <div class="option-grid" id="roleOptions">
-          <div class="option-card" data-value="Developer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-            <span class="icon">&#9000;</span>
-            <span class="label" data-i18n="role_dev">Developer</span>
-          </div>
-          <div class="option-card" data-value="Designer" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-            <span class="icon">&#9998;</span>
-            <span class="label" data-i18n="role_design">Designer</span>
-          </div>
-          <div class="option-card" data-value="Creator" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-            <span class="icon">&#9733;</span>
-            <span class="label" data-i18n="role_creator">Creator</span>
-          </div>
-          <div class="option-card" data-value="Student" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-            <span class="icon">&#9734;</span>
-            <span class="label" data-i18n="role_student">Student</span>
-          </div>
-          <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'role')">
-            <span class="icon">...</span>
-            <span class="label" data-i18n="role_other">Other</span>
-          </div>
-        </div>
-        <div class="other-input" id="roleOther">
-          <div class="input-group">
-            <input type="text" id="roleOtherInput" autocomplete="off"
-                   oninput="this.classList.toggle('has-value', this.value.length > 0); formData.roleOther = this.value; validateStep();"
-                   onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-            <label for="roleOtherInput" data-i18n="role_other_label">Describe your role</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Focus -->
-      <div class="step" id="step-3" data-step="3">
-        <div class="step-title" data-i18n="focus_title">What's your main focus right now?</div>
-        <div class="step-desc" data-i18n="focus_desc">Your most important priority — Loci will help you stay on track.</div>
-        <div class="option-grid" id="focusOptions">
-          <div class="option-card" data-value="Ship a product" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-            <span class="icon">&#128640;</span>
-            <span class="label" data-i18n="focus_ship">Ship a product</span>
-          </div>
-          <div class="option-card" data-value="Learn a skill" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-            <span class="icon">&#128218;</span>
-            <span class="label" data-i18n="focus_learn">Learn a skill</span>
-          </div>
-          <div class="option-card" data-value="Build an audience" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-            <span class="icon">&#127908;</span>
-            <span class="label" data-i18n="focus_audience">Build an audience</span>
-          </div>
-          <div class="option-card" data-value="Get a job" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-            <span class="icon">&#128188;</span>
-            <span class="label" data-i18n="focus_job">Get a job</span>
-          </div>
-          <div class="option-card" data-value="Other" tabindex="0" role="button" onclick="selectOption(this, 'focus')">
-            <span class="icon">...</span>
-            <span class="label" data-i18n="focus_other">Other</span>
-          </div>
-        </div>
-        <div class="other-input" id="focusOther">
-          <div class="input-group">
-            <input type="text" id="focusOtherInput" autocomplete="off"
-                   oninput="this.classList.toggle('has-value', this.value.length > 0); formData.focusOther = this.value; validateStep();"
-                   onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
-            <label for="focusOtherInput" data-i18n="focus_other_label">Describe your focus</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: Schedule -->
-      <div class="step" id="step-4" data-step="4">
-        <div class="step-title" data-i18n="schedule_title">When do you usually work?</div>
-        <div class="step-desc" data-i18n="schedule_desc">Loci will adapt its check-ins to your rhythm.</div>
-        <div class="option-grid" id="scheduleOptions">
-          <div class="option-card" data-value="Morning" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-            <span class="icon">&#127749;</span>
-            <span class="label" data-i18n="sched_morning">Morning</span>
-            <span class="sublabel">6am - 12pm</span>
-          </div>
-          <div class="option-card" data-value="Daytime" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-            <span class="icon">&#9728;</span>
-            <span class="label" data-i18n="sched_day">Daytime</span>
-            <span class="sublabel">9am - 6pm</span>
-          </div>
-          <div class="option-card" data-value="Evening" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-            <span class="icon">&#127761;</span>
-            <span class="label" data-i18n="sched_evening">Evening</span>
-            <span class="sublabel">6pm - 12am</span>
-          </div>
-          <div class="option-card" data-value="Night owl" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-            <span class="icon">&#127770;</span>
-            <span class="label" data-i18n="sched_night">Night owl</span>
-            <span class="sublabel">10pm - 6am</span>
-          </div>
-          <div class="option-card" data-value="Irregular" tabindex="0" role="button" onclick="selectOption(this, 'schedule')">
-            <span class="icon">&#8734;</span>
-            <span class="label" data-i18n="sched_irregular">Irregular</span>
-            <span class="sublabel" data-i18n="sched_varies">Varies</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 5: Review -->
-      <div class="step" id="step-5" data-step="5">
-        <div class="step-title" data-i18n="review_title">Review your setup</div>
-        <div class="step-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
-        <ul class="review-list" id="reviewList"></ul>
-        <div class="create-btn-wrap">
-          <button class="create-btn" id="createBtn" onclick="createBrain()">
-            <span data-i18n="create_btn">CREATE MY BRAIN</span>
-          </button>
-        </div>
-        <div class="error-box" id="errorBox">
-          <p id="errorMsg"></p>
-          <button class="retry-btn" onclick="createBrain()" data-i18n="retry">Retry</button>
-        </div>
-      </div>
-
-      <!-- Step 6: Progress -->
-      <div class="step" id="step-6" data-step="6">
-        <div class="progress-section">
-          <div class="progress-ring-container">
-            <svg class="progress-ring" width="120" height="120">
-              <circle class="progress-ring-bg" cx="60" cy="60" r="50"/>
-              <circle class="progress-ring-fill" id="progressRing" cx="60" cy="60" r="50"/>
-            </svg>
-            <div class="progress-percent" id="progressPercent">0%</div>
-          </div>
-          <div class="step-title" style="margin-bottom: 20px;" data-i18n="creating_title">Creating your brain...</div>
-          <div class="progress-log" id="progressLog"></div>
-        </div>
-      </div>
-
-      <!-- Step 7: Success -->
-      <div class="step" id="step-7" data-step="7">
-        <div class="success-section">
-          <div class="success-icon">&#10003;</div>
-          <div class="success-title" data-i18n="success_title">Brain Ready!</div>
-          <div class="success-desc" id="successDesc" data-i18n="success_desc">
-            Your memory palace has been initialized. Start a conversation and Loci will remember everything important.
-          </div>
-          <div class="feature-tags">
-            <span class="feature-tag">100% Local</span>
-            <span class="feature-tag">Plain Markdown</span>
-            <span class="feature-tag">Claude Code Native</span>
-            <span class="feature-tag">Open Source</span>
-          </div>
-          <div class="next-steps">
-            <h3 data-i18n="next_steps_title">Next Steps</h3>
-            <div class="next-step-item">
-              <span class="num">1</span>
-              <span data-i18n="next_step_1">Open your terminal in the brain folder</span>
-            </div>
-            <div class="next-step-item">
-              <span class="num">2</span>
-              <span>Run <code>claude</code></span>
-            </div>
-            <div class="next-step-item">
-              <span class="num">3</span>
-              <span data-i18n="next_step_3">Start talking — Loci handles the rest</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /steps-viewport -->
-
-    <!-- Navigation buttons -->
-    <div class="btn-row" id="btnRow">
-      <button class="btn btn-ghost" id="prevBtn" onclick="goPrev()" style="visibility:hidden;" data-i18n="back">Back</button>
-      <button class="btn btn-primary" id="nextBtn" onclick="goNext()" disabled data-i18n="next">Next</button>
+<!-- ======================== STEP 2: Role ======================== -->
+<div class="step-container" id="step-2">
+  <div class="question-title" data-i18n="role_title">What do you do?</div>
+  <div class="question-desc" data-i18n="role_desc">This helps Loci understand your context.</div>
+  <div class="pill-options" id="roleOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="Developer" onclick="selectOption(this, 'role')"><span class="pill-icon">&#9000;</span> <span data-i18n="role_dev">Developer</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Designer" onclick="selectOption(this, 'role')"><span class="pill-icon">&#9998;</span> <span data-i18n="role_design">Designer</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Creator" onclick="selectOption(this, 'role')"><span class="pill-icon">&#9733;</span> <span data-i18n="role_creator">Creator</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Student" onclick="selectOption(this, 'role')"><span class="pill-icon">&#9734;</span> <span data-i18n="role_student">Student</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Other" onclick="selectOption(this, 'role')"><span class="pill-icon">...</span> <span data-i18n="role_other">Other</span></button></div>
+  </div>
+  <div class="other-input-wrap" id="roleOther">
+    <div class="float-input-wrap" style="opacity:1;transform:none;transition:none;">
+      <input class="float-input" type="text" id="roleOtherInput" autocomplete="off"
+             data-i18n-placeholder="role_other_label" placeholder="Describe your role"
+             oninput="formData.roleOther = this.value; validateStep();"
+             onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
     </div>
   </div>
 </div>
 
+<!-- ======================== STEP 3: Focus ======================== -->
+<div class="step-container" id="step-3">
+  <div class="question-title" data-i18n="focus_title">What's your main focus right now?</div>
+  <div class="question-desc" data-i18n="focus_desc">Your most important priority — Loci will help you stay on track.</div>
+  <div class="pill-options" id="focusOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="Ship a product" onclick="selectOption(this, 'focus')"><span class="pill-icon">&#128640;</span> <span data-i18n="focus_ship">Ship a product</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Learn a skill" onclick="selectOption(this, 'focus')"><span class="pill-icon">&#128218;</span> <span data-i18n="focus_learn">Learn a skill</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Build an audience" onclick="selectOption(this, 'focus')"><span class="pill-icon">&#127908;</span> <span data-i18n="focus_audience">Build an audience</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Get a job" onclick="selectOption(this, 'focus')"><span class="pill-icon">&#128188;</span> <span data-i18n="focus_job">Get a job</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Other" onclick="selectOption(this, 'focus')"><span class="pill-icon">...</span> <span data-i18n="focus_other">Other</span></button></div>
+  </div>
+  <div class="other-input-wrap" id="focusOther">
+    <div class="float-input-wrap" style="opacity:1;transform:none;transition:none;">
+      <input class="float-input" type="text" id="focusOtherInput" autocomplete="off"
+             data-i18n-placeholder="focus_other_label" placeholder="Describe your focus"
+             oninput="formData.focusOther = this.value; validateStep();"
+             onkeydown="if(event.key==='Enter' && this.value.trim()) goNext();">
+    </div>
+  </div>
+</div>
+
+<!-- ======================== STEP 4: Schedule ======================== -->
+<div class="step-container" id="step-4">
+  <div class="question-title" data-i18n="schedule_title">When do you usually work?</div>
+  <div class="question-desc" data-i18n="schedule_desc">Loci will adapt its check-ins to your rhythm.</div>
+  <div class="pill-options" id="scheduleOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="Morning" onclick="selectOption(this, 'schedule')"><span data-i18n="sched_morning">Morning</span><span class="pill-sub">6am - 12pm</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Daytime" onclick="selectOption(this, 'schedule')"><span data-i18n="sched_day">Daytime</span><span class="pill-sub">9am - 6pm</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Evening" onclick="selectOption(this, 'schedule')"><span data-i18n="sched_evening">Evening</span><span class="pill-sub">6pm - 12am</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Night owl" onclick="selectOption(this, 'schedule')"><span data-i18n="sched_night">Night owl</span><span class="pill-sub">10pm - 6am</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="Irregular" onclick="selectOption(this, 'schedule')"><span data-i18n="sched_irregular">Irregular</span><span class="pill-sub" data-i18n="sched_varies">Varies</span></button></div>
+  </div>
+</div>
+
+<!-- ======================== STEP 5: About You ======================== -->
+<div class="step-container" id="step-5">
+  <div class="question-title" data-i18n="about_title">Anything else you'd like me to know?</div>
+  <div class="question-desc" data-i18n="about_desc">Your habits, birthday, hobbies, goals — everything about you. This is optional.</div>
+  <div class="float-input-wrap" style="width:500px;">
+    <textarea class="float-input about-textarea" id="aboutInput" autocomplete="off" spellcheck="false"
+              data-i18n-placeholder="about_placeholder" placeholder="e.g. I'm a night owl, my birthday is March 5th, I love hiking..."
+              oninput="formData.about = this.value;"></textarea>
+  </div>
+  <div style="margin-top: 20px;">
+    <button class="pill-option" onclick="goNext()" data-i18n="about_continue">Continue</button>
+  </div>
+</div>
+
+<!-- ======================== STEP 6: Review ======================== -->
+<div class="step-container" id="step-6">
+  <div class="question-title" data-i18n="review_title">Review your setup</div>
+  <div class="question-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
+  <ul class="review-list" id="reviewList"></ul>
+  <div class="btn-star-wrap pop" id="createBtnWrap" style="opacity:0;transition:opacity 0.6s ease;">
+    <button class="btn-star" id="createBtn" onclick="createBrain()">
+      <span data-i18n="create_btn">CREATE MY BRAIN</span>
+    </button>
+  </div>
+  <div class="error-box" id="errorBox">
+    <p id="errorMsg"></p>
+    <button class="retry-btn" onclick="createBrain()" data-i18n="retry">Retry</button>
+  </div>
+</div>
+
+<!-- ======================== STEP 7: Progress ======================== -->
+<div class="step-container" id="step-7">
+  <div class="progress-log" id="progressLog"></div>
+</div>
+
+<!-- ======================== STEP 8: Success ======================== -->
+<div class="step-container" id="step-8">
+  <div class="success-title" data-i18n="success_title">Brain Ready!</div>
+  <div class="success-desc" id="successDesc" data-i18n="success_desc">
+    Your memory palace has been initialized. Start a conversation and Loci will remember everything important.
+  </div>
+  <div class="feature-tags" id="successTags"></div>
+  <div class="btn-star-wrap pop">
+    <button class="btn-star" id="startBtn" onclick="window.close()">
+      Run <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">claude</code> to start
+    </button>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">Built with depth</div>
+
 <script>
-// ===== Constants from v3 =====
+// ===== Constants =====
 const SEAHORSE_ART = `
                     ,
                ,   /^\\     ___
@@ -1217,49 +1051,38 @@ const LOCI_TEXT = ` \u2588\u2588       \u2588\u2588\u2588\u2588\u2588\u2588   \u
  \u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588`;
 
 // ===== State =====
-const TOTAL_STEPS = 5;
 let currentStep = 0;
-
 const formData = {
-  language: '',
-  name: '',
-  role: '',
-  roleOther: '',
-  focus: '',
-  focusOther: '',
-  schedule: ''
+  language: '', name: '', role: '', roleOther: '',
+  focus: '', focusOther: '', schedule: '', about: ''
 };
 
 // ===== i18n =====
 const i18n = {
   en: {
+    lang_title: "Choose your language",
+    lang_desc: "This sets the language for your Loci brain.",
     name_title: "What's your name?",
     name_desc: "This is how your AI will address you.",
     name_label: "Your name",
     role_title: "What do you do?",
     role_desc: "This helps Loci understand your context.",
-    role_dev: "Developer",
-    role_design: "Designer",
-    role_creator: "Creator",
-    role_student: "Student",
-    role_other: "Other",
-    role_other_label: "Describe your role",
+    role_dev: "Developer", role_design: "Designer", role_creator: "Creator",
+    role_student: "Student", role_other: "Other", role_other_label: "Describe your role",
     focus_title: "What's your main focus right now?",
-    focus_desc: "Your most important priority — Loci will help you stay on track.",
-    focus_ship: "Ship a product",
-    focus_learn: "Learn a skill",
-    focus_audience: "Build an audience",
-    focus_job: "Get a job",
-    focus_other: "Other",
-    focus_other_label: "Describe your focus",
+    focus_desc: "Your most important priority \u2014 Loci will help you stay on track.",
+    focus_ship: "Ship a product", focus_learn: "Learn a skill",
+    focus_audience: "Build an audience", focus_job: "Get a job",
+    focus_other: "Other", focus_other_label: "Describe your focus",
     schedule_title: "When do you usually work?",
     schedule_desc: "Loci will adapt its check-ins to your rhythm.",
-    sched_morning: "Morning",
-    sched_day: "Daytime",
-    sched_evening: "Evening",
-    sched_night: "Night owl",
-    sched_irregular: "Irregular",
-    sched_varies: "Varies",
+    sched_morning: "Morning", sched_day: "Daytime", sched_evening: "Evening",
+    sched_night: "Night owl", sched_irregular: "Irregular", sched_varies: "Varies",
+    about_title: "Anything else you'd like me to know?",
+    about_desc: "Your habits, birthday, hobbies, goals — everything about you. This is optional.",
+    about_placeholder: "e.g. I'm a night owl, my birthday is March 5th, I love hiking...",
+    about_continue: "Continue",
+    review_about: "About you",
     review_title: "Review your setup",
     review_desc: "Everything look good? You can edit anything before creating your brain.",
     create_btn: "CREATE MY BRAIN",
@@ -1268,143 +1091,96 @@ const i18n = {
     success_desc: "Your memory palace has been initialized. Start a conversation and Loci will remember everything important.",
     next_steps_title: "Next Steps",
     next_step_1: "Open your terminal in the brain folder",
-    next_step_3: "Start talking — Loci handles the rest",
-    back: "Back",
-    next: "Next",
-    retry: "Retry",
-    review_language: "Language",
-    review_name: "Name",
-    review_role: "Role",
-    review_focus: "Focus",
-    review_schedule: "Schedule",
-    edit: "Edit",
+    next_step_3: "Start talking \u2014 Loci handles the rest",
+    back: "BACK", next: "NEXT", retry: "Retry",
+    review_language: "Language", review_name: "Name", review_role: "Role",
+    review_focus: "Focus", review_schedule: "Schedule", edit: "Edit",
     subtitle: "Memory Palace for AI",
-    prog_identity: "Writing identity...",
-    prog_plan: "Setting up life plan...",
-    prog_tasks: "Creating task system...",
-    prog_config: "Configuring preferences...",
-    prog_brain_path: "Registering brain path...",
-    prog_global: "Enabling global awareness...",
-    prog_commands: "Installing commands...",
-    prog_hooks: "Setting up hooks...",
-    prog_git: "Configuring git safety...",
-    prog_done: "All done!"
+    prog_identity: "Writing identity...", prog_plan: "Setting up life plan...",
+    prog_tasks: "Creating task system...", prog_config: "Configuring preferences...",
+    prog_brain_path: "Registering brain path...", prog_global: "Enabling global awareness...",
+    prog_commands: "Installing commands...", prog_hooks: "Setting up hooks...",
+    prog_git: "Configuring git safety...", prog_done: "All done!"
   },
   zh: {
-    name_title: "你叫什么名字?",
-    name_desc: "AI 会用这个名字称呼你。",
-    name_label: "你的名字",
-    role_title: "你是做什么的?",
-    role_desc: "帮助 Loci 理解你的背景。",
-    role_dev: "开发者",
-    role_design: "设计师",
-    role_creator: "创作者",
-    role_student: "学生",
-    role_other: "其他",
-    role_other_label: "描述你的角色",
-    focus_title: "你现在最重要的事是什么?",
-    focus_desc: "你的首要目标 — Loci 会帮你保持专注。",
-    focus_ship: "发布产品",
-    focus_learn: "学习技能",
-    focus_audience: "积累受众",
-    focus_job: "找工作",
-    focus_other: "其他",
-    focus_other_label: "描述你的重点",
-    schedule_title: "你通常什么时候工作?",
-    schedule_desc: "Loci 会根据你的作息来调整提醒。",
-    sched_morning: "早起型",
-    sched_day: "白天",
-    sched_evening: "傍晚",
-    sched_night: "夜猫子",
-    sched_irregular: "不固定",
-    sched_varies: "随机应变",
-    review_title: "确认你的设置",
-    review_desc: "看看是否都对? 创建前可以随时修改。",
-    create_btn: "创建我的大脑",
-    creating_title: "正在创建你的大脑...",
-    success_title: "大脑就绪!",
-    success_desc: "你的记忆宫殿已经初始化。开始对话吧，Loci 会帮你记住重要的一切。",
-    next_steps_title: "下一步",
-    next_step_1: "在 brain 文件夹打开终端",
-    next_step_3: "开始聊天 — Loci 搞定一切",
-    back: "返回",
-    next: "下一步",
-    retry: "重试",
-    review_language: "语言",
-    review_name: "名字",
-    review_role: "角色",
-    review_focus: "重点",
-    review_schedule: "作息",
-    edit: "编辑",
-    subtitle: "AI 的记忆宫殿",
-    prog_identity: "写入身份信息...",
-    prog_plan: "设置人生方向...",
-    prog_tasks: "创建任务系统...",
-    prog_config: "配置偏好...",
-    prog_brain_path: "注册大脑路径...",
-    prog_global: "启用全局感知...",
-    prog_commands: "安装命令...",
-    prog_hooks: "配置钩子...",
-    prog_git: "设置 git 安全...",
-    prog_done: "全部完成!"
+    lang_title: "\u9009\u62e9\u4f60\u7684\u8bed\u8a00",
+    lang_desc: "\u8bbe\u7f6e Loci \u5927\u8111\u7684\u8bed\u8a00\u3002",
+    name_title: "\u4f60\u53eb\u4ec0\u4e48\u540d\u5b57?",
+    name_desc: "AI \u4f1a\u7528\u8fd9\u4e2a\u540d\u5b57\u79f0\u547c\u4f60\u3002",
+    name_label: "\u4f60\u7684\u540d\u5b57",
+    role_title: "\u4f60\u662f\u505a\u4ec0\u4e48\u7684?",
+    role_desc: "\u5e2e\u52a9 Loci \u7406\u89e3\u4f60\u7684\u80cc\u666f\u3002",
+    role_dev: "\u5f00\u53d1\u8005", role_design: "\u8bbe\u8ba1\u5e08", role_creator: "\u521b\u4f5c\u8005",
+    role_student: "\u5b66\u751f", role_other: "\u5176\u4ed6", role_other_label: "\u63cf\u8ff0\u4f60\u7684\u89d2\u8272",
+    focus_title: "\u4f60\u73b0\u5728\u6700\u91cd\u8981\u7684\u4e8b\u662f\u4ec0\u4e48?",
+    focus_desc: "\u4f60\u7684\u9996\u8981\u76ee\u6807 \u2014 Loci \u4f1a\u5e2e\u4f60\u4fdd\u6301\u4e13\u6ce8\u3002",
+    focus_ship: "\u53d1\u5e03\u4ea7\u54c1", focus_learn: "\u5b66\u4e60\u6280\u80fd",
+    focus_audience: "\u79ef\u7d2f\u53d7\u4f17", focus_job: "\u627e\u5de5\u4f5c",
+    focus_other: "\u5176\u4ed6", focus_other_label: "\u63cf\u8ff0\u4f60\u7684\u91cd\u70b9",
+    schedule_title: "\u4f60\u901a\u5e38\u4ec0\u4e48\u65f6\u5019\u5de5\u4f5c?",
+    schedule_desc: "Loci \u4f1a\u6839\u636e\u4f60\u7684\u4f5c\u606f\u6765\u8c03\u6574\u63d0\u9192\u3002",
+    sched_morning: "\u65e9\u8d77\u578b", sched_day: "\u767d\u5929", sched_evening: "\u508d\u665a",
+    sched_night: "\u591c\u732b\u5b50", sched_irregular: "\u4e0d\u56fa\u5b9a", sched_varies: "\u968f\u673a\u5e94\u53d8",
+    about_title: "\u8fd8\u6709\u4ec0\u4e48\u60f3\u8ba9\u6211\u77e5\u9053\u7684\u5417\uff1f",
+    about_desc: "\u4f60\u7684\u4e60\u60ef\u3001\u751f\u65e5\u3001\u7231\u597d\u3001\u76ee\u6807\u2014\u2014\u5173\u4e8e\u4f60\u7684\u4e00\u5207\u3002\u8fd9\u662f\u53ef\u9009\u7684\u3002",
+    about_placeholder: "\u6bd4\u5982\uff1a\u6211\u662f\u591c\u732b\u5b50\uff0c\u751f\u65e5\u662f3\u67085\u53f7\uff0c\u559c\u6b22\u5f92\u6b65...",
+    about_continue: "\u7ee7\u7eed",
+    review_about: "\u5173\u4e8e\u4f60",
+    review_title: "\u786e\u8ba4\u4f60\u7684\u8bbe\u7f6e",
+    review_desc: "\u770b\u770b\u662f\u5426\u90fd\u5bf9? \u521b\u5efa\u524d\u53ef\u4ee5\u968f\u65f6\u4fee\u6539\u3002",
+    create_btn: "\u521b\u5efa\u6211\u7684\u5927\u8111",
+    creating_title: "\u6b63\u5728\u521b\u5efa\u4f60\u7684\u5927\u8111...",
+    success_title: "\u5927\u8111\u5c31\u7eea!",
+    success_desc: "\u4f60\u7684\u8bb0\u5fc6\u5bab\u6bbf\u5df2\u7ecf\u521d\u59cb\u5316\u3002\u5f00\u59cb\u5bf9\u8bdd\u5427\uff0cLoci \u4f1a\u5e2e\u4f60\u8bb0\u4f4f\u91cd\u8981\u7684\u4e00\u5207\u3002",
+    next_steps_title: "\u4e0b\u4e00\u6b65", back: "\u8fd4\u56de", next: "\u4e0b\u4e00\u6b65", retry: "\u91cd\u8bd5",
+    review_language: "\u8bed\u8a00", review_name: "\u540d\u5b57", review_role: "\u89d2\u8272",
+    review_focus: "\u91cd\u70b9", review_schedule: "\u4f5c\u606f", review_about: "\u5173\u4e8e\u4f60", edit: "\u7f16\u8f91",
+    subtitle: "AI \u7684\u8bb0\u5fc6\u5bab\u6bbf",
+    prog_identity: "\u5199\u5165\u8eab\u4efd\u4fe1\u606f...", prog_plan: "\u8bbe\u7f6e\u4eba\u751f\u65b9\u5411...",
+    prog_tasks: "\u521b\u5efa\u4efb\u52a1\u7cfb\u7edf...", prog_config: "\u914d\u7f6e\u504f\u597d...",
+    prog_brain_path: "\u6ce8\u518c\u5927\u8111\u8def\u5f84...", prog_global: "\u542f\u7528\u5168\u5c40\u611f\u77e5...",
+    prog_commands: "\u5b89\u88c5\u547d\u4ee4...", prog_hooks: "\u914d\u7f6e\u94a9\u5b50...",
+    prog_git: "\u8bbe\u7f6e git \u5b89\u5168...", prog_done: "\u5168\u90e8\u5b8c\u6210!"
   },
   mix: {
-    name_title: "你叫什么名字?",
-    name_desc: "AI 会用这个名字称呼你。",
-    name_label: "你的名字",
-    role_title: "你是做什么的?",
-    role_desc: "帮 Loci 理解你的 context.",
-    role_dev: "Developer",
-    role_design: "Designer",
-    role_creator: "Creator",
-    role_student: "Student",
-    role_other: "Other",
-    role_other_label: "描述你的 role",
-    focus_title: "现在最 focus 的事是什么?",
-    focus_desc: "你的 top priority — Loci 帮你 stay on track.",
-    focus_ship: "Ship a product",
-    focus_learn: "学习 skill",
-    focus_audience: "Build audience",
-    focus_job: "找工作",
-    focus_other: "Other",
-    focus_other_label: "描述你的 focus",
-    schedule_title: "你通常什么时候 work?",
-    schedule_desc: "Loci 会 adapt 到你的节奏。",
-    sched_morning: "Morning",
-    sched_day: "Daytime",
-    sched_evening: "Evening",
-    sched_night: "Night owl",
-    sched_irregular: "不固定",
-    sched_varies: "Varies",
-    review_title: "Review 你的设置",
-    review_desc: "都对吗? Create 前可以随时改。",
+    lang_title: "Choose your language",
+    lang_desc: "\u8bbe\u7f6e Loci brain \u7684\u8bed\u8a00\u3002",
+    name_title: "\u4f60\u53eb\u4ec0\u4e48\u540d\u5b57?",
+    name_desc: "AI \u4f1a\u7528\u8fd9\u4e2a\u540d\u5b57\u79f0\u547c\u4f60\u3002",
+    name_label: "\u4f60\u7684\u540d\u5b57",
+    role_title: "\u4f60\u662f\u505a\u4ec0\u4e48\u7684?",
+    role_desc: "\u5e2e Loci \u7406\u89e3\u4f60\u7684 context.",
+    role_dev: "Developer", role_design: "Designer", role_creator: "Creator",
+    role_student: "Student", role_other: "Other", role_other_label: "\u63cf\u8ff0\u4f60\u7684 role",
+    focus_title: "\u73b0\u5728\u6700 focus \u7684\u4e8b\u662f\u4ec0\u4e48?",
+    focus_desc: "\u4f60\u7684 top priority \u2014 Loci \u5e2e\u4f60 stay on track.",
+    focus_ship: "Ship a product", focus_learn: "\u5b66\u4e60 skill",
+    focus_audience: "Build audience", focus_job: "\u627e\u5de5\u4f5c",
+    focus_other: "Other", focus_other_label: "\u63cf\u8ff0\u4f60\u7684 focus",
+    schedule_title: "\u4f60\u901a\u5e38\u4ec0\u4e48\u65f6\u5019 work?",
+    schedule_desc: "Loci \u4f1a adapt \u5230\u4f60\u7684\u8282\u594f\u3002",
+    sched_morning: "Morning", sched_day: "Daytime", sched_evening: "Evening",
+    sched_night: "Night owl", sched_irregular: "\u4e0d\u56fa\u5b9a", sched_varies: "Varies",
+    about_title: "\u8fd8\u6709\u4ec0\u4e48\u60f3\u8ba9\u6211 know \u7684\u5417?",
+    about_desc: "\u4f60\u7684 habits\u3001birthday\u3001hobbies\u3001goals \u2014 everything about you. Optional.",
+    about_placeholder: "e.g. \u6211\u662f night owl\uff0c\u751f\u65e5 3\u67085\u53f7\uff0c\u559c\u6b22 hiking...",
+    about_continue: "Continue",
+    review_about: "About you",
+    review_title: "Review \u4f60\u7684\u8bbe\u7f6e",
+    review_desc: "\u90fd\u5bf9\u5417? Create \u524d\u53ef\u4ee5\u968f\u65f6\u6539\u3002",
     create_btn: "CREATE MY BRAIN",
-    creating_title: "正在 creating 你的 brain...",
+    creating_title: "\u6b63\u5728 creating \u4f60\u7684 brain...",
     success_title: "Brain Ready!",
-    success_desc: "你的 memory palace 已经 ready. Start 对话，Loci 会 remember everything important.",
-    next_steps_title: "Next Steps",
-    next_step_1: "在 brain 文件夹打开 terminal",
-    next_step_3: "Start chatting — Loci handles the rest",
-    back: "Back",
-    next: "Next",
-    retry: "Retry",
-    review_language: "Language",
-    review_name: "Name",
-    review_role: "Role",
-    review_focus: "Focus",
-    review_schedule: "Schedule",
-    edit: "Edit",
-    subtitle: "AI 的 Memory Palace",
-    prog_identity: "Writing identity...",
-    prog_plan: "Setting up plan...",
-    prog_tasks: "Creating tasks...",
-    prog_config: "Configuring...",
-    prog_brain_path: "Registering brain path...",
-    prog_global: "Enabling global awareness...",
-    prog_commands: "Installing commands...",
-    prog_hooks: "Setting up hooks...",
-    prog_git: "Configuring git...",
-    prog_done: "All done!"
+    success_desc: "\u4f60\u7684 memory palace \u5df2\u7ecf ready. Start \u5bf9\u8bdd\uff0cLoci \u4f1a remember everything important.",
+    next_steps_title: "Next Steps", back: "Back", next: "Next", retry: "Retry",
+    review_language: "Language", review_name: "Name", review_role: "Role",
+    review_focus: "Focus", review_schedule: "Schedule", edit: "Edit",
+    subtitle: "AI \u7684 Memory Palace",
+    prog_identity: "Writing identity...", prog_plan: "Setting up plan...",
+    prog_tasks: "Creating tasks...", prog_config: "Configuring...",
+    prog_brain_path: "Registering brain path...", prog_global: "Enabling global awareness...",
+    prog_commands: "Installing commands...", prog_hooks: "Setting up hooks...",
+    prog_git: "Configuring git...", prog_done: "All done!"
   }
 };
 
@@ -1419,10 +1195,15 @@ function applyI18n() {
     const text = t(key);
     if (text) el.textContent = text;
   });
-  document.getElementById('logoSubtitle').textContent = t('subtitle');
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const text = t(key);
+    if (text) el.placeholder = text;
+  });
+  document.getElementById('subtitle').textContent = t('subtitle');
 }
 
-// ===== Seahorse rendering (from v3) =====
+// ===== Seahorse rendering =====
 function getGradientColor(row, total) {
   const t = row / total;
   return `rgb(${Math.round(155+(26-155)*t)},${Math.round(89+(188-89)*t)},${Math.round(182+(156-182)*t)})`;
@@ -1430,8 +1211,8 @@ function getGradientColor(row, total) {
 
 let seahorseChars = [];
 
-function renderSeahorse() {
-  const el = document.getElementById('seahorse');
+function renderSeahorse(targetId) {
+  const el = document.getElementById(targetId);
   if (!el) return [];
   const lines = SEAHORSE_ART.split('\n');
   const chars = [];
@@ -1465,7 +1246,7 @@ function fireSpark(chars) {
   setTimeout(() => { el.classList.remove('spark'); el.textContent = orig; }, 150 + Math.random() * 200);
 }
 
-// ===== Particles & Bubbles (from v3) =====
+// ===== Particles =====
 function createParticles() {
   const colors = ['rgba(155,89,182,0.35)', 'rgba(26,188,156,0.3)', 'rgba(255,255,255,0.15)'];
   for (let i = 0; i < 40; i++) {
@@ -1493,14 +1274,13 @@ function createParticles() {
   }
 }
 
-// ===== Jellyfish trail (from v3) =====
+// ===== Jellyfish trail =====
 const jellyColors = [
   { bell: 'rgba(155,89,182,0.35)', tentacle: 'rgba(155,89,182,0.2)' },
   { bell: 'rgba(120,100,200,0.3)', tentacle: 'rgba(120,100,200,0.18)' },
   { bell: 'rgba(26,188,156,0.25)', tentacle: 'rgba(26,188,156,0.15)' },
   { bell: 'rgba(180,120,220,0.3)', tentacle: 'rgba(180,120,220,0.18)' },
 ];
-
 let lastJellyTime = 0;
 
 function spawnJellyfish(x, y) {
@@ -1537,179 +1317,164 @@ function spawnJellyfish(x, y) {
   setTimeout(() => el.remove(), 4000);
 }
 
+// ===== Mouse interaction =====
+const seahorseEl = document.getElementById('seahorse');
+
 document.addEventListener('mousemove', (e) => {
+  const mx = e.clientX, my = e.clientY;
+
+  // Check if mouse is near the seahorse — if so, skip jellyfish
+  const rect = seahorseEl.getBoundingClientRect();
+  const nearSeahorse = mx >= rect.left - 60 && mx <= rect.right + 60 && my >= rect.top - 60 && my <= rect.bottom + 60;
+
   const now = Date.now();
-  if (now - lastJellyTime > 200) {
+  if (!nearSeahorse && now - lastJellyTime > 200) {
     lastJellyTime = now;
     if (Math.random() > 0.35) {
-      spawnJellyfish(e.clientX, e.clientY);
+      spawnJellyfish(mx, my);
     }
   }
-});
 
-// ===== Reveal lines (from v3, welcome step only) =====
-const revealLines = document.querySelectorAll('.reveal-line');
-let currentLine = 0;
-let prevLine = -1;
-const BREATHE_DURATION = 1800;
+  // Scatter chars near mouse on seahorse
+  if (!nearSeahorse) return;
 
-function cycleRevealLines() {
-  revealLines.forEach((l, i) => {
-    if (i !== currentLine) {
-      l.classList.remove('bright');
-      if (i === prevLine) {
-        l.classList.add('fading');
-        setTimeout(() => l.classList.remove('fading'), 1200);
-      }
+  seahorseChars.forEach(c => {
+    const cr = c.getBoundingClientRect();
+    const cx = cr.left + cr.width/2, cy = cr.top + cr.height/2;
+    const dist = Math.hypot(mx - cx, my - cy);
+    if (dist < 50) {
+      c.classList.add('scatter');
+      clearTimeout(c._scatterTimer);
+      c._scatterTimer = setTimeout(() => c.classList.remove('scatter'), 200);
     }
   });
-  revealLines[currentLine].classList.remove('fading');
-  revealLines[currentLine].classList.add('bright');
-  prevLine = currentLine;
-  currentLine = (currentLine + 1) % revealLines.length;
-  setTimeout(cycleRevealLines, BREATHE_DURATION);
-}
+});
+
+// ===== Reveal lines (removed — direct question flow) =====
 
 // ===== Progress dots =====
 function renderProgressDots() {
-  const bar = document.getElementById('progressBar');
-  bar.innerHTML = '';
-  const formSteps = 6;
-  for (let i = 0; i < formSteps; i++) {
-    if (i > 0) {
-      const line = document.createElement('div');
-      line.className = 'progress-line' + (i <= currentStep ? ' done' : '');
-      bar.appendChild(line);
-    }
+  const dotsEl = document.getElementById('progressDots');
+  dotsEl.innerHTML = '';
+  const totalDots = 7; // steps 0-6
+  for (let i = 0; i < totalDots; i++) {
     const dot = document.createElement('div');
     dot.className = 'progress-dot';
     if (i < currentStep) dot.classList.add('done');
     if (i === currentStep) dot.classList.add('current');
-    bar.appendChild(dot);
+    dotsEl.appendChild(dot);
   }
 }
 
-// ===== Option selection =====
-function selectOption(card, field) {
-  const container = card.parentElement;
-  container.querySelectorAll('.option-card').forEach(c => {
-    c.classList.remove('selected');
-    c.setAttribute('aria-pressed', 'false');
-  });
-  card.classList.add('selected');
-  card.setAttribute('aria-pressed', 'true');
-  formData[field] = card.dataset.value;
+// ===== Navigation =====
+function showStep(step, direction) {
+  const prevStep = currentStep;
+  currentStep = step;
 
-  // Ripple effect
-  const ripple = document.createElement('span');
-  ripple.className = 'ripple';
-  const rect = card.getBoundingClientRect();
-  ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
-  ripple.style.left = '0px';
-  ripple.style.top = '0px';
-  card.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 600);
+  // Hide all step containers
+  document.querySelectorAll('.step-container').forEach(el => {
+    el.classList.remove('active');
+  });
+
+  const progressDots = document.getElementById('progressDots');
+  const backBtn = document.getElementById('backBtn');
+
+  if (step === 0) {
+    progressDots.classList.remove('visible');
+    backBtn.classList.remove('visible');
+  } else if (step <= 6) {
+    progressDots.classList.add('visible');
+    backBtn.classList.add('visible');
+  } else {
+    progressDots.classList.remove('visible');
+    backBtn.classList.remove('visible');
+  }
+
+  // Show the right step container and move logo into it
+  const stepEl = document.getElementById('step-' + step);
+  if (stepEl) {
+    const logo = document.getElementById('logoHeader');
+    stepEl.prepend(logo);
+    stepEl.classList.add('active');
+  }
+
+  renderProgressDots();
+  validateStep();
+
+  // Focus management
+  if (step === 1) {
+    setTimeout(() => document.getElementById('nameInput').focus(), 400);
+  }
+  if (step === 5) {
+    setTimeout(() => document.getElementById('aboutInput').focus(), 400);
+  }
+
+  // Build review
+  if (step === 6) buildReview();
+}
+
+function selectLanguage(btn) {
+  // Highlight selected pill
+  const container = btn.closest('.pill-options');
+  if (container) {
+    container.querySelectorAll('.pill-option').forEach(p => {
+      p.classList.remove('selected');
+      p.closest('.pill-wrap').classList.remove('selected');
+    });
+    btn.classList.add('selected');
+    btn.closest('.pill-wrap').classList.add('selected');
+  }
+  formData.language = btn.dataset.value;
+  applyI18n();
+  setTimeout(() => showStep(1, 'forward'), 400);
+}
+
+function selectOption(btn, field) {
+  const container = btn.closest('.pill-options');
+  container.querySelectorAll('.pill-option').forEach(p => {
+    p.classList.remove('selected');
+    p.closest('.pill-wrap').classList.remove('selected');
+  });
+  btn.classList.add('selected');
+  btn.closest('.pill-wrap').classList.add('selected');
+  formData[field] = btn.dataset.value;
 
   // Show/hide "Other" input
   if (field === 'role') {
     const otherDiv = document.getElementById('roleOther');
-    otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
-    if (card.dataset.value === 'Other') {
+    otherDiv.classList.toggle('visible', btn.dataset.value === 'Other');
+    if (btn.dataset.value === 'Other') {
       setTimeout(() => document.getElementById('roleOtherInput').focus(), 300);
     }
   }
   if (field === 'focus') {
     const otherDiv = document.getElementById('focusOther');
-    otherDiv.classList.toggle('visible', card.dataset.value === 'Other');
-    if (card.dataset.value === 'Other') {
+    otherDiv.classList.toggle('visible', btn.dataset.value === 'Other');
+    if (btn.dataset.value === 'Other') {
       setTimeout(() => document.getElementById('focusOtherInput').focus(), 300);
     }
   }
 
   validateStep();
 
-  // Auto-advance for language step
-  if (field === 'language') {
-    applyI18n();
+  // Auto-advance after selection (except "Other")
+  if (btn.dataset.value !== 'Other') {
     setTimeout(goNext, 400);
   }
 }
 
-// Keyboard support for option cards
-document.addEventListener('keydown', (e) => {
-  if (e.target.classList.contains('option-card') && (e.key === 'Enter' || e.key === ' ')) {
-    e.preventDefault();
-    e.target.click();
-  }
-});
-
-// ===== Validation =====
 function validateStep() {
-  const nextBtn = document.getElementById('nextBtn');
-  let valid = false;
-
-  switch (currentStep) {
-    case 0: valid = !!formData.language; break;
-    case 1: valid = document.getElementById('nameInput').value.trim().length > 0; break;
-    case 2:
-      valid = !!formData.role;
-      if (formData.role === 'Other') valid = !!formData.roleOther.trim();
-      break;
-    case 3:
-      valid = !!formData.focus;
-      if (formData.focus === 'Other') valid = !!formData.focusOther.trim();
-      break;
-    case 4: valid = !!formData.schedule; break;
-    case 5: valid = true; break;
-  }
-
-  nextBtn.disabled = !valid;
-}
-
-// ===== Navigation =====
-function showStep(step, direction) {
-  const oldStep = document.querySelector('.step.active');
-  const newStep = document.getElementById('step-' + step);
-  if (!newStep) return;
-
-  if (oldStep) {
-    oldStep.classList.remove('active', 'slide-in-right', 'slide-in-left');
-  }
-
-  newStep.classList.add('active');
-  newStep.classList.add(direction === 'forward' ? 'slide-in-right' : 'slide-in-left');
-
-  currentStep = step;
-  renderProgressDots();
-  validateStep();
-
-  // Show/hide nav buttons
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const btnRow = document.getElementById('btnRow');
-
-  if (step >= 6) {
-    btnRow.style.display = 'none';
-  } else {
-    btnRow.style.display = 'flex';
-    prevBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
-    nextBtn.style.display = step === 5 ? 'none' : 'inline-flex';
-  }
-
-  // Focus management
-  if (step === 1) {
-    setTimeout(() => document.getElementById('nameInput').focus(), 400);
-  }
-
-  // Build review
-  if (step === 5) buildReview();
+  // No next button to disable in this design; validation controls auto-advance
 }
 
 function goNext() {
   if (currentStep === 1) {
     formData.name = document.getElementById('nameInput').value.trim();
+    if (!formData.name) return;
   }
-  if (currentStep < 7) {
+  if (currentStep === 2 && formData.role === 'Other' && !formData.roleOther.trim()) return;
+  if (currentStep === 3 && formData.focus === 'Other' && !formData.focusOther.trim()) return;
+  if (currentStep < 8) {
     showStep(currentStep + 1, 'forward');
   }
 }
@@ -1720,10 +1485,18 @@ function goPrev() {
   }
 }
 
+// Keyboard: Enter to advance on name step
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && currentStep === 1) {
+    const name = document.getElementById('nameInput').value.trim();
+    if (name) goNext();
+  }
+});
+
 // ===== Review =====
 function buildReview() {
   const list = document.getElementById('reviewList');
-  const langDisplay = { en: 'English', zh: '中文', mix: '中英混合' };
+  const langDisplay = { en: 'English', zh: '\u4e2d\u6587', mix: '\u4e2d\u82f1\u6df7\u5408' };
   const role = formData.role === 'Other' ? formData.roleOther : formData.role;
   const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
 
@@ -1732,7 +1505,8 @@ function buildReview() {
     { key: 'review_name', value: formData.name, step: 1 },
     { key: 'review_role', value: role, step: 2 },
     { key: 'review_focus', value: focus, step: 3 },
-    { key: 'review_schedule', value: formData.schedule, step: 4 }
+    { key: 'review_schedule', value: formData.schedule, step: 4 },
+    ...(formData.about.trim() ? [{ key: 'review_about', value: formData.about.trim(), step: 5 }] : [])
   ];
 
   list.innerHTML = items.map(item => `
@@ -1744,14 +1518,25 @@ function buildReview() {
       <button class="edit-btn" onclick="showStep(${item.step}, 'backward')">${t('edit')}</button>
     </li>
   `).join('');
+
+  // Staggered reveal animation
+  const reviewItems = list.querySelectorAll('.review-item');
+  reviewItems.forEach((item, i) => {
+    setTimeout(() => {
+      item.classList.add('bright');
+    }, 200 + i * 300);
+  });
+
+  // Show create button after all items revealed
+  setTimeout(() => {
+    document.getElementById('createBtnWrap').style.opacity = '1';
+  }, 200 + items.length * 300 + 200);
 }
 
 // ===== Create Brain =====
 async function createBrain() {
   document.getElementById('errorBox').classList.remove('visible');
-
-  // Go to progress step
-  showStep(6, 'forward');
+  showStep(7, 'forward');
 
   const progressSteps = [
     'prog_identity', 'prog_plan', 'prog_tasks', 'prog_config',
@@ -1759,22 +1544,19 @@ async function createBrain() {
     'prog_git', 'prog_done'
   ];
 
-  // Build progress log
   const logEl = document.getElementById('progressLog');
   logEl.innerHTML = progressSteps.map((key, i) => `
     <div class="progress-log-item" id="prog-${i}">
-      <span class="check"></span>
+      <span class="check-mark">\u2713</span>
       <span>${t(key)}</span>
     </div>
   `).join('');
 
-  // Animate items appearing
-  progressSteps.forEach((_, i) => {
-    setTimeout(() => {
-      const el = document.getElementById('prog-' + i);
-      if (el) el.classList.add('visible');
-    }, i * 100);
-  });
+  // Intensify seahorse breathing
+  const mainSeahorse = document.getElementById('seahorse');
+  if (mainSeahorse) {
+    mainSeahorse.style.animationName = 'breatheIntense';
+  }
 
   try {
     const role = formData.role === 'Other' ? formData.roleOther : formData.role;
@@ -1788,7 +1570,8 @@ async function createBrain() {
         name: formData.name,
         role: role,
         focus: focus,
-        schedule: formData.schedule
+        schedule: formData.schedule,
+        about: formData.about
       })
     });
 
@@ -1798,32 +1581,44 @@ async function createBrain() {
       throw new Error(data.error || 'Setup failed');
     }
 
-    // Animate progress
-    const ring = document.getElementById('progressRing');
-    const percentEl = document.getElementById('progressPercent');
-    const totalItems = progressSteps.length;
-
-    for (let i = 0; i < totalItems; i++) {
-      await new Promise(r => setTimeout(r, 300));
+    // Animate progress items one by one
+    for (let i = 0; i < progressSteps.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 250 + Math.random() * 200));
       const el = document.getElementById('prog-' + i);
       if (el) {
+        el.classList.add('bright');
+        await new Promise(resolve => setTimeout(resolve, 150));
+        el.classList.remove('bright');
         el.classList.add('done');
-        el.querySelector('.check').textContent = '\u2713';
       }
-      const pct = Math.round(((i + 1) / totalItems) * 100);
-      percentEl.textContent = pct + '%';
-      ring.style.strokeDashoffset = 314 - (314 * pct / 100);
     }
 
-    // Show success
-    await new Promise(r => setTimeout(r, 500));
-    showStep(7, 'forward');
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Confetti
-    launchConfetti();
+    // Success step
+    showStep(8, 'forward');
+
+    // Build success tags
+    const tags = document.getElementById('successTags');
+    const role2 = formData.role === 'Other' ? formData.roleOther : formData.role;
+    const langDisplay = { en: 'English', zh: '\u4e2d\u6587', mix: '\u4e2d\u82f1 Mix' };
+    tags.innerHTML = [
+      formData.name,
+      role2,
+      langDisplay[formData.language],
+      '100% Local',
+      'Open Source'
+    ].map(tag => `<span class="feature-tag">${tag}</span>`).join('');
+
+    // Confetti burst
+    spawnConfetti();
+
+    // Restore seahorse
+    if (miniSeahorse) {
+      miniSeahorse.style.animationName = 'breathe';
+    }
 
   } catch (err) {
-    // Go back to review and show error
     showStep(5, 'backward');
     const errorBox = document.getElementById('errorBox');
     document.getElementById('errorMsg').textContent = err.message;
@@ -1831,42 +1626,39 @@ async function createBrain() {
   }
 }
 
-// ===== Confetti =====
-function launchConfetti() {
-  const colors = ['#9b59b6', '#1abc9c', '#c9a0dc', '#44aaff', '#e67e22', '#e74c3c'];
-  for (let i = 0; i < 80; i++) {
-    setTimeout(() => {
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      piece.style.left = Math.random() * 100 + 'vw';
-      piece.style.top = '-10px';
-      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.width = (4 + Math.random() * 8) + 'px';
-      piece.style.height = (4 + Math.random() * 8) + 'px';
-      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-      piece.style.animationDuration = (2 + Math.random() * 3) + 's';
-      document.body.appendChild(piece);
-      setTimeout(() => piece.remove(), 5000);
-    }, i * 30);
+function spawnConfetti() {
+  const colors = ['rgba(155,89,182,0.8)', 'rgba(26,188,156,0.8)', 'rgba(200,200,220,0.6)', 'rgba(180,120,220,0.7)'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (20 + Math.random() * 60) + 'vw';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.random() * colors.length | 0];
+    piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.width = (4 + Math.random() * 6) + 'px';
+    piece.style.height = (4 + Math.random() * 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
   }
 }
 
 // ===== Init =====
+seahorseChars = renderSeahorse('seahorse');
 document.getElementById('lociTitle').textContent = LOCI_TEXT;
-seahorseChars = renderSeahorse();
 createParticles();
-renderProgressDots();
 
-// Start reveal lines animation
-setTimeout(cycleRevealLines, 600);
-
-// Seahorse spark animation
-(function sparkLoop() {
+// Start spark loop
+(function loop() {
   setTimeout(() => {
     for (let i = 0; i < 1 + (Math.random() * 3 | 0); i++) fireSpark(seahorseChars);
-    sparkLoop();
+    loop();
   }, 300 + Math.random() * 700);
 })();
+
+// Show initial progress dots
+renderProgressDots();
 </script>
 </body>
 </html>
