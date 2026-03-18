@@ -144,6 +144,50 @@ curl -X POST http://localhost:8765/api/tasks/add \
 
 ---
 
+## 周/月计划
+
+### POST /api/plan/save
+
+保存周计划或月计划项目。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | string | 是 | `week` 或 `month` |
+| `key` | string | 是 | 周: `YYYY-MM-DD`（周一）。月: `YYYY-MM` |
+| `items` | array | 是 | `{text, done}` 对象数组 |
+
+### POST /api/plan/load
+
+加载周计划或月计划项目。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | string | 是 | `week` 或 `month` |
+| `key` | string | 是 | 同 save 格式 |
+
+---
+
+## Journal 笔记
+
+### POST /api/journal/save-notes
+
+持久化个人日志笔记（之前仅存 localStorage）。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `date` | string | 是 | `YYYY-MM-DD` 格式 |
+| `notes` | array | 是 | `{id, name, content}` 对象数组 |
+
+### POST /api/journal/load-notes
+
+加载指定日期的个人日志笔记。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `date` | string | 是 | `YYYY-MM-DD` 格式 |
+
+---
+
 ## 错误处理
 
 除 404（未知路由）外，所有错误返回 HTTP 200 + 错误体:
