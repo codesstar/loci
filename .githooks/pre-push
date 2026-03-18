@@ -1,20 +1,32 @@
 #!/bin/bash
-# Loci: Prevent accidental push to template repo
-# Protects personal data from being pushed to the public repository
+# Loci: Prevent accidental push of personal data to PUBLIC repos
+# Private repos are always safe to push to
 
 remote="$1"
 url="$2"
 
-# Only block if brain has personal data (plan.md status: active)
-# Template status = no personal data yet = safe to push
+# Extract owner/repo from URL
+repo=""
+if [[ "$url" =~ github\.com[:/]([^/]+/[^/.]+) ]]; then
+  repo="${BASH_REMATCH[1]}"
+fi
+
+if [ -z "$repo" ]; then
+  exit 0  # Not a GitHub URL, allow
+fi
+
+# Check if repo is public (only block public repos with personal data)
+is_private=$(gh repo view "$repo" --json isPrivate -q '.isPrivate' 2>/dev/null)
+if [ "$is_private" = "true" ]; then
+  exit 0  # Private repo, safe to push
+fi
+
+# Public repo — check if brain has personal data
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-if [[ "$url" == *"codesstar/loci"* ]] && grep -q "status: active" "$SCRIPT_DIR/plan.md" 2>/dev/null; then
+if grep -q "status: active" "$SCRIPT_DIR/plan.md" 2>/dev/null; then
   echo ""
-  echo "⚠️  BLOCKED: You're pushing to the public Loci template repo."
-  echo "   Your brain contains personal data — this would make it public."
-  echo ""
-  echo "   To back up your brain, push to a PRIVATE repo instead:"
-  echo "   git remote set-url origin git@github.com:YOUR_USER/my-brain.git"
+  echo "⚠️  BLOCKED: You're pushing personal data to a PUBLIC repo ($repo)."
+  echo "   Make the repo private first, or push to a different repo."
   echo ""
   exit 1
 fi
