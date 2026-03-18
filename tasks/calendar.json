@@ -11,6 +11,12 @@
       "startKey": 420,
       "endKey": 480,
       "hour": 7
+    },
+    {
+      "title": "和老师见面",
+      "startKey": 570,
+      "endKey": 630,
+      "hour": 9
     }
   ]
 }
