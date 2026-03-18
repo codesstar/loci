@@ -16,6 +16,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Personal info → `<brain-path>/me/`
 - Quick thoughts → `<brain-path>/inbox.md`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+- **Time-based tasks** → write to BOTH `<brain-path>/tasks/daily/YYYY-MM-DD.md` (checklist) AND `<brain-path>/tasks/calendar.json` (event with startKey/endKey in minutes from midnight). No time = daily plan only.
 - **Dashboard**: if `server.js` is running (`node <brain-path>/.loci/dashboard/server.js`), no action needed — it reads markdown live. Otherwise, update `<brain-path>/.loci/dashboard/data.json` directly. See `<brain-path>/.loci/dashboard/schema.md` for format.
 
 ### Cross-Project Memory
