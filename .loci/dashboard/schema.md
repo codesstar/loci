@@ -1,7 +1,6 @@
 # Dashboard data.json Schema
 
-> Source of truth for the dashboard's data format. The AI maintains `data.json` directly — no build script needed.
-> When content files change, update the relevant section of `data.json` to match.
+> Format reference for the dashboard's data structure. When using `server.js` (recommended), data is built live from markdown files. This schema documents the JSON shape for both the API response (`/api/data`) and the static `data.json` fallback.
 
 ## Top-level Structure
 

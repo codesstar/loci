@@ -921,6 +921,9 @@ show_success() {
   printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} ~/.claude/CLAUDE.md\n"
   printf "  ${GREEN}✓${NC} tasks/active.md    ${GREEN}✓${NC} ~/.claude/commands/\n"
   printf "\n"
+  printf "  $(t "Start dashboard:" "启动面板:")  ${WHITE}node .loci/dashboard/server.js${NC}\n"
+  printf "  $(t "Then open:" "然后打开:")      ${WHITE}http://localhost:8765${NC}\n"
+  printf "\n"
   printf "  $(t "Your AI will remember the important things from now on." "从现在开始，你的 AI 会记住重要的事情。")\n"
   printf "\n"
 }
