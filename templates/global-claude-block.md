@@ -16,7 +16,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Personal info → `<brain-path>/me/`
 - Quick thoughts → `<brain-path>/inbox.md`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
-- **After any brain file change**, also update `<brain-path>/.loci/dashboard/data.json` to reflect the changes. See `<brain-path>/.loci/dashboard/schema.md` for the expected format. Update `build_time` to current timestamp.
+- **After any brain file change**, also update `<brain-path>/.loci/dashboard/data.json` **directly** (read JSON → modify relevant section → write back). See `<brain-path>/.loci/dashboard/schema.md` for format. Do NOT run `build.py` — direct JSON update is the default. Update `build_time` to current timestamp.
 
 ### Cross-Project Memory
 - In projects with `.loci/` directory: read `.loci/memory.md` for project context, use `.loci/to-hq.md` / `.loci/from-hq.md` for cross-project sync
