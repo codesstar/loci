@@ -91,6 +91,11 @@ ask() {
   eval "$var_name=\"\$input\""
 }
 
+# Flush stdin buffer (prevents arrow key leaking into next read)
+flush_input() {
+  while read -rsn1 -t 0.05 _discard 2>/dev/null; do :; done
+}
+
 # Interactive arrow-key menu selection (Claude Code style)
 choose() {
   local prompt="$1"
@@ -117,7 +122,7 @@ choose() {
   while true; do
     read -rsn1 key
     if [[ "$key" == $'\x1b' ]]; then
-      read -rsn2 arrow
+      read -rsn2 -t 0.1 arrow
       case "$arrow" in
         '[A') # Up
           if [ "$selected" -gt 0 ]; then
@@ -153,15 +158,22 @@ choose() {
 
   tput cnorm 2>/dev/null  # restore cursor
 
-  # Replace menu with final selection
+  # Replace menu with final selection — collapse to single line
   printf "\033[${count}A"
   for i in "${!options[@]}"; do
     printf "\r\033[K"
   done
   printf "\033[${count}A"
   echo -e "    ${GREEN}● ${WHITE}${options[$selected]}${NC}"
+  # Clear any remaining lines from the old menu
+  for (( i=1; i<count; i++ )); do
+    printf "\033[K\n"
+  done
 
   MENU_RESULT=$((selected + 1))
+
+  # Flush leftover escape sequences from stdin
+  flush_input
 }
 
 # Bilingual text helper — returns text based on language choice
@@ -292,20 +304,40 @@ preflight() {
   echo ""
 }
 
+# Show answered questions summary at top of screen
+show_answers_so_far() {
+  clear
+  echo ""
+  echo -e "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Tell me about yourself" "聊聊你自己")${NC}"
+  echo -e "  ${DIM}$(printf '%.0s─' {1..50})${NC}"
+  # Show previous answers as compact summary
+  [ -n "$LANG_CHOICE" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}"
+  [ -n "$USER_NAME" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}"
+  [ -n "$USER_ROLE" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}"
+  [ -n "$USER_FOCUS" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}"
+  [ -n "$SCHEDULE_LABEL" ] && echo -e "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}"
+}
+
 # ─── Step 1: Interactive Questions ───────────────────────────────────────────
 collect_info() {
   CURRENT_STEP=1
-  print_step "Tell me about yourself"
+  LANG_LABEL=""
+  SCHEDULE_LABEL=""
 
-  # Language
+  # Language (always show on fresh screen)
+  clear
+  echo ""
+  echo -e "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}Tell me about yourself${NC}"
+  echo -e "  ${DIM}$(printf '%.0s─' {1..50})${NC}"
   choose "Language / 语言" "English" "中文" "中英混合 (Mixed)"
   case $MENU_RESULT in
-    1) LANG_CHOICE="en" ;;
-    2) LANG_CHOICE="zh" ;;
-    3) LANG_CHOICE="mix" ;;
+    1) LANG_CHOICE="en"; LANG_LABEL="English" ;;
+    2) LANG_CHOICE="zh"; LANG_LABEL="中文" ;;
+    3) LANG_CHOICE="mix"; LANG_LABEL="中英混合" ;;
   esac
 
   # Name
+  show_answers_so_far
   echo ""
   ask "$(t "Your name" "你的名字")" "" USER_NAME
   while [ -z "$USER_NAME" ]; do
@@ -313,6 +345,7 @@ collect_info() {
   done
 
   # Role
+  show_answers_so_far
   choose "$(t "What do you do?" "你是做什么的？")" \
     "$(t "Developer" "开发者")" \
     "$(t "Designer" "设计师")" \
@@ -331,6 +364,7 @@ collect_info() {
   esac
 
   # Focus
+  show_answers_so_far
   choose "$(t "What's your most important focus right now?" "你目前最重要的事情是什么？")" \
     "$(t "Ship a product" "做产品上线")" \
     "$(t "Learn a skill" "学一项技能")" \
@@ -349,6 +383,7 @@ collect_info() {
   esac
 
   # Schedule
+  show_answers_so_far
   choose "$(t "When do you usually work?" "你通常什么时候工作？")" \
     "$(t "Morning (6am-12pm)" "早晨型 (6am-12pm)")" \
     "$(t "Daytime (9am-6pm)" "白天型 (9am-6pm)")" \
@@ -356,10 +391,19 @@ collect_info() {
     "$(t "Night owl (10pm-6am)" "夜猫子 (10pm-6am)")" \
     "$(t "Irregular / varies" "不固定")"
   USER_SCHEDULE=$MENU_RESULT
+  case $USER_SCHEDULE in
+    1) SCHEDULE_LABEL="$(t "Morning" "早晨型")" ;;
+    2) SCHEDULE_LABEL="$(t "Daytime" "白天型")" ;;
+    3) SCHEDULE_LABEL="$(t "Evening" "晚间型")" ;;
+    4) SCHEDULE_LABEL="$(t "Night owl" "夜猫子")" ;;
+    5) SCHEDULE_LABEL="$(t "Irregular" "不固定")" ;;
+  esac
 
+  # Show final summary
+  show_answers_so_far
   echo ""
-  echo -e "  ${DIM}$(printf '%.0s─' {1..50})${NC}"
   echo -e "  ${GREEN}✓${NC} $(t "Got it, ${USER_NAME}!" "收到，${USER_NAME}！")"
+  sleep 1
 }
 
 # ─── Step 2: File Generation ────────────────────────────────────────────────
