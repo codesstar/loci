@@ -8964,6 +8964,7 @@ createApp({
           dataLoaded = true;
           // Auto-refresh every 5s when server is available
           setInterval(async () => {
+            if (draggingTask.value) return; // pause refresh during drag
             try {
               const r = await fetch('/api/data');
               if (r.ok) data.value = await r.json();
