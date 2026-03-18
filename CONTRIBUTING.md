@@ -38,7 +38,7 @@ Please open an issue first for large changes so we can discuss the approach.
 
 ## Project Structure
 
-See [README.md](README.md#directory-structure) for the full directory map. Key files:
+See [How It Works](docs/how-it-works.md) for the full system overview. Key files:
 
 - `CLAUDE.md` — The AI system prompt (core logic lives here)
 - `templates/commands/` — Slash command definitions
