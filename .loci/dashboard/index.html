@@ -2609,6 +2609,17 @@
             <div class="s7-scan"></div>
           </div>
 
+          <!-- Daily Plan Content -->
+          <div v-if="todayPlan" class="card hud-card mb-6">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 class="hud-title-glow">{{ t('today.dailyPlan') }}</h3>
+              <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px;">{{ todayPlan.filename }}</span>
+            </div>
+            <div class="card-body" style="padding: 16px 24px;">
+              <div v-html="todayPlan.content" style="font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.72);"></div>
+            </div>
+          </div>
+
           <!-- Calendar — Mission Control -->
           <div class="card hud-card mb-6">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -4477,6 +4488,7 @@ createApp({
         'today.exec': '执行',
         'today.time': '时间',
         'today.toCalendar': '同步日历',
+        'today.dailyPlan': '日计划',
         'today.dayManifest': '日程面板',
         'today.day': '日',
         'today.week': '周',
@@ -4652,6 +4664,7 @@ createApp({
         'today.exec': 'EXEC',
         'today.time': 'Time',
         'today.toCalendar': 'CALENDAR',
+        'today.dailyPlan': 'DAILY PLAN',
         'today.dayManifest': 'DAY MANIFEST',
         'today.day': 'DAY',
         'today.week': 'WEEK',
@@ -6372,9 +6385,11 @@ createApp({
     });
 
     const todayPlan = computed(() => {
-      const today = new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      d.setDate(d.getDate() + calendarDayOffset.value);
+      const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       const daily = data.value?.planning?.daily || [];
-      return daily.find(d => d.filename.includes(today));
+      return daily.find(dp => dp.filename.includes(dateStr));
     });
 
     // --- Journal with date navigation ---

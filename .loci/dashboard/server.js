@@ -772,6 +772,56 @@ function handleInboxAdd(body) {
   return { ok: true, text };
 }
 
+function handleCalendarAdd(body) {
+  const { date, title, startMin, endMin, location, note } = body;
+  if (!date || !title) return { error: 'Missing date or title' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format (YYYY-MM-DD)' };
+
+  const calPath = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
+  let cal = {};
+  if (fs.existsSync(calPath)) {
+    try { cal = JSON.parse(fs.readFileSync(calPath, 'utf-8')); } catch {}
+  }
+
+  if (!cal[date]) cal[date] = [];
+  const ev = {
+    title,
+    startKey: startMin || 540,
+    endKey: endMin || (startMin ? startMin + 60 : 600),
+    hour: Math.floor((startMin || 540) / 60),
+  };
+  if (location) ev.location = location;
+  if (note) ev.note = note;
+  cal[date].push(ev);
+
+  fs.mkdirSync(path.dirname(calPath), { recursive: true });
+  fs.writeFileSync(calPath, JSON.stringify(cal, null, 2), 'utf-8');
+  return { ok: true, date, event: ev };
+}
+
+function handleDailyPlanSave(body) {
+  const { date, content } = body;
+  if (!date || !content) return { error: 'Missing date or content' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format (YYYY-MM-DD)' };
+
+  const dailyDir = path.join(LOCI_ROOT, 'tasks', 'daily');
+  if (!fs.existsSync(dailyDir)) fs.mkdirSync(dailyDir, { recursive: true });
+
+  const filePath = path.join(dailyDir, `${date}.md`);
+  let fileContent;
+  if (fs.existsSync(filePath)) {
+    const existing = fs.readFileSync(filePath, 'utf-8');
+    const [meta, _] = parseFrontmatter(existing);
+    meta.updated = date;
+    fileContent = buildMdWithFrontmatter(meta, content);
+  } else {
+    fileContent = buildMdWithFrontmatter({ date, updated: date }, content);
+  }
+
+  fs.writeFileSync(filePath, fileContent, 'utf-8');
+  return { ok: true, date, path: filePath };
+}
+
 function buildMdWithFrontmatter(meta, body) {
   let yaml = '---\n';
   for (const [key, value] of Object.entries(meta)) {
@@ -916,6 +966,36 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleInboxAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/calendar/add' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleCalendarAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/daily/save' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleDailyPlanSave(body);
       if (result.error) {
         sendError(res, result.error);
       } else {
