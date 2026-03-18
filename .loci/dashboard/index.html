@@ -7730,7 +7730,9 @@ createApp({
     // ═══ Task text renderer (inline markdown) ═══
     function taskHtml(text) {
       if (!text) return '';
-      return text
+      // Escape HTML entities first to prevent XSS
+      const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return escaped
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/`([^`]+)`/g, '<code style="font-size:0.85em;color:rgba(255,180,50,0.5);background:rgba(255,180,50,0.05);padding:1px 4px;border-radius:2px;">$1</code>');
     }
