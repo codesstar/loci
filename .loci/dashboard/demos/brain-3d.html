@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci Brain</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    overflow: hidden; background: #000; cursor: grab;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+  body:active { cursor: grabbing; }
+  canvas { display: block; }
+
+  #curtain {
+    position: fixed; inset: 0; background: #000; z-index: 100;
+    pointer-events: none;
+    transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #curtain.open { opacity: 0; }
+
+  .hud { position: fixed; pointer-events: none; z-index: 10; }
+  .hud-tl { top: 36px; left: 40px; opacity: 0; transition: opacity 1.5s ease 0.8s; }
+  .hud-tl.show { opacity: 1; }
+  .brand {
+    font-size: 8px; font-weight: 500; letter-spacing: 12px;
+    color: rgba(255,255,255,0.08); text-transform: uppercase;
+  }
+
+  .hud-bc {
+    bottom: 48px; left: 50%; transform: translateX(-50%);
+    text-align: center;
+    opacity: 0; transition: opacity 1.5s ease 1.5s;
+  }
+  .hud-bc.show { opacity: 1; }
+  .tagline {
+    font-size: 15px; font-weight: 200; letter-spacing: 8px;
+    color: rgba(255,255,255,0.3); text-transform: uppercase;
+    transition: opacity 0.6s;
+  }
+  .tagline-sub {
+    font-size: 10px; font-weight: 300; letter-spacing: 4px;
+    color: rgba(255,255,255,0.08); text-transform: uppercase;
+    margin-top: 8px; transition: opacity 0.6s;
+  }
+
+  .hud-bl {
+    bottom: 48px; left: 40px; display: flex; gap: 36px;
+    opacity: 0; transition: opacity 1.5s ease 2s;
+  }
+  .hud-bl.show { opacity: 1; }
+  .stat-val {
+    font-size: 20px; font-weight: 200; color: rgba(255,255,255,0.18);
+    font-variant-numeric: tabular-nums; transition: all 0.5s;
+  }
+  .stat-label {
+    font-size: 7px; font-weight: 400; letter-spacing: 3px;
+    color: rgba(255,255,255,0.06); text-transform: uppercase; margin-top: 2px;
+  }
+
+  .hud-br {
+    bottom: 48px; right: 40px;
+    opacity: 0; transition: opacity 1.5s ease 2.3s;
+  }
+  .hud-br.show { opacity: 1; }
+  .status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 8px; font-weight: 300; letter-spacing: 2px;
+    color: rgba(255,255,255,0.08); text-transform: uppercase;
+  }
+  .status-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(68, 255, 136, 0.4);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Stage switcher panel ── */
+  .stage-panel {
+    position: fixed; top: 50%; right: 32px; transform: translateY(-50%);
+    z-index: 20; display: flex; flex-direction: column; gap: 4px;
+    opacity: 0; transition: opacity 1.5s ease 2.5s;
+  }
+  .stage-panel.show { opacity: 1; }
+  .stage-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.15); font-family: 'Inter', sans-serif;
+    font-size: 9px; font-weight: 300; letter-spacing: 2px;
+    padding: 10px 16px; cursor: pointer;
+    transition: all 0.3s; text-align: left;
+    border-radius: 2px;
+  }
+  .stage-btn:hover { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.35); }
+  .stage-btn.active {
+    border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.02);
+  }
+  .stage-label {
+    font-size: 7px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,0.06); margin-bottom: 8px; padding: 0 16px;
+  }
+</style>
+</head>
+<body>
+
+<div id="curtain"></div>
+<div class="hud hud-tl" id="hud-tl"><div class="brand">Loci</div></div>
+
+<div class="hud hud-bc" id="hud-bc">
+  <div class="tagline" id="tagline">Your brain is waking up</div>
+  <div class="tagline-sub" id="tagline-sub">First memories forming</div>
+</div>
+
+<div class="hud hud-bl" id="hud-bl">
+  <div><div class="stat-val" id="sv-mem">3</div><div class="stat-label">Memories</div></div>
+  <div><div class="stat-val" id="sv-conn">8</div><div class="stat-label">Connections</div></div>
+  <div><div class="stat-val" id="sv-days">1</div><div class="stat-label">Days active</div></div>
+</div>
+
+<div class="hud hud-br" id="hud-br">
+  <div class="status"><div class="status-dot"></div> Neural network active</div>
+</div>
+
+<div class="stage-panel" id="stage-panel">
+  <div class="stage-label">Growth stage</div>
+  <button class="stage-btn active" data-stage="0">Day 1</button>
+  <button class="stage-btn" data-stage="1">Week 1</button>
+  <button class="stage-btn" data-stage="2">Month 1</button>
+  <button class="stage-btn" data-stage="3">Month 6</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ─── Growth stages ───
+
+const STAGES = [
+  { growth: 0.06, mem: '3',   conn: '8',     days: '1',  tag: 'Your brain is waking up',    sub: 'First memories forming' },
+  { growth: 0.28, mem: '31',  conn: '142',   days: '7',  tag: 'Your brain is growing',      sub: 'Neural pathways connecting' },
+  { growth: 0.62, mem: '247', conn: '1,024', days: '30', tag: 'Your brain is thinking',     sub: 'Knowledge taking shape' },
+  { growth: 1.0,  mem: '891', conn: '4,217', days: '180',tag: 'This is your brain',         sub: 'Every memory lives here' },
+];
+
+let currentGrowth = STAGES[0].growth;
+let targetGrowth = STAGES[0].growth;
+
+// ─── Scene ───
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(0, 0.5, 5);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x000000);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.04;
+controls.rotateSpeed = 0.5;
+controls.minDistance = 2.5;
+controls.maxDistance = 12;
+controls.target.set(0, 0.3, 0);
+controls.enablePan = false;
+
+// ─── Head shape ───
+
+function headRadius(theta, phi) {
+  const st = Math.sin(theta), ct = Math.cos(theta);
+  const sp = Math.sin(phi), cp = Math.cos(phi);
+  let r = 1.0;
+  r -= 0.05 * sp * sp;
+  r += 0.12 * Math.max(0, -cp) * st * st;
+  r += 0.08 * Math.max(0, cp) * Math.max(0, ct) * (1 - st * st * 0.3);
+  if (theta > Math.PI * 0.35 && theta < Math.PI * 0.75) {
+    const faceT = (theta - Math.PI * 0.35) / (Math.PI * 0.4);
+    const faceFwd = Math.max(0, cp);
+    r -= 0.15 * faceT * sp * sp * faceFwd;
+    if (faceT > 0.7) { const chinT = (faceT - 0.7) / 0.3; r -= 0.1 * chinT * faceFwd; r -= 0.12 * chinT * chinT; }
+    if (faceT > 0.15 && faceT < 0.5 && Math.abs(phi) < 0.3) { r += 0.08 * Math.sin((faceT - 0.15) / 0.35 * Math.PI) * Math.cos(phi * Math.PI / 0.6); }
+    if (faceT < 0.2 && faceFwd > 0.5) r += 0.04 * (1 - faceT / 0.2) * faceFwd;
+    if (faceT > 0.1 && faceT < 0.35) {
+      const eyeT = Math.sin((faceT - 0.1) / 0.25 * Math.PI);
+      r -= 0.04 * eyeT * (Math.exp(-Math.pow(phi - 0.4, 2) * 20) + Math.exp(-Math.pow(phi + 0.4, 2) * 20)) * faceFwd;
+    }
+  }
+  if (theta > Math.PI * 0.6 && theta < Math.PI * 0.85) {
+    const jawT = (theta - Math.PI * 0.6) / (Math.PI * 0.25); const jawSide = Math.abs(sp);
+    r -= 0.06 * jawT * jawSide;
+    if (jawSide > 0.5 && Math.abs(cp) < 0.5) r += 0.03 * (1 - jawT);
+  }
+  if (theta > Math.PI * 0.78) { const neckT = (theta - Math.PI * 0.78) / (Math.PI * 0.22); r -= 0.3 * neckT * neckT; r = Math.max(r, 0.35); r += 0.05 * Math.max(0, -cp) * neckT; }
+  const earTheta = Math.PI * 0.48, earWidth = 0.12;
+  if (Math.abs(theta - earTheta) < earWidth) { const earT = 1 - Math.abs(theta - earTheta) / earWidth; r += 0.1 * earT * earT * Math.max(0, Math.abs(sp) - 0.75) / 0.25; }
+  return r;
+}
+
+function headPoint(theta, phi) {
+  const r = headRadius(theta, phi);
+  return new THREE.Vector3(r * Math.sin(theta) * Math.sin(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.cos(phi));
+}
+
+function mulberry32(seed) {
+  return function() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+// ─── Build head — all lines generated, each with a birthThreshold ───
+
+const brainColors = [
+  new THREE.Color(0x6644ff), new THREE.Color(0x44aaff), new THREE.Color(0xff44aa),
+  new THREE.Color(0x44ff88), new THREE.Color(0xffaa22), new THREE.Color(0xaa44ff),
+  new THREE.Color(0x22ddff),
+];
+
+const allLineMats = []; // { mat, base, threshold, isBrain, phase }
+
+function buildHead() {
+  const headGroup = new THREE.Group();
+  const rng = mulberry32(42);
+  const lineCount = 650;
+
+  for (let i = 0; i < lineCount; i++) {
+    const points = [];
+    let theta = rng() * Math.PI * 0.95 + Math.PI * 0.02;
+    let phi = (rng() - 0.5) * Math.PI * 2;
+    const steps = 15 + Math.floor(rng() * 40);
+    let dTheta = (rng() - 0.5) * 0.15, dPhi = (rng() - 0.5) * 0.15;
+
+    for (let s = 0; s < steps; s++) {
+      const p = headPoint(theta, phi);
+      p.addScaledVector(p.clone().normalize(), (rng() - 0.5) * 0.02);
+      points.push(p);
+      dTheta += (rng() - 0.5) * 0.06; dPhi += (rng() - 0.5) * 0.06;
+      dTheta *= 0.92; dPhi *= 0.92;
+      theta += dTheta; phi += dPhi;
+      theta = Math.max(0.05, Math.min(Math.PI * 0.97, theta));
+    }
+    if (points.length < 3) continue;
+
+    const avgTheta = points.reduce((a, p) => a + Math.acos(Math.min(1, Math.max(-1, p.y / p.length()))), 0) / points.length;
+    const isBrain = avgTheta < Math.PI * 0.4 && rng() > 0.3;
+
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(points.length * 3));
+
+    let color, baseOpacity;
+    if (isBrain) {
+      color = brainColors[Math.floor(rng() * brainColors.length)];
+      baseOpacity = 0.2 + rng() * 0.5;
+    } else {
+      const v = rng() > 0.5 ? 0.7 : 0.35;
+      color = new THREE.Color(v, v, v + 0.02);
+      baseOpacity = 0.1 + rng() * 0.28;
+    }
+
+    const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0 });
+    const line = new THREE.Line(geometry, mat);
+    line.visible = false;
+    headGroup.add(line);
+
+    // Colored brain lines appear later; gray structural lines appear earlier
+    let threshold;
+    if (isBrain) {
+      threshold = 0.15 + rng() * 0.85; // colored: mostly appear later
+    } else {
+      threshold = rng() * 0.7; // gray: spread across early-mid stages
+    }
+
+    allLineMats.push({ mat, base: baseOpacity, threshold, isBrain, phase: rng() * Math.PI * 2, line });
+  }
+
+  // Detail dots — also growth-aware
+  const dotRng = mulberry32(123);
+  const detailCount = 2500;
+  const dPos = [], dCol = [], dThresholds = [];
+
+  for (let i = 0; i < detailCount; i++) {
+    const theta = dotRng() * Math.PI * 0.92 + 0.04;
+    const phi = (dotRng() - 0.5) * Math.PI * 2;
+    const p = headPoint(theta, phi);
+    p.addScaledVector(p.clone().normalize(), (dotRng() - 0.5) * 0.03);
+    dPos.push(p.x, p.y, p.z);
+
+    const isBrainArea = theta < Math.PI * 0.38;
+    if (isBrainArea && dotRng() > 0.4) {
+      const c = brainColors[Math.floor(dotRng() * brainColors.length)];
+      dCol.push(c.r, c.g, c.b);
+      dThresholds.push(0.2 + dotRng() * 0.8);
+    } else {
+      const v = 0.35 + dotRng() * 0.4;
+      dCol.push(v, v, v + 0.02);
+      dThresholds.push(dotRng() * 0.6);
+    }
+  }
+
+  const dotGeom = new THREE.BufferGeometry();
+  dotGeom.setAttribute('position', new THREE.Float32BufferAttribute(dPos, 3));
+  dotGeom.setAttribute('color', new THREE.Float32BufferAttribute(dCol, 3));
+  const dotAlphas = new Float32Array(detailCount).fill(0);
+  dotGeom.setAttribute('alpha', new THREE.Float32BufferAttribute(dotAlphas, 1));
+
+  const dotVS = `
+    attribute vec3 color;
+    attribute float alpha;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      vColor = color; vAlpha = alpha;
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = 3.5 * (1.0 / -mv.z);
+      gl_PointSize = max(gl_PointSize, 0.5);
+      gl_Position = projectionMatrix * mv;
+    }
+  `;
+  const dotFS = `
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+      float a = smoothstep(0.5, 0.0, d);
+      gl_FragColor = vec4(vColor, a * vAlpha);
+    }
+  `;
+  const dotMesh = new THREE.Points(dotGeom, new THREE.ShaderMaterial({
+    vertexShader: dotVS, fragmentShader: dotFS, transparent: true, depthWrite: false,
+  }));
+  headGroup.add(dotMesh);
+
+  // Contour lines
+  addContourLines(headGroup, dotRng);
+
+  return { group: headGroup, dotAlphas, dThresholds, dotGeom };
+}
+
+function addContourLines(group, rng) {
+  for (let i = 0; i < 80; i++) {
+    const theta = 0.08 + rng() * Math.PI * 0.85;
+    const points = [];
+    const segments = 60 + Math.floor(rng() * 40);
+    const phiStart = (rng() - 0.5) * Math.PI * 2;
+    const phiSpan = 0.5 + rng() * 2.5;
+    for (let s = 0; s <= segments; s++) {
+      const phi = phiStart + (s / segments) * phiSpan;
+      const p = headPoint(theta + (rng() - 0.5) * 0.04, phi);
+      p.addScaledVector(p.clone().normalize(), (rng() - 0.5) * 0.015);
+      points.push(p);
+    }
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geom = new THREE.BufferGeometry().setFromPoints(curve.getPoints(segments * 2));
+    const isBrain = theta < Math.PI * 0.38;
+    const color = isBrain && rng() > 0.5
+      ? brainColors[Math.floor(rng() * brainColors.length)]
+      : new THREE.Color(0.5 + rng() * 0.3, 0.5 + rng() * 0.3, 0.52 + rng() * 0.3);
+    const baseOp = isBrain ? 0.12 + rng() * 0.3 : 0.05 + rng() * 0.15;
+    const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0 });
+    const line = new THREE.Line(geom, mat);
+    line.visible = false;
+    group.add(line);
+
+    const threshold = isBrain ? 0.2 + rng() * 0.8 : rng() * 0.65;
+    allLineMats.push({ mat, base: baseOp, threshold, isBrain: isBrain && rng() > 0.5, phase: rng() * Math.PI * 2, line });
+  }
+  for (let i = 0; i < 50; i++) {
+    const phi = (rng() - 0.5) * Math.PI * 2;
+    const points = [];
+    const tStart = rng() * Math.PI * 0.3;
+    const tEnd = tStart + 0.3 + rng() * Math.PI * 0.5;
+    for (let s = 0; s <= 30; s++) { points.push(headPoint(tStart + (s / 30) * (tEnd - tStart), phi + (rng() - 0.5) * 0.04)); }
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geom = new THREE.BufferGeometry().setFromPoints(curve.getPoints(60));
+    const baseOp = 0.04 + rng() * 0.12;
+    const mat = new THREE.LineBasicMaterial({ color: new THREE.Color(0.45, 0.45, 0.48), transparent: true, opacity: 0 });
+    const line = new THREE.Line(geom, mat);
+    line.visible = false;
+    group.add(line);
+    allLineMats.push({ mat, base: baseOp, threshold: rng() * 0.5, isBrain: false, phase: 0, line });
+  }
+}
+
+// ─── Stars ───
+
+function createStars() {
+  const count = 1500;
+  const pos = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+  const rng = mulberry32(7);
+  for (let i = 0; i < count; i++) {
+    const r = 20 + rng() * 80;
+    const t = rng() * Math.PI * 2;
+    const p = Math.acos(2 * rng() - 1);
+    pos[i*3] = r * Math.sin(p) * Math.cos(t);
+    pos[i*3+1] = r * Math.sin(p) * Math.sin(t);
+    pos[i*3+2] = r * Math.cos(p);
+    sizes[i] = rng() < 0.03 ? 0.06 + rng() * 0.08 : 0.01 + rng() * 0.03;
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geom.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+  const vs = `attribute float size; varying float vA; void main() { vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = size * (400.0 / -mv.z); gl_PointSize = max(gl_PointSize, 0.5); gl_Position = projectionMatrix * mv; vA = smoothstep(80.0, 10.0, -mv.z); }`;
+  const fs = `varying float vA; void main() { float d = length(gl_PointCoord - vec2(0.5)); if (d > 0.5) discard; float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(0.7, 0.72, 0.82, a * vA * 0.55); }`;
+  return new THREE.Points(geom, new THREE.ShaderMaterial({ vertexShader: vs, fragmentShader: fs, transparent: true, depthWrite: false }));
+}
+
+// ─── Ambient particles ───
+
+const PARTICLE_COUNT = 40;
+const pPos = new Float32Array(PARTICLE_COUNT * 3);
+const pSizes = new Float32Array(PARTICLE_COUNT);
+const pAlphas = new Float32Array(PARTICLE_COUNT);
+const pColors = new Float32Array(PARTICLE_COUNT * 3);
+const pData = [];
+
+function resetP(i) {
+  const r = 2.5 + Math.random() * 4;
+  const t = Math.random() * Math.PI * 2;
+  const p = Math.PI * 0.3 + Math.random() * Math.PI * 0.7;
+  pPos[i*3] = r * Math.sin(p) * Math.cos(t);
+  pPos[i*3+1] = r * Math.cos(p) - 0.5;
+  pPos[i*3+2] = r * Math.sin(p) * Math.sin(t);
+  pSizes[i] = 0.01 + Math.random() * 0.025;
+  pAlphas[i] = 0;
+  const isC = Math.random() > 0.7;
+  const c = isC ? brainColors[Math.floor(Math.random() * brainColors.length)] : new THREE.Color(0.5, 0.52, 0.58);
+  pColors[i*3] = c.r; pColors[i*3+1] = c.g; pColors[i*3+2] = c.b;
+  pData[i] = {
+    vel: new THREE.Vector3((Math.random()-0.5)*0.002, 0.003+Math.random()*0.004, (Math.random()-0.5)*0.002),
+    life: 0, maxLife: 200 + Math.random() * 300,
+    swayPhase: Math.random() * Math.PI * 2, swaySpeed: 0.5 + Math.random() * 1.5, swayAmp: 0.003 + Math.random() * 0.005,
+  };
+}
+for (let i = 0; i < PARTICLE_COUNT; i++) resetP(i);
+
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute('size', new THREE.BufferAttribute(pSizes, 1));
+pGeo.setAttribute('alpha', new THREE.BufferAttribute(pAlphas, 1));
+pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+
+const pvs = `attribute float size; attribute float alpha; attribute vec3 color; varying float vA; varying vec3 vC;
+void main() { vA=alpha; vC=color; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=size*(300.0/-mv.z); gl_PointSize=max(gl_PointSize,0.8); gl_Position=projectionMatrix*mv; }`;
+const pfs = `varying float vA; varying vec3 vC;
+void main() { float d=length(gl_PointCoord-vec2(0.5)); if(d>0.5)discard; float a=smoothstep(0.5,0.0,d); gl_FragColor=vec4(vC,a*vA); }`;
+scene.add(new THREE.Points(pGeo, new THREE.ShaderMaterial({ vertexShader: pvs, fragmentShader: pfs, transparent: true, depthWrite: false })));
+
+function updateParticles(t) {
+  const hc = new THREE.Vector3(0, 0.3, 0);
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const pd = pData[i]; pd.life++;
+    const pos = new THREE.Vector3(pPos[i*3], pPos[i*3+1], pPos[i*3+2]);
+    const tc = hc.clone().sub(pos); const dist = tc.length();
+    if (dist > 0.3) { tc.normalize().multiplyScalar(0.00008 / Math.max(dist*dist, 0.5)); pd.vel.add(tc); }
+    pd.vel.x += Math.sin(t*pd.swaySpeed+pd.swayPhase)*pd.swayAmp*0.01;
+    pd.vel.z += Math.cos(t*pd.swaySpeed+pd.swayPhase+1)*pd.swayAmp*0.01;
+    pd.vel.multiplyScalar(0.995);
+    pPos[i*3] += pd.vel.x; pPos[i*3+1] += pd.vel.y; pPos[i*3+2] += pd.vel.z;
+    const lifeT = pd.life/pd.maxLife;
+    pAlphas[i] = Math.min(1,pd.life/40) * (dist<1.2?Math.max(0,(dist-0.5)/0.7):1) * (lifeT>0.8?1-(lifeT-0.8)/0.2:1) * 0.35 * currentGrowth;
+    if (pd.life >= pd.maxLife || dist < 0.5) { resetP(i); pGeo.attributes.color.needsUpdate = true; }
+  }
+  pGeo.attributes.position.needsUpdate = true;
+  pGeo.attributes.alpha.needsUpdate = true;
+}
+
+// ─── Build everything ───
+
+const { group: head, dotAlphas, dThresholds, dotGeom } = buildHead();
+head.rotation.y = -0.3;
+head.rotation.x = 0.05;
+scene.add(head);
+scene.add(createStars());
+
+// ─── Growth system — update line visibility/opacity based on currentGrowth ───
+
+function applyGrowth(g) {
+  for (const lm of allLineMats) {
+    if (g >= lm.threshold) {
+      lm.line.visible = true;
+      // Fade in: opacity ramps up as growth exceeds threshold
+      const excess = (g - lm.threshold) / (1 - lm.threshold + 0.01);
+      lm.mat.opacity = lm.base * Math.min(1, excess * 3);
+    } else {
+      lm.line.visible = false;
+      lm.mat.opacity = 0;
+    }
+  }
+  // Dots
+  for (let i = 0; i < dThresholds.length; i++) {
+    if (g >= dThresholds[i]) {
+      const excess = (g - dThresholds[i]) / (1 - dThresholds[i] + 0.01);
+      dotAlphas[i] = 0.55 * Math.min(1, excess * 3);
+    } else {
+      dotAlphas[i] = 0;
+    }
+  }
+  dotGeom.attributes.alpha.needsUpdate = true;
+}
+
+// ─── Stage buttons ───
+
+const btns = document.querySelectorAll('.stage-btn');
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const stage = STAGES[parseInt(btn.dataset.stage)];
+    targetGrowth = stage.growth;
+    document.getElementById('sv-mem').textContent = stage.mem;
+    document.getElementById('sv-conn').textContent = stage.conn;
+    document.getElementById('sv-days').textContent = stage.days;
+    document.getElementById('tagline').textContent = stage.tag;
+    document.getElementById('tagline-sub').textContent = stage.sub;
+  });
+});
+
+// ─── Entry ───
+
+requestAnimationFrame(() => {
+  document.getElementById('curtain').classList.add('open');
+  document.getElementById('hud-tl').classList.add('show');
+  document.getElementById('hud-bc').classList.add('show');
+  document.getElementById('hud-bl').classList.add('show');
+  document.getElementById('hud-br').classList.add('show');
+  document.getElementById('stage-panel').classList.add('show');
+});
+
+// ─── Auto-rotation ───
+
+let autoRotate = true;
+controls.addEventListener('start', () => { autoRotate = false; });
+controls.addEventListener('end', () => { setTimeout(() => { autoRotate = true; }, 3000); });
+
+// ─── Animate ───
+
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  // Smooth growth transition
+  currentGrowth += (targetGrowth - currentGrowth) * 0.02;
+  applyGrowth(currentGrowth);
+
+  if (autoRotate) head.rotation.y += 0.001;
+
+  // Breathing
+  head.scale.setScalar(1 + Math.sin(t * 0.6) * 0.006);
+
+  // Brain line breathing (only visible brain lines)
+  for (const lm of allLineMats) {
+    if (lm.isBrain && lm.line.visible) {
+      const wave = Math.sin(t * 0.8 + lm.phase) * 0.5 + 0.5;
+      lm.mat.opacity = lm.mat.opacity * (0.7 + wave * 0.3);
+    }
+  }
+
+  updateParticles(t);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

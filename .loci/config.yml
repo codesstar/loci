@@ -1,24 +1,16 @@
 # Loci Configuration
 # Modify these settings to customize your brain's behavior.
-# These values are defaults — onboarding updates them based on your answers.
 
 version: 1
 
-language: en              # en | zh | mix — set during onboarding
+language: mix              # en | zh | mix
 
 persistence:
-  mode: auto              # auto | manual — auto saves signals automatically, manual only on /loci-sync
+  mode: auto              # auto | manual
   notify: true            # show save notifications
 
 wellbeing:
-  enabled: true
-  wind_down_time: "22:30" # nudge to wind down after this time
-  wake_up_time: "07:00"   # morning greeting after this time
-  max_reminders: 2        # max late-night nudges per session, then silence
-
-# Schedule presets (set during onboarding):
-#   Morning (6am-12pm):   wake_up_time: "05:30", wind_down_time: "21:00"
-#   Daytime (9am-6pm):    wake_up_time: "07:00", wind_down_time: "22:30"  (default)
-#   Evening (6pm-12am):   wake_up_time: "10:00", wind_down_time: "01:00"
-#   Night owl (10pm-6am): wake_up_time: "14:00", wind_down_time: "04:00"
-#   Irregular / varies:  wellbeing.enabled: false
+  enabled: false
+  wind_down_time: "22:30"
+  wake_up_time: "07:00"
+  max_reminders: 2

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCI Matrix Rain</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+
+  const FONT_SIZE = 16;
+  const FPS = 20;
+  const FRAME_INTERVAL = 1000 / FPS;
+
+  // Character sets
+  const KATAKANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const LATIN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const DIGITS = '0123456789';
+  const SYMBOLS = '{}[]<>|/\\@#$%&*+=~^';
+  const BASE_CHARS = KATAKANA + LATIN + DIGITS + SYMBOLS;
+  const LOCI_WORDS = ['MEMORY', 'BRAIN', 'LOCI', 'RECALL', 'SYNAPSE', 'PALACE', 'MIND', 'THINK', 'ENCODE', 'NEURON'];
+
+  // Colors
+  const GREEN = [0, 255, 65];       // #00ff41
+  const PURPLE = [168, 85, 247];     // Loci purple
+  const TEAL = [45, 212, 191];       // Loci teal
+
+  let columns = [];
+  let W, H, numCols;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    const newNumCols = Math.ceil(W / FONT_SIZE);
+
+    if (newNumCols > numCols) {
+      for (let i = numCols || 0; i < newNumCols; i++) {
+        columns.push(createColumn(i, true));
+      }
+    } else if (newNumCols < numCols) {
+      columns.length = newNumCols;
+    }
+    numCols = newNumCols;
+  }
+
+  function createColumn(index, randomStart) {
+    const rows = Math.ceil(H / FONT_SIZE) + 2;
+    const speed = 0.4 + Math.random() * 0.8; // cells per frame
+    const col = {
+      x: index * FONT_SIZE,
+      speed: speed,
+      cells: new Array(rows),
+      ages: new Float32Array(rows),
+      active: new Uint8Array(rows),
+      head: randomStart ? -Math.floor(Math.random() * rows * 2) : -1,
+      trailLen: 8 + Math.floor(Math.random() * 25),
+      accumulator: 0,
+      highlight: Math.random() < 0.08 ? (Math.random() < 0.5 ? 'purple' : 'teal') : null,
+      wordInsert: null,
+      wordTimer: 0,
+    };
+
+    for (let r = 0; r < rows; r++) {
+      col.cells[r] = randomChar();
+      col.ages[r] = 999;
+      col.active[r] = 0;
+    }
+    return col;
+  }
+
+  function randomChar() {
+    return BASE_CHARS[Math.floor(Math.random() * BASE_CHARS.length)];
+  }
+
+  function updateColumn(col) {
+    const rows = col.cells.length;
+    col.accumulator += col.speed;
+
+    while (col.accumulator >= 1) {
+      col.accumulator -= 1;
+      col.head++;
+
+      if (col.head >= 0 && col.head < rows) {
+        col.cells[col.head] = randomChar();
+        col.ages[col.head] = 0;
+        col.active[col.head] = 1;
+
+        // Occasionally insert a Loci word
+        if (Math.random() < 0.008) {
+          const word = LOCI_WORDS[Math.floor(Math.random() * LOCI_WORDS.length)];
+          col.wordInsert = word;
+          col.wordTimer = 0;
+        }
+      }
+
+      // Age all active cells
+      for (let r = 0; r < rows; r++) {
+        if (col.active[r]) {
+          col.ages[r]++;
+          if (col.ages[r] > col.trailLen + 10) {
+            col.active[r] = 0;
+          }
+        }
+      }
+
+      // Reset when head goes way past bottom
+      if (col.head > rows + 10 + Math.floor(Math.random() * 30)) {
+        col.head = -(5 + Math.floor(Math.random() * 20));
+        col.trailLen = 8 + Math.floor(Math.random() * 25);
+        col.speed = 0.4 + Math.random() * 0.8;
+        col.highlight = Math.random() < 0.08 ? (Math.random() < 0.5 ? 'purple' : 'teal') : null;
+      }
+    }
+
+    // Random character mutations in visible cells
+    for (let r = 0; r < rows; r++) {
+      if (col.active[r] && col.ages[r] > 0 && col.ages[r] < col.trailLen && Math.random() < 0.03) {
+        col.cells[r] = randomChar();
+      }
+    }
+
+    // Handle Loci word insertion
+    if (col.wordInsert && col.head >= 0) {
+      const word = col.wordInsert;
+      const startRow = col.head - col.wordTimer;
+      if (startRow >= 0 && startRow < rows && col.wordTimer < word.length) {
+        col.cells[startRow] = word[col.wordTimer];
+      }
+      col.wordTimer++;
+      if (col.wordTimer >= word.length) {
+        col.wordInsert = null;
+      }
+    }
+  }
+
+  function getColor(col, age, trailLen) {
+    let r, g, b;
+    const baseColor = col.highlight === 'purple' ? PURPLE :
+                      col.highlight === 'teal' ? TEAL : GREEN;
+
+    if (age === 0) {
+      // Head: bright white with a tint
+      r = 200 + baseColor[0] * 0.2;
+      g = 255;
+      b = 200 + baseColor[2] * 0.2;
+      return `rgb(${Math.min(255, r|0)},${Math.min(255, g|0)},${Math.min(255, b|0)})`;
+    }
+
+    if (age === 1) {
+      // Just behind head: very bright
+      return `rgb(${Math.min(255, baseColor[0] + 100)},${Math.min(255, baseColor[1] + 50)},${Math.min(255, baseColor[2] + 100)})`;
+    }
+
+    // Trail: fade from bright to dim
+    const fadeRatio = Math.max(0, 1 - (age - 1) / trailLen);
+    const dimFactor = fadeRatio * fadeRatio; // quadratic falloff
+
+    if (dimFactor <= 0.02) return null; // too dim to draw
+
+    const alpha = 0.15 + dimFactor * 0.85;
+    r = baseColor[0] * dimFactor;
+    g = baseColor[1] * dimFactor;
+    b = baseColor[2] * dimFactor;
+
+    return `rgba(${r|0},${g|0},${b|0},${alpha.toFixed(2)})`;
+  }
+
+  // Precompute the LOCI watermark
+  const WATERMARK_TEXT = 'LOCI';
+  const WATERMARK_FONT_SIZE = 120;
+
+  let watermarkPixels = null;
+  function computeWatermark() {
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = W;
+    tmpCanvas.height = H;
+    const tmpCtx = tmpCanvas.getContext('2d');
+
+    tmpCtx.font = `bold ${WATERMARK_FONT_SIZE}px monospace`;
+    tmpCtx.textAlign = 'center';
+    tmpCtx.textBaseline = 'middle';
+    tmpCtx.fillStyle = '#fff';
+    tmpCtx.fillText(WATERMARK_TEXT, W / 2, H / 2);
+
+    const imageData = tmpCtx.getImageData(0, 0, W, H);
+    const data = imageData.data;
+
+    // Sample which grid cells overlap the watermark
+    const gridRows = Math.ceil(H / FONT_SIZE);
+    const gridCols = Math.ceil(W / FONT_SIZE);
+    watermarkPixels = new Set();
+
+    for (let gc = 0; gc < gridCols; gc++) {
+      for (let gr = 0; gr < gridRows; gr++) {
+        const px = gc * FONT_SIZE + FONT_SIZE / 2;
+        const py = gr * FONT_SIZE + FONT_SIZE / 2;
+        if (px < W && py < H) {
+          const idx = (Math.floor(py) * W + Math.floor(px)) * 4;
+          if (data[idx + 3] > 128) {
+            watermarkPixels.add(gc * 10000 + gr);
+          }
+        }
+      }
+    }
+  }
+
+  function render() {
+    // Fade the entire canvas slightly for trail effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.font = `${FONT_SIZE}px monospace`;
+    ctx.textAlign = 'center';
+
+    const rows = Math.ceil(H / FONT_SIZE) + 2;
+
+    for (let c = 0; c < columns.length; c++) {
+      const col = columns[c];
+      updateColumn(col);
+
+      for (let r = 0; r < rows; r++) {
+        if (!col.active[r]) continue;
+
+        const color = getColor(col, col.ages[r], col.trailLen);
+        if (!color) continue;
+
+        // Check if this cell is part of the watermark
+        const isWatermark = watermarkPixels && watermarkPixels.has(c * 10000 + r);
+
+        if (isWatermark) {
+          // Boost brightness for watermark cells
+          const wmAge = col.ages[r];
+          if (wmAge < col.trailLen * 0.8) {
+            ctx.fillStyle = col.highlight === 'purple'
+              ? 'rgba(168,85,247,0.6)'
+              : col.highlight === 'teal'
+              ? 'rgba(45,212,191,0.6)'
+              : 'rgba(0,255,65,0.5)';
+          } else {
+            // Even when fading, keep watermark cells slightly visible
+            ctx.fillStyle = 'rgba(0,255,65,0.12)';
+          }
+        } else {
+          ctx.fillStyle = color;
+        }
+
+        const x = col.x + FONT_SIZE / 2;
+        const y = r * FONT_SIZE;
+        ctx.fillText(col.cells[r], x, y);
+      }
+    }
+
+    // Draw subtle persistent watermark outline
+    if (watermarkPixels) {
+      ctx.fillStyle = 'rgba(0,255,65,0.04)';
+      ctx.font = `bold ${WATERMARK_FONT_SIZE}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(WATERMARK_TEXT, W / 2, H / 2);
+      ctx.font = `${FONT_SIZE}px monospace`;
+      ctx.textAlign = 'center';
+    }
+  }
+
+  // Init
+  resize();
+  computeWatermark();
+
+  window.addEventListener('resize', () => {
+    resize();
+    computeWatermark();
+  });
+
+  let lastTime = 0;
+  function loop(time) {
+    requestAnimationFrame(loop);
+    if (time - lastTime < FRAME_INTERVAL) return;
+    lastTime = time;
+    render();
+  }
+
+  // Initial black fill
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

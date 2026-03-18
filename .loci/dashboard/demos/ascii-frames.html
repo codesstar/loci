@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — ASCII Seahorse</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e14;
+    color: #c4d6e0;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #title {
+    color: #5eead4;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: pre;
+    text-shadow: 0 0 20px rgba(94, 234, 212, 0.3);
+    letter-spacing: 2px;
+  }
+
+  #stage {
+    position: relative;
+    font-size: 15px;
+    line-height: 1.35;
+    white-space: pre;
+    letter-spacing: 1px;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #seahorse {
+    color: #c4d6e0;
+    text-shadow: 0 0 6px rgba(94, 234, 212, 0.15);
+    transition: transform 0.25s ease-in-out;
+  }
+
+  #bubbles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    color: #5eead4;
+    opacity: 0;
+    animation: rise linear infinite;
+    text-shadow: 0 0 8px rgba(94, 234, 212, 0.4);
+  }
+
+  @keyframes rise {
+    0%   { opacity: 0; transform: translateY(0) translateX(0); }
+    10%  { opacity: 0.6; }
+    50%  { opacity: 0.4; }
+    90%  { opacity: 0.15; }
+    100% { opacity: 0; transform: translateY(-380px) translateX(var(--drift)); }
+  }
+
+  .subtitle {
+    color: #3b5563;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  .frame-info {
+    position: fixed;
+    bottom: 16px;
+    right: 20px;
+    color: #1e3a4a;
+    font-size: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="title"></div>
+  <div id="stage">
+    <div id="seahorse"></div>
+    <div id="bubbles"></div>
+  </div>
+  <div class="subtitle">memory palace for ai</div>
+</div>
+<div class="frame-info">frame <span id="fc">0</span>/8</div>
+
+<script>
+// ── ASCII Title ──
+const titleArt = `\
+ ██       ██████   ██████ ██
+ ██      ██    ██ ██      ██
+ ██      ██    ██ ██      ██
+ ██      ██    ██ ██      ██
+ ███████  ██████   ██████ ██`;
+
+document.getElementById('title').textContent = titleArt;
+
+// ── Seahorse Frames ──
+// 8 frames of a seahorse with subtle breathing/bobbing motion
+const frames = [
+// Frame 1 — neutral
+`\
+           .  ~
+          ,@.
+         /@@@\\
+        |@  @@|
+        \\@@@/
+         |@@|
+        /@@@@\\
+       | @@@@ |
+       |  @@  |
+        \\ @@ /
+         |@@|
+         |@@|
+        / @@ \\
+       |  @@  |
+       |  @@  |
+        \\ @@ /
+         \\@@/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `,
+
+// Frame 2 — slight inhale
+`\
+          .   ~
+          ,@.
+         /@@@\\
+        | @ @@|
+        \\@@@/
+         |@@|
+        /@@@@\\
+       | @@@@ |
+       |  @@  |
+        \\ @@ /
+         |@@|
+         |@@|
+        / @@ \\
+       |  @@  |
+       |  @@  |
+        \\ @@ /
+         \\@@/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `,
+
+// Frame 3 — expanded
+`\
+           . ~
+          .@.
+         /@@@ \\
+        | @  @@|
+         \\@@@ /
+         | @@|
+        / @@@@\\
+       |  @@@@ |
+       |  @@   |
+        \\  @@ /
+         | @@|
+         | @@|
+        /  @@ \\
+       |   @@  |
+       |  @@   |
+        \\  @@ /
+         \\@@/
+          ||
+         /  \\
+        /  ~~\\
+       ~~~~~~~ `,
+
+// Frame 4 — peak inhale, slight lean
+`\
+          .  ~
+          .@.
+         /@@@ \\
+        | @  @ |
+         \\@@@/
+         | @@ |
+        / @@@@ \\
+       |  @@@@  |
+       |   @@   |
+        \\  @@ /
+         | @@ |
+         | @@ |
+        /  @@  \\
+       |   @@   |
+       |   @@   |
+        \\  @@  /
+         \\@ @/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `,
+
+// Frame 5 — start exhale
+`\
+           .~
+          ,@.
+         /@@@\\
+        | @  @@|
+         \\@@@/
+         |@ @|
+        / @@@@\\
+       |  @@@@ |
+       |   @@  |
+        \\  @@ /
+         | @@|
+         | @@|
+        /  @@ \\
+       |   @@  |
+       |  @@   |
+        \\ @@  /
+         \\@@/
+          ||
+         / \\
+        / ~~\\
+       ~~~~~~~ `,
+
+// Frame 6 — contracting
+`\
+          .  ~
+          ,@.
+         /@@@\\
+        |@  @@|
+        \\@@@/
+         |@@|
+        /@@@@\\
+       | @@@@ |
+       |  @@  |
+        \\ @@ /
+         |@@|
+         |@@|
+        / @@ \\
+       |  @@  |
+       |  @@  |
+        \\ @@ /
+         \\@@/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `,
+
+// Frame 7 — slight lean other way
+`\
+          . ~
+          ,@.
+        /@@@ \\
+        | @ @@|
+         \\@@@ /
+         |@@|
+        /@@@@\\
+       | @@@@  |
+       | @@    |
+        \\@@  /
+         |@@|
+         |@@|
+        / @@\\
+       | @@   |
+       | @@   |
+        \\@@  /
+         \\@@/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `,
+
+// Frame 8 — returning to neutral
+`\
+           . ~
+          ,@.
+         /@@@\\
+        | @ @@|
+        \\@@@/
+         |@@|
+        /@@@@\\
+       | @@@@ |
+       |  @@  |
+        \\ @@ /
+         |@@|
+         |@@|
+        / @@ \\
+       |  @@  |
+       |  @@  |
+        \\ @@ /
+         \\@@/
+          ||
+         /  \\
+        / ~~ \\
+       ~~~~~~~ `
+];
+
+// ── Animation State ──
+let currentFrame = 0;
+const seahorseEl = document.getElementById('seahorse');
+const fcEl = document.getElementById('fc');
+
+function renderFrame() {
+  currentFrame = (currentFrame + 1) % frames.length;
+  seahorseEl.textContent = frames[currentFrame];
+  fcEl.textContent = currentFrame + 1;
+}
+
+// Start animation at ~4 fps
+seahorseEl.textContent = frames[0];
+fcEl.textContent = '1';
+setInterval(renderFrame, 250);
+
+// ── Bubbles ──
+const bubblesEl = document.getElementById('bubbles');
+const bubbleChars = ['o', 'O', '\u00B0', '.', '\u00B7', '\u2022'];
+
+function spawnBubble() {
+  const bubble = document.createElement('span');
+  bubble.className = 'bubble';
+  bubble.textContent = bubbleChars[Math.floor(Math.random() * bubbleChars.length)];
+
+  const startX = 30 + Math.random() * 240;
+  const startY = 300 + Math.random() * 80;
+  const drift = -30 + Math.random() * 60;
+  const duration = 4 + Math.random() * 5;
+  const size = 10 + Math.random() * 8;
+
+  bubble.style.left = startX + 'px';
+  bubble.style.top = startY + 'px';
+  bubble.style.fontSize = size + 'px';
+  bubble.style.setProperty('--drift', drift + 'px');
+  bubble.style.animationDuration = duration + 's';
+  bubble.style.animationDelay = (Math.random() * 0.5) + 's';
+
+  bubblesEl.appendChild(bubble);
+
+  setTimeout(() => bubble.remove(), (duration + 1) * 1000);
+}
+
+// Spawn bubbles periodically
+setInterval(spawnBubble, 800);
+// Initial burst
+for (let i = 0; i < 4; i++) setTimeout(spawnBubble, i * 200);
+</script>
+
+</body>
+</html>

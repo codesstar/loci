@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Wave</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #wave {
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    line-height: 1.05;
+    letter-spacing: 1px;
+    white-space: pre;
+    background: linear-gradient(
+      180deg,
+      #2dd4bf 0%,
+      #14b8a6 15%,
+      #0ea5e9 30%,
+      #6366f1 50%,
+      #8b5cf6 65%,
+      #a855f7 80%,
+      #c084fc 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #info {
+    position: fixed;
+    bottom: 16px;
+    right: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.15);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<pre id="wave"></pre>
+<div id="info">ASCII WAVE</div>
+
+<script>
+(() => {
+  const el = document.getElementById('wave');
+  const chars = ' .:-=+*#%@';
+  const L = chars.length - 1;
+
+  let cols, rows;
+  let t = 0;
+
+  function resize() {
+    const cw = 9.6;
+    const ch = 14 * 1.05;
+    cols = Math.floor(window.innerWidth / cw);
+    rows = Math.floor(window.innerHeight / ch);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Wave layers — each with different frequency, amplitude, speed, phase
+  const waves = [
+    { fx: 0.04,  fy: 0.06,  speed: 1.2,  amp: 0.35, phase: 0     },
+    { fx: 0.07,  fy: 0.04,  speed: -0.8, amp: 0.25, phase: 2.1   },
+    { fx: 0.03,  fy: 0.09,  speed: 0.6,  amp: 0.20, phase: 4.2   },
+    { fx: 0.09,  fy: 0.03,  speed: -1.5, amp: 0.15, phase: 1.0   },
+    { fx: 0.05,  fy: 0.05,  speed: 0.9,  amp: 0.18, phase: 3.5   },
+    { fx: 0.12,  fy: 0.02,  speed: 1.8,  amp: 0.10, phase: 5.0   },
+  ];
+
+  function render() {
+    const buf = new Array(rows);
+
+    for (let y = 0; y < rows; y++) {
+      let row = '';
+      for (let x = 0; x < cols; x++) {
+        let v = 0;
+
+        for (let i = 0; i < waves.length; i++) {
+          const w = waves[i];
+          v += w.amp * Math.sin(x * w.fx + y * w.fy + t * w.speed + w.phase);
+        }
+
+        // Add a radial vignette — fade edges to dark
+        const nx = (x / cols - 0.5) * 2;
+        const ny = (y / rows - 0.5) * 2;
+        const vignette = 1 - (nx * nx + ny * ny) * 0.4;
+
+        // Normalize v from [-sum(amp)..+sum(amp)] to [0..1]
+        // Sum of amps = 1.23
+        v = (v / 1.23 + 1) * 0.5;
+        v *= Math.max(0, vignette);
+
+        // Apply a slight contrast curve
+        v = v * v * (3 - 2 * v); // smoothstep
+        v = v * v * (3 - 2 * v); // double smoothstep for more contrast
+
+        const idx = Math.round(v * L);
+        row += chars[Math.max(0, Math.min(L, idx))];
+      }
+      buf[y] = row;
+    }
+
+    el.textContent = buf.join('\n');
+    t += 0.035;
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Terminal Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+    overflow: hidden;
+  }
+
+  .terminal {
+    background: #13132b;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    width: 680px;
+    max-width: 94vw;
+    box-shadow:
+      0 0 60px rgba(99, 102, 241, 0.08),
+      0 20px 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+
+  .terminal-header {
+    background: #1a1a35;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a4a;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green { background: #28c840; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    color: #555580;
+    font-size: 13px;
+    margin-right: 52px;
+  }
+
+  .terminal-body {
+    padding: 28px 24px 36px;
+    min-height: 320px;
+    position: relative;
+  }
+
+  .line {
+    color: #c0c0e0;
+    font-size: 15px;
+    line-height: 1.75;
+    white-space: pre;
+    min-height: 1.75em;
+  }
+
+  .line .prompt { color: #7c7cff; }
+  .line .command { color: #e0e0ff; font-weight: 600; }
+  .line .info { color: #8888aa; }
+  .line .check { color: #28c840; }
+  .line .path { color: #a78bfa; }
+  .line .hero {
+    color: #e0e0ff;
+    font-weight: 600;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 9px;
+    height: 18px;
+    background: #7c7cff;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+    margin-left: 1px;
+    border-radius: 1px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .line.glow .hero {
+    text-shadow:
+      0 0 8px rgba(167, 139, 250, 0.6),
+      0 0 20px rgba(167, 139, 250, 0.3),
+      0 0 40px rgba(167, 139, 250, 0.15);
+    color: #d4c4ff;
+  }
+
+  .line.glow-in .hero {
+    animation: glowIn 1.5s ease-out forwards;
+  }
+
+  @keyframes glowIn {
+    0% {
+      text-shadow: none;
+      color: #e0e0ff;
+    }
+    100% {
+      text-shadow:
+        0 0 8px rgba(167, 139, 250, 0.6),
+        0 0 20px rgba(167, 139, 250, 0.3),
+        0 0 40px rgba(167, 139, 250, 0.15);
+      color: #d4c4ff;
+    }
+  }
+
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    z-index: 10;
+  }
+
+  .restart-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    color: #444466;
+    font-family: inherit;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    cursor: pointer;
+  }
+  .restart-hint.visible { opacity: 1; }
+  .restart-hint:hover { color: #7c7cff; }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<div class="terminal">
+  <div class="terminal-header">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="terminal-title">loci &mdash; terminal</div>
+  </div>
+  <div class="terminal-body" id="output"></div>
+</div>
+
+<div class="restart-hint" id="restart" onclick="restart()">click to replay</div>
+
+<script>
+const script = [
+  {
+    fragments: [
+      { text: '$ ', cls: 'prompt' },
+      { text: 'loci init', cls: 'command' }
+    ],
+    charDelay: 65,
+    pauseAfter: 600
+  },
+  {
+    fragments: [
+      { text: 'Initializing brain...', cls: 'info' }
+    ],
+    charDelay: 25,
+    pauseAfter: 800
+  },
+  { text: '', pauseAfter: 200 },
+  {
+    fragments: [
+      { text: '\u2713 ', cls: 'check' },
+      { text: 'Created ', cls: 'info' },
+      { text: 'me/identity.md', cls: 'path' }
+    ],
+    charDelay: 18,
+    pauseAfter: 350
+  },
+  {
+    fragments: [
+      { text: '\u2713 ', cls: 'check' },
+      { text: 'Created ', cls: 'info' },
+      { text: 'me/values.md', cls: 'path' }
+    ],
+    charDelay: 18,
+    pauseAfter: 300
+  },
+  {
+    fragments: [
+      { text: '\u2713 ', cls: 'check' },
+      { text: 'Created ', cls: 'info' },
+      { text: 'tasks/active.md', cls: 'path' }
+    ],
+    charDelay: 18,
+    pauseAfter: 300
+  },
+  {
+    fragments: [
+      { text: '\u2713 ', cls: 'check' },
+      { text: 'Created ', cls: 'info' },
+      { text: 'plan.md', cls: 'path' }
+    ],
+    charDelay: 18,
+    pauseAfter: 300
+  },
+  {
+    fragments: [
+      { text: '\u2713 ', cls: 'check' },
+      { text: 'Created ', cls: 'info' },
+      { text: '.loci/memory.md', cls: 'path' }
+    ],
+    charDelay: 18,
+    pauseAfter: 500
+  },
+  { text: '', pauseAfter: 400 },
+  {
+    fragments: [
+      { text: 'Your AI now remembers you. Forever.', cls: 'hero' }
+    ],
+    charDelay: 45,
+    pauseAfter: 0,
+    glowAfter: true
+  }
+];
+
+const output = document.getElementById('output');
+const restartBtn = document.getElementById('restart');
+let aborted = false;
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function charPause(ch, baseDelay) {
+  if (ch === '.' || ch === '!' || ch === '?') return baseDelay + 180;
+  if (ch === ',') return baseDelay + 80;
+  if (ch === '/') return baseDelay + 30;
+  // slight random jitter
+  return baseDelay + Math.random() * baseDelay * 0.6 - baseDelay * 0.15;
+}
+
+async function typeLine(lineData) {
+  if (aborted) return;
+
+  const lineEl = document.createElement('div');
+  lineEl.className = 'line';
+  output.appendChild(lineEl);
+
+  // empty line
+  if (lineData.text === '' && !lineData.fragments) {
+    lineEl.innerHTML = '&nbsp;';
+    await sleep(lineData.pauseAfter || 100);
+    return;
+  }
+
+  const fragments = lineData.fragments || [{ text: lineData.text, cls: '' }];
+  const baseDelay = lineData.charDelay || 30;
+
+  // create a cursor
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+
+  for (const frag of fragments) {
+    if (aborted) return;
+    const span = document.createElement('span');
+    if (frag.cls) span.className = frag.cls;
+    lineEl.appendChild(span);
+
+    for (let i = 0; i < frag.text.length; i++) {
+      if (aborted) return;
+      span.textContent += frag.text[i];
+
+      // keep cursor at end
+      if (cursor.parentNode) cursor.remove();
+      lineEl.appendChild(cursor);
+
+      await sleep(charPause(frag.text[i], baseDelay));
+    }
+  }
+
+  // cursor stays on last line during pause
+  if (cursor.parentNode) cursor.remove();
+  lineEl.appendChild(cursor);
+
+  if (lineData.glowAfter) {
+    // remove cursor, add glow
+    await sleep(400);
+    cursor.remove();
+    lineEl.classList.add('glow', 'glow-in');
+    // re-add cursor after glow starts
+    await sleep(100);
+    lineEl.appendChild(cursor);
+  }
+
+  if (lineData.pauseAfter) {
+    await sleep(lineData.pauseAfter);
+  }
+
+  // remove cursor from non-final lines (will be moved by next line)
+  // but keep it on the last line
+}
+
+async function run() {
+  aborted = false;
+  output.innerHTML = '';
+  restartBtn.classList.remove('visible');
+
+  for (let i = 0; i < script.length; i++) {
+    if (aborted) return;
+    await typeLine(script[i]);
+  }
+
+  await sleep(1200);
+  restartBtn.classList.add('visible');
+}
+
+function restart() {
+  aborted = true;
+  setTimeout(() => run(), 100);
+}
+
+run();
+</script>
+</body>
+</html>

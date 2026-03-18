@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Memory Palace for AI</title>
+<meta name="description" content="Give your AI a brain. Open-source persistent memory for AI assistants. 100% local Markdown." />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    color: #c0c0c0;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding: 0 40px;
+    max-width: 1400px;
+  }
+
+  /* ── Seahorse ── */
+  .seahorse-wrap {
+    position: relative;
+    line-height: 1.15;
+    font-size: 14px;
+    letter-spacing: 1px;
+    white-space: pre;
+    flex-shrink: 0;
+    animation: breathe 2.8s ease-in-out infinite;
+  }
+  .seahorse-wrap .char {
+    display: inline;
+    transition: color 0.15s, text-shadow 0.15s;
+  }
+  .seahorse-wrap .char.spark {
+    color: #fff !important;
+    text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
+    transition: none;
+  }
+
+  @keyframes breathe {
+    0%, 100% {
+      text-shadow:
+        0 0 4px rgba(155,89,182,0.3),
+        0 0 12px rgba(155,89,182,0.15),
+        0 0 24px rgba(26,188,156,0.08);
+      filter: brightness(1);
+    }
+    50% {
+      text-shadow:
+        0 0 8px rgba(155,89,182,0.6),
+        0 0 24px rgba(155,89,182,0.3),
+        0 0 48px rgba(26,188,156,0.2),
+        0 0 72px rgba(26,188,156,0.1);
+      filter: brightness(1.15);
+    }
+  }
+
+  /* ── Right section ── */
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 480px;
+  }
+
+  /* ── LOCI title ── */
+  .loci-title {
+    white-space: pre;
+    font-size: 18px;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: #9b59b6;
+    animation: titleGlow 2.8s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% {
+      text-shadow: 0 0 10px rgba(155,89,182,0.4), 0 0 30px rgba(155,89,182,0.15);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(155,89,182,0.7), 0 0 40px rgba(155,89,182,0.3), 0 0 60px rgba(26,188,156,0.15);
+    }
+  }
+
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 20px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(26,188,156,0.8);
+    text-shadow: 0 0 12px rgba(26,188,156,0.3);
+    margin-top: 20px;
+    margin-bottom: 32px;
+    animation: subtitlePulse 3.5s ease-in-out infinite;
+  }
+  @keyframes subtitlePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155,89,182,0.4), transparent);
+    margin-bottom: 24px;
+  }
+
+  /* ── Reveal lines ── */
+  .reveal-line {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.1);
+    transition: color 1s ease, text-shadow 1s ease;
+  }
+  .reveal-line.bright {
+    color: rgba(200,200,220,0.9);
+    text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
+  }
+
+  /* ── Bottom section ── */
+  .bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+    gap: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  .bottom.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Feature tags ── */
+  .feature-tags {
+    display: flex;
+    gap: 24px;
+  }
+  .feature-tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(155,89,182,0.45);
+    padding: 6px 14px;
+    border: 1px solid rgba(155,89,182,0.15);
+    border-radius: 20px;
+  }
+
+  /* ── CTA ── */
+  .btn-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    background: rgba(155,89,182,0.12);
+    border: 1px solid rgba(155,89,182,0.4);
+    color: #c9a0dc;
+    transition: all 0.3s ease;
+  }
+  .btn-star:hover {
+    background: rgba(155,89,182,0.25);
+    box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.1);
+    transform: translateY(-1px);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: fixed;
+    bottom: 16px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(200,200,220,0.12);
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .footer.visible { opacity: 1; }
+  .footer a {
+    color: rgba(155,89,182,0.3);
+    text-decoration: none;
+  }
+  .footer a:hover { color: rgba(155,89,182,0.6); }
+
+  /* ── Particles ── */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift linear infinite;
+  }
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1px solid rgba(155,89,182,0.12);
+    background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.06), transparent);
+    animation: bubbleUp linear infinite;
+  }
+  @keyframes drift {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  @keyframes bubbleUp {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(50vh) scale(1); }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .hero {
+      flex-direction: column;
+      gap: 24px;
+      padding: 20px;
+    }
+    .right-section { min-width: unset; align-items: center; text-align: center; }
+    .seahorse-wrap { font-size: 9px; }
+    .loci-title { font-size: 12px; }
+    .subtitle { font-size: 14px; letter-spacing: 3px; }
+    .feature-tags { flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .feature-tag { font-size: 9px; padding: 4px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="seahorse-wrap" id="seahorse"></div>
+  <div class="right-section">
+    <div class="loci-title" id="lociTitle"></div>
+    <div class="subtitle">Memory Palace for AI</div>
+    <div class="divider"></div>
+    <div class="reveal-line">Your AI forgets you. Every. Single. Time.</div>
+    <div class="reveal-line">What if it didn't?</div>
+    <div class="reveal-line">Loci gives your AI a real brain.</div>
+    <div class="reveal-line">Plain Markdown. On your machine. No lock-in.</div>
+    <div class="reveal-line">It remembers who you are — forever.</div>
+  </div>
+</div>
+
+<div class="bottom" id="bottom">
+  <div class="feature-tags">
+    <span class="feature-tag">100% Local</span>
+    <span class="feature-tag">Plain Markdown</span>
+    <span class="feature-tag">Claude Code Native</span>
+    <span class="feature-tag">Open Source</span>
+  </div>
+  <a class="btn-star" href="https://github.com/codesstar/loci">&#9733; Star on GitHub</a>
+</div>
+
+<div class="footer" id="footer">
+  MIT License &middot; <a href="https://github.com/codesstar/loci">GitHub</a> &middot; Built by <a href="https://x.com/spacemanchao">Callum</a>
+</div>
+
+<script>
+const SEAHORSE_ART = `
+                    ,
+               ,   /^\\     ___
+              /^\\_/   \`...'  /\`
+           ,__\\    ,'     ~ (
+        ,___\\ ,,    .,       \\
+         \\__ \\\\ .'.'   .-.  )
+           .'.-\\\\' \\'.  '-. (
+          / (==== ."".  ( \u25c9 ) \\
+        ,/   \`~~~'|  /   \`-'   )
+       "")      |~| \`""".  ~_ /
+         /       \\~\\     ".  \\\\
+ _      /         ~\\      ". \\\\
+( \\     )    \u25c8\u2500\u2500\u25c8  \\~\\      ". \\\\
+(_ (\\   /    \u00b7  \u00b7    ~|       ". \`\\
+(_ _ \\  )   \u25c8\u2500\u2500\u25c8     |~|        ". \`\\.
+(_ = _\\ \\  \u00b7    \u00b7     ~|          ".\`.;
+(_ -(   \\_)  \u25c8\u2500\u2500\u25c8     |~|            ""
+(_ =   (      \u00b7  \u00b7     ~|
+(_ -  ( ~  =        \u2550\u2550\u2550\u2550|~/
+ (_  =     (_           /
+  (_-   ~_( /\\        ,"
+   (_ =  _/   |     ."
+    (_  (/    |    .(
+     (\\_/     )    /
+             /    (
+            |     /
+            |    (       ____
+            |    (    .-'    \`-.
+             \\    \\  / ' .--.  \\
+              \\    \\ |  '  \`  ;  |
+               \\    :\`. \`-'  ;  |
+                \`-   \`._ _ _.'^'./
+                   "-  .-\`\`\`_=~._/
+                      \`"------"'
+`;
+
+const LOCI_TEXT = ` \u2588\u2588       \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588`;
+
+function getGradientColor(row, total) {
+  const t = row / total;
+  return `rgb(${Math.round(155+(26-155)*t)},${Math.round(89+(188-89)*t)},${Math.round(182+(156-182)*t)})`;
+}
+
+function renderSeahorse() {
+  const el = document.getElementById('seahorse');
+  const lines = SEAHORSE_ART.split('\n');
+  const chars = [];
+  lines.forEach((line, ri) => {
+    const color = getGradientColor(ri, lines.length);
+    for (const ch of line) {
+      if (ch === ' ') {
+        el.appendChild(document.createTextNode(' '));
+      } else {
+        const s = document.createElement('span');
+        s.className = 'char';
+        s.textContent = ch;
+        s.style.color = color;
+        s.dataset.origColor = color;
+        el.appendChild(s);
+        chars.push(s);
+      }
+    }
+    el.appendChild(document.createTextNode('\n'));
+  });
+  return chars;
+}
+
+function fireSpark(chars) {
+  if (!chars.length) return;
+  const el = chars[Math.random() * chars.length | 0];
+  const orig = el.textContent;
+  const sparks = '\u25c6\u25c8\u223f\u25cf\u25c9\u2b21\u2b22\u2726\u2727';
+  el.classList.add('spark');
+  if (Math.random() > 0.5) el.textContent = sparks[Math.random() * sparks.length | 0];
+  setTimeout(() => { el.classList.remove('spark'); el.textContent = orig; }, 150 + Math.random() * 200);
+}
+
+function createParticles() {
+  const colors = ['rgba(155,89,182,0.35)', 'rgba(26,188,156,0.3)', 'rgba(255,255,255,0.15)'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.random() * colors.length | 0];
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = -(Math.random() * 20) + 's';
+    const size = 1.5 + Math.random() * 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    document.body.appendChild(p);
+  }
+  for (let i = 0; i < 15; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = Math.random() * 100 + 'vw';
+    const size = 4 + Math.random() * 10;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.animationDuration = (12 + Math.random() * 20) + 's';
+    b.style.animationDelay = -(Math.random() * 25) + 's';
+    document.body.appendChild(b);
+  }
+}
+
+// ── Init ──
+const chars = renderSeahorse();
+document.getElementById('lociTitle').textContent = LOCI_TEXT;
+createParticles();
+
+// ── Reveal lines: cycling breathe ──
+const revealLines = document.querySelectorAll('.reveal-line');
+let currentLine = 0;
+const BREATHE_DURATION = 1800;
+let firstPassDone = false;
+
+function cycleRevealLines() {
+  revealLines.forEach(l => l.classList.remove('bright'));
+  revealLines[currentLine].classList.add('bright');
+
+  if (currentLine === revealLines.length - 1 && !firstPassDone) {
+    firstPassDone = true;
+    setTimeout(() => {
+      document.getElementById('bottom').classList.add('visible');
+      document.getElementById('footer').classList.add('visible');
+    }, 600);
+  }
+
+  currentLine = (currentLine + 1) % revealLines.length;
+  setTimeout(cycleRevealLines, BREATHE_DURATION);
+}
+
+setTimeout(cycleRevealLines, 600);
+
+// ── Sparks ──
+(function loop() {
+  setTimeout(() => {
+    for (let i = 0; i < 1 + (Math.random() * 3 | 0); i++) fireSpark(chars);
+    loop();
+  }, 300 + Math.random() * 700);
+})();
+</script>
+</body>
+</html>

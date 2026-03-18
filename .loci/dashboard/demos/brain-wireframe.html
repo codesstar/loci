@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Neural Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #ccc;
+    cursor: grab;
+  }
+  body:active { cursor: grabbing; }
+  canvas { display: block; }
+
+  .hud { position: fixed; pointer-events: none; z-index: 10; }
+  .hud-tl { top: 32px; left: 36px; }
+  .hud-brand {
+    font-size: 9px; font-weight: 300; letter-spacing: 10px;
+    color: rgba(255,255,255,0.1); text-transform: uppercase;
+  }
+  .hud-title {
+    font-size: 32px; font-weight: 200; letter-spacing: -0.5px;
+    color: rgba(255,255,255,0.5); margin-top: 2px;
+  }
+  .hud-sub {
+    font-size: 10px; font-weight: 300; letter-spacing: 3px;
+    color: rgba(255,255,255,0.1); text-transform: uppercase; margin-top: 4px;
+  }
+
+  .hud-bl { bottom: 32px; left: 36px; display: flex; gap: 32px; }
+  .sv { font-size: 18px; font-weight: 200; color: rgba(255,255,255,0.25); }
+  .sl { font-size: 7px; font-weight: 400; letter-spacing: 3px; color: rgba(255,255,255,0.08); text-transform: uppercase; margin-top: 3px; }
+
+  .hud-br { bottom: 32px; right: 36px; }
+  .hud-br span { font-size: 8px; font-weight: 300; letter-spacing: 1px; color: rgba(255,255,255,0.07); }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 20; display: none;
+    background: rgba(11,14,23,0.92); border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    padding: 12px 16px; max-width: 240px; border-radius: 3px;
+  }
+  .tip-n { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.8); margin-bottom: 2px; }
+  .tip-r { font-size: 7px; font-weight: 400; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-transform: uppercase; margin-bottom: 6px; }
+  .tip-d { font-size: 10px; font-weight: 300; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+  .panel {
+    position: fixed; top: 0; right: -360px; width: 360px; height: 100vh;
+    background: rgba(11,14,23,0.95); border-left: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    z-index: 15; padding: 44px 32px; overflow-y: auto;
+    transition: right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .panel.open { right: 0; }
+  .panel-x {
+    position: absolute; top: 14px; right: 14px;
+    color: rgba(255,255,255,0.15); cursor: pointer; font-size: 18px;
+    border: none; background: none; font-family: inherit; pointer-events: auto;
+  }
+  .panel-x:hover { color: rgba(255,255,255,0.4); }
+  .p-region { font-size: 7px; font-weight: 400; letter-spacing: 4px; color: rgba(255,255,255,0.15); text-transform: uppercase; margin-bottom: 6px; }
+  .p-name { font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+  .p-imp { font-size: 9px; font-weight: 300; color: rgba(255,255,255,0.15); margin-bottom: 20px; letter-spacing: 1px; }
+  .p-sec { font-size: 7px; font-weight: 400; letter-spacing: 3px; color: rgba(255,255,255,0.1); text-transform: uppercase; margin: 18px 0 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .p-txt { font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.35); line-height: 1.7; }
+  .p-conn { font-size: 10px; font-weight: 300; color: rgba(255,255,255,0.2); padding: 4px 0; display: flex; align-items: center; gap: 8px; cursor: pointer; pointer-events: auto; transition: color 0.15s; }
+  .p-conn:hover { color: rgba(255,255,255,0.5); }
+  .p-conn::before { content: ''; width: 2px; height: 2px; border-radius: 50%; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+  .p-tag { display: inline-block; font-size: 7px; font-weight: 400; letter-spacing: 1px; padding: 2px 8px; margin: 2px 3px 2px 0; border: 1px solid rgba(255,255,255,0.06); border-radius: 1px; color: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<div class="hud hud-tl">
+  <div class="hud-brand">Loci</div>
+  <div class="hud-title">Neural Map</div>
+  <div class="hud-sub">Memory topology</div>
+</div>
+
+<div class="hud hud-bl">
+  <div><div class="sv" id="nc">0</div><div class="sl">Nodes</div></div>
+  <div><div class="sv" id="cc">0</div><div class="sl">Synapses</div></div>
+</div>
+
+<div class="hud hud-br"><span>drag to rotate · scroll to zoom</span></div>
+
+<div class="tip" id="tip">
+  <div class="tip-n" id="tn"></div>
+  <div class="tip-r" id="tr"></div>
+  <div class="tip-d" id="td"></div>
+</div>
+
+<div class="panel" id="panel">
+  <button class="panel-x" id="px">&times;</button>
+  <div class="p-region" id="pr"></div>
+  <div class="p-name" id="pn"></div>
+  <div class="p-imp" id="pi"></div>
+  <div id="pb"></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+
+const REGIONS = {
+  Memory:    { color: new THREE.Color(0x6644ff), items: [
+    { name: 'identity.md', desc: 'Core identity — who I am', imp: 1.0 },
+    { name: 'values.md', desc: 'Personal values and principles', imp: 0.9 },
+    { name: 'learned.md', desc: 'Key lessons accumulated', imp: 0.8 },
+    { name: 'evolution.md', desc: 'Growth trajectory', imp: 0.7 },
+    { name: 'timetable.md', desc: 'USyd schedule', imp: 0.5 },
+    { name: 'skills.md', desc: 'Skills inventory', imp: 0.6 },
+    { name: 'preferences.md', desc: 'Work habits', imp: 0.5 },
+    { name: 'health.md', desc: 'Sleep, exercise, energy', imp: 0.4 },
+  ]},
+  Identity:  { color: new THREE.Color(0xaa44ff), items: [
+    { name: 'plan.md', desc: 'Life direction and goals', imp: 1.0 },
+    { name: 'brand.md', desc: 'CYC brand identity', imp: 0.8 },
+    { name: 'vision-2026', desc: 'Loci launch + creator path', imp: 0.9 },
+    { name: 'principles.md', desc: 'Product first', imp: 0.7 },
+    { name: 'positioning.md', desc: 'AI memory architect', imp: 0.8 },
+    { name: 'milestones.md', desc: 'Milestones', imp: 0.6 },
+  ]},
+  Planning:  { color: new THREE.Color(0x44ff88), items: [
+    { name: 'active.md', desc: 'Current tasks P0-Someday', imp: 1.0 },
+    { name: 'daily-plan', desc: "Today's focus", imp: 0.9 },
+    { name: 'sprint-mar', desc: 'March sprint', imp: 0.85 },
+    { name: 'content-plan', desc: 'Video schedule', imp: 0.7 },
+    { name: 'calendar', desc: 'Events', imp: 0.6 },
+    { name: 'weekly-review', desc: 'Weekly reflection', imp: 0.5 },
+    { name: 'someday.md', desc: 'Ideas parking', imp: 0.3 },
+    { name: 'goals-q1', desc: 'Q1 goals', imp: 0.7 },
+  ]},
+  People:    { color: new THREE.Color(0xffaa22), items: [
+    { name: 'jake-chen', desc: 'CTO TechBridge', imp: 0.9 },
+    { name: 'sophia-wang', desc: 'Investor contact', imp: 0.85 },
+    { name: 'marcus-liu', desc: 'Study buddy', imp: 0.7 },
+    { name: 'lily-zhang', desc: 'Collab creator', imp: 0.6 },
+    { name: 'david-meridian', desc: 'Freelance client', imp: 0.65 },
+    { name: 'prof-chen-wei', desc: 'Supervisor', imp: 0.7 },
+  ]},
+  Decisions: { color: new THREE.Color(0xff44aa), items: [
+    { name: 'loci-project', desc: 'Open-core strategy', imp: 1.0 },
+    { name: 'openclaw', desc: 'Plugin strategy', imp: 0.8 },
+    { name: 'content-strat', desc: 'Product-first', imp: 0.7 },
+    { name: 'commercialize', desc: 'SaaS path', imp: 0.75 },
+    { name: 'video-freq', desc: '1-2/week', imp: 0.4 },
+  ]},
+};
+
+const regionNames = Object.keys(REGIONS);
+const brainColors = [
+  new THREE.Color(0x6644ff),
+  new THREE.Color(0x44aaff),
+  new THREE.Color(0xff44aa),
+  new THREE.Color(0x44ff88),
+  new THREE.Color(0xffaa22),
+  new THREE.Color(0xaa44ff),
+  new THREE.Color(0x22ddff),
+];
+
+// ═══════════════════════════════════════════════
+// SCENE
+// ═══════════════════════════════════════════════
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(0, 2, 18);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+document.body.prepend(renderer.domElement);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(innerWidth, innerHeight),
+  0.5, 0.6, 0.3
+);
+composer.addPass(bloom);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.rotateSpeed = 0.6;
+controls.minDistance = 5;
+controls.maxDistance = 30;
+controls.target.set(0, 0.3, 0);
+controls.enablePan = false;
+
+// ═══════════════════════════════════════════════
+// SEEDED RANDOM
+// ═══════════════════════════════════════════════
+
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ═══════════════════════════════════════════════
+// SPHERE SHAPE — radius function with slight organic variation
+// ═══════════════════════════════════════════════
+
+const SPHERE_R = 4;
+
+function sphereRadius(theta, phi, rng) {
+  // Base sphere with subtle organic bumps
+  let r = SPHERE_R;
+  r += 0.08 * Math.sin(theta * 3 + phi * 2);
+  r += 0.05 * Math.sin(theta * 5 - phi * 3);
+  r += 0.03 * Math.cos(theta * 7 + phi * 5);
+  return r;
+}
+
+function spherePoint(theta, phi) {
+  const r = sphereRadius(theta, phi);
+  return new THREE.Vector3(
+    r * Math.sin(theta) * Math.sin(phi),
+    r * Math.cos(theta),
+    r * Math.sin(theta) * Math.cos(phi)
+  );
+}
+
+// ═══════════════════════════════════════════════
+// GENERATE FLOWING NEURAL LINES ON SPHERE
+// ═══════════════════════════════════════════════
+
+function generateNeuralLines() {
+  const lines = [];
+  const rng = mulberry32(42);
+
+  const lineCount = 500;
+
+  for (let i = 0; i < lineCount; i++) {
+    const points = [];
+    let theta = rng() * Math.PI * 0.95 + Math.PI * 0.025;
+    let phi = (rng() - 0.5) * Math.PI * 2;
+
+    const steps = 12 + Math.floor(rng() * 35);
+    let dTheta = (rng() - 0.5) * 0.15;
+    let dPhi = (rng() - 0.5) * 0.15;
+
+    for (let s = 0; s < steps; s++) {
+      const p = spherePoint(theta, phi);
+      // Slight random offset from surface for organic feel
+      const offset = (rng() - 0.5) * 0.02;
+      const n = p.clone().normalize();
+      p.addScaledVector(n, offset);
+      points.push(p);
+
+      dTheta += (rng() - 0.5) * 0.06;
+      dPhi += (rng() - 0.5) * 0.06;
+      dTheta *= 0.92;
+      dPhi *= 0.92;
+
+      theta += dTheta;
+      phi += dPhi;
+      theta = Math.max(0.05, Math.min(Math.PI * 0.95, theta));
+    }
+
+    if (points.length > 2) {
+      // Assign to a region sector based on starting position
+      const startPhi = Math.atan2(points[0].x, points[0].z);
+      const sectorIdx = Math.floor(((startPhi + Math.PI) / (Math.PI * 2)) * regionNames.length) % regionNames.length;
+      const isColored = rng() > 0.75; // only ~25% of lines get color — rest are neutral
+
+      lines.push({ points, regionIdx: sectorIdx, isColored });
+    }
+  }
+
+  return lines;
+}
+
+// ═══════════════════════════════════════════════
+// BUILD NEURAL SPHERE
+// ═══════════════════════════════════════════════
+
+function buildNeuralSphere() {
+  const brainGroup = new THREE.Group();
+  const lines = generateNeuralLines();
+  const rng = mulberry32(77);
+
+  const bodyColor = new THREE.Color(0.55, 0.55, 0.58);
+  const bodyColorDim = new THREE.Color(0.3, 0.3, 0.33);
+
+  let lineCount = 0;
+
+  for (const line of lines) {
+    const curve = new THREE.CatmullRomCurve3(line.points);
+    const curvePoints = curve.getPoints(line.points.length * 3);
+    const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+
+    let color, opacity;
+    if (line.isColored) {
+      color = brainColors[line.regionIdx % brainColors.length];
+      opacity = 0.2 + rng() * 0.5; // colored lines are brighter to pop
+    } else {
+      color = rng() > 0.5 ? bodyColor : bodyColorDim;
+      opacity = 0.1 + rng() * 0.25;
+    }
+
+    const material = new THREE.LineBasicMaterial({
+      color, transparent: true, opacity, linewidth: 1,
+    });
+
+    brainGroup.add(new THREE.Line(geometry, material));
+    lineCount++;
+  }
+
+  // Dense detail dots on sphere surface
+  const detailCount = 1500;
+  const detailPositions = [];
+  const detailColors = [];
+
+  for (let i = 0; i < detailCount; i++) {
+    const theta = rng() * Math.PI * 0.94 + 0.03;
+    const phi = (rng() - 0.5) * Math.PI * 2;
+    const p = spherePoint(theta, phi);
+    const offset = (rng() - 0.5) * 0.03;
+    const n = p.clone().normalize();
+    p.addScaledVector(n, offset);
+
+    detailPositions.push(p.x, p.y, p.z);
+
+    if (rng() > 0.8) { // only 20% of dots are colored
+      const c = brainColors[Math.floor(rng() * brainColors.length)];
+      detailColors.push(c.r, c.g, c.b);
+    } else {
+      const v = 0.4 + rng() * 0.4;
+      detailColors.push(v, v, v + 0.02);
+    }
+  }
+
+  const dotGeom = new THREE.BufferGeometry();
+  dotGeom.setAttribute('position', new THREE.Float32BufferAttribute(detailPositions, 3));
+  dotGeom.setAttribute('color', new THREE.Float32BufferAttribute(detailColors, 3));
+
+  const dotMat = new THREE.PointsMaterial({
+    size: 0.015,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true,
+  });
+  brainGroup.add(new THREE.Points(dotGeom, dotMat));
+
+  // Contour lines — horizontal rings
+  addContourLines(brainGroup, rng);
+
+  return { group: brainGroup, lineCount };
+}
+
+function addContourLines(group, rng) {
+  // Horizontal contour rings
+  for (let i = 0; i < 60; i++) {
+    const theta = 0.08 + rng() * Math.PI * 0.85;
+    const points = [];
+    const segments = 50 + Math.floor(rng() * 40);
+    const phiStart = (rng() - 0.5) * Math.PI * 2;
+    const phiSpan = 0.5 + rng() * 2.5;
+
+    for (let s = 0; s <= segments; s++) {
+      const phi = phiStart + (s / segments) * phiSpan;
+      const thetaOff = (rng() - 0.5) * 0.04;
+      const p = spherePoint(theta + thetaOff, phi);
+      const n = p.clone().normalize();
+      p.addScaledVector(n, (rng() - 0.5) * 0.015);
+      points.push(p);
+    }
+
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geom = new THREE.BufferGeometry().setFromPoints(curve.getPoints(segments * 2));
+
+    const isColored = rng() > 0.8; // 20% colored
+    const color = isColored
+      ? brainColors[Math.floor(rng() * brainColors.length)]
+      : new THREE.Color(0.45 + rng() * 0.3, 0.45 + rng() * 0.3, 0.47 + rng() * 0.3);
+
+    const mat = new THREE.LineBasicMaterial({
+      color, transparent: true,
+      opacity: isColored ? 0.12 + rng() * 0.3 : 0.05 + rng() * 0.15,
+    });
+
+    group.add(new THREE.Line(geom, mat));
+  }
+
+  // Vertical meridian lines
+  for (let i = 0; i < 40; i++) {
+    const phi = (rng() - 0.5) * Math.PI * 2;
+    const points = [];
+    const thetaStart = rng() * Math.PI * 0.3;
+    const thetaEnd = thetaStart + 0.3 + rng() * Math.PI * 0.5;
+    const steps = 25;
+
+    for (let s = 0; s <= steps; s++) {
+      const theta = thetaStart + (s / steps) * (thetaEnd - thetaStart);
+      const phiOff = (rng() - 0.5) * 0.04;
+      const p = spherePoint(theta, phi + phiOff);
+      points.push(p);
+    }
+
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geom = new THREE.BufferGeometry().setFromPoints(curve.getPoints(steps * 2));
+
+    const isColored2 = rng() > 0.85; // 15% colored
+    const color = isColored2
+      ? brainColors[Math.floor(rng() * brainColors.length)]
+      : new THREE.Color(0.4, 0.4, 0.43);
+    const mat = new THREE.LineBasicMaterial({
+      color, transparent: true,
+      opacity: isColored2 ? 0.1 + rng() * 0.2 : 0.04 + rng() * 0.1,
+    });
+    group.add(new THREE.Line(geom, mat));
+  }
+}
+
+const { group: neuralSphere, lineCount } = buildNeuralSphere();
+neuralSphere.rotation.y = -0.3;
+scene.add(neuralSphere);
+
+// ═══════════════════════════════════════════════
+// MEMORY WISPS — gentle streams rising from below, absorbed into the brain
+// ═══════════════════════════════════════════════
+
+const MAX_WISPS = 8;
+const wisps = [];
+
+function spawnWisp() {
+  // Origin: spread out below the brain
+  const spreadX = (Math.random() - 0.5) * 14;
+  const spreadZ = (Math.random() - 0.5) * 14;
+  const startY = -12 - Math.random() * 6;
+  const origin = new THREE.Vector3(spreadX, startY, spreadZ);
+
+  // Target: a point on the lower hemisphere of the brain
+  const tTheta = Math.PI * 0.5 + Math.random() * Math.PI * 0.4; // lower half
+  const tPhi = Math.random() * Math.PI * 2;
+  const target = spherePoint(tTheta, tPhi);
+
+  // Two control points for a graceful S-curve rising upward
+  const t1 = 0.3 + Math.random() * 0.1;
+  const t2 = 0.6 + Math.random() * 0.1;
+  const cp1 = origin.clone().lerp(target, t1);
+  cp1.x += (Math.random() - 0.5) * 3;
+  cp1.z += (Math.random() - 0.5) * 3;
+  cp1.y = startY * (1 - t1) + target.y * t1 + Math.random() * 1.5;
+
+  const cp2 = origin.clone().lerp(target, t2);
+  cp2.x += (Math.random() - 0.5) * 1.5;
+  cp2.z += (Math.random() - 0.5) * 1.5;
+  cp2.y = target.y - 1.5 + Math.random();
+
+  const curve = new THREE.CatmullRomCurve3([origin, cp1, cp2, target]);
+  const totalPts = 80;
+  const allPts = curve.getPoints(totalPts);
+
+  // Color — mostly soft white/gray, occasional color
+  const isColored = Math.random() > 0.65;
+  const color = isColored
+    ? brainColors[Math.floor(Math.random() * brainColors.length)]
+    : new THREE.Color(0.45 + Math.random() * 0.25, 0.48 + Math.random() * 0.25, 0.55 + Math.random() * 0.25);
+
+  const positions = new Float32Array(totalPts * 3);
+  for (let i = 0; i < totalPts; i++) {
+    positions[i*3]   = allPts[i].x;
+    positions[i*3+1] = allPts[i].y;
+    positions[i*3+2] = allPts[i].z;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setDrawRange(0, 0);
+
+  const baseOpacity = isColored ? 0.35 + Math.random() * 0.35 : 0.12 + Math.random() * 0.15;
+  const mat = new THREE.LineBasicMaterial({
+    color, transparent: true, opacity: baseOpacity,
+  });
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+
+  const speed = 0.15 + Math.random() * 0.15;
+  const tailLen = 40 + Math.floor(Math.random() * 25);
+
+  wisps.push({
+    line, allPts, totalPts,
+    head: 0, speed, tailLen,
+    phase: 'rising',
+    baseOpacity,
+    mat,
+  });
+}
+
+function updateWisps() {
+  for (let i = wisps.length - 1; i >= 0; i--) {
+    const w = wisps[i];
+    w.head += w.speed;
+
+    const headIdx = Math.min(Math.floor(w.head), w.totalPts);
+    const tailStart = Math.max(0, headIdx - w.tailLen);
+
+    if (w.phase === 'rising') {
+      // Draw from tail to head — trail effect
+      s_drawTrail(w, tailStart, headIdx);
+
+      if (headIdx >= w.totalPts) {
+        w.phase = 'absorbing';
+      }
+    } else if (w.phase === 'absorbing') {
+      // Trail shrinks into the brain
+      s_drawTrail(w, tailStart, w.totalPts);
+      const fade = 1 - (w.head - w.totalPts) / w.tailLen;
+      w.mat.opacity = w.baseOpacity * Math.max(0, fade);
+
+      if (tailStart >= w.totalPts) {
+        w.phase = 'done';
+      }
+    }
+
+    if (w.phase === 'done') {
+      scene.remove(w.line);
+      w.line.geometry.dispose();
+      w.mat.dispose();
+      wisps.splice(i, 1);
+    }
+  }
+}
+
+function s_drawTrail(w, from, to) {
+  w.line.geometry.setDrawRange(from, Math.max(0, to - from));
+}
+
+// ═══════════════════════════════════════════════
+// DEEP SPACE STARFIELD
+// ═══════════════════════════════════════════════
+
+const starCount = 1200;
+const starPos = new Float32Array(starCount * 3);
+const starSz = new Float32Array(starCount);
+const starRng = mulberry32(7);
+for (let i = 0; i < starCount; i++) {
+  const r = 30 + starRng() * 120;
+  const theta = starRng() * Math.PI * 2;
+  const phi = Math.acos(2 * starRng() - 1);
+  starPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+  starPos[i*3+2] = r * Math.cos(phi);
+  starSz[i] = starRng() < 0.05 ? 0.03 + starRng() * 0.04 : 0.008 + starRng() * 0.018;
+}
+const starGeo = new THREE.BufferGeometry();
+starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+starGeo.setAttribute('size', new THREE.Float32BufferAttribute(starSz, 1));
+
+const starVS = `
+  attribute float size;
+  void main() {
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = size * (500.0 / -mv.z);
+    gl_PointSize = max(gl_PointSize, 0.5);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+const starFS = `
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5));
+    if (d > 0.5) discard;
+    float a = smoothstep(0.5, 0.0, d);
+    gl_FragColor = vec4(0.7, 0.75, 0.85, a * 0.6);
+  }
+`;
+scene.add(new THREE.Points(starGeo, new THREE.ShaderMaterial({
+  vertexShader: starVS, fragmentShader: starFS,
+  transparent: true, depthWrite: false,
+})));
+
+// ═══════════════════════════════════════════════
+// RAYCASTING — hit targets for planets
+// ═══════════════════════════════════════════════
+
+const hitGroup = new THREE.Group();
+scene.add(hitGroup);
+const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+
+// Brain core hit target
+const brainHitGeo = new THREE.SphereGeometry(SPHERE_R * 0.9, 12, 12);
+const brainHit = new THREE.Mesh(brainHitGeo, hitMat.clone());
+brainHit.userData = {
+  name: 'Loci Brain', desc: 'Central AI memory — the hippocampus of your digital mind',
+  region: 'Core', imp: 1.0, tier: 'brain',
+  connections: regionNames.map(r => ({ name: r, region: r, tier: 'region' })),
+};
+hitGroup.add(brainHit);
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2(-99, -99);
+let hoveredNode = null;
+let needsRay = false;
+const tip = document.getElementById('tip');
+
+document.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+  needsRay = true;
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY - 8) + 'px';
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.panel')) return;
+  hoveredNode ? showPanel(hoveredNode) : closePanel();
+});
+
+function showPanel(n) {
+  document.getElementById('pr').textContent = n.region;
+  document.getElementById('pn').textContent = n.name;
+  document.getElementById('pi').textContent = `${(n.imp*100)|0}% · ${n.connections.length} connections`;
+  let h = `<div class="p-sec">Description</div><div class="p-txt">${n.desc}</div>`;
+  h += `<div class="p-sec">Tags</div>`;
+  h += `<div class="p-tag">${n.region.toLowerCase()}</div>`;
+  h += `<div class="p-tag">${n.imp >= 0.8 ? 'core' : n.imp >= 0.5 ? 'active' : 'peripheral'}</div>`;
+  const conns = n.connections.filter(c => c.tier === 'file');
+  if (conns.length) {
+    h += `<div class="p-sec">Connections</div>`;
+    conns.forEach(c => {
+      h += `<div class="p-conn">${c.name}<span style="opacity:.4;font-size:7px;margin-left:auto">${c.region}</span></div>`;
+    });
+  }
+  document.getElementById('pb').innerHTML = h;
+  document.getElementById('panel').classList.add('open');
+  autoRotate = false;
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  autoRotate = true;
+}
+document.getElementById('px').addEventListener('click', e => { e.stopPropagation(); closePanel(); });
+
+// ═══════════════════════════════════════════════
+// HUD
+// ═══════════════════════════════════════════════
+
+const totalNodes = Object.values(REGIONS).reduce((s, r) => s + r.items.length, 0);
+document.getElementById('nc').textContent = totalNodes;
+document.getElementById('cc').textContent = lineCount;
+
+// ═══════════════════════════════════════════════
+// ANIMATE
+// ═══════════════════════════════════════════════
+
+const clock = new THREE.Clock();
+let frame = 0;
+let autoRotate = true;
+let hintHidden = false;
+
+controls.addEventListener('start', () => {
+  autoRotate = false;
+  if (!hintHidden) { hintHidden = true; }
+});
+controls.addEventListener('end', () => {
+  if (!document.getElementById('panel').classList.contains('open')) {
+    setTimeout(() => { autoRotate = true; }, 3000);
+  }
+});
+
+let streamTimer = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  frame++;
+
+  // Subtle auto-rotation of the brain sphere
+  if (autoRotate) {
+    neuralSphere.rotation.y += 0.0012;
+  }
+
+  // Spawn memory wisps rising from below
+  streamTimer += 1/60;
+  if (streamTimer > 1.2 && wisps.length < MAX_WISPS) {
+    spawnWisp();
+    if (Math.random() > 0.7 && wisps.length < MAX_WISPS) {
+      spawnWisp(); // occasionally two at once
+    }
+    streamTimer = 0;
+  }
+  updateWisps();
+
+  // Raycast every 4 frames
+  if (needsRay && frame % 4 === 0) {
+    needsRay = false;
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(hitGroup.children);
+    if (hits.length > 0) {
+      const nd = hits[0].object.userData;
+      if (hoveredNode !== nd) {
+        hoveredNode = nd;
+        document.getElementById('tn').textContent = nd.name;
+        document.getElementById('tr').textContent = nd.region;
+        document.getElementById('td').textContent = nd.desc;
+        tip.style.display = 'block';
+      }
+      renderer.domElement.style.cursor = 'pointer';
+    } else {
+      if (hoveredNode) { hoveredNode = null; tip.style.display = 'none'; }
+      renderer.domElement.style.cursor = 'default';
+    }
+  }
+
+  controls.update();
+  composer.render();
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

@@ -1,11 +1,15 @@
 ---
-created:
-updated:
+created: 2026-03-18
+updated: 2026-03-18
 tags: [identity, core]
-status: template
+status: active
 ---
 
 # Who I Am
 
-<!-- This file will be filled during your first conversation with Loci. -->
-<!-- For a complete example, see examples/alex/me/identity.md -->
+## Basics
+- **Name**: callum
+- **Role**: marketing
+
+## Current Season
+- **Focus**: Get a job

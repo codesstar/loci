@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCI - Memory Palace for AI</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    padding: 40px;
+  }
+
+  .seahorse-wrap {
+    position: relative;
+    line-height: 1.15;
+    font-size: 13px;
+    letter-spacing: 1px;
+    white-space: pre;
+    animation: breathe 2.8s ease-in-out infinite;
+  }
+
+  .seahorse-wrap .char {
+    position: relative;
+    display: inline;
+    transition: color 0.15s, text-shadow 0.15s;
+  }
+
+  .seahorse-wrap .char.spark {
+    color: #fff !important;
+    text-shadow:
+      0 0 8px #fff,
+      0 0 20px #1abc9c,
+      0 0 40px #9b59b6;
+    transition: none;
+  }
+
+  @keyframes breathe {
+    0%, 100% {
+      text-shadow:
+        0 0 4px rgba(155, 89, 182, 0.3),
+        0 0 12px rgba(155, 89, 182, 0.15),
+        0 0 24px rgba(26, 188, 156, 0.08);
+      filter: brightness(1);
+    }
+    50% {
+      text-shadow:
+        0 0 8px rgba(155, 89, 182, 0.6),
+        0 0 24px rgba(155, 89, 182, 0.3),
+        0 0 48px rgba(26, 188, 156, 0.2),
+        0 0 72px rgba(26, 188, 156, 0.1);
+      filter: brightness(1.15);
+    }
+  }
+
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .loci-title {
+    white-space: pre;
+    font-size: 14px;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: #9b59b6;
+    text-shadow:
+      0 0 10px rgba(155, 89, 182, 0.5),
+      0 0 30px rgba(155, 89, 182, 0.2);
+    animation: titleGlow 2.8s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% {
+      text-shadow:
+        0 0 10px rgba(155, 89, 182, 0.4),
+        0 0 30px rgba(155, 89, 182, 0.15);
+      opacity: 0.9;
+    }
+    50% {
+      text-shadow:
+        0 0 15px rgba(155, 89, 182, 0.7),
+        0 0 40px rgba(155, 89, 182, 0.3),
+        0 0 60px rgba(26, 188, 156, 0.15);
+      opacity: 1;
+    }
+  }
+
+  .subtitle {
+    font-size: 16px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(26, 188, 156, 0.7);
+    text-shadow: 0 0 12px rgba(26, 188, 156, 0.3);
+    animation: subtitlePulse 3.5s ease-in-out infinite;
+    margin-top: -10px;
+  }
+
+  @keyframes subtitlePulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .circuit-line {
+    font-size: 11px;
+    color: rgba(155, 89, 182, 0.2);
+    letter-spacing: 3px;
+    white-space: pre;
+    margin-top: 10px;
+  }
+
+  /* Background particles */
+  .particle {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift linear infinite;
+  }
+
+  @keyframes drift {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="seahorse-wrap" id="seahorse"></div>
+  <div class="right-section">
+    <div class="loci-title" id="lociTitle"></div>
+    <div class="subtitle">Memory Palace for AI</div>
+    <div class="circuit-line">┌──┤ neural ├──┬──┤ memory ├──┐</div>
+    <div class="circuit-line">│  ┌─┴─┐   ┌─┴─┐   ┌─┴─┐  │</div>
+    <div class="circuit-line">├──┤ ∿ ├───┤ ◆ ├───┤ ∿ ├──┤</div>
+    <div class="circuit-line">│  └─┬─┘   └─┬─┘   └─┬─┘  │</div>
+    <div class="circuit-line">└──┬─┴───────┴───────┴─┬──┘</div>
+  </div>
+</div>
+
+<script>
+const SEAHORSE_ART = `
+                    ,
+               ,   /^\\     ___
+              /^\\_/   \`...'  /\`
+           ,__\\    ,'     ~ (
+        ,___\\ ,,    .,       \\
+         \\__ \\\\ .'.'   .-.  )
+           .'.-\\\\' \\'.  '-. (
+          / (==== ."".  ( ◉ ) \\
+        ,/   \`~~~'|  /   \`-'   )
+       "")      |~| \`""".  ~_ /
+         /       \\~\\     ".  \\\\
+ _      /         ~\\      ". \\\\
+( \\     )    ◈──◈  \\~\\      ". \\\\
+(_ (\\   /    ·  ·    ~|       ". \`\\
+(_ _ \\  )   ◈──◈     |~|        ". \`\\.
+(_ = _\\ \\  ·    ·     ~|          ".\`.;
+(_ -(   \\_)  ◈──◈     |~|            ""
+(_ =   (      ·  ·     ~|
+(_ -  ( ~  =        ════|~/
+ (_  =     (_           /
+  (_-   ~_( /\\        ,"
+   (_ =  _/   |     ."
+    (_  (/    |    .(
+     (\\_/     )    /
+             /    (
+            |     /
+            |    (       ____
+            |    (    .-'    \`-.
+             \\    \\  / ' .--.  \\
+              \\    \\ |  '  \`  ;  |
+               \\    :\`. \`-'  ;  |
+                \`-   \`._ _ _.'^'./
+                   "-  .-\`\`\`_=~._/
+                      \`"------"'
+`;
+
+const LOCI_TEXT = `
+ ██       ██████   ██████  ██
+ ██      ██    ██ ██       ██
+ ██      ██    ██ ██       ██
+ ██      ██    ██ ██       ██
+ ███████  ██████   ██████  ██
+`;
+
+// Purple-to-teal gradient colors for each row
+function getGradientColor(row, totalRows) {
+  const t = row / totalRows;
+  const r = Math.round(155 + (26 - 155) * t);
+  const g = Math.round(89 + (188 - 89) * t);
+  const b = Math.round(182 + (156 - 182) * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+// Build seahorse with individually addressable characters
+function renderSeahorse() {
+  const container = document.getElementById('seahorse');
+  const lines = SEAHORSE_ART.split('\n');
+  const totalLines = lines.length;
+  const charElements = [];
+
+  lines.forEach((line, rowIdx) => {
+    const color = getGradientColor(rowIdx, totalLines);
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === ' ') {
+        const span = document.createElement('span');
+        span.textContent = ' ';
+        container.appendChild(span);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        span.style.color = color;
+        span.dataset.origColor = color;
+        container.appendChild(span);
+        charElements.push(span);
+      }
+    }
+    container.appendChild(document.createTextNode('\n'));
+  });
+
+  return charElements;
+}
+
+// Render LOCI title
+function renderLoci() {
+  document.getElementById('lociTitle').textContent = LOCI_TEXT.trimStart();
+}
+
+// Neural spark effect
+function fireSpark(chars) {
+  if (chars.length === 0) return;
+  const idx = Math.floor(Math.random() * chars.length);
+  const el = chars[idx];
+  const origChar = el.textContent;
+  const sparkChars = '◆◈∿●◉⬡⬢✦✧';
+
+  el.classList.add('spark');
+  // Sometimes replace the character briefly
+  if (Math.random() > 0.5) {
+    el.textContent = sparkChars[Math.floor(Math.random() * sparkChars.length)];
+  }
+
+  setTimeout(() => {
+    el.classList.remove('spark');
+    el.textContent = origChar;
+  }, 150 + Math.random() * 200);
+}
+
+// Create background particles
+function createParticles() {
+  const colors = ['rgba(155,89,182,0.3)', 'rgba(26,188,156,0.3)', 'rgba(255,255,255,0.15)'];
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = -(Math.random() * 20) + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    document.body.appendChild(p);
+  }
+}
+
+// Init
+const chars = renderSeahorse();
+renderLoci();
+createParticles();
+
+// Fire sparks at random intervals
+function scheduleNextSpark() {
+  const delay = 300 + Math.random() * 700;
+  setTimeout(() => {
+    // Fire 1-3 sparks at once
+    const count = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) {
+      fireSpark(chars);
+    }
+    scheduleNextSpark();
+  }, delay);
+}
+scheduleNextSpark();
+</script>
+</body>
+</html>

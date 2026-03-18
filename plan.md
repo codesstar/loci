@@ -1,12 +1,19 @@
 ---
-created:
-updated:
-status: template
+created: 2026-03-18
+updated: 2026-03-18
+status: active
 ---
 
 # Life Direction & Goals
 
 > Your north star. Everything day-to-day should trace back here.
 
-<!-- This file will be filled during your first conversation with Loci. -->
-<!-- For a complete example, see examples/alex/plan.md -->
+## Mission
+
+<!-- Define your mission — what drives you? -->
+
+## Current Goals
+
+### Goal 1: Get a job
+- Status: Just started
+- Key results: (define what success looks like)

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Memory Palace for AI</title>
+<meta name="description" content="Give your AI a brain. Open-source persistent memory for AI assistants. 100% local Markdown." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    color: #c0c0c0;
+  }
+
+  /* ── Deep-sea ambient glow ── */
+  .ambient-glow {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+  }
+  .glow-1 {
+    width: 600px; height: 600px;
+    left: 10%; top: 30%;
+    background: radial-gradient(circle, rgba(155,89,182,0.12) 0%, transparent 70%);
+  }
+  .glow-2 {
+    width: 400px; height: 400px;
+    right: 15%; bottom: 20%;
+    background: radial-gradient(circle, rgba(26,188,156,0.08) 0%, transparent 70%);
+  }
+  .glow-3 {
+    width: 300px; height: 300px;
+    left: 35%; top: 15%;
+    background: radial-gradient(circle, rgba(155,89,182,0.06) 0%, transparent 70%);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding: 0 40px;
+    max-width: 1400px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Seahorse ── */
+  .seahorse-wrap {
+    position: relative;
+    line-height: 1.15;
+    font-size: 14px;
+    letter-spacing: 1px;
+    white-space: pre;
+    flex-shrink: 0;
+    animation: breathe 2.8s ease-in-out infinite;
+    cursor: default;
+  }
+  .seahorse-wrap .char {
+    display: inline;
+    transition: color 0.15s, text-shadow 0.15s, transform 0.3s ease;
+  }
+  .seahorse-wrap .char.spark {
+    color: #fff !important;
+    text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
+    transition: none;
+  }
+  .seahorse-wrap .char.scatter {
+    color: #fff !important;
+    text-shadow: 0 0 12px rgba(155,89,182,0.8), 0 0 24px rgba(26,188,156,0.4);
+    transition: none;
+  }
+
+  @keyframes breathe {
+    0%, 100% {
+      text-shadow:
+        0 0 4px rgba(155,89,182,0.3),
+        0 0 12px rgba(155,89,182,0.15),
+        0 0 24px rgba(26,188,156,0.08);
+      filter: brightness(1);
+    }
+    50% {
+      text-shadow:
+        0 0 8px rgba(155,89,182,0.6),
+        0 0 24px rgba(155,89,182,0.3),
+        0 0 48px rgba(26,188,156,0.2),
+        0 0 72px rgba(26,188,156,0.1);
+      filter: brightness(1.15);
+    }
+  }
+
+  /* ── Right section ── */
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    min-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── LOCI title ── */
+  .loci-title {
+    white-space: pre;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: #9b59b6;
+    animation: titleGlow 2.8s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% {
+      text-shadow: 0 0 10px rgba(155,89,182,0.4), 0 0 30px rgba(155,89,182,0.15);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(155,89,182,0.7), 0 0 40px rgba(155,89,182,0.3), 0 0 60px rgba(26,188,156,0.15);
+    }
+  }
+
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(26,188,156,0.8);
+    text-shadow: 0 0 12px rgba(26,188,156,0.3);
+    margin-top: 20px;
+    margin-bottom: 32px;
+    animation: subtitlePulse 3.5s ease-in-out infinite;
+  }
+  @keyframes subtitlePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155,89,182,0.4), transparent);
+    margin-bottom: 24px;
+  }
+
+  /* ── Reveal lines ── */
+  .reveal-line {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+    color: rgba(200,200,220,0.08);
+    text-shadow: none;
+    transition: color 1.2s ease, text-shadow 1.2s ease, transform 1.2s ease;
+    transform: translateY(0);
+  }
+  .reveal-line.bright {
+    color: rgba(200,200,220,0.92);
+    text-shadow: 0 0 20px rgba(155,89,182,0.35), 0 0 40px rgba(155,89,182,0.15);
+    transform: translateY(-1.5px);
+  }
+  .reveal-line.fading {
+    color: rgba(200,200,220,0.25);
+    text-shadow: 0 0 8px rgba(155,89,182,0.1);
+    transform: translateY(0);
+  }
+
+  /* ── Bottom section ── */
+  .bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+    gap: 22px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .bottom.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Feature tags ── */
+  .feature-tags {
+    display: flex;
+    gap: 24px;
+  }
+  .feature-tag {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(155,89,182,0.45);
+    padding: 6px 14px;
+    border: 1px solid rgba(155,89,182,0.15);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  .feature-tag:hover {
+    color: rgba(155,89,182,0.7);
+    border-color: rgba(155,89,182,0.35);
+    text-shadow: 0 0 12px rgba(155,89,182,0.2);
+  }
+
+  /* ── CTA with border glow ── */
+  .btn-star-wrap {
+    position: relative;
+    border-radius: 10px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(155,89,182,0.4), rgba(26,188,156,0.3), rgba(155,89,182,0.4));
+    background-size: 200% 200%;
+    animation: borderFlow 3s ease-in-out infinite;
+  }
+  @keyframes borderFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .btn-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 40px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    background: #0a0a1a;
+    color: #c9a0dc;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  .btn-star:hover {
+    background: rgba(155,89,182,0.12);
+    box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.08);
+    transform: translateY(-1px);
+  }
+  .btn-star-wrap.pop {
+    animation: borderFlow 3s ease-in-out infinite, btnPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes btnPop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Jellyfish trail ── */
+  .jellyfish {
+    position: fixed;
+    pointer-events: none;
+    z-index: 2;
+    animation: jellyDrift 4s ease-out forwards;
+  }
+  .jellyfish svg {
+    overflow: visible;
+    filter: drop-shadow(0 0 6px rgba(155,89,182,0.4));
+  }
+  .jelly-bell {
+    animation: jellyPulse 1.2s ease-in-out infinite;
+    transform-origin: center top;
+  }
+  @keyframes jellyPulse {
+    0%, 100% { transform: scaleX(1) scaleY(1); }
+    50% { transform: scaleX(1.08) scaleY(0.92); }
+  }
+  .jelly-tentacle {
+    animation: tentacleWave 1.8s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  .jelly-tentacle:nth-child(2) { animation-delay: -0.3s; }
+  .jelly-tentacle:nth-child(3) { animation-delay: -0.6s; }
+  .jelly-tentacle:nth-child(4) { animation-delay: -0.9s; }
+  @keyframes tentacleWave {
+    0%, 100% { transform: skewX(0deg); }
+    25% { transform: skewX(6deg); }
+    75% { transform: skewX(-6deg); }
+  }
+  @keyframes jellyDrift {
+    0% {
+      opacity: 0.7;
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    30% {
+      opacity: 0.5;
+    }
+    60% {
+      transform: translate(var(--drift, 10px), -80px) scale(0.8) rotate(3deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--drift, 10px), -140px) scale(0.5) rotate(-2deg);
+    }
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: fixed;
+    bottom: 16px;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: rgba(200,200,220,0.12);
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 1;
+  }
+  .footer.visible { opacity: 1; }
+  .footer a {
+    color: rgba(155,89,182,0.3);
+    text-decoration: none;
+  }
+  .footer a:hover { color: rgba(155,89,182,0.6); }
+
+  /* ── Particles ── */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift linear infinite;
+  }
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1px solid rgba(155,89,182,0.12);
+    background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.06), transparent);
+    animation: bubbleUp linear infinite;
+  }
+  @keyframes drift {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  @keyframes bubbleUp {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(50vh) scale(1); }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .hero {
+      flex-direction: column;
+      gap: 24px;
+      padding: 20px;
+    }
+    .right-section { min-width: unset; align-items: center; text-align: center; }
+    .seahorse-wrap { font-size: 9px; }
+    .loci-title { font-size: 12px; }
+    .subtitle { font-size: 13px; letter-spacing: 3px; }
+    .feature-tags { flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .feature-tag { font-size: 8px; padding: 4px 10px; }
+    .glow-1 { width: 300px; height: 300px; }
+    .glow-2 { width: 200px; height: 200px; }
+    .glow-3 { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ambient deep-sea glow -->
+<div class="ambient-glow glow-1"></div>
+<div class="ambient-glow glow-2"></div>
+<div class="ambient-glow glow-3"></div>
+
+<div class="hero">
+  <div class="seahorse-wrap" id="seahorse"></div>
+  <div class="right-section">
+    <div class="loci-title" id="lociTitle"></div>
+    <div class="subtitle">Memory Palace for AI</div>
+    <div class="divider"></div>
+    <div class="reveal-line">Your AI forgets you. Every. Single. Time.</div>
+    <div class="reveal-line">What if it didn't?</div>
+    <div class="reveal-line">Loci gives your AI a real brain.</div>
+    <div class="reveal-line">Plain Markdown. On your machine. No lock-in.</div>
+    <div class="reveal-line">It remembers who you are — forever.</div>
+  </div>
+</div>
+
+<div class="bottom" id="bottom">
+  <div class="feature-tags">
+    <span class="feature-tag">100% Local</span>
+    <span class="feature-tag">Plain Markdown</span>
+    <span class="feature-tag">Claude Code Native</span>
+    <span class="feature-tag">Open Source</span>
+  </div>
+  <div class="btn-star-wrap" id="btnWrap">
+    <a class="btn-star" href="https://github.com/codesstar/loci">&#9733; Star on GitHub</a>
+  </div>
+</div>
+
+<div class="footer" id="footer">
+  MIT License &middot; <a href="https://github.com/codesstar/loci">GitHub</a> &middot; Built by <a href="https://x.com/spacemanchao">Callum</a>
+</div>
+
+<script>
+const SEAHORSE_ART = `
+                    ,
+               ,   /^\\     ___
+              /^\\_/   \`...'  /\`
+           ,__\\    ,'     ~ (
+        ,___\\ ,,    .,       \\
+         \\__ \\\\ .'.'   .-.  )
+           .'.-\\\\' \\'.  '-. (
+          / (==== ."".  ( \u25c9 ) \\
+        ,/   \`~~~'|  /   \`-'   )
+       "")      |~| \`""".  ~_ /
+         /       \\~\\     ".  \\\\
+ _      /    \u00b7    ~\\      ". \\\\
+( \\     )  \u2500\u2500\u253c\u2500\u2500 \\~\\      ". \\\\
+(_ (\\   /    \u00b7     ~|       ". \`\\
+(_ _ \\  )  \u2500\u253c\u2500\u253c\u2500 |~|        ". \`\\.
+(_ = _\\ \\   \u00b7  \u00b7   ~|          ".\`.;
+(_ -(   \\_) \u2500\u253c\u2500\u253c\u2500 |~|            ""
+(_ =   (     \u00b7  \u00b7   ~|
+(_ -  ( ~  =      \u2550\u2550\u2550\u2550|~/
+ (_  =     (_           /
+  (_-   ~_( /\\        ,"
+   (_ =  _/   |     ."
+    (_  (/    |    .(
+     (\\_/     )    /
+             /    (
+            |     /
+            |    (       ____
+            |    (    .-'    \`-.
+             \\    \\  / ' .--.  \\
+              \\    \\ |  '  \`  ;  |
+               \\    :\`. \`-'  ;  |
+                \`-   \`._ _ _.'^'./
+                   "-  .-\`\`\`_=~._/
+                      \`"------"'
+`;
+
+const LOCI_TEXT = ` \u2588\u2588       \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588      \u2588\u2588    \u2588\u2588 \u2588\u2588       \u2588\u2588
+ \u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588`;
+
+function getGradientColor(row, total) {
+  const t = row / total;
+  return `rgb(${Math.round(155+(26-155)*t)},${Math.round(89+(188-89)*t)},${Math.round(182+(156-182)*t)})`;
+}
+
+// ── Render seahorse with position tracking ──
+const charPositions = []; // {el, x, y}
+function renderSeahorse() {
+  const el = document.getElementById('seahorse');
+  const lines = SEAHORSE_ART.split('\n');
+  const chars = [];
+  lines.forEach((line, ri) => {
+    const color = getGradientColor(ri, lines.length);
+    for (const ch of line) {
+      if (ch === ' ') {
+        el.appendChild(document.createTextNode(' '));
+      } else {
+        const s = document.createElement('span');
+        s.className = 'char';
+        s.textContent = ch;
+        s.style.color = color;
+        s.dataset.origColor = color;
+        el.appendChild(s);
+        chars.push(s);
+      }
+    }
+    el.appendChild(document.createTextNode('\n'));
+  });
+  return chars;
+}
+
+function fireSpark(chars) {
+  if (!chars.length) return;
+  const el = chars[Math.random() * chars.length | 0];
+  const orig = el.textContent;
+  const sparks = '\u25c6\u25c8\u223f\u25cf\u25c9\u2b21\u2b22\u2726\u2727';
+  el.classList.add('spark');
+  if (Math.random() > 0.5) el.textContent = sparks[Math.random() * sparks.length | 0];
+  setTimeout(() => { el.classList.remove('spark'); el.textContent = orig; }, 150 + Math.random() * 200);
+}
+
+function createParticles() {
+  const colors = ['rgba(155,89,182,0.35)', 'rgba(26,188,156,0.3)', 'rgba(255,255,255,0.15)'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.random() * colors.length | 0];
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = -(Math.random() * 20) + 's';
+    const size = 1.5 + Math.random() * 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    document.body.appendChild(p);
+  }
+  for (let i = 0; i < 15; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = Math.random() * 100 + 'vw';
+    const size = 4 + Math.random() * 10;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.animationDuration = (12 + Math.random() * 20) + 's';
+    b.style.animationDelay = -(Math.random() * 25) + 's';
+    document.body.appendChild(b);
+  }
+}
+
+// ── Init ──
+const chars = renderSeahorse();
+document.getElementById('lociTitle').textContent = LOCI_TEXT;
+createParticles();
+
+// ── Mouse interaction: jellyfish trail + seahorse scatter ──
+const seahorseEl = document.getElementById('seahorse');
+let lastJellyTime = 0;
+
+const jellyColors = [
+  { bell: 'rgba(155,89,182,0.35)', tentacle: 'rgba(155,89,182,0.2)' },
+  { bell: 'rgba(120,100,200,0.3)', tentacle: 'rgba(120,100,200,0.18)' },
+  { bell: 'rgba(26,188,156,0.25)', tentacle: 'rgba(26,188,156,0.15)' },
+  { bell: 'rgba(180,120,220,0.3)', tentacle: 'rgba(180,120,220,0.18)' },
+];
+
+function spawnJellyfish(x, y) {
+  const c = jellyColors[Math.random() * jellyColors.length | 0];
+  const size = 12 + Math.random() * 16;
+  const el = document.createElement('div');
+  el.className = 'jellyfish';
+  el.style.left = (x - size/2) + 'px';
+  el.style.top = (y - size/3) + 'px';
+  // Random slight horizontal drift
+  const drift = (Math.random() - 0.5) * 40;
+  el.style.animationName = 'jellyDrift';
+  el.style.setProperty('--drift', drift + 'px');
+
+  const w = size, h = size * 1.8;
+  const bellH = size * 0.55;
+  const tentacleCount = 3 + (Math.random() * 2 | 0);
+
+  let tentacles = '';
+  for (let i = 0; i < tentacleCount; i++) {
+    const tx = w * 0.2 + (w * 0.6 / (tentacleCount - 1)) * i;
+    const tLen = h * 0.35 + Math.random() * h * 0.2;
+    const cp1x = tx + (Math.random() - 0.5) * 6;
+    const cp1y = bellH + tLen * 0.4;
+    const endX = tx + (Math.random() - 0.5) * 8;
+    tentacles += `<path class="jelly-tentacle" d="M${tx},${bellH} Q${cp1x},${cp1y} ${endX},${bellH + tLen}" stroke="${c.tentacle}" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  }
+
+  el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <ellipse class="jelly-bell" cx="${w/2}" cy="${bellH * 0.6}" rx="${w * 0.45}" ry="${bellH * 0.55}" fill="${c.bell}" stroke="${c.tentacle}" stroke-width="0.5"/>
+    <ellipse cx="${w/2}" cy="${bellH * 0.4}" rx="${w * 0.2}" ry="${bellH * 0.2}" fill="rgba(255,255,255,0.08)"/>
+    ${tentacles}
+  </svg>`;
+
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+document.addEventListener('mousemove', (e) => {
+  const now = Date.now();
+  // Spawn jellyfish every ~200ms
+  if (now - lastJellyTime > 200) {
+    lastJellyTime = now;
+    // Random chance to skip (don't spawn every single time — feels more organic)
+    if (Math.random() > 0.35) {
+      spawnJellyfish(e.clientX, e.clientY);
+    }
+  }
+
+  // Scatter chars near mouse on seahorse
+  const rect = seahorseEl.getBoundingClientRect();
+  const mx = e.clientX, my = e.clientY;
+  if (mx < rect.left - 60 || mx > rect.right + 60 || my < rect.top - 60 || my > rect.bottom + 60) return;
+
+  chars.forEach(c => {
+    const cr = c.getBoundingClientRect();
+    const cx = cr.left + cr.width/2, cy = cr.top + cr.height/2;
+    const dist = Math.hypot(mx - cx, my - cy);
+    if (dist < 50) {
+      c.classList.add('scatter');
+      clearTimeout(c._scatterTimer);
+      c._scatterTimer = setTimeout(() => c.classList.remove('scatter'), 200);
+    }
+  });
+});
+
+// ── Reveal lines: flowing breathe ──
+const revealLines = document.querySelectorAll('.reveal-line');
+let currentLine = 0;
+const BREATHE_DURATION = 1800;
+let firstPassDone = false;
+let prevLine = -1;
+
+function cycleRevealLines() {
+  // Previous line fades gradually (not instant off)
+  revealLines.forEach((l, i) => {
+    if (i !== currentLine) {
+      l.classList.remove('bright');
+      // The line that was just bright gets "fading" state
+      if (i === prevLine) {
+        l.classList.add('fading');
+        setTimeout(() => l.classList.remove('fading'), 1200);
+      }
+    }
+  });
+
+  revealLines[currentLine].classList.remove('fading');
+  revealLines[currentLine].classList.add('bright');
+
+  if (currentLine === revealLines.length - 1 && !firstPassDone) {
+    firstPassDone = true;
+    setTimeout(() => {
+      document.getElementById('bottom').classList.add('visible');
+      document.getElementById('btnWrap').classList.add('pop');
+      document.getElementById('footer').classList.add('visible');
+    }, 600);
+  }
+
+  prevLine = currentLine;
+  currentLine = (currentLine + 1) % revealLines.length;
+  setTimeout(cycleRevealLines, BREATHE_DURATION);
+}
+
+setTimeout(cycleRevealLines, 600);
+
+// ── Sparks ──
+(function loop() {
+  setTimeout(() => {
+    for (let i = 0; i < 1 + (Math.random() * 3 | 0); i++) fireSpark(chars);
+    loop();
+  }, 300 + Math.random() * 700);
+})();
+</script>
+</body>
+</html>
