@@ -167,7 +167,27 @@ Each task item:
 | quarterly | array | Quarterly plan file objects |
 | reviews | array | Review file objects |
 | journal | array | Journal entry file objects (exclude buffer.md). Each must have `meta.date` and `meta.type: "journal"` |
-| calendar_events | object | Calendar data from `tasks/calendar.json` |
+| calendar_events | object | Calendar events keyed by date string (YYYY-MM-DD). Dashboard reads this on load |
+
+**calendar_events** format:
+
+```json
+{
+  "2026-03-19": [
+    { "title": "Team standup", "startKey": 600, "endKey": 630, "hour": 10 },
+    { "title": "Lunch with Alex", "startKey": 720, "endKey": 780, "hour": 12, "location": "Cafe" }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Event title |
+| startKey | number | Start time in minutes from midnight (e.g. 600 = 10:00) |
+| endKey | number | End time in minutes from midnight (e.g. 630 = 10:30) |
+| hour | number | Start hour (derived: `Math.floor(startKey / 60)`) |
+| location | string | (optional) Location |
+| note | string | (optional) Additional notes |
 
 ### people
 
