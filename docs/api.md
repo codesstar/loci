@@ -162,6 +162,56 @@ Add an item to `inbox.md`.
 
 ---
 
+## Week/Month Plans
+
+### POST /api/plan/save
+
+Save week or month plan items.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | yes | `week` or `month` |
+| `key` | string | yes | Week: `YYYY-MM-DD` (Monday). Month: `YYYY-MM` |
+| `items` | array | yes | Array of `{text, done}` objects |
+
+```bash
+curl -X POST http://localhost:8765/api/plan/save \
+  -H 'Content-Type: application/json' \
+  -d '{"type":"week","key":"2026-03-16","items":[{"text":"Ship README","done":false}]}'
+```
+
+### POST /api/plan/load
+
+Load week or month plan items.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | yes | `week` or `month` |
+| `key` | string | yes | Same key format as save |
+
+---
+
+## Journal Notes
+
+### POST /api/journal/save-notes
+
+Persist personal log notes (previously localStorage-only).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `date` | string | yes | `YYYY-MM-DD` format |
+| `notes` | array | yes | Array of `{id, name, content}` objects |
+
+### POST /api/journal/load-notes
+
+Load personal log notes for a date.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `date` | string | yes | `YYYY-MM-DD` format |
+
+---
+
 ## Error Handling
 
 All errors return HTTP 200 with an error body (except 404 for unknown routes):

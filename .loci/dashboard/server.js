@@ -790,6 +790,62 @@ function handleJournalSave(body) {
   return { ok: true, date, path: filePath };
 }
 
+function handleJournalNotesSave(body) {
+  const { date, notes } = body;
+  if (!date || !notes) return { error: 'Missing date or notes' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format' };
+
+  const notesDir = path.join(LOCI_ROOT, 'tasks', 'journal', 'notes');
+  if (!fs.existsSync(notesDir)) fs.mkdirSync(notesDir, { recursive: true });
+
+  const filePath = path.join(notesDir, `${date}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(notes, null, 2), 'utf-8');
+  return { ok: true, date };
+}
+
+function handleJournalNotesLoad(body) {
+  const { date } = body;
+  if (!date) return { error: 'Missing date' };
+
+  const filePath = path.join(LOCI_ROOT, 'tasks', 'journal', 'notes', `${date}.json`);
+  if (!fs.existsSync(filePath)) return { ok: true, notes: null };
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return { ok: true, notes: JSON.parse(content) };
+  } catch (e) {
+    return { ok: true, notes: null };
+  }
+}
+
+function handlePlanSave(body) {
+  const { type, key, items } = body;
+  if (!type || !key || !items) return { error: 'Missing type, key, or items' };
+  if (!['week', 'month'].includes(type)) return { error: 'Invalid type' };
+
+  const dir = path.join(LOCI_ROOT, 'tasks', 'plans', type);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const filePath = path.join(dir, `${key}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(items, null, 2), 'utf-8');
+  return { ok: true, type, key };
+}
+
+function handlePlanLoad(body) {
+  const { type, key } = body;
+  if (!type || !key) return { error: 'Missing type or key' };
+
+  const filePath = path.join(LOCI_ROOT, 'tasks', 'plans', type, `${key}.json`);
+  if (!fs.existsSync(filePath)) return { ok: true, items: null };
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return { ok: true, items: JSON.parse(content) };
+  } catch (e) {
+    return { ok: true, items: null };
+  }
+}
+
 function handleInboxAdd(body) {
   const { text } = body;
   if (!text) return { error: 'Missing text' };
@@ -1192,6 +1248,42 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       sendError(res, e.message, 500);
     }
+    return;
+  }
+
+  if (pathname === '/api/plan/save' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePlanSave(body);
+      if (result.error) { sendError(res, result.error); } else { sendJson(res, result); }
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  if (pathname === '/api/plan/load' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePlanLoad(body);
+      if (result.error) { sendError(res, result.error); } else { sendJson(res, result); }
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  if (pathname === '/api/journal/save-notes' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleJournalNotesSave(body);
+      if (result.error) { sendError(res, result.error); } else { sendJson(res, result); }
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  if (pathname === '/api/journal/load-notes' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleJournalNotesLoad(body);
+      if (result.error) { sendError(res, result.error); } else { sendJson(res, result); }
+    } catch (e) { sendError(res, e.message, 500); }
     return;
   }
 

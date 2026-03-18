@@ -5045,33 +5045,16 @@ createApp({
     }
 
     // Filter daily plans by date range and parse their tasks
-    function getDailyPlanTasksInRange(start, end) {
-      const daily = data.value?.planning?.daily || [];
-      const items = [];
-      for (const plan of daily) {
-        const d = extractDateFromFilename(plan.filename);
-        if (!d || d < start || d > end) continue;
-        if (!plan.content) continue;
-        const re = /<li class="task(\s+done)?"><input[^>]*>\s*(.+?)<\/li>/g;
-        let m;
-        while ((m = re.exec(plan.content)) !== null) {
-          items.push({ text: m[2].trim(), done: !!m[1], date: plan.filename });
-        }
-      }
-      return items;
+    // Week/Month plan key for storage
+    function getWeekKey(offset) {
+      const { start } = getWeekRange(offset);
+      return start.getFullYear() + '-' + String(start.getMonth()+1).padStart(2,'0') + '-' + String(start.getDate()).padStart(2,'0');
     }
-
-    // Computed week items from daily plans
-    const planWeekItemsComputed = computed(() => {
-      const { start, end } = getWeekRange(planWeekOffset.value);
-      return getDailyPlanTasksInRange(start, end);
-    });
-
-    // Computed month items from daily plans
-    const planMonthItemsComputed = computed(() => {
-      const { start, end } = getMonthRange(planMonthOffset.value);
-      return getDailyPlanTasksInRange(start, end);
-    });
+    function getMonthKey(offset) {
+      const now = new Date();
+      const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      return target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0');
+    }
 
     // Count of daily plan files in selected month
     const planMonthDailyCount = computed(() => {
@@ -5085,121 +5068,89 @@ createApp({
       return count;
     });
 
-    // Stable reactive arrays — smart-merge from computed source
+    // Stable reactive arrays — loaded from server JSON files
     const planWeekItems = reactive([]);
     const planMonthItems = reactive([]);
-    // Track removed items so smartMerge doesn't re-add them
-    const planRemovedKeys = new Set();
-
-    function smartMerge(target, source) {
-      const srcMap = new Map();
-      source.forEach(s => srcMap.set(s.text + '|' + (s.date || ''), s));
-      // Remove items no longer in source
-      for (let i = target.length - 1; i >= 0; i--) {
-        const key = target[i].text + '|' + (target[i].date || '');
-        if (!srcMap.has(key) && target[i].date) target.splice(i, 1);
-      }
-      // Add or update from source (skip removed items)
-      const targetMap = new Map();
-      target.forEach((t, i) => targetMap.set(t.text + '|' + (t.date || ''), i));
-      for (const s of source) {
-        const key = s.text + '|' + (s.date || '');
-        if (planRemovedKeys.has(key)) continue;
-        if (targetMap.has(key)) {
-          const idx = targetMap.get(key);
-          if (target[idx].done !== s.done) target[idx].done = s.done;
-        } else {
-          target.push({ ...s });
-        }
-      }
-    }
-
-    watch(planWeekItemsComputed, (newItems) => smartMerge(planWeekItems, newItems), { immediate: true });
-    watch(planMonthItemsComputed, (newItems) => smartMerge(planMonthItems, newItems), { immediate: true });
     const planSomedayItems = reactive(
       mockPlanData.someday.map(s => ({ text: s.text, note: s.note || '', done: false }))
     );
+
+    // Load week/month plan items from server
+    let _lastWeekKey = '', _lastMonthKey = '';
+    async function loadPlanItems(type) {
+      const key = type === 'week' ? getWeekKey(planWeekOffset.value) : getMonthKey(planMonthOffset.value);
+      const target = type === 'week' ? planWeekItems : planMonthItems;
+      if (type === 'week' && key === _lastWeekKey) return;
+      if (type === 'month' && key === _lastMonthKey) return;
+      if (type === 'week') _lastWeekKey = key; else _lastMonthKey = key;
+      try {
+        const r = await fetch('/api/plan/load', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, key })
+        });
+        if (r.ok) {
+          const result = await r.json();
+          target.length = 0;
+          if (result.items && Array.isArray(result.items)) {
+            result.items.forEach(item => target.push(item));
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function savePlanItems(type) {
+      const key = type === 'week' ? getWeekKey(planWeekOffset.value) : getMonthKey(planMonthOffset.value);
+      const target = type === 'week' ? planWeekItems : planMonthItems;
+      const items = target.map(t => ({ text: t.text, done: t.done }));
+      try {
+        await fetch('/api/plan/save', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, key, items })
+        });
+      } catch (e) {}
+    }
+
+    // Load on init and when offset changes
+    watch(() => planWeekOffset.value, () => { _lastWeekKey = ''; loadPlanItems('week'); }, { immediate: true });
+    watch(() => planMonthOffset.value, () => { _lastMonthKey = ''; loadPlanItems('month'); }, { immediate: true });
 
     const newPlanMonth = ref('');
     const newPlanWeek = ref('');
     const newPlanSomeday = ref('');
 
-    async function togglePlanItem(item) {
-      const newDone = !item.done;
-      item.done = newDone;
-      if (!item.date) return;
-      const rawText = item.text.replace(/<[^>]*>/g, '').trim();
-      const dateStr = item.date.replace('.md', '');
-      try {
-        await fetch('/api/daily/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: dateStr, taskText: rawText, done: newDone })
-        });
-      } catch (e) {}
+    function togglePlanItem(item) {
+      item.done = !item.done;
+      // Persist the entire list
+      const type = planWeekItems.includes(item) ? 'week' : 'month';
+      savePlanItems(type);
     }
 
     async function addPlanItem(listOrName, textVal) {
-      // textVal is a string (Vue template auto-unwraps refs)
       if (!textVal || !textVal.trim()) return;
       const taskText = textVal.trim();
       if (listOrName === 'week') {
-        const { start } = getWeekRange(planWeekOffset.value);
-        const dateStr = start.getFullYear() + '-' + String(start.getMonth()+1).padStart(2,'0') + '-' + String(start.getDate()).padStart(2,'0');
-        planWeekItems.push({ text: taskText, done: false, date: dateStr + '.md' });
+        planWeekItems.push({ text: taskText, done: false });
         newPlanWeek.value = '';
-        try {
-          await fetch('/api/daily/add-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, task: taskText })
-          });
-        } catch (e) {}
+        savePlanItems('week');
       } else if (listOrName === 'month') {
-        const { start } = getMonthRange(planMonthOffset.value);
-        const dateStr = start.getFullYear() + '-' + String(start.getMonth()+1).padStart(2,'0') + '-' + String(start.getDate()).padStart(2,'0');
-        planMonthItems.push({ text: taskText, done: false, date: dateStr + '.md' });
+        planMonthItems.push({ text: taskText, done: false });
         newPlanMonth.value = '';
-        try {
-          await fetch('/api/daily/add-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, task: taskText })
-          });
-        } catch (e) {}
+        savePlanItems('month');
       } else {
         listOrName.push({ text: taskText, done: false });
         newPlanSomeday.value = '';
       }
     }
-    async function removePlanItem(listOrName, index) {
-      let item;
+
+    function removePlanItem(listOrName, index) {
       if (listOrName === 'week') {
-        item = planWeekItems[index];
         planWeekItems.splice(index, 1);
+        savePlanItems('week');
       } else if (listOrName === 'month') {
-        item = planMonthItems[index];
         planMonthItems.splice(index, 1);
+        savePlanItems('month');
       } else {
         listOrName.splice(index, 1);
-        return;
-      }
-      // Track removal so smartMerge won't re-add it
-      if (item) {
-        const key = item.text + '|' + (item.date || '');
-        planRemovedKeys.add(key);
-        // Also remove from the markdown file
-        if (item.date) {
-          const rawText = item.text.replace(/<[^>]*>/g, '').trim();
-          const dateStr = item.date.replace('.md', '');
-          try {
-            await fetch('/api/daily/remove-task', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ date: dateStr, task: rawText })
-            });
-          } catch (e) {}
-        }
       }
     }
 
@@ -6923,17 +6874,33 @@ createApp({
 
     function makeNoteId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-    function loadAllNotes() {
+    async function loadAllNotes() {
       const key = JOURNAL_LS_PREFIX + journalViewDate.value;
-      const saved = localStorage.getItem(key);
       journalNotes.length = 0;
-      if (saved) {
-        try {
-          const arr = JSON.parse(saved);
-          arr.forEach(n => journalNotes.push(n));
-        } catch (e) {
-          // Migration from old single-note format
-          journalNotes.push({ id: makeNoteId(), name: 'Note 1', content: saved });
+      // Try server first, fallback to localStorage
+      let loaded = false;
+      try {
+        const r = await fetch('/api/journal/load-notes', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: journalViewDate.value })
+        });
+        if (r.ok) {
+          const result = await r.json();
+          if (result.notes && Array.isArray(result.notes) && result.notes.length > 0) {
+            result.notes.forEach(n => journalNotes.push(n));
+            loaded = true;
+          }
+        }
+      } catch (e) {}
+      if (!loaded) {
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          try {
+            const arr = JSON.parse(saved);
+            arr.forEach(n => journalNotes.push(n));
+          } catch (e) {
+            journalNotes.push({ id: makeNoteId(), name: 'Note 1', content: saved });
+          }
         }
       }
       if (journalNotes.length === 0) {
@@ -6965,6 +6932,11 @@ createApp({
       const key = JOURNAL_LS_PREFIX + journalViewDate.value;
       const data = journalNotes.map(n => ({ id: n.id, name: n.name, content: n.content }));
       localStorage.setItem(key, JSON.stringify(data));
+      // Persist to server
+      fetch('/api/journal/save-notes', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: journalViewDate.value, notes: data })
+      }).catch(() => {});
       journalNoteSaved.value = 'SAVED';
       setTimeout(() => { journalNoteSaved.value = ''; }, 2000);
     }
@@ -9393,7 +9365,7 @@ createApp({
       planMonthItems, planWeekItems, planSomedayItems,
       planWeekOffset, planMonthOffset,
       planWeekLabel, planMonthLabel,
-      planWeekItemsComputed, planMonthItemsComputed,
+      loadPlanItems,
       planMonthDailyCount,
       newPlanMonth, newPlanWeek, newPlanSomeday,
       addPlanItem, removePlanItem, togglePlanItem,
