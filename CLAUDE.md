@@ -170,7 +170,13 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 
 Never save raw transcripts. Distill to structured files:
 - Personal info → `me/` · Decisions → `decisions/` · Tasks → `tasks/active.md`
-- Insights → auto-memory · Pending thoughts → `inbox.md` · External content → `references/inbox.md`
+- Insights → auto-memory · External content → `references/`
+
+**⚠️ Fragments routing** — two distinct buckets, auto-save + one-line confirm:
+- **随手记 → `inbox.md`**: fleeting thoughts, sparks, vague ideas not yet actionable. Triggers: "突然想到...", "有个想法...", "记一下...", "别忘了...", "回头看看...", or any loose thought that isn't a task, decision, or reference.
+- **收藏夹 → `references/YYYY-MM-DD-slug.md`**: links, articles, videos, tools, materials worth keeping. Triggers: user shares a URL, "这个不错", "收藏一下", "以后看看这个", "存一下", or mentions external content worth bookmarking. Always include `url` in frontmatter if available.
+- If it's **actionable with a timeframe** → it's a task, not a fragment (see rule #9).
+- If it's a **conclusion or principle** → it's a decision or insight, not a fragment.
 
 **Levels**: Factual info → auto-save + one-line confirm. Subjective/strategic → ask before writing.
 
