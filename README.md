@@ -96,7 +96,7 @@ The installer clones Loci to `~/loci/`, connects it to your AI tools (Claude Cod
 ### OpenClaw
 
 ```bash
-clawhub install loci
+clawhub install loci-brain
 ```
 
 ### Manual Setup (Cursor, Windsurf, or any AI tool)
@@ -251,7 +251,7 @@ Loci is **CLI-first** — it works anywhere your AI runs. The dashboard is optio
 |----------|---------|---------------|
 | **Claude Code** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.claude/CLAUDE.md` |
 | **Codex CLI** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.codex/AGENTS.md` |
-| **OpenClaw** | `clawhub install loci` | Yes — via skill system |
+| **OpenClaw** | `clawhub install loci-brain` | Yes — via skill system |
 | **Cursor / Windsurf** | `git clone` + `./setup.sh` | No — brain directory only |
 
 > **OpenClaw users**: Loci fixes OpenClaw's memory problem. One install command, and your lobster gets a real brain. [Learn more](docs/roadmap.md)

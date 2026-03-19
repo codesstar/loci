@@ -94,7 +94,7 @@ curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | ba
 ### OpenClaw（龙虾）
 
 ```bash
-clawhub install loci
+clawhub install loci-brain
 ```
 
 ### 手动安装（Cursor、Windsurf 等）

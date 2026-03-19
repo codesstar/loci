@@ -1,3 +1,13 @@
+---
+name: loci
+description: Memory Palace for AI — persistent structured memory, identity, and task management across every conversation.
+version: 0.1.0
+metadata:
+  openclaw:
+    emoji: "\U0001F40E"
+    homepage: https://github.com/codesstar/loci
+---
+
 # Loci — Memory Palace for AI
 
 ## ⚠️ FIRST: Check if brain exists
