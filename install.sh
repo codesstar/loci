@@ -161,6 +161,31 @@ else
   echo -e "${DIM}Using pre-configured .claude/settings.json from repository${NC}"
 fi
 
+# ─── Detect Codex CLI and inject AGENTS.md ─────────────────────────────────
+CODEX_AGENTS="$HOME/.codex/AGENTS.md"
+if [ -d "$HOME/.codex" ] || command -v codex &> /dev/null; then
+  mkdir -p "$HOME/.codex"
+  if ! grep -q '<!-- loci:start' "$CODEX_AGENTS" 2>/dev/null; then
+    if [ -f "$CODEX_AGENTS" ]; then
+      cp "$CODEX_AGENTS" "${CODEX_AGENTS}.loci-backup"
+    fi
+    cat >> "$CODEX_AGENTS" << CODEXBLOCK
+
+<!-- loci:start v2 -->
+## Loci Brain Connection (Global)
+- Brain: ${BRAIN_PATH}
+- Tasks → ${BRAIN_PATH}/tasks/active.md
+- Decisions → ${BRAIN_PATH}/decisions/
+- Quick thoughts → ${BRAIN_PATH}/inbox.md
+- Links/materials → ${BRAIN_PATH}/references/
+- Personal info → ${BRAIN_PATH}/me/
+- Factual: auto-save + confirm. Subjective: ask first.
+<!-- loci:end -->
+CODEXBLOCK
+    echo -e "${GREEN}✓${NC} Codex awareness enabled (~/.codex/AGENTS.md)"
+  fi
+fi
+
 # ─── Detect OpenClaw and install skill ────────────────────────────────────────
 OPENCLAW_DIR="$HOME/.openclaw"
 if [ -d "$OPENCLAW_DIR" ]; then

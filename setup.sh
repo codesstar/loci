@@ -750,7 +750,7 @@ DJEOF
 # ─── Step 3: Global Configuration ───────────────────────────────────────────
 configure_global() {
   CURRENT_STEP=3
-  print_step "$(t "Connecting to Claude Code" "连接 Claude Code")"
+  print_step "$(t "Connecting to AI tools" "连接 AI 工具")"
 
   # Register brain path globally
   mkdir -p "$HOME/.loci"
@@ -790,10 +790,11 @@ configure_global() {
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_PATH}/tasks/active.md\`
+- Tasks → \`${BRAIN_PATH}/tasks/active.md\` (route by specificity: today/daily/week/month)
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
 - Personal info → \`${BRAIN_PATH}/me/\`
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
+- Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 
 ### Cross-Project Memory
@@ -841,6 +842,45 @@ GEOF
     else
       sed "s|\\\$HOME|${HOME}|g" "$BRAIN_PATH/templates/global-settings.json" > "$global_settings"
       print_check "$(t "Global hooks configured" "全局钩子已配置")"
+    fi
+  fi
+
+  # ─── Codex CLI (~/.codex/AGENTS.md) ──────────────────────────────────────
+  local global_codex="$HOME/.codex/AGENTS.md"
+  if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
+    mkdir -p "$HOME/.codex"
+
+    if [ -f "$global_codex" ] && grep -q '<!-- loci:start' "$global_codex" 2>/dev/null; then
+      print_check "$(t "Codex AGENTS.md already connected" "Codex AGENTS.md 已连接")"
+    else
+      if [ -f "$global_codex" ]; then
+        cp "$global_codex" "${global_codex}.loci-backup"
+        print_check "$(t "Backed up existing ~/.codex/AGENTS.md" "已备份现有 ~/.codex/AGENTS.md")"
+      fi
+
+      cat >> "$global_codex" << CODEXEOF
+
+<!-- loci:start v2 -->
+## Loci Brain Connection (Global)
+
+- Brain path: \`${BRAIN_PATH}\`
+
+### Automatic Context
+- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction
+- Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
+- Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
+
+### Persistence (any directory)
+When the user mentions tasks, decisions, or insights — save them to the brain:
+- Tasks → \`${BRAIN_PATH}/tasks/active.md\` (route by specificity: today/daily/week/month)
+- Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
+- Personal info → \`${BRAIN_PATH}/me/\`
+- Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
+- Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
+- Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+<!-- loci:end -->
+CODEXEOF
+      print_check "$(t "Codex awareness enabled (~/.codex/AGENTS.md)" "Codex 全局感知已启用 (~/.codex/AGENTS.md)")"
     fi
   fi
 
