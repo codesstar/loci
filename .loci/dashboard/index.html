@@ -11,7 +11,6 @@
      - Data processing functions (task filtering, calendar events, goal progress)
      - localStorage persistence logic (save/load/keys)
      - Journal rich editor logic (contenteditable, image resize, paste handling, auto-save)
-     - Mock data objects (mockJournalData, mockJournalDates)
      - Return statement variable list
      - HTML template v-if/v-for/v-model/@click bindings
 
@@ -4896,87 +4895,117 @@ createApp({
         tags: e.meta?.tags || [],
         content: e.content,
       }));
-      if (real.length) return real;
-      return mockMemory.learningLog;
+      return real;
     });
 
     const memoryEvolutionEntries = computed(() => {
-      const real = data.value?.me?.evolution_entries || [];
-      if (real.length) return real;
-      return mockMemory.evolution;
+      return data.value?.me?.evolution_entries || [];
     });
 
-    // Mock plan data
-    const mockPlanData = {
-      mission: 'Build meaningful projects. Ship fast, learn faster.',
-      positioning: 'Builder & maker — combining technical depth with product intuition.',
-      annualGoals: [
-        { name: 'Launch side project', progress: 25, status: 'MVP in progress' },
-        { name: 'Build consistent habits', progress: 15, status: 'Tracking daily' },
-        { name: 'Learn a new skill', progress: 40, status: 'Online course in progress' },
-        { name: 'Grow professional network', progress: 20, status: 'Attending meetups' },
-        { name: 'Read 24 books this year', progress: 10, status: '2/24 completed' },
-      ],
-      principles: [
-        'Ship early, iterate often. Done is better than perfect.',
-        'Focus on one main task per day. Finish before moving on.',
-        'Consistency beats intensity. Show up every day.',
-        'Learn by building, not by consuming.',
-        'Rest is productive. Protect your energy.',
-        'Write things down. Memory is unreliable.',
-      ],
-      monthlyPlan: [
-        { label: 'W1', current: false, items: [
-          { text: 'Set up development environment', done: true },
-          { text: 'Define project scope', done: true },
-          { text: 'Create initial wireframes', done: false },
-          { text: 'Write project brief', done: false },
-        ]},
-        { label: 'W2', current: true, items: [
-          { text: 'Build core feature prototype', done: false },
-          { text: 'Set up CI/CD pipeline', done: false },
-          { text: 'Research competitor landscape', done: true },
-          { text: 'Design system components', done: true },
-        ]},
-        { label: 'W3', current: false, items: [
-          { text: 'User testing round 1', done: false },
-          { text: 'Write documentation', done: false },
-          { text: 'Collect early feedback', done: false },
-        ]},
-        { label: 'W4', current: false, items: [
-          { text: 'Iterate based on feedback', done: false },
-          { text: 'Performance optimization', done: false },
-          { text: 'Prepare for launch', done: false },
-        ]},
-      ],
-      quarterlyGoals: [
-        { name: 'Ship MVP to production', status: 'IN PROGRESS', detail: 'Core features being built, docs in progress' },
-        { name: 'Join developer community', status: 'PENDING', detail: 'After MVP launch, engage in forums' },
-        { name: 'Create content consistently', status: 'STARTING', detail: 'Weekly blog posts about the build process' },
-        { name: 'Set up infrastructure', status: 'DONE', detail: 'Dev environment and CI/CD configured' },
-      ],
-      reviews: [
-        { title: 'WEEK 1 REVIEW', date: '2026-03-11', sections: [
-          { label: 'Completed', items: ['Project setup complete', 'Development environment configured', 'Initial research done'] },
-          { label: 'Incomplete', items: ['Wireframes not finished', 'Project brief still in draft'] },
-          { label: 'Reflection', items: ['Spent too long on setup, need to focus on output', 'Good momentum building'] },
-        ]},
-        { title: 'WEEK 2 REVIEW (IN PROGRESS)', date: '2026-03-16', sections: [
-          { label: 'Completed', items: ['Competitor research done', 'Design system created', 'Journal feature upgraded', 'Dashboard redesign'] },
-          { label: 'In Progress', items: ['Core feature prototype', 'Documentation'] },
-          { label: 'Insights', items: ['Layered documentation approach works well', 'Daily review habit is valuable'] },
-        ]},
-      ],
-      someday: [
-        { text: 'Write a technical blog series', note: 'After shipping MVP' },
-        { text: 'Give a conference talk', note: 'When project gains traction' },
-        { text: 'Build a community', note: 'After 10+ published posts' },
-        { text: 'Explore monetization', note: 'After validating product-market fit' },
-        { text: 'Team version (SaaS)', note: 'Validate personal version first' },
-        { text: 'Write an e-book on the topic', note: '' },
-        { text: 'Build a visualization tool', note: 'Similar to Obsidian graph view' },
-      ],
-    };
+    // Parse plan.md HTML content into structured data for the template
+    function parsePlanHtml(html) {
+      if (!html) return { mission: '', positioning: '', annualGoals: [], principles: [], someday: [] };
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString('<div>' + html + '</div>', 'text/html');
+      const root = doc.body.firstChild;
+
+      // Collect all elements between a matching heading and the next same-level heading
+      function getSectionContent(tagName, titlePattern) {
+        const headings = root.querySelectorAll(tagName);
+        for (const h of headings) {
+          if (titlePattern.test(h.textContent)) {
+            const content = [];
+            let el = h.nextElementSibling;
+            while (el && el.tagName !== tagName.toUpperCase()) {
+              content.push(el);
+              el = el.nextElementSibling;
+            }
+            return content;
+          }
+        }
+        return [];
+      }
+
+      function getSectionText(tagName, titlePattern) {
+        const els = getSectionContent(tagName, titlePattern);
+        return els.map(el => el.textContent.trim()).filter(Boolean).join(' ');
+      }
+
+      // Mission
+      const mission = getSectionText('h2', /mission|使命/i);
+
+      // Positioning
+      const positioning = getSectionText('h2', /positioning|核心定位|定位/i);
+
+      // Annual Goals: each ### under the goals h2
+      const annualGoals = [];
+      const goalsSection = getSectionContent('h2', /goals|年度目标|目标/i);
+      for (let idx = 0; idx < goalsSection.length; idx++) {
+        const el = goalsSection[idx];
+        if (el.tagName === 'H3') {
+          const name = el.textContent.trim();
+          let status = '', progress = 0;
+          for (let j = idx + 1; j < goalsSection.length; j++) {
+            if (goalsSection[j].tagName === 'H3') break;
+            const text = goalsSection[j].textContent || '';
+            const statusMatch = text.match(/(?:status|当前进度|进度)[：:]/i);
+            if (statusMatch) status = text.split(/[：:]/)[1]?.trim() || '';
+            const krMatch = text.match(/(?:key result|关键结果)s?[：:]/i);
+            if (krMatch && !status) status = text.split(/[：:]/)[1]?.trim() || '';
+            const pctMatch = text.match(/(\d+)\s*[%％]/);
+            if (pctMatch) progress = parseInt(pctMatch[1]);
+            const fracMatch = text.match(/(\d+)\s*\/\s*(\d+)/);
+            if (fracMatch && !pctMatch) {
+              progress = Math.round((parseInt(fracMatch[1]) / parseInt(fracMatch[2])) * 100);
+            }
+          }
+          annualGoals.push({ name, progress, status });
+        }
+      }
+
+      // Principles: bullet points after the principles h2
+      const principles = [];
+      const principlesEls = getSectionContent('h2', /principles|战略原则|原则/i);
+      for (const el of principlesEls) {
+        if (el.tagName === 'UL') {
+          for (const li of el.querySelectorAll('li')) {
+            const text = li.textContent.trim();
+            if (text) principles.push(text);
+          }
+        } else if (el.tagName === 'P') {
+          const text = el.textContent.trim();
+          if (text) principles.push(text);
+        }
+      }
+
+      // Someday items from plan.md
+      const somedayItems = [];
+      const somedayEls = getSectionContent('h2', /someday|未来|以后/i);
+      for (const el of somedayEls) {
+        if (el.tagName === 'UL') {
+          for (const li of el.querySelectorAll('li')) {
+            const text = li.textContent.trim();
+            if (text) {
+              const dashMatch = text.match(/^(.+?)\s*[—–-]\s*(.+)$/);
+              const parenMatch = text.match(/^(.+?)\s*\((.+)\)\s*$/);
+              if (dashMatch) somedayItems.push({ text: dashMatch[1].trim(), note: dashMatch[2].trim() });
+              else if (parenMatch) somedayItems.push({ text: parenMatch[1].trim(), note: parenMatch[2].trim() });
+              else somedayItems.push({ text, note: '' });
+            }
+          }
+        }
+      }
+
+      return { mission, positioning, annualGoals, principles, someday: somedayItems };
+    }
+
+    // Plan data from API (named mockPlanData to match existing template references)
+    const mockPlanData = computed(() => {
+      const planContent = data.value?.plan?.content;
+      if (planContent) return parsePlanHtml(planContent);
+      return { mission: '', positioning: '', annualGoals: [], principles: [], someday: [] };
+    });
 
     // --- Planning lists (data-driven with week/month navigation) ---
     const planWeekOffset = ref(0);  // 0 = current week
@@ -5071,9 +5100,17 @@ createApp({
     // Stable reactive arrays — loaded from server JSON files
     const planWeekItems = reactive([]);
     const planMonthItems = reactive([]);
-    const planSomedayItems = reactive(
-      mockPlanData.someday.map(s => ({ text: s.text, note: s.note || '', done: false }))
-    );
+    const planSomedayItems = reactive([]);
+    // Populate someday items from API data when it loads
+    let _somedayInitialized = false;
+    watch(() => mockPlanData.value, (plan) => {
+      if (_somedayInitialized || !plan) return;
+      const items = (plan.someday || []).map(s => ({ text: s.text, note: s.note || '', done: false }));
+      if (items.length) {
+        planSomedayItems.splice(0, planSomedayItems.length, ...items);
+        _somedayInitialized = true;
+      }
+    }, { immediate: true });
 
     // Load week/month plan items from server
     let _lastWeekKey = '', _lastMonthKey = '';
@@ -5219,24 +5256,11 @@ createApp({
       currentPage.value = 'today';
     }
 
-    // Mock memory data
+    // Mock memory data (identity/values/learned only — used as fallback when no real files exist)
     const mockMemory = {
       identity: '<h2>Basic Info</h2><ul><li><b>Name</b>: User</li><li><b>Role</b>: Developer & Builder</li><li><b>Location</b>: Your City</li><li><b>Languages</b>: English</li></ul><h2>Identity</h2><ul><li><b>Builder</b> — Learning by doing, sharing the process</li><li><b>Focus</b>: Building useful tools and shipping products</li><li><b>Strengths</b>: Technical depth + product thinking</li></ul><h2>Current Projects</h2><ul><li><b>My Brain</b> — Personal knowledge system (main project)</li><li><b>Side Project</b> — Web application in development</li><li><b>Blog</b> — Technical writing</li></ul>',
       values: '<h2>Core Principles</h2><ul><li><b>Health > Output</b> — Rest and recovery come first</li><li><b>Ship first</b> — Done is better than perfect</li><li><b>Build, then polish</b> — Perfectionism kills execution</li><li><b>Speed matters</b> — Fast iteration is the real moat</li></ul><h2>Boundaries</h2><ul><li>Stop working after 10:30 PM</li><li>One main task per day</li><li>Side tasks get a 2-hour time limit</li><li>Building tools is not the same as producing output</li></ul><h2>Decision Framework</h2><ul><li>Should I do this? Does it align with my top priority?</li><li>Now or later? Is there a time window?</li><li>DIY or delegate? Keep core skills in-house</li></ul>',
       learned: '<h2>Current Insights</h2><ul><li>Having many ideas is a strength and a trap — need constraints</li><li>Building systems can be a form of procrastination</li><li>Energy management matters more than time management</li><li>Ship the first version without overthinking</li><li>First impressions determine retention — onboarding matters</li><li>File systems are better than databases for personal knowledge (transparent, git-trackable)</li><li>Execution speed is everything in emerging spaces</li></ul>',
-      learningLog: [
-        { id: 'l1', date: '2026-03-15', title: 'GitHub README SEO', tags: ['MARKETING', 'GITHUB'], content: '<p>Put keywords in the first 160 characters — that is the snippet length search engines grab. The first paragraph of your README determines how your project appears in GitHub search and Google.</p>' },
-        { id: 'l2', date: '2026-03-13', title: 'Memory consolidation design', tags: ['ARCHITECTURE', 'ALGORITHM'], content: '<p>Merge entries based on time decay + semantic similarity. Entries older than 30 days that are semantically close get auto-merged into summary versions. Keep reference links to originals.</p>' },
-        { id: 'l3', date: '2026-03-11', title: 'Cross-platform shell scripts', tags: ['DEVOPS'], content: '<p>Key differences between bash and zsh: array syntax, string operations, conditionals. Use #!/bin/bash instead of #!/bin/zsh in install scripts for Linux compatibility.</p>' },
-        { id: 'l4', date: '2026-03-08', title: 'Calendar interaction patterns', tags: ['UI', 'FRONTEND'], content: '<p>Use eventDragMoved flag to distinguish clicks from drags. @click.stop solves bubble conflicts. Greedy column algorithm handles overlapping event display.</p>' },
-        { id: 'l5', date: '2026-03-07', title: 'Product vs content priority', tags: ['STRATEGY'], content: '<p>Product is the anchor. Without a product, you are just creating content. With a product, your content has substance. Content is a byproduct of building.</p>' },
-      ],
-      evolution: [
-        { date: '2026-03-07', type: 'VALUES', content: '<p><b>"Build audience first" to "Product first"</b></p><p>Previous logic was to grow an audience, then build products for them. New realization: without a product, you are just a content creator. With a product, your content has real foundation.</p>' },
-        { date: '2026-03-05', type: 'IDENTITY', content: '<p><b>Generalist to Specialist</b></p><p>Shifted from broad content creation to deep focus on a specific domain. The project is not just a side thing — it is the core pillar of the personal brand.</p>' },
-        { date: '2026-03-02', type: 'COGNITION', content: '<p><b>"Perfectionism" to "Ship first, polish later"</b></p><p>Spent 3 days on the first video and was never satisfied. Realized perfectionism kills execution — shipping beats polishing.</p>' },
-        { date: '2026-02-28', type: 'VALUES', content: '<p><b>Added "Health > Output" principle</b></p><p>After consecutive late nights, state collapsed — could not do anything the whole day. Maintaining adequate sleep and a clear mind is the baseline.</p>' },
-      ],
     };
 
     const calendarView = ref('day');
@@ -6625,10 +6649,7 @@ createApp({
     const journalAISummary = computed(() => {
       const entries = data.value?.planning?.journal || [];
       const real = entries.find(d => d.filename.includes(journalViewDate.value));
-      if (real) return real;
-      const mock = mockJournalData[journalViewDate.value];
-      if (mock) return { filename: journalViewDate.value + '.md', content: mock.content, detail: mock.detail || null };
-      return null;
+      return real || null;
     });
 
     const todayJournal = computed(() => {
@@ -6671,7 +6692,6 @@ createApp({
       const days = [];
       const entries = data.value?.planning?.journal || [];
       const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
-      mockJournalDates.forEach(d => entryDates.add(d));
       const wdays = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
       for (let i = 0; i < 7; i++) {
         const dd = new Date(mon);
@@ -6692,7 +6712,6 @@ createApp({
       const today = new Date().toISOString().slice(0, 10);
       const entries = data.value?.planning?.journal || [];
       const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
-      mockJournalDates.forEach(d => entryDates.add(d));
       const cells = [];
       const prevDays = new Date(year, month, 0).getDate();
       for (let i = startPad - 1; i >= 0; i--) {
@@ -6710,27 +6729,33 @@ createApp({
       return cells;
     });
 
-    // Mock week/month summaries
-    const mockWeekSummaries = {
-      '03/10 - 03/16': '<h2>Week 3 Summary (3/10-3/16)</h2><ul><li><b>Core</b>: Memory consolidation + source citations shipped, install script enhanced, 10-person onboarding test</li><li><b>Dashboard</b>: Major HUD redesign — holographic particles, reactor sidebar, rich text journal editor</li><li><b>Research</b>: Competitor analysis, integration pathway research</li></ul><h3>Key Decisions</h3><ul><li>Confirmed human-centric memory positioning</li><li>Dual theme support (sci-fi + pixel)</li></ul>',
-      '03/03 - 03/09': '<h2>Week 2 Summary (3/3-3/9)</h2><ul><li><b>Core</b>: Project officially started, MVP repo set up, persistence layer designed</li><li><b>Dashboard</b>: System setup complete, pixel-art Dashboard v1</li><li><b>Content</b>: First blog post draft completed</li></ul><h3>Key Decisions</h3><ul><li>"Product first" strategic principle established</li><li>Infrastructure procurement decided</li></ul>',
-    };
-    const mockMonthSummaries = {
-      'MARCH 2026': '<h2>March 2026 Summary</h2><ul><li><b>Core</b>: From concept to near-launch — 70+ commits, core features complete, onboarding and docs done</li><li><b>Dashboard</b>: Pixel art to sci-fi HUD, journal system refined</li><li><b>Strategy</b>: Established domain expertise positioning, open-core business path</li><li><b>Infrastructure</b>: Dev environment set up, integration research started</li></ul><h3>Monthly Stats</h3><ul><li>Journal entries: 12 days</li><li>Decisions made: 8</li><li>Commits: 100+</li></ul>',
-    };
-
+    // Week/month summaries from API
     const journalWeekSummary = computed(() => {
       const key = journalWeekLabel.value;
       const saved = localStorage.getItem('loci-journal-week-' + key);
       if (saved) return saved;
-      return mockWeekSummaries[key] || null;
+      // Try to find matching week summary from API (filename like YYYY-WXX.md)
+      const weekFiles = data.value?.planning?.journal_weeks || [];
+      const d = new Date(journalViewDate.value + 'T12:00:00');
+      const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      const yearNum = mon.getFullYear();
+      const dayOfYear = Math.floor((mon - new Date(yearNum, 0, 1)) / 86400000) + 1;
+      const weekNum = String(Math.ceil(dayOfYear / 7)).padStart(2, '0');
+      const weekKey = `${yearNum}-W${weekNum}`;
+      const match = weekFiles.find(f => f.filename.replace('.md', '') === weekKey);
+      return match ? match.content : null;
     });
 
     const journalMonthSummary = computed(() => {
       const key = journalMonthLabel.value;
       const saved = localStorage.getItem('loci-journal-month-' + key);
       if (saved) return saved;
-      return mockMonthSummaries[key] || null;
+      // Try to find matching month summary from API (filename like YYYY-MM.md)
+      const monthFiles = data.value?.planning?.journal_months || [];
+      const d = new Date(journalViewDate.value + 'T12:00:00');
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`;
+      const match = monthFiles.find(f => f.filename.replace('.md', '') === monthKey);
+      return match ? match.content : null;
     });
 
     // --- Journal calendar picker ---
@@ -6751,8 +6776,6 @@ createApp({
       const today = new Date().toISOString().slice(0, 10);
       const entries = data.value?.planning?.journal || [];
       const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
-      // Add mock dates
-      mockJournalDates.forEach(d => entryDates.add(d));
       const cells = [];
       // Previous month padding
       const prevDays = new Date(year, month, 0).getDate();
@@ -6781,76 +6804,6 @@ createApp({
       journalGoDate(dateStr);
       journalCalOpen.value = false;
     }
-
-    // --- Mock journal data for demo ---
-    const mockJournalDates = ['2026-03-05','2026-03-06','2026-03-07','2026-03-09','2026-03-10','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16'];
-    const mockJournalData = {
-      '2026-03-16': {
-        content: `<h2>What I Did</h2><ul><li>Dashboard HUD sci-fi redesign: holographic particles, cursor glow, click spark effects</li><li>Sidebar redesigned to Reactor Core style with breathing animations</li><li>Progress bars upgraded to Liquid Gradient style</li></ul><h2>What I Learned</h2><ul><li>Canvas full-screen particle system + resize handling</li><li>CSS clip-path for glitch page transition animations</li><li>Cursor lerp follow smoothing coefficient tuning</li></ul><h2>Discussions</h2><ul><li>Dashboard design philosophy: key elements of cinematic HUD design</li><li>Web Audio API sound effects are hard to do well — deferred for now</li></ul><h2>Decisions</h2><ul><li>Dual theme support: sci-fi and pixel versions coexist</li><li>Journal upgraded to full feature: AI summary + manual editing + calendar navigation</li></ul>`,
-        detail: `<h2>Full Record</h2>
-<h3>Dashboard HUD Redesign</h3>
-<p>Spent significant time upgrading the dashboard from basic to sci-fi HUD style. Core inspiration from cinematic holographic interfaces.</p>
-<p><b>Holographic particle system</b>: Used Canvas 2D for full-screen particle background, each particle with independent speed and opacity, bouncing off boundaries. Initially used requestAnimationFrame directly, but hit performance issues — frame drops above 200 particles. Solution: split into two layers, background particles use CSS animation, foreground particles stay on Canvas but limited to 80.</p>
-<p><b>Cursor glow</b>: Mouse follow with a soft glow effect. Key technique is using lerp (linear interpolation) for delayed follow feel, coefficient between 0.08-0.12 feels most natural. Too fast feels sticky, too slow feels laggy.</p>
-<p><b>Glitch page transition</b>: Used CSS clip-path for a glitch animation. Renders snapshots of both pages, slices them into alternating strips with RGB channel offset. Looks cool but simpler to implement than expected.</p>
-<h3>Sound Effects Discussion</h3>
-<p>Originally wanted to add sci-fi sounds to button clicks and page transitions. Researched Web Audio API and found several issues:</p>
-<ul><li>Sound files need preloading, increasing first paint time</li><li>Mobile browsers have strict autoplay restrictions</li><li>Good sound design requires professional audio — free sounds can degrade quality</li></ul>
-<p>Final decision: <b>defer sound effects</b> until visuals are stable. Good silent design > bad audio design.</p>
-<h3>Sidebar Redesign</h3>
-<p>Sidebar redesigned from plain list to Reactor Core style — glowing core icon at top with breathing animation (CSS animation scale + opacity). Nav items use Orbitron font + left border highlight. Considered adding collapse feature, decided against it — not enough pages to justify the extra interaction cost.</p>`
-      },
-      '2026-03-15': {
-        content: `<h2>What I Did</h2><ul><li>README final polish, bilingual proofreading</li><li>Recorded 3 demo video segments</li></ul><h2>What I Learned</h2><ul><li>GitHub README SEO: put keywords in the first 160 characters</li><li>OBS virtual camera + terminal recording combo approach</li></ul><h2>Decisions</h2><ul><li>Demo video will use terminal recording + voiceover, no face cam</li></ul>`
-      },
-      '2026-03-14': {
-        content: `<h2>What I Did</h2><ul><li>Enhanced install.sh: auto-backup, chmod permission setup</li><li>10-person small-scale onboarding test, collected feedback</li></ul><h2>What I Learned</h2><ul><li>First impressions determine retention — the first 30 seconds are critical</li><li>Shell script cross-platform compatibility (bash vs zsh differences)</li></ul><h2>Discussions</h2><ul><li>User test feedback: most people interested in the concept but unclear on the specific value</li></ul>`
-      },
-      '2026-03-13': {
-        content: `<h2>What I Did</h2><ul><li>Memory consolidation feature shipped</li><li>Source citation system implemented</li><li>Comprehensive QA audit, fixed 20+ issues</li></ul><h2>What I Learned</h2><ul><li>Memory consolidation algorithm: time decay + semantic similarity for merging entries</li></ul>`
-      },
-      '2026-03-12': {
-        content: `<h2>What I Did</h2><ul><li>Researched integration user flows, wrote integration plan</li><li>Confirmed v1.0 feature list</li></ul><h2>Decisions</h2><ul><li>Integration path: start with MCP Server adapter, then build Plugin</li></ul>`
-      },
-      '2026-03-10': {
-        content: `<h2>What I Did</h2><ul><li>Discussed commercialization direction + dashboard monetization potential</li><li>Competitor research and analysis report</li></ul><h2>What I Learned</h2><ul><li>Competitor architecture: agent-centric vs human-centric approaches</li><li>Open-source AI memory space has few players, window is still open</li></ul><h2>Decisions</h2><ul><li>Positioning confirmed: human-centric memory, not an agent framework</li></ul>`,
-        detail: `<h2>Full Record</h2>
-<h3>Competitor Deep Analysis</h3>
-<p>Spent 3 hours researching competitors in the AI memory space. Key findings:</p>
-<p><b>Architecture difference</b>: Some competitors are agent-centric — they treat memory as a module for agents, aiming to make agents smarter. Loci is human-centric — memory is for humans to see, understand, and edit, with AI helping to organize. This positioning difference leads to completely different product directions.</p>
-<p><b>Competitor strengths</b>: Strong technical teams, academic paper backing, funded. Their agent memory management is solid — auto-archiving, retrieval, context window management.</p>
-<p><b>Competitor weaknesses</b>: Too technically oriented, regular users cannot understand what it does. Docs read like papers, onboarding requires Docker. This creates an opportunity — build a memory system that everyone can use.</p>
-<h3>Commercialization Discussion</h3>
-<p>Discussed several possible monetization paths:</p>
-<ul><li><b>Open-core</b>: Core features free and open-source, premium features (team collaboration, cloud sync, analytics panel) paid. Most viable short-term path</li><li><b>Memory API</b>: Let other AI apps plug into the memory layer. Long-term vision, but need to prove product value first</li><li><b>Dashboard as paid product</b>: Possible but low priority, use it first to showcase capabilities</li></ul>
-<p>Final confirmation: focus on open-core model, push the open-source version out first, use dashboard as demo to attract users.</p>
-<h3>Key Insight</h3>
-<p>The open-source AI memory space currently has very few players. Some focus on API-level memory injection, others on agent frameworks, but nobody is building a "memory management system for humans." This gap will not last forever — big companies could enter at any time — but the window to establish a position is still open. Speed is key.</p>`
-      },
-      '2026-03-09': {
-        content: `<h2>What I Did</h2><ul><li>Persistence layer system design</li><li>Core selling points documentation</li></ul><h2>What I Learned</h2><ul><li>File system vs database: for personal knowledge management, file systems are more transparent and git-trackable</li></ul>`
-      },
-      '2026-03-07': {
-        content: `<h2>What I Did</h2><ul><li>Established "product first" strategic principle</li><li>Adjusted content schedule: build process becomes the content</li></ul><h2>Discussions</h2><ul><li>Product vs content priority — product is the anchor</li></ul><h2>Decisions</h2><ul><li>Non-core content gets a 2-hour time limit, no over-polishing</li></ul>`
-      },
-      '2026-03-06': {
-        content: `<h2>What I Did</h2><ul><li>Knowledge system setup complete, directory structure finalized</li><li>Pixel-art Dashboard v1 launched</li></ul><h2>What I Learned</h2><ul><li>Vue 3 Composition API setup pattern</li><li>Tailwind CDN mode limitations</li></ul>`
-      },
-      '2026-03-05': {
-        content: `<h2>What I Did</h2><ul><li>Project officially started</li><li>Defined core concept: Memory Palace for AI</li><li>Development infrastructure ordered</li></ul><h2>Decisions</h2><ul><li>Positioning: build a brain for AI (memory, identity, orchestration)</li><li>Business path: open-core then memory API</li></ul>`,
-        detail: `<h2>Full Record</h2>
-<h3>Project Launch</h3>
-<p>Today marks the official project launch. Distilled the core concept from a personal AI assistant system: <b>Memory Palace for AI</b>.</p>
-<p>The catalyst was discovering that the biggest pain point for AI assistants is not capability — it is <b>not remembering things</b>. Every new conversation starts from scratch; previous decisions, cognitive changes, and personal preferences are all lost. Config files and auto-memory are good attempts, but they are manually maintained and capacity-limited.</p>
-<p><b>The name "Memory Palace"</b>: Ancient Roman orators used the Method of Loci to remember long speeches — placing information in different rooms of an imaginary palace. Loci does the same thing: builds a memory palace for AI, with information stored in layers, retrieved from the right room when needed.</p>
-<h3>Core Architecture Discussion</h3>
-<p>Discussed a three-layer memory architecture:</p>
-<ul><li><b>L1 (Working Memory)</b>: Config files + memory files, auto-loaded every conversation. Like the brain's working memory — tiny capacity but always available</li><li><b>L2 (Short-term Memory)</b>: On-demand files (tasks, daily plans, contacts). Easy to recall when needed</li><li><b>L3 (Long-term Memory)</b>: Archives, historical decisions, old journals. Stored but not proactively loaded</li></ul>
-<p>Key insight: this maps closely to the human brain's memory system. The hippocampus decides "what should move from short-term to long-term memory" — the distillation protocol is an artificial hippocampus.</p>
-<h3>Infrastructure Decision</h3>
-<p>Decided on local development setup instead of cloud servers. Reasons: more flexible local development, data stays on-device, lower long-term cost.</p>`
-      },
-    };
 
     // --- Journal multi-note system with Rich/Markdown editor ---
     const journalEditorRef = ref(null);
@@ -7600,39 +7553,65 @@ createApp({
     }
 
     // ===== PEOPLE PAGE =====
-    const peopleData = reactive([
-      { name: 'Alice Johnson', nickname: '', photo: '', gender: 'F', birthday: '1985.04.12', zodiac: 'Aries', mbti: 'ENTJ', blood: '', type: 'Business', relation: 'Advisor', metDate: '2025.11', metPlace: 'Tech Conference', metHow: 'Conference', strength: 90, lastContact: '2026.03.14', frequency: 'Medium', title: 'Managing Partner', org: 'Venture Capital', industry: 'Venture Capital', phone: '+1 555-xxx-xxxx', email: 'alice@example.com', wechat: '', twitter: '@alice_vc', linkedin: 'alicejohnson', tags: ['Advisor', 'AI', 'VC'], notes: 'Interested in the project, follow up in April', cardType: 'shield', category: 'shield' },
-      { name: 'Bob Martinez', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: 'INTP', blood: '', type: 'Technical', relation: 'Open Source', metDate: '2026.01', metPlace: 'GitHub', metHow: 'Open source contribution', strength: 65, lastContact: '2026.03.12', frequency: 'High', title: 'ML Engineer', org: 'Independent', industry: 'AI/ML', phone: '', email: 'bob@example.dev', wechat: '', twitter: '@bob_ml', linkedin: '', tags: ['Developer', 'Python', 'AI'], notes: 'Early contributor', cardType: 'neural', category: 'neural' },
-      { name: 'Charlie Park', nickname: '', photo: '', gender: 'M', birthday: '1999.07.20', zodiac: 'Cancer', mbti: 'ENFP', blood: '', type: 'Friend', relation: 'Classmate', metDate: '2024.09', metPlace: 'University', metHow: 'Same class', strength: 92, lastContact: '2026.03.15', frequency: 'High', title: 'Graduate Student', org: 'University', industry: 'Computer Science', phone: '+1 555-xxx-xxxx', email: 'charlie@student.edu', wechat: '', twitter: '', linkedin: '', tags: ['Classmate', 'CS', 'Gaming'], notes: 'Study group partner', cardType: 'crew', category: 'crew' },
-      { name: 'Diana Smith', nickname: 'Mom', photo: '', gender: 'F', birthday: '1975.06.15', zodiac: 'Gemini', mbti: '', blood: '', type: 'Family', relation: 'Mother', metDate: '', metPlace: '', metHow: '', strength: 100, lastContact: '2026.03.16', frequency: 'Daily', title: '', org: '', industry: '', phone: '+1 555-xxx-xxxx', email: '', wechat: '', twitter: '', linkedin: '', tags: ['Family'], notes: '', cardType: 'crew', category: 'crew' },
-      { name: 'Eva Chen', nickname: '', photo: '', gender: 'F', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Social', relation: 'Mutual follow', metDate: '2026.02', metPlace: 'Twitter', metHow: 'Mutual follow', strength: 35, lastContact: '2026.03.08', frequency: 'Low', title: 'Content Creator', org: 'Freelance', industry: 'Media', phone: '', email: 'eva@creator.com', wechat: '', twitter: '@eva_creates', linkedin: '', tags: ['Creator', 'AI', 'Tech'], notes: 'Great content style, potential collab', platform: 'Twitter', handle: '@eva_creates', cardType: 'signal', category: 'signal' },
-      // More shield
-      { name: 'Fiona Lee', nickname: '', photo: '', gender: 'F', birthday: '1988.03.22', zodiac: 'Aries', mbti: 'ENFJ', blood: '', type: 'Business', relation: 'Collaborator', metDate: '2026.02', metPlace: 'Developer Community', metHow: 'Online', strength: 70, lastContact: '2026.03.10', frequency: 'Medium', title: 'Product Lead', org: 'Tech Startup', industry: 'AI Infra', phone: '', email: 'fiona@example.dev', wechat: '', twitter: '@fiona_product', linkedin: 'fionalee', tags: ['Collaborator', 'Product', 'AI'], notes: 'Discussed integration approach', cardType: 'shield', category: 'shield' },
-      { name: 'George Kim', nickname: '', photo: '', gender: 'M', birthday: '1980.09.15', zodiac: 'Virgo', mbti: 'ISTJ', blood: '', type: 'Business', relation: 'Industry Mentor', metDate: '2025.08', metPlace: 'AI Summit', metHow: 'Conference', strength: 55, lastContact: '2026.02.20', frequency: 'Low', title: 'CTO', org: 'AI Corp', industry: 'AI', phone: '+1 555-xxx-xxxx', email: '', wechat: '', twitter: '', linkedin: '', tags: ['CTO', 'AI', 'Architecture'], notes: 'Good resource for architecture questions', cardType: 'shield', category: 'shield' },
-      { name: 'Henry Wang', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Business', relation: 'Investor', metDate: '2026.03', metPlace: 'Online intro', metHow: 'Referral', strength: 40, lastContact: '2026.03.13', frequency: 'Low', title: 'Principal', org: 'Venture Fund', industry: 'VC', phone: '', email: 'henry@fund.vc', wechat: '', twitter: '@henry_vc', linkedin: 'henrywang', tags: ['Investor', 'VC'], notes: 'Coffee chat in April', cardType: 'shield', category: 'shield' },
-      // More neural
-      { name: 'Iris Zhang', nickname: '', photo: '', gender: 'F', birthday: '1995.12.03', zodiac: 'Sagittarius', mbti: 'INTJ', blood: '', type: 'Technical', relation: 'AI Researcher', metDate: '2026.01', metPlace: 'Twitter', metHow: 'Mutual follow', strength: 60, lastContact: '2026.03.08', frequency: 'Medium', title: 'Research Scientist', org: 'AI Lab', industry: 'AI Research', phone: '', email: 'iris@ailab.org', wechat: '', twitter: '@iris_ai', linkedin: '', tags: ['AI', 'NLP', 'Memory'], notes: 'Discussed memory system architecture', cardType: 'neural', category: 'neural' },
-      { name: 'Jack W.', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Technical', relation: 'OSS Maintainer', metDate: '2026.01', metPlace: 'Twitter', metHow: 'Mutual follow', strength: 30, lastContact: '2026.03.01', frequency: 'Low', title: 'Developer', org: 'Independent', industry: 'LLM Tools', phone: '', email: '', wechat: '', twitter: '@jackw_dev', linkedin: '', tags: ['LLM', 'Tools', 'SQLite'], notes: 'Aligned on file-native agent philosophy', cardType: 'neural', category: 'neural' },
-      { name: 'Kevin Liu', nickname: '', photo: '', gender: 'M', birthday: '1993.05.18', zodiac: 'Taurus', mbti: 'ENTP', blood: '', type: 'Technical', relation: 'Developer', metDate: '2025.12', metPlace: 'GitHub', metHow: 'PR Review', strength: 72, lastContact: '2026.03.14', frequency: 'High', title: 'Full Stack Dev', org: 'Freelance', industry: 'Web/AI', phone: '', email: 'kevin@dev.io', wechat: '', twitter: '@kevin_dev', linkedin: '', tags: ['Full Stack', 'Vue', 'AI'], notes: 'Helped review dashboard code', cardType: 'neural', category: 'neural' },
-      { name: 'Leo Wu', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: 'INFP', blood: '', type: 'Technical', relation: 'Developer', metDate: '2026.02', metPlace: 'Discord Community', metHow: 'Community', strength: 45, lastContact: '2026.03.05', frequency: 'Medium', title: 'Backend Dev', org: 'Startup', industry: 'AI', phone: '', email: 'leo@dev.com', wechat: '', twitter: '@leo_code', linkedin: '', tags: ['Backend', 'Rust', 'AI'], notes: 'Interested in the persistence layer design', cardType: 'neural', category: 'neural' },
-      // More crew
-      { name: 'Mike Chen', nickname: '', photo: '', gender: 'M', birthday: '2000.01.10', zodiac: 'Capricorn', mbti: 'ESFP', blood: '', type: 'Friend', relation: 'College Friend', metDate: '2024.09', metPlace: 'University', metHow: 'Same class', strength: 88, lastContact: '2026.03.12', frequency: 'High', title: 'Graduate Student', org: 'University', industry: 'Data Science', phone: '+1 555-xxx-xxxx', email: '', wechat: '', twitter: '', linkedin: '', tags: ['Classmate', 'Basketball'], notes: 'Hang out regularly', cardType: 'crew', category: 'crew' },
-      { name: 'Nathan Brown', nickname: 'Nate', photo: '', gender: 'M', birthday: '1999.11.25', zodiac: 'Sagittarius', mbti: 'ISFJ', blood: '', type: 'Friend', relation: 'Childhood Friend', metDate: '2005', metPlace: 'Hometown', metHow: 'Neighbors', strength: 85, lastContact: '2026.02.20', frequency: 'Low', title: '', org: '', industry: '', phone: '+1 555-xxx-xxxx', email: '', wechat: '', twitter: '', linkedin: '', tags: ['Hometown', 'Childhood'], notes: 'Saw each other during holidays', cardType: 'crew', category: 'crew' },
-      { name: 'Robert Smith', nickname: 'Dad', photo: '', gender: 'M', birthday: '1972.10.08', zodiac: 'Libra', mbti: '', blood: '', type: 'Family', relation: 'Father', metDate: '', metPlace: '', metHow: '', strength: 100, lastContact: '2026.03.14', frequency: 'Weekly', title: '', org: '', industry: '', phone: '+1 555-xxx-xxxx', email: '', wechat: '', twitter: '', linkedin: '', tags: ['Family'], notes: '', cardType: 'crew', category: 'crew' },
-      { name: 'Sophie Taylor', nickname: '', photo: '', gender: 'F', birthday: '1999.08.14', zodiac: 'Leo', mbti: 'ENFP', blood: '', type: 'Friend', relation: 'Friend', metDate: '2025.03', metPlace: 'Meetup', metHow: 'Friend intro', strength: 65, lastContact: '2026.03.09', frequency: 'Medium', title: 'Designer', org: 'Freelance', industry: 'UI/UX', phone: '', email: 'sophie@design.co', wechat: '', twitter: '', linkedin: '', tags: ['Designer', 'Meetup'], notes: 'Can help with UI review', cardType: 'crew', category: 'crew' },
-      // More signal
-      { name: 'Tom Davis', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Social', relation: 'Classmate', metDate: '2024.09', metPlace: 'University', metHow: 'Same course', strength: 15, lastContact: '2026.01.20', frequency: 'Very Low', title: 'Graduate Student', org: 'University', industry: '', phone: '', email: '', wechat: '', twitter: '', linkedin: '', tags: ['University'], notes: 'Same course, not close', cardType: 'signal', category: 'signal' },
-      { name: '@ai_builder', nickname: '', photo: '', gender: '', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Social', relation: 'Twitter mutual', metDate: '2026.01', metPlace: 'Twitter', metHow: 'Mutual follow', strength: 25, lastContact: '2026.02.28', frequency: 'Low', title: 'AI Builder', org: '', industry: 'AI', phone: '', email: '', wechat: '', twitter: '@ai_builder', linkedin: '', tags: ['AI', 'Builder'], notes: 'Occasional interaction', platform: 'Twitter', handle: '@ai_builder', cardType: 'signal', category: 'signal' },
-      { name: 'Uma Patel', nickname: '', photo: '', gender: 'F', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Social', relation: 'Blogger mutual', metDate: '2026.02', metPlace: 'Medium', metHow: 'Mutual follow', strength: 20, lastContact: '2026.02.10', frequency: 'Low', title: 'Blogger', org: '', industry: 'Media', phone: '', email: '', wechat: '', twitter: '', linkedin: '', tags: ['Blog', 'Lifestyle'], notes: 'Good content tone', platform: 'Medium', handle: '@uma_writes', cardType: 'signal', category: 'signal' },
-      { name: 'Victor T.', nickname: '', photo: '', gender: 'M', birthday: '', zodiac: '', mbti: '', blood: '', type: 'Social', relation: 'Conference contact', metDate: '2025.11', metPlace: 'AI Conference', metHow: 'Conference', strength: 10, lastContact: '2025.12.15', frequency: 'Very Low', title: 'PM', org: 'TechCorp', industry: 'SaaS', phone: '', email: 'victor@techcorp.io', wechat: '', twitter: '', linkedin: 'victort', tags: ['SaaS', 'PM'], notes: 'Exchanged cards', cardType: 'signal', category: 'signal' }
-    ]);
+    function derivePeopleCategory(relation, tags) {
+      const r = (relation || '').toLowerCase();
+      const allTags = (tags || []).map(t => t.toLowerCase());
+      const combined = r + ' ' + allTags.join(' ');
+      const shieldKeys = ['business', 'advisor', 'investor', 'partner', 'collaborator'];
+      const neuralKeys = ['technical', 'developer', 'engineer', 'researcher', 'oss'];
+      const crewKeys = ['friend', 'family', 'classmate'];
+      if (shieldKeys.some(k => combined.includes(k))) return 'shield';
+      if (neuralKeys.some(k => combined.includes(k))) return 'neural';
+      if (crewKeys.some(k => combined.includes(k))) return 'crew';
+      return 'signal';
+    }
+
+    function mapContactToPerson(contact) {
+      const m = contact.meta || {};
+      const tags = Array.isArray(m.tags) ? m.tags : (m.tags ? [m.tags] : []);
+      const category = derivePeopleCategory(m.relation, tags);
+      return {
+        name: m.name || contact.filename?.replace('.md', '') || '?',
+        nickname: m.nickname || '',
+        photo: m.photo || '',
+        gender: m.gender || '',
+        birthday: m.birthday || '',
+        zodiac: m.zodiac || '',
+        mbti: m.mbti || '',
+        type: m.type || '',
+        relation: m.relation || '',
+        metDate: m.met_date || m.metDate || '',
+        metPlace: m.met_place || m.metPlace || '',
+        strength: m.strength != null ? Number(m.strength) : 50,
+        lastContact: m.last_contact || m.lastContact || '',
+        frequency: m.frequency || 'Medium',
+        title: m.title || '',
+        org: m.org || m.company || '',
+        industry: m.industry || '',
+        phone: m.phone || '',
+        email: m.email || '',
+        wechat: m.wechat || '',
+        twitter: m.twitter || '',
+        linkedin: m.linkedin || '',
+        tags: tags,
+        notes: m.notes || '',
+        cardType: category,
+        category: category
+      };
+    }
+
+    const peopleData = computed(() => {
+      const contacts = data.value?.people?.contacts;
+      if (!contacts || !Array.isArray(contacts)) return [];
+      return contacts.map(mapContactToPerson);
+    });
 
     const selectedPerson = ref(null);
 
-    const shieldPeople = computed(() => peopleData.filter(p => p.category === 'shield'));
-    const neuralPeople = computed(() => peopleData.filter(p => p.category === 'neural'));
-    const crewPeople = computed(() => peopleData.filter(p => p.category === 'crew'));
-    const signalPeople = computed(() => peopleData.filter(p => p.category === 'signal'));
+    const shieldPeople = computed(() => peopleData.value.filter(p => p.category === 'shield'));
+    const neuralPeople = computed(() => peopleData.value.filter(p => p.category === 'neural'));
+    const crewPeople = computed(() => peopleData.value.filter(p => p.category === 'crew'));
+    const signalPeople = computed(() => peopleData.value.filter(p => p.category === 'signal'));
 
     function openPersonDetail(person) {
       selectedPerson.value = person;
