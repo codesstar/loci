@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loci — Dive In</title>
+<meta name="description" content="Give your AI a brain. Open-source persistent memory for AI assistants." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a1a;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  color: #e2e2f0;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(155,89,182,0.3); }
+a { color: rgba(26,188,156,0.8); text-decoration: none; }
+a:hover { color: rgba(26,188,156,1); }
+
+/* ── Ambient Glows ── */
+.glow {
+  position: fixed; pointer-events: none; border-radius: 50%;
+  filter: blur(120px); z-index: 0;
+}
+.g1 { width: 500px; height: 500px; left: 8%; top: 25%;
+  background: radial-gradient(circle, rgba(155,89,182,0.10) 0%, transparent 70%); }
+.g2 { width: 350px; height: 350px; right: 12%; top: 55%;
+  background: radial-gradient(circle, rgba(26,188,156,0.07) 0%, transparent 70%); }
+.g3 { width: 280px; height: 280px; left: 40%; bottom: 15%;
+  background: radial-gradient(circle, rgba(155,89,182,0.05) 0%, transparent 70%); }
+
+/* ── Mouse glow (bioluminescence) ── */
+.mouse-glow {
+  position: fixed; pointer-events: none; z-index: 1;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(155,89,182,0.07) 0%, rgba(26,188,156,0.03) 30%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+  filter: blur(40px);
+}
+
+/* ── Particles ── */
+.particle {
+  position: fixed; border-radius: 50%; pointer-events: none;
+  animation: drift linear infinite;
+}
+.bubble {
+  position: fixed; border-radius: 50%; pointer-events: none;
+  border: 1px solid rgba(155,89,182,0.18);
+  background: radial-gradient(circle at 30% 30%, rgba(155,89,182,0.08), transparent);
+  animation: bubbleUp linear infinite;
+}
+@keyframes drift {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.8; } 90% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+@keyframes bubbleUp {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  10% { opacity: 0.8; } 50% { transform: translateY(50vh) scale(1); }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+
+/* ── Jellyfish trail ── */
+.jellyfish {
+  position: fixed; pointer-events: none; z-index: 2;
+  animation: jellyDrift 4s ease-out forwards;
+}
+.jellyfish svg { overflow: visible; filter: drop-shadow(0 0 6px rgba(155,89,182,0.4)); }
+.jelly-bell { animation: jellyPulse 1.2s ease-in-out infinite; transform-origin: center top; }
+@keyframes jellyPulse {
+  0%, 100% { transform: scaleX(1) scaleY(1); }
+  50% { transform: scaleX(1.08) scaleY(0.92); }
+}
+.jelly-tentacle { animation: tentacleWave 1.8s ease-in-out infinite; transform-origin: top center; }
+.jelly-tentacle:nth-child(2) { animation-delay: -0.3s; }
+.jelly-tentacle:nth-child(3) { animation-delay: -0.6s; }
+.jelly-tentacle:nth-child(4) { animation-delay: -0.9s; }
+@keyframes tentacleWave {
+  0%, 100% { transform: skewX(0deg); }
+  25% { transform: skewX(6deg); }
+  75% { transform: skewX(-6deg); }
+}
+@keyframes jellyDrift {
+  0% { opacity: 0.7; transform: translate(0,0) scale(1) rotate(0deg); }
+  30% { opacity: 0.5; }
+  60% { transform: translate(var(--drift,10px),-80px) scale(0.8) rotate(3deg); }
+  100% { opacity: 0; transform: translate(var(--drift,10px),-140px) scale(0.5) rotate(-2deg); }
+}
+
+/* ── Top bar ── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 28px;
+}
+.topbar-brand {
+  font-size: 13px; font-weight: 700; letter-spacing: 3px;
+  color: rgba(155,89,182,0.5);
+  text-shadow: 0 0 12px rgba(155,89,182,0.2);
+  transition: color 0.3s;
+}
+.topbar-brand:hover { color: rgba(155,89,182,0.8); text-decoration: none; }
+.topbar-gh {
+  font-size: 10px; font-weight: 300; letter-spacing: 2px;
+  color: rgba(200,200,220,0.25);
+  transition: color 0.3s;
+}
+.topbar-gh:hover { color: rgba(200,200,220,0.6); text-decoration: none; }
+
+/* ── Depth track (right edge) with waypoints ── */
+.depth-track {
+  position: fixed; right: 24px; top: 60px; bottom: 40px; width: 2px;
+  z-index: 10; pointer-events: none;
+  background: rgba(155,89,182,0.06);
+  border-radius: 1px;
+}
+.depth-fill {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 0%; border-radius: 1px;
+  background: linear-gradient(180deg, rgba(155,89,182,0.4), rgba(26,188,156,0.4));
+  box-shadow: 0 0 8px rgba(155,89,182,0.3), 0 0 20px rgba(26,188,156,0.15);
+  transition: height 0.1s linear;
+}
+.depth-label {
+  position: fixed; right: 16px; bottom: 20px;
+  z-index: 10; font-size: 9px; font-weight: 300; letter-spacing: 2px;
+  color: rgba(155,89,182,0.25);
+  pointer-events: none;
+}
+/* Waypoint dots on depth track */
+.depth-waypoint {
+  position: absolute; left: -3px; width: 8px; height: 8px;
+  border-radius: 50%; pointer-events: all; cursor: pointer;
+  background: rgba(155,89,182,0.12);
+  border: 1px solid rgba(155,89,182,0.15);
+  transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+.depth-waypoint.active {
+  background: rgba(155,89,182,0.5);
+  border-color: rgba(155,89,182,0.6);
+  box-shadow: 0 0 8px rgba(155,89,182,0.4);
+}
+.depth-waypoint-label {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 8px; font-weight: 300; letter-spacing: 2px;
+  color: rgba(155,89,182,0.0);
+  white-space: nowrap; pointer-events: none;
+  transition: color 0.3s;
+}
+.depth-waypoint:hover .depth-waypoint-label,
+.depth-waypoint.active .depth-waypoint-label {
+  color: rgba(155,89,182,0.45);
+}
+
+/* ── Moments ── */
+.moment {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 100px 60px;
+  position: relative; z-index: 1;
+}
+.moment-short { min-height: 75vh; }
+
+/* ── Reveal + mouse proximity glow ── */
+.reveal {
+  opacity: 0.12;
+  transform: translateY(8px);
+  transition: opacity 0.8s cubic-bezier(0.23,1,0.32,1),
+              transform 0.8s cubic-bezier(0.23,1,0.32,1),
+              text-shadow 0.8s ease,
+              filter 0.4s ease;
+}
+.reveal.lit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal.dim {
+  opacity: 0.35;
+  transform: translateY(0);
+}
+.reveal.near {
+  filter: brightness(1.25) drop-shadow(0 0 15px rgba(155,89,182,0.15));
+}
+
+/* ── Typography ── */
+/* Serif for emotional headlines */
+.t-emotion {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(32px, 4.5vw, 52px); font-weight: 400;
+  line-height: 1.35; letter-spacing: -0.5px;
+  text-align: center; max-width: 800px;
+  color: #e8e8f4;
+}
+.t-hero {
+  font-size: clamp(28px, 4vw, 44px); font-weight: 300;
+  line-height: 1.5; letter-spacing: 1px;
+  text-align: center; max-width: 800px;
+}
+.t-xl {
+  font-size: clamp(22px, 3.2vw, 36px); font-weight: 300;
+  line-height: 1.6; letter-spacing: 1px;
+  text-align: center; max-width: 750px;
+}
+.t-lg {
+  font-size: clamp(18px, 2.4vw, 26px); font-weight: 300;
+  line-height: 1.8; letter-spacing: 1px;
+  text-align: center; max-width: 650px;
+}
+.t-md {
+  font-size: 15px; font-weight: 300;
+  line-height: 2; letter-spacing: 0.8px;
+  text-align: center; max-width: 600px;
+}
+.t-sm {
+  font-size: 12px; font-weight: 300;
+  line-height: 1.8; letter-spacing: 2px;
+}
+.t-label {
+  font-size: 10px; font-weight: 400;
+  letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(155,89,182,0.6);
+  margin-bottom: 28px;
+}
+.c-purple { color: #c48ee8; text-shadow: 0 0 20px rgba(155,89,182,0.35); }
+.c-teal { color: #1abc9c; text-shadow: 0 0 15px rgba(26,188,156,0.35); }
+.c-dim { color: rgba(200,200,220,0.50); }
+.c-soft { color: rgba(220,220,235,0.75); }
+
+/* ── Divider ── */
+.div-line {
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(155,89,182,0.35), transparent);
+  margin: 24px 0;
+}
+
+/* ── ASCII blocks ── */
+.ascii-block {
+  font-size: 13px; font-weight: 400;
+  line-height: 2; letter-spacing: 0.5px;
+  white-space: pre; text-align: left;
+  color: rgba(220,220,235,0.7);
+  max-width: 90vw; overflow-x: auto;
+}
+.ascii-block .hl { color: #c48ee8; }
+.ascii-block .tl { color: #1abc9c; }
+.ascii-block .dm { color: rgba(200,200,220,0.28); }
+.ascii-block .wh { color: rgba(230,230,240,0.9); }
+
+/* ── Terminal block with typewriter ── */
+.terminal {
+  font-size: 14px; line-height: 2.2;
+  white-space: pre; text-align: left;
+  color: rgba(220,220,235,0.75);
+  padding: 32px 36px;
+  border-left: 1px solid rgba(155,89,182,0.18);
+  max-width: 620px; width: 100%;
+}
+.terminal .prompt { color: rgba(26,188,156,0.8); }
+.terminal .output { color: rgba(26,188,156,0.65); }
+.terminal .comment { color: rgba(155,89,182,0.45); }
+.terminal .err { color: rgba(231,76,60,0.6); }
+/* Typewriter: lines hidden until animated */
+.terminal.typewriter .tw-line {
+  opacity: 0;
+  display: block;
+}
+.terminal.typewriter .tw-line.typed {
+  opacity: 1;
+}
+/* Glitch on error lines */
+.terminal .err.glitch {
+  animation: errGlitch 0.4s steps(2) 1;
+}
+@keyframes errGlitch {
+  0% { transform: translateX(0); opacity: 1; }
+  20% { transform: translateX(-3px); opacity: 0.7; filter: hue-rotate(40deg); }
+  40% { transform: translateX(4px); opacity: 0.9; filter: hue-rotate(-20deg); }
+  60% { transform: translateX(-2px); opacity: 0.6; }
+  80% { transform: translateX(1px); opacity: 0.85; filter: hue-rotate(15deg); }
+  100% { transform: translateX(0); opacity: 1; filter: none; }
+}
+/* Blinking cursor */
+.tw-cursor {
+  display: inline-block;
+  width: 8px; height: 17px;
+  background: rgba(26,188,156,0.7);
+  vertical-align: text-bottom;
+  animation: cursorBlink 1s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0; }
+}
+
+/* ── Progressive file tree ── */
+.file-tree {
+  font-size: 13px; font-weight: 400;
+  line-height: 2.2; letter-spacing: 0.5px;
+  white-space: pre; text-align: left;
+  color: rgba(220,220,235,0.7);
+  max-width: 90vw; overflow-x: auto;
+}
+.ft-line {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.ft-line.ft-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* Folder hover → glow + expand children description */
+.ft-folder {
+  cursor: default;
+  transition: color 0.3s, text-shadow 0.3s;
+  border-radius: 2px;
+}
+.ft-folder:hover {
+  color: #c48ee8;
+  text-shadow: 0 0 12px rgba(155,89,182,0.4);
+}
+.ft-desc {
+  color: rgba(200,200,220,0.28);
+  transition: color 0.3s;
+}
+.ft-folder:hover ~ .ft-desc,
+.ft-line:hover .ft-desc {
+  color: rgba(220,220,235,0.6);
+}
+
+/* ── Feature grid — Crystal cards ── */
+.feat-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; max-width: 700px; width: 100%;
+}
+.feat-cell {
+  position: relative;
+  padding: 32px 28px;
+  border-radius: 12px;
+  overflow: hidden;
+  /* Crystal glass: translucent bg + blur */
+  background: linear-gradient(
+    135deg,
+    rgba(155,89,182,0.04) 0%,
+    rgba(26,188,156,0.02) 50%,
+    rgba(155,89,182,0.03) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(155,89,182,0.10);
+  /* Inner highlight edge (top-left refraction) */
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.15),
+    0 2px 16px rgba(0,0,0,0.2);
+  transition: border-color 0.4s, box-shadow 0.5s, transform 0.4s;
+}
+/* Spotlight glow that follows cursor */
+.feat-cell::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    280px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(155,89,182,0.10) 0%,
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+/* Refraction shine (top-left highlight bar) */
+.feat-cell::after {
+  content: '';
+  position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255,255,255,0.03) 45%,
+    rgba(255,255,255,0.06) 50%,
+    rgba(255,255,255,0.03) 55%,
+    transparent 60%
+  );
+  pointer-events: none;
+  transition: transform 0.6s ease;
+  transform: translateX(-20%) translateY(-10%);
+}
+.feat-cell:hover::before { opacity: 1; }
+.feat-cell:hover::after {
+  transform: translateX(10%) translateY(5%);
+}
+.feat-cell:hover {
+  border-color: rgba(155,89,182,0.22);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.06),
+    inset -1px -1px 0 rgba(0,0,0,0.15),
+    0 4px 24px rgba(155,89,182,0.08),
+    0 0 40px rgba(155,89,182,0.04);
+  transform: translateY(-3px);
+}
+.feat-icon {
+  font-size: 24px; line-height: 1; margin-bottom: 14px;
+  display: inline-block; position: relative; z-index: 1;
+  color: rgba(26,188,156,0.7);
+  filter: drop-shadow(0 0 8px rgba(26,188,156,0.3));
+  transition: transform 0.4s cubic-bezier(0.23,1,0.32,1),
+              filter 0.4s, color 0.4s;
+}
+.feat-cell:hover .feat-icon {
+  transform: scale(1.2) rotate(8deg);
+  filter: drop-shadow(0 0 16px rgba(26,188,156,0.6));
+  color: rgba(26,188,156,1);
+}
+.feat-title {
+  font-size: 13px; font-weight: 400; letter-spacing: 1px;
+  color: #1abc9c; margin-bottom: 8px; position: relative; z-index: 1;
+  text-shadow: 0 0 12px rgba(26,188,156,0.3);
+}
+.feat-desc {
+  font-size: 12px; font-weight: 300; line-height: 1.8;
+  color: rgba(220,220,235,0.65); position: relative; z-index: 1;
+}
+
+/* ── Dashboard carousel ── */
+.dash-carousel {
+  position: relative;
+  max-width: 820px; width: 100%;
+}
+.dash-viewport {
+  overflow: hidden; border-radius: 10px;
+  border: 1px solid rgba(155,89,182,0.10);
+  background: rgba(10,10,26,0.6);
+  box-shadow: 0 0 40px rgba(155,89,182,0.04), 0 8px 32px rgba(0,0,0,0.4);
+  transition: box-shadow 0.5s, border-color 0.5s;
+}
+.dash-viewport:hover {
+  border-color: rgba(155,89,182,0.18);
+  box-shadow: 0 0 60px rgba(155,89,182,0.08), 0 8px 40px rgba(0,0,0,0.5);
+}
+.dash-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+}
+.dash-slide {
+  min-width: 100%; position: relative;
+}
+.dash-slide img {
+  width: 100%; display: block;
+  filter: brightness(0.88);
+  transition: filter 0.5s;
+}
+.dash-viewport:hover .dash-slide img {
+  filter: brightness(1);
+}
+/* Tab bar */
+.dash-tabs {
+  display: flex; justify-content: center; gap: 0;
+  margin-bottom: 12px;
+}
+.dash-tab {
+  font-size: 10px; font-weight: 400; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(155,89,182,0.3);
+  padding: 8px 16px; cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s, text-shadow 0.3s;
+}
+.dash-tab:hover {
+  color: rgba(155,89,182,0.6);
+}
+.dash-tab.active {
+  color: rgba(26,188,156,0.8);
+  border-bottom-color: rgba(26,188,156,0.4);
+  text-shadow: 0 0 10px rgba(26,188,156,0.2);
+}
+/* Auto-play progress bar */
+.dash-progress {
+  height: 1px; margin-top: 8px;
+  background: rgba(155,89,182,0.06);
+  border-radius: 1px; overflow: hidden;
+}
+.dash-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, rgba(155,89,182,0.4), rgba(26,188,156,0.4));
+  transition: width 0.1s linear;
+}
+
+/* ── Hero: subtitle + inline quote + one-line install ── */
+.hero-sub {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(20px, 3vw, 32px); font-weight: 400;
+  line-height: 1.4; letter-spacing: -0.3px;
+  color: rgba(26,188,156,0.85);
+  text-shadow: 0 0 20px rgba(26,188,156,0.2);
+  text-align: center;
+}
+.hero-tags {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  margin: 20px 0 0;
+}
+.hero-tag {
+  font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(200,200,220,0.35);
+}
+.hero-tag::before { content: '·  '; }
+.hero-tag:first-child::before { content: ''; }
+/* Inline quote (terminal style) */
+.hero-quote {
+  font-size: 12px; font-weight: 300; line-height: 1.7;
+  color: rgba(220,220,235,0.45);
+  font-style: italic; text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.hero-quote .quote-author {
+  font-style: normal; color: rgba(155,89,182,0.45);
+  font-size: 10px; letter-spacing: 1px;
+}
+/* One-line install */
+.hero-install {
+  display: flex; align-items: center; gap: 0;
+  max-width: 620px; width: 100%;
+  border: 1px solid rgba(155,89,182,0.12);
+  border-radius: 8px;
+  background: rgba(155,89,182,0.03);
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.hero-install:hover {
+  border-color: rgba(155,89,182,0.22);
+  box-shadow: 0 0 20px rgba(155,89,182,0.06);
+}
+.hero-install-cmd {
+  flex: 1; padding: 14px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 300; letter-spacing: 0.5px;
+  color: rgba(26,188,156,0.8);
+  white-space: nowrap; overflow-x: auto;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.hero-install-cmd::-webkit-scrollbar { display: none; }
+.hero-install-cmd .cmd-dim { color: rgba(200,200,220,0.35); }
+.hero-install-copy {
+  padding: 14px 18px;
+  border: none; border-left: 1px solid rgba(155,89,182,0.10);
+  background: transparent; cursor: pointer;
+  color: rgba(200,200,220,0.30);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; letter-spacing: 1px;
+  transition: color 0.3s, background 0.3s;
+}
+.hero-install-copy:hover {
+  color: rgba(26,188,156,0.8);
+  background: rgba(26,188,156,0.05);
+}
+.hero-install-copy.copied {
+  color: rgba(26,188,156,0.8);
+}
+
+@media (max-width: 768px) {
+  .feat-grid { grid-template-columns: 1fr; }
+  .dash-tab { padding: 6px 10px; font-size: 9px; }
+  .hero-install { max-width: 100%; }
+  .hero-install-cmd { font-size: 11px; }
+}
+
+/* ── Before/After comparison ── */
+.compare {
+  display: flex; gap: 1px; max-width: 860px; width: 100%;
+}
+.compare-side {
+  flex: 1; padding: 32px 28px;
+  font-size: 13px; line-height: 2; white-space: pre-wrap;
+}
+.compare-left {
+  text-align: right; color: rgba(200,200,220,0.40);
+  border-right: 1px solid rgba(155,89,182,0.12);
+}
+.compare-right { color: rgba(220,220,235,0.75); }
+.compare-label {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 16px; display: block;
+}
+.compare-left .compare-label { color: rgba(231,76,60,0.5); }
+.compare-right .compare-label { color: rgba(26,188,156,0.6); }
+
+/* (dash-img removed — replaced by carousel) */
+
+/* ── Install ── */
+.install-block {
+  font-size: 15px; line-height: 2.4;
+  white-space: pre; text-align: left;
+  color: rgba(220,220,235,0.75);
+  max-width: 520px;
+}
+.install-block .cmd { color: #1abc9c; }
+.install-block .cmt { color: rgba(155,89,182,0.45); }
+
+/* ── CTA ── */
+.btn-wrap {
+  position: relative; border-radius: 10px; padding: 2px;
+  background: linear-gradient(135deg, rgba(155,89,182,0.4), rgba(26,188,156,0.3), rgba(155,89,182,0.4));
+  background-size: 200% 200%;
+  animation: borderFlow 3s ease-in-out infinite;
+}
+@keyframes borderFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 40px; border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 400; letter-spacing: 2px;
+  text-decoration: none; cursor: pointer;
+  background: #0a0a1a; color: #c9a0dc; border: none;
+  transition: all 0.3s;
+}
+.btn:hover {
+  background: rgba(155,89,182,0.12);
+  box-shadow: 0 0 30px rgba(155,89,182,0.2), 0 0 60px rgba(155,89,182,0.08);
+  transform: translateY(-1px); text-decoration: none;
+}
+.btn-teal { color: rgba(26,188,156,0.9); }
+
+/* ── Tags ── */
+.tags { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
+.tag {
+  font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(155,89,182,0.4); padding: 5px 14px;
+  border: 1px solid rgba(155,89,182,0.15); border-radius: 20px;
+}
+
+/* ── Hero ASCII seahorse (mini) ── */
+.hero-seahorse {
+  font-size: 5px; line-height: 1.25;
+  white-space: pre; text-align: center;
+  color: rgba(180,130,220,0.75);
+  text-shadow: 0 0 16px rgba(155,89,182,0.45), 0 0 40px rgba(155,89,182,0.15);
+  margin-bottom: 16px;
+  cursor: default;
+}
+.hero-seahorse .sh-char {
+  display: inline;
+  transition: color 0.15s, text-shadow 0.15s;
+}
+.hero-seahorse .sh-spark {
+  color: #fff !important;
+  text-shadow: 0 0 6px #fff, 0 0 14px #1abc9c, 0 0 28px #9b59b6;
+  transition: none;
+}
+.hero-seahorse .sh-scatter {
+  color: #fff !important;
+  text-shadow: 0 0 8px rgba(155,89,182,0.8), 0 0 18px rgba(26,188,156,0.5);
+  transition: none;
+}
+.hero-seahorse .sh-eye {
+  animation: miniEyeGlow 3s ease-in-out infinite;
+}
+@keyframes miniEyeGlow {
+  0%, 100% { color: #1abc9c; text-shadow: 0 0 6px #1abc9c, 0 0 16px rgba(26,188,156,0.4); }
+  50% { color: #fff; text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c; }
+}
+
+/* ── Quote ticker (horizontal scroll) ── */
+.quote-ticker-wrap {
+  max-width: 800px; width: 100%; overflow: hidden;
+  position: relative;
+  padding: 16px 0;
+  /* Fade edges */
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+.quote-ticker {
+  display: flex; gap: 32px;
+  animation: tickerScroll var(--ticker-duration, 40s) linear infinite;
+  width: max-content;
+}
+.quote-ticker:hover { animation-play-state: paused; }
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.quote-card {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(155,89,182,0.08);
+  background: rgba(155,89,182,0.025);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: 340px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.quote-card:hover {
+  border-color: rgba(155,89,182,0.20);
+  box-shadow: 0 0 20px rgba(155,89,182,0.06);
+}
+.quote-text {
+  font-size: 12px; font-weight: 300; line-height: 1.7;
+  color: rgba(220,220,235,0.75);
+  font-style: italic;
+}
+.quote-author {
+  font-style: normal; color: rgba(155,89,182,0.55);
+  font-size: 10px; letter-spacing: 1px;
+  margin-top: 8px; display: block;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 60px 40px 32px;
+  font-size: 10px; font-weight: 300; letter-spacing: 2px;
+  color: rgba(200,200,220,0.15);
+}
+.footer a { color: rgba(155,89,182,0.3); }
+.footer a:hover { color: rgba(155,89,182,0.5); }
+
+/* ── Seaweed text (chars react to mouse like sea grass) ── */
+.seaweed { cursor: default; }
+.seaweed .sw-char {
+  display: inline-block;
+  transition: none;
+  will-change: transform;
+  transform-origin: bottom center;
+}
+.seaweed .sw-space { display: inline; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .moment { padding: 60px 20px; }
+  .compare { flex-direction: column; }
+  .compare-left { text-align: left; border-right: none; border-bottom: 1px solid rgba(155,89,182,0.08); }
+  .ascii-block, .file-tree { font-size: 11px; }
+  .depth-track, .depth-label { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+<div class="glow g3"></div>
+
+<!-- Mouse glow -->
+<div class="mouse-glow" id="mouseGlow"></div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <a class="topbar-brand" href="index.html">LOCI</a>
+  <a class="topbar-gh" href="https://github.com/codesstar/loci" target="_blank">GitHub</a>
+</div>
+
+<!-- Depth track with waypoints -->
+<div class="depth-track" id="depthTrack">
+  <div class="depth-fill" id="depthFill"></div>
+</div>
+<div class="depth-label" id="depthLabel">0m</div>
+
+
+<!-- ═══════════════════════════════════════════
+     1. HERO — Hook + What + Install + CTA (all in first screen)
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="Surface" style="gap:16px;min-height:auto;padding-top:40px;padding-bottom:40px;">
+  <!-- ASCII seahorse (rendered by JS, same as index.html) -->
+  <div class="hero-seahorse reveal" id="heroSeahorse"></div>
+  <!-- Hook -->
+  <div class="reveal t-emotion seaweed">
+    Your AI doesn't <span class="c-purple">remember</span> you.
+  </div>
+  <!-- Solution -->
+  <div class="reveal" style="margin-top:4px;">
+    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:clamp(36px,5vw,56px);font-weight:400;letter-spacing:14px;color:rgba(220,220,235,0.85);text-shadow:0 0 24px rgba(155,89,182,0.3),0 0 60px rgba(155,89,182,0.1);text-align:center;">LOCI</div>
+    <div class="hero-sub" style="margin-top:2px;">gives your AI a brain.</div>
+  </div>
+  <!-- Positioning tags -->
+  <div class="hero-tags reveal">
+    <span class="hero-tag">Open Source</span>
+    <span class="hero-tag">Local Markdown</span>
+    <span class="hero-tag">Works with Claude Code</span>
+  </div>
+  <!-- Quote ticker (horizontal scroll) -->
+  <div class="quote-ticker-wrap reveal" style="margin-top:12px;">
+    <div class="quote-ticker" id="quoteTicker">
+      <div class="quote-card">
+        <div class="quote-text">"Restarted session — it remembered every decision from last week."</div>
+        <span class="quote-author">— @JasonZ, engineer</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"Other AI memory is chaos. Loci is organized by design."</div>
+        <span class="quote-author">— @MikeL, full-stack dev</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"Context full? Save, restart, back in 10 seconds."</div>
+        <span class="quote-author">— @YukiT, indie hacker</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"It told me I started 3 side projects and finished none. Brutal but needed."</div>
+        <span class="quote-author">— @DevPatel, founder</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"CLAUDE.md is a sticky note. Loci is a second brain."</div>
+        <span class="quote-author">— @SarahK, backend engineer</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"Default memory is a messy notebook. Loci is a memory palace."</div>
+        <span class="quote-author">— @LiWei, AI researcher</span>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">"After Loci, my AI isn't a chatbot — it's my external brain."</div>
+        <span class="quote-author">— @RuiChen, designer</span>
+      </div>
+    </div>
+  </div>
+  <!-- One-line install -->
+  <div class="hero-install reveal" style="margin-top:12px;">
+    <div class="hero-install-cmd">
+      <span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci ~/loci <span class="cmd-dim">&amp;&amp;</span> cd ~/loci <span class="cmd-dim">&amp;&amp;</span> claude
+    </div>
+    <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
+  </div>
+  <!-- Single CTA -->
+  <div class="reveal" style="margin-top:8px;">
+    <div class="btn-wrap">
+      <a class="btn btn-teal" href="https://github.com/codesstar/loci">&#9733; Star on GitHub</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     2. PAIN — The Loop (typewriter terminal)
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="The Loop">
+  <div class="reveal t-label">The Problem</div>
+  <div class="reveal t-xl" style="margin-bottom:40px;">
+    The <span class="c-purple">endless</span> loop.
+  </div>
+  <div class="terminal typewriter reveal" id="painTerminal">
+    <span class="tw-cursor" id="twCursor"></span>
+  </div>
+  <div class="reveal t-lg c-dim" style="margin-top:40px;">
+    Every session. Every project. Every context reset.<br>
+    Your AI can write code — but it can't tell you<br>
+    <span class="c-purple">what to do today</span>.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     3. THE TURN — Emotional serif moment
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="The Turn">
+  <div class="reveal t-emotion seaweed">
+    What if it <span class="c-teal">didn't forget</span>?
+  </div>
+  <div class="reveal t-md c-soft" style="margin-top:32px;">
+    What if it woke up knowing your goals,<br>
+    your decisions, your patterns —<br>
+    and told you exactly where to start?
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     4. SOLUTION — Progressive file tree
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="The Brain">
+  <div class="reveal t-label">The Solution</div>
+  <div class="reveal t-emotion seaweed" style="margin-bottom:52px;">
+    Give your AI a <span class="c-teal">real brain</span>.
+  </div>
+  <div class="file-tree reveal" id="fileTree">
+<span class="ft-line" data-delay="0"><span class="ft-folder hl">loci/</span></span>
+<span class="ft-line" data-delay="80"><span class="dm">  ├──</span> <span class="ft-folder hl">me/</span><span class="ft-desc">              identity, values, preferences</span></span>
+<span class="ft-line" data-delay="160"><span class="dm">  ├──</span> <span class="ft-folder hl">tasks/</span><span class="ft-desc">           focus + queue + archive</span></span>
+<span class="ft-line" data-delay="240"><span class="dm">  ├──</span> <span class="ft-folder hl">decisions/</span><span class="ft-desc">       timestamped choices + reasoning</span></span>
+<span class="ft-line" data-delay="320"><span class="dm">  ├──</span> <span class="ft-folder hl">journal/</span><span class="ft-desc">         daily, weekly, monthly summaries</span></span>
+<span class="ft-line" data-delay="400"><span class="dm">  ├──</span> <span class="ft-folder hl">planning/</span><span class="ft-desc">        daily plans + calendar</span></span>
+<span class="ft-line" data-delay="480"><span class="dm">  ├──</span> <span class="ft-folder hl">links/</span><span class="ft-desc">           cross-project connections</span></span>
+<span class="ft-line" data-delay="560"><span class="dm">  ├──</span> <span class="ft-folder hl">dashboard/</span><span class="ft-desc">       visual command center</span></span>
+<span class="ft-line" data-delay="640"><span class="dm">  ├──</span> <span class="tl">plan.md</span><span class="ft-desc">          life direction &amp; goals</span></span>
+<span class="ft-line" data-delay="720"><span class="dm">  ├──</span> <span class="tl">inbox.md</span><span class="ft-desc">         quick capture</span></span>
+<span class="ft-line" data-delay="800"><span class="dm">  └──</span> <span class="tl">CLAUDE.md</span><span class="ft-desc">        AI behavior rules</span></span>
+<span class="ft-line" data-delay="960"><span class="wh" style="display:block;margin-top:12px;">Plain Markdown. On your machine. Git-versioned. Yours forever.</span></span>
+  </div>
+  <div class="reveal t-lg c-dim" style="margin-top:48px;">
+    Designed for <span class="c-purple">agents</span>, not humans browsing folders.<br>
+    The AI reads and writes. You just talk.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     5. HOW IT WORKS — ASCII architecture + crystal feature cards
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="Architecture">
+  <div class="reveal t-label">How It Works</div>
+  <div class="reveal t-xl" style="margin-bottom:52px;">
+    Three layers. Load only what matters.
+  </div>
+  <div class="ascii-block reveal">
+<span class="dm">┌───────────────────────────────────────────────────┐</span>
+<span class="dm">│</span>  <span class="tl">Layer 1 — Always Loaded</span>                          <span class="dm">│</span>
+<span class="dm">│</span>  <span class="dm">CLAUDE.md  plan.md  inbox.md  auto-memory</span>        <span class="dm">│</span>
+<span class="dm">│</span>  <span class="wh">Your AI knows who you are from the first token.</span>  <span class="dm">│</span>
+<span class="dm">├───────────────────────────────────────────────────┤</span>
+<span class="dm">│</span>  <span class="hl">Layer 2 — On Demand</span>                              <span class="dm">│</span>
+<span class="dm">│</span>  <span class="dm">Tasks, daily plans, people, project docs.</span>         <span class="dm">│</span>
+<span class="dm">│</span>  <span class="wh">Loaded when you enter a topic. Context stays lean.</span><span class="dm">│</span>
+<span class="dm">├───────────────────────────────────────────────────┤</span>
+<span class="dm">│</span>  <span class="dm">Layer 3 — Deep Storage</span>                           <span class="dm">│</span>
+<span class="dm">│</span>  <span class="dm">Archive, old decisions, evolution history.</span>         <span class="dm">│</span>
+<span class="dm">│</span>  <span class="wh">Never deleted. Surfaces when you need it.</span>         <span class="dm">│</span>
+<span class="dm">└───────────────────────────────────────────────────┘</span>
+  </div>
+
+  <!-- Crystal feature cards -->
+  <div class="feat-grid reveal" style="margin-top:64px;">
+    <div class="feat-cell">
+      <span class="feat-icon">&#9671;</span>
+      <div class="feat-title">It remembers.</div>
+      <div class="feat-desc">Decisions, preferences, context — saved as structured Markdown. Distilled, never dumped.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-icon">&#9702;</span>
+      <div class="feat-title">It plans your day.</div>
+      <div class="feat-desc">Morning briefings. Pattern detection. "You estimated 2 days — your last 3 took 2x that."</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-icon">&#8644;</span>
+      <div class="feat-title">It connects projects.</div>
+      <div class="feat-desc">Mistakes in Project A become warnings in Project B. Decisions propagate everywhere.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-icon">&#8593;</span>
+      <div class="feat-title">It grows with you.</div>
+      <div class="feat-desc">Day 1: knows your name. Month 3: your patterns. Year 1: how you've changed.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     6. BEFORE / AFTER + DASHBOARD merged
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="In Practice">
+  <div class="reveal t-label">In Practice</div>
+  <div class="compare reveal">
+    <div class="compare-side compare-left">
+      <span class="compare-label">Without Loci</span>
+<span class="prompt">$</span> claude
+> I'm Callum, a data science...
+
+<span class="err">[new session]</span>
+> Remember, I prefer Python...
+
+<span class="err">[context full]</span>
+> *sigh* Starting over.
+    </div>
+    <div class="compare-side compare-right">
+      <span class="compare-label">With Loci</span>
+<span class="prompt">$</span> claude
+<span class="output">[loading plan.md, active.md, memory]</span>
+
+> Morning, Callum. 2 focus tasks
+  today. Start with the integration?
+
+<span class="output">[pattern detected]</span>
+> You've started 3 side projects
+  this month. Ship this one first?
+    </div>
+  </div>
+  <div style="margin-top:72px;text-align:center;">
+    <div class="reveal t-md c-soft" style="margin-bottom:24px;">
+      Optional visual dashboard. Zero dependencies.
+    </div>
+    <div class="dash-carousel reveal" id="dashCarousel">
+      <div class="dash-tabs" id="dashTabs">
+        <div class="dash-tab active" data-slide="0">Today</div>
+        <div class="dash-tab" data-slide="1">Memory</div>
+        <div class="dash-tab" data-slide="2">Brain</div>
+      </div>
+      <div class="dash-viewport">
+        <div class="dash-track" id="dashTrack">
+          <div class="dash-slide"><img src="../docs/assets/dashboard-preview.png" alt="Dashboard — Today" loading="lazy" /></div>
+          <div class="dash-slide"><img src="../docs/assets/dashboard-memory.png" alt="Dashboard — Memory" loading="lazy" /></div>
+          <div class="dash-slide"><img src="../docs/assets/dashboard-brain.png" alt="Dashboard — Brain" loading="lazy" /></div>
+        </div>
+      </div>
+      <div class="dash-progress"><div class="dash-progress-fill" id="dashProgress"></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     7. END — Closing + install reminder + CTA
+     ═══════════════════════════════════════════ -->
+<div class="moment" data-section="Depths">
+  <div class="reveal t-emotion seaweed" style="margin-bottom:28px;">
+    Your AI is no longer a <span class="c-purple">stranger</span>.
+  </div>
+  <div class="reveal t-md c-soft" style="margin-bottom:36px;">
+    Your goals. Your patterns. Your growth.<br>
+    Across every project. Every reset.<br>
+    And all of it belongs to <span class="c-teal">you</span>.
+  </div>
+  <!-- Repeat install for people who scrolled all the way -->
+  <div class="hero-install reveal" style="margin-bottom:28px;">
+    <div class="hero-install-cmd">
+      <span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci ~/loci <span class="cmd-dim">&amp;&amp;</span> cd ~/loci <span class="cmd-dim">&amp;&amp;</span> claude
+    </div>
+    <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
+  </div>
+  <div class="reveal" style="margin-bottom:12px;">
+    <div class="btn-wrap">
+      <a class="btn btn-teal" href="https://github.com/codesstar/loci">&#9733; Star on GitHub</a>
+    </div>
+  </div>
+  <div class="reveal t-sm c-dim" style="margin-top:8px;">
+    Works with Claude Code · Cursor · Windsurf · Cline
+  </div>
+  <div class="reveal t-sm" style="margin-top:16px;">
+    <a href="https://github.com/codesstar/loci#learn-more" style="color:rgba(26,188,156,0.7);text-decoration:none;border-bottom:1px solid rgba(26,188,156,0.25);padding-bottom:1px;transition:color 0.3s,border-color 0.3s;" onmouseover="this.style.color='rgba(26,188,156,1)';this.style.borderColor='rgba(26,188,156,0.6)'" onmouseout="this.style.color='rgba(26,188,156,0.7)';this.style.borderColor='rgba(26,188,156,0.25)'">Read the Docs →</a>
+  </div>
+</div>
+
+
+<!-- Footer -->
+<div class="footer">
+  MIT License &middot; <a href="https://github.com/codesstar/loci">GitHub</a> &middot; Built by <a href="https://x.com/spacemanchao">Callum</a>
+</div>
+
+
+<script>
+/* ══════════════════════════════════════════════
+   GUIDE v2 — Expert-tuned deep-sea experience
+   ══════════════════════════════════════════════ */
+
+// ── Hero ASCII seahorse (same art as index.html) ──
+const SEAHORSE_ART = `                    ,
+               ,   /^\\     ___
+              /^\\_/   \`...'  /\`
+           ,__\\    ,'     ~ (
+        ,___\\ ,,    .,       \\
+         \\__ \\\\ .'.'   .-.  )
+           .'.-\\\\' \\'.  '-. (
+          / (==== ."".  ( \u25c9 ) \\
+        ,/   \`~~~'|  /   \`-'   )
+       "")      |~| \`""".  ~_ /
+         /       \\~\\     ".  \\\\
+ _      /    \u00b7    ~\\      ". \\\\
+( \\     )  \u2500\u2500\u253c\u2500\u2500 \\~\\      ". \\\\
+(_ (\\   /    \u00b7     ~|       ". \`\\
+(_ _ \\  )  \u2500\u253c\u2500\u253c\u2500 |~|        ". \`\\.
+(_ = _\\ \\   \u00b7  \u00b7   ~|          ".\`.;
+(_ -(   \\_) \u2500\u253c\u2500\u253c\u2500 |~|            ""
+(_ =   (     \u00b7  \u00b7   ~|
+(_ -  ( ~  =      \u2550\u2550\u2550\u2550|~/
+ (_  =     (_           /
+  (_-   ~_( /\\        ,"
+   (_ =  _/   |     ."
+    (_  (/    |    .(
+     (\\_/     )    /
+             /    (
+            |     /
+            |    (       ____
+            |    (    .-'    \`-.
+             \\    \\  / ' .--.  \\
+              \\    \\ |  '  \`  ;  |
+               \\    :\`. \`-'  ;  |
+                \`-   \`._ _ _.'^'./
+                   "-  .-\`\`\`_=~._/
+                      \`"------"'`;
+
+(function renderMiniSeahorse() {
+  const el = document.getElementById('heroSeahorse');
+  if (!el) return;
+  const lines = SEAHORSE_ART.split('\n');
+  const total = lines.length;
+  const chars = [];
+  lines.forEach((line, ri) => {
+    const t = ri / total;
+    const r = Math.round(155 + (26 - 155) * t);
+    const g = Math.round(89 + (188 - 89) * t);
+    const b = Math.round(182 + (156 - 182) * t);
+    const color = `rgb(${r},${g},${b})`;
+    for (const ch of line) {
+      if (ch === ' ') {
+        el.appendChild(document.createTextNode(' '));
+      } else {
+        const s = document.createElement('span');
+        s.className = 'sh-char' + (ch === '\u25c9' ? ' sh-eye' : '');
+        s.textContent = ch;
+        s.style.color = color;
+        s.dataset.origColor = color;
+        el.appendChild(s);
+        chars.push(s);
+      }
+    }
+    el.appendChild(document.createTextNode('\n'));
+  });
+
+  // Spark effect — random chars flash white periodically
+  const sparkSymbols = '\u25c6\u25c8\u223f\u25cf\u25c9\u2b21\u2b22\u2726\u2727';
+  setInterval(() => {
+    if (!chars.length) return;
+    const s = chars[Math.random() * chars.length | 0];
+    const orig = s.textContent;
+    s.classList.add('sh-spark');
+    if (Math.random() > 0.5) s.textContent = sparkSymbols[Math.random() * sparkSymbols.length | 0];
+    setTimeout(() => {
+      s.classList.remove('sh-spark');
+      s.textContent = orig;
+    }, 150 + Math.random() * 200);
+  }, 300);
+
+  // Scatter on mouse hover — chars near cursor flash white
+  el.addEventListener('mousemove', (e) => {
+    const mx = e.clientX, my = e.clientY;
+    chars.forEach(c => {
+      const cr = c.getBoundingClientRect();
+      const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
+      const dist = Math.hypot(mx - cx, my - cy);
+      if (dist < 30) {
+        c.classList.add('sh-scatter');
+        clearTimeout(c._st);
+        c._st = setTimeout(() => c.classList.remove('sh-scatter'), 200);
+      }
+    });
+  });
+})();
+
+// ── Quote ticker (duplicate cards for seamless loop) ──
+const quoteTicker = document.getElementById('quoteTicker');
+const tickerCards = quoteTicker.innerHTML;
+quoteTicker.innerHTML = tickerCards + tickerCards; // duplicate for seamless scroll
+
+// ── Copy install command ──
+function copyCmd() {
+  const cmd = 'git clone https://github.com/codesstar/loci ~/loci && cd ~/loci && claude';
+  navigator.clipboard.writeText(cmd).then(() => {
+    document.querySelectorAll('.hero-install-copy').forEach(btn => {
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+}
+
+// ── Mouse glow (follows cursor) ──
+const mouseGlow = document.getElementById('mouseGlow');
+let mouseX = 0, mouseY = 0, glowX = 0, glowY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+(function animGlow() {
+  glowX += (mouseX - glowX) * 0.08;
+  glowY += (mouseY - glowY) * 0.08;
+  mouseGlow.style.left = glowX + 'px';
+  mouseGlow.style.top = glowY + 'px';
+  requestAnimationFrame(animGlow);
+})();
+
+// ── Mouse proximity → extra brightness on reveals ──
+const allReveals = document.querySelectorAll('.reveal');
+
+function updateProximity() {
+  allReveals.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dist = Math.hypot(mouseX - cx, mouseY - cy);
+    el.classList.toggle('near', dist < 300);
+  });
+  requestAnimationFrame(updateProximity);
+}
+updateProximity();
+
+// ── Particles + Bubbles ──
+(function createParticles() {
+  const colors = ['rgba(155,89,182,0.45)', 'rgba(26,188,156,0.35)', 'rgba(255,255,255,0.2)'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.random() * colors.length | 0];
+    p.style.animationDuration = (10 + Math.random() * 18) + 's';
+    p.style.animationDelay = -(Math.random() * 25) + 's';
+    const s = 2 + Math.random() * 3;
+    p.style.width = s + 'px'; p.style.height = s + 'px';
+    document.body.appendChild(p);
+  }
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = Math.random() * 100 + 'vw';
+    const s = 5 + Math.random() * 14;
+    b.style.width = s + 'px'; b.style.height = s + 'px';
+    b.style.animationDuration = (14 + Math.random() * 22) + 's';
+    b.style.animationDelay = -(Math.random() * 25) + 's';
+    document.body.appendChild(b);
+  }
+})();
+
+// ── Jellyfish trail — TAMED: only in top 20% and bottom 20% of page ──
+const jellyColors = [
+  { bell: 'rgba(155,89,182,0.35)', tentacle: 'rgba(155,89,182,0.2)' },
+  { bell: 'rgba(120,100,200,0.3)', tentacle: 'rgba(120,100,200,0.18)' },
+  { bell: 'rgba(26,188,156,0.25)', tentacle: 'rgba(26,188,156,0.15)' },
+  { bell: 'rgba(180,120,220,0.3)', tentacle: 'rgba(180,120,220,0.18)' },
+];
+let lastJellyTime = 0;
+
+function spawnJellyfish(x, y) {
+  const c = jellyColors[Math.random() * jellyColors.length | 0];
+  const size = 12 + Math.random() * 16;
+  const el = document.createElement('div');
+  el.className = 'jellyfish';
+  el.style.left = (x - size/2) + 'px';
+  el.style.top = (y - size/3) + 'px';
+  el.style.setProperty('--drift', ((Math.random()-0.5)*40) + 'px');
+  const w = size, h = size * 1.8, bellH = size * 0.55;
+  const tc = 3 + (Math.random() * 2 | 0);
+  let tentacles = '';
+  for (let i = 0; i < tc; i++) {
+    const tx = w*0.2 + (w*0.6/(tc-1))*i;
+    const tLen = h*0.35 + Math.random()*h*0.2;
+    tentacles += `<path class="jelly-tentacle" d="M${tx},${bellH} Q${tx+(Math.random()-0.5)*6},${bellH+tLen*0.4} ${tx+(Math.random()-0.5)*8},${bellH+tLen}" stroke="${c.tentacle}" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+  }
+  el.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <ellipse class="jelly-bell" cx="${w/2}" cy="${bellH*0.6}" rx="${w*0.45}" ry="${bellH*0.55}" fill="${c.bell}" stroke="${c.tentacle}" stroke-width="0.5"/>
+    <ellipse cx="${w/2}" cy="${bellH*0.4}" rx="${w*0.2}" ry="${bellH*0.2}" fill="rgba(255,255,255,0.08)"/>
+    ${tentacles}
+  </svg>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+document.addEventListener('mousemove', (e) => {
+  const now = Date.now();
+  if (now - lastJellyTime < 200 || Math.random() < 0.35) return;
+  // Only spawn in top/bottom 20% of page scroll
+  const scrollPct = document.documentElement.scrollHeight > window.innerHeight
+    ? window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)
+    : 0;
+  if (scrollPct > 0.2 && scrollPct < 0.8) return;
+  // Don't spawn on seahorse
+  const shEl = document.getElementById('heroSeahorse');
+  if (shEl) {
+    const sr = shEl.getBoundingClientRect();
+    if (e.clientX >= sr.left - 15 && e.clientX <= sr.right + 15 &&
+        e.clientY >= sr.top - 15 && e.clientY <= sr.bottom + 15) return;
+  }
+  lastJellyTime = now;
+  spawnJellyfish(e.clientX, e.clientY);
+});
+
+// ── Scroll reveal ──
+function updateReveals() {
+  const vh = window.innerHeight;
+  const center = vh * 0.48;
+
+  allReveals.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    const elCenter = rect.top + rect.height / 2;
+    const dist = Math.abs(elCenter - center);
+    const zone = vh * 0.38;
+
+    if (dist < zone) {
+      el.classList.add('lit');
+      el.classList.remove('dim');
+    } else if (rect.top < vh && rect.bottom > 0) {
+      el.classList.remove('lit');
+      el.classList.add('dim');
+    } else {
+      el.classList.remove('lit', 'dim');
+    }
+  });
+}
+
+window.addEventListener('scroll', updateReveals, { passive: true });
+updateReveals();
+
+// ── Depth track + label + waypoints ──
+const depthFill = document.getElementById('depthFill');
+const depthLabel = document.getElementById('depthLabel');
+const depthTrack = document.getElementById('depthTrack');
+const sections = document.querySelectorAll('[data-section]');
+
+// Create waypoint dots
+const trackRect = { top: 60 }; // fixed top
+sections.forEach((sec, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'depth-waypoint';
+  dot.dataset.index = i;
+  dot.innerHTML = `<span class="depth-waypoint-label">${sec.dataset.section}</span>`;
+  dot.addEventListener('click', () => {
+    sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  depthTrack.appendChild(dot);
+});
+
+function updateDepth() {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = h > 0 ? window.scrollY / h : 0;
+  depthFill.style.height = (pct * 100) + '%';
+  depthLabel.textContent = Math.round(pct * 6000) + 'm';
+
+  // Position waypoints + highlight active
+  const trackH = depthTrack.getBoundingClientRect().height;
+  const vh = window.innerHeight;
+  let activeIdx = 0;
+
+  sections.forEach((sec, i) => {
+    const secTop = sec.offsetTop;
+    const secPct = h > 0 ? secTop / (h + vh) : 0;
+    const dot = depthTrack.querySelectorAll('.depth-waypoint')[i];
+    if (dot) {
+      dot.style.top = (secPct * trackH) + 'px';
+    }
+    if (window.scrollY + vh/2 >= secTop) activeIdx = i;
+  });
+
+  depthTrack.querySelectorAll('.depth-waypoint').forEach((d, i) => {
+    d.classList.toggle('active', i === activeIdx);
+  });
+}
+
+window.addEventListener('scroll', updateDepth, { passive: true });
+// Delay initial waypoint positioning to ensure layout is complete
+setTimeout(updateDepth, 100);
+
+// ── Typewriter effect for Pain terminal ──
+const painTerminal = document.getElementById('painTerminal');
+const twCursor = document.getElementById('twCursor');
+let typewriterStarted = false;
+
+const twLines = [
+  { text: '$ ', cls: 'prompt', delay: 0 },
+  { text: 'claude', cls: '', delay: 40 },
+  { text: '> Hi! How can I help you today?', cls: 'output', delay: 600 },
+  { text: '', cls: '', delay: 300 },
+  { text: '# You explain your project. Your preferences.', cls: 'comment', delay: 400 },
+  { text: '# Your tech stack. Your goals. 30 minutes.', cls: 'comment', delay: 300 },
+  { text: '', cls: '', delay: 400 },
+  { text: '[session ended]', cls: 'err', delay: 200, glitch: true },
+  { text: '', cls: '', delay: 600 },
+  { text: '$ ', cls: 'prompt', delay: 0 },
+  { text: 'claude', cls: '', delay: 40 },
+  { text: '> Hi! How can I help you today?', cls: 'output', delay: 500 },
+  { text: '', cls: '', delay: 300 },
+  { text: '# ...again.', cls: 'comment', delay: 300 },
+  { text: '', cls: '', delay: 400 },
+  { text: '[context window full — restarting]', cls: 'err', delay: 200, glitch: true },
+  { text: '', cls: '', delay: 600 },
+  { text: '$ ', cls: 'prompt', delay: 0 },
+  { text: 'claude', cls: '', delay: 40 },
+  { text: '> Hi! How can I help you today?', cls: 'output', delay: 500 },
+  { text: '', cls: '', delay: 300 },
+  { text: '# ...again.', cls: 'comment', delay: 300 },
+];
+
+function startTypewriter() {
+  if (typewriterStarted) return;
+  typewriterStarted = true;
+
+  // Remove the static cursor temporarily
+  twCursor.style.display = 'none';
+
+  let totalDelay = 0;
+  const lineEls = [];
+
+  twLines.forEach((line, i) => {
+    const span = document.createElement('span');
+    span.className = 'tw-line';
+    if (line.cls) span.classList.add(line.cls);
+
+    if (line.text === '') {
+      span.innerHTML = '\n';
+    } else {
+      span.textContent = line.text;
+    }
+
+    // Insert before cursor
+    painTerminal.insertBefore(span, twCursor);
+    lineEls.push({ el: span, line });
+
+    totalDelay += line.delay;
+    const charTime = line.text.length * 18; // 18ms per char
+
+    setTimeout(() => {
+      if (line.text === '') {
+        span.classList.add('typed');
+        return;
+      }
+
+      // Typewrite character by character
+      const fullText = line.text;
+      span.textContent = '';
+      span.classList.add('typed');
+      twCursor.style.display = 'inline-block';
+
+      // Move cursor after this span
+      span.after(twCursor);
+
+      let ci = 0;
+      const charInterval = setInterval(() => {
+        span.textContent = fullText.slice(0, ++ci);
+        if (ci >= fullText.length) {
+          clearInterval(charInterval);
+          // Glitch on error lines
+          if (line.glitch) {
+            span.classList.add('glitch');
+            setTimeout(() => span.classList.remove('glitch'), 400);
+          }
+        }
+      }, 18);
+    }, totalDelay);
+
+    totalDelay += charTime + 80; // gap between lines
+  });
+}
+
+// Trigger typewriter when terminal scrolls into view
+const twObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      startTypewriter();
+      twObserver.disconnect();
+    }
+  });
+}, { threshold: 0.4 });
+twObserver.observe(painTerminal);
+
+// ── Progressive file tree ──
+const fileTree = document.getElementById('fileTree');
+let ftStarted = false;
+
+function startFileTree() {
+  if (ftStarted) return;
+  ftStarted = true;
+  const lines = fileTree.querySelectorAll('.ft-line');
+  lines.forEach(line => {
+    const delay = parseInt(line.dataset.delay) || 0;
+    setTimeout(() => line.classList.add('ft-visible'), delay);
+  });
+}
+
+const ftObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      startFileTree();
+      ftObserver.disconnect();
+    }
+  });
+}, { threshold: 0.3 });
+ftObserver.observe(fileTree);
+
+// ── Spotlight card effect (cursor-tracking glow on crystal cards) ──
+document.querySelectorAll('.feat-cell').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+    card.style.setProperty('--spot-x', x + '%');
+    card.style.setProperty('--spot-y', y + '%');
+  });
+});
+
+// ── Dashboard carousel ──
+const dashTrack = document.getElementById('dashTrack');
+const dashTabs = document.querySelectorAll('.dash-tab');
+const dashProgress = document.getElementById('dashProgress');
+let dashCurrent = 0;
+const dashTotal = dashTabs.length;
+const dashInterval = 4000; // ms per slide
+let dashTimer = null;
+let dashProgressStart = 0;
+
+function dashGoTo(idx) {
+  dashCurrent = idx;
+  dashTrack.style.transform = `translateX(-${idx * 100}%)`;
+  dashTabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+  // Reset progress
+  dashProgressStart = Date.now();
+}
+
+function dashAutoPlay() {
+  dashGoTo((dashCurrent + 1) % dashTotal);
+}
+
+function dashStartTimer() {
+  dashProgressStart = Date.now();
+  clearInterval(dashTimer);
+  dashTimer = setInterval(dashAutoPlay, dashInterval);
+}
+
+// Tab clicks
+dashTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    dashGoTo(parseInt(tab.dataset.slide));
+    dashStartTimer();
+  });
+});
+
+// Progress bar animation
+function dashAnimProgress() {
+  const elapsed = Date.now() - dashProgressStart;
+  const pct = Math.min(100, (elapsed / dashInterval) * 100);
+  dashProgress.style.width = pct + '%';
+  requestAnimationFrame(dashAnimProgress);
+}
+dashAnimProgress();
+dashStartTimer();
+
+// Pause on hover
+const dashCarousel = document.getElementById('dashCarousel');
+dashCarousel.addEventListener('mouseenter', () => clearInterval(dashTimer));
+dashCarousel.addEventListener('mouseleave', dashStartTimer);
+
+// ── Seaweed text — TAMED: only on opening and closing sections ──
+const swChars = [];
+
+function initSeaweed() {
+  // Only apply seaweed to first and last .seaweed elements
+  const allSeaweed = document.querySelectorAll('.seaweed');
+  const targets = [];
+  if (allSeaweed.length > 0) targets.push(allSeaweed[0]);
+  if (allSeaweed.length > 1) targets.push(allSeaweed[allSeaweed.length - 1]);
+  // Also include the Turn section (index 1) and Solution (index 2) for key moments
+  if (allSeaweed.length > 2) targets.push(allSeaweed[1]);
+  if (allSeaweed.length > 3) targets.push(allSeaweed[2]);
+
+  targets.forEach(container => {
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const text = node.textContent;
+      if (!text.trim()) return;
+      const frag = document.createDocumentFragment();
+      for (const ch of text) {
+        if (ch === ' ' || ch === '\n') {
+          const sp = document.createElement('span');
+          sp.className = 'sw-space';
+          sp.textContent = ch;
+          frag.appendChild(sp);
+        } else {
+          const s = document.createElement('span');
+          s.className = 'sw-char';
+          s.textContent = ch;
+          frag.appendChild(s);
+          swChars.push({ el: s, vx: 0, vy: 0, angle: 0, vAngle: 0 });
+        }
+      }
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+
+  // Remove .seaweed class from untargeted elements to avoid styling issues
+  allSeaweed.forEach(el => {
+    if (!targets.includes(el)) {
+      el.classList.remove('seaweed');
+    }
+  });
+}
+
+initSeaweed();
+
+// Physics constants
+const SW_RADIUS = 100;
+const SW_FORCE = 1.8;
+const SW_DAMPING = 0.88;
+const SW_SPRING = 0.06;
+const SW_ROT_FORCE = 12;
+const SW_ROT_SPRING = 0.08;
+const SW_ROT_DAMP = 0.85;
+
+function animateSeaweed() {
+  swChars.forEach(c => {
+    const rect = c.el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const dx = cx - mouseX;
+    const dy = cy - mouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < SW_RADIUS && dist > 0) {
+      const force = (1 - dist / SW_RADIUS) * SW_FORCE;
+      const angle = Math.atan2(dy, dx);
+      c.vx += Math.cos(angle) * force;
+      c.vy += Math.sin(angle) * force;
+      c.vAngle += (dx > 0 ? 1 : -1) * (1 - dist / SW_RADIUS) * SW_ROT_FORCE;
+    }
+
+    c.vx -= c.vx * (1 - SW_DAMPING);
+    c.vy -= c.vy * (1 - SW_DAMPING);
+
+    const curX = parseFloat(c.el.dataset.tx) || 0;
+    const curY = parseFloat(c.el.dataset.ty) || 0;
+    const curR = parseFloat(c.el.dataset.tr) || 0;
+
+    const sx = (curX + c.vx) * (1 - SW_SPRING);
+    const sy = (curY + c.vy) * (1 - SW_SPRING);
+    const sr = (curR + c.vAngle) * (1 - SW_ROT_SPRING);
+
+    c.vAngle *= SW_ROT_DAMP;
+
+    c.el.dataset.tx = sx;
+    c.el.dataset.ty = sy;
+    c.el.dataset.tr = sr;
+
+    if (Math.abs(sx) > 0.1 || Math.abs(sy) > 0.1 || Math.abs(sr) > 0.3) {
+      c.el.style.transform = `translate(${sx}px, ${sy}px) rotate(${sr}deg)`;
+      const glowIntensity = Math.min(1, (Math.abs(sx) + Math.abs(sy)) / 15);
+      c.el.style.textShadow = `0 0 ${8 + glowIntensity * 15}px rgba(155,89,182,${0.15 + glowIntensity * 0.4}), 0 0 ${glowIntensity * 30}px rgba(26,188,156,${glowIntensity * 0.2})`;
+    } else {
+      c.el.style.transform = '';
+      c.el.style.textShadow = '';
+    }
+  });
+
+  requestAnimationFrame(animateSeaweed);
+}
+
+animateSeaweed();
+</script>
+</body>
+</html>
