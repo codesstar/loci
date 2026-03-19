@@ -129,6 +129,11 @@ Rules:
 - **Same time block**: say nothing about time, just respond normally.
 Keep it natural and brief — one sentence max, never robotic. If `wellbeing.enabled` is `false`, skip all time-based nudges.
 
+**⚠️ Time-based tasks → BOTH daily plan AND calendar**: When the user mentions a specific time (e.g. "3点开会", "15:00 gym", "明天9点"), you MUST write to BOTH places:
+1. `tasks/daily/YYYY-MM-DD.md` — format: `- [ ] 任务名 — HH:MM` or `- [ ] 任务名 — HH:MM~HH:MM`
+2. `tasks/calendar.json` — format: `{"title":"...", "startKey": minutes_from_midnight, "endKey": ..., "hour": ...}` (e.g. 9:30 = 570, 15:00 = 900). No end time → default 1 hour.
+Tasks WITHOUT a specific time only go to the daily plan. **Never skip the calendar.**
+
 At the start of every conversation:
 1. Confirm today's date, read today's daily plan (`tasks/daily/YYYY-MM-DD.md`)
 2. Read `.loci/status.yml` — check user state. If expired, infer from daily plan + time
@@ -199,7 +204,7 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 3. **Archive, never delete** — Move expired content to `archive/`
 4. **Don't guess** — Ask the user if unsure
 5. **Use frontmatter** — YAML headers (date, tags, status) on content files
-6. **Auto-refresh dashboard** — If `server.js` is running (`node .loci/dashboard/server.js`), no action needed — the dashboard reads markdown files live on each request. If the server is NOT running (static mode), update `.loci/dashboard/data.json` directly (read JSON, modify relevant section, write back). See `.loci/dashboard/schema.md` for format. `build.py` is available for full rebuilds
-7. **Time = both places** — When a task mentions a specific time (e.g. "3点", "15:00", "morning meeting at 9"), write it to BOTH: (a) `tasks/daily/YYYY-MM-DD.md` as a checklist item — format: `- [ ] 任务名 — HH:MM` (start only) or `- [ ] 任务名 — HH:MM~HH:MM` (start~end). Task name first, time after dash. AND (b) `tasks/calendar.json` as a calendar event with `startKey`/`endKey` in minutes from midnight (e.g. 9:30 = 570, 15:00 = 900). Tasks without a time only go to the daily plan. If no end time given, default to 1 hour
+6. **Dashboard** — Always use `node .loci/dashboard/server.js` (port 8765) to run the dashboard. **Do NOT use `server.py`** — it is legacy and missing critical API endpoints (task toggle, task add, etc.). The server reads markdown files live on each request. If the server is NOT running (static mode), update `.loci/dashboard/data.json` directly. `build.py` is available for full rebuilds
+7. **Time = both places** — See rule in "Time & State Awareness" section above. Time-based tasks go to BOTH daily plan AND calendar.json. Never skip either
 8. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure
 9. **Task placement by specificity** — Specific date tasks (e.g. "明天吃饭", "周三开会") → `tasks/daily/YYYY-MM-DD.md`. Vague week-level plans (e.g. "这周要做X", "下周目标") → Dashboard Week Plan card only (not daily plan). Vague month-level plans (e.g. "这个月要完成Y") → Dashboard Month Plan card only. Only use Week/Month plan for items the user explicitly frames as week/month goals, NOT for specific day tasks
