@@ -68,6 +68,18 @@ a:hover { color: rgba(26,188,156,1); }
   100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
 }
 
+/* ── Stars (subtle twinkle) ── */
+.star {
+  position: fixed; pointer-events: none; z-index: 0;
+  width: 2px; height: 2px; border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  animation: twinkle ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
 /* ── Jellyfish trail ── */
 .jellyfish {
   position: fixed; pointer-events: none; z-index: 2;
@@ -1215,6 +1227,25 @@ updateProximity();
     b.style.animationDuration = (14 + Math.random() * 22) + 's';
     b.style.animationDelay = -(Math.random() * 25) + 's';
     document.body.appendChild(b);
+  }
+})();
+
+// ── Stars (subtle twinkle) ──
+(function createStars() {
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    const size = 1 + Math.random() * 2;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.animationDuration = (2 + Math.random() * 4) + 's';
+    s.style.animationDelay = -(Math.random() * 5) + 's';
+    // vary color slightly: white, pale purple, pale teal
+    const colors = ['rgba(255,255,255,0.5)', 'rgba(200,180,255,0.4)', 'rgba(180,255,240,0.3)'];
+    s.style.background = colors[Math.random() * 3 | 0];
+    document.body.appendChild(s);
   }
 })();
 
