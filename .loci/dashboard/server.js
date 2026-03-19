@@ -1321,13 +1321,53 @@ const server = http.createServer(async (req, res) => {
   serveStaticFile(res, filePath);
 });
 
-server.listen(PORT, () => {
-  console.log(`Loci Dashboard`);
-  console.log(`  Brain root: ${LOCI_ROOT}`);
-  console.log(`  Server:     http://localhost:${PORT}`);
-  console.log(`  API:        http://localhost:${PORT}/api/data`);
-  console.log(`  Press Ctrl+C to stop`);
-});
+// ─── Port conflict resolution ───────────────────────────────────────────────
+
+function killPortHolder(port) {
+  try {
+    const { execSync } = require('child_process');
+    const result = execSync(`lsof -ti:${port}`, { encoding: 'utf-8' }).trim();
+    if (result) {
+      const pids = result.split('\n').filter(p => p && p !== String(process.pid));
+      if (pids.length > 0) {
+        console.log(`  Killing ghost process(es) on port ${port}: PID ${pids.join(', ')}`);
+        execSync(`kill -9 ${pids.join(' ')}`);
+        return true;
+      }
+    }
+  } catch (e) {
+    // lsof returns exit code 1 if no matches — that's fine
+  }
+  return false;
+}
+
+function startServer(retried) {
+  server.listen(PORT, () => {
+    console.log(`Loci Dashboard`);
+    console.log(`  Brain root: ${LOCI_ROOT}`);
+    console.log(`  Server:     http://localhost:${PORT}`);
+    console.log(`  API:        http://localhost:${PORT}/api/data`);
+    console.log(`  Press Ctrl+C to stop`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && !retried) {
+      console.log(`Port ${PORT} is in use. Attempting to reclaim...`);
+      server.close();
+      if (killPortHolder(PORT)) {
+        setTimeout(() => startServer(true), 500);
+      } else {
+        console.error(`Port ${PORT} is occupied by another application. Use PORT=XXXX to pick a different port.`);
+        process.exit(1);
+      }
+    } else {
+      console.error('Server error:', err.message);
+      process.exit(1);
+    }
+  });
+}
+
+startServer(false);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
