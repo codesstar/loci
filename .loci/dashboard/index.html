@@ -990,6 +990,44 @@
     @keyframes brainPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     @keyframes brainScan { 0% { left: -30%; } 100% { left: 100%; } }
 
+    /* ===== Fragment cards ===== */
+    .fragment-card {
+      position: relative;
+      z-index: 1;
+      width: calc(33.333% - 12px);
+      min-width: 220px;
+      padding: 16px 18px;
+      background: rgba(100,180,255,0.03);
+      border: 1px solid rgba(100,180,255,0.07);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation: fragmentFloat 6s ease-in-out infinite;
+    }
+    .fragment-card:hover {
+      background: rgba(100,180,255,0.06);
+      border-color: rgba(100,180,255,0.15);
+      transform: rotate(0deg) translateY(-2px) !important;
+      box-shadow: 0 4px 20px rgba(100,180,255,0.06);
+    }
+    .fragment-card-col {
+      border-color: rgba(255,160,50,0.07);
+      background: rgba(255,160,50,0.02);
+    }
+    .fragment-card-col:hover {
+      background: rgba(255,160,50,0.05);
+      border-color: rgba(255,160,50,0.15);
+      box-shadow: 0 4px 20px rgba(255,160,50,0.06);
+    }
+    @keyframes fragmentFloat {
+      0%, 100% { transform: translateY(0px) rotate(var(--frag-rot, 0deg)); }
+      50% { transform: translateY(-3px) rotate(var(--frag-rot, 0deg)); }
+    }
+    @media (max-width: 900px) {
+      .fragment-card { width: calc(50% - 8px); }
+    }
+    @media (max-width: 600px) {
+      .fragment-card { width: 100%; }
+    }
+
     /* ===== Text utilities ===== */
     .text-primary { color: rgba(255,255,255,0.935); }
     .text-secondary { color: rgba(255,255,255,0.562); }
@@ -3651,6 +3689,172 @@
           </div>
         </section>
 
+        <!-- ========== FRAGMENTS ========== -->
+        <section v-if="currentPage === 'fragments'" style="padding: 20px;">
+          <div style="position: relative; background: #060a14; margin: -20px; padding: 24px 28px; min-height: calc(100vh - 60px);">
+
+            <!-- Page title -->
+            <div style="margin-bottom: 8px;">
+              <div style="font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 3px; color: rgba(100,180,255,0.35);">SYS.DRIFT // FRAGMENTS</div>
+              <div style="font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 300; letter-spacing: 14px; color: rgba(100,180,255,0.55); text-transform: uppercase; margin-top: 4px; text-shadow: 0 0 20px rgba(100,180,255,0.1);">{{ t('frag.title') }}</div>
+              <div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; color: rgba(100,180,255,0.22); margin-top: 4px;">{{ t('frag.sub') }}</div>
+            </div>
+
+            <!-- Stats bar -->
+            <div style="display: flex; gap: 32px; margin: 20px 0 24px; padding: 12px 0; border-top: 1px solid rgba(100,180,255,0.06); border-bottom: 1px solid rgba(100,180,255,0.06);">
+              <div>
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 400; color: rgba(100,180,255,0.4); font-variant-numeric: tabular-nums;">{{ fragmentNotes.length }}</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(100,180,255,0.18); text-transform: uppercase; margin-top: 2px;">{{ t('frag.notes') }}</div>
+              </div>
+              <div>
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 400; color: rgba(100,180,255,0.4); font-variant-numeric: tabular-nums;">{{ fragmentCollections.length }}</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(100,180,255,0.18); text-transform: uppercase; margin-top: 2px;">{{ t('frag.collections') }}</div>
+              </div>
+              <div>
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 400; color: rgba(100,180,255,0.4); font-variant-numeric: tabular-nums;">{{ fragmentNotes.length + fragmentCollections.length }}</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 3px; color: rgba(100,180,255,0.18); text-transform: uppercase; margin-top: 2px;">{{ t('frag.total') }}</div>
+              </div>
+            </div>
+
+            <!-- Tab switcher -->
+            <div style="display: flex; gap: 2px; margin-bottom: 24px;">
+              <button @click="fragmentTab = 'notes'"
+                :style="{
+                  padding: '8px 20px',
+                  fontFamily: 'Share Tech Mono, monospace',
+                  fontSize: '11px',
+                  letterSpacing: '2px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  background: fragmentTab === 'notes' ? 'rgba(100,180,255,0.08)' : 'rgba(255,255,255,0.02)',
+                  color: fragmentTab === 'notes' ? 'rgba(100,180,255,0.7)' : 'rgba(255,255,255,0.25)',
+                  borderBottom: fragmentTab === 'notes' ? '1px solid rgba(100,180,255,0.3)' : '1px solid transparent',
+                }">
+                {{ t('frag.notes') }}
+              </button>
+              <button @click="fragmentTab = 'collections'"
+                :style="{
+                  padding: '8px 20px',
+                  fontFamily: 'Share Tech Mono, monospace',
+                  fontSize: '11px',
+                  letterSpacing: '2px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  background: fragmentTab === 'collections' ? 'rgba(100,180,255,0.08)' : 'rgba(255,255,255,0.02)',
+                  color: fragmentTab === 'collections' ? 'rgba(100,180,255,0.7)' : 'rgba(255,255,255,0.25)',
+                  borderBottom: fragmentTab === 'collections' ? '1px solid rgba(100,180,255,0.3)' : '1px solid transparent',
+                }">
+                {{ t('frag.collections') }}
+              </button>
+            </div>
+
+            <!-- ═══ NOTES TAB ═══ -->
+            <div v-if="fragmentTab === 'notes'">
+              <!-- Add note input -->
+              <div style="display: flex; gap: 8px; margin-bottom: 28px;">
+                <input v-model="newFragmentNote" @keydown.enter="addFragmentNote"
+                  :placeholder="t('frag.addNote')"
+                  style="flex: 1; background: rgba(100,180,255,0.04); border: 1px solid rgba(100,180,255,0.1); color: rgba(255,255,255,0.8); padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color 0.3s;"
+                  onfocus="this.style.borderColor='rgba(100,180,255,0.3)'" onblur="this.style.borderColor='rgba(100,180,255,0.1)'"
+                />
+                <button @click="addFragmentNote"
+                  style="background: rgba(100,180,255,0.08); border: 1px solid rgba(100,180,255,0.15); color: rgba(100,180,255,0.6); padding: 10px 18px; font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: all 0.3s;"
+                  onmouseover="this.style.background='rgba(100,180,255,0.15)'" onmouseout="this.style.background='rgba(100,180,255,0.08)'">
+                  {{ t('frag.save') }}
+                </button>
+              </div>
+
+              <!-- Empty state -->
+              <div v-if="fragmentNotes.length === 0" style="text-align: center; padding: 60px 0;">
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: rgba(100,180,255,0.08); margin-bottom: 12px;">~</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: rgba(100,180,255,0.2); letter-spacing: 2px;">{{ t('frag.empty') }}</div>
+              </div>
+
+              <!-- Scattered floating cards -->
+              <div v-else style="position: relative; display: flex; flex-wrap: wrap; gap: 16px;">
+                <div v-for="(note, idx) in fragmentNotes" :key="'fn-'+idx"
+                  class="fragment-card"
+                  :style="{
+                    transform: 'rotate(' + ((idx % 5) * 1.5 - 3) + 'deg) translateY(' + (Math.sin(idx * 1.7) * 4) + 'px)',
+                    animationDelay: (idx * 0.15) + 's',
+                  }">
+                  <div style="font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 10px;">{{ note.text }}</div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: 'Share Tech Mono', monospace; font-size: 9px; color: rgba(100,180,255,0.2); letter-spacing: 1px;">{{ note.created || t('frag.drifting') }}</span>
+                    <button @click="dismissFragment(idx)"
+                      style="background: none; border: 1px solid rgba(255,80,80,0.15); color: rgba(255,80,80,0.4); font-family: 'Share Tech Mono', monospace; font-size: 9px; padding: 3px 10px; cursor: pointer; letter-spacing: 1px; transition: all 0.3s;"
+                      onmouseover="this.style.borderColor='rgba(255,80,80,0.4)';this.style.color='rgba(255,80,80,0.7)'" onmouseout="this.style.borderColor='rgba(255,80,80,0.15)';this.style.color='rgba(255,80,80,0.4)'">
+                      {{ t('frag.dismiss') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ═══ COLLECTIONS TAB ═══ -->
+            <div v-if="fragmentTab === 'collections'">
+              <!-- Add collection input -->
+              <div style="margin-bottom: 28px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                  <input v-model="newCollectionTitle" @keydown.enter="addFragmentCollection"
+                    :placeholder="t('frag.addCollection')"
+                    style="flex: 1; background: rgba(100,180,255,0.04); border: 1px solid rgba(100,180,255,0.1); color: rgba(255,255,255,0.8); padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color 0.3s;"
+                    onfocus="this.style.borderColor='rgba(100,180,255,0.3)'" onblur="this.style.borderColor='rgba(100,180,255,0.1)'"
+                  />
+                  <button @click="addFragmentCollection"
+                    style="background: rgba(100,180,255,0.08); border: 1px solid rgba(100,180,255,0.15); color: rgba(100,180,255,0.6); padding: 10px 18px; font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: all 0.3s;"
+                    onmouseover="this.style.background='rgba(100,180,255,0.15)'" onmouseout="this.style.background='rgba(100,180,255,0.08)'">
+                    {{ t('frag.save') }}
+                  </button>
+                </div>
+                <input v-model="newCollectionUrl"
+                  :placeholder="t('frag.url')"
+                  style="width: 100%; background: rgba(100,180,255,0.02); border: 1px solid rgba(100,180,255,0.06); color: rgba(255,255,255,0.6); padding: 8px 14px; font-family: 'Inter', sans-serif; font-size: 12px; outline: none; transition: border-color 0.3s;"
+                  onfocus="this.style.borderColor='rgba(100,180,255,0.2)'" onblur="this.style.borderColor='rgba(100,180,255,0.06)'"
+                />
+              </div>
+
+              <!-- Empty state -->
+              <div v-if="fragmentCollections.length === 0" style="text-align: center; padding: 60px 0;">
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: rgba(100,180,255,0.08); margin-bottom: 12px;">~</div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: rgba(100,180,255,0.2); letter-spacing: 2px;">{{ t('frag.emptyCol') }}</div>
+              </div>
+
+              <!-- Collection cards -->
+              <div v-else style="position: relative; display: flex; flex-wrap: wrap; gap: 16px;">
+                <div v-for="(col, idx) in fragmentCollections" :key="'fc-'+idx"
+                  class="fragment-card fragment-card-col"
+                  :style="{
+                    transform: 'rotate(' + ((idx % 7) * 1.2 - 4) + 'deg) translateY(' + (Math.cos(idx * 2.1) * 5) + 'px)',
+                    animationDelay: (idx * 0.12) + 's',
+                  }">
+                  <div style="font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.75); font-weight: 500; margin-bottom: 6px;">{{ col.title || col.name }}</div>
+                  <a v-if="col.url" :href="col.url" target="_blank"
+                    style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: rgba(100,180,255,0.45); text-decoration: none; word-break: break-all; display: block; margin-bottom: 8px; transition: color 0.3s;"
+                    onmouseover="this.style.color='rgba(100,180,255,0.8)'" onmouseout="this.style.color='rgba(100,180,255,0.45)'">
+                    {{ col.url.length > 60 ? col.url.slice(0, 60) + '...' : col.url }}
+                  </a>
+                  <div v-if="col.type" style="font-family: 'Share Tech Mono', monospace; font-size: 9px; color: rgba(255,160,50,0.3); letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">{{ col.type }}</div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: 'Share Tech Mono', monospace; font-size: 9px; color: rgba(100,180,255,0.2); letter-spacing: 1px;">{{ col.date || col.created || '' }}</span>
+                    <button @click="archiveCollection(col)"
+                      style="background: none; border: 1px solid rgba(255,160,50,0.15); color: rgba(255,160,50,0.4); font-family: 'Share Tech Mono', monospace; font-size: 9px; padding: 3px 10px; cursor: pointer; letter-spacing: 1px; transition: all 0.3s;"
+                      onmouseover="this.style.borderColor='rgba(255,160,50,0.4)';this.style.color='rgba(255,160,50,0.7)'" onmouseout="this.style.borderColor='rgba(255,160,50,0.15)';this.style.color='rgba(255,160,50,0.4)'">
+                      {{ t('frag.archive') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Background ambient particles -->
+            <div class="fragment-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0;"></div>
+
+          </div>
+        </section>
+
         <!-- ========== PEOPLE ========== -->
         <section v-if="currentPage === 'people'" style="position: relative;">
           <div class="people-page-title">{{ t('people.crewRoster') }}</div>
@@ -4677,6 +4881,24 @@ createApp({
         'cal.thuShort': '四',
         'cal.friShort': '五',
         'cal.satShort': '六',
+        // Fragments
+        'nav.fragments': '碎片',
+        'frag.title': '// 碎片收集器 v1.0',
+        'frag.sub': '深海拾遗 — 漂浮在意识边缘的碎片',
+        'frag.notes': '随手记',
+        'frag.collections': '收藏夹',
+        'frag.notesSub': '灵感 · 想法 · 碎碎念',
+        'frag.collectionsSub': '链接 · 图片 · 素材',
+        'frag.addNote': '记点什么...',
+        'frag.addCollection': '收藏标题...',
+        'frag.url': '链接（可选）',
+        'frag.save': '保存',
+        'frag.empty': '这里还是空的，随手记点什么吧',
+        'frag.emptyCol': '还没有收藏，看到好东西就往这里扔',
+        'frag.dismiss': '处理',
+        'frag.archive': '归档',
+        'frag.total': '碎片',
+        'frag.drifting': '漂浮中',
         // Task priority select
         'priority.focus': '专注',
         'priority.queue': '队列',
@@ -4842,6 +5064,23 @@ createApp({
         'cal.thuShort': 'T',
         'cal.friShort': 'F',
         'cal.satShort': 'S',
+        'nav.fragments': 'Fragments',
+        'frag.title': '// FRAGMENT COLLECTOR v1.0',
+        'frag.sub': 'DEEP SEA SALVAGE — drifting at the edge of consciousness',
+        'frag.notes': 'QUICK NOTES',
+        'frag.collections': 'COLLECTIONS',
+        'frag.notesSub': 'SPARKS · IDEAS · FLEETING THOUGHTS',
+        'frag.collectionsSub': 'LINKS · IMAGES · MATERIALS',
+        'frag.addNote': 'Capture a thought...',
+        'frag.addCollection': 'Collection title...',
+        'frag.url': 'URL (optional)',
+        'frag.save': 'SAVE',
+        'frag.empty': 'Nothing here yet. Jot something down.',
+        'frag.emptyCol': 'No collections yet. Save something interesting.',
+        'frag.dismiss': 'DISMISS',
+        'frag.archive': 'ARCHIVE',
+        'frag.total': 'FRAGMENTS',
+        'frag.drifting': 'DRIFTING',
         'priority.focus': 'Focus',
         'priority.queue': 'Queue',
         'lang.toggle': '中文',
@@ -6586,6 +6825,7 @@ createApp({
       { id: 'memory',    label: t('nav.memory'),   icon: '\u2665', termIcon: '[&]' },
       { id: 'people',    label: t('nav.people'),   icon: '\u2665', termIcon: '[@]' },
       { id: 'brain',     label: t('nav.brain'),    icon: '\u25CE', termIcon: '[B]' },
+      { id: 'fragments', label: t('nav.fragments'), icon: '\u25C8', termIcon: '[*]' },
     ]);
 
     const memoryTabs = computed(() => [
@@ -7599,6 +7839,95 @@ createApp({
         category: category
       };
     }
+
+    // ===== Fragments =====
+    const fragmentTab = ref('notes');
+    const newFragmentNote = ref('');
+    const newCollectionTitle = ref('');
+    const newCollectionUrl = ref('');
+
+    const fragmentNotes = computed(() => {
+      const items = data.value?.inbox?.items;
+      if (!items || !Array.isArray(items)) return [];
+      return items;
+    });
+
+    const fragmentCollections = computed(() => {
+      const refs = data.value?.references;
+      if (!refs || !refs.files || !Array.isArray(refs.files)) return [];
+      return refs.files.map(f => ({
+        name: f.name,
+        title: f.meta?.title || f.name?.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, ''),
+        url: f.meta?.url || '',
+        date: f.meta?.date || '',
+        type: f.meta?.type || '',
+        content: f.content || '',
+        file: f.name,
+      }));
+    });
+
+    async function addFragmentNote() {
+      const text = newFragmentNote.value.trim();
+      if (!text) return;
+      try {
+        await fetch('/api/inbox/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+        newFragmentNote.value = '';
+        // Refresh data
+        const resp = await fetch('/api/data');
+        data.value = await resp.json();
+      } catch (e) { console.error('Failed to add note:', e); }
+    }
+
+    async function dismissFragment(idx) {
+      const note = fragmentNotes.value[idx];
+      if (!note) return;
+      try {
+        await fetch('/api/inbox/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: note.text }),
+        });
+        const resp = await fetch('/api/data');
+        data.value = await resp.json();
+      } catch (e) { console.error('Failed to dismiss note:', e); }
+    }
+
+    async function addFragmentCollection() {
+      const title = newCollectionTitle.value.trim();
+      if (!title) return;
+      try {
+        await fetch('/api/references/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            url: newCollectionUrl.value.trim() || undefined,
+          }),
+        });
+        newCollectionTitle.value = '';
+        newCollectionUrl.value = '';
+        const resp = await fetch('/api/data');
+        data.value = await resp.json();
+      } catch (e) { console.error('Failed to add collection:', e); }
+    }
+
+    async function archiveCollection(col) {
+      if (!col.file && !col.name) return;
+      try {
+        await fetch('/api/references/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: col.file || col.name }),
+        });
+        const resp = await fetch('/api/data');
+        data.value = await resp.json();
+      } catch (e) { console.error('Failed to archive collection:', e); }
+    }
+    // ===== End Fragments =====
 
     const peopleData = computed(() => {
       const contacts = data.value?.people?.contacts;
@@ -9378,6 +9707,9 @@ createApp({
       newEventPriority,
       brainFullscreen, toggleBrainFullscreen,
       initNetworkOrbit, destroyNetworkOrbit, initVortexCanvas, destroyVortexCanvas,
+      fragmentTab, fragmentNotes, fragmentCollections,
+      newFragmentNote, newCollectionTitle, newCollectionUrl,
+      addFragmentNote, dismissFragment, addFragmentCollection, archiveCollection,
       peopleData, selectedPerson,
       shieldPeople, neuralPeople, crewPeople, signalPeople,
       openPersonDetail, closePersonDetail,

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start Here — Loci</title>
+  <meta name="description" content="A complete walkthrough of Loci — the agent-native memory system for AI. Learn how it works, what it does, and how to get started." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a1a;
+      --bg-elevated: #0f0f24;
+      --bg-card: rgba(20, 20, 40, 0.6);
+      --purple: #7c6cf0;
+      --purple-dim: #5a4cd0;
+      --purple-glow: rgba(124, 108, 240, 0.25);
+      --teal: #4ecdc4;
+      --teal-dim: #2a9d8f;
+      --text: #e8e6f0;
+      --text-secondary: #9b97b0;
+      --text-muted: #6b6580;
+      --border: rgba(124, 108, 240, 0.15);
+      --code-bg: #141428;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ===== Nav ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10, 10, 26, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--text); font-weight: 600; font-size: 1.1rem; }
+    .nav-brand img { width: 28px; height: 28px; object-fit: contain; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+    .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { background: linear-gradient(135deg, #7c6cf0, #5a4cd0); color: #fff !important; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 500 !important; }
+
+    /* ===== Layout ===== */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+    .container-wide { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    section { position: relative; padding: 7rem 0; }
+    .section-label {
+      display: inline-block; font-size: 0.78rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--purple); margin-bottom: 1rem;
+    }
+    .section-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dim));
+      color: #fff; font-size: 0.8rem; font-weight: 700; margin-right: 0.5rem;
+    }
+    h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+    h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem; }
+    p { color: var(--text-secondary); font-size: 1.05rem; max-width: 640px; }
+    p a { color: var(--purple); text-decoration: none; border-bottom: 1px solid rgba(124,108,240,0.3); }
+    p a:hover { border-color: var(--purple); }
+
+    /* ===== Hero ===== */
+    .hero {
+      min-height: 60vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding-top: 6rem; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; width: 600px; height: 600px;
+      border-radius: 50%; background: var(--purple); opacity: 0.06;
+      top: -200px; right: -200px; filter: blur(80px); pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; width: 400px; height: 400px;
+      border-radius: 50%; background: var(--teal); opacity: 0.04;
+      bottom: -100px; left: -150px; filter: blur(60px); pointer-events: none;
+    }
+    .hero h1 span { background: linear-gradient(135deg, #7c6cf0, #4ecdc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { margin: 1.5rem auto 0; }
+    .breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--purple); }
+
+    /* ===== Sticky Progress ===== */
+    .progress-bar {
+      position: fixed; top: 57px; left: 0; right: 0; height: 3px;
+      background: rgba(124,108,240,0.1); z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--purple), var(--teal));
+      transition: width 0.15s ease-out;
+    }
+
+    /* ===== Step Sections ===== */
+    .step { border-bottom: 1px solid var(--border); }
+    .step:last-of-type { border-bottom: none; }
+    .step-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+
+    /* ===== Feature Grid ===== */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px var(--purple-glow); }
+    .card h3 { color: var(--text); }
+    .card p { font-size: 0.93rem; }
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; margin-bottom: 1rem;
+      font-size: 1.4rem; background: rgba(124,108,240,0.1);
+    }
+
+    /* ===== Code Block ===== */
+    .code-block {
+      background: #08081a; border-radius: 14px; padding: 1.5rem 2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem;
+      line-height: 1.9; color: #c0bdd0; margin: 1.5rem 0;
+      border: 1px solid var(--border); overflow-x: auto; position: relative;
+    }
+    .code-block .comment { color: #5a5670; }
+    .code-block .cmd { color: #7c6cf0; }
+    .code-block .str { color: #4ecdc4; }
+    .code-block::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--teal)); border-radius: 14px 14px 0 0;
+    }
+
+    /* ===== Architecture Diagram ===== */
+    .arch-diagram {
+      background: var(--code-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.5rem; margin: 2rem 0;
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem;
+      line-height: 1.8; color: var(--text-secondary); white-space: pre; overflow-x: auto;
+    }
+    .arch-diagram .layer-label { color: var(--purple); font-weight: 600; }
+    .arch-diagram .layer-teal { color: var(--teal); font-weight: 600; }
+    .arch-diagram .dim { color: var(--text-muted); }
+
+    /* ===== Comparison Table ===== */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 2rem 0;
+      font-size: 0.93rem;
+    }
+    .compare-table th {
+      text-align: left; padding: 1rem; color: var(--text-muted);
+      font-weight: 600; font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.06em; border-bottom: 1px solid var(--border);
+    }
+    .compare-table td {
+      padding: 1rem; border-bottom: 1px solid rgba(124,108,240,0.08);
+      color: var(--text-secondary);
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .highlight { color: var(--purple); font-weight: 500; }
+    .compare-table .winner { color: var(--teal); font-weight: 600; }
+
+    /* ===== Terminal Mock ===== */
+    .terminal {
+      background: #08081a; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); margin: 2rem 0;
+    }
+    .terminal-bar {
+      padding: 0.8rem 1rem; display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(20, 20, 40, 0.8); border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot:nth-child(1) { background: #ff5f57; }
+    .terminal-dot:nth-child(2) { background: #febc2e; }
+    .terminal-dot:nth-child(3) { background: #28c840; }
+    .terminal-title { font-size: 0.78rem; color: var(--text-muted); margin-left: 0.5rem; }
+    .terminal-body {
+      padding: 1.5rem 2rem; font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem; line-height: 1.9; color: #c0bdd0;
+    }
+    .terminal-body .prompt { color: var(--teal); }
+    .terminal-body .ai { color: var(--purple); }
+    .terminal-body .dim { color: var(--text-muted); }
+
+    /* ===== Dashboard Preview ===== */
+    .dashboard-preview {
+      margin: 2.5rem 0; border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: 0 4px 40px var(--purple-glow);
+    }
+    .dashboard-preview img {
+      width: 100%; display: block;
+    }
+
+    /* ===== Integration Cards ===== */
+    .integration-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem; display: flex; align-items: flex-start; gap: 1.5rem;
+      margin-bottom: 1.5rem; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .integration-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--purple-glow); }
+    .integration-icon {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+    }
+    .integration-card h3 { margin-bottom: 0.3rem; }
+    .integration-badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 0.5rem;
+    }
+    .badge-ready { background: rgba(78,205,196,0.15); color: var(--teal); }
+    .badge-soon { background: rgba(124,108,240,0.15); color: var(--purple); }
+
+    /* ===== CTA ===== */
+    .final-cta {
+      text-align: center; padding: 6rem 0; position: relative; overflow: hidden;
+      background: var(--bg-elevated);
+    }
+    .final-cta::before {
+      content: ''; position: absolute; width: 500px; height: 500px;
+      border-radius: 50%; background: var(--purple); opacity: 0.04;
+      top: -200px; left: 50%; transform: translateX(-50%); filter: blur(100px);
+    }
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: linear-gradient(135deg, #7c6cf0, #5a4cd0); color: #fff;
+      padding: 1rem 2.5rem; border-radius: 14px; text-decoration: none;
+      font-weight: 600; font-size: 1.05rem; transition: all 0.25s; border: none; cursor: pointer;
+    }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--purple-glow); }
+    .cta-btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(124,108,240,0.1); color: #7c6cf0;
+      padding: 1rem 2.5rem; border-radius: 14px; text-decoration: none;
+      font-weight: 600; font-size: 1.05rem; transition: all 0.25s;
+      border: 1px solid rgba(124,108,240,0.3); cursor: pointer;
+    }
+    .cta-btn-ghost:hover { transform: translateY(-2px); background: rgba(124,108,240,0.18); }
+
+    /* ===== Footer ===== */
+    footer {
+      background: #060614; color: rgba(232,230,240,0.5); padding: 3rem 0; text-align: center;
+      font-size: 0.85rem;
+    }
+    footer a { color: rgba(232,230,240,0.6); text-decoration: none; }
+    footer a:hover { color: rgba(232,230,240,0.9); }
+
+    /* ===== Animations ===== */
+    .fade-in { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      nav { padding: 0.8rem 1.2rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 0; }
+      .container, .container-wide { padding: 0 1.2rem; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .integration-card { flex-direction: column; }
+      .code-block { padding: 1rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Nav ===== -->
+  <nav>
+    <a href="claude-style.html" class="nav-brand">
+      <img src="../assets/seahorse-logo.png" alt="Loci" />
+      Loci
+    </a>
+    <ul class="nav-links">
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#dashboard">Dashboard</a></li>
+      <li><a href="#integrations">Integrations</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="https://github.com/codesstar/loci" class="nav-cta">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== Progress Bar ===== -->
+  <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div style="position:relative;z-index:1;">
+      <div class="breadcrumb"><a href="claude-style.html">Loci</a> / Start Here</div>
+      <h1>Everything you need to know<br/>about <span>Loci</span>.</h1>
+      <p style="margin: 1.5rem auto 0; font-size: 1.1rem;">The agent-native memory system that gives your AI a real brain. Let's walk through how it works, what it does, and why it matters.</p>
+    </div>
+  </section>
+
+  <!-- ===== Step 1: The Core Idea ===== -->
+  <section class="step" id="idea">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">1</span>
+          <div>
+            <span class="section-label">The Core Idea</span>
+            <h2>Your AI doesn't have a brain. Loci gives it one.</h2>
+          </div>
+        </div>
+
+        <p style="font-size: 1.1rem; line-height: 1.85; margin-bottom: 1.5rem;">
+          Every AI conversation starts from zero. You re-explain yourself, your project, your preferences. Context fills up. You restart. Everything is gone.
+        </p>
+        <p style="font-size: 1.1rem; line-height: 1.85; margin-bottom: 2rem;">
+          Loci solves this by giving your AI a <strong style="color: var(--text);">persistent, structured memory</strong> &mdash; stored as plain Markdown files on your machine. Not a database. Not a cloud service. Just files you own.
+        </p>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
+            <span class="terminal-title">claude</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">you:</span> I'm a frontend dev building a fitness app. I like simple code.
+<span class="ai">claude:</span> <span class="dim">Got it &mdash; saved to your brain. I'll remember this across all sessions.</span>
+
+<span class="dim">... 3 weeks later, different project ...</span>
+
+<span class="prompt">you:</span> How should I structure this new project?
+<span class="ai">claude:</span> Based on what I know about you: you prefer flat folders,
+       you always regret too many abstractions early, and you like
+       working prototypes first. Here's what I'd suggest...
+          </div>
+        </div>
+
+        <p style="margin-top: 1.5rem;">It remembers <strong style="color:var(--text);">across sessions</strong>, <strong style="color:var(--text);">across projects</strong>, and <strong style="color:var(--text);">across context resets</strong>. The longer you use it, the better it knows you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 2: Architecture ===== -->
+  <section class="step" id="architecture">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">2</span>
+          <div>
+            <span class="section-label">Architecture</span>
+            <h2>Three-layer memory, inspired by the human brain.</h2>
+          </div>
+        </div>
+
+        <p style="margin-bottom: 2rem;">Like your brain has working memory, short-term memory, and long-term storage &mdash; Loci uses a three-layer system to keep the right information in the right place.</p>
+
+        <div class="arch-diagram"><span class="layer-label">Layer 1 &mdash; Always Loaded</span>  <span class="dim">(Working Memory)</span>
+  CLAUDE.md     System rules, behavior protocols
+  plan.md       Life direction, yearly goals
+  inbox.md      Quick capture, pending items
+  auto-memory   Persistent AI memory
+
+<span class="layer-teal">Layer 2 &mdash; On Demand</span>      <span class="dim">(Short-term Memory)</span>
+  tasks/        Active tasks, daily plans
+  me/           Identity, values, skills
+  people/       Contact profiles
+  decisions/    Recent choices + reasoning
+
+<span class="dim">Layer 3 &mdash; Deep Storage    (Long-term Memory)</span>
+  archive/      Completed tasks, old plans
+  evolution.md  How you've grown over time
+  Old journals, detailed records</div>
+
+        <div class="grid-2" style="margin-top: 2.5rem;">
+          <div class="card">
+            <div class="card-icon" style="background: rgba(78,205,196,0.1);">&#9889;</div>
+            <h3>Fast</h3>
+            <p>Layer 1 loads instantly. Your AI enters state in milliseconds, not minutes of re-reading.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">&#127919;</div>
+            <h3>Precise</h3>
+            <p>Layer 2 loads only what the current topic needs. No irrelevant context wasting tokens.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon" style="background: rgba(78,205,196,0.1);">&#128451;</div>
+            <h3>Complete</h3>
+            <p>Layer 3 ensures nothing is ever lost. Searchable archives grow forever without affecting speed.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">&#129504;</div>
+            <h3>Brain-Like</h3>
+            <p>Just like the hippocampus decides what memories to surface &mdash; Loci decides what your AI should remember right now.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 3: What It Does ===== -->
+  <section class="step" id="features">
+    <div class="container-wide">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">3</span>
+          <div>
+            <span class="section-label">Features</span>
+            <h2>Not a single file. A full brain architecture.</h2>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card fade-in">
+            <div class="card-icon">&#128218;</div>
+            <h3>Smart Saving</h3>
+            <p>Extracts decisions, tasks, and insights from conversation. Never saves raw chat &mdash; only distilled knowledge.</p>
+          </div>
+          <div class="card fade-in">
+            <div class="card-icon" style="background: rgba(78,205,196,0.1);">&#128279;</div>
+            <h3>Cross-Project Sync</h3>
+            <p>Your brain is the hub, projects are spokes. Mistakes in Project A become warnings in Project B.</p>
+          </div>
+          <div class="card fade-in">
+            <div class="card-icon">&#127775;</div>
+            <h3>Morning Briefing</h3>
+            <p>Start each day with: what happened yesterday, what's stale, what patterns you're repeating.</p>
+          </div>
+          <div class="card fade-in">
+            <div class="card-icon" style="background: rgba(78,205,196,0.1);">&#128260;</div>
+            <h3>Context Recovery</h3>
+            <p>Session dies? Context full? Save and restart. Your AI picks up exactly where you left off.</p>
+          </div>
+          <div class="card fade-in">
+            <div class="card-icon">&#128200;</div>
+            <h3>Growth Tracking</h3>
+            <p>Identity and goals evolve. Old versions are archived. Look back and see how you've changed.</p>
+          </div>
+          <div class="card fade-in">
+            <div class="card-icon" style="background: rgba(78,205,196,0.1);">&#128736;</div>
+            <h3>Git-Native</h3>
+            <p>Everything is Markdown in a git repo. <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">git diff</code> shows what your AI learned. Full version history.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 4: Dashboard ===== -->
+  <section class="step" id="dashboard" style="background: var(--bg-elevated);">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">4</span>
+          <div>
+            <span class="section-label">Dashboard</span>
+            <h2>A command center for your brain.</h2>
+          </div>
+        </div>
+
+        <p style="margin-bottom: 1rem;">Optional visual dashboard. Zero dependencies. Runs with <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">node server.js</code>.</p>
+        <p>Everything persists to your markdown files via a local API. The dashboard is a window into your brain, not a separate system.</p>
+
+        <div class="dashboard-preview">
+          <img src="../assets/dashboard-preview.png" alt="Loci Dashboard — sci-fi command center" />
+        </div>
+
+        <div class="grid-2" style="margin-top: 2rem;">
+          <div class="card">
+            <h3 style="color:var(--purple);">Today</h3>
+            <p>Task management with drag-drop. Focus / Queue / Complete. Calendar timeline.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--teal);">Plan</h3>
+            <p>Week and month planning with independent goal tracking. Someday list.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--purple);">Journal</h3>
+            <p>Daily AI summaries + personal notes. Rich text editor. Weekly/monthly views.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--teal);">Memory</h3>
+            <p>Your identity, values, and growth &mdash; rendered from your markdown files.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 5: CLI First ===== -->
+  <section class="step" id="cli">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">5</span>
+          <div>
+            <span class="section-label">AI-First CLI</span>
+            <h2>No GUI required. Your terminal is the interface.</h2>
+          </div>
+        </div>
+
+        <p style="margin-bottom: 2rem;">Loci is agent-native &mdash; designed for AI agents that read and write files. The dashboard is optional. Everything works through conversation.</p>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div>
+            <span class="terminal-title">claude &mdash; my-brain</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">you:</span> What was I working on last week?
+<span class="ai">claude:</span> Last week you focused on the payment integration.
+       You decided on Stripe over Paddle (cost reasons).
+       The webhook handler is done, checkout flow is 80%.
+       You noted the tax calculation edge case needs research.
+
+<span class="prompt">you:</span> Add "research tax API" to my tasks
+<span class="ai">claude:</span> <span class="dim">Added to Queue in active.md. Want me to prioritize it?</span>
+
+<span class="prompt">you:</span> Link this project to my brain
+<span class="ai">claude:</span> <span class="dim">Done. Created .loci/ directory. This project now syncs
+       decisions and milestones to your memory palace.</span>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 2.5rem;">
+          <div class="card">
+            <h3>Slash Commands</h3>
+            <p><code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/save</code> <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/plan</code> <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/review</code> <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/morning</code> &mdash; natural commands for daily workflow. No GUI needed.</p>
+          </div>
+          <div class="card">
+            <h3>30+ Modules</h3>
+            <p>Identity, tasks, decisions, journal, people, finance, content &mdash; each a folder with its own README and structure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 6: vs Others ===== -->
+  <section class="step" id="compare" style="background: var(--bg-elevated);">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">6</span>
+          <div>
+            <span class="section-label">Comparison</span>
+            <h2>How Loci compares.</h2>
+          </div>
+        </div>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>CLAUDE.md</th>
+              <th>ChatGPT Memory</th>
+              <th>Mem0</th>
+              <th>Loci</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Storage</td>
+              <td>1 file</td>
+              <td>Cloud flat list</td>
+              <td>Cloud DB</td>
+              <td class="winner">Local Markdown</td>
+            </tr>
+            <tr>
+              <td>Structure</td>
+              <td>Flat</td>
+              <td>Flat</td>
+              <td>Key-value</td>
+              <td class="winner">3-layer hierarchy</td>
+            </tr>
+            <tr>
+              <td>Cross-project</td>
+              <td>No</td>
+              <td>No</td>
+              <td>Partial</td>
+              <td class="winner">Full sync</td>
+            </tr>
+            <tr>
+              <td>Context-aware loading</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="winner">Yes &mdash; layered</td>
+            </tr>
+            <tr>
+              <td>Privacy</td>
+              <td class="highlight">Local</td>
+              <td>Cloud</td>
+              <td>Cloud</td>
+              <td class="winner">100% local</td>
+            </tr>
+            <tr>
+              <td>Agent-native</td>
+              <td>Partial</td>
+              <td>No</td>
+              <td>API only</td>
+              <td class="winner">Built for agents</td>
+            </tr>
+            <tr>
+              <td>Task & workflow</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="winner">Full system</td>
+            </tr>
+            <tr>
+              <td>Dashboard</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="winner">Yes &mdash; optional</td>
+            </tr>
+            <tr>
+              <td>Version control</td>
+              <td class="highlight">Git</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="winner">Git-native</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 7: Integrations ===== -->
+  <section class="step" id="integrations">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">7</span>
+          <div>
+            <span class="section-label">Integrations</span>
+            <h2>Works where you work.</h2>
+          </div>
+        </div>
+
+        <div class="integration-card fade-in">
+          <div class="integration-icon" style="background: rgba(124,108,240,0.1);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+          </div>
+          <div>
+            <h3>Claude Code <span class="integration-badge badge-ready">Full Support</span></h3>
+            <p>Built for Claude Code. Zero config. Clone, run <code style="color:var(--purple);">claude</code>, start talking.</p>
+          </div>
+        </div>
+
+        <div class="integration-card fade-in">
+          <div class="integration-icon" style="background: rgba(78,205,196,0.1);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <h3>Cursor / Windsurf / Cline <span class="integration-badge badge-ready">Supported</span></h3>
+            <p>Use the adapter to connect your Loci brain to any AI-powered editor. Same memory, different interface.</p>
+          </div>
+        </div>
+
+        <div class="integration-card fade-in">
+          <div class="integration-icon" style="background: rgba(124,108,240,0.1);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <h3>OpenClaw <span class="integration-badge badge-soon">Coming Soon</span></h3>
+            <p>Memory plugin that replaces OpenClaw's default memory system. One install command, and your lobster gets a real brain.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Step 8: Install ===== -->
+  <section class="step" id="install" style="background: var(--bg-elevated);">
+    <div class="container">
+      <div class="fade-in">
+        <div class="step-header">
+          <span class="section-count">8</span>
+          <div>
+            <span class="section-label">Get Started</span>
+            <h2>Three commands. Two minutes.</h2>
+          </div>
+        </div>
+
+        <p style="margin-bottom: 2rem;">Requires <a href="https://docs.anthropic.com/en/docs/claude-code/overview">Claude Code</a>. Your AI detects the new brain, asks a few questions, and sets everything up through conversation.</p>
+
+        <div class="code-block">
+<span class="comment"># Clone your new brain</span>
+<span class="cmd">git clone</span> <span class="str">https://github.com/codesstar/loci.git</span> my-brain
+<span class="cmd">cd</span> my-brain
+<span class="cmd">claude</span>
+        </div>
+
+        <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 1rem;">
+          Or run <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">bash install.sh</code> for guided setup with prerequisite checks. Works on macOS, Linux, and Windows (WSL).
+        </p>
+
+        <div style="margin-top: 2.5rem; padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;">
+          <h3>What happens next?</h3>
+          <p style="margin-top: 0.5rem; max-width: none;">
+            1. Claude reads your brain's CLAUDE.md and understands the system<br/>
+            2. It asks you a few questions about yourself (name, role, goals)<br/>
+            3. Your answers are saved to structured modules (me/identity.md, plan.md, etc.)<br/>
+            4. From now on, every conversation builds on what came before<br/>
+            5. Link your existing projects with one command: <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/loci-link</code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Final CTA ===== -->
+  <section class="final-cta">
+    <div class="container fade-in" style="position:relative;z-index:1;">
+      <img src="../assets/seahorse-logo.png" alt="Loci" style="width: 80px; margin-bottom: 2rem; animation: float 6s ease-in-out infinite;" />
+      <h2 style="margin-bottom: 1rem;">Your AI deserves a brain.</h2>
+      <p style="margin: 0 auto 2.5rem; max-width: 500px;">
+        Open source. Agent-native. AI-first. The memory system that grows with you.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="https://github.com/codesstar/loci" class="cta-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Get Started on GitHub
+        </a>
+        <a href="https://github.com/codesstar/loci/blob/main/docs/getting-started.md" class="cta-btn-ghost">
+          Read the Docs
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <a href="claude-style.html">Home</a> &middot;
+      <a href="https://github.com/codesstar/loci">GitHub</a> &middot;
+      <a href="https://github.com/codesstar/loci/blob/main/docs/getting-started.md">Docs</a> &middot;
+      <a href="https://github.com/codesstar/loci/blob/main/LICENSE">MIT License</a>
+      <p style="margin: 1rem auto 0; color: rgba(232,230,240,0.3); font-size: 0.82rem;">Loci &mdash; Memory Palace for AI</p>
+    </div>
+  </footer>
+
+  <script>
+    // Progress bar
+    const fill = document.getElementById('progressFill');
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      fill.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    });
+
+    // Fade-in
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+  </script>
+
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</body>
+</html>

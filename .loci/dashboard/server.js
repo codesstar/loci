@@ -290,11 +290,24 @@ function buildPlan() {
 }
 
 function buildInbox() {
-  const rootInbox = readMdFileSimple(path.join(LOCI_ROOT, 'inbox.md'));
+  const result = readMdFile(path.join(LOCI_ROOT, 'inbox.md'));
+  const items = [];
+  if (result && result.raw) {
+    const lines = result.raw.split('\n');
+    for (const line of lines) {
+      const m = line.match(/^[-*]\s+(.+)/);
+      if (m) {
+        const text = m[1].trim();
+        if (text && !text.startsWith('<!--')) {
+          items.push({ text, created: result.meta?.updated || '' });
+        }
+      }
+    }
+  }
   return {
-    content: rootInbox ? rootInbox.content : '',
-    meta: rootInbox ? rootInbox.meta : {},
-    items: [],
+    content: result ? result.content : '',
+    meta: result ? result.meta : {},
+    items,
   };
 }
 
@@ -901,6 +914,81 @@ function handleInboxAdd(body) {
   return { ok: true, text };
 }
 
+function handleInboxRemove(body) {
+  const { text } = body;
+  if (!text) return { error: 'Missing text' };
+
+  const filePath = path.join(LOCI_ROOT, 'inbox.md');
+  let content;
+  try {
+    content = fs.readFileSync(filePath, 'utf-8');
+  } catch (e) {
+    return { error: 'Cannot read inbox.md: ' + e.message };
+  }
+
+  const lines = content.split('\n');
+  let found = false;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^[-*]\s+(.+)/);
+    if (m && m[1].trim() === text.trim()) {
+      lines.splice(i, 1);
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) return { error: 'Item not found: ' + text };
+  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  return { ok: true, text };
+}
+
+function handleReferenceAdd(body) {
+  const { title, url, type, note } = body;
+  if (!title && !url) return { error: 'Missing title or url' };
+
+  const refsDir = path.join(LOCI_ROOT, 'references');
+  if (!fs.existsSync(refsDir)) {
+    fs.mkdirSync(refsDir, { recursive: true });
+  }
+
+  // Create a slug from title
+  const slug = (title || url || 'untitled').toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50);
+  const now = new Date();
+  const dateStr = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+  const fileName = `${dateStr}-${slug}.md`;
+  const filePath = path.join(refsDir, fileName);
+
+  let content = `---\ndate: ${dateStr}\ntitle: "${(title || '').replace(/"/g, '\\"')}"\n`;
+  if (url) content += `url: "${url}"\n`;
+  if (type) content += `type: ${type}\n`;
+  content += `tags: []\nstatus: active\n---\n\n`;
+  if (title) content += `# ${title}\n\n`;
+  if (url) content += `- **Link:** ${url}\n`;
+  if (note) content += `\n${note}\n`;
+
+  fs.writeFileSync(filePath, content, 'utf-8');
+  return { ok: true, file: fileName };
+}
+
+function handleReferenceRemove(body) {
+  const { file } = body;
+  if (!file) return { error: 'Missing file' };
+
+  const filePath = path.join(LOCI_ROOT, 'references', file);
+  if (!fs.existsSync(filePath)) return { error: 'File not found: ' + file };
+
+  // Move to archive instead of deleting
+  const archiveDir = path.join(LOCI_ROOT, 'archive', 'references');
+  if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
+  fs.renameSync(filePath, path.join(archiveDir, path.basename(file)));
+  return { ok: true, file };
+}
+
 function handleCalendarAdd(body) {
   const { date, title, startMin, endMin, location, note } = body;
   if (!date || !title) return { error: 'Missing date or title' };
@@ -1184,6 +1272,51 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleInboxAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/inbox/remove' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleInboxRemove(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/references/add' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleReferenceAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/references/remove' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleReferenceRemove(body);
       if (result.error) {
         sendError(res, result.error);
       } else {

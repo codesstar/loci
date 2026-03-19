@@ -17,6 +17,12 @@
       "startKey": 570,
       "endKey": 630,
       "hour": 9
+    },
+    {
+      "title": "吃饭",
+      "startKey": 45,
+      "endKey": 30,
+      "hour": 0
     }
   ]
 }
