@@ -373,6 +373,8 @@ function buildPlanning() {
   const tasksDir = path.join(LOCI_ROOT, 'tasks');
   const journalFiles = scanMdFiles(path.join(tasksDir, 'journal'))
     .filter(f => !f.filename.includes('buffer'));
+  const weekSummaries = scanMdFiles(path.join(tasksDir, 'journal', 'week'));
+  const monthSummaries = scanMdFiles(path.join(tasksDir, 'journal', 'month'));
 
   let calendarEvents = {};
   const calPath = path.join(tasksDir, 'calendar.json');
@@ -390,6 +392,8 @@ function buildPlanning() {
     quarterly: [],
     reviews: [],
     journal: journalFiles,
+    journal_weeks: weekSummaries,
+    journal_months: monthSummaries,
     calendar_events: calendarEvents,
   };
 }
