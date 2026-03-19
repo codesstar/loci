@@ -36,7 +36,7 @@ if [ -z "$EXISTING_BRAIN" ] && [ ! -f "CLAUDE.md" ]; then
     exit 1
   fi
 
-  BRAIN_DIR="${1:-my-brain}"
+  BRAIN_DIR="${1:-$HOME/loci}"
   echo -e "Creating brain in ${BOLD}${BRAIN_DIR}/${NC} ..."
   git clone --depth 1 https://github.com/codesstar/loci.git "$BRAIN_DIR"
   cd "$BRAIN_DIR"
