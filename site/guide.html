@@ -838,7 +838,7 @@ a:hover { color: rgba(26,188,156,1); }
   <!-- One-line install -->
   <div class="hero-install reveal" style="margin-top:12px;">
     <div class="hero-install-cmd">
-      <span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci ~/loci <span class="cmd-dim">&amp;&amp;</span> cd ~/loci <span class="cmd-dim">&amp;&amp;</span> claude
+      <span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash
     </div>
     <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
   </div>
@@ -1032,7 +1032,7 @@ a:hover { color: rgba(26,188,156,1); }
   <!-- Repeat install for people who scrolled all the way -->
   <div class="hero-install reveal" style="margin-bottom:28px;">
     <div class="hero-install-cmd">
-      <span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci ~/loci <span class="cmd-dim">&amp;&amp;</span> cd ~/loci <span class="cmd-dim">&amp;&amp;</span> claude
+      <span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash
     </div>
     <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
   </div>
@@ -1042,7 +1042,7 @@ a:hover { color: rgba(26,188,156,1); }
     </div>
   </div>
   <div class="reveal t-sm c-dim" style="margin-top:8px;">
-    Works with Claude Code · Cursor · Windsurf · Cline
+    Works with Claude Code · Codex CLI · OpenClaw · Cursor
   </div>
   <div class="reveal t-sm" style="margin-top:16px;">
     <a href="https://github.com/codesstar/loci#learn-more" style="color:rgba(26,188,156,0.7);text-decoration:none;border-bottom:1px solid rgba(26,188,156,0.25);padding-bottom:1px;transition:color 0.3s,border-color 0.3s;" onmouseover="this.style.color='rgba(26,188,156,1)';this.style.borderColor='rgba(26,188,156,0.6)'" onmouseout="this.style.color='rgba(26,188,156,0.7)';this.style.borderColor='rgba(26,188,156,0.25)'">Read the Docs →</a>
@@ -1162,7 +1162,7 @@ quoteTicker.innerHTML = tickerCards + tickerCards; // duplicate for seamless scr
 
 // ── Copy install command ──
 function copyCmd() {
-  const cmd = 'git clone https://github.com/codesstar/loci ~/loci && cd ~/loci && claude';
+  const cmd = 'curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash';
   navigator.clipboard.writeText(cmd).then(() => {
     document.querySelectorAll('.hero-install-copy').forEach(btn => {
       btn.textContent = 'COPIED';

@@ -83,18 +83,31 @@ Loci actually *uses* CLAUDE.md — it's one of the 30+ files in the system. The 
 
 ## Quick Start
 
-Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
+### Claude Code / Codex CLI (recommended)
+
+One command. Works globally — your AI remembers you in every project, every directory.
 
 ```bash
-git clone https://github.com/codesstar/loci.git my-brain
-cd my-brain
-claude
+curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
 ```
 
-That's it. Claude detects the new brain, asks you a few questions, and sets everything up through conversation. Takes about 2 minutes.
+The installer clones Loci to `~/loci/`, connects it to your AI tools (Claude Code, Codex CLI — auto-detected), and launches onboarding. Takes about 2 minutes.
 
-> **Alternative**: Run `bash install.sh` instead of `claude` — it checks prerequisites, disconnects from the template repo, and installs slash commands before launching Claude.
->
+### OpenClaw
+
+```bash
+clawhub install loci
+```
+
+### Manual Setup (Cursor, Windsurf, or any AI tool)
+
+```bash
+git clone https://github.com/codesstar/loci.git ~/loci
+cd ~/loci && ./setup.sh
+```
+
+> **Note**: Without Claude Code or Codex CLI, Loci only works inside the brain directory. Global cross-project memory requires a tool that supports global instruction files.
+
 > **Windows?** Use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) or Git Bash.
 >
 > **Want to see what a brain looks like?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of history.
@@ -232,13 +245,14 @@ Everything persists to your markdown files via a local API. The dashboard is a w
 
 ## Integrations
 
-Loci is **CLI-first** — it works anywhere Claude Code runs, no GUI needed. The dashboard is optional.
+Loci is **CLI-first** — it works anywhere your AI runs. The dashboard is optional.
 
-| Platform | Status |
-|----------|--------|
-| **Claude Code** | Full support (built for this) |
-| **Cursor / Windsurf / Cline** | Supported via [adapter](docs/other-editors.md) |
-| **OpenClaw** | Coming soon — memory plugin that replaces OpenClaw's default memory |
+| Platform | Install | Global Memory |
+|----------|---------|---------------|
+| **Claude Code** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.claude/CLAUDE.md` |
+| **Codex CLI** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.codex/AGENTS.md` |
+| **OpenClaw** | `clawhub install loci` | Yes — via skill system |
+| **Cursor / Windsurf** | `git clone` + `./setup.sh` | No — brain directory only |
 
 > **OpenClaw users**: Loci fixes OpenClaw's memory problem. One install command, and your lobster gets a real brain. [Learn more](docs/roadmap.md)
 

@@ -79,20 +79,33 @@ CLAUDE.md 是一张便利贴。Loci 是第二大脑。
 
 ---
 
-## 三步装好
+## 安装
 
-需要先装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)。
+### Claude Code / Codex CLI（推荐）
+
+一行命令。全局生效——你的 AI 在每个项目、每个目录里都记得你。
 
 ```bash
-git clone https://github.com/codesstar/loci.git my-brain
-cd my-brain
-claude
+curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
 ```
 
-没了。Claude 会检测到这是一个新大脑，问你几个问题，通过对话完成所有设置。2 分钟搞定。
+安装脚本会把 Loci 放到 `~/loci/`，自动连接 Claude Code 和 Codex CLI（自动检测），然后启动引导。2 分钟搞定。
 
-> **另一种方式**：用 `bash install.sh` 代替 `claude`——它会检查环境、断开模板仓库的 remote、装好 slash 命令，再启动 Claude。
->
+### OpenClaw（龙虾）
+
+```bash
+clawhub install loci
+```
+
+### 手动安装（Cursor、Windsurf 等）
+
+```bash
+git clone https://github.com/codesstar/loci.git ~/loci
+cd ~/loci && ./setup.sh
+```
+
+> **注意**：没有 Claude Code 或 Codex CLI 的话，Loci 只能在大脑目录内使用，不支持跨项目全局记忆。
+
 > **Windows？** 用 [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) 或 Git Bash。
 >
 > **想先看看效果？** [`examples/alex/`](examples/alex/) 是一个用了 3 个月的完整大脑示例。
