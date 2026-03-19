@@ -1,7 +1,7 @@
 ---
 name: loci
 description: Memory Palace for AI — persistent structured memory, identity, and task management across every conversation.
-version: 0.1.0
+version: 0.1.1
 metadata:
   openclaw:
     emoji: "\U0001F40E"
@@ -15,7 +15,7 @@ metadata:
 Run this check **before doing anything else**:
 
 1. Check if `~/.loci/brain-path` exists → read the path inside → verify `plan.md` exists there
-2. If not, check if `~/.openclaw/workspace/brain/plan.md` exists
+2. If not, check if `~/loci/plan.md` exists
 3. If neither exists → **run Bootstrap below**
 4. If found → read `plan.md`. If `status: template` → run **First-Time Setup**. If `status: active` → brain is ready, skip to **Daily Use**
 
@@ -25,14 +25,14 @@ The user doesn't need to do anything. You handle it:
 
 ```bash
 # Clone Loci brain template
-git clone --depth 1 https://github.com/codesstar/loci.git ~/.openclaw/workspace/brain
+git clone --depth 1 https://github.com/codesstar/loci.git ~/loci
 
 # Remove git remote (user's data stays private)
-cd ~/.openclaw/workspace/brain && git remote remove origin
+cd ~/loci && git remote remove origin
 
 # Register brain location
 mkdir -p ~/.loci
-echo "$HOME/.openclaw/workspace/brain" > ~/.loci/brain-path
+echo "$HOME/loci" > ~/.loci/brain-path
 ```
 
 After cloning, run **First-Time Setup** below. Tell the user:
@@ -57,7 +57,7 @@ When `plan.md` has `status: template`:
 
 ## Daily Use
 
-**Brain path**: read from `~/.loci/brain-path`, or default `~/.openclaw/workspace/brain/`
+**Brain path**: read from `~/.loci/brain-path`, or default `~/loci/`
 
 At conversation start, read L1 files before responding:
 - `plan.md` — life direction
