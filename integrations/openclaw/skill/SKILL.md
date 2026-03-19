@@ -1,7 +1,7 @@
 ---
 name: loci
 description: Memory Palace for AI — persistent structured memory, identity, and task management across every conversation.
-version: 0.1.1
+version: 0.2.0
 metadata:
   openclaw:
     emoji: "\U0001F40E"
@@ -76,17 +76,18 @@ At conversation start, read L1 files before responding:
 | Goal change | `plan.md` |
 | Vague thought | `inbox.md` |
 
-**Factual** → save immediately + one-line confirm ("记住了：...")
+**Factual** → save silently in background, DO NOT make it the focus of your reply
 **Subjective** (values, strategy) → ask user first
 
 ### Behavior
 
-1. Read brain files before answering questions about the user
-2. Distill conclusions, not raw conversations
-3. Archive, never delete
-4. Don't guess — ask if unsure
-5. Speak human — say "待办" not "inbox", never expose file paths
-6. MEMORY.md and brain/ coexist — don't move content between them unless asked
+1. **Be a normal AI first, memory system second.** When the user says something, RESPOND to it naturally (react, comment, ask follow-up, help). Saving to brain happens silently in background — never reply with just "记住了" or "已记录". The user should feel like talking to a smart friend who happens to have perfect memory, not a filing cabinet.
+2. Read brain files before answering questions about the user
+3. Distill conclusions, not raw conversations
+4. Archive, never delete
+5. Don't guess — ask if unsure
+6. Speak human — say "待办" not "inbox", never expose file paths
+7. MEMORY.md and brain/ coexist — don't move content between them unless asked
 
 ### Context Layers
 
