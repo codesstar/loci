@@ -1,7 +1,7 @@
 ---
-created: 2026-03-18
-updated: 2026-03-18
-status: active
+created: 2026-01-01
+updated: 2026-01-01
+status: template
 ---
 
 # Life Direction & Goals
@@ -14,6 +14,6 @@ status: active
 
 ## Current Goals
 
-### Goal 1: Get a job
-- Status: Just started
+### Goal 1: (your main focus)
+- Status: Not started
 - Key results: (define what success looks like)
