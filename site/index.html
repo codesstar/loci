@@ -13,12 +13,12 @@
 
   body {
     background: #0a0a1a;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow-x: hidden;
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     color: #c0c0c0;
   }
@@ -375,9 +375,10 @@
       padding: 20px;
     }
     .right-section { min-width: unset; align-items: center; text-align: center; }
-    .seahorse-wrap { font-size: 9px; }
-    .loci-title { font-size: 12px; }
-    .subtitle { font-size: 13px; letter-spacing: 3px; }
+    .seahorse-wrap { font-size: 5px; line-height: 1.1; }
+    .loci-title { font-size: 10px; }
+    .subtitle { font-size: 11px; letter-spacing: 3px; }
+    .reveal-line { font-size: 14px; }
     .feature-tags { flex-wrap: wrap; justify-content: center; gap: 12px; }
     .feature-tag { font-size: 8px; padding: 4px 10px; }
     .glow-1 { width: 300px; height: 300px; }
@@ -625,6 +626,7 @@ document.addEventListener('mousemove', (e) => {
 const revealLines = document.querySelectorAll('.reveal-line');
 let currentLine = 0;
 const BREATHE_DURATION = 1800;
+const FIRST_PASS_DURATION = 600;
 let firstPassDone = false;
 let prevLine = -1;
 
@@ -651,12 +653,12 @@ function cycleRevealLines() {
       document.getElementById('btnWrap').classList.add('pop');
       document.getElementById('btnStartWrap').classList.add('pop');
       document.getElementById('footer').classList.add('visible');
-    }, 600);
+    }, 400);
   }
 
   prevLine = currentLine;
   currentLine = (currentLine + 1) % revealLines.length;
-  setTimeout(cycleRevealLines, BREATHE_DURATION);
+  setTimeout(cycleRevealLines, firstPassDone ? BREATHE_DURATION : FIRST_PASS_DURATION);
 }
 
 setTimeout(cycleRevealLines, 600);

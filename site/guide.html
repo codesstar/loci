@@ -655,12 +655,15 @@ a:hover { color: rgba(26,188,156,1); }
 
 /* ── Hero ASCII seahorse (mini) ── */
 .hero-seahorse {
-  font-size: 5px; line-height: 1.25;
+  font-size: 8px; line-height: 1.2;
   white-space: pre; text-align: center;
-  color: rgba(200,160,240,0.92);
-  text-shadow: 0 0 18px rgba(155,89,182,0.6), 0 0 44px rgba(155,89,182,0.25);
   margin-bottom: 16px;
   cursor: default;
+  animation: seahorseBreathe 2.8s ease-in-out infinite;
+}
+@keyframes seahorseBreathe {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(155,89,182,0.4)); }
+  50% { filter: drop-shadow(0 0 20px rgba(155,89,182,0.6)) drop-shadow(0 0 40px rgba(26,188,156,0.2)); }
 }
 .hero-seahorse .sh-char {
   display: inline;
@@ -668,20 +671,20 @@ a:hover { color: rgba(26,188,156,1); }
 }
 .hero-seahorse .sh-spark {
   color: #fff !important;
-  text-shadow: 0 0 6px #fff, 0 0 14px #1abc9c, 0 0 28px #9b59b6;
+  text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c, 0 0 40px #9b59b6;
   transition: none;
 }
 .hero-seahorse .sh-scatter {
   color: #fff !important;
-  text-shadow: 0 0 8px rgba(155,89,182,0.8), 0 0 18px rgba(26,188,156,0.5);
+  text-shadow: 0 0 12px rgba(155,89,182,0.9), 0 0 24px rgba(26,188,156,0.5);
   transition: none;
 }
 .hero-seahorse .sh-eye {
   animation: miniEyeGlow 3s ease-in-out infinite;
 }
 @keyframes miniEyeGlow {
-  0%, 100% { color: #1abc9c; text-shadow: 0 0 6px #1abc9c, 0 0 16px rgba(26,188,156,0.4); }
-  50% { color: #fff; text-shadow: 0 0 8px #fff, 0 0 20px #1abc9c; }
+  0%, 100% { color: #1abc9c; text-shadow: 0 0 6px #1abc9c, 0 0 16px rgba(26,188,156,0.5); }
+  50% { color: #fff; text-shadow: 0 0 10px #fff, 0 0 24px #1abc9c; }
 }
 
 /* ── Quote ticker (horizontal scroll) ── */
@@ -1146,10 +1149,10 @@ const SEAHORSE_ART = `                    ,
       const cr = c.getBoundingClientRect();
       const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
       const dist = Math.hypot(mx - cx, my - cy);
-      if (dist < 30) {
+      if (dist < 50) {
         c.classList.add('sh-scatter');
         clearTimeout(c._st);
-        c._st = setTimeout(() => c.classList.remove('sh-scatter'), 200);
+        c._st = setTimeout(() => c.classList.remove('sh-scatter'), 250);
       }
     });
   });
