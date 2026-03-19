@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <strong>不是一个配置文件，是一整套记忆系统。为 Claude Code 而生。</strong>
+  <strong>首个面向 Agent 的记忆系统。AI-First CLI，全本地化。</strong>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://github.com/codesstar/loci/stargazers"><img src="https://img.shields.io/github/stars/codesstar/loci?style=social" alt="GitHub Stars" /></a>
-  <img src="https://img.shields.io/badge/built_for-Claude_Code-blueviolet" alt="Built for Claude Code" />
+  <img src="https://img.shields.io/badge/agent--native-AI--first_CLI-blueviolet" alt="Agent-Native" />
   <img src="https://img.shields.io/badge/storage-100%25_local_Markdown-green" alt="Local Markdown" />
 </p>
 

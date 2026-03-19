@@ -9,9 +9,11 @@ updated: 2026-03-18
 ## P0
 
 
-- [x] Ship a product
+- [x] affs
+- [ ] Ship a product
 ## P1
 
+- [ ] 吃饭
 ## P2
 
 ## P3
