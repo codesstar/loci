@@ -207,4 +207,10 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 6. **Dashboard** — Always use `node .loci/dashboard/server.js` (port 8765) to run the dashboard. **Do NOT use `server.py`** — it is legacy and missing critical API endpoints (task toggle, task add, etc.). The server reads markdown files live on each request. If the server is NOT running (static mode), update `.loci/dashboard/data.json` directly. `build.py` is available for full rebuilds
 7. **Time = both places** — See rule in "Time & State Awareness" section above. Time-based tasks go to BOTH daily plan AND calendar.json. Never skip either
 8. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure
-9. **Task placement by specificity** — Specific date tasks (e.g. "明天吃饭", "周三开会") → `tasks/daily/YYYY-MM-DD.md`. Vague week-level plans (e.g. "这周要做X", "下周目标") → Dashboard Week Plan card only (not daily plan). Vague month-level plans (e.g. "这个月要完成Y") → Dashboard Month Plan card only. Only use Week/Month plan for items the user explicitly frames as week/month goals, NOT for specific day tasks
+9. **⚠️ Task placement by specificity** — NEVER put vague-timeframe tasks into `tasks/active.md` (that's the TODAY mission log). Route by specificity:
+   - **Specific date** (e.g. "明天吃饭", "周三开会") → `tasks/daily/YYYY-MM-DD.md` (+ calendar.json if has time)
+   - **This week / next week** (e.g. "这周要见X", "下周目标") → `tasks/plans/week/{key}.json` — key = Monday's date `YYYY-MM-DD` (e.g. `2026-03-16` for W12). File is a JSON array: `[{"text":"...","done":false}, ...]`
+   - **This month / next month** (e.g. "这个月要完成Y") → `tasks/plans/month/{key}.json` — key format: `YYYY-MM`. Same JSON array format.
+   - **Today / no timeframe + urgent** → `tasks/active.md` (shows in Today's Mission Log)
+   - **Someday / vague** → `tasks/plans/month/{key}.json` with a someday note, or `tasks/someday.md`
+   Create the `tasks/plans/week/` or `tasks/plans/month/` directory if it doesn't exist.
