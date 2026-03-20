@@ -22,8 +22,10 @@ managed:
   # Integration files
   - integrations/**
 
-  # Install & setup
+  # Install, setup & update
   - install.sh
+  - setup.sh
+  - update.sh
   - .githooks/**
   - .github/**
 
