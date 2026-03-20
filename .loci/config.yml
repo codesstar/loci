@@ -10,7 +10,10 @@ persistence:
   notify: true            # show save notifications
 
 wellbeing:
-  enabled: false
+  enabled: true
   wind_down_time: "22:30"
   wake_up_time: "07:00"
   max_reminders: 2
+
+# Runtime state (managed by AI, not user)
+last_greeted: ""
