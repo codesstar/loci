@@ -84,17 +84,35 @@ if ! grep -q '<!-- loci:start' "$GLOBAL_CLAUDE" 2>/dev/null; then
 
   cat >> "$GLOBAL_CLAUDE" << LOCIBLOCK
 
-<!-- loci:start v1 -->
-## Loci Brain Connection
-- Brain: ${BRAIN_PATH}
-- In projects with \`.loci/\` directory:
-  1. Read \`.loci/memory.md\` at session start for project context
-  2. Append project knowledge during conversation: \`[tag] YYYY-MM-DD content\`
-  3. Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` stay local
-  4. At session end, check for push-tagged new entries → write to \`.loci/to-hq.md\`
-  5. Read \`.loci/from-hq.md\` for brain directives
-  6. Compress memory.md when >200 lines (summarize entries >30 days old)
-- Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+<!-- loci:start v2 -->
+## Loci Brain Connection (Global)
+
+- Brain path: ${BRAIN_PATH}
+- These rules apply **in every project and directory**, not just the brain folder.
+
+### Automatic Context
+- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
+- Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
+- Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
+
+### Persistence (any directory)
+When the user mentions tasks, decisions, or insights — save them to the brain:
+- Tasks → \`${BRAIN_PATH}/tasks/active.md\`
+- Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
+- Personal info → \`${BRAIN_PATH}/me/\`
+- Quick thoughts / fleeting ideas → \`${BRAIN_PATH}/inbox.md\`
+- Links / articles / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
+- Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+
+### Cross-Project Memory
+- In projects with \`.loci/\` directory: read \`.loci/memory.md\` at conversation start
+- memory.md has 4 sections: Story (project narrative), Current State (recent info), Established (durable knowledge), Patterns (recurring themes)
+- Save project knowledge → \`.loci/memory.md\`. Cross-project decisions/milestones/insights → \`.loci/to-hq.md\`
+- Brain stores bubbled decisions in \`decisions/\` with \`source: <project-name>\` tag
+- Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` \`[private]\` stay local
+
+### Commands
+/loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 LOCIBLOCK
 
