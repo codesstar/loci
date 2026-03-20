@@ -97,4 +97,14 @@ At conversation start, read L1 files before responding:
 | L2 | On demand | me/ files, decisions, people |
 | L3 | Never auto | Old journals, archive, evolution.md |
 
+### Sub-Project Memory (via `loci link`)
+
+When working in a project with a `.loci/` directory, read `.loci/memory.md` at conversation start. This file has 4 sections:
+- **Story** — 2-3 sentence project narrative
+- **Current State** — active info (< 7 days, auto-decays)
+- **Established** — durable knowledge (architecture, conventions, key decisions)
+- **Patterns** — recurring themes (AI auto-generated)
+
+Save project knowledge to `.loci/memory.md`. Push cross-project decisions/milestones/insights to `.loci/to-hq.md`.
+
 For detailed behavior rules, read `docs/behavior.md` in the brain directory.

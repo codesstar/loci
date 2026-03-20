@@ -1,0 +1,44 @@
+# Engine Files Manifest
+# These files are managed by Loci and will be updated on upgrade.
+# All other files in ~/loci/ are user data — never touched by upgrades.
+
+version: "0.2.1"
+loci-schema: 1
+
+managed:
+  # Core AI instructions
+  - CLAUDE.md
+  - docs/behavior.md
+  - docs/how-it-works.md
+
+  # Templates for new files
+  - templates/**
+
+  # System internals
+  - .loci/hooks/**
+  - .loci/dashboard/**
+  - .loci/engine-files.yml
+
+  # Integration files
+  - integrations/**
+
+  # Install & setup
+  - install.sh
+  - .githooks/**
+  - .github/**
+
+  # Module READMEs (structure guides, not user data)
+  - me/README.md
+  - tasks/README.md
+  - decisions/README.md
+  - references/README.md
+  - archive/README.md
+
+# User data (NEVER touched by upgrades):
+# - plan.md, inbox.md
+# - me/identity.md, me/learned.md, me/values.md, me/evolution.md, me/projects.md
+# - tasks/active.md, tasks/daily/*, tasks/calendar.json
+# - decisions/*.md (except README.md)
+# - references/entries/*, references/inbox.md
+# - All journal files
+# - .loci/config.yml, .loci/status.yml, .loci/activity-log.md
