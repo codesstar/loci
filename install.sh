@@ -1,6 +1,6 @@
 #!/bin/bash
 # Loci — Memory Palace for AI
-# Installer: clone (if needed) → check prerequisites → launch Claude for onboarding
+# Installer: clone (if needed) → run setup.sh for onboarding
 
 set -e
 
@@ -10,12 +10,6 @@ DIM='\033[2m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
-
-echo ""
-echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}║   Loci — Memory Palace for AI            ║${NC}"
-echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}"
-echo ""
 
 # ─── Check if brain already exists ────────────────────────────────────────────
 EXISTING_BRAIN=""
@@ -37,189 +31,14 @@ if [ -z "$EXISTING_BRAIN" ] && [ ! -f "CLAUDE.md" ]; then
   fi
 
   BRAIN_DIR="${1:-$HOME/loci}"
-  echo -e "Creating brain in ${BOLD}${BRAIN_DIR}/${NC} ..."
+  echo -e "Cloning Loci to ${BOLD}${BRAIN_DIR}/${NC} ..."
   git clone --depth 1 https://github.com/codesstar/loci.git "$BRAIN_DIR"
   cd "$BRAIN_DIR"
   echo -e "${GREEN}✓${NC} Cloned"
 fi
 
-# ─── Check prerequisites ─────────────────────────────────────────────────────
-if ! command -v claude &> /dev/null; then
-  echo -e "${RED}Claude Code is not installed.${NC}"
-  echo ""
-  echo "  Loci requires Claude Code to work. Install it first:"
-  echo "  https://docs.anthropic.com/en/docs/claude-code/overview"
-  echo ""
-  echo "  After installing, run this script again."
-  exit 1
-fi
-
-if ! command -v python3 &> /dev/null; then
-  echo -e "${DIM}Note: python3 not found. Dashboard will not be available until you install Python 3.${NC}"
-fi
-
-# ─── Disconnect from template remote ─────────────────────────────────────────
-if git remote get-url origin &> /dev/null 2>&1; then
-  REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
-  if [[ "$REMOTE_URL" == *"codesstar/loci"* ]]; then
-    git remote remove origin
-    echo -e "${GREEN}✓${NC} Disconnected from template repo (your data stays private)"
-  fi
-fi
-
-# ─── Enable global awareness ──────────────────────────────────────────────────
-BRAIN_PATH="$(pwd)"
-GLOBAL_CLAUDE="$HOME/.claude/CLAUDE.md"
-GLOBAL_COMMANDS="$HOME/.claude/commands"
-
-# Create ~/.claude/ if needed
-mkdir -p "$HOME/.claude"
-
-# Inject global awareness block (idempotent)
-if ! grep -q '<!-- loci:start' "$GLOBAL_CLAUDE" 2>/dev/null; then
-  # Backup existing file
-  if [ -f "$GLOBAL_CLAUDE" ]; then
-    cp "$GLOBAL_CLAUDE" "$GLOBAL_CLAUDE.loci-backup"
-  fi
-
-  cat >> "$GLOBAL_CLAUDE" << LOCIBLOCK
-
-<!-- loci:start v2 -->
-## Loci Brain Connection (Global)
-
-- Brain path: ${BRAIN_PATH}
-- These rules apply **in every project and directory**, not just the brain folder.
-
-### Automatic Context
-- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
-- Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
-- Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
-
-### Persistence (any directory)
-When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_PATH}/tasks/active.md\`
-- Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
-- Personal info → \`${BRAIN_PATH}/me/\`
-- Quick thoughts / fleeting ideas → \`${BRAIN_PATH}/inbox.md\`
-- Links / articles / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
-- Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
-
-### Cross-Project Memory
-- In projects with \`.loci/\` directory: read \`.loci/memory.md\` at conversation start
-- memory.md has 4 sections: Story (project narrative), Current State (recent info), Established (durable knowledge), Patterns (recurring themes)
-- Save project knowledge → \`.loci/memory.md\`. Cross-project decisions/milestones/insights → \`.loci/to-hq.md\`
-- Brain stores bubbled decisions in \`decisions/\` with \`source: <project-name>\` tag
-- Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` \`[private]\` stay local
-
-### Commands
-/loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
-<!-- loci:end -->
-LOCIBLOCK
-
-  echo -e "${GREEN}✓${NC} Global awareness enabled (~/.claude/CLAUDE.md)"
-fi
-
-# ─── Register brain path globally ────────────────────────────────────────────
-mkdir -p "$HOME/.loci"
-echo "$BRAIN_PATH" > "$HOME/.loci/brain-path"
-echo -e "${GREEN}✓${NC} Brain registered (~/.loci/brain-path)"
-
-# Copy slash commands (backup existing ones first)
-if [ -d "templates/commands" ]; then
-  mkdir -p "$GLOBAL_COMMANDS"
-  for cmd_file in templates/commands/*.md; do
-    cmd_name="$(basename "$cmd_file")"
-    if [ -f "$GLOBAL_COMMANDS/$cmd_name" ]; then
-      cp "$GLOBAL_COMMANDS/$cmd_name" "$GLOBAL_COMMANDS/${cmd_name}.loci-backup"
-    fi
-  done
-  cp templates/commands/*.md "$GLOBAL_COMMANDS/" 2>/dev/null
-  echo -e "${GREEN}✓${NC} Slash commands installed (~/.claude/commands/)"
-fi
-
-# ─── Ensure hooks are executable ──────────────────────────────────────────────
-if [ -d ".loci/hooks" ]; then
-  chmod +x .loci/hooks/*.sh 2>/dev/null
-  echo -e "${GREEN}✓${NC} Hooks set to executable"
-fi
-
-# ─── Configure Claude Code hooks ─────────────────────────────────────────────
-CLAUDE_SETTINGS=".claude/settings.json"
-mkdir -p ".claude/hooks"
-
-# Make daily-context hook executable
-chmod +x .claude/hooks/daily-context.sh 2>/dev/null
-
-if [ -f "$CLAUDE_SETTINGS" ]; then
-  # Check if hooks already configured
-  if ! grep -q "daily-context.sh" "$CLAUDE_SETTINGS" 2>/dev/null; then
-    # Merge hooks into existing settings using python3
-    if command -v python3 &> /dev/null; then
-      python3 -c "
-import json
-try:
-    with open('$CLAUDE_SETTINGS') as f:
-        settings = json.load(f)
-except:
-    settings = {}
-hooks = settings.setdefault('hooks', {})
-hooks['SessionStart'] = [{'matcher': 'startup|resume|compact', 'hooks': [{'type': 'command', 'command': '\"\\$CLAUDE_PROJECT_DIR\"/.claude/hooks/daily-context.sh'}]}]
-hooks.setdefault('PostToolUse', [{'matcher': 'Write|Edit', 'hooks': [{'type': 'command', 'command': '\"\\$CLAUDE_PROJECT_DIR\"/.loci/hooks/on-file-change.sh'}]}])
-with open('$CLAUDE_SETTINGS', 'w') as f:
-    json.dump(settings, f, indent=2)
-"
-      echo -e "${GREEN}✓${NC} Claude Code hooks configured (.claude/settings.json)"
-    else
-      echo -e "${DIM}Note: python3 not found, skipping hook configuration. Add hooks manually.${NC}"
-    fi
-  else
-    echo -e "${DIM}Hooks already configured${NC}"
-  fi
-else
-  echo -e "${DIM}Using pre-configured .claude/settings.json from repository${NC}"
-fi
-
-# ─── Detect Codex CLI and inject AGENTS.md ─────────────────────────────────
-CODEX_AGENTS="$HOME/.codex/AGENTS.md"
-if [ -d "$HOME/.codex" ] || command -v codex &> /dev/null; then
-  mkdir -p "$HOME/.codex"
-  if ! grep -q '<!-- loci:start' "$CODEX_AGENTS" 2>/dev/null; then
-    if [ -f "$CODEX_AGENTS" ]; then
-      cp "$CODEX_AGENTS" "${CODEX_AGENTS}.loci-backup"
-    fi
-    cat >> "$CODEX_AGENTS" << CODEXBLOCK
-
-<!-- loci:start v2 -->
-## Loci Brain Connection (Global)
-- Brain: ${BRAIN_PATH}
-- Tasks → ${BRAIN_PATH}/tasks/active.md
-- Decisions → ${BRAIN_PATH}/decisions/
-- Quick thoughts → ${BRAIN_PATH}/inbox.md
-- Links/materials → ${BRAIN_PATH}/references/
-- Personal info → ${BRAIN_PATH}/me/
-- Factual: auto-save + confirm. Subjective: ask first.
-<!-- loci:end -->
-CODEXBLOCK
-    echo -e "${GREEN}✓${NC} Codex awareness enabled (~/.codex/AGENTS.md)"
-  fi
-fi
-
-# ─── Detect OpenClaw and install skill ────────────────────────────────────────
-OPENCLAW_DIR="$HOME/.openclaw"
-if [ -d "$OPENCLAW_DIR" ]; then
-  SKILL_SRC="integrations/openclaw/skill"
-  if [ -d "$SKILL_SRC" ]; then
-    SKILL_DEST="$OPENCLAW_DIR/workspace/skills/loci"
-    mkdir -p "$SKILL_DEST"
-    cp "$SKILL_SRC/SKILL.md" "$SKILL_DEST/"
-    echo -e "${GREEN}✓${NC} OpenClaw skill installed (~/.openclaw/workspace/skills/loci/)"
-  fi
-fi
-
-# ─── Launch Claude for onboarding ─────────────────────────────────────────────
-echo ""
-echo -e "${DIM}Launching Claude Code for setup...${NC}"
-echo -e "${DIM}Claude will ask you a few questions to personalize your brain.${NC}"
-echo ""
-
-claude --append-system-prompt "IMPORTANT: This is a brand new Loci brain. Read plan.md immediately — its status is 'template'. You MUST run the First-Time Setup onboarding flow from CLAUDE.md right now, before doing anything else. Start by welcoming the user and asking the onboarding questions using AskUserQuestion. NOTE: Git remote disconnect, global awareness, and slash commands have already been set up by install.sh — skip Steps 3 and 4 in the onboarding flow."
+# ─── Hand off to setup.sh ────────────────────────────────────────────────────
+# setup.sh handles everything: onboarding questions, file generation,
+# global config, git safety. When it's done, the user opens their AI tool
+# and it already knows them.
+exec bash ./setup.sh
