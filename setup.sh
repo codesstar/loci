@@ -961,10 +961,11 @@ show_success() {
   printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} ~/.claude/CLAUDE.md\n"
   printf "  ${GREEN}✓${NC} tasks/active.md    ${GREEN}✓${NC} ~/.claude/commands/\n"
   printf "\n"
-  printf "  $(t "Start dashboard:" "启动面板:")  ${WHITE}node .loci/dashboard/server.js${NC}\n"
-  printf "  $(t "Then open:" "然后打开:")      ${WHITE}http://localhost:8765${NC}\n"
+  printf "  $(t "Next steps:" "下一步:")  ${WHITE}cd ${BRAIN_PATH}${NC}\n"
+  printf "  $(t "Dashboard:" "启动面板:")   ${WHITE}node .loci/dashboard/server.js${NC}\n"
+  printf "  $(t "Then open:" "然后打开:")    ${WHITE}http://localhost:8765${NC}\n"
   printf "\n"
-  printf "  $(t "Your AI will remember the important things from now on." "从现在开始，你的 AI 会记住重要的事情。")\n"
+  printf "  $(t "Open any project and start talking to your AI — it already knows you." "打开任意项目，跟你的 AI 聊天吧 — 它已经认识你了。")\n"
   printf "\n"
 }
 
