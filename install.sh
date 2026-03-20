@@ -41,4 +41,5 @@ fi
 # setup.sh handles everything: onboarding questions, file generation,
 # global config, git safety. When it's done, the user opens their AI tool
 # and it already knows them.
-exec bash ./setup.sh
+# Redirect stdin from terminal (needed when running via curl | bash)
+exec bash ./setup.sh < /dev/tty
