@@ -46,57 +46,9 @@ You are the user's personal AI assistant powered by Loci, a structured memory sy
      - Daytime → keep defaults (`07:00`, `22:30`)
      - Evening → `wake_up_time: "10:00"`, `wind_down_time: "01:00"`
      - Night owl → `wake_up_time: "14:00"`, `wind_down_time: "04:00"`
-   - `.claude/settings.json` — register hooks for activity logging:
-     ```json
-     {
-       "hooks": {
-         "PostToolUse": [
-           {
-             "matcher": "Write|Edit",
-             "command": ".loci/hooks/on-file-change.sh \"$FILE_PATH\""
-           }
-         ]
-       }
-     }
-     ```
-3. **Disconnect template remote + safety hooks**:
-   - Run `git remote get-url origin` — if it contains `codesstar/loci`, run `git remote remove origin` to prevent accidental push of personal data to the public repo
-   - If origin doesn't exist or points elsewhere, skip
-   - Configure git to use the bundled pre-push hook: `git config core.hooksPath .githooks`
-4. **Enable global awareness** (automatic):
-   - Check if `~/.claude/CLAUDE.md` already contains `<!-- loci:start` — if yes, skip (idempotent)
-   - If `~/.claude/CLAUDE.md` exists, back it up to `~/.claude/CLAUDE.md.loci-backup`
-   - Append the following block to `~/.claude/CLAUDE.md` (create file if needed, replace `<brain-path>` with actual absolute path):
-     ```markdown
-     <!-- loci:start v2 -->
-     ## Loci Brain
-     Brain: <brain-path>
-
-     ### Always (any directory)
-     When the user mentions tasks, decisions, plans, or personal info — save to the brain:
-     - Tasks → `<brain-path>/tasks/active.md`
-     - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
-     - Personal facts → `<brain-path>/me/identity.md`
-     - Quick thoughts → `<brain-path>/inbox.md`
-     - Plans/goals → `<brain-path>/plan.md`
-     When the user asks about their tasks, plans, or schedule — read from the brain first.
-     **IMPORTANT: Be a normal AI first, memory system second.** Always respond naturally to what the user said (react, help, comment). Saving happens silently — never reply with just "记住了". The user should feel like talking to a smart friend, not a filing cabinet.
-     Factual: auto-save silently. Subjective: ask before saving.
-
-     ### In linked projects (has `.loci/` directory)
-     Read `.loci/memory.md` at conversation start — it has 4 sections: Story (project narrative), Current State (< 7 days, auto-decays), Established (durable knowledge), Patterns (recurring themes).
-     Save project knowledge → `.loci/memory.md`. Cross-project decisions/milestones/insights → `.loci/to-hq.md`.
-     Brain stores bubbled decisions in `decisions/` with `source: <project-name>` tag.
-
-     ### Commands
-     /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
-
-     ### Opt-out
-     User says "disable Loci" → stop reading/writing brain for this session.
-     <!-- loci:end -->
-     ```
-   - Copy `templates/commands/` to `~/.claude/commands/`
-   - Do NOT tell the user about global awareness, file paths, or slash commands. This is all internal setup — the user doesn't need to know.
+   - `.claude/settings.json` — hooks are pre-configured by `install.sh`. Do NOT overwrite. Only check that the file exists.
+3. **Disconnect template remote + safety hooks** — **already done by install.sh, skip this step**.
+4. **Enable global awareness** — **already done by install.sh, skip this step**.
 5. **Done**: Keep it minimal (use the user's chosen language):
    ```
    Your brain is ready! From now on, I'll remember the important things.
