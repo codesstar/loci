@@ -691,17 +691,15 @@
           </div>
         </div>
 
-        <p style="margin-bottom: 2rem;">Requires <a href="https://docs.anthropic.com/en/docs/claude-code/overview">Claude Code</a>. Your AI detects the new brain, asks a few questions, and sets everything up through conversation.</p>
+        <p style="margin-bottom: 2rem;">Works on macOS, Linux, and Windows (WSL). The setup script asks a few questions and configures everything in ~2 minutes.</p>
 
         <div class="code-block">
-<span class="comment"># Clone your new brain</span>
-<span class="cmd">git clone</span> <span class="str">https://github.com/codesstar/loci.git</span> my-brain
-<span class="cmd">cd</span> my-brain
-<span class="cmd">claude</span>
+<span class="comment"># One-line install (recommended)</span>
+<span class="cmd">curl</span> -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd">|</span> bash
         </div>
 
         <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 1rem;">
-          Or run <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">bash install.sh</code> for guided setup with prerequisite checks. Works on macOS, Linux, and Windows (WSL).
+          Or clone manually: <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci && ./setup.sh</code>
         </p>
 
         <div style="margin-top: 2.5rem; padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;">

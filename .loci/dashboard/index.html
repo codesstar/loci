@@ -2374,10 +2374,418 @@
       font-size: 11px; color: rgba(255,160,50,0.5);
       margin-left: 8px;
     }
+
+    /* ============================================
+       WELCOME OVERLAY
+       ============================================ */
+    .welcome-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #08080f;
+      z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      overflow-y: auto;
+    }
+    .welcome-overlay::before {
+      content: '';
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 2px,
+        rgba(255,180,50,0.015) 2px, rgba(255,180,50,0.015) 4px
+      );
+      pointer-events: none;
+      animation: welcomeScanDrift 8s linear infinite;
+    }
+    @keyframes welcomeScanDrift {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(40px); }
+    }
+    .welcome-inner {
+      position: relative;
+      max-width: 780px; width: 92%;
+      padding: 72px 56px;
+      background: rgba(255,180,50,0.02);
+      border: 1px solid rgba(255,180,50,0.08);
+      border-radius: 4px;
+      text-align: center;
+      box-shadow: 0 0 120px rgba(255,180,50,0.03), inset 0 0 80px rgba(255,180,50,0.01);
+    }
+    .welcome-inner::before {
+      content: '';
+      position: absolute; top: -1px; left: 20%; right: 20%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,180,50,0.4), transparent);
+    }
+    .welcome-inner::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 30%; right: 30%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,180,50,0.2), transparent);
+    }
+    .welcome-status {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; letter-spacing: 4px;
+      color: rgba(255,180,50,0.2);
+      margin-bottom: 12px;
+      animation: welcomeBlink 2s ease-in-out infinite;
+    }
+    @keyframes welcomeBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .welcome-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px; font-weight: 500;
+      letter-spacing: 6px;
+      color: rgba(255,180,50,0.5);
+      margin-bottom: 4px;
+      overflow: hidden;
+      animation: welcomeReveal 1.2s ease-out forwards;
+    }
+    @keyframes welcomeReveal {
+      0% { opacity: 0; transform: translateY(15px); letter-spacing: 16px; }
+      100% { opacity: 1; transform: translateY(0); letter-spacing: 6px; }
+    }
+    .welcome-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px; font-weight: 300;
+      letter-spacing: 5px;
+      color: rgba(255,180,50,0.25);
+      margin-bottom: 28px;
+      animation: welcomeFadeIn 1s ease-out 0.3s both;
+    }
+    @keyframes welcomeFadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .welcome-headline {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px; font-weight: 700;
+      letter-spacing: 4px;
+      color: rgba(255,180,50,0.88);
+      text-shadow: 0 0 50px rgba(255,180,50,0.18);
+      margin-bottom: 28px;
+      line-height: 1.4;
+      animation: welcomeFadeIn 1.2s ease-out 0.4s both;
+    }
+    .welcome-philosophy {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 17px; line-height: 2.4;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      animation: welcomeFadeIn 1.5s ease-out 0.6s both;
+    }
+    .welcome-philosophy em {
+      color: rgba(255,180,50,0.75);
+      font-style: normal;
+      font-weight: 500;
+    }
+    .welcome-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .welcome-section-card {
+      padding: 16px 10px;
+      background: rgba(255,180,50,0.02);
+      border: 1px solid rgba(255,180,50,0.06);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .welcome-section-card:hover {
+      border-color: rgba(255,180,50,0.2);
+      background: rgba(255,180,50,0.04);
+      box-shadow: 0 0 20px rgba(255,180,50,0.03);
+    }
+    .welcome-section-icon {
+      font-size: 18px; margin-bottom: 8px;
+      filter: grayscale(0.5);
+    }
+    .welcome-section-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px; font-weight: 400;
+      letter-spacing: 2px;
+      color: rgba(255,180,50,0.6);
+      margin-bottom: 4px;
+    }
+    .welcome-section-desc {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.5px;
+    }
+    .welcome-enter-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px; font-weight: 500;
+      letter-spacing: 7px;
+      color: rgba(255,180,50,0.8);
+      background: rgba(255,180,50,0.06);
+      border: 1px solid rgba(255,180,50,0.2);
+      padding: 16px 56px;
+      cursor: pointer;
+      transition: all 0.4s;
+      animation: welcomeFadeIn 1.5s ease-out 1.2s both;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-enter-btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,180,50,0.1), transparent);
+      transition: left 0.6s;
+    }
+    .welcome-enter-btn:hover {
+      background: rgba(255,180,50,0.12);
+      border-color: rgba(255,180,50,0.4);
+      box-shadow: 0 0 30px rgba(255,180,50,0.08);
+      color: rgba(255,180,50,1);
+    }
+    .welcome-enter-btn:hover::before {
+      left: 100%;
+    }
+    .welcome-footnote {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; letter-spacing: 2px;
+      color: rgba(255,180,50,0.2);
+      margin-top: 24px;
+      animation: welcomeFadeIn 1.5s ease-out 1.6s both;
+    }
+
+    /* ============================================
+       BRIEFING PANEL
+       ============================================ */
+    .briefing-panel {
+      text-align: left;
+      max-width: 620px;
+      width: 100%;
+    }
+    .briefing-back {
+      background: none; border: 1px solid rgba(255,180,50,0.15);
+      color: rgba(255,180,50,0.5); cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; letter-spacing: 2px;
+      padding: 6px 14px; border-radius: 3px;
+      transition: all 0.2s; margin-bottom: 28px;
+    }
+    .briefing-back:hover {
+      border-color: rgba(255,180,50,0.4);
+      color: rgba(255,180,50,0.8);
+      background: rgba(255,180,50,0.06);
+    }
+    .briefing-header {
+      margin-bottom: 32px;
+    }
+    .briefing-module-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px; font-weight: 700;
+      color: rgba(255,180,50,0.85);
+      letter-spacing: 6px;
+      margin-bottom: 6px;
+      text-shadow: 0 0 30px rgba(255,160,50,0.12);
+    }
+    .briefing-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px; font-weight: 400;
+      letter-spacing: 5px;
+      color: rgba(255,180,50,0.35);
+    }
+    .briefing-content {
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .briefing-section {
+      border-left: 2px solid rgba(255,180,50,0.18);
+      padding-left: 16px;
+      transition: border-color 0.3s;
+    }
+    .briefing-section:hover {
+      border-left-color: rgba(255,180,50,0.45);
+    }
+    .briefing-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 4px;
+      color: rgba(255,180,50,0.5);
+      margin-bottom: 8px;
+    }
+    .briefing-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px; line-height: 1.8;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       ENHANCED EMPTY STATES
+       ============================================ */
+    .loci-empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      background: rgba(255,180,50,0.015);
+      border: 1px solid rgba(255,180,50,0.06);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .loci-empty-state::before {
+      content: '';
+      position: absolute; top: -1px; left: 25%; right: 25%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,180,50,0.2), transparent);
+    }
+    .loci-empty-icon {
+      font-size: 42px; margin-bottom: 20px;
+      opacity: 0.45;
+      animation: emptyPulse 3s ease-in-out infinite;
+    }
+    @keyframes emptyPulse {
+      0%, 100% { opacity: 0.45; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.05); }
+    }
+    .loci-empty-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 5px;
+      color: rgba(255,180,50,0.4);
+      margin-bottom: 14px;
+    }
+    .loci-empty-desc {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 15px; line-height: 2;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .loci-empty-hint {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px; font-weight: 400;
+      letter-spacing: 2px;
+      color: rgba(255,180,50,0.25);
+      margin-top: 24px;
+    }
+    /* Tour overlay */
+    .tour-tooltip {
+      background: rgba(12, 14, 24, 0.95);
+      border: 1px solid rgba(255,180,50,0.3);
+      border-radius: 6px;
+      padding: 16px 20px;
+      max-width: 320px;
+      min-width: 240px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,180,50,0.05);
+    }
+    .tour-tooltip-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 3px;
+      color: rgba(255,180,50,0.85);
+      margin-bottom: 8px;
+    }
+    .tour-tooltip-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px; line-height: 1.7;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.3px;
+      margin-bottom: 14px;
+    }
+    .tour-tooltip-nav {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tour-tooltip-count {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; color: rgba(255,180,50,0.35);
+      letter-spacing: 1px;
+      flex: 1; text-align: center;
+    }
+    .tour-btn {
+      background: none; border: 1px solid rgba(255,180,50,0.2);
+      color: rgba(255,180,50,0.5); cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; letter-spacing: 1px;
+      padding: 5px 12px; border-radius: 3px;
+      transition: all 0.15s;
+    }
+    .tour-btn:hover {
+      border-color: rgba(255,180,50,0.5);
+      color: rgba(255,180,50,0.9);
+      background: rgba(255,180,50,0.06);
+    }
+    .tour-btn-primary {
+      background: rgba(255,180,50,0.1);
+      border-color: rgba(255,180,50,0.4);
+      color: rgba(255,180,50,0.85);
+    }
+    .tour-btn-primary:hover {
+      background: rgba(255,180,50,0.2);
+    }
+    .tour-btn-skip {
+      border: none; color: rgba(255,255,255,0.25);
+      font-size: 10px; padding: 5px 8px;
+    }
+    .tour-btn-skip:hover {
+      color: rgba(255,255,255,0.5);
+    }
   </style>
 </head>
 <body>
   <div id="app" v-cloak>
+
+    <!-- ========== WELCOME OVERLAY ========== -->
+    <div v-if="showWelcome" class="welcome-overlay" @click.self="dismissWelcome">
+      <div class="welcome-inner">
+        <!-- Main welcome view -->
+        <template v-if="!guideBriefing">
+          <div class="welcome-headline" v-html="t('welcome.headline')"></div>
+          <div class="welcome-philosophy" v-html="t('welcome.philosophy')"></div>
+          <button class="welcome-enter-btn" @click="dismissWelcome">{{ t('welcome.enter') }}</button>
+        </template>
+
+        <!-- Briefing removed — replaced by interactive tour system -->
+      </div>
+    </div>
+
+    <!-- Guide picker (module overview — 2-column grid) -->
+    <div v-if="showGuide" style="position: fixed; inset: 0; z-index: 99998; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow-y: auto;" @click.self="showGuide = false">
+      <div style="background: rgba(12,14,24,0.97); border: 1px solid rgba(255,180,50,0.1); border-radius: 6px; padding: 32px 36px; max-width: 680px; width: 94%;">
+        <!-- Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 4px; color: rgba(255,180,50,0.65);">{{ lang === 'zh' ? '模块总览' : 'MODULE OVERVIEW' }}</div>
+          <button @click="showGuide = false" style="background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 18px; padding: 4px 8px;">&times;</button>
+        </div>
+        <!-- Card grid (6 per page) -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+          <div v-for="sec in guidePageItems" :key="sec.id" @click="showGuide = false; startTour(sec.id)"
+            style="padding: 16px 18px; cursor: pointer; border-radius: 6px; transition: all 0.25s; background: rgba(255,180,50,0.015); border: 1px solid rgba(255,180,50,0.06); border-left: 2px solid rgba(255,180,50,0.2);"
+            @mouseenter="$event.currentTarget.style.borderColor='rgba(255,180,50,0.25)'; $event.currentTarget.style.background='rgba(255,180,50,0.04)'; $event.currentTarget.style.transform='translateY(-2px)'; $event.currentTarget.style.boxShadow='0 4px 20px rgba(255,160,50,0.06)'"
+            @mouseleave="$event.currentTarget.style.borderColor='rgba(255,180,50,0.06)'; $event.currentTarget.style.borderLeftColor='rgba(255,180,50,0.2)'; $event.currentTarget.style.background='rgba(255,180,50,0.015)'; $event.currentTarget.style.transform='none'; $event.currentTarget.style.boxShadow='none'"
+          >
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <span v-html="sec.icon" style="font-size: 18px; filter: grayscale(0.4);"></span>
+              <span style="font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; color: rgba(255,180,50,0.7);">{{ t(sec.nameKey) }}</span>
+            </div>
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; line-height: 1.7; color: rgba(255,255,255,0.38);">{{ t(sec.introKey) }}</div>
+          </div>
+        </div>
+        <!-- Pagination dots + arrows (only if more than 1 page) -->
+        <div v-if="guideTotalPages > 1" style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px;">
+          <button @click="guidePage = Math.max(0, guidePage - 1)" :style="{ background: 'none', border: 'none', color: guidePage > 0 ? 'rgba(255,180,50,0.6)' : 'rgba(255,255,255,0.1)', cursor: guidePage > 0 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Orbitron\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9664;</button>
+          <div style="display: flex; gap: 8px;">
+            <span v-for="p in guideTotalPages" :key="p"
+              @click="guidePage = p - 1"
+              :style="{ width: '8px', height: '8px', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s', background: guidePage === p - 1 ? 'rgba(255,180,50,0.7)' : 'rgba(255,255,255,0.15)' }"
+            ></span>
+          </div>
+          <button @click="guidePage = Math.min(guideTotalPages - 1, guidePage + 1)" :style="{ background: 'none', border: 'none', color: guidePage < guideTotalPages - 1 ? 'rgba(255,180,50,0.6)' : 'rgba(255,255,255,0.1)', cursor: guidePage < guideTotalPages - 1 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Orbitron\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9654;</button>
+        </div>
+        <!-- Skip button -->
+        <div style="text-align: center; margin-top: 14px;">
+          <button @click="showGuide = false" style="font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,0.25); background: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 8px 24px; cursor: pointer; transition: all 0.2s;"
+            @mouseenter="$event.target.style.color='rgba(255,180,50,0.6)'; $event.target.style.borderColor='rgba(255,180,50,0.2)'"
+            @mouseleave="$event.target.style.color='rgba(255,255,255,0.25)'; $event.target.style.borderColor='rgba(255,255,255,0.08)'"
+          >{{ lang === 'zh' ? '跳过，直接进入' : 'SKIP — GO TO DASHBOARD' }}</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Mobile header -->
     <div class="md:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between" style="background: rgba(10,14,26,0.98); border-bottom: 1px solid rgba(255,160,50,0.084);">
       <button @click="sidebarOpen = !sidebarOpen" style="color: rgba(255,160,50,0.52); font-size: 1.2rem;">
@@ -2457,8 +2865,27 @@
           display: flex; align-items: center; justify-content: center; gap: 6px;
         " onmouseover="this.style.borderColor='rgba(255,180,50,0.4)';this.style.color='rgba(255,180,50,0.8)';this.style.background='rgba(255,180,50,0.08)'"
            onmouseout="this.style.borderColor='rgba(255,180,50,0.15)';this.style.color='rgba(255,180,50,0.5)';this.style.background='rgba(255,180,50,0.04)'">
-          <span style="font-size: 11px;">&#127760;</span>
+          <span style="font-size: 10px; font-family: 'Orbitron', sans-serif;">A/文</span>
           {{ t('lang.toggle') }}
+        </button>
+      </div>
+
+      <!-- Guide button -->
+      <div style="padding: 2px 20px 6px;">
+        <button @click="showGuide = true" style="
+          width: 100%; padding: 5px 12px;
+          background: transparent;
+          border: 1px solid rgba(255,180,50,0.08);
+          border-radius: 3px; cursor: pointer;
+          font-family: 'Share Tech Mono', monospace;
+          font-size: 10px; letter-spacing: 2px;
+          color: rgba(255,180,50,0.3);
+          transition: all 0.2s;
+          display: flex; align-items: center; justify-content: center; gap: 6px;
+        " onmouseover="this.style.borderColor='rgba(255,180,50,0.3)';this.style.color='rgba(255,180,50,0.6)';this.style.background='rgba(255,180,50,0.04)'"
+           onmouseout="this.style.borderColor='rgba(255,180,50,0.08)';this.style.color='rgba(255,180,50,0.3)';this.style.background='transparent'">
+          <span style="font-size: 9px; font-family: 'Orbitron', sans-serif; border: 1px solid currentColor; border-radius: 2px; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; line-height: 1;">?</span>
+          {{ t('welcome.guide') }}
         </button>
       </div>
 
@@ -2525,7 +2952,7 @@
           </div>
 
           <!-- Date selector — same style as Journal -->
-          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
+          <div data-tour="date-picker" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
             <button @click="calendarDayOffset--" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&larr;</button>
             <div style="text-align: center; cursor: pointer; user-select: none; min-width: 180px;" @click="todayCalOpen = !todayCalOpen">
               <div class="hud-mono" style="font-size: 8px; letter-spacing: 3px; color: rgba(255,180,50,0.35);">{{ todayWeekdayLabel }}</div>
@@ -2562,14 +2989,14 @@
           </div>
 
           <!-- Tasks — Starship Mission Log (always shows selected day) -->
-          <div class="s7-card mb-6">
+          <div class="s7-card mb-6" data-tour="mission-log">
             <!-- Header -->
             <div class="s7-header">
               <div class="s7-icon"></div>
               <div class="s7-title hud-title-glow">{{ t('today.missionLog') }}</div>
               <div style="flex: 1;"></div>
               <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px; margin-right: 8px;">{{ missionLogDateLabel }}</span>
-              <button @click="showAddTask = !showAddTask" class="s7-add-btn" :style="showAddTask ? 'background: rgba(255,160,50,0.28);' : ''">{{ t('today.add') }}</button>
+              <button @click="showAddTask = !showAddTask" class="s7-add-btn" data-tour="add-task" :style="showAddTask ? 'background: rgba(255,160,50,0.28);' : ''">{{ t('today.add') }}</button>
             </div>
             <!-- Stats -->
             <div class="s7-stats">
@@ -2658,7 +3085,12 @@
                 </div>
               </div>
               <!-- Empty state -->
-              <div v-if="!hasAnyTodayTasks" class="s7-empty">{{ t('today.noMissions') }}</div>
+              <div v-if="!hasAnyTodayTasks" class="loci-empty-state" style="margin: 12px 0;">
+                <div class="loci-empty-icon">&#9678;</div>
+                <div class="loci-empty-title">{{ t('empty.todayTitle') }}</div>
+                <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.todayDesc') }}</div>
+                <div class="loci-empty-hint">{{ t('empty.todayHint') }}</div>
+              </div>
               <!-- Completed -->
               <div @dragover.prevent @drop="dropTask($event, 'done')"
                 :style="dragOverGroup === 'done' ? 'background: rgba(255,160,50,0.03);' : ''"
@@ -2682,7 +3114,7 @@
           </div>
 
           <!-- Calendar — Mission Control -->
-          <div class="card hud-card mb-6">
+          <div class="card hud-card mb-6" data-tour="day-manifest">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <h3 class="hud-title-glow">{{ t('today.dayManifest') }}</h3>
               <div style="display: flex; gap: 4px; align-items: center;">
@@ -2915,7 +3347,7 @@
           </div>
 
           <!-- Date display with inline nav -->
-          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
+          <div data-tour="journal-date" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
             <button @click="journalNav(-1)" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&larr;</button>
             <div style="text-align: center; cursor: pointer; user-select: none; min-width: 180px;" @click="journalCalOpen = !journalCalOpen">
               <div class="hud-mono" style="font-size: 8px; letter-spacing: 3px; color: rgba(255,180,50,0.35);">{{ journalViewMode === 'day' ? journalWeekdayLabel : journalViewMode === 'week' ? 'WEEK' : 'MONTH' }}</div>
@@ -2955,7 +3387,7 @@
           <div v-if="journalViewMode === 'day'">
 
           <!-- AI Summary — Crystal Card -->
-          <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
+          <div data-tour="journal-ai-summary" class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
             <div class="mem-crystal v-journal mem-parallax-content">
               <div class="mc-glow"></div>
               <div class="mc-glass">
@@ -2995,7 +3427,7 @@
           </div>
 
           <!-- Personal Log (Multi-note + Rich/Markdown Editor) -->
-          <div class="card mb-5">
+          <div class="card mb-5" data-tour="journal-editor">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <h3 style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 10px; color: rgba(255,180,50,0.6);">&#9998;</span>
@@ -3008,7 +3440,7 @@
             </div>
 
             <!-- Note tabs -->
-            <div v-if="journalNotes.length > 1" style="display: flex; align-items: center; gap: 0; padding: 0 12px; border-bottom: 1px solid rgba(255,180,50,0.06); overflow-x: auto;">
+            <div v-if="journalNotes.length > 1" data-tour="journal-tabs" style="display: flex; align-items: center; gap: 0; padding: 0 12px; border-bottom: 1px solid rgba(255,180,50,0.06); overflow-x: auto;">
               <div v-for="(note, idx) in journalNotes" :key="note.id"
                 @click="activeNoteIdx = idx"
                 @dblclick="startRenameNote(idx)"
@@ -3241,7 +3673,7 @@
           </div>
 
           <!-- Tabs -->
-          <div style="display: flex; gap: 2px; margin-bottom: 28px; flex-wrap: wrap;">
+          <div data-tour="memory-tabs" style="display: flex; gap: 2px; margin-bottom: 28px; flex-wrap: wrap;">
             <button v-for="tab in memoryTabs" :key="tab.id" @click="memoryTab = tab.id"
               class="hud-mono" :style="{
                 fontSize: '9px', letterSpacing: '2px', padding: '6px 16px', cursor: 'pointer',
@@ -3255,7 +3687,7 @@
           </div>
 
           <!-- ═══ IDENTITY ═══ -->
-          <div v-if="memoryTab === 'identity'">
+          <div v-if="memoryTab === 'identity'" data-tour="memory-content">
             <div class="mem-stats-bar">
               <span class="mem-sync-indicator">
                 <span class="mem-sync-dot"></span>
@@ -3409,7 +3841,7 @@
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(100,220,180,0.2), transparent);"></div>
           </div>
           <!-- Tabs -->
-          <div style="display: flex; gap: 2px; margin-bottom: 20px;">
+          <div data-tour="plan-tabs" style="display: flex; gap: 2px; margin-bottom: 20px;">
             <button v-for="tab in planningTabs" :key="tab.id" @click="planningTab = tab.id"
               :class="['hud-tab', planningTab === tab.id ? 'active' : '']">
               {{ tab.label }}
@@ -3460,7 +3892,7 @@
           <div v-if="planningTab === 'planning'">
 
             <!-- WEEK PLAN -->
-            <div class="card hud-card mb-5" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
+            <div class="card hud-card mb-5" data-tour="plan-week" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">WEEK PLAN</span>
@@ -3499,7 +3931,7 @@
             <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.12), transparent); margin: 8px 0 20px;"></div>
 
             <!-- MONTH PLAN -->
-            <div class="card hud-card mb-5" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
+            <div class="card hud-card mb-5" data-tour="plan-month" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">MONTH PLAN</span>
@@ -3544,7 +3976,7 @@
             <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.06), transparent); margin: 8px 0 20px;"></div>
 
             <!-- SOMEDAY -->
-            <div class="card hud-card mb-5" :style="planDropTarget === 'someday' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
+            <div class="card hud-card mb-5" data-tour="plan-someday" :style="planDropTarget === 'someday' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.someday') }}</h3>
                 <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.2);">{{ planSomedayItems.length }} {{ t('plan.ideas') }}</span>
@@ -3594,7 +4026,7 @@
             </div>
 
             <!-- ═══ HERO: Brain (Cognition) — 65vh ═══ -->
-            <div style="position: relative; width: 100%; height: 65vh; overflow: hidden;">
+            <div data-tour="brain-vortex" style="position: relative; width: 100%; height: 65vh; overflow: hidden;">
               <canvas id="vortexCanvas" style="display: block; width: 100%; height: 100%;"></canvas>
 
               <!-- Top-left: system tag -->
@@ -3643,7 +4075,7 @@
             </div>
 
             <!-- ═══ SUB: Constellation (Network) — 45vh ═══ -->
-            <div style="position: relative; width: 100%; height: 45vh; overflow: hidden;">
+            <div data-tour="brain-constellation" style="position: relative; width: 100%; height: 45vh; overflow: hidden;">
               <canvas id="networkCanvas" style="display: block; width: 100%; height: 100%;"></canvas>
 
               <!-- Top-left: system tag -->
@@ -3717,7 +4149,7 @@
             </div>
 
             <!-- Tab switcher -->
-            <div style="display: flex; gap: 2px; margin-bottom: 24px;">
+            <div data-tour="frag-tabs" style="display: flex; gap: 2px; margin-bottom: 24px;">
               <button @click="fragmentTab = 'notes'"
                 :style="{
                   padding: '8px 20px',
@@ -3753,7 +4185,7 @@
             <!-- ═══ NOTES TAB ═══ -->
             <div v-if="fragmentTab === 'notes'">
               <!-- Add note input -->
-              <div style="display: flex; gap: 8px; margin-bottom: 28px;">
+              <div data-tour="frag-input" style="display: flex; gap: 8px; margin-bottom: 28px;">
                 <input v-model="newFragmentNote" @keydown.enter="addFragmentNote"
                   :placeholder="t('frag.addNote')"
                   style="flex: 1; background: rgba(100,180,255,0.04); border: 1px solid rgba(100,180,255,0.1); color: rgba(255,255,255,0.8); padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color 0.3s;"
@@ -3767,9 +4199,10 @@
               </div>
 
               <!-- Empty state -->
-              <div v-if="fragmentNotes.length === 0" style="text-align: center; padding: 60px 0;">
-                <div style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: rgba(100,180,255,0.08); margin-bottom: 12px;">~</div>
-                <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: rgba(100,180,255,0.2); letter-spacing: 2px;">{{ t('frag.empty') }}</div>
+              <div v-if="fragmentNotes.length === 0" class="loci-empty-state" style="border-color: rgba(100,180,255,0.06); background: rgba(100,180,255,0.015);">
+                <div class="loci-empty-icon" style="filter: hue-rotate(180deg);">&#10043;</div>
+                <div class="loci-empty-title" style="color: rgba(100,180,255,0.5);">{{ t('empty.fragNotesTitle') }}</div>
+                <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.fragNotesDesc') }}</div>
               </div>
 
               <!-- Scattered floating cards -->
@@ -3817,9 +4250,10 @@
               </div>
 
               <!-- Empty state -->
-              <div v-if="fragmentCollections.length === 0" style="text-align: center; padding: 60px 0;">
-                <div style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: rgba(100,180,255,0.08); margin-bottom: 12px;">~</div>
-                <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: rgba(100,180,255,0.2); letter-spacing: 2px;">{{ t('frag.emptyCol') }}</div>
+              <div v-if="fragmentCollections.length === 0" class="loci-empty-state" style="border-color: rgba(100,180,255,0.06); background: rgba(100,180,255,0.015);">
+                <div class="loci-empty-icon" style="filter: hue-rotate(180deg);">&#9670;</div>
+                <div class="loci-empty-title" style="color: rgba(100,180,255,0.5);">{{ t('empty.fragColTitle') }}</div>
+                <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.fragColDesc') }}</div>
               </div>
 
               <!-- Collection cards -->
@@ -3860,7 +4294,7 @@
           <div class="people-page-title">{{ t('people.crewRoster') }}</div>
           <div class="people-page-sub">{{ t('people.neuralMatrix') }} — {{ peopleData.length }} {{ t('people.entitiesMapped') }}</div>
 
-          <div class="people-stats">
+          <div class="people-stats" data-tour="people-stats">
             <span>{{ t('people.total') }}: <span class="ps-val">{{ peopleData.length }}</span></span>
             <span>{{ t('people.shield') }}: <span class="ps-val">{{ shieldPeople.length }}</span></span>
             <span>{{ t('people.neural') }}: <span class="ps-val">{{ neuralPeople.length }}</span></span>
@@ -3868,8 +4302,16 @@
             <span>{{ t('people.signal') }}: <span class="ps-val">{{ signalPeople.length }}</span></span>
           </div>
 
+          <!-- People empty state -->
+          <div v-if="peopleData.length === 0" class="loci-empty-state" style="margin-bottom: 24px;">
+            <div class="loci-empty-icon">&#9671;</div>
+            <div class="loci-empty-title">{{ t('empty.peopleTitle') }}</div>
+            <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.peopleDesc') }}</div>
+            <div class="loci-empty-hint">{{ t('empty.peopleHint') }}</div>
+          </div>
+
           <!-- SHIELD MATRIX -->
-          <div v-if="shieldPeople.length" class="people-category">
+          <div v-if="shieldPeople.length" class="people-category" data-tour="people-cards">
             <div class="people-cat-header">
               <span class="people-cat-label">{{ t('people.shieldMatrix') }}</span>
               <span class="people-cat-sub">{{ t('people.shieldSub') }}</span>
@@ -4136,6 +4578,12 @@
         <!-- ========== TIMETABLE ========== -->
         <section v-if="currentPage === 'timetable'">
           <h2 class="section-title mb-6">{{ t('timetable.title') }}</h2>
+          <div v-if="!data.timetable || !data.timetable.courses || data.timetable.courses.length === 0" class="loci-empty-state" style="margin-bottom: 24px;">
+            <div class="loci-empty-icon">&#128197;</div>
+            <div class="loci-empty-title">{{ t('empty.timetableTitle') }}</div>
+            <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.timetableDesc') }}</div>
+            <div class="loci-empty-hint">{{ t('empty.timetableHint') }}</div>
+          </div>
           <div class="card mb-6" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <span style="font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.69);">{{ data.timetable?.semester || 'N/A' }}</span>
@@ -4244,13 +4692,24 @@
               </div>
             </div>
           </div>
-          <div v-else class="card"><div class="card-body"><div class="empty-state">{{ t('finance.noRecords') }}</div></div></div>
+          <div v-else class="loci-empty-state">
+            <div class="loci-empty-icon">&#9670;</div>
+            <div class="loci-empty-title">{{ t('empty.financeTitle') }}</div>
+            <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.financeDesc') }}</div>
+            <div class="loci-empty-hint">{{ t('empty.financeHint') }}</div>
+          </div>
         </section>
 
         <!-- ========== CONTENT ========== -->
         <section v-if="currentPage === 'content'">
           <h2 class="section-title mb-6">{{ t('content.title') }}</h2>
-          <div class="mb-8">
+          <div v-if="!data.content || !data.content.platforms" class="loci-empty-state" style="margin-bottom: 24px;">
+            <div class="loci-empty-icon">&#9673;</div>
+            <div class="loci-empty-title">{{ t('empty.contentTitle') }}</div>
+            <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.contentDesc') }}</div>
+            <div class="loci-empty-hint">{{ t('empty.contentHint') }}</div>
+          </div>
+          <div class="mb-8" v-if="data.content?.platforms">
             <div class="section-title mb-4" style="font-size: 0.65rem;">{{ t('content.brands') }}</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" v-if="data.content?.platforms?.brands">
               <div v-for="brand in data.content.platforms.brands" :key="brand.name" class="card">
@@ -4277,7 +4736,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-8">
+          <div class="mb-8" v-if="data.content?.platforms">
             <div class="section-title mb-4" style="font-size: 0.65rem;">ACCOUNTS</div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" v-if="data.content?.platforms?.accounts">
               <div v-for="(account, idx) in data.content.platforms.accounts" :key="idx" class="card">
@@ -4310,7 +4769,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-8">
+          <div class="mb-8" v-if="data.content?.platforms">
             <div class="section-title mb-4" style="font-size: 0.65rem;">DISTRIBUTION</div>
             <div class="card">
               <div class="card-header"><h3>Content Strategy</h3></div>
@@ -4336,12 +4795,51 @@
           </div>
         </section>
 
+
       </div>
     <!-- Plan context menu -->
     <div v-if="planCtx.show" class="plan-ctx-menu" :style="{ top: planCtx.y + 'px', left: planCtx.x + 'px' }" @click.stop>
       <div class="plan-ctx-item" @click="planCtxAddToToday()">Add to Today</div>
     </div>
     <div v-if="planCtx.show" style="position: fixed; inset: 0; z-index: 9998;" @click="closePlanCtx()"></div>
+
+    <!-- Tour overlay -->
+    <div v-if="tourActive && currentTourStep" style="position: fixed; inset: 0; z-index: 100000; pointer-events: none;">
+      <!-- Dark overlay with cutout -->
+      <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto;" @click="tourSkip">
+        <defs>
+          <mask id="tour-mask">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"/>
+            <rect :x="tourRect.left - 6" :y="tourRect.top - 6" :width="tourRect.width + 12" :height="tourRect.height + 12" rx="6" fill="black"/>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,0.7)" mask="url(#tour-mask)"/>
+        <!-- Highlight border -->
+        <rect :x="tourRect.left - 6" :y="tourRect.top - 6" :width="tourRect.width + 12" :height="tourRect.height + 12" rx="6"
+          fill="none" stroke="rgba(255,180,50,0.5)" stroke-width="1.5"
+          style="filter: drop-shadow(0 0 8px rgba(255,180,50,0.3));"/>
+      </svg>
+      <!-- Tooltip -->
+      <div style="pointer-events: auto; position: absolute; z-index: 100001;"
+        :style="{
+          top: (tourTooltipPos.top + 'px'),
+          left: (tourTooltipPos.left + 'px'),
+          transform: currentTourStep.pos === 'bottom' ? 'translateX(-50%)' : currentTourStep.pos === 'top' ? 'translateX(-50%) translateY(-100%)' : currentTourStep.pos === 'left' ? 'translateX(-100%) translateY(-50%)' : 'translateY(-50%)',
+        }">
+        <div class="tour-tooltip">
+          <div class="tour-tooltip-title">{{ currentTourStep.title }}</div>
+          <div class="tour-tooltip-text">{{ currentTourStep.text }}</div>
+          <div class="tour-tooltip-nav">
+            <button v-if="tourStep > 0" class="tour-btn" @click.stop="tourPrev">&larr;</button>
+            <span class="tour-tooltip-count">{{ tourStep + 1 }} / {{ tourStepCount }}</span>
+            <button class="tour-btn tour-btn-primary" @click.stop="tourNext">
+              {{ tourStep + 1 !== tourStepCount ? (lang === 'zh' ? '\u4E0B\u4E00\u6B65' : 'Next') : (lang === 'zh' ? '\u5B8C\u6210' : 'Done') }}
+            </button>
+            <button class="tour-btn tour-btn-skip" @click.stop="tourSkip">{{ lang === 'zh' ? '\u8DF3\u8FC7' : 'Skip' }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     </main>
   </div>
@@ -4902,6 +5400,98 @@ createApp({
         // Task priority select
         'priority.focus': '专注',
         'priority.queue': '队列',
+        // Welcome overlay
+        'welcome.title': '系统在线',
+        'welcome.subtitle': '欢迎登舰，指挥官',
+        'welcome.headline': '第一个 AI-Native<br>生活仪表盘',
+        'welcome.philosophy': '所有操作的核心是<em>跟 AI 对话</em>。<br>跟 AI 说"帮我排计划"、"记住这个人"、"我有个想法"——<br>AI 帮你<em>记录、整理、追踪一切</em>。<br>这里只是你的<em>全景展示板</em>。',
+        'welcome.enter': '进入舰桥',
+        'welcome.footnote': '7 个模块待命 — 首次进入每个页面时会自动引导你',
+        'welcome.guide': '导航指南',
+        'welcome.secToday': '今天',
+        'welcome.secTodayDesc': '指挥中心',
+        'welcome.secPlan': '规划',
+        'welcome.secPlanDesc': '任务编排',
+        'welcome.secJournal': '日记',
+        'welcome.secJournalDesc': '航行日志',
+        'welcome.secMemory': '记忆',
+        'welcome.secMemoryDesc': '神经核心',
+        'welcome.secBrain': '大脑',
+        'welcome.secBrainDesc': '认知网络',
+        'welcome.secPeople': '人脉',
+        'welcome.secPeopleDesc': '船员名册',
+        'welcome.secFragments': '碎片',
+        'welcome.secFragmentsDesc': '漂流收集器',
+        'guide.todayIntro': '今天的任务和日程。跟 AI 说"今天要做..."自动添加，完成后打勾',
+        'guide.planIntro': '周计划、月目标、Someday 想法。把大方向拆成可执行的小步骤',
+        'guide.journalIntro': '每天的 AI 自动总结 + 你的个人笔记。睡前说"总结"，AI 帮你写日记',
+        'guide.memoryIntro': '你的身份、价值观、所学、成长轨迹。AI 从对话中自动提取并更新',
+        'guide.brainIntro': '知识网络可视化。看到你的记忆、项目、决策之间的关联',
+        'guide.peopleIntro': '人脉管理。跟 AI 说"记住这个人..."，自动建立联系人档案',
+        'guide.fragmentsIntro': '灵感碎片和收藏链接。随时说"记一下..."或分享链接，自动归档',
+        // Briefing content
+        'briefing.back': '返回',
+        'briefing.goTo': '进入模块',
+        'briefing.missionBriefing': '任务简报',
+        'briefing.overview': '概览',
+        'briefing.features': '核心功能',
+        'briefing.howToUse': '使用方法',
+        'briefing.aiIntegration': 'AI 协作',
+        'briefing.today.title': '今天 — 指挥中心',
+        'briefing.today.overview': '你的每日任务控制台。一眼看到今天的任务、日程事件和完成进度。',
+        'briefing.today.featuresList': 'Focus/Queue 双轨任务系统|拖拽任务到时间线排期|每日日历视图|实时进度追踪',
+        'briefing.today.usage': '跟 AI 说"我要..."来添加任务。把任务拖到时间线上排期。完成后打勾。',
+        'briefing.today.ai': 'AI 维护你的任务列表，自动排优先级，提醒逾期事项。',
+        'briefing.planning.title': '规划 — 任务编排',
+        'briefing.planning.overview': '跨周、月、长期的战略规划视图。',
+        'briefing.planning.featuresList': '周/月任务看板|Someday 清单|跨时间维度拖拽|目标追踪',
+        'briefing.planning.usage': '周一规划本周。在周/月/Someday 之间移动任务。追踪目标进度。',
+        'briefing.planning.ai': 'AI 根据你的目标和截止日期建议优先级，自动把未完成任务向前推进。',
+        'briefing.journal.title': '日记 — 航行日志',
+        'briefing.journal.overview': '你的每日记录。想法、反思、决策——全部被捕捉并可搜索。',
+        'briefing.journal.featuresList': '富文本编辑器|日/周/月视图|日历导航|多标签笔记',
+        'briefing.journal.usage': '写每日反思。用周视图发现规律。AI 在睡前生成每日总结。',
+        'briefing.journal.ai': 'AI 提示睡前回顾，生成总结，从你的记录中提取洞察。',
+        'briefing.memory.title': '记忆 — 神经核心',
+        'briefing.memory.overview': '你的身份、价值观、知识和成长轨迹——你是谁的核心。',
+        'briefing.memory.featuresList': '身份档案|价值观罗盘|学习日志|演变时间线',
+        'briefing.memory.usage': '让 AI 通过对话了解你。随着成长，回顾并更新你的身份。',
+        'briefing.memory.ai': 'AI 把对话蒸馏成身份更新，追踪你的价值观和知识如何演变。',
+        'briefing.brain.title': '大脑 — 认知网络',
+        'briefing.brain.overview': '你整个知识网络和项目连接的可视化地图。',
+        'briefing.brain.featuresList': '神经漩涡可视化|项目星座图|连接追踪|活跃度指标',
+        'briefing.brain.usage': '看着你的大脑随知识增长而生长。观察项目之间如何连接。',
+        'briefing.brain.ai': 'AI 自动映射你的想法、项目和决策之间的连接。',
+        'briefing.people.title': '人脉 — 船员名册',
+        'briefing.people.overview': '你的个人 CRM。追踪关系、互动和连接强度。',
+        'briefing.people.featuresList': '联系人卡片 + 亲密度计|按关系类型分类|生日追踪|互动历史',
+        'briefing.people.usage': '告诉 AI 你认识的人。定期回顾你的关系网。',
+        'briefing.people.ai': 'AI 提醒你保持联系，追踪互动历史，建议跟进。',
+        'briefing.fragments.title': '碎片 — 漂流收集器',
+        'briefing.fragments.overview': '灵感和收藏链接的临时着陆点，等待它们变成更有价值的东西。',
+        'briefing.fragments.featuresList': '快速捕捉|链接收藏|自动分类|闲置自动归档',
+        'briefing.fragments.usage': '跟 AI 说"我有个想法..."或分享链接。碎片会自动整理。',
+        'briefing.fragments.ai': 'AI 实时捕捉碎片，把可执行的想法路由到任务，归档旧的。',
+        // Enhanced empty states
+        'empty.todayTitle': '暂无任务',
+        'empty.todayDesc': '今天还没有任务。跟 AI 说"今天要做..."来添加任务，\n或者在 active.md 的 Focus 区直接写入。',
+        'empty.todayHint': '专注区 = 今天必须做 / 队列 = 排队中',
+        'empty.peopleTitle': '船员名册为空',
+        'empty.peopleDesc': '还没有联系人数据。\n跟 AI 说 "添加联系人..." 来建立你的人脉档案。',
+        'empty.peopleHint': '数据来源: 04-people/ 目录',
+        'empty.timetableTitle': '未配置课表',
+        'empty.timetableDesc': '在 me/timetable.md 中配置你的课程表，\n系统会自动解析并展示。',
+        'empty.timetableHint': '支持每周重复课程 + 考试安排',
+        'empty.financeTitle': '暂无财务记录',
+        'empty.financeDesc': '在 02-finance/ 目录下创建 markdown 文件来记录财务信息。\n支持收支记录、预算追踪、投资笔记。',
+        'empty.financeHint': '跟 AI 说"记一笔..."自动归档',
+        'empty.contentTitle': '内容中心待激活',
+        'empty.contentDesc': '这里展示你的自媒体品牌、账号和内容策略。\n数据来自 06-content/ 目录。',
+        'empty.contentHint': '品牌 / 账号 / 分发策略',
+        'empty.fragNotesTitle': '思绪海面平静',
+        'empty.fragNotesDesc': '碎片想法会在这里漂浮。\n跟 AI 说"我有个想法..."或"记一下..."，它会落在这里。',
+        'empty.fragColTitle': '收藏夹为空',
+        'empty.fragColDesc': '看到好文章、好工具？\n跟 AI 说"收藏一下"或分享链接，自动归档到这里。',
         // Lang toggle
         'lang.toggle': 'EN',
       },
@@ -5083,12 +5673,288 @@ createApp({
         'frag.drifting': 'DRIFTING',
         'priority.focus': 'Focus',
         'priority.queue': 'Queue',
+        // Welcome overlay
+        'welcome.title': 'SYSTEM ONLINE',
+        'welcome.subtitle': 'WELCOME ABOARD, COMMANDER',
+        'welcome.headline': 'The First AI-Native<br>Life Dashboard',
+        'welcome.philosophy': 'The core of everything is <em>talking to AI</em>.<br>Say "plan my week", "remember this person", "I had an idea" —<br>AI <em>records, organizes, and tracks</em> it all.<br>This is just your <em>panoramic display board</em>.',
+        'welcome.enter': 'ENTER BRIDGE',
+        'welcome.footnote': '7 MODULES STANDING BY — GUIDED TOURS ACTIVATE ON FIRST VISIT',
+        'welcome.guide': 'GUIDE',
+        'welcome.secToday': 'TODAY',
+        'welcome.secTodayDesc': 'Command center',
+        'welcome.secPlan': 'PLAN',
+        'welcome.secPlanDesc': 'Mission planning',
+        'welcome.secJournal': 'JOURNAL',
+        'welcome.secJournalDesc': "Ship's log",
+        'welcome.secMemory': 'MEMORY',
+        'welcome.secMemoryDesc': 'Neural core',
+        'welcome.secBrain': 'BRAIN',
+        'welcome.secBrainDesc': 'Cognition net',
+        'welcome.secPeople': 'PEOPLE',
+        'welcome.secPeopleDesc': 'Crew roster',
+        'welcome.secFragments': 'FRAGMENTS',
+        'welcome.secFragmentsDesc': 'Drift collector',
+        'guide.todayIntro': 'Today\'s tasks and schedule. Tell AI "I need to..." to add tasks automatically',
+        'guide.planIntro': 'Weekly plans, monthly goals, someday ideas. Break big goals into actionable steps',
+        'guide.journalIntro': 'AI daily summary + personal notes. Say "summarize" before bed — AI writes your journal',
+        'guide.memoryIntro': 'Your identity, values, learnings, growth. AI auto-extracts from conversations',
+        'guide.brainIntro': 'Knowledge network visualization. See connections between memories, projects, decisions',
+        'guide.peopleIntro': 'Contact management. Tell AI "remember this person..." to auto-build profiles',
+        'guide.fragmentsIntro': 'Fleeting thoughts and saved links. Say "note this..." or share a URL to auto-archive',
+        // Briefing content
+        'briefing.back': 'BACK',
+        'briefing.goTo': 'GO TO MODULE',
+        'briefing.missionBriefing': 'MISSION BRIEFING',
+        'briefing.overview': 'OVERVIEW',
+        'briefing.features': 'KEY FEATURES',
+        'briefing.howToUse': 'HOW TO USE',
+        'briefing.aiIntegration': 'AI INTEGRATION',
+        'briefing.today.title': 'TODAY — Command Center',
+        'briefing.today.overview': 'Your daily mission control. See today\'s tasks, calendar events, and progress at a glance.',
+        'briefing.today.featuresList': 'Focus/Queue task system|Drag tasks to timeline|Daily calendar view|Real-time progress tracking',
+        'briefing.today.usage': 'Tell AI "I need to..." to add tasks. Drag tasks onto the timeline to schedule. Check off completed missions.',
+        'briefing.today.ai': 'AI maintains your task list, auto-prioritizes, and reminds you of overdue items.',
+        'briefing.planning.title': 'PLAN — Mission Planning',
+        'briefing.planning.overview': 'Strategic planning across week, month, and long-term horizons.',
+        'briefing.planning.featuresList': 'Weekly/monthly mission boards|Someday list|Drag between timeframes|Goal tracking',
+        'briefing.planning.usage': 'Plan your week on Monday. Move items between week/month/someday. Track goal progress.',
+        'briefing.planning.ai': 'AI suggests priorities based on your goals and deadlines. Auto-carries unfinished tasks forward.',
+        'briefing.journal.title': 'JOURNAL — Ship\'s Log',
+        'briefing.journal.overview': 'Your daily record. Thoughts, reflections, decisions — all captured and searchable.',
+        'briefing.journal.featuresList': 'Rich text editor|Daily/weekly/monthly views|Calendar navigation|Multi-note tabs',
+        'briefing.journal.usage': 'Write daily reflections. Use weekly view for patterns. AI generates daily summaries at bedtime.',
+        'briefing.journal.ai': 'AI prompts bedtime review, generates summaries, and extracts insights from your entries.',
+        'briefing.memory.title': 'MEMORY — Neural Core',
+        'briefing.memory.overview': 'Your identity, values, knowledge, and growth trajectory — the core of who you are.',
+        'briefing.memory.featuresList': 'Identity profile|Values compass|Learning log|Evolution timeline',
+        'briefing.memory.usage': 'Let AI learn about you through conversations. Review and update your identity as you grow.',
+        'briefing.memory.ai': 'AI distills conversations into identity updates. Tracks how your values and knowledge evolve over time.',
+        'briefing.brain.title': 'BRAIN — Cognition Net',
+        'briefing.brain.overview': 'A visual map of your entire knowledge network and project connections.',
+        'briefing.brain.featuresList': 'Neural vortex visualization|Project constellation|Connection tracking|Activity metrics',
+        'briefing.brain.usage': 'Watch your brain grow as you add more knowledge. See how projects connect.',
+        'briefing.brain.ai': 'AI maps connections between your ideas, projects, and decisions automatically.',
+        'briefing.people.title': 'PEOPLE — Crew Roster',
+        'briefing.people.overview': 'Your personal CRM. Track relationships, interactions, and connection strength.',
+        'briefing.people.featuresList': 'Contact cards with strength meters|Categorized by relationship type|Birthday tracking|Interaction history',
+        'briefing.people.usage': 'Tell AI about people you meet. Review relationships periodically.',
+        'briefing.people.ai': 'AI reminds you to stay in touch, tracks interaction history, suggests follow-ups.',
+        'briefing.fragments.title': 'FRAGMENTS — Drift Collector',
+        'briefing.fragments.overview': 'Where fleeting thoughts and saved links land before they become something more.',
+        'briefing.fragments.featuresList': 'Quick capture|Link bookmarking|Auto-categorization|Decay to someday',
+        'briefing.fragments.usage': 'Tell AI "I had an idea..." or share a link. Fragments auto-organize over time.',
+        'briefing.fragments.ai': 'AI captures fragments in real-time, routes actionable items to tasks, archives old ones.',
+        // Enhanced empty states
+        'empty.todayTitle': 'NO ACTIVE MISSIONS',
+        'empty.todayDesc': 'No tasks for today. Tell AI "I need to..." to add tasks,\nor write directly in the Focus section of active.md.',
+        'empty.todayHint': 'FOCUS = must do today / QUEUE = in line',
+        'empty.peopleTitle': 'CREW ROSTER EMPTY',
+        'empty.peopleDesc': 'No contacts loaded yet.\nTell AI "Add person..." to build your network file.',
+        'empty.peopleHint': 'Source: 04-people/ directory',
+        'empty.timetableTitle': 'SCHEDULE NOT CONFIGURED',
+        'empty.timetableDesc': 'Configure your timetable in me/timetable.md.\nThe system will parse and display it automatically.',
+        'empty.timetableHint': 'Supports weekly recurring classes + exams',
+        'empty.financeTitle': 'NO FINANCE RECORDS',
+        'empty.financeDesc': 'Create markdown files in 02-finance/ to track finances.\nSupports income/expense records, budgets, investment notes.',
+        'empty.financeHint': 'Tell AI "log expense..." to auto-file',
+        'empty.contentTitle': 'CONTENT HUB INACTIVE',
+        'empty.contentDesc': 'This page displays your brands, accounts, and content strategy.\nData sourced from 06-content/ directory.',
+        'empty.contentHint': 'Brands / Accounts / Distribution',
+        'empty.fragNotesTitle': 'SIGNAL QUIET',
+        'empty.fragNotesDesc': 'Fleeting thoughts land here.\nTell AI "I had an idea..." or "note this..." and it drifts here.',
+        'empty.fragColTitle': 'COLLECTIONS EMPTY',
+        'empty.fragColDesc': 'Found a good article or tool?\nTell AI "save this" or share a link to auto-archive here.',
         'lang.toggle': '中文',
       }
     };
 
     function t(key) { return i18n[lang.value]?.[key] || i18n['en']?.[key] || key; }
     // ===== End i18n System =====
+
+    // ===== Welcome Overlay =====
+    const showWelcome = ref(!localStorage.getItem('loci-welcome-done'));
+    const showGuide = ref(false);
+    const guidePage = ref(0); // carousel page index (6 items per page)
+    const guideModules = [
+      { id: 'today', icon: '&#9678;', nameKey: 'welcome.secToday', introKey: 'guide.todayIntro' },
+      { id: 'planning', icon: '&#9670;', nameKey: 'welcome.secPlan', introKey: 'guide.planIntro' },
+      { id: 'journal', icon: '&#9687;', nameKey: 'welcome.secJournal', introKey: 'guide.journalIntro' },
+      { id: 'memory', icon: '&#9674;', nameKey: 'welcome.secMemory', introKey: 'guide.memoryIntro' },
+      { id: 'brain', icon: '&#9673;', nameKey: 'welcome.secBrain', introKey: 'guide.brainIntro' },
+      { id: 'people', icon: '&#9671;', nameKey: 'welcome.secPeople', introKey: 'guide.peopleIntro' },
+      { id: 'fragments', icon: '&#10043;', nameKey: 'welcome.secFragments', introKey: 'guide.fragmentsIntro' },
+    ];
+    const guidePerPage = 6;
+    const guideTotalPages = computed(() => Math.ceil(guideModules.length / guidePerPage));
+    const guidePageItems = computed(() => {
+      const start = guidePage.value * guidePerPage;
+      return guideModules.slice(start, start + guidePerPage);
+    });
+    const guideBriefing = ref(null); // null = main welcome, 'today'|'planning'|'journal'|etc = briefing view
+    function dismissWelcome() {
+      showWelcome.value = false;
+      guideBriefing.value = null;
+      localStorage.setItem('loci-welcome-done', '1');
+      // Show the GUIDE picker so user can explore modules
+      setTimeout(() => { showGuide.value = true; }, 300);
+    }
+    // ===== End Welcome Overlay =====
+
+    // ===== Tour System =====
+    const tourActive = ref(false);
+    const tourStep = ref(0);
+    const tourPage = ref(null);
+    const tourRect = ref({ top: 0, left: 0, width: 0, height: 0 });
+    const tourTooltipPos = ref({ top: 0, left: 0 });
+
+    const tourSteps = {
+      today: [
+        { target: '[data-tour="date-picker"]', title: { zh: '\u65E5\u671F\u5BFC\u822A', en: 'Date Navigation' }, text: { zh: '\u5DE6\u53F3\u5207\u6362\u67E5\u770B\u4E0D\u540C\u65E5\u671F\u7684\u4EFB\u52A1\u548C\u65E5\u7A0B', en: 'Navigate between days to see tasks and events' }, pos: 'bottom' },
+        { target: '[data-tour="mission-log"]', title: { zh: '\u4EFB\u52A1\u65E5\u5FD7', en: 'Mission Log' }, text: { zh: 'Focus = \u4ECA\u5929\u5FC5\u987B\u505A\uFF0CQueue = \u6392\u961F\u4E2D\u3002\u62D6\u62FD\u4EFB\u52A1\u5230\u65F6\u95F4\u7EBF\u6392\u671F', en: 'Focus = must do today, Queue = in line. Drag tasks to timeline to schedule' }, pos: 'bottom' },
+        { target: '[data-tour="add-task"]', title: { zh: '\u6DFB\u52A0\u4EFB\u52A1', en: 'Add Task' }, text: { zh: '\u70B9\u8FD9\u91CC\u624B\u52A8\u6DFB\u52A0\uFF0C\u6216\u76F4\u63A5\u8DDF AI \u8BF4\u201C\u6211\u8981...\u201D', en: 'Click to add manually, or tell AI "I need to..."' }, pos: 'left' },
+        { target: '[data-tour="day-manifest"]', title: { zh: '\u65F6\u95F4\u7EBF', en: 'Timeline' }, text: { zh: '\u4F60\u7684\u65E5\u7A0B\u65F6\u95F4\u8F74\uFF0C\u53EF\u4EE5\u62D6\u62FD\u4EFB\u52A1\u5230\u5177\u4F53\u65F6\u95F4\u6BB5', en: 'Your day timeline \u2014 drag tasks onto time slots to schedule' }, pos: 'top' },
+      ],
+      planning: [
+        { target: '[data-tour="plan-tabs"]', title: { zh: '\u89C4\u5212\u89C6\u56FE', en: 'Planning Views' }, text: { zh: '\u5728\u300C\u89C4\u5212\u300D\u548C\u300C\u65B9\u5411\u300D\u4E4B\u95F4\u5207\u6362', en: 'Switch between Planning and Direction views' }, pos: 'bottom' },
+        { target: '[data-tour="plan-week"]', title: { zh: '\u672C\u5468\u4EFB\u52A1', en: 'Weekly Tasks' }, text: { zh: '\u672C\u5468\u8981\u505A\u7684\u4E8B\u3002\u53EF\u4EE5\u4ECE\u6708\u5EA6\u6216 Someday \u62D6\u8FDB\u6765', en: 'This week\'s tasks. Drag items in from month or someday' }, pos: 'right' },
+        { target: '[data-tour="plan-month"]', title: { zh: '\u672C\u6708\u76EE\u6807', en: 'Monthly Goals' }, text: { zh: '\u6708\u5EA6\u7EF4\u5EA6\u7684\u4EFB\u52A1\u548C\u76EE\u6807', en: 'Monthly tasks and goals' }, pos: 'right' },
+        { target: '[data-tour="plan-someday"]', title: { zh: '\u4EE5\u540E\u518D\u8BF4', en: 'Someday' }, text: { zh: '\u4E0D\u6025\u7684\u60F3\u6CD5\u653E\u8FD9\u91CC\uFF0C\u4E0D\u4F1A\u4E22', en: 'Non-urgent ideas live here \u2014 they won\'t get lost' }, pos: 'right' },
+      ],
+      journal: [
+        { target: '[data-tour="journal-ai-summary"]', title: { zh: 'AI 每日总结', en: 'AI Daily Summary' }, text: { zh: '每天睡前跟 AI 说"总结"，AI 会自动回顾你今天做了什么、学了什么、做了哪些决策，生成精炼的每日报告。你不用自己写日记', en: 'Say "summarize" before bed — AI reviews your day automatically: what you did, learned, decided. It writes the journal for you' }, pos: 'bottom' },
+        { target: '[data-tour="journal-date"]', title: { zh: '日期导航', en: 'Date Navigation' }, text: { zh: '切换日期回顾历史记录，日/周/月三种视图', en: 'Navigate dates to review history — day, week, or month view' }, pos: 'bottom' },
+        { target: '[data-tour="journal-editor"]', title: { zh: '个人笔记', en: 'Personal Notes' }, text: { zh: '你也可以自己写笔记。支持富文本、图片、拖拽', en: 'You can also write your own notes — rich text, images, drag & drop' }, pos: 'top' },
+      ],
+      memory: [
+        { target: '[data-tour="memory-tabs"]', title: { zh: '\u8BB0\u5FC6\u5206\u533A', en: 'Memory Sections' }, text: { zh: '\u8EAB\u4EFD\u3001\u4EF7\u503C\u89C2\u3001\u6240\u5B66\u3001\u6F14\u53D8 \u2014 \u4F60\u7684\u6838\u5FC3\u6570\u636E', en: 'Identity, Values, Learned, Evolution \u2014 your core data' }, pos: 'bottom' },
+        { target: '[data-tour="memory-content"]', title: { zh: '\u8BB0\u5FC6\u5185\u5BB9', en: 'Memory Content' }, text: { zh: 'AI \u4ECE\u5BF9\u8BDD\u4E2D\u81EA\u52A8\u63D0\u53D6\u5E76\u66F4\u65B0\uFF0C\u4F60\u4E5F\u53EF\u4EE5\u624B\u52A8\u7F16\u8F91', en: 'AI auto-extracts from conversations. You can also edit manually' }, pos: 'top' },
+      ],
+      brain: [
+        { target: '[data-tour="brain-vortex"]', title: { zh: '\u795E\u7ECF\u6F29\u6DA1', en: 'Neural Vortex' }, text: { zh: '\u4F60\u7684\u77E5\u8BC6\u7F51\u7EDC\u53EF\u89C6\u5316\uFF0C\u968F\u7740\u8BB0\u5FC6\u589E\u957F\u800C\u6269\u5C55', en: 'Your knowledge network visualized \u2014 grows as your memory expands' }, pos: 'bottom' },
+        { target: '[data-tour="brain-constellation"]', title: { zh: '\u9879\u76EE\u661F\u5EA7', en: 'Project Constellation' }, text: { zh: '\u6240\u6709\u8FDE\u63A5\u7684\u9879\u76EE\uFF0C\u60AC\u6D6E\u67E5\u770B\u8BE6\u60C5', en: 'All connected projects \u2014 hover to see details' }, pos: 'top' },
+      ],
+      people: [
+        { target: '[data-tour="people-stats"]', title: { zh: '\u4EBA\u8109\u7EDF\u8BA1', en: 'Network Stats' }, text: { zh: '\u6309\u4EB2\u5BC6\u5EA6\u5206\u7C7B\uFF1AShield(\u81F3\u4EB2) / Neural(\u5BC6\u53CB) / Crew(\u540C\u4E8B) / Signal(\u5F31\u8FDE\u63A5)', en: 'Categorized by closeness: Shield / Neural / Crew / Signal' }, pos: 'bottom' },
+        { target: '[data-tour="people-cards"]', title: { zh: '\u8054\u7CFB\u4EBA\u5361\u7247', en: 'Contact Cards' }, text: { zh: '\u70B9\u51FB\u67E5\u770B\u8BE6\u60C5\uFF0C\u4EB2\u5BC6\u5EA6\u6761\u663E\u793A\u5173\u7CFB\u5F3A\u5EA6', en: 'Click for details. Strength bar shows relationship health' }, pos: 'top' },
+      ],
+      fragments: [
+        { target: '[data-tour="frag-input"]', title: { zh: '\u5FEB\u901F\u6355\u6349', en: 'Quick Capture' }, text: { zh: '\u8F93\u5165\u4E00\u4E2A\u60F3\u6CD5\u6216\u94FE\u63A5\uFF0C\u7ACB\u5373\u4FDD\u5B58', en: 'Type a thought or link \u2014 saved instantly' }, pos: 'bottom' },
+        { target: '[data-tour="frag-tabs"]', title: { zh: '\u7B14\u8BB0 / \u6536\u85CF', en: 'Notes / Collections' }, text: { zh: '\u7075\u611F\u788E\u7247\u548C\u6536\u85CF\u94FE\u63A5\u5206\u5F00\u7BA1\u7406', en: 'Fleeting thoughts and saved links managed separately' }, pos: 'bottom' },
+      ],
+    };
+
+    function startTour(page) {
+      showWelcome.value = false;
+      localStorage.setItem('loci-welcome-done', '1');
+      guideBriefing.value = null;
+      currentPage.value = page;
+      tourPage.value = page;
+      tourStep.value = 0;
+      tourActive.value = true;
+      nextTick(() => updateTourPosition());
+    }
+
+    function updateTourPosition() {
+      const steps = tourSteps[tourPage.value];
+      if (!steps || tourStep.value >= steps.length) {
+        tourActive.value = false;
+        return;
+      }
+      const step = steps[tourStep.value];
+      const el = document.querySelector(step.target);
+      if (el) {
+        // Scroll element into view if needed
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Wait a tick for scroll, then measure
+        setTimeout(() => {
+          const rect = el.getBoundingClientRect();
+          // Clamp highlight rect to viewport
+          const vh = window.innerHeight;
+          const vw = window.innerWidth;
+          tourRect.value = { top: rect.top, left: rect.left, width: Math.min(rect.width, vw - rect.left - 8), height: Math.min(rect.height, vh - rect.top - 8) };
+          const tt = { top: 0, left: 0 };
+          const pad = 16;
+          const ttWidth = 320; // approximate tooltip width
+          const ttHeight = 140; // approximate tooltip height
+          if (step.pos === 'bottom') {
+            tt.top = rect.bottom + pad;
+            tt.left = rect.left + rect.width / 2;
+          } else if (step.pos === 'top') {
+            tt.top = rect.top - pad;
+            tt.left = rect.left + rect.width / 2;
+          } else if (step.pos === 'left') {
+            tt.top = rect.top + rect.height / 2;
+            tt.left = rect.left - pad;
+          } else if (step.pos === 'right') {
+            tt.top = rect.top + rect.height / 2;
+            tt.left = rect.right + pad;
+          }
+          // Clamp tooltip to stay in viewport
+          if (tt.top + ttHeight > vh) tt.top = vh - ttHeight - 12;
+          if (tt.top < 12) tt.top = 12;
+          if (tt.left + ttWidth / 2 > vw) tt.left = vw - ttWidth / 2 - 12;
+          if (tt.left - ttWidth / 2 < 12) tt.left = ttWidth / 2 + 12;
+          tourTooltipPos.value = tt;
+        }, 150);
+      } else {
+        tourNext();
+      }
+    }
+
+    function tourNext() {
+      const steps = tourSteps[tourPage.value];
+      if (tourStep.value < steps.length - 1) {
+        tourStep.value++;
+        nextTick(() => setTimeout(() => updateTourPosition(), 100));
+      } else {
+        markPageToured(tourPage.value);
+        tourActive.value = false;
+        tourPage.value = null;
+      }
+    }
+
+    function tourPrev() {
+      if (tourStep.value > 0) {
+        tourStep.value--;
+        nextTick(() => setTimeout(() => updateTourPosition(), 100));
+      }
+    }
+
+    function markPageToured(page) {
+      if (!page) return;
+      const toured = JSON.parse(localStorage.getItem('loci-toured-pages') || '{}');
+      toured[page] = true;
+      localStorage.setItem('loci-toured-pages', JSON.stringify(toured));
+    }
+
+    function isPageToured(page) {
+      const toured = JSON.parse(localStorage.getItem('loci-toured-pages') || '{}');
+      return !!toured[page];
+    }
+
+    function tourSkip() {
+      markPageToured(tourPage.value);
+      tourActive.value = false;
+      tourPage.value = null;
+    }
+
+    const currentTourStep = computed(() => {
+      if (!tourPage.value || !tourSteps[tourPage.value]) return null;
+      const step = tourSteps[tourPage.value][tourStep.value];
+      if (!step) return null;
+      return {
+        title: step.title[lang.value] || step.title.en,
+        text: step.text[lang.value] || step.text.en,
+        pos: step.pos,
+      };
+    });
+
+    const tourStepCount = computed(() => {
+      if (!tourPage.value || !tourSteps[tourPage.value]) return 0;
+      return tourSteps[tourPage.value].length;
+    });
+    // ===== End Tour System =====
 
     const emptyHtml = computed(() => lang.value === 'zh' ? '<p style="color: #aaaaaa;">\u25A0 暂无数据</p>' : '<p style="color: #aaaaaa;">\u25A0 No data</p>');
 
@@ -6812,6 +7678,19 @@ createApp({
       if (newPage === 'journal') {
         nextTick(() => { setTimeout(initMemoryCanvases, 100); });
       }
+      // Auto-tour on first visit to any page (only if welcome is done and not already touring)
+      if (newPage && localStorage.getItem('loci-welcome-done') && !tourActive.value && tourSteps[newPage] && !isPageToured(newPage)) {
+        nextTick(() => {
+          setTimeout(() => {
+            if (!tourActive.value) {
+              tourPage.value = newPage;
+              tourStep.value = 0;
+              tourActive.value = true;
+              nextTick(() => updateTourPosition());
+            }
+          }, 500); // brief delay so page content renders first
+        });
+      }
     });
 
     watch(memoryTab, () => {
@@ -8230,8 +9109,32 @@ createApp({
     // Date-aware task source — reactive, updates when viewingDate changes
     // Today: active_tasks. Other dates: daily plan tasks, then mock data fallback.
     const viewingTasks = computed(() => {
-      if (calendarDayOffset.value === 0) return data.value?.tasks?.active_tasks || {};
-      // Check if there's a daily plan for this date
+      if (calendarDayOffset.value === 0) {
+        // Today: merge daily plan tasks (no-time tasks) + active.md
+        const active = data.value?.tasks?.active_tasks || {};
+        const plan = todayPlan.value;
+        if (plan && plan.content) {
+          const dailyParsed = parseDailyPlanTasks(plan.content);
+          // Merge daily plan tasks into active tasks (daily plan = Focus/P0)
+          if (dailyParsed.P0 && dailyParsed.P0.length > 0) {
+            const merged = {};
+            // Copy active tasks
+            for (const p of Object.keys(active)) {
+              merged[p] = [...(active[p] || [])];
+            }
+            // Add daily plan tasks to P0 (Focus), avoiding duplicates
+            if (!merged.P0) merged.P0 = [];
+            for (const dt of dailyParsed.P0) {
+              const dtText = dt.text.replace(/<[^>]*>/g, '').trim();
+              const exists = merged.P0.some(t => t.text.replace(/<[^>]*>/g, '').trim() === dtText);
+              if (!exists) merged.P0.push(dt);
+            }
+            return merged;
+          }
+        }
+        return active;
+      }
+      // Other dates: daily plan tasks, then mock data fallback
       const plan = todayPlan.value;
       if (plan && plan.content) {
         const parsed = parseDailyPlanTasks(plan.content);
@@ -9716,6 +10619,8 @@ createApp({
       getPeopleInitials, valOrDash, buildStrengthSegs, peopleBirthdayCountdown,
       ccParallax, ccResetParallax,
       taskHtml, mcParallax, mcResetParallax,
+      showWelcome, showGuide, dismissWelcome, guideBriefing, guidePage, guideTotalPages, guidePageItems, guideModules,
+      tourActive, tourStep, tourPage, tourRect, tourTooltipPos, tourNext, tourPrev, tourSkip, startTour, currentTourStep, tourStepCount, updateTourPosition,
     };
   }
 }).mount('#app');
