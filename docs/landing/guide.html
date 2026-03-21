@@ -259,6 +259,65 @@
     footer a { color: rgba(232,230,240,0.6); text-decoration: none; }
     footer a:hover { color: rgba(232,230,240,0.9); }
 
+    /* ===== Install Tabs ===== */
+    .install-tabs {
+      display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 0;
+    }
+    .install-tab-group {
+      display: flex; gap: 0;
+    }
+    .install-tab-group + .install-tab-group {
+      margin-left: auto;
+    }
+    .install-tab {
+      padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      transition: all 0.2s; font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .install-tab:first-child { border-radius: 8px 0 0 0; }
+    .install-tab:last-child { border-radius: 0 8px 0 0; }
+    .install-tab.active {
+      background: var(--purple); color: #fff; border-color: var(--purple);
+    }
+    .install-tab:not(.active):hover { color: var(--text); background: rgba(124,108,240,0.08); }
+    .install-tab-os {
+      padding: 0.5rem 1rem; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      transition: all 0.2s; letter-spacing: 0.02em;
+    }
+    .install-tab-os:first-child { border-radius: 8px 0 0 0; }
+    .install-tab-os:last-child { border-radius: 0 8px 0 0; }
+    .install-tab-os.active {
+      background: rgba(78,205,196,0.15); color: var(--teal); border-color: var(--teal);
+    }
+    .install-tab-os:not(.active):hover { color: var(--text); }
+    .install-panel {
+      display: none; background: #08081a; border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 14px 14px; padding: 1.5rem 2rem; position: relative;
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88rem;
+      line-height: 1.9; color: #c0bdd0;
+    }
+    .install-panel.active { display: block; }
+    .install-panel .comment { color: #5a5670; }
+    .install-panel .cmd { color: #7c6cf0; }
+    .install-panel .str { color: #4ecdc4; }
+    .install-copy {
+      position: absolute; top: 12px; right: 12px; background: rgba(124,108,240,0.1);
+      border: 1px solid rgba(124,108,240,0.2); border-radius: 6px; padding: 4px 8px;
+      color: var(--text-muted); font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+    }
+    .install-copy:hover { background: rgba(124,108,240,0.2); color: var(--text); }
+    .install-section { margin-bottom: 2.5rem; }
+    .install-section h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .install-section p { font-size: 0.92rem; margin-bottom: 1rem; }
+    .for-badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;
+      vertical-align: middle; margin-left: 0.5rem;
+    }
+    .for-cc { background: rgba(124,108,240,0.15); color: var(--purple); }
+    .for-cursor { background: rgba(78,205,196,0.15); color: var(--teal); }
+
     /* ===== Animations ===== */
     .fade-in { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .fade-in.visible { opacity: 1; transform: translateY(0); }
@@ -686,30 +745,151 @@
         <div class="step-header">
           <span class="section-count">8</span>
           <div>
-            <span class="section-label">Get Started</span>
-            <h2>Three commands. Two minutes.</h2>
+            <span class="section-label">Quick Start</span>
+            <h2>One command. Any platform.</h2>
           </div>
         </div>
 
-        <p style="margin-bottom: 2rem;">Works on macOS, Linux, and Windows (WSL). The setup script asks a few questions and configures everything in ~2 minutes.</p>
+        <!-- ===== For Claude Code / Codex ===== -->
+        <div class="install-section">
+          <h3>For Claude Code & Codex <span class="for-badge for-cc">Recommended</span></h3>
+          <p>Works on macOS, Linux, and Windows. Setup wizard runs automatically.</p>
 
-        <div class="code-block">
-<span class="comment"># One-line install (recommended)</span>
-<span class="cmd">curl</span> -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd">|</span> bash
+          <div>
+            <div style="display:flex; flex-wrap:wrap;">
+              <div class="install-tab-group">
+                <button class="install-tab active" onclick="switchInstallTab('cc', 'npx', this)">npx</button>
+                <button class="install-tab" onclick="switchInstallTab('cc', 'one-liner', this)">One-liner</button>
+                <button class="install-tab" onclick="switchInstallTab('cc', 'manual', this)">Manual</button>
+              </div>
+              <div class="install-tab-group">
+                <button class="install-tab-os active" onclick="switchOsTab('cc', 'all', this)">All platforms</button>
+                <button class="install-tab-os" onclick="switchOsTab('cc', 'mac', this)">macOS/Linux</button>
+                <button class="install-tab-os" onclick="switchOsTab('cc', 'win', this)">Windows</button>
+              </div>
+            </div>
+
+            <!-- npx (all) -->
+            <div class="install-panel active" id="cc-npx-all">
+<span class="comment"># Works everywhere. Installs everything.</span>
+<span class="cmd">$</span> npx create-loci
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+            <!-- npx (mac) -->
+            <div class="install-panel" id="cc-npx-mac">
+<span class="comment"># Terminal setup with interactive wizard</span>
+<span class="cmd">$</span> npx create-loci
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+            <!-- npx (win) -->
+            <div class="install-panel" id="cc-npx-win">
+<span class="comment"># Opens browser-based setup wizard</span>
+<span class="cmd">PS&gt;</span> npx create-loci
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+
+            <!-- one-liner (all) -->
+            <div class="install-panel" id="cc-one-liner-all">
+<span class="comment"># macOS / Linux only</span>
+<span class="cmd">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
+<button class="install-copy" onclick="copyCmd('curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash')">Copy</button>
+            </div>
+            <!-- one-liner (mac) -->
+            <div class="install-panel" id="cc-one-liner-mac">
+<span class="comment"># One-line install via curl</span>
+<span class="cmd">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
+<button class="install-copy" onclick="copyCmd('curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash')">Copy</button>
+            </div>
+            <!-- one-liner (win) -->
+            <div class="install-panel" id="cc-one-liner-win">
+<span class="comment"># curl | bash is not available on Windows. Use npx instead:</span>
+<span class="cmd">PS&gt;</span> npx create-loci
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+
+            <!-- manual (all/mac) -->
+            <div class="install-panel" id="cc-manual-all">
+<span class="comment"># Clone and run setup manually</span>
+<span class="cmd">$</span> git clone https://github.com/codesstar/loci.git ~/loci
+<span class="cmd">$</span> cd ~/loci && bash setup.sh
+<button class="install-copy" onclick="copyCmd('git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci && bash setup.sh')">Copy</button>
+            </div>
+            <div class="install-panel" id="cc-manual-mac">
+<span class="comment"># Clone and run terminal setup</span>
+<span class="cmd">$</span> git clone https://github.com/codesstar/loci.git ~/loci
+<span class="cmd">$</span> cd ~/loci && bash setup.sh
+<button class="install-copy" onclick="copyCmd('git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci && bash setup.sh')">Copy</button>
+            </div>
+            <div class="install-panel" id="cc-manual-win">
+<span class="comment"># Clone and run web setup wizard</span>
+<span class="cmd">PS&gt;</span> git clone https://github.com/codesstar/loci.git $HOME\loci
+<span class="cmd">PS&gt;</span> cd $HOME\loci; node setup-web.js
+<button class="install-copy" onclick="copyCmd('git clone https://github.com/codesstar/loci.git $HOME\\loci; cd $HOME\\loci; node setup-web.js')">Copy</button>
+            </div>
+          </div>
         </div>
 
-        <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 1rem;">
-          Or clone manually: <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci && ./setup.sh</code>
-        </p>
+        <!-- ===== For Cursor / Windsurf / Other Editors ===== -->
+        <div class="install-section">
+          <h3>For Cursor / Windsurf / Other Editors <span class="for-badge for-cursor">Universal</span></h3>
+          <p>Clone the repo, open the folder in your editor. The AI reads CLAUDE.md and guides you through setup.</p>
 
-        <div style="margin-top: 2.5rem; padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;">
+          <div>
+            <div style="display:flex; flex-wrap:wrap;">
+              <div class="install-tab-group">
+                <button class="install-tab active" onclick="switchInstallTab('cursor', 'clone', this)">Git Clone</button>
+                <button class="install-tab" onclick="switchInstallTab('cursor', 'npx', this)">npx</button>
+              </div>
+              <div class="install-tab-group">
+                <button class="install-tab-os active" onclick="switchOsTab('cursor', 'mac', this)">macOS/Linux</button>
+                <button class="install-tab-os" onclick="switchOsTab('cursor', 'win', this)">Windows</button>
+              </div>
+            </div>
+
+            <!-- clone (mac) -->
+            <div class="install-panel active" id="cursor-clone-mac">
+<span class="comment"># Clone, then open in your editor</span>
+<span class="cmd">$</span> git clone https://github.com/codesstar/loci.git ~/loci
+<span class="cmd">$</span> cd ~/loci
+<span class="comment"># Open in Cursor / Windsurf / VS Code</span>
+<span class="cmd">$</span> cursor .  <span class="comment"># or: windsurf . / code .</span>
+<button class="install-copy" onclick="copyCmd('git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci')">Copy</button>
+            </div>
+            <!-- clone (win) -->
+            <div class="install-panel" id="cursor-clone-win">
+<span class="comment"># Clone, then open in your editor</span>
+<span class="cmd">PS&gt;</span> git clone https://github.com/codesstar/loci.git $HOME\loci
+<span class="cmd">PS&gt;</span> cd $HOME\loci
+<span class="comment"># Open in Cursor / Windsurf / VS Code</span>
+<span class="cmd">PS&gt;</span> cursor .  <span class="comment"># or: windsurf . / code .</span>
+<button class="install-copy" onclick="copyCmd('git clone https://github.com/codesstar/loci.git $HOME\\loci')">Copy</button>
+            </div>
+            <!-- npx (mac) -->
+            <div class="install-panel" id="cursor-npx-mac">
+<span class="comment"># Install with npx, then open in editor</span>
+<span class="cmd">$</span> npx create-loci
+<span class="cmd">$</span> cursor ~/loci  <span class="comment"># or: windsurf ~/loci / code ~/loci</span>
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+            <!-- npx (win) -->
+            <div class="install-panel" id="cursor-npx-win">
+<span class="comment"># Install with npx, then open in editor</span>
+<span class="cmd">PS&gt;</span> npx create-loci
+<span class="cmd">PS&gt;</span> cursor $HOME\loci  <span class="comment"># or: windsurf / code</span>
+<button class="install-copy" onclick="copyCmd('npx create-loci')">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- What happens next -->
+        <div style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;">
           <h3>What happens next?</h3>
           <p style="margin-top: 0.5rem; max-width: none;">
-            1. Claude reads your brain's CLAUDE.md and understands the system<br/>
-            2. It asks you a few questions about yourself (name, role, goals)<br/>
-            3. Your answers are saved to structured modules (me/identity.md, plan.md, etc.)<br/>
+            1. The setup wizard asks a few questions (name, role, goals)<br/>
+            2. Your answers are saved to structured modules (me/identity.md, plan.md, etc.)<br/>
+            3. Your AI reads CLAUDE.md and understands the whole system<br/>
             4. From now on, every conversation builds on what came before<br/>
-            5. Link your existing projects with one command: <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/loci-link</code>
+            5. Link existing projects with: <code style="color:var(--purple);background:rgba(124,108,240,0.08);padding:1px 4px;border-radius:3px;">/loci-link</code>
           </p>
         </div>
       </div>
@@ -759,6 +939,45 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+    // Install tab state
+    const installState = {
+      cc: { method: 'npx', os: 'all' },
+      cursor: { method: 'clone', os: 'mac' }
+    };
+
+    function updateInstallPanels(section) {
+      const s = installState[section];
+      // Hide all panels for this section
+      document.querySelectorAll(`[id^="${section}-"]`).forEach(p => p.classList.remove('active'));
+      // Show matching panel
+      const panel = document.getElementById(`${section}-${s.method}-${s.os}`);
+      if (panel) panel.classList.add('active');
+    }
+
+    function switchInstallTab(section, method, btn) {
+      installState[section].method = method;
+      // Update active state on method tabs
+      btn.parentElement.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      updateInstallPanels(section);
+    }
+
+    function switchOsTab(section, os, btn) {
+      installState[section].os = os;
+      // Update active state on OS tabs
+      btn.parentElement.querySelectorAll('.install-tab-os').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      updateInstallPanels(section);
+    }
+
+    function copyCmd(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+      });
+    }
   </script>
 
   <style>

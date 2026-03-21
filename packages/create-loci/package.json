@@ -1,0 +1,29 @@
+{
+  "name": "create-loci",
+  "version": "0.1.0",
+  "description": "Set up a Loci brain — Memory Palace for AI",
+  "bin": {
+    "create-loci": "index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "keywords": [
+    "ai",
+    "memory",
+    "claude",
+    "brain",
+    "loci",
+    "claude-code"
+  ],
+  "author": "codesstar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codesstar/loci.git"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

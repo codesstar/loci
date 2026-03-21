@@ -579,6 +579,48 @@ a:hover { color: rgba(26,188,156,1); }
   color: rgba(26,188,156,0.8);
 }
 
+/* ── Install Tabs ── */
+.install-tabs {
+  display: flex; flex-wrap: wrap; max-width: 680px; width: 100%;
+}
+.install-tab-group { display: flex; gap: 0; }
+.install-tab-group + .install-tab-group { margin-left: auto; }
+.install-tab-btn {
+  padding: 8px 16px; font-size: 11px; font-weight: 500; cursor: pointer;
+  background: transparent; border: 1px solid rgba(155,89,182,0.12);
+  color: rgba(200,200,220,0.35); transition: all 0.2s;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+}
+.install-tab-btn:first-child { border-radius: 8px 0 0 0; }
+.install-tab-btn:last-child { border-radius: 0 8px 0 0; }
+.install-tab-btn.active {
+  background: rgba(155,89,182,0.15); color: rgba(155,89,182,0.9);
+  border-color: rgba(155,89,182,0.3);
+}
+.install-tab-btn:not(.active):hover { color: rgba(200,200,220,0.6); }
+.install-os-btn {
+  padding: 7px 14px; font-size: 10px; font-weight: 600; cursor: pointer;
+  background: transparent; border: 1px solid rgba(155,89,182,0.12);
+  color: rgba(200,200,220,0.3); transition: all 0.2s; letter-spacing: 0.5px;
+}
+.install-os-btn:first-child { border-radius: 8px 0 0 0; }
+.install-os-btn:last-child { border-radius: 0 8px 0 0; }
+.install-os-btn.active {
+  background: rgba(26,188,156,0.12); color: rgba(26,188,156,0.9);
+  border-color: rgba(26,188,156,0.3);
+}
+.install-os-btn:not(.active):hover { color: rgba(200,200,220,0.5); }
+.install-panel {
+  display: none; max-width: 680px; width: 100%;
+  border: 1px solid rgba(155,89,182,0.12); border-top: none;
+  border-radius: 0 0 8px 8px; overflow: hidden;
+}
+.install-panel.active { display: flex; align-items: center; flex-wrap: wrap; }
+.install-for {
+  font-size: 11px; color: rgba(200,200,220,0.4); letter-spacing: 0.5px;
+  font-family: 'JetBrains Mono', monospace; margin-bottom: 6px;
+}
+
 @media (max-width: 768px) {
   .feat-grid { grid-template-columns: 1fr; }
   .dash-tab { padding: 6px 10px; font-size: 9px; }
@@ -838,12 +880,47 @@ a:hover { color: rgba(26,188,156,1); }
       </div>
     </div>
   </div>
-  <!-- One-line install -->
-  <div class="hero-install reveal" style="margin-top:12px;">
-    <div class="hero-install-cmd">
-      <span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash
+  <!-- Install tabs: OS first, then method -->
+  <div class="reveal" style="margin-top:12px;display:flex;flex-direction:column;align-items:center;">
+    <div class="install-tabs">
+      <div class="install-tab-group">
+        <button class="install-os-btn active" onclick="switchOs('top','mac',this)">macOS / Linux</button>
+        <button class="install-os-btn" onclick="switchOs('top','win',this)">Windows</button>
+      </div>
     </div>
-    <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
+    <div class="install-tabs" style="margin-top:-1px;">
+      <div class="install-tab-group">
+        <button class="install-tab-btn active" onclick="switchTab('top','curl',this)">One-liner</button>
+        <button class="install-tab-btn" onclick="switchTab('top','npx',this)">npm</button>
+        <button class="install-tab-btn" onclick="switchTab('top','git',this)">Git Clone</button>
+      </div>
+    </div>
+    <div class="install-panel active" id="top-curl-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash</div>
+      <button class="hero-install-copy" onclick="copyText('curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="top-npx-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> npx create-loci</div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="top-git-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci.git ~/loci <span class="cmd-dim">&&</span> cd ~/loci</div>
+      <button class="hero-install-copy" onclick="copyText('git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci',this)">COPY</button>
+      <div style="width:100%;color:rgba(200,200,220,0.35);font-size:11px;padding:4px 14px 6px;font-family:'IBM Plex Mono',monospace;">Then open the folder with <span style="color:rgba(26,188,156,0.6);">claude</span> or <span style="color:rgba(26,188,156,0.6);">codex</span></div>
+    </div>
+    <div class="install-panel" id="top-curl-win">
+      <div class="hero-install-cmd" style="color:rgba(200,200,220,0.4);font-size:11px;"><span class="cmd-dim">PS&gt;</span> npx create-loci <span class="cmd-dim">&nbsp;# curl | bash not available on Windows</span></div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="top-npx-win">
+      <div class="hero-install-cmd"><span class="cmd-dim">PS&gt;</span> npx create-loci</div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="top-git-win">
+      <div class="hero-install-cmd"><span class="cmd-dim">PS&gt;</span> git clone https://github.com/codesstar/loci.git $HOME\loci; cd $HOME\loci</div>
+      <button class="hero-install-copy" onclick="copyText('git clone https://github.com/codesstar/loci.git $HOME\\loci; cd $HOME\\loci',this)">COPY</button>
+      <div style="width:100%;color:rgba(200,200,220,0.35);font-size:11px;padding:4px 14px 6px;font-family:'IBM Plex Mono',monospace;">Then open the folder with <span style="color:rgba(26,188,156,0.6);">claude</span> or <span style="color:rgba(26,188,156,0.6);">codex</span></div>
+    </div>
   </div>
   <!-- Single CTA -->
   <div class="reveal" style="margin-top:8px;">
@@ -1033,11 +1110,46 @@ a:hover { color: rgba(26,188,156,1); }
     And all of it belongs to <span class="c-teal">you</span>.
   </div>
   <!-- Repeat install for people who scrolled all the way -->
-  <div class="hero-install reveal" style="margin-bottom:28px;">
-    <div class="hero-install-cmd">
-      <span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash
+  <div class="reveal" style="margin-bottom:28px;display:flex;flex-direction:column;align-items:center;">
+    <div class="install-tabs">
+      <div class="install-tab-group">
+        <button class="install-os-btn active" onclick="switchOs('btm','mac',this)">macOS / Linux</button>
+        <button class="install-os-btn" onclick="switchOs('btm','win',this)">Windows</button>
+      </div>
     </div>
-    <button class="hero-install-copy" onclick="copyCmd()">COPY</button>
+    <div class="install-tabs" style="margin-top:-1px;">
+      <div class="install-tab-group">
+        <button class="install-tab-btn active" onclick="switchTab('btm','curl',this)">One-liner</button>
+        <button class="install-tab-btn" onclick="switchTab('btm','npx',this)">npm</button>
+        <button class="install-tab-btn" onclick="switchTab('btm','git',this)">Git Clone</button>
+      </div>
+    </div>
+    <div class="install-panel active" id="btm-curl-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh <span class="cmd-dim">|</span> bash</div>
+      <button class="hero-install-copy" onclick="copyText('curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="btm-npx-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> npx create-loci</div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="btm-git-mac">
+      <div class="hero-install-cmd"><span class="cmd-dim">$</span> git clone https://github.com/codesstar/loci.git ~/loci <span class="cmd-dim">&&</span> cd ~/loci</div>
+      <button class="hero-install-copy" onclick="copyText('git clone https://github.com/codesstar/loci.git ~/loci && cd ~/loci',this)">COPY</button>
+      <div style="width:100%;color:rgba(200,200,220,0.35);font-size:11px;padding:4px 14px 6px;font-family:'IBM Plex Mono',monospace;">Then open the folder with <span style="color:rgba(26,188,156,0.6);">claude</span> or <span style="color:rgba(26,188,156,0.6);">codex</span></div>
+    </div>
+    <div class="install-panel" id="btm-curl-win">
+      <div class="hero-install-cmd" style="color:rgba(200,200,220,0.4);font-size:11px;"><span class="cmd-dim">PS&gt;</span> npx create-loci <span class="cmd-dim">&nbsp;# curl | bash not available on Windows</span></div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="btm-npx-win">
+      <div class="hero-install-cmd"><span class="cmd-dim">PS&gt;</span> npx create-loci</div>
+      <button class="hero-install-copy" onclick="copyText('npx create-loci',this)">COPY</button>
+    </div>
+    <div class="install-panel" id="btm-git-win">
+      <div class="hero-install-cmd"><span class="cmd-dim">PS&gt;</span> git clone https://github.com/codesstar/loci.git $HOME\loci; cd $HOME\loci</div>
+      <button class="hero-install-copy" onclick="copyText('git clone https://github.com/codesstar/loci.git $HOME\\loci; cd $HOME\\loci',this)">COPY</button>
+      <div style="width:100%;color:rgba(200,200,220,0.35);font-size:11px;padding:4px 14px 6px;font-family:'IBM Plex Mono',monospace;">Then open the folder with <span style="color:rgba(26,188,156,0.6);">claude</span> or <span style="color:rgba(26,188,156,0.6);">codex</span></div>
+    </div>
   </div>
   <div class="reveal" style="margin-bottom:12px;">
     <div class="btn-wrap">
@@ -1163,15 +1275,38 @@ const quoteTicker = document.getElementById('quoteTicker');
 const tickerCards = quoteTicker.innerHTML;
 quoteTicker.innerHTML = tickerCards + tickerCards; // duplicate for seamless scroll
 
-// ── Copy install command ──
-function copyCmd() {
-  const cmd = 'curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash';
-  navigator.clipboard.writeText(cmd).then(() => {
-    document.querySelectorAll('.hero-install-copy').forEach(btn => {
-      btn.textContent = 'COPIED';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
-    });
+// ── Install tab system ──
+const installState = { top: { method: 'curl', os: 'mac' }, btm: { method: 'curl', os: 'mac' } };
+
+function updatePanel(section) {
+  const s = installState[section];
+  document.querySelectorAll(`[id^="${section}-"]`).forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`${section}-${s.method}-${s.os}`);
+  if (panel) panel.classList.add('active');
+}
+function switchTab(section, method, btn) {
+  installState[section].method = method;
+  btn.parentElement.querySelectorAll('.install-tab-btn').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  updatePanel(section);
+}
+function switchOs(section, os, btn) {
+  installState[section].os = os;
+  // Windows doesn't have curl|bash — auto-switch to npm
+  if (os === 'win' && installState[section].method === 'curl') {
+    installState[section].method = 'npx';
+    const tabGroup = btn.closest('.reveal').querySelectorAll('.install-tab-btn');
+    tabGroup.forEach(t => { t.classList.remove('active'); if (t.textContent === 'npm') t.classList.add('active'); });
+  }
+  btn.parentElement.querySelectorAll('.install-os-btn').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  updatePanel(section);
+}
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
   });
 }
 
@@ -1618,14 +1753,14 @@ function initSeaweed() {
 
 initSeaweed();
 
-// Physics constants
-const SW_RADIUS = 100;
-const SW_FORCE = 1.8;
-const SW_DAMPING = 0.88;
-const SW_SPRING = 0.06;
-const SW_ROT_FORCE = 12;
-const SW_ROT_SPRING = 0.08;
-const SW_ROT_DAMP = 0.85;
+// Physics constants — toned-down gentle sway
+const SW_RADIUS = 70;
+const SW_FORCE = 0.7;
+const SW_DAMPING = 0.92;
+const SW_SPRING = 0.12;
+const SW_ROT_FORCE = 4;
+const SW_ROT_SPRING = 0.14;
+const SW_ROT_DAMP = 0.88;
 
 function animateSeaweed() {
   swChars.forEach(c => {
@@ -1664,8 +1799,8 @@ function animateSeaweed() {
 
     if (Math.abs(sx) > 0.1 || Math.abs(sy) > 0.1 || Math.abs(sr) > 0.3) {
       c.el.style.transform = `translate(${sx}px, ${sy}px) rotate(${sr}deg)`;
-      const glowIntensity = Math.min(1, (Math.abs(sx) + Math.abs(sy)) / 15);
-      c.el.style.textShadow = `0 0 ${8 + glowIntensity * 15}px rgba(155,89,182,${0.15 + glowIntensity * 0.4}), 0 0 ${glowIntensity * 30}px rgba(26,188,156,${glowIntensity * 0.2})`;
+      const glowIntensity = Math.min(1, (Math.abs(sx) + Math.abs(sy)) / 25);
+      c.el.style.textShadow = `0 0 ${6 + glowIntensity * 8}px rgba(155,89,182,${0.1 + glowIntensity * 0.2})`;
     } else {
       c.el.style.transform = '';
       c.el.style.textShadow = '';
