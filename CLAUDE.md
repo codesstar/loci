@@ -95,6 +95,13 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 | **L2** | On demand | Module READMEs, specific files, references/ |
 | **L3** | Never auto-loaded | archive/, decisions/, old journals |
 
+### Session Cache & Refresh
+
+- At session start, fresh-load L0/L1 once.
+- During the same session, treat loaded L0/L1 content as cached; do **not** re-read unchanged startup files on every user message.
+- Re-read only the smallest relevant file when context may be stale, compacted, externally changed, recently written, or when latest/current accuracy matters.
+- For "now", "today", "current", or "latest" questions, refresh the smallest relevant source before answering.
+
 ## Distillation
 
 Never save raw transcripts. Distill to structured files:

@@ -18,6 +18,12 @@
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.
 
+### Session Cache & Refresh
+- At session start, fresh-load L0/L1 once.
+- During the same session, treat loaded L0/L1 content as cached; do **not** re-read unchanged startup files on every user message.
+- Re-read only the smallest relevant file when context may be stale, compacted, externally changed, recently written, or when latest/current accuracy matters.
+- For "now", "today", "current", or "latest" questions, refresh the smallest relevant source before answering.
+
 ### Memory Retrieval Map
 When the user's request mentions a topic, project, person, decision, material, or past context, use this map to find the right place before opening files:
 - Life direction and current goals → `<brain-path>/plan.md`
