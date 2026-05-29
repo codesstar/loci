@@ -18,6 +18,19 @@
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.
 
+### Memory Retrieval Map
+When the user's request mentions a topic, project, person, decision, material, or past context, use this map to find the right place before opening files:
+- Life direction and current goals → `<brain-path>/plan.md`
+- Current priorities and open tasks → `<brain-path>/tasks/active.md`
+- Dated plans or scheduled items → `<brain-path>/tasks/daily/YYYY-MM-DD.md` and `<brain-path>/tasks/calendar.json`
+- Durable decisions and rationale → `<brain-path>/decisions/`
+- Identity, preferences, habits, people, and project index → `<brain-path>/me/`, especially `<brain-path>/me/projects.md`
+- Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
+- Saved articles, links, tools, and external materials → `<brain-path>/references/`
+- Connected project context → `.loci/memory.md` in that project, plus `.loci/to-hq.md` and `.loci/from-hq.md`
+- Historical material → `<brain-path>/archive/` only when explicitly needed
+- For any unfamiliar module, read its `README.md` first, then open the smallest specific file needed.
+
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
 - Tasks → `<brain-path>/tasks/active.md`
