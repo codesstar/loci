@@ -203,26 +203,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 }
 
 function generateCodexBlock() {
-  return `<!-- loci:start v2 -->
-## Loci Brain Connection (Global)
-
-- Brain path: \`${BRAIN_ROOT}\`
-- Claude Code and Codex can share this same local brain.
-
-### Automatic Context
-- On session start, read \`${BRAIN_ROOT}/plan.md\` for life direction
-- Read \`${BRAIN_ROOT}/tasks/active.md\` for current priorities
-- Check \`${BRAIN_ROOT}/inbox.md\` for pending items (latest 7 only)
-
-### Persistence (any directory)
-When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_ROOT}/tasks/active.md\` (route by specificity: today/daily/week/month)
-- Decisions → \`${BRAIN_ROOT}/decisions/YYYY-MM-DD-slug.md\`
-- Personal info → \`${BRAIN_ROOT}/me/\`
-- Quick thoughts → \`${BRAIN_ROOT}/inbox.md\`
-- Links / materials → \`${BRAIN_ROOT}/references/YYYY-MM-DD-slug.md\`
-- Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
-<!-- loci:end -->`;
+  return generateGlobalBlock();
 }
 
 function generateSettingsJson() {

@@ -927,28 +927,46 @@ GEOF
         print_check "$(t "Backed up existing ~/.codex/AGENTS.md" "已备份现有 ~/.codex/AGENTS.md")"
       fi
 
-      cat >> "$global_codex" << CODEXEOF
+      # Read the same global template Claude Code uses so both tools follow identical rules.
+      if [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
+        local block
+        block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+        printf "\n%s\n" "$block" >> "$global_codex"
+      else
+        # Inline fallback if template missing
+        cat >> "$global_codex" << CODEXEOF
 
 <!-- loci:start v2 -->
 ## Loci Brain Connection (Global)
 
 - Brain path: \`${BRAIN_PATH}\`
+- These rules apply **in every project and directory**, not just the brain folder.
+- Claude Code and Codex can share this same local brain.
 
 ### Automatic Context
-- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction
+- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
 - Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
 - Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_PATH}/tasks/active.md\` (route by specificity: today/daily/week/month)
+- Tasks → \`${BRAIN_PATH}/tasks/active.md\`
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
 - Personal info → \`${BRAIN_PATH}/me/\`
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
-- Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+- **Time-based tasks** → write to BOTH \`${BRAIN_PATH}/tasks/daily/YYYY-MM-DD.md\` (checklist) AND \`${BRAIN_PATH}/tasks/calendar.json\` (event with startKey/endKey in minutes from midnight). No time = daily plan only.
+- **Dashboard**: if \`server.js\` is running (\`node ${BRAIN_PATH}/.loci/dashboard/server.js\`), no action needed — it reads markdown live. Otherwise, update \`${BRAIN_PATH}/.loci/dashboard/data.json\` directly. See \`${BRAIN_PATH}/.loci/dashboard/schema.md\` for format.
+
+### Cross-Project Memory
+- In projects with \`.loci/\` directory: read \`.loci/memory.md\` for project context, use \`.loci/to-hq.md\` / \`.loci/from-hq.md\` for cross-project sync
+- Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` stay local
+
+### Commands
+/loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 CODEXEOF
+      fi
       print_check "$(t "Codex awareness enabled (~/.codex/AGENTS.md)" "Codex 全局感知已启用 (~/.codex/AGENTS.md)")"
     fi
   else

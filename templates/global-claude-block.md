@@ -3,6 +3,7 @@
 
 - Brain path: `<brain-path>`
 - These rules apply **in every project and directory**, not just the brain folder.
+- Claude Code and Codex can share this same local brain.
 
 ### Automatic Context
 - On session start, read `<brain-path>/plan.md` for life direction and current goals
