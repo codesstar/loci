@@ -32,6 +32,34 @@ function writeFileSafe(p, content) {
   fs.writeFileSync(p, content, 'utf-8');
 }
 
+function hasCommand(cmd) {
+  try {
+    const which = process.platform === 'win32' ? 'where' : 'command -v';
+    execSync(`${which} ${cmd}`, { stdio: 'ignore', shell: process.platform === 'win32' ? 'cmd.exe' : '/bin/sh' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function detectTools() {
+  return {
+    claude: hasCommand('claude') || fs.existsSync(path.join(HOME, '.claude')),
+    codex: hasCommand('codex') || fs.existsSync(path.join(HOME, '.codex'))
+  };
+}
+
+function normalizeToolSelection(tools) {
+  if (Array.isArray(tools)) {
+    const selected = new Set(tools.filter(t => t === 'claude' || t === 'codex'));
+    return { claude: selected.has('claude'), codex: selected.has('codex') };
+  }
+  if (tools && typeof tools === 'object') {
+    return { claude: !!tools.claude, codex: !!tools.codex };
+  }
+  return { claude: true, codex: true };
+}
+
 function getScheduleTimes(schedule) {
   const map = {
     'Morning':   { wake: '05:30', wind: '21:00' },
@@ -174,6 +202,29 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
   return block.replace(/<brain-path>/g, BRAIN_ROOT);
 }
 
+function generateCodexBlock() {
+  return `<!-- loci:start v2 -->
+## Loci Brain Connection (Global)
+
+- Brain path: \`${BRAIN_ROOT}\`
+- Claude Code and Codex can share this same local brain.
+
+### Automatic Context
+- On session start, read \`${BRAIN_ROOT}/plan.md\` for life direction
+- Read \`${BRAIN_ROOT}/tasks/active.md\` for current priorities
+- Check \`${BRAIN_ROOT}/inbox.md\` for pending items (latest 7 only)
+
+### Persistence (any directory)
+When the user mentions tasks, decisions, or insights — save them to the brain:
+- Tasks → \`${BRAIN_ROOT}/tasks/active.md\` (route by specificity: today/daily/week/month)
+- Decisions → \`${BRAIN_ROOT}/decisions/YYYY-MM-DD-slug.md\`
+- Personal info → \`${BRAIN_ROOT}/me/\`
+- Quick thoughts → \`${BRAIN_ROOT}/inbox.md\`
+- Links / materials → \`${BRAIN_ROOT}/references/YYYY-MM-DD-slug.md\`
+- Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+<!-- loci:end -->`;
+}
+
 function generateSettingsJson() {
   return {
     hooks: {
@@ -191,6 +242,7 @@ function generateSettingsJson() {
 
 function runSetup(data) {
   const results = [];
+  const tools = normalizeToolSelection(data.tools);
 
   // 1. me/identity.md
   writeFileSafe(path.join(BRAIN_ROOT, 'me', 'identity.md'), generateIdentity(data));
@@ -214,40 +266,63 @@ function runSetup(data) {
   writeFileSafe(path.join(lociHome, 'brain-path'), BRAIN_ROOT + '\n');
   results.push('~/.loci/brain-path');
 
-  // 6. ~/.claude/CLAUDE.md — append global block (backup if exists, skip if already has loci block)
-  const claudeMdPath = path.join(HOME, '.claude', 'CLAUDE.md');
-  const existingClaudeMd = readFileSafe(claudeMdPath);
+  if (tools.claude) {
+    // 6. ~/.claude/CLAUDE.md — append global block (backup if exists, replace if already has one)
+    const claudeMdPath = path.join(HOME, '.claude', 'CLAUDE.md');
+    const existingClaudeMd = readFileSafe(claudeMdPath);
 
-  if (existingClaudeMd && existingClaudeMd.includes('<!-- loci:start')) {
-    // Already has a Loci block — replace it
-    const cleaned = existingClaudeMd.replace(/<!-- loci:start[\s\S]*?<!-- loci:end -->/g, '').trimEnd();
-    writeFileSafe(claudeMdPath, cleaned + '\n\n' + generateGlobalBlock() + '\n');
-    results.push('~/.claude/CLAUDE.md (updated)');
-  } else if (existingClaudeMd) {
-    // Backup existing file
-    writeFileSafe(claudeMdPath + '.loci-backup', existingClaudeMd);
-    writeFileSafe(claudeMdPath, existingClaudeMd.trimEnd() + '\n\n' + generateGlobalBlock() + '\n');
-    results.push('~/.claude/CLAUDE.md (appended)');
+    if (existingClaudeMd && existingClaudeMd.includes('<!-- loci:start')) {
+      const cleaned = existingClaudeMd.replace(/<!-- loci:start[\s\S]*?<!-- loci:end -->/g, '').trimEnd();
+      writeFileSafe(claudeMdPath, cleaned + '\n\n' + generateGlobalBlock() + '\n');
+      results.push('~/.claude/CLAUDE.md (updated)');
+    } else if (existingClaudeMd) {
+      writeFileSafe(claudeMdPath + '.loci-backup', existingClaudeMd);
+      writeFileSafe(claudeMdPath, existingClaudeMd.trimEnd() + '\n\n' + generateGlobalBlock() + '\n');
+      results.push('~/.claude/CLAUDE.md (appended)');
+    } else {
+      ensureDir(path.join(HOME, '.claude'));
+      writeFileSafe(claudeMdPath, generateGlobalBlock() + '\n');
+      results.push('~/.claude/CLAUDE.md (created)');
+    }
+
+    // 7. Copy slash commands to ~/.claude/commands/
+    const srcCommandsDir = path.join(BRAIN_ROOT, 'templates', 'commands');
+    const destCommandsDir = path.join(HOME, '.claude', 'commands');
+    if (fs.existsSync(srcCommandsDir)) {
+      ensureDir(destCommandsDir);
+      const commandFiles = fs.readdirSync(srcCommandsDir);
+      for (const file of commandFiles) {
+        const srcFile = path.join(srcCommandsDir, file);
+        const destFile = path.join(destCommandsDir, file);
+        if (fs.statSync(srcFile).isFile()) {
+          fs.copyFileSync(srcFile, destFile);
+        }
+      }
+      results.push(`~/.claude/commands/ (${commandFiles.length} files)`);
+    }
   } else {
-    ensureDir(path.join(HOME, '.claude'));
-    writeFileSafe(claudeMdPath, generateGlobalBlock() + '\n');
-    results.push('~/.claude/CLAUDE.md (created)');
+    results.push('Claude Code connection skipped');
   }
 
-  // 7. Copy slash commands to ~/.claude/commands/
-  const srcCommandsDir = path.join(BRAIN_ROOT, 'templates', 'commands');
-  const destCommandsDir = path.join(HOME, '.claude', 'commands');
-  if (fs.existsSync(srcCommandsDir)) {
-    ensureDir(destCommandsDir);
-    const commandFiles = fs.readdirSync(srcCommandsDir);
-    for (const file of commandFiles) {
-      const srcFile = path.join(srcCommandsDir, file);
-      const destFile = path.join(destCommandsDir, file);
-      if (fs.statSync(srcFile).isFile()) {
-        fs.copyFileSync(srcFile, destFile);
-      }
+  if (tools.codex) {
+    const codexMdPath = path.join(HOME, '.codex', 'AGENTS.md');
+    const existingCodexMd = readFileSafe(codexMdPath);
+
+    if (existingCodexMd && existingCodexMd.includes('<!-- loci:start')) {
+      const cleaned = existingCodexMd.replace(/<!-- loci:start[\s\S]*?<!-- loci:end -->/g, '').trimEnd();
+      writeFileSafe(codexMdPath, cleaned + '\n\n' + generateCodexBlock() + '\n');
+      results.push('~/.codex/AGENTS.md (updated)');
+    } else if (existingCodexMd) {
+      writeFileSafe(codexMdPath + '.loci-backup', existingCodexMd);
+      writeFileSafe(codexMdPath, existingCodexMd.trimEnd() + '\n\n' + generateCodexBlock() + '\n');
+      results.push('~/.codex/AGENTS.md (appended)');
+    } else {
+      ensureDir(path.join(HOME, '.codex'));
+      writeFileSafe(codexMdPath, generateCodexBlock() + '\n');
+      results.push('~/.codex/AGENTS.md (created)');
     }
-    results.push(`~/.claude/commands/ (${commandFiles.length} files)`);
+  } else {
+    results.push('Codex connection skipped');
   }
 
   // 8. .claude/settings.json — merge hook registration
@@ -334,7 +409,7 @@ const server = http.createServer((req, res) => {
     const plan = readFileSafe(planPath) || '';
     const isReady = plan.includes('status: active');
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ready: isReady, brain_path: BRAIN_ROOT }));
+    res.end(JSON.stringify({ ready: isReady, brain_path: BRAIN_ROOT, tools: detectTools() }));
     return;
   }
 
@@ -358,7 +433,8 @@ const server = http.createServer((req, res) => {
           name: data.name.trim(),
           role: data.role || 'Other',
           focus: data.focus || 'Getting started',
-          schedule: data.schedule || 'Daytime'
+          schedule: data.schedule || 'Daytime',
+          tools: data.tools
         });
 
         res.writeHead(200, { 'Content-Type': 'application/json' });

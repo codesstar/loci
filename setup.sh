@@ -24,6 +24,9 @@ USER_ROLE=""
 USER_FOCUS=""
 USER_SCHEDULE=""
 USER_ABOUT=""
+CONNECT_CLAUDE=1
+CONNECT_CODEX=1
+CONNECT_LABEL=""
 TOTAL_STEPS=4
 CURRENT_STEP=0
 
@@ -561,6 +564,68 @@ collect_info() {
   sleep 1
 }
 
+select_ai_tools() {
+  CURRENT_STEP=1
+
+  local has_claude=0
+  local has_codex=0
+  if command -v claude &>/dev/null || [ -d "$HOME/.claude" ]; then
+    has_claude=1
+  fi
+  if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then
+    has_codex=1
+  fi
+
+  clear
+  printf "\n"
+  printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Connect AI tools" "连接 AI 工具")${NC}\n"
+  printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
+  printf "  ${DIM}$(t "Loci gives Claude Code and Codex one shared local brain." "Loci 让 Claude Code 和 Codex 共用一个本地大脑。")${NC}\n"
+  printf "\n"
+  [ "$has_claude" -eq 1 ] && printf "  ${GREEN}✓${NC} Claude Code\n" || printf "  ${YELLOW}!${NC} Claude Code $(t "not detected" "未检测到")\n"
+  [ "$has_codex" -eq 1 ] && printf "  ${GREEN}✓${NC} Codex\n" || printf "  ${YELLOW}!${NC} Codex $(t "not detected" "未检测到")\n"
+
+  if [ "$has_claude" -eq 1 ] && [ "$has_codex" -eq 1 ]; then
+    ALLOW_BACK=0 QUESTION_NUM=6 QUESTION_TOTAL=6 \
+      choose "$(t "Which tools should share this brain?" "哪些工具要共用这个大脑？")" \
+      "$(t "Claude Code + Codex (Recommended)" "Claude Code + Codex（推荐）")" \
+      "$(t "Claude Code only" "只接 Claude Code")" \
+      "$(t "Codex only" "只接 Codex")" \
+      "$(t "Create brain only" "只创建本地大脑")"
+    case $MENU_RESULT in
+      1) CONNECT_CLAUDE=1; CONNECT_CODEX=1; CONNECT_LABEL="Claude Code + Codex" ;;
+      2) CONNECT_CLAUDE=1; CONNECT_CODEX=0; CONNECT_LABEL="Claude Code" ;;
+      3) CONNECT_CLAUDE=0; CONNECT_CODEX=1; CONNECT_LABEL="Codex" ;;
+      4) CONNECT_CLAUDE=0; CONNECT_CODEX=0; CONNECT_LABEL="$(t "Brain only" "仅本地大脑")" ;;
+    esac
+  elif [ "$has_claude" -eq 1 ]; then
+    ALLOW_BACK=0 QUESTION_NUM=6 QUESTION_TOTAL=6 \
+      choose "$(t "Connect Loci to Claude Code?" "要接入 Claude Code 吗？")" \
+      "$(t "Claude Code (Recommended)" "Claude Code（推荐）")" \
+      "$(t "Create brain only" "只创建本地大脑")"
+    case $MENU_RESULT in
+      1) CONNECT_CLAUDE=1; CONNECT_CODEX=0; CONNECT_LABEL="Claude Code" ;;
+      2) CONNECT_CLAUDE=0; CONNECT_CODEX=0; CONNECT_LABEL="$(t "Brain only" "仅本地大脑")" ;;
+    esac
+  elif [ "$has_codex" -eq 1 ]; then
+    ALLOW_BACK=0 QUESTION_NUM=6 QUESTION_TOTAL=6 \
+      choose "$(t "Connect Loci to Codex?" "要接入 Codex 吗？")" \
+      "$(t "Codex (Recommended)" "Codex（推荐）")" \
+      "$(t "Create brain only" "只创建本地大脑")"
+    case $MENU_RESULT in
+      1) CONNECT_CLAUDE=0; CONNECT_CODEX=1; CONNECT_LABEL="Codex" ;;
+      2) CONNECT_CLAUDE=0; CONNECT_CODEX=0; CONNECT_LABEL="$(t "Brain only" "仅本地大脑")" ;;
+    esac
+  else
+    CONNECT_CLAUDE=0
+    CONNECT_CODEX=0
+    CONNECT_LABEL="$(t "Brain only" "仅本地大脑")"
+    printf "\n"
+    print_warn "$(t "No Claude Code or Codex install detected. Creating the brain only." "没有检测到 Claude Code 或 Codex，先只创建本地大脑。")"
+    sleep 1
+  fi
+}
+
 # ─── Step 2: File Generation ────────────────────────────────────────────────
 generate_files() {
   CURRENT_STEP=2
@@ -757,6 +822,7 @@ configure_global() {
   echo "$BRAIN_PATH" > "$HOME/.loci/brain-path"
   print_check "$(t "Brain registered at ~/.loci/brain-path" "大脑路径已注册 ~/.loci/brain-path")"
 
+  if [ "$CONNECT_CLAUDE" -eq 1 ]; then
   # Global CLAUDE.md
   local global_claude="$HOME/.claude/CLAUDE.md"
   mkdir -p "$HOME/.claude"
@@ -844,10 +910,13 @@ GEOF
       print_check "$(t "Global hooks configured" "全局钩子已配置")"
     fi
   fi
+  else
+    print_warn "$(t "Claude Code connection skipped" "已跳过 Claude Code 接入")"
+  fi
 
   # ─── Codex CLI (~/.codex/AGENTS.md) ──────────────────────────────────────
   local global_codex="$HOME/.codex/AGENTS.md"
-  if [ -d "$HOME/.codex" ] || command -v codex &>/dev/null; then
+  if [ "$CONNECT_CODEX" -eq 1 ]; then
     mkdir -p "$HOME/.codex"
 
     if [ -f "$global_codex" ] && grep -q '<!-- loci:start' "$global_codex" 2>/dev/null; then
@@ -882,6 +951,8 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 CODEXEOF
       print_check "$(t "Codex awareness enabled (~/.codex/AGENTS.md)" "Codex 全局感知已启用 (~/.codex/AGENTS.md)")"
     fi
+  else
+    print_warn "$(t "Codex connection skipped" "已跳过 Codex 接入")"
   fi
 
   echo ""
@@ -954,17 +1025,25 @@ show_success() {
   printf "  ${DIM}$(t "Name" "名字")${NC}        ${WHITE}${USER_NAME}${NC}\n"
   printf "  ${DIM}$(t "Language" "语言")${NC}    ${WHITE}${lang_label}${NC}\n"
   printf "  ${DIM}$(t "Schedule" "作息")${NC}    ${WHITE}${schedule_label}${NC}\n"
+  printf "  ${DIM}$(t "Connected" "已接入")${NC}   ${WHITE}${CONNECT_LABEL:-Brain only}${NC}\n"
   printf "  ${DIM}$(t "Brain" "路径")${NC}       ${WHITE}${BRAIN_PATH}${NC}\n"
   printf "\n"
   printf "  ${DIM}$(t "Created" "已创建")${NC}\n"
   printf "  ${GREEN}✓${NC} me/identity.md    ${GREEN}✓${NC} .loci/config.yml\n"
-  printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} ~/.claude/CLAUDE.md\n"
-  printf "  ${GREEN}✓${NC} tasks/active.md    ${GREEN}✓${NC} ~/.claude/commands/\n"
+  printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} tasks/active.md\n"
+  [ "$CONNECT_CLAUDE" -eq 1 ] && printf "  ${GREEN}✓${NC} ~/.claude/CLAUDE.md ${GREEN}✓${NC} ~/.claude/commands/\n"
+  [ "$CONNECT_CODEX" -eq 1 ] && printf "  ${GREEN}✓${NC} ~/.codex/AGENTS.md\n"
   printf "\n"
   printf "  $(t "Get started:" "开始使用:")\n"
   printf "\n"
   printf "    ${WHITE}cd ${BRAIN_PATH}${NC}\n"
-  printf "    ${WHITE}claude${NC}                              $(t "# your AI already knows you" "# 你的 AI 已经认识你了")\n"
+  if [ "$CONNECT_CLAUDE" -eq 1 ]; then
+    printf "    ${WHITE}claude${NC}                              $(t "# your AI already knows you" "# 你的 AI 已经认识你了")\n"
+  elif [ "$CONNECT_CODEX" -eq 1 ]; then
+    printf "    ${WHITE}codex${NC}                               $(t "# your AI already knows you" "# 你的 AI 已经认识你了")\n"
+  else
+    printf "    ${WHITE}node .loci/dashboard/server.js${NC}      $(t "# open your local dashboard" "# 打开本地可视化面板")\n"
+  fi
   printf "\n"
   printf "  $(t "Dashboard (optional):" "可视化面板:")\n"
   printf "\n"
@@ -980,6 +1059,7 @@ main() {
   printf "\n"
   preflight
   collect_info
+  select_ai_tools
   generate_files
   configure_global
   git_safety

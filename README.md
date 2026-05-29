@@ -83,15 +83,15 @@ Loci actually *uses* CLAUDE.md — it's one of the 30+ files in the system. The 
 
 ## Quick Start
 
-### Claude Code / Codex CLI (recommended)
+### Claude Code + Codex (recommended)
 
-One command. Works globally — your AI remembers you in every project, every directory.
+One command. Loci gives Claude Code and Codex one shared local brain, so decisions and tasks saved in one tool are available to the other.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
+npx create-loci
 ```
 
-The installer clones Loci to `~/loci/`, connects it to your AI tools (Claude Code, Codex CLI — auto-detected), and launches onboarding. Takes about 2 minutes.
+The installer opens a browser setup wizard, creates your brain, detects Claude Code and Codex, and asks which tools should connect. Takes about 2 minutes. Prefer terminal setup? Run `npx create-loci --cli`.
 
 ### OpenClaw
 
@@ -99,7 +99,7 @@ The installer clones Loci to `~/loci/`, connects it to your AI tools (Claude Cod
 clawhub install loci-brain
 ```
 
-### Manual Setup (Cursor, Windsurf, or any AI tool)
+### Manual Setup
 
 ```bash
 git clone https://github.com/codesstar/loci.git ~/loci
@@ -107,6 +107,8 @@ cd ~/loci && ./setup.sh
 ```
 
 > **Note**: Without Claude Code or Codex CLI, Loci only works inside the brain directory. Global cross-project memory requires a tool that supports global instruction files.
+>
+> Prefer the old shell installer? `curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash` still works.
 
 > **Windows?** Use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) or Git Bash.
 >
@@ -249,8 +251,8 @@ Loci is **CLI-first** — it works anywhere your AI runs. The dashboard is optio
 
 | Platform | Install | Global Memory |
 |----------|---------|---------------|
-| **Claude Code** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.claude/CLAUDE.md` |
-| **Codex CLI** | `curl \| bash` or `./install.sh` | Yes — auto-injects `~/.codex/AGENTS.md` |
+| **Claude Code** | `npx create-loci` or `./setup.sh` | Yes — auto-injects `~/.claude/CLAUDE.md` |
+| **Codex CLI** | `npx create-loci` or `./setup.sh` | Yes — auto-injects `~/.codex/AGENTS.md` |
 | **OpenClaw** | `clawhub install loci-brain` | Yes — via skill system |
 | **Cursor / Windsurf** | `git clone` + `./setup.sh` | No — brain directory only |
 

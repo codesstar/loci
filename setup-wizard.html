@@ -325,33 +325,36 @@
 
   .pill-option {
     font-size: 13px;
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(175,120,200,0.95);
+    color: rgba(224,210,235,0.92);
     padding: 14px 28px;
-    border: 1px solid rgba(155,89,182,0.45);
+    border: 1px solid rgba(178,120,216,0.52);
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
     user-select: none;
-    background: transparent;
+    background: rgba(155,89,182,0.08);
     font-family: 'JetBrains Mono', monospace;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
   }
   .pill-option:hover {
-    color: rgba(155,89,182,0.85);
-    border-color: rgba(155,89,182,0.5);
-    text-shadow: 0 0 15px rgba(155,89,182,0.3);
-    box-shadow: 0 0 30px rgba(155,89,182,0.15);
+    color: #f2eaff;
+    border-color: rgba(26,188,156,0.55);
+    background: rgba(155,89,182,0.16);
+    text-shadow: 0 0 16px rgba(155,89,182,0.5);
+    box-shadow: 0 0 34px rgba(155,89,182,0.18), 0 0 18px rgba(26,188,156,0.08);
     transform: translateY(-2px);
   }
   .pill-option.selected {
-    color: #c9a0dc;
+    color: #ffffff;
     border-color: transparent;
-    background: transparent;
+    background: rgba(26,188,156,0.11);
     padding: 12px 26px;
+    text-shadow: 0 0 18px rgba(26,188,156,0.32);
   }
   .pill-option .pill-icon {
     margin-right: 8px;
@@ -361,7 +364,7 @@
     display: block;
     font-size: 10px;
     letter-spacing: 1px;
-    color: rgba(200,200,220,0.65);
+    color: rgba(210,235,232,0.78);
     margin-top: 4px;
     text-transform: none;
   }
@@ -375,7 +378,7 @@
     display: inline-block;
   }
   .pill-wrap.selected {
-    background: linear-gradient(135deg, rgba(155,89,182,0.5), rgba(26,188,156,0.4), rgba(155,89,182,0.5));
+    background: linear-gradient(135deg, rgba(155,89,182,0.82), rgba(26,188,156,0.68), rgba(155,89,182,0.82));
     background-size: 200% 200%;
     animation: borderFlow 3s ease-in-out infinite;
   }
@@ -967,8 +970,20 @@
   </div>
 </div>
 
-<!-- ======================== STEP 6: Review ======================== -->
+<!-- ======================== STEP 6: Shared Brain Tools ======================== -->
 <div class="step-container" id="step-6">
+  <div class="question-title" data-i18n="tools_title">Connect your AI tools</div>
+  <div class="question-desc" data-i18n="tools_desc">Claude Code and Codex can share the same local Loci brain. Choose both if you use both tools.</div>
+  <div class="pill-options" id="toolsOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="both" onclick="selectOption(this, 'tools')"><span data-i18n="tools_both">Claude Code + Codex</span><span class="pill-sub" data-i18n="tools_recommended">Recommended</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="claude" onclick="selectOption(this, 'tools')"><span data-i18n="tools_claude">Claude Code only</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="codex" onclick="selectOption(this, 'tools')"><span data-i18n="tools_codex">Codex only</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="none" onclick="selectOption(this, 'tools')"><span data-i18n="tools_none">Brain only</span></button></div>
+  </div>
+</div>
+
+<!-- ======================== STEP 7: Review ======================== -->
+<div class="step-container" id="step-7">
   <div class="question-title" data-i18n="review_title">Review your setup</div>
   <div class="question-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
   <ul class="review-list" id="reviewList"></ul>
@@ -983,13 +998,13 @@
   </div>
 </div>
 
-<!-- ======================== STEP 7: Progress ======================== -->
-<div class="step-container" id="step-7">
+<!-- ======================== STEP 8: Progress ======================== -->
+<div class="step-container" id="step-8">
   <div class="progress-log" id="progressLog"></div>
 </div>
 
-<!-- ======================== STEP 8: Success ======================== -->
-<div class="step-container" id="step-8">
+<!-- ======================== STEP 9: Success ======================== -->
+<div class="step-container" id="step-9">
   <div class="success-title" data-i18n="success_title">Brain Ready!</div>
   <div class="success-desc" id="successDesc" data-i18n="success_desc">
     Your memory palace has been initialized. Start a conversation and Loci will remember everything important.
@@ -1054,7 +1069,8 @@ const LOCI_TEXT = ` \u2588\u2588       \u2588\u2588\u2588\u2588\u2588\u2588   \u
 let currentStep = 0;
 const formData = {
   language: '', name: '', role: '', roleOther: '',
-  focus: '', focusOther: '', schedule: '', about: ''
+  focus: '', focusOther: '', schedule: '', about: '',
+  tools: 'both'
 };
 
 // ===== i18n =====
@@ -1082,6 +1098,10 @@ const i18n = {
     about_desc: "Your habits, birthday, hobbies, goals — everything about you. This is optional.",
     about_placeholder: "e.g. I'm a night owl, my birthday is March 5th, I love hiking...",
     about_continue: "Continue",
+    tools_title: "Connect your AI tools",
+    tools_desc: "Claude Code and Codex can share the same local Loci brain. Choose both if you use both tools.",
+    tools_both: "Claude Code + Codex", tools_recommended: "Recommended",
+    tools_claude: "Claude Code only", tools_codex: "Codex only", tools_none: "Brain only",
     review_about: "About you",
     review_title: "Review your setup",
     review_desc: "Everything look good? You can edit anything before creating your brain.",
@@ -1095,6 +1115,7 @@ const i18n = {
     back: "BACK", next: "NEXT", retry: "Retry",
     review_language: "Language", review_name: "Name", review_role: "Role",
     review_focus: "Focus", review_schedule: "Schedule", edit: "Edit",
+    review_tools: "Connected tools",
     subtitle: "Memory Palace for AI",
     prog_identity: "Writing identity...", prog_plan: "Setting up life plan...",
     prog_tasks: "Creating task system...", prog_config: "Configuring preferences...",
@@ -1125,6 +1146,10 @@ const i18n = {
     about_desc: "\u4f60\u7684\u4e60\u60ef\u3001\u751f\u65e5\u3001\u7231\u597d\u3001\u76ee\u6807\u2014\u2014\u5173\u4e8e\u4f60\u7684\u4e00\u5207\u3002\u8fd9\u662f\u53ef\u9009\u7684\u3002",
     about_placeholder: "\u6bd4\u5982\uff1a\u6211\u662f\u591c\u732b\u5b50\uff0c\u751f\u65e5\u662f3\u67085\u53f7\uff0c\u559c\u6b22\u5f92\u6b65...",
     about_continue: "\u7ee7\u7eed",
+    tools_title: "\u8fde\u63a5\u4f60\u7684 AI \u5de5\u5177",
+    tools_desc: "Claude Code \u548c Codex \u53ef\u4ee5\u5171\u7528\u540c\u4e00\u4e2a Loci \u672c\u5730\u5927\u8111\u3002\u5982\u679c\u4e24\u4e2a\u90fd\u7528\uff0c\u5efa\u8bae\u9009\u4e24\u4e2a\u3002",
+    tools_both: "Claude Code + Codex", tools_recommended: "\u63a8\u8350",
+    tools_claude: "\u53ea\u63a5 Claude Code", tools_codex: "\u53ea\u63a5 Codex", tools_none: "\u4ec5\u521b\u5efa\u672c\u5730\u5927\u8111",
     review_about: "\u5173\u4e8e\u4f60",
     review_title: "\u786e\u8ba4\u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u770b\u770b\u662f\u5426\u90fd\u5bf9? \u521b\u5efa\u524d\u53ef\u4ee5\u968f\u65f6\u4fee\u6539\u3002",
@@ -1135,6 +1160,7 @@ const i18n = {
     next_steps_title: "\u4e0b\u4e00\u6b65", back: "\u8fd4\u56de", next: "\u4e0b\u4e00\u6b65", retry: "\u91cd\u8bd5",
     review_language: "\u8bed\u8a00", review_name: "\u540d\u5b57", review_role: "\u89d2\u8272",
     review_focus: "\u91cd\u70b9", review_schedule: "\u4f5c\u606f", review_about: "\u5173\u4e8e\u4f60", edit: "\u7f16\u8f91",
+    review_tools: "\u5df2\u63a5\u5165\u5de5\u5177",
     subtitle: "AI \u7684\u8bb0\u5fc6\u5bab\u6bbf",
     prog_identity: "\u5199\u5165\u8eab\u4efd\u4fe1\u606f...", prog_plan: "\u8bbe\u7f6e\u4eba\u751f\u65b9\u5411...",
     prog_tasks: "\u521b\u5efa\u4efb\u52a1\u7cfb\u7edf...", prog_config: "\u914d\u7f6e\u504f\u597d...",
@@ -1165,6 +1191,10 @@ const i18n = {
     about_desc: "\u4f60\u7684 habits\u3001birthday\u3001hobbies\u3001goals \u2014 everything about you. Optional.",
     about_placeholder: "e.g. \u6211\u662f night owl\uff0c\u751f\u65e5 3\u67085\u53f7\uff0c\u559c\u6b22 hiking...",
     about_continue: "Continue",
+    tools_title: "\u8fde\u63a5\u4f60\u7684 AI tools",
+    tools_desc: "Claude Code \u548c Codex \u53ef\u4ee5 share \u540c\u4e00\u4e2a Loci local brain. \u4e24\u4e2a\u90fd\u7528\u5c31\u9009\u4e24\u4e2a\u3002",
+    tools_both: "Claude Code + Codex", tools_recommended: "Recommended",
+    tools_claude: "Claude Code only", tools_codex: "Codex only", tools_none: "Brain only",
     review_about: "About you",
     review_title: "Review \u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u90fd\u5bf9\u5417? Create \u524d\u53ef\u4ee5\u968f\u65f6\u6539\u3002",
@@ -1175,6 +1205,7 @@ const i18n = {
     next_steps_title: "Next Steps", back: "Back", next: "Next", retry: "Retry",
     review_language: "Language", review_name: "Name", review_role: "Role",
     review_focus: "Focus", review_schedule: "Schedule", edit: "Edit",
+    review_tools: "Connected tools",
     subtitle: "AI \u7684 Memory Palace",
     prog_identity: "Writing identity...", prog_plan: "Setting up plan...",
     prog_tasks: "Creating tasks...", prog_config: "Configuring...",
@@ -1356,7 +1387,7 @@ document.addEventListener('mousemove', (e) => {
 function renderProgressDots() {
   const dotsEl = document.getElementById('progressDots');
   dotsEl.innerHTML = '';
-  const totalDots = 7; // steps 0-6
+  const totalDots = 8; // steps 0-7
   for (let i = 0; i < totalDots; i++) {
     const dot = document.createElement('div');
     dot.className = 'progress-dot';
@@ -1382,7 +1413,7 @@ function showStep(step, direction) {
   if (step === 0) {
     progressDots.classList.remove('visible');
     backBtn.classList.remove('visible');
-  } else if (step <= 6) {
+  } else if (step <= 7) {
     progressDots.classList.add('visible');
     backBtn.classList.add('visible');
   } else {
@@ -1410,7 +1441,7 @@ function showStep(step, direction) {
   }
 
   // Build review
-  if (step === 6) buildReview();
+  if (step === 7) buildReview();
 }
 
 function selectLanguage(btn) {
@@ -1474,7 +1505,7 @@ function goNext() {
   }
   if (currentStep === 2 && formData.role === 'Other' && !formData.roleOther.trim()) return;
   if (currentStep === 3 && formData.focus === 'Other' && !formData.focusOther.trim()) return;
-  if (currentStep < 8) {
+  if (currentStep < 9) {
     showStep(currentStep + 1, 'forward');
   }
 }
@@ -1499,6 +1530,12 @@ function buildReview() {
   const langDisplay = { en: 'English', zh: '\u4e2d\u6587', mix: '\u4e2d\u82f1\u6df7\u5408' };
   const role = formData.role === 'Other' ? formData.roleOther : formData.role;
   const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
+  const toolsDisplay = {
+    both: 'Claude Code + Codex',
+    claude: 'Claude Code',
+    codex: 'Codex',
+    none: t('tools_none')
+  };
 
   const items = [
     { key: 'review_language', value: langDisplay[formData.language] || formData.language, step: 0 },
@@ -1506,7 +1543,8 @@ function buildReview() {
     { key: 'review_role', value: role, step: 2 },
     { key: 'review_focus', value: focus, step: 3 },
     { key: 'review_schedule', value: formData.schedule, step: 4 },
-    ...(formData.about.trim() ? [{ key: 'review_about', value: formData.about.trim(), step: 5 }] : [])
+    ...(formData.about.trim() ? [{ key: 'review_about', value: formData.about.trim(), step: 5 }] : []),
+    { key: 'review_tools', value: toolsDisplay[formData.tools] || toolsDisplay.both, step: 6 }
   ];
 
   list.innerHTML = items.map(item => `
@@ -1536,7 +1574,7 @@ function buildReview() {
 // ===== Create Brain =====
 async function createBrain() {
   document.getElementById('errorBox').classList.remove('visible');
-  showStep(7, 'forward');
+  showStep(8, 'forward');
 
   const progressSteps = [
     'prog_identity', 'prog_plan', 'prog_tasks', 'prog_config',
@@ -1571,7 +1609,11 @@ async function createBrain() {
         role: role,
         focus: focus,
         schedule: formData.schedule,
-        about: formData.about
+        about: formData.about,
+        tools: {
+          claude: formData.tools === 'both' || formData.tools === 'claude',
+          codex: formData.tools === 'both' || formData.tools === 'codex'
+        }
       })
     });
 
@@ -1596,7 +1638,7 @@ async function createBrain() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Success step
-    showStep(8, 'forward');
+    showStep(9, 'forward');
 
     // Build success tags
     const tags = document.getElementById('successTags');
@@ -1610,6 +1652,15 @@ async function createBrain() {
       'Open Source'
     ].map(tag => `<span class="feature-tag">${tag}</span>`).join('');
 
+    const startBtn = document.getElementById('startBtn');
+    if (formData.tools === 'codex') {
+      startBtn.innerHTML = 'Run <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">codex</code> to start';
+    } else if (formData.tools === 'none') {
+      startBtn.innerHTML = 'Open <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">localhost:8765</code>';
+    } else {
+      startBtn.innerHTML = 'Run <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">claude</code> to start';
+    }
+
     // Confetti burst
     spawnConfetti();
 
@@ -1619,7 +1670,7 @@ async function createBrain() {
     }
 
   } catch (err) {
-    showStep(5, 'backward');
+    showStep(7, 'backward');
     const errorBox = document.getElementById('errorBox');
     document.getElementById('errorMsg').textContent = err.message;
     errorBox.classList.add('visible');

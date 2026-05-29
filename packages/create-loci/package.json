@@ -1,7 +1,7 @@
 {
   "name": "create-loci",
-  "version": "0.1.0",
-  "description": "Set up a Loci brain — Memory Palace for AI",
+  "version": "0.1.1",
+  "description": "Set up a shared Loci brain for Claude Code and Codex",
   "bin": {
     "create-loci": "index.js"
   },
@@ -13,6 +13,7 @@
     "ai",
     "memory",
     "claude",
+    "codex",
     "brain",
     "loci",
     "claude-code"
