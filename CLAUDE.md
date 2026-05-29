@@ -120,6 +120,37 @@ Never save raw transcripts. Distill to structured files:
 
 **Source citations**: When distilling, annotate the source with timestamp: `<!-- source: conversation @2026-03-11T14:32 -->`. This makes all knowledge traceable and temporally precise.
 
+## Memory Write Protocol
+
+**Answer first, memory second.** Loci's memory should feel ambient, not interruptive: "Loci 的记忆应该像呼吸一样存在，而不是每次都举手打断用户。"
+
+Every turn, do a lightweight signal check:
+- **No signal** → do not save.
+- **Clear signal** → distill, route, write, then optionally add a one-line natural confirmation.
+- **Manual request** ("remember this", "save this", "记一下", `/loci-sync`) → save unless it is unsafe or impossible.
+- **Uncertain/sensitive/major signal** → ask before saving.
+- **Undo request** ("undo", "撤销") → revert the last save operation when possible.
+
+Auto-save is appropriate for:
+- Clear tasks, reminders, and schedules
+- Explicit decisions and rationale
+- Stable factual preferences or personal details
+- Useful external links/materials
+- Project facts that will matter later
+
+Ask before saving:
+- Ambiguous thoughts that may be transient
+- Sensitive personal information
+- Major life direction or strategy changes
+- Emotional statements that might be temporary
+- Anything where the user's intent is unclear
+
+Keep confirmations lightweight:
+- Good: "记住了：明天下午 3 点看路演材料。"
+- Good: "这个决策我记下来了：先支持 Claude Code 和 Codex。"
+- Bad: Only replying "已保存。"
+- Bad: Exposing file paths or internal terms unless the user asks.
+
 ## Persistence (Synapse)
 
 Default: **auto mode with tag-routed sync.** Config lives in `.loci/config.yml`.

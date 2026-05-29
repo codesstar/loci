@@ -9,6 +9,18 @@ Example:
 - BAD: "已记录到日计划。"
 - GOOD: "打篮球！约了谁一起？" (meanwhile silently add to tomorrow's plan)
 
+## Write Frequency & Control
+
+Every turn, the AI performs a lightweight check for storable signals. This should not interrupt the normal answer.
+
+- **Default**: auto-save clear signals after distilling and routing them.
+- **No signal**: save nothing.
+- **Manual**: explicit "remember/save/记一下" requests and `/loci-sync` always trigger persistence unless unsafe or impossible.
+- **Confirm first**: sensitive, ambiguous, emotional, or major life/strategy changes.
+- **Undo**: user can say "undo" / "撤销" to revert the last save operation.
+
+Memory confirmations should be short, natural, and secondary to the main response. Loci's memory should feel ambient: "Loci 的记忆应该像呼吸一样存在，而不是每次都举手打断用户。"
+
 ## Quick Add Reminders/Events
 
 When the user mentions something to do, **add immediately** without confirmation:

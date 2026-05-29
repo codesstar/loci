@@ -39,6 +39,12 @@ When the user's request mentions a topic, project, person, decision, material, o
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
+- Answer the user first; memory work must not interrupt the normal response.
+- Every turn, lightly evaluate whether there is a storable signal. No signal = no save.
+- Clear tasks, decisions, factual preferences, explicit "remember/save this" requests, and useful links may be auto-saved.
+- Uncertain, sensitive, highly subjective, or major life/strategy changes should be confirmed before saving.
+- Distill into structured notes; never save raw transcripts.
+- Keep save confirmations short and natural. Do not expose file paths or internal terms unless asked.
 - Tasks → `<brain-path>/tasks/active.md`
 - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
 - Personal info → `<brain-path>/me/`
