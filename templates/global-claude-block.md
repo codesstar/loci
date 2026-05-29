@@ -10,6 +10,14 @@
 - Read `<brain-path>/tasks/active.md` for current priorities
 - Check `<brain-path>/inbox.md` for pending items (latest 7 only)
 
+### Context Loading Strategy
+- Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
+- **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/me/projects.md` as the project index.
+- **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, latest 7 items from `inbox.md`, and recent `.loci/activity-log.md` when available.
+- **L2 On Demand**: read module READMEs, `me/`, `decisions/`, `references/`, `tasks/daily/`, or linked project `.loci/memory.md` only when relevant to the user's request.
+- **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
+- Prefer indexes and README files first; open specific files only after identifying the relevant location.
+
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
 - Tasks → `<brain-path>/tasks/active.md`
