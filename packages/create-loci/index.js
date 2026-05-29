@@ -117,8 +117,8 @@ async function main() {
 
   ${bold('Options:')}
     --help, -h     Show this help
-    --web          Force web-based setup wizard
-    --cli          Force terminal-based setup (Mac/Linux only)
+    --web          Use the browser-based setup wizard (default)
+    --cli          Use terminal setup (Mac/Linux only)
 
   ${bold('Examples:')}
     npx create-loci              # Install to ~/loci
@@ -206,11 +206,21 @@ async function main() {
   // ── Run setup ──
   console.log('');
 
-  const isWindows = process.platform === 'win32';
   const hasBash = hasCommand('bash');
-  const isTTY = process.stdin.isTTY;
 
-  if (forceCli || (!forceWeb && !isWindows && hasBash && isTTY)) {
+  if (forceCli) {
+    if (process.platform === 'win32' || !hasBash || !process.stdin.isTTY) {
+      console.log(red('  Terminal setup requires Bash and an interactive terminal.'));
+      console.log(dim('  Starting the browser setup wizard instead...'));
+      console.log('');
+      try {
+        execSync('node setup-web.js', {
+          cwd: resolvedDir,
+          stdio: 'inherit',
+        });
+      } catch {}
+      return;
+    }
     // Unix with TTY — use the beautiful terminal setup
     console.log(dim('  Starting terminal setup...'));
     console.log('');
@@ -228,8 +238,11 @@ async function main() {
       }
     }
   } else {
-    // Windows or no TTY — use web wizard
+    // Default path — use web wizard for the most visual onboarding experience.
     console.log(dim('  Starting setup wizard in your browser...'));
+    if (!forceWeb) {
+      console.log(dim('  Prefer terminal setup? Run with --cli.'));
+    }
     console.log('');
     try {
       execSync('node setup-web.js', {

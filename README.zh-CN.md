@@ -81,15 +81,15 @@ CLAUDE.md 是一张便利贴。Loci 是第二大脑。
 
 ## 安装
 
-### Claude Code / Codex CLI（推荐）
+### Claude Code + Codex（推荐）
 
-一行命令。全局生效——你的 AI 在每个项目、每个目录里都记得你。
+一行命令。Loci 让 Claude Code 和 Codex 共用同一个本地大脑：一个工具里保存的决定、任务和上下文，另一个工具也能接上。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash
+npx create-loci
 ```
 
-安装脚本会把 Loci 放到 `~/loci/`，自动连接 Claude Code 和 Codex CLI（自动检测），然后启动引导。2 分钟搞定。
+安装器会打开浏览器引导，创建你的大脑，检测 Claude Code 和 Codex，并询问要接入哪些工具。2 分钟搞定。喜欢终端版的话，运行 `npx create-loci --cli`。
 
 ### OpenClaw（龙虾）
 
@@ -97,7 +97,7 @@ curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | ba
 clawhub install loci-brain
 ```
 
-### 手动安装（Cursor、Windsurf 等）
+### 手动安装
 
 ```bash
 git clone https://github.com/codesstar/loci.git ~/loci
@@ -105,6 +105,8 @@ cd ~/loci && ./setup.sh
 ```
 
 > **注意**：没有 Claude Code 或 Codex CLI 的话，Loci 只能在大脑目录内使用，不支持跨项目全局记忆。
+>
+> 旧的 shell 安装方式仍然可用：`curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash`
 
 > **Windows？** 用 [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) 或 Git Bash。
 >
