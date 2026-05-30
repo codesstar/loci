@@ -1706,8 +1706,8 @@ async function createBrain() {
     spawnConfetti();
 
     // Restore seahorse
-    if (miniSeahorse) {
-      miniSeahorse.style.animationName = 'breathe';
+    if (seahorseEl) {
+      seahorseEl.style.animationName = 'breathe';
     }
 
   } catch (err) {
