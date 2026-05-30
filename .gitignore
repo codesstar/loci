@@ -25,8 +25,8 @@ __pycache__/
 # so your data never gets pushed to the public repo.
 # If you use your own private remote, all files are safe to track.
 .loci/status.yml
-.loci/activity-log.md
 .loci/last-consolidation.txt
+# .loci/activity/ (activity ledger) is intentionally tracked — it's your memory's timeline.
 # NOTE: The .loci/config settings file is intentionally tracked (NOT ignored).
 # It contains persistence/routing/privacy settings that should be version-controlled
 # so your brain configuration is portable and restorable. No secrets are stored there.

@@ -47,7 +47,7 @@ my-brain/
 │   ├── dashboard/     ← 可视化面板
 │   ├── config.yml     ← Brain 设置（持久化模式、通知）
 │   ├── status.yml     ← 当前状态（疲了 / 精力好 / 在路上）
-│   └── activity-log.md ← 最近 14 天的活动时间线
+│   └── activity/       ← 操作总账（一月一个文件，审计层 —— "我今天做了啥？"）
 │
 └── （扩展模块，用到时自动创建）
     ├── finance/       ← 预算、资产、财务追踪
@@ -62,7 +62,7 @@ my-brain/
 
 | 层级 | 什么时候加载 | 装什么 | 打个比方 |
 |-------|------------|----------|---------------|
-| **L1** | 每次对话 | CLAUDE.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory | 工作记忆（你脑子里正在转的东西） |
+| **L1** | 每次对话 | CLAUDE.md, plan.md, inbox.md, auto-memory | 工作记忆（你脑子里正在转的东西） |
 | **L2** | 聊到相关话题时 | 模块 README、具体的人/任务/计划文件、参考资料 | 短期记忆（一个念头就能想起来） |
 | **L3** | 明确要求时才加载 | archive、旧决策、evolution.md、旧日记 | 长期记忆（得翻一翻才能想起来） |
 
@@ -263,7 +263,7 @@ persistence:
 
 ### 活动日志
 
-- 每次文件变更都自动记到 `.loci/activity-log.md`（通过 Claude Code hook）
+- AI 把每次对大脑的改动记到 `.loci/activity/<YYYY-MM>.md`（人话操作总账，一月一个文件 —— 问"我今天做了啥？"）
 - 新对话启动时会读最近 7 天的记录 → 知道上回聊了什么
 - 每月清理：超过 14 天的条目自动干掉
 

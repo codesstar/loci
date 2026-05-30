@@ -84,7 +84,7 @@ At the start of every conversation:
 2. Read `.loci/status.yml` — check user state. If expired, infer from daily note + time
 3. Cross-reference `plan.md` and `tasks/active.md` for today's key tasks
 4. Read `projects/index.md` as the project index; open a project's repo memory only when the current request mentions that project or clearly needs it
-5. Read `.loci/activity-log.md` (last 7 days) for recent session context
+5. Do NOT auto-load the activity ledger (`.loci/activity/`). It is an audit layer — read it only when the user asks what they did (see Persistence → Activity ledger)
 6. Run `.loci/hooks/check-updates.sh` for cross-terminal changes
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
 8. **Inbox management** (three-layer mechanism):
@@ -107,7 +107,7 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 
 | Layer | Loaded | Contents |
 |-------|--------|----------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory |
+| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, auto-memory |
 | **L2** | On demand | Module READMEs, specific files, references/ |
 | **L3** | Never auto-loaded | archive/, decisions/, old journals |
 
@@ -191,6 +191,14 @@ Every turn, evaluate for storable info (task, decision, insight, personal change
 ```
 Do NOT use `[Loci]`, file paths, or internal terms in notifications. Keep it conversational. ALL user-facing messages must respect the configured language.
 No signal = no save. User can say "undo" / "撤销" to reverse the last save (revert the file change directly, no git needed).
+
+### Activity ledger (audit layer — what the user did, and when)
+A plain-language log of every change you make to the brain, so the user can later ask "what did I do today?" and get a timeline.
+- **Write**: AFTER any brain-facing write (task, schedule, decision, person, project memory, inbox, reference, personal info), you MUST append one line to `.loci/activity/<YYYY-MM>.md` (current month; create the file and a `## <YYYY-MM-DD>` heading for today if absent). Run `date` first for the time. Format:
+  `- HH:MM · <category> · <one plain-language line>` — e.g. `- 21:00 · 决策 · 在 TaskFlow 决定用 PostgreSQL 存文章`.
+  Make it human, include a traceable keyword (which project / which person); never expose file paths. This applies in Claude Code AND Codex.
+- **Read (on demand only)**: when the user asks what they did ("今天/这周/这月/最近做了啥", "总结一下今天", "what did I do today") → read `.loci/activity/<relevant month>.md`, summarize as a timeline; for detail, follow a ledger line into the project/file it names.
+- **Never auto-load** this ledger into context. It is the bottom audit layer — written always, read only when asked.
 
 ### Manual mode
 Only saves on `/loci-sync` or explicit request ("save this" / "记一下" / "update").

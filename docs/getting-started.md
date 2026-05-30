@@ -122,7 +122,7 @@ my-brain/
 │   ├── links/             Connected external projects
 │   ├── hooks/             Auto-sync scripts
 │   ├── dashboard/         Visual panel (HTML + data.json)
-│   └── activity-log.md    Last 14 days of file changes
+│   └── activity/          Activity ledger (one file per month — "what did I do?")
 │
 └── docs/                  Documentation (you're reading one now)
 ```

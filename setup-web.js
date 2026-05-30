@@ -288,6 +288,16 @@ function runSetup(data) {
   writeFileSafe(path.join(BRAIN_ROOT, '.loci', 'config.yml'), generateConfig(data));
   results.push('.loci/config.yml');
 
+  // 4b. .loci/activity/<YYYY-MM>.md — activity ledger (audit layer)
+  const activityMonth = path.join(BRAIN_ROOT, '.loci', 'activity', today().slice(0, 7) + '.md');
+  if (!fs.existsSync(activityMonth)) {
+    writeFileSafe(activityMonth,
+      '<!-- Activity ledger — a plain-language log of every change made to your brain.\n' +
+      '     The AI appends one line per change; ask "what did I do today?" to get a timeline.\n' +
+      '     Not loaded into context automatically. One file per month. -->\n');
+  }
+  results.push('.loci/activity/');
+
   // 5. ~/.loci/brain-path
   const lociHome = path.join(HOME, '.loci');
   ensureDir(lociHome);

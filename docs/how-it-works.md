@@ -47,7 +47,7 @@ my-brain/
 │   ├── dashboard/     ← Visual panel
 │   ├── config.yml     ← Brain settings (persistence mode, notifications)
 │   ├── status.yml     ← Current state (tired / energized / traveling)
-│   └── activity-log.md ← Last 14 days of activity timeline
+│   └── activity/       ← Activity ledger (one file per month, audit layer — "what did I do?")
 │
 └── (extension modules, created on demand)
     ├── finance/       ← Budget, assets, financial tracking
@@ -62,7 +62,7 @@ This is Loci's core design — not all memories need to load every time:
 
 | Layer | When loaded | Contents | Human analogy |
 |-------|------------|----------|---------------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory | Working memory (what you're thinking about right now) |
+| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, auto-memory | Working memory (what you're thinking about right now) |
 | **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references | Short-term memory (one thought away) |
 | **L3** | Only when explicitly asked | archive, old decisions, evolution.md, old journals | Long-term memory (have to dig for it) |
 
@@ -261,7 +261,7 @@ persistence:
 - Say "summarize" → buffer + conversation review → generate today's journal → clear buffer
 
 ### Activity Log
-- Every file change auto-records to `.loci/activity-log.md` (via Claude Code hook)
+- The AI records each change it makes to the brain in `.loci/activity/<YYYY-MM>.md` (a plain-language activity ledger, one file per month — ask "what did I do today?")
 - New conversations read the last 7 days → know what happened last session
 - Monthly cleanup: entries older than 14 days get removed
 

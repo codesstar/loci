@@ -52,7 +52,7 @@ NEVER_TOUCH=(
   "archive/tasks/*"
   ".loci/config.yml"
   ".loci/status.yml"
-  ".loci/activity-log.md"
+  ".loci/activity/*"
 )
 
 # ─── Helpers ────────────────────────────────────────────────────────────────

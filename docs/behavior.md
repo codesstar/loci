@@ -234,7 +234,7 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 ### What It Does
 
-1. Scan recent changes: `decisions/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, and relevant project entries from `projects/index.md`
+1. Scan recent changes: `decisions/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity/<current month>.md`, `inbox.md`, and relevant project entries from `projects/index.md`
 2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
 3. If insights found → append to `me/insights.md` with source citations
 4. Report in one conversational sentence, or stay silent if nothing notable
@@ -274,12 +274,14 @@ This makes all distilled knowledge traceable. When the user asks "why did I deci
 - Proactively offer to summarize when user seems to be wrapping up
 - Full mechanism → `tasks/journal/README.md`
 
-## Activity Log
+## Activity Ledger (audit layer)
 
-File changes are automatically recorded to `.loci/activity-log.md` via `.loci/hooks/on-file-change.sh` (registered as a Claude Code PostToolUse hook). This log tracks what happened across sessions so new conversations can pick up where old ones left off.
+A plain-language log of every change the AI makes to the brain, so the user can later ask "what did I do today?" and get a timeline. The AI maintains it directly (no hook), so it works the same in Claude Code and Codex.
 
-- **On session start**: Read `.loci/activity-log.md` (last 7 days) to understand recent context
-- **Retention**: On the 1st of each month, remove entries older than 14 days. Important info should already be distilled to proper files; the log is just a timeline index
+- **Write**: after any brain-facing write (task, decision, person, project, inbox, reference, personal info), the AI appends one line to `.loci/activity/<YYYY-MM>.md` under a `## <YYYY-MM-DD>` heading: `- HH:MM · <category> · <human one-liner>`. Human language, with a traceable keyword (project/person), no file paths.
+- **Read (on demand only)**: when the user asks what they did, the AI reads the relevant month's file and summarizes a timeline; for detail it follows a line into the project/file it names.
+- **Not loaded into context automatically** — it's the bottom audit layer, written always, read only when asked.
+- **Retention**: one file per month, kept indefinitely (so "what did I do last month / in March?" still works).
 
 ## Undo Mechanism
 

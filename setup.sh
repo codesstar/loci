@@ -868,6 +868,20 @@ DJEOF
   ) &
   spin "$(t ".loci/dashboard/data.json" ".loci/dashboard/data.json")"
 
+  # --- .loci/activity/<YYYY-MM>.md (activity ledger — audit layer) ---
+  (
+    mkdir -p "$BRAIN_PATH/.loci/activity"
+    activity_month="$BRAIN_PATH/.loci/activity/$(date +%Y-%m).md"
+    if [ ! -f "$activity_month" ]; then
+      cat > "$activity_month" << ACTEOF
+<!-- Activity ledger — a plain-language log of every change made to your brain.
+     The AI appends one line per change; ask "what did I do today?" to get a timeline.
+     Not loaded into context automatically. One file per month. -->
+ACTEOF
+    fi
+  ) &
+  spin "$(t ".loci/activity/" ".loci/activity/")"
+
   echo ""
 }
 

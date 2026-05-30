@@ -24,7 +24,7 @@ Loci 里存的是你的整个人生——身份、目标、财务、人脉、决
 
 ### .gitignore
 
-已经预配置好了，会排除系统状态文件（`.loci/status.yml`、`.loci/activity-log.md`、`.loci/last-consolidation.txt`、`.loci/dashboard/data.json`）和编辑器/系统生成的临时文件。你的内容文件（`me/`、`tasks/`、`decisions/` 等）**会被 git 跟踪**——这是故意的，这样你就能通过 `git log` 查看记忆的完整变更历史。
+已经预配置好了，会排除系统状态文件（`.loci/status.yml`、`.loci/last-consolidation.txt`、`.loci/dashboard/data.json`）和编辑器/系统生成的临时文件。你的内容文件（`me/`、`tasks/`、`decisions/`、`.loci/activity/` 等）**会被 git 跟踪**——这是故意的，这样你就能通过 `git log` 查看记忆的完整变更历史。
 
 因为安装时已经断开了模板仓库的 remote，这些被跟踪的文件只会留在本地，除非你自己主动加了 remote。
 

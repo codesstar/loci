@@ -13,7 +13,7 @@ Consolidate recent memories: review distilled knowledge from the past N days, fi
    - Scan `decisions/` for files with recent dates in frontmatter
    - Scan `tasks/tasks.json` for recently added/completed items; use `tasks/active.md` only as the compact generated view
    - Scan `me/` for recently updated files (check `updated` field)
-   - Scan `.loci/activity-log.md` for recent entries
+   - Scan `.loci/activity/<current month>.md` for recent entries
    - Scan `projects/index.md` for relevant project index entries; open a project's repo memory only when the current consolidation clearly needs it
    - Scan `inbox.md` for new entries
 
@@ -26,7 +26,7 @@ Consolidate recent memories: review distilled knowledge from the past N days, fi
    - Cross-project connections ("Loci 的 tag 系统和 CYC 的分类策略在收敛")
    - Identity/value shifts ("从 '做更多' 转向 '做更精'")
    - **Goal progress** — compare recent activity against `plan.md` goals. Calculate rough progress % where possible ("距离 3/15 发布还有 4 天，完成度约 70%，有风险")
-   - **Time allocation** — estimate time distribution across projects from activity-log and `tasks/calendar.json`. Flag mismatches with stated goals.
+   - **Time allocation** — estimate time distribution across projects from `.loci/activity/<current month>.md` and `tasks/calendar.json`. Flag mismatches with stated goals.
    - **Stale tasks** — scan `tasks/tasks.json` for completed tasks older than 7 days or open tasks untouched for 30+ days. Suggest archiving completed ones and reviewing stale ones.
 
 4. **Generate insight entry** — Write to `me/insights.md`:

@@ -119,7 +119,7 @@ my-brain/
 │   ├── links/             已连接的外部项目
 │   ├── hooks/             自动同步脚本
 │   ├── dashboard/         可视化面板（HTML + data.json）
-│   └── activity-log.md    最近 14 天的文件变更记录
+│   └── activity/          操作总账（一月一个文件 —— "我今天做了啥？"）
 │
 └── docs/                  文档（你正在读的就是其中一份）
 ```

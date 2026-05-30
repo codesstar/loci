@@ -45,4 +45,4 @@ managed:
 # - decisions/*.md (except README.md)
 # - references/entries/*, references/inbox.md
 # - All journal files
-# - .loci/config.yml, .loci/status.yml, .loci/activity-log.md
+# - .loci/config.yml, .loci/status.yml, .loci/activity/

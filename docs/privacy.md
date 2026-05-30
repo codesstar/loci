@@ -24,7 +24,7 @@ If you want to back up your brain, push to a **private** remote — your data is
 
 ### .gitignore
 
-Pre-configured to exclude system state files (`.loci/status.yml`, `.loci/activity-log.md`, `.loci/last-consolidation.txt`, `.loci/dashboard/data.json`) and editor/OS artifacts. Your content files (`me/`, `tasks/`, `decisions/`, etc.) are **tracked by git** — this is intentional, so you get full version history of your memory via `git log`.
+Pre-configured to exclude system state files (`.loci/status.yml`, `.loci/last-consolidation.txt`, `.loci/dashboard/data.json`) and editor/OS artifacts. Your content files (`me/`, `tasks/`, `decisions/`, `.loci/activity/`, etc.) are **tracked by git** — this is intentional, so you get full version history of your memory via `git log`.
 
 Since the template remote is disconnected during setup, tracked files stay local unless you explicitly add your own remote.
 
