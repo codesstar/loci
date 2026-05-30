@@ -30,3 +30,22 @@ __pycache__/
 # NOTE: The .loci/config settings file is intentionally tracked (NOT ignored).
 # It contains persistence/routing/privacy settings that should be version-controlled
 # so your brain configuration is portable and restorable. No secrets are stored there.
+
+# ─── Local-only artifacts (never push to the public repo) ───
+# Pitch / marketing material and one-off scripts
+loci-pitch*.html
+loci-pitch*.pdf
+loci-pitch*.pptx
+pitch-brief.html
+make_pptx.py
+install-flow-demo.html
+docs/architecture-map.html
+# Local test reports and session handoffs
+docs/reports/
+CONTEXT_HANDOFF_*.md
+# Local capture / scratch dirs
+.loci/dashboard-captures/
+.codex/
+
+# User reference entries (personal data)
+references/entries/
