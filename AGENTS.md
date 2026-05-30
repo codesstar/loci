@@ -102,13 +102,14 @@ At the start of every conversation:
 `plan.md` life direction · `inbox.md` quick capture · `projects/` serious-project index (`index.md`) + embryo incubator (`side.md`)
 
 Extension modules (created on demand): `finance/` · `people/` · `content/` · `references/`
+`notes/` the user's own notes — a one-line index (`notes/index.md`) of external notes (Obsidian / Feishu / Notion links) + short inline notes (`notes/<slug>.md`). Loci indexes them, it does not own them.
 
 ## Context Layers
 
 | Layer | Loaded | Contents |
 |-------|--------|----------|
 | **L1** | Every conversation | AGENTS.md, plan.md, inbox.md, auto-memory |
-| **L2** | On demand | Module READMEs, specific files, references/ |
+| **L2** | On demand | Module READMEs, specific files, references/, notes/ |
 | **L3** | Never auto-loaded | archive/, decisions/, old journals |
 
 ### Session Cache & Refresh
@@ -127,6 +128,10 @@ Never save raw transcripts. Distill to structured files:
 **⚠️ Fragments routing** — two distinct buckets, auto-save + one-line confirm:
 - **随手记 → `inbox.md`**: fleeting thoughts, sparks, vague ideas not yet actionable. Triggers: "突然想到...", "有个想法...", "记一下...", "别忘了...", "回头看看...", or any loose thought that isn't a task, decision, or reference.
 - **收藏夹 → `references/YYYY-MM-DD-slug.md`**: links, articles, videos, tools, materials worth keeping. Triggers: user shares a URL, "这个不错", "收藏一下", "以后看看这个", "存一下", or mentions external content worth bookmarking. Always include `url` in frontmatter if available.
+- **笔记 → `notes/`**: the user's OWN notes, kept somewhere else (Obsidian, Feishu/飞书, Notion, a local vault) or jotted on the spot. This is the user's writing, not a third-party article (that's 收藏夹). Triggers: "记一下我的笔记", "这是我写的笔记", "把我 Obsidian 里那篇…记下来", "链一下这个飞书文档", or the user points at a note/doc of their own. Two forms:
+  - **External note (link) → one line in `notes/index.md`**: `- <title> · <link or path> · <one-line what it's about> · #tags`. The brain stores only the pointer — title, link, gist, tags — never the full text. This is the default and fits Loci's "aggregates, not owns" principle: the note's body stays in Obsidian/Feishu; the brain just knows it exists and can fetch it on demand. For a local Obsidian vault, store the file path so the AI can read it directly when asked; for a Feishu/Notion URL, store the link and hand it back when relevant.
+  - **Short inline note → `notes/<slug>.md`**: a quick note not worth opening another app for. Write the body as a real `.md` (frontmatter: `title`, `tags`, `created` ISO), and add its one-line pointer to `notes/index.md` too.
+  - **Read (on demand only)**: when the user asks "我关于 X 写过啥笔记 / 我那篇 …笔记 / what did I note about Y" → read `notes/index.md`, match by title/tag, then open the local file (or hand back the external link). Never auto-load notes into context — like references, it's L2.
 - If it's **actionable with a timeframe** → it's a task, not a fragment (see rule #9).
 - If it's a **conclusion or principle** → it's a decision or insight, not a fragment.
 

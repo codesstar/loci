@@ -44,5 +44,6 @@ managed:
 # - tasks/tasks.json, tasks/active.md, tasks/daily/*, tasks/calendar.json
 # - decisions/*.md (except README.md)
 # - references/entries/*, references/inbox.md
+# - notes/* (the user's own notes — index + inline notes)
 # - All journal files
 # - .loci/config.yml, .loci/status.yml, .loci/activity/

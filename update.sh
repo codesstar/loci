@@ -42,6 +42,7 @@ NEVER_TOUCH=(
   "decisions/*.md"
   "references/*.md"
   "references/entries/*"
+  "notes/*"
   "people/*.md"
   "people/meetings/*"
   "finance/*.md"

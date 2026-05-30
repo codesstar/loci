@@ -14,7 +14,7 @@
 - Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
 - **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/projects/index.md` as the project index.
 - **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, latest 7 items from `inbox.md`.
-- **L2 On Demand**: read module READMEs, `me/`, `decisions/`, `references/`, `tasks/daily/`, or linked project `.loci/memory.md` only when relevant to the user's request.
+- **L2 On Demand**: read module READMEs, `me/`, `decisions/`, `references/`, `notes/`, `tasks/daily/`, or linked project `.loci/memory.md` only when relevant to the user's request.
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.
 
@@ -35,7 +35,8 @@ When the user's request mentions a topic, project, person, decision, material, o
 - Project embryos (not serious yet) → `<brain-path>/projects/side.md`
 - People and relationships → `<brain-path>/people/`
 - Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
-- Saved articles, links, tools, and external materials → `<brain-path>/references/`
+- Saved articles, links, tools, and external materials (third-party content) → `<brain-path>/references/`
+- The user's OWN notes (Obsidian / Feishu / Notion links, or short inline notes they wrote) → `<brain-path>/notes/index.md` (one-line index of pointers) + `<brain-path>/notes/<slug>.md` (inline notes). Loci indexes them, the body stays in the external app. L2: never auto-loaded; read the index and follow the link/path only when the user asks about their notes.
 - "What did I do today / lately?" — the activity ledger of every change made to the brain → `<brain-path>/.loci/activity/<YYYY-MM>.md`. Audit layer: never auto-loaded; read only when the user asks what they did.
 - Historical material → `<brain-path>/archive/` only when explicitly needed
 - For any unfamiliar module, read its `README.md` first, then open the smallest specific file needed.
@@ -55,6 +56,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
 - Personal info → `<brain-path>/me/`
 - Quick thoughts → `<brain-path>/inbox.md`
+- The user's own notes → `<brain-path>/notes/`: an external note (Obsidian/Feishu/Notion) gets ONE line in `notes/index.md` — `- <title> · <link or path> · <gist> · #tags` — never copy the body; a short inline note becomes `notes/<slug>.md` plus its index line. This is the user's writing (vs. references = third-party content).
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 - **Activity ledger**: AFTER any brain-facing write (task, schedule, decision, person, project, inbox, reference, personal info), append one plain-language line to `<brain-path>/.loci/activity/<YYYY-MM>.md` under a `## <YYYY-MM-DD>` heading (create if absent; run `date` for the time): `- HH:MM · <category> · <human one-liner>`. Include a traceable keyword (project/person), no file paths. Works the same in Claude Code and Codex. Never auto-load this ledger; read it only when the user asks what they did.
 - **Task/Schedule routing**:

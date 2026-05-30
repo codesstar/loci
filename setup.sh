@@ -882,6 +882,27 @@ ACTEOF
   ) &
   spin "$(t ".loci/activity/" ".loci/activity/")"
 
+  # --- notes/index.md (the user's own notes — index of external + inline notes) ---
+  (
+    mkdir -p "$BRAIN_PATH/notes"
+    notes_index="$BRAIN_PATH/notes/index.md"
+    if [ ! -f "$notes_index" ]; then
+      cat > "$notes_index" << NOTESEOF
+---
+updated:
+---
+
+# Notes
+
+> Your own notes — pointers to where they live. One line each.
+> Format: \`- <title> · <link or local path> · <one-line gist> · #tags\`
+> External notes (Obsidian / Feishu / Notion) stay in their app; only the pointer lives here.
+> Short inline notes become notes/<slug>.md and also get a line here.
+NOTESEOF
+    fi
+  ) &
+  spin "$(t "notes/" "notes/")"
+
   echo ""
 }
 

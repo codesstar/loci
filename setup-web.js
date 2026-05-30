@@ -298,6 +298,19 @@ function runSetup(data) {
   }
   results.push('.loci/activity/');
 
+  // 4c. notes/index.md — the user's own notes (index of external + inline notes)
+  const notesIndex = path.join(BRAIN_ROOT, 'notes', 'index.md');
+  if (!fs.existsSync(notesIndex)) {
+    writeFileSafe(notesIndex,
+      '---\nupdated:\n---\n\n' +
+      '# Notes\n\n' +
+      '> Your own notes — pointers to where they live. One line each.\n' +
+      '> Format: `- <title> · <link or local path> · <one-line gist> · #tags`\n' +
+      '> External notes (Obsidian / Feishu / Notion) stay in their app; only the pointer lives here.\n' +
+      '> Short inline notes become `notes/<slug>.md` and also get a line here.\n\n');
+  }
+  results.push('notes/');
+
   // 5. ~/.loci/brain-path
   const lociHome = path.join(HOME, '.loci');
   ensureDir(lociHome);

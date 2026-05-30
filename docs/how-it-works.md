@@ -53,7 +53,8 @@ my-brain/
     ├── finance/       ← Budget, assets, financial tracking
     ├── people/        ← Contacts, meeting notes, relationships
     ├── content/       ← Writing, content creation, publishing
-    └── references/    ← External knowledge base (articles, books, quotes)
+    ├── references/    ← External knowledge base (articles, books, quotes — third-party)
+    └── notes/         ← Your OWN notes — index of Obsidian/Feishu/Notion links + short inline notes
 ```
 
 ### Three-Layer Context
@@ -63,7 +64,7 @@ This is Loci's core design — not all memories need to load every time:
 | Layer | When loaded | Contents | Human analogy |
 |-------|------------|----------|---------------|
 | **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, auto-memory | Working memory (what you're thinking about right now) |
-| **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references | Short-term memory (one thought away) |
+| **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references, notes | Short-term memory (one thought away) |
 | **L3** | Only when explicitly asked | archive, old decisions, evolution.md, old journals | Long-term memory (have to dig for it) |
 
 **Why three layers?** AI context windows are finite. Loading everything every time wastes tokens and dilutes attention. L1 stays lean (a few hundred lines), L2 loads on demand, L3 grows forever without affecting performance.
