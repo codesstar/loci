@@ -12,7 +12,7 @@
 
 ### Context Loading Strategy
 - Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
-- **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/me/projects.md` as the project index.
+- **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/projects/index.md` as the project index.
 - **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, latest 7 items from `inbox.md`, and recent `.loci/activity-log.md` when available.
 - **L2 On Demand**: read module READMEs, `me/`, `decisions/`, `references/`, `tasks/daily/`, or linked project `.loci/memory.md` only when relevant to the user's request.
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
@@ -27,13 +27,15 @@
 ### Memory Retrieval Map
 When the user's request mentions a topic, project, person, decision, material, or past context, use this map to find the right place before opening files:
 - Life direction and current goals → `<brain-path>/plan.md`
-- Current priorities and open tasks → `<brain-path>/tasks/active.md`
-- Dated plans or scheduled items → `<brain-path>/tasks/daily/YYYY-MM-DD.md` and `<brain-path>/tasks/calendar.json`
+- Open task cache → `<brain-path>/tasks/active.md`; full task database → `<brain-path>/tasks/tasks.json`
+- Day notes/reviews → `<brain-path>/tasks/daily/YYYY-MM-DD.md`; scheduled time blocks → `<brain-path>/tasks/calendar.json`
 - Durable decisions and rationale → `<brain-path>/decisions/`
-- Identity, preferences, habits, people, and project index → `<brain-path>/me/`, especially `<brain-path>/me/projects.md`
+- Identity, preferences, habits → `<brain-path>/me/`
+- Serious project index (one line each) → `<brain-path>/projects/index.md`. Full project memory lives in each project's OWN repo (`.loci/memory.md` + `.loci/decisions/`), NOT in the brain — read the repo for detail. Loci aggregates, it does not own.
+- Project embryos (not serious yet) → `<brain-path>/projects/side.md`
+- People and relationships → `<brain-path>/people/`
 - Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
 - Saved articles, links, tools, and external materials → `<brain-path>/references/`
-- Connected project context → `.loci/memory.md` in that project, plus `.loci/to-hq.md` and `.loci/from-hq.md`
 - Historical material → `<brain-path>/archive/` only when explicitly needed
 - For any unfamiliar module, read its `README.md` first, then open the smallest specific file needed.
 
@@ -45,18 +47,28 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Uncertain, sensitive, highly subjective, or major life/strategy changes should be confirmed before saving.
 - Distill into structured notes; never save raw transcripts.
 - Keep save confirmations short and natural. Do not expose file paths or internal terms unless asked.
-- Tasks → `<brain-path>/tasks/active.md`
+- Tasks → use the guarded task writer, not manual JSON edits:
+  - Preferred: Dashboard API when `<brain-path>/.loci/dashboard/server.js` is running.
+  - Fallback: run `node <brain-path>/scripts/loci-task.js ...`.
+  - Validate with `node <brain-path>/scripts/loci-task.js validate`.
 - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
 - Personal info → `<brain-path>/me/`
 - Quick thoughts → `<brain-path>/inbox.md`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
-- **Time-based tasks** → write to BOTH `<brain-path>/tasks/daily/YYYY-MM-DD.md` (checklist) AND `<brain-path>/tasks/calendar.json` (event with startKey/endKey in minutes from midnight). No time = daily plan only.
-- **Dashboard**: if `server.js` is running (`node <brain-path>/.loci/dashboard/server.js`), no action needed — it reads markdown live. Otherwise, update `<brain-path>/.loci/dashboard/data.json` directly. See `<brain-path>/.loci/dashboard/schema.md` for format.
+- **Task/Schedule routing**:
+  - Task = something to complete → guarded writer stores it in `<brain-path>/tasks/tasks.json`.
+  - Task with specific date → still write only to `<brain-path>/tasks/tasks.json`; do not duplicate it into daily files.
+  - Task with specific time → guarded writer also updates `<brain-path>/tasks/calendar.json` with `fromTask: true` and `taskId`.
+  - Schedule-only item (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to `<brain-path>/tasks/calendar.json`.
+  - Loose idea, not a task → `<brain-path>/inbox.md`.
+- Do not hand-edit `<brain-path>/tasks/tasks.json` or `<brain-path>/tasks/calendar.json` except as an emergency fallback. If manual editing is unavoidable, immediately run `node <brain-path>/scripts/loci-task.js rebuild` and `node <brain-path>/scripts/loci-task.js validate`.
+- **Dashboard**: if `server.js` is running (`node <brain-path>/.loci/dashboard/server.js`), use its API. Otherwise use `node <brain-path>/scripts/loci-task.js ...` for task/schedule writes.
 
 ### Cross-Project Memory
-- In projects with `.loci/` directory: read `.loci/memory.md` for project context, use `.loci/to-hq.md` / `.loci/from-hq.md` for cross-project sync
-- Tags: `[decision]` `[architecture]` `[insight]` `[milestone]` auto-push to brain; `[local]` `[debug]` `[wip]` stay local
+- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (`.loci/memory.md` + `.loci/decisions/`), while the brain keeps only a one-line index in `<brain-path>/projects/index.md`.
+- In connected project repos: read `.loci/memory.md` for project context. Write durable project decisions to `.loci/decisions/YYYY-MM-DD-slug.md`; update `.loci/memory.md` for goal/current-state/next-step/progress changes.
+- Tags: `[decision]` and project-local facts stay in the project repo. Promote only `[insight]` / `[milestone]` summaries to the brain's project index when they matter outside the repo. `[local]` `[debug]` `[wip]` stay local.
 
 ### Commands
-/loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+/loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->

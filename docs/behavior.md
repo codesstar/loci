@@ -24,8 +24,12 @@ Memory confirmations should be short, natural, and secondary to the main respons
 ## Quick Add Reminders/Events
 
 When the user mentions something to do, **add immediately** without confirmation:
-- Add to `tasks/active.md` (default P2)
-- If a time is mentioned, also add to `tasks/calendar.json`
+- If it is a task, write through the Dashboard API if running, otherwise use `node scripts/loci-task.js add/update`.
+- If the task has a specific time, the guarded writer must also add/update `tasks/calendar.json` with `fromTask: true` and `taskId`.
+- If it is schedule-only time (meeting, meal, class, appointment, travel, time block), use the guarded writer/API to add only to `tasks/calendar.json`.
+- Do not hand-edit `tasks/tasks.json` or `tasks/calendar.json` except as an emergency fallback.
+- After an emergency manual edit, run `node scripts/loci-task.js rebuild` and `node scripts/loci-task.js validate`.
+- Do not duplicate tasks into `tasks/daily/YYYY-MM-DD.md`; daily files are day notes and reviews.
 - Format details → `tasks/README.md`
 
 ## Reference Collection (references/)
@@ -97,15 +101,17 @@ references/
     └── topic-name.md
 ```
 
-## Department Communication Protocol
+## Project Memory Protocol
 
-External projects ("departments") connect via `.loci/links/`. Two-way communication:
-- `.loci/from-hq.md` (HQ→Dept): Write on strategic decisions, execute one-off tasks directly
-- `.loci/to-hq.md` (Dept→HQ): Scan Active section at conversation start, watch for `[needs-decision]` `[milestone]` `[anomaly]`
-- Monthly: archive entries older than 30 days or completed
-- For linked sub-projects, communication files live inside the sub-project's `.loci/` directory (not root)
+Loci aggregates memory, it does not own it. A serious project's memory belongs in that project's own repo:
+- `.loci/memory.md` — living dossier: goal, current state, next step, key people, progress log
+- `.loci/decisions/` — durable project decision stream
+- `CLAUDE.md` project block — tells future AI sessions how to read/write the repo memory
+- Brain `projects/index.md` — one-line index only; never a warehouse for full project memory
 
-## Sub-Project Persistence (memory.md v1)
+The user does not run a command to connect a project. AI notices "this is getting real" signals and offers once at the end of the conversation.
+
+## Project Persistence (memory.md v1)
 
 When working inside a project that has a `.loci/` directory, the AI maintains a local project memory via `.loci/memory.md`.
 
@@ -117,13 +123,12 @@ When working inside a project that has a `.loci/` directory, the AI maintains a 
 project-root/
 ├── .loci/
 │   ├── memory.md          # Project memory (core file)
-│   ├── config.json        # Project config (sync rules, project type)
-│   ├── to-hq.md           # Project → Brain (milestones, decisions, anomalies)
-│   ├── from-hq.md         # Brain → Project (strategic decisions, priority changes)
-│   └── link               # Path to brain location
+│   ├── decisions/         # Project decision stream
+│   └── config.json        # Optional project memory settings
+├── CLAUDE.md              # Includes the Loci project block
 ```
 
-5 files cover all scenarios. Do not add more.
+Keep this minimal. Do not create profile, link, to-hq, or from-hq files.
 
 ### memory.md Format
 
@@ -161,25 +166,24 @@ last_consolidation: <YYYY-MM-DD>
 | Patterns | 20 lines | AI auto-generated during consolidation |
 | **Total** | **≤ 150 lines** | Configurable via `.loci/config.json` |
 
-- memory.md is **write-by-AI, read-by-human**. Users never need to manually edit it.
+- memory.md is **write-by-AI, read-by-AI**. Users normally view project state through the dashboard, repo, or future integrations; they never need to manually edit it.
 - **No automatic decay.** Entries stay until manually consolidated via `/loci-consolidate`. AI may suggest consolidation when file exceeds 120 lines.
 - Story is rewritten each consolidation. Before rewriting, the old version is backed up to `.loci/backups/`.
 
 ### Cross-Project Knowledge Flow
 
-**Upward (Project → Brain)**:
+**Project → Brain index**:
 1. AI detects decision/milestone/insight signal while working in a project
-2. AI evaluates scope: local (code detail) → don't bubble; cross-project/global (tech choice, architecture) → bubble
-3. Bubbled content is written to `.loci/to-hq.md` Active section
-4. Brain scans all to-hq.md files at session start
-5. Brain stores in `decisions/YYYY-MM-DD-slug.md` with `source: <project-name>` tag in frontmatter
+2. Normal project decisions stay in `.loci/decisions/`
+3. Project state/progress updates stay in `.loci/memory.md`
+4. Only `[insight]` / `[milestone]` summaries that matter outside the repo update the brain's `projects/index.md` one-line index
+5. Never copy the full project memory into the brain
 
-**Downward (Brain → Project)**:
-1. AI detects a related topic while working in a project (e.g., discussing databases)
-2. AI reads brain's `me/projects.md` (project narrative index, 2-4 lines per project)
-3. If related → reads specific project's memory.md or decision files
-4. Writes pulled info to `.loci/from-hq.md` for traceability
-5. Zero configuration required from user
+**Brain → Project**:
+1. AI detects a related topic while working in a project
+2. AI reads brain `projects/index.md` to find where relevant project memory lives
+3. If related, AI opens that project's `.loci/memory.md` or `.loci/decisions/`
+4. No trace files are needed; the repo remains the source of truth
 
 ### Consolidation
 
@@ -193,21 +197,21 @@ last_consolidation: <YYYY-MM-DD>
 5. Update frontmatter `last_consolidation`
 6. If still > 150 lines → compress oldest Established entries (git preserves history)
 
-### Tag Categories (for to-hq.md bubbling)
+### Tag Categories
 
-**Push tags** (immediately synced to brain via `to-hq.md` when written):
-- `[decision]` — architectural or strategic choices
-- `[architecture]` — system design, data models, tech stack
+**Brain-index tags** (may update `projects/index.md` when useful beyond the repo):
 - `[insight]` — learned patterns, performance findings, best practices
 - `[milestone]` — shipped features, releases, major completions
 
-**Local tags** (stay in sub-project only):
+**Local tags** (stay in the project repo):
+- `[decision]` — normal project architectural or strategic choices
+- `[architecture]` — project-specific system design, data models, tech stack
 - `[local]` — project-specific context, not worth syncing
 - `[debug]` — bug fixes, workarounds, temporary solutions
 - `[wip]` — work in progress notes, incomplete thoughts
 - `[private]` — sensitive info, never bubble to brain (API keys, credentials, personal matters)
 
-Push happens at the moment of writing — no batching, no "session end" trigger.
+Brain index updates happen only when the summary matters outside the repo.
 
 ## Memory Consolidation
 
@@ -221,7 +225,7 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 ### What It Does
 
-1. Scan recent changes: `decisions/`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, `.loci/links/*/.loci/to-hq.md`
+1. Scan recent changes: `decisions/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity-log.md`, `inbox.md`, and relevant project entries from `projects/index.md`
 2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
 3. If insights found → append to `me/insights.md` with source citations
 4. Report in one conversational sentence, or stay silent if nothing notable
@@ -271,7 +275,7 @@ File changes are automatically recorded to `.loci/activity-log.md` via `.loci/ho
 ## Undo Mechanism
 
 - User says "undo" or "撤销" to reverse the **last** auto-save operation
-- If the last save touched multiple files (e.g., a task was added to `tasks/active.md` AND a decision was written to `decisions/`), undo reverts **all** of them in one operation
+- If the last save touched multiple files (e.g., a task was added to `tasks/tasks.json` AND a decision was written to `decisions/`), undo reverts **all** of them in one operation
 - Implementation: the AI remembers what it wrote and where. On undo, it reads the file, removes/reverts the added content, and writes the file back. No git dependency required
 - Selective undo: user can say "undo the task but keep the decision" — the AI reverts only the specified file(s) while leaving others intact
 - Undo only works for the **most recent** save within the current session. For older saves, user should manually edit the files or use `git log` if commits exist
@@ -293,6 +297,6 @@ When the user asks to create a new module (e.g., "help me manage finances", "I w
 ## Extension Rules
 
 - **New module**: `mkdir name` → Create README.md → Update directory map
-- **Connect external project**: `ln -s /actual/path .loci/links/name` → Register in `.loci/links/registry.md`
+- **Connect external project**: AI offers once when the project gets serious; on yes, create `.loci/memory.md`, `.loci/decisions/`, inject the project block into repo `CLAUDE.md`, add `.loci/` to `.gitignore`, and add one index line to `projects/index.md`
 - **New template**: Place in `templates/`
-- Loci is the main entry point; all external projects managed through `.loci/links/`
+- Loci is the index + understanding layer; external projects own their own memory

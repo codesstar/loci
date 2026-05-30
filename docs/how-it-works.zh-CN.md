@@ -6,7 +6,7 @@
 
 ```
 第 1 周: 安装 → 聊天 → AI 记住你了              正常聊就行
-第 2 周: 连接其他项目 → 跨项目记忆               一条命令: /loci-link
+第 2 周: 连接其他项目 → 项目拥有自己的记忆        AI 在项目认真起来时主动提示
 第 3 周: Dashboard + 配置调优                    可视化概览 + /loci-brain-settings
 第 4 周+: 精细控制                               /loci-settings, /loci-sync 参数
 ```
@@ -152,8 +152,8 @@ my-brain/
 两种模式下都能用。手动触发一轮完整的"蒸馏 + 同步"：
 
 ```
-/loci-sync              → 回顾对话 + 保存文件 + 同步到子项目
-/loci-sync --local      → 只存本地，不同步到子项目
+/loci-sync              → 回顾对话 + 保存文件 + 必要时更新项目索引
+/loci-sync --local      → 只存本地，不更新大脑项目索引
 /loci-sync --dry-run    → 预览会存什么，但不实际执行
 ```
 
@@ -167,17 +167,18 @@ my-brain/
 
 ### 连接项目
 
-```bash
-# 在任意项目文件夹里
-/loci-link
-```
+用户不需要记命令。AI 发现一个项目真的做起来了，就在对话结尾轻问一次：
 
-跑完之后会发生这些事：
-1. 自动扫描项目（README, package.json, 目录结构）→ 生成项目档案
-2. 在 Brain 的 `.loci/links/` 里建符号链接
-3. 在项目里创建 `.loci/` 目录，放一个 `link` 文件（指向 Brain 路径）
-4. 创建双向通信文件：`.loci/from-hq.md`（Brain → 项目）、`.loci/to-hq.md`（项目 → Brain）
-5. 创建 `.loci/memory.md` 存项目本地知识
+> "这个项目好像做起来了，要不要我帮你在这里留个记忆？"
+
+用户点头后：
+1. 在项目 repo 里创建 `.loci/memory.md`（活档案）
+2. 在项目 repo 里创建 `.loci/decisions/`（决策流水）
+3. 往项目的 `CLAUDE.md` 注入 Loci project block
+4. 把 `.loci/` 加到项目 `.gitignore`
+5. 只在大脑的 `projects/index.md` 里加一行索引
+
+Loci 汇聚记忆，但不占有记忆。项目记忆归项目 repo 自己。
 
 ### 信息怎么流
 
@@ -188,38 +189,34 @@ my-brain/
     项目 A    项目 B    项目 C
     .loci/     .loci/     .loci/
 
-上行 (.loci/to-hq.md): 项目 → Brain
-  "v1.0 发布了" [milestone]
-  "数据库要不要换？" [needs-decision]
+大脑索引 (projects/index.md): 每个认真项目一行
+  "CloudMetrics — alerting SaaS. repo: ~/work/cloudmetrics. memory: .../.loci/memory.md"
 
-下行 (.loci/from-hq.md): Brain → 项目
-  "决策：所有项目统一用 PostgreSQL"
-  "这个月优先级给项目 A，其他往后排"
+项目决策 (.loci/decisions/): 项目自己的持久决策
+  "选择 PostgreSQL 而不是 SQLite，因为..."
 
-本地 (.loci/memory.md): 项目自己的知识
+项目活档案 (.loci/memory.md): 项目当前状态
   只在本项目里保留的事实、决策和经验
 ```
 
-### 基于标签的同步（v1.0）
+### 什么会进入大脑
 
-在子项目里工作时，`.loci/memory.md` 里的条目会打标签。标签决定哪些内容往 Brain 同步：
+大多数项目记忆留在项目 repo。大脑只保留足够的索引，让 AI 知道项目存在以及去哪读。
 
-**推送标签**（通过 `to-hq.md` 自动同步到 Brain）：
-- `[decision]` — 架构或战略选择
-- `[architecture]` — 系统设计、数据模型、技术栈
-- `[insight]` — 踩坑总结、性能发现
-- `[milestone]` — 发布的功能、版本号
+**可以更新大脑索引**：
+- `[insight]` — 跨场景也有价值的经验
+- `[milestone]` — 发布、阶段变化、重要进展
+- 被提升到大脑层面的关键决策链接
 
-**本地标签**（只留在子项目里）：
+**只留在项目本地**：
+- `[decision]` — 普通项目决策放 `.loci/decisions/`
 - `[local]` — 项目专属的上下文
 - `[debug]` — Bug 修复、临时方案
 - `[wip]` — 还在搞的东西
 
-> 高级路由模式（open、manual、silent）计划 v2.0 做。详见 [Roadmap](roadmap.md)。
+### 项目配置（/loci-settings）
 
-### 子项目配置（/loci-settings）
-
-每个项目都能通过 `/loci-settings` 单独配置哪些标签往 Brain 推。
+每个已连接项目都能通过 `/loci-settings` 配置什么内容会进入大脑索引。
 
 > 深入了解: [部门系统](departments.md)
 
@@ -304,7 +301,6 @@ persistence:
 
 | 命令 | 什么时候用 | 干什么 |
 |---------|-----------------|--------------|
-| `/loci-link` | 第 2 周 | 把项目文件夹连到 Brain |
 | `/loci-sync` | 随时 | 手动蒸馏 + 同步（参数: `--local`, `--dry-run`） |
 | `/loci-settings` | 第 2 周+ | 配置项目往 Brain 同步什么 |
 | `/loci-brain-settings` | 第 3 周+ | 配置持久化模式和通知 |

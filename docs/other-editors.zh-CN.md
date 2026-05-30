@@ -10,7 +10,7 @@ Loci 是给 Claude Code 做的，但记忆层全是 Markdown 纯文本——随�
 
 ## 需要 Claude Code 才行的功能
 
-- **Slash commands**（`/loci-sync`、`/loci-link`、`/loci-consolidate` 这些）
+- **Slash commands**（`/loci-sync`、`/loci-consolidate` 这些）
 - **自动持久化**（Synapse）— 自动检测信号并存储
 - **Hooks** — 跨终端感知、活动日志
 - **Memory Consolidation** — 每天的模式检测和洞察生成
@@ -32,7 +32,7 @@ Loci 是给 Claude Code 做的，但记忆层全是 Markdown 纯文本——随�
 ## 没有 slash command 怎么办
 
 - **替代 `/loci-sync`**：直接跟 AI 说 "保存这个决策" 或 "加个任务"——它能直接编辑 Markdown 文件
-- **替代 `/loci-link`**：手动在你的项目里建个 `.loci/` 目录，里面放 `memory.md`、`to-hq.md` 和 `from-hq.md`
+- **项目记忆**：项目真的做起来时，直接跟 AI 说"在这个 repo 里留个项目记忆"。它应该创建 `.loci/memory.md`、`.loci/decisions/`，并在 `CLAUDE.md` 里注入 Loci project block。
 - **替代自动 consolidation**：隔一阵让 AI "回顾一下我最近的决策和任务，看看有什么规律"
 
 ## 混合工作流
@@ -43,7 +43,7 @@ Loci 是给 Claude Code 做的，但记忆层全是 Markdown 纯文本——随�
 Terminal (Claude Code)     Editor (Cursor/Windsurf)
 ├── 管 brain                ├── 写代码
 ├── /loci-consolidate      ├── 读 brain 上下文
-├── /loci-link             ├── AI 知道你的决策
+├── 项目记忆设置            ├── AI 知道你的决策
 └── /loci-sync             └── 记忆文件随时可用
 ```
 

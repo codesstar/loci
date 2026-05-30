@@ -1,15 +1,21 @@
 ---
-updated: 2026-01-01
+updated: 2026-05-30
+schema: task-view-v1
+source: tasks.json
 ---
 
 # Active Tasks
 
-> What you're working on right now. P0 = drop everything. P3 = nice to have.
+> Generated context cache from `tasks/tasks.json`. Do not edit by hand.
 
-## P0
+## Open
 
-## P1
+<!-- No open tasks. -->
 
-## P2
+## Stale
 
-## P3
+<!-- No stale tasks. -->
+
+## Recently Done
+
+<!-- No recently completed tasks. -->

@@ -1,19 +1,19 @@
-Sync information between this project and the Loci brain. Push local changes out, pull remote updates in.
+Sync information between this project and the Loci brain index. Keep full project memory in the project repo.
 
-This command works in both the brain and sub-projects. It combines two operations into one: session distillation (persist what was discussed) and cross-project sync (route info to relevant projects).
+This command works in both the brain and connected projects. It combines two operations into one: session distillation (persist what was discussed) and lightweight project indexing (only summaries that should matter outside the repo).
 
 Flags:
-- `--local` — Only distill and store locally, skip cross-project sync
+- `--local` — Only distill and store locally, skip brain index updates
 - `--dry-run` — Show what would be stored/synced without executing
 
 Steps:
 
-1. **Detect context**: Check if current directory is a brain (has `.loci/` with `me/identity.md`) or a sub-project (has `.loci/link`). If neither, tell user: "This directory is not a Loci brain or connected sub-project. Run `/loci-link` first."
+1. **Detect context**: Check if current directory is a brain (has `.loci/` with `me/identity.md`) or a connected project (has `.loci/memory.md`). If neither, do not introduce a command. Say: "这个项目还没有本地记忆。要不要我帮你在这里留个记忆？" If the user says yes, follow the "Connecting a serious project" rule in the main instructions.
 
 2. **Read config**:
    - Brain: read `.loci/config.yml`
-   - Sub-project: read `.loci/config.json` and `.loci/link` (to get brain path)
-   - If no config found, use defaults (auto mode, balanced distillation, tag-routed).
+   - Connected project: read `.loci/memory.md` frontmatter to get the brain path
+   - If no config found, use defaults (auto mode, balanced distillation, local-first project memory).
 
 ---
 
@@ -23,44 +23,39 @@ Steps:
    a. Review the current conversation for new information worth storing
    b. Apply Distillation settings (verbose/balanced/minimal) to compress
    c. If `--dry-run`: list what would be stored, then stop
-   d. Write distilled info to the appropriate brain files (decisions → `decisions/`, tasks → `tasks/active.md`, insights → `me/learned.md`, etc.)
+   d. Write distilled info to the appropriate brain files (decisions → `decisions/`, tasks → guarded task writer, insights → `me/learned.md`, etc.)
 
-4. **Sync (brain → sub-projects)** (skip if `--local`):
-   a. Auto-tag each stored item (urgent/decision/fyi/log + custom tags)
-   b. Match tags to sub-project `interest_tags`, write to each matched sub-project's `from-hq.md` (tag-routed sync)
-   c. Respect Privacy rules — never route blocked categories
+4. **Index update** (skip if `--local`):
+   a. If the stored item is a project-level `[insight]` or `[milestone]`, update the relevant one-line entry in `projects/index.md`
+   b. Do not copy full project memory into the brain. Read the project repo when detail is needed.
+   c. Respect Privacy rules — never index blocked categories
 
-5. **Pull (scan sub-projects)**:
-   a. Scan all connected sub-projects (from `.loci/links/`)
-   b. Read each sub-project's `.loci/to-hq.md`
-   c. Check for new entries (entries not yet marked as `[read]`)
-   d. Display new entries grouped by sub-project, highlighting `[urgent]` and `[decision]` tags
-   e. Mark displayed entries as `[read]` with today's date
+5. **Refresh project indexes**:
+   a. Read `projects/index.md`
+   b. For any relevant project mentioned in the current conversation, open that repo's `.loci/memory.md`
+   c. Do not scan every project automatically unless the user asks
 
 6. **Show summary**:
    ```
    Sync complete.
 
    Stored: X items (tasks: 2, decisions: 1, insights: 1)
-   Routed: Y items to sub-projects
-   Pulled: Z new updates from sub-projects
+   Indexed: Y project summaries
+   Refreshed: Z project dossiers
 
    [List of stored items with destinations]
-   [List of pulled items with sources]
+   [List of refreshed project sources]
    ```
 
 ---
 
-### If running in a Sub-project:
+### If running in a Connected Project:
 
-3. **Distill (session → memory.md + to-hq.md)**:
+3. **Distill (session → project files)**:
    a. Review the current conversation for new information
-   b. Apply local distillation (based on project's sync settings in `.loci/config.json`)
+   b. Apply local distillation based on the project block in `CLAUDE.md`
    c. If `--dry-run`: list what would be stored/pushed, then stop
-   d. **Append** new knowledge to `.loci/memory.md`, one entry per line, format:
-      ```
-      [tag] YYYY-MM-DD content
-      ```
+   d. **Update** `.loci/memory.md` as the living dossier: Goal / Current State / Next Step are updated in place; Progress Log is append-only.
       Available tags:
       - `[decision]` — architectural or strategic decisions made
       - `[architecture]` — structural choices, patterns, tech stack changes
@@ -69,29 +64,26 @@ Steps:
       - `[local]` — project-specific context, naming conventions, quirks
       - `[debug]` — tricky bugs and their solutions
       - `[wip]` — work in progress notes, current state of incomplete work
-   e. **Immediate push**: For each new entry, check if its tag appears in `sync.push_tags` from `.loci/config.json`. If yes, write the entry to **both** `.loci/memory.md` and `.loci/to-hq.md` simultaneously. No batching, no waiting for session end.
-   f. Entries whose tag appears in `sync.local_tags` are written to `memory.md` only — they are never pushed to `to-hq.md`.
-   g. If `--local` flag is set: write everything to `memory.md` only, skip `to-hq.md` regardless of tags.
+   e. **Decision stream**: Real trade-off decisions go to `.loci/decisions/YYYY-MM-DD-slug.md` using the same four-part decision template as the brain.
+   f. **Brain index**: For `[insight]` / `[milestone]` items worth knowing outside this repo, update the one-line entry in the brain's `projects/index.md`. Never copy the full project memory to the brain.
+   g. If `--local` flag is set: write only project-local files, skip the brain index.
 
-4. **Pull (read from brain)** (skip if `--local`):
-   a. Read brain path from `.loci/link`
-   b. Read this project's `from-hq.md`
-   c. Check for new entries (entries not yet marked as `[read]`)
-   d. Also scan brain's shared info pool for items matching this project's `interest_tags` (if routing mode is open or tag-routed)
-   e. Display new entries, highlighting priority
-   f. Mark displayed entries as `[read]` with today's date
+4. **Refresh from brain** (skip if `--local`):
+   a. Read the brain path from `.loci/memory.md` frontmatter
+   b. Read only the brain indexes that are relevant to the current task (`plan.md`, `projects/index.md`, people/references when mentioned)
+   c. Do not create `to-hq.md`, `from-hq.md`, profiles, or link files
 
 5. **Show summary**:
    ```
    Sync complete.
 
-   Stored locally: X items → memory.md
-   Pushed to brain: Y items (via to-hq.md)
-   Pulled from brain: Z new updates
+   Stored locally: X items → .loci/memory.md / .loci/decisions/
+   Indexed in brain: Y summaries → projects/index.md
+   Refreshed from brain: Z indexes
 
    [List of stored items with tags]
-   [List of pushed items]
-   [List of pulled items]
+   [List of indexed summaries]
+   [List of refreshed sources]
    ```
 
 ---
@@ -101,9 +93,9 @@ Steps:
 When persistence mode is `auto` (default), the AI performs signal-driven sync automatically during conversation:
 
 1. **Every turn**, AI evaluates whether the current exchange contains storable information (new task, decision, insight, personal info change, etc.)
-2. **If yes**: silently distill and **append** to `.loci/memory.md` (in sub-projects) or the appropriate brain file. If the tag matches `push_tags`, **immediately** write to both `memory.md` and `to-hq.md` in the same operation. Output a one-line notification:
+2. **If yes**: silently distill and write to `.loci/memory.md` / `.loci/decisions/` in connected projects, or the appropriate brain file when inside the brain. For project `[insight]` / `[milestone]` summaries, update the brain's `projects/index.md` one-line index. Output a one-line notification:
    ```
-   Got it — noted pricing decision, synced to linked projects
+   Got it — noted the pricing decision in this project
    ```
    For local-only entries:
    ```
@@ -112,10 +104,10 @@ When persistence mode is `auto` (default), the AI performs signal-driven sync au
    In the brain:
    ```
    Got it — added task "Buy power adapter"
-   Noted — synced pricing decision to cyc, ai-resume
+   Noted — updated the project index
    ```
 3. **If no**: do nothing, no notification
 4. User can say "undo" / "撤销" to reverse the last auto-save
-5. **memory.md grows over time.** Clean manually if needed, or wait for v2.0 auto-compression.
+5. **memory.md grows over time.** Keep the living sections lean and let Progress Log be append-only. Clean manually if needed, or wait for v2.0 auto-compression.
 
 This is signal-driven, not interval-based. 5 turns of chitchat = nothing stored. 1 turn with a major decision = stored immediately.

@@ -15,7 +15,7 @@ Steps:
 4. **Notifications** (AskUserQuestion, only if Auto was chosen):
 
    "Show a one-line notification after each auto-save?"
-   - **Yes (default)** — e.g. `[Loci] Stored: new task "Buy adapter" → active.md`
+   - **Yes (default)** — e.g. `Got it — added task "Buy adapter"`
    - **No** — Silent saves, no notifications
 
 5. **Save config**: Write `.loci/config.yml` in brain directory:

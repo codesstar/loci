@@ -206,16 +206,20 @@ AI 已经知道今天几号、昨天你干了什么、今天有什么安排。�
 
 ### 怎么连
 
-在任意项目目录里打开 Claude Code，跑：
+不用记命令。在任意项目目录里打开 Claude Code 或 Codex，正常工作就行。
 
-```
-/loci-link
-```
+当 AI 发现这个项目真的做起来了，它应该在对话结尾轻问一次：
 
-AI 会：
-1. 扫描项目（README、package.json、目录结构）
-2. 在项目里创建 `.loci/` 文件夹，放上连接文件
-3. 在你 brain 的 `.loci/links/` 里注册这个项目
+> "这个项目好像做起来了，要不要我帮你在这里留个记忆？"
+
+你点头后，AI 会：
+1. 在项目 repo 里创建 `.loci/memory.md`
+2. 创建 `.loci/decisions/` 存项目决策
+3. 往项目的 `CLAUDE.md` 注入 Loci project block
+4. 把 `.loci/` 加到项目 `.gitignore`
+5. 在大脑的 `projects/index.md` 里加一行索引
+
+之后，项目记忆归项目 repo 自己。大脑只保留索引，知道需要时去哪读。
 
 连好之后，你在那个项目里工作时，AI 就能感知到 brain 里的内容——你做过的决策、目标、偏好，全都打通了。
 

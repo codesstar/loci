@@ -15,6 +15,7 @@ managed:
   - templates/**
 
   # System internals
+  - scripts/**
   - .loci/hooks/**
   - .loci/dashboard/**
   - .loci/engine-files.yml
@@ -38,8 +39,9 @@ managed:
 
 # User data (NEVER touched by upgrades):
 # - plan.md, inbox.md
-# - me/identity.md, me/learned.md, me/values.md, me/evolution.md, me/projects.md
-# - tasks/active.md, tasks/daily/*, tasks/calendar.json
+# - me/identity.md, me/learned.md, me/values.md, me/evolution.md, me/goals.md, me/insights.md
+# - projects/index.md, projects/side.md, projects/* (all project memory)
+# - tasks/tasks.json, tasks/active.md, tasks/daily/*, tasks/calendar.json
 # - decisions/*.md (except README.md)
 # - references/entries/*, references/inbox.md
 # - All journal files

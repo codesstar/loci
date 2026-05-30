@@ -27,17 +27,21 @@ curl http://localhost:8765/api/data
 
 ### POST /api/tasks/add
 
-添加任务到 `tasks/active.md`。
+添加任务到 `tasks/tasks.json`，并重新生成 `tasks/active.md`。
 
 | 字段 | 类型 | 必填 | 默认值 | 说明 |
 |------|------|------|--------|------|
 | `text` | string | 是 | — | 任务文本 |
-| `priority` | string | 否 | `P1` | 目标分区: `P0`, `P1`, `P2`, `P3` |
+| `date` | string | 否 | `null` | 计划日期，`YYYY-MM-DD` |
+| `startTime` | string | 否 | `null` | 可选开始时间，`HH:MM` |
+| `endTime` | string | 否 | `null` | 可选结束时间，`HH:MM` |
+| `project` | string | 否 | `null` | 关联项目 |
+| `source` | string | 否 | `dashboard` | 来源 |
 
 ```bash
 curl -X POST http://localhost:8765/api/tasks/add \
   -H 'Content-Type: application/json' \
-  -d '{"text":"买菜","priority":"P0"}'
+  -d '{"text":"买菜","date":"2026-05-31"}'
 ```
 
 ### POST /api/tasks/toggle
@@ -46,21 +50,23 @@ curl -X POST http://localhost:8765/api/tasks/add \
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `task` | string | 是 | 任务文本（精确匹配） |
+| `id` | string | 推荐 | 稳定任务 id |
+| `task` | string | 兜底 | 任务文本（精确匹配） |
 | `checked` | boolean | 是 | `true` = `[x]`, `false` = `[ ]` |
 
 ### POST /api/tasks/move
 
-在优先级分区之间移动任务。
+修改任务状态。
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `task` | string | 是 | 任务文本（精确匹配） |
-| `from` | string | 否 | 来源: `P0`-`P3` 或 `done` |
-| `to` | string | 是 | 目标: `P0`-`P3` 或 `done` |
+| `id` | string | 推荐 | 稳定任务 id |
+| `task` | string | 兜底 | 任务文本（精确匹配） |
+| `to` | string | 是 | `open`, `done`, 或 `archived` |
 
-- `to: "done"` → 标记 `[x]`，留在原分区
-- `from: "done"` → 取消 `[x]`，移到目标分区
+- `to: "done"` → 写入完成时间
+- `to: "open"` → 取消完成状态
+- `to: "archived"` → 从常规启动/看板流里隐藏，但保留历史
 
 ---
 
@@ -68,7 +74,7 @@ curl -X POST http://localhost:8765/api/tasks/add \
 
 ### POST /api/daily/add-task
 
-添加任务到日计划文件。文件不存在会自动创建。
+添加一条日记/日计划 checklist。这里不是任务数据库；真正任务请使用 `/api/tasks/add`。
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
@@ -115,7 +121,10 @@ curl -X POST http://localhost:8765/api/tasks/add \
 |------|------|------|------|
 | `title` | string | 是 | 事件标题 |
 | `date` | string | 是 | `YYYY-MM-DD` 格式 |
-| `time` | string | 否 | `HH:MM` 格式 |
+| `startMin` | number | 否 | 从当天 0 点开始计算的开始分钟 |
+| `endMin` | number | 否 | 从当天 0 点开始计算的结束分钟 |
+| `fromTask` | boolean | 否 | 是否来自任务投影 |
+| `taskId` | string | 否 | `fromTask` 为 true 时关联的任务 id |
 
 ---
 

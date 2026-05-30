@@ -125,24 +125,56 @@ ${data.focus}
 `;
 }
 
-function generateTasks(data) {
+function generateTaskDb(data) {
+  const now = new Date().toISOString();
+  const dateKey = today().replace(/-/g, '');
+  const slug = String(data.focus || 'first-task')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 48) || 'first_task';
+  return JSON.stringify({
+    tasks: [
+      {
+        id: `task_${dateKey}_${slug}`,
+        title: data.focus,
+        status: 'open',
+        date: null,
+        startTime: null,
+        endTime: null,
+        project: null,
+        source: 'setup',
+        createdAt: now,
+        updatedAt: now,
+        completedAt: null,
+        archivedAt: null
+      }
+    ]
+  }, null, 2) + '\n';
+}
+
+function generateActiveTaskView(data) {
   return `---
 updated: ${today()}
+schema: task-view-v1
+source: tasks.json
 ---
 
 # Active Tasks
 
-> What you're working on right now. P0 = drop everything. P3 = nice to have.
+> Generated context cache from \`tasks/tasks.json\`. Do not edit by hand.
 
-## P0
+## Open
 
 - [ ] ${data.focus}
 
-## P1
+## Stale
 
-## P2
+<!-- No stale tasks. -->
 
-## P3
+## Recently Done
+
+<!-- No recently completed tasks. -->
 `;
 }
 
@@ -185,7 +217,13 @@ function generateGlobalBlock() {
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`<brain-path>/tasks/active.md\`
+- Tasks → use the guarded task writer, not manual JSON edits:
+  - Preferred: Dashboard API when \`<brain-path>/.loci/dashboard/server.js\` is running.
+  - Fallback: run \`node <brain-path>/scripts/loci-task.js ...\`.
+  - Validate with \`node <brain-path>/scripts/loci-task.js validate\`.
+- Task with specific time → guarded writer also updates \`<brain-path>/tasks/calendar.json\` with \`fromTask: true\` and \`taskId\`
+- Schedule-only time block → guarded writer/API writes only to \`<brain-path>/tasks/calendar.json\`
+- Do not hand-edit \`<brain-path>/tasks/tasks.json\` or \`<brain-path>/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`<brain-path>/decisions/YYYY-MM-DD-slug.md\`
 - Personal info → \`<brain-path>/me/\`
 - Quick thoughts → \`<brain-path>/inbox.md\`
@@ -196,7 +234,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` stay local
 
 ### Commands
-/loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+/loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->`;
   }
   return block.replace(/<brain-path>/g, BRAIN_ROOT);
@@ -233,8 +271,10 @@ function runSetup(data) {
   writeFileSafe(path.join(BRAIN_ROOT, 'plan.md'), generatePlan(data));
   results.push('plan.md');
 
-  // 3. tasks/active.md
-  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateTasks(data));
+  // 3. tasks/tasks.json + generated active.md view
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(data));
+  results.push('tasks/tasks.json');
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(data));
   results.push('tasks/active.md');
 
   // 4. .loci/config.yml

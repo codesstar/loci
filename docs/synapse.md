@@ -1,134 +1,78 @@
-# Synapse — Cross-Project Information Flow
+# Synapse — Signal-Driven Memory
 
-## What is Synapse?
+## What Is Synapse?
 
-Synapse is how information flows between your Loci brain and connected sub-projects — like synapses between neurons, selectively transmitting what matters.
+Synapse is Loci's signal-driven memory behavior: AI watches conversation turns for information that will make future collaboration more useful, then writes it to the right local place.
 
-## Signal-Driven Persistence
+The project-memory principle is:
 
-Loci doesn't save on a fixed schedule. It watches every conversation turn for **signals** — meaningful information worth storing:
+> Loci aggregates memory, it does not own it.
 
-| Signal | Example | Destination |
-|--------|---------|-------------|
-| New task | "I need to update the API docs" | `tasks/active.md` |
-| Decision | "Let's go with PostgreSQL" | `decisions/` |
-| Insight/lesson | "Never deploy on Fridays" | `me/learned.md` |
-| Personal info change | "I just moved to Berlin" | `me/identity.md` |
-| Goal update | "Pushing launch to April" | `plan.md` |
+The brain is an index and understanding layer. A project's full memory belongs to the project's own repo.
 
-**No signal = no save.** Five turns of chitchat produce zero writes. One turn with a major decision saves immediately.
+## Signal Detection
 
-### Signal Detection Checklist
+| Signal | Destination |
+|---|---|
+| Task | Guarded task writer → `tasks/tasks.json` |
+| Schedule/time block | Guarded task writer/API → `tasks/calendar.json` |
+| Brain-level decision | `decisions/YYYY-MM-DD-slug.md` |
+| Personal preference/fact | `me/` |
+| External material | `references/` |
+| Project-shaped idea, not serious yet | `projects/side.md` |
+| Serious project state | Project repo `.loci/memory.md` |
+| Serious project decision | Project repo `.loci/decisions/` |
+| Cross-project insight/milestone | Brain `projects/index.md` one-line index |
 
-The AI checks each conversation turn against these patterns:
+No signal = no save.
 
-- **Task signal**: user mentions something to do ("need to", "should", "要做", "记得")
-- **Decision signal**: user makes a choice ("decided", "going with", "chose", "定了", "选")
-- **Insight signal**: user expresses a realization ("learned", "realized", "turns out", "原来", "发现")
-- **Identity signal**: user states personal info ("I am", "I moved to", "my job is", "我是", "我住")
-- **Goal signal**: user updates objectives ("pushing to", "new target", "目标改成")
-- **Reference signal**: user mentions external content to save ("save this article", "记一下这个链接")
+## Project Memory
 
-If none match, no save. If multiple match, save all categories in one operation.
+When a project becomes serious, AI offers once at the end of a conversation to leave memory in that repo. If the user says yes, it creates:
 
-### Notification Format
-
-After each auto-save, you see a one-line notification:
-
+```text
+project-repo/
+├── CLAUDE.md
+└── .loci/
+    ├── memory.md
+    └── decisions/
 ```
+
+The brain keeps only:
+
+```text
+projects/index.md
+```
+
+with one short entry pointing to the repo and its `.loci/memory.md`.
+
+## What Gets Indexed In The Brain
+
+Normal project detail stays local.
+
+Only summaries with durable value outside the repo should update `projects/index.md`:
+- `[insight]`
+- `[milestone]`
+- a brain-level decision link, only when explicitly promoted
+
+## Manual Trigger
+
+Run `/loci-sync` anytime to force a distillation pass:
+
+```text
+/loci-sync              → distill current conversation
+/loci-sync --local      → save locally only
+/loci-sync --dry-run    → preview what would be saved
+```
+
+## Notification Format
+
+After each auto-save, show a short natural confirmation:
+
+```text
 Got it — added task "Update API docs"
-Noted — synced decision "Use PostgreSQL" to project-alpha
+Noted — recorded the database decision in this project
+记住了：这个项目已经进入 MVP 阶段。
 ```
 
-Notifications use natural language, not system jargon. Your conversation flow is never interrupted.
-
-### Undo
-
-Say "undo" or "撤销" to reverse the last auto-save. The AI will revert the file change and confirm.
-
-### Manual Trigger
-
-Run `/loci-sync` anytime for a full manual sync:
-
-```
-/loci-sync              → Distill + sync (default)
-/loci-sync --local      → Distill only, don't sync to sub-projects
-/loci-sync --dry-run    → Show what would be saved, don't execute
-```
-
-## Two Modes
-
-Configure via `/loci-brain-settings`:
-
-| Mode | Behavior | Best for |
-|------|----------|----------|
-| **Auto** (default) | Signal-driven save + one-line notifications | Most users |
-| **Manual** | Only saves on `/loci-sync` or explicit request | Power users who want full control |
-
-## Tag-Based Routing
-
-When information is saved in the brain, Synapse uses tags to decide which sub-projects should know about it:
-
-1. Each piece of information is auto-tagged: `urgent`, `decision`, `fyi`, `log`
-2. Each sub-project declares `interest_tags` in `.loci/config.json`
-3. Synapse matches tags to interests — only relevant items are routed
-4. Projects with no matching tags receive nothing (no noise)
-
-Example: A decision tagged `[decision, backend]` routes to projects whose `interest_tags` include `decision` or `backend`, but skips a frontend-only project.
-
-Sensitive files (medical, financial, credentials) are never synced to sub-projects by default.
-
-## File Format
-
-### Brain side: `.loci/config.yml` (tracked in git)
-
-```yaml
-version: 1
-persistence:
-  mode: auto    # auto | manual
-  notify: true  # show one-line notification after each save
-```
-
-### Sub-project side: `.loci/config.json`
-
-```json
-{
-  "enabled": true,
-  "projectType": "code",
-  "sync": {
-    "decisions": true,
-    "milestones": true,
-    "lessons": true,
-    "codeDetails": false,
-    "architecture": true,
-    "blockers": true
-  }
-}
-```
-
-### Sub-project side: `.loci/memory.md`
-
-Local persistence layer for project-specific knowledge. The AI appends distilled facts, decisions, and lessons relevant to this project here. Unlike brain-level memory, this stays within the project and loads as L1 context when working in this project.
-
-```markdown
-# Project Memory
-
-## Facts
-- Using PostgreSQL with Prisma ORM
-- Deployed on Railway
-
-## Decisions
-- 2026-03-10: Switched from REST to tRPC for type safety
-
-## Lessons
-- Connection pooling required for serverless deployment
-```
-
-### Sub-project communication: `.loci/to-hq.md` and `.loci/from-hq.md`
-
-Two-way communication files between the sub-project and the brain:
-
-- **`.loci/to-hq.md`** (project → brain): Milestones, blockers, questions needing decision
-- **`.loci/from-hq.md`** (brain → project): Strategic decisions, priority changes, cross-project info
-
-These files live inside the sub-project's `.loci/` directory. From the brain's perspective, they are accessed via symlinks: `.loci/links/<project-name>/.loci/to-hq.md`. The brain scans all linked projects at session start.
+Do not expose internal paths unless the user asks.
