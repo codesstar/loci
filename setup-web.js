@@ -278,6 +278,9 @@ function runSetup(data) {
   writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(setupTask));
   results.push('tasks/tasks.json');
   writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(setupTask));
+  try {
+    execSync(`node ${JSON.stringify(path.join(BRAIN_ROOT, 'scripts', 'loci-task.js'))} rebuild`, { stdio: 'ignore' });
+  } catch { /* keep fallback view if the renderer is unavailable */ }
   results.push('tasks/active.md');
 
   // 4. .loci/config.yml

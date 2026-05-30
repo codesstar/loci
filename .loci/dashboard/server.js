@@ -669,6 +669,66 @@ function buildLearning() {
   return entries;
 }
 
+// Read a markdown file's body (frontmatter stripped), preserving raw text.
+function readRawBody(filepath) {
+  const parsed = readMdFile(filepath);
+  return parsed ? parsed.raw : null;
+}
+
+// projects/index.md = light index of serious projects (one `## name` block each).
+// projects/side.md  = embryos under `## Incubating` / `## Archive` (one `### name` each).
+// The brain only aggregates: full project memory lives in each repo's .loci/.
+function buildProjects() {
+  const projectsDir = path.join(LOCI_ROOT, 'projects');
+
+  // --- index.md: serious projects ---
+  // Drop the leading template/help comment block, then split on top-level "## ".
+  // Each real entry: "## name   <!-- status: X -->" + description lines.
+  const indexRaw = readRawBody(path.join(projectsDir, 'index.md'));
+  const serious = [];
+  if (indexRaw) {
+    const withoutComments = indexRaw.replace(/<!--(?!\s*status:)[\s\S]*?-->/g, '');
+    const blocks = withoutComments.split(/^## +/m).slice(1);
+    for (const block of blocks) {
+      const lines = block.split('\n');
+      const headline = lines.shift() || '';
+      const statusMatch = headline.match(/<!--\s*status:\s*([a-z]+)\s*-->/i);
+      const name = headline.replace(/<!--[\s\S]*?-->/g, '').trim();
+      if (!name) continue;
+      const bodyText = lines.join('\n').replace(/<!--[\s\S]*?-->/g, '').trim();
+      serious.push({
+        name,
+        status: statusMatch ? statusMatch[1].toLowerCase() : 'active',
+        summary: bodyText.split('\n')[0] || '',
+        detail: bodyText,
+      });
+    }
+  }
+
+  // --- side.md: project embryos under Incubating / Archive ---
+  const sideRaw = readRawBody(path.join(projectsDir, 'side.md'));
+  const incubating = [];
+  const archived = [];
+  if (sideRaw) {
+    let bucket = null;
+    for (const rawLine of sideRaw.split('\n')) {
+      const line = rawLine.trim();
+      if (/^##\s+Incubating/i.test(line)) { bucket = incubating; continue; }
+      if (/^##\s+Archive/i.test(line)) { bucket = archived; continue; }
+      const m = line.match(/^###\s+(.+)/);
+      if (m && bucket) {
+        const text = m[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+        if (text) bucket.push({ name: text });
+      }
+    }
+  }
+
+  return {
+    serious,
+    side: { incubating, archived },
+  };
+}
+
 // ─── Statistics ──────────────────────────────────────────────────────────────
 
 function countTotalFiles() {
@@ -710,6 +770,7 @@ function buildStats(data) {
     total_daily_plans: (data.planning && data.planning.daily) ? data.planning.daily.length : 0,
     total_monthly_plans: (data.planning && data.planning.monthly) ? data.planning.monthly.length : 0,
     total_quarterly_plans: (data.planning && data.planning.quarterly) ? data.planning.quarterly.length : 0,
+    total_projects: (data.projects && data.projects.serious) ? data.projects.serious.length : 0,
   };
 }
 
@@ -731,6 +792,7 @@ function buildAllData() {
     ['learning', buildLearning],
     ['links', buildLinks],
     ['references', buildReferences],
+    ['projects', buildProjects],
   ];
 
   for (const [name, builder] of sections) {

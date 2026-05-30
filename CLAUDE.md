@@ -58,7 +58,7 @@ There is no command for this — the user never has to learn or type anything. Y
 - **On yes** — do all of this, stamping everything with an ISO 8601 timestamp:
   1. In the project repo: create `.loci/memory.md` from `templates/project-memory.md`, **filled with your current understanding** (goal, current state, the decision that triggered this) — substance, not an empty shell.
   2. Create `.loci/decisions/` (use `templates/project-decision.md` for entries).
-  3. Inject `templates/project-claude-block.md` into the repo's `CLAUDE.md` (create it if absent), so any AI entering this repo later knows to record. Marker: `<!-- loci:project:start v1 -->` … `<!-- loci:project:end -->`.
+  3. Inject `templates/project-claude-block.md` into **both** the repo's `CLAUDE.md` **and** `AGENTS.md`, creating either file if it does not exist — so whichever tool enters this repo next (Claude Code reads `CLAUDE.md`, Codex reads `AGENTS.md`) auto-loads the project memory. The two blocks are identical. Marker: `<!-- loci:project:start v1 -->` … `<!-- loci:project:end -->`. If a block with that marker already exists in a file, replace it in place rather than appending a second one.
   4. Append `.loci/` to the repo's `.gitignore` (create one if absent) if not already present.
   5. In the brain: add a one-line index entry to `projects/index.md` (status + one-line essence + repo path).
 - **Not serious yet** (a project-shaped idea, but the user hasn't committed) → put it in `projects/side.md`, don't touch any repo.
