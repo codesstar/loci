@@ -7,9 +7,9 @@
 - Three-layer context (L1/L2/L3)
 - Signal-driven auto-persistence (auto/manual)
 - Conversation distillation
-- Sub-project linking (/loci-link) + Synapse
-- Sub-project local persistence (.loci/memory.md)
-- Tag-based sync (push_tags / local_tags)
+- AI-initiated project memory setup
+- Project-owned local persistence (.loci/memory.md + .loci/decisions/)
+- Brain project index (projects/index.md) instead of memory warehousing
 - Cross-terminal awareness (hooks)
 - Dashboard (build.py)
 - Multi-tool compatibility (adapt.sh)

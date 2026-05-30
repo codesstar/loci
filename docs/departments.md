@@ -1,104 +1,65 @@
-# Department System — Multi-Project Orchestration
+# Project Memory — Multi-Project Orchestration
 
 ## Overview
 
-Loci's department system lets you manage multiple projects from a single AI headquarters. Each external project becomes a "department" that communicates with HQ through a simple file-based protocol.
+Loci no longer treats projects as "departments" that report to a central warehouse.
+
+The current principle is:
+
+> Loci aggregates memory, it does not own it.
+
+A serious project's memory lives in that project's own repo. The Loci brain keeps only a light index so the AI knows the project exists and where to read more.
 
 ## Architecture
 
-```
-Your Loci System (HQ)
-├── .loci/links/
-│   ├── project-alpha/          # Symlink → /path/to/project-alpha
-│   │   ├── from-hq.md         # HQ → Department directives
-│   │   └── to-hq.md           # Department → HQ reports
-│   ├── project-beta/           # Symlink → /path/to/project-beta
-│   │   ├── from-hq.md
-│   │   └── to-hq.md
-│   └── registry.md            # All connected departments
-```
+```text
+Loci brain
+├── projects/index.md             # One-line index per serious project
+└── projects/side.md           # Project embryos, not serious yet
 
-## Setting Up a Department
-
-### Step 1: Create a symlink
-
-```bash
-ln -s /path/to/your/project .loci/links/project-name
+Project repo
+├── CLAUDE.md                  # Includes Loci project block
+└── .loci/
+    ├── memory.md              # Living dossier
+    └── decisions/             # Durable project decisions
 ```
 
-### Step 2: Register it
+## Connecting A Project
 
-Add a row to `.loci/links/registry.md`:
+There is no command the user has to learn.
 
-| Name | Link Name | Actual Path | Purpose |
-|------|-----------|-------------|---------|
-| Project Alpha | `project-alpha` | `/path/to/project-alpha` | Client website redesign |
+When AI notices a project is becoming serious, it offers once at the end of a conversation:
 
-### Step 3: Create communication files
+> "这个项目好像做起来了，要不要我帮你在这里留个记忆？"
 
-In the project directory, create:
-- `from-hq.md` — For HQ to send directives
-- `to-hq.md` — For the department to report back
+If the user says yes:
 
-## Communication Protocol
+1. Create `.loci/memory.md` from `templates/project-memory.md`
+2. Create `.loci/decisions/`
+3. Inject `templates/project-claude-block.md` into the repo's `CLAUDE.md`
+4. Add `.loci/` to the repo's `.gitignore`
+5. Add one index line to brain `projects/index.md`
 
-### from-hq.md (HQ → Department)
+## What Goes Where
 
-Written by your AI when you make strategic decisions that affect the project.
+| Signal | Destination |
+|---|---|
+| Project goal/current state/next step | Project `.loci/memory.md` |
+| Project decision | Project `.loci/decisions/YYYY-MM-DD-slug.md` |
+| Cross-project insight or milestone | Brain `projects/index.md` one-line project entry |
+| Project-shaped idea that is not serious yet | Brain `projects/side.md` |
+| Person/client/collaborator | Brain `people/<name>.md` |
 
-```markdown
-## Active
+## Reading
 
-### 2026-03-01 | Priority Shift
-Focus all effort on the landing page this week. Push the blog redesign to next sprint.
+At brain level, read `projects/index.md` first. Open a project repo's `.loci/memory.md` only when the current request mentions that project or clearly needs it.
 
-## Archive
-
-(Older directives moved here monthly)
-```
-
-### to-hq.md (Department → HQ)
-
-Written when working in the project's directory (e.g., a separate Claude Code session).
-
-```markdown
-## Active
-
-### 2026-03-02 | [milestone] v2.0 Shipped
-Successfully deployed the new landing page. 40% improvement in conversion.
-
-### 2026-03-01 | [needs-decision] Database Migration
-Need to decide between PostgreSQL and SQLite for the new feature. Pros/cons documented in /docs/db-choice.md.
-
-## Archive
-
-(Older reports moved here monthly)
-```
-
-### Tags
-
-Use tags to flag important entries:
-- `[needs-decision]` — Requires HQ input
-- `[milestone]` — Significant achievement
-- `[anomaly]` — Something unexpected happened
-
-## How HQ Processes Department Updates
-
-At the start of every conversation, Loci scans all `to-hq.md` files for recent entries. If there are entries from the last 7 days, it surfaces them:
-
-> "Project Alpha reported a milestone: v2.0 shipped. Project Beta needs a decision on database migration."
-
-## Monthly Maintenance
-
-At the start of each month:
-1. Move Active entries older than 30 days to Archive
-2. Review all `[needs-decision]` entries — resolve or escalate
-3. Update `registry.md` if projects have been added or removed
+Inside a connected project repo, read `.loci/memory.md` at session start. Read `.loci/decisions/` only when a past decision is relevant.
 
 ## Why This Architecture?
 
-1. **File-based**: No database, no server, no API. Just markdown files.
-2. **Async**: Departments don't need to be "online" — updates persist in files.
-3. **Scalable**: Add as many departments as you need. Each is independent.
-4. **Portable**: Works across any AI tool that can read files.
-5. **Human-readable**: You can always read the communication files directly.
+1. **Zero command burden**: the user does not need to learn a project-linking command.
+2. **Local ownership**: project memory stays with the project repo.
+3. **Small brain context**: the brain keeps an index, not every project detail.
+4. **Portable**: each repo carries its own memory across Claude Code, Codex, and future tools.
+5. **Traceable**: decisions live next to the code they affect.

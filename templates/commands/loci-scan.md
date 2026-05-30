@@ -1,29 +1,31 @@
-Re-scan the current project and update its profile in the Loci brain.
+Refresh the current project's local Loci dossier.
 
-This command re-runs the initial scan that `/loci-link` performs, updating the project's `profile.md` with current information.
+This command updates `.loci/memory.md` in the project repo. Loci aggregates memory; it does not own it, so the brain keeps only a one-line index in `projects/index.md`.
 
 Steps:
 
-1. **Check connection**: Read `.loci/link` in current directory. If not found, tell user: "This project is not connected to a brain. Run `/loci-link` first."
+1. **Check connection**: Read `.loci/memory.md` in current directory. If not found, offer once at the end of the exchange: "这个项目还没有本地记忆。要不要我帮你在这里留个记忆？" If the user says yes, follow the "Connecting a serious project" rule in the main instructions.
 
-2. **Get brain path** from `.loci/link` and derive the profile path: `<brain>/.loci/links/<project-name>/profile.md`
+2. **Get brain path** from `.loci/memory.md` frontmatter (`brain: ...`) and locate the brain index at `<brain>/projects/index.md`.
 
-3. **Run the same scan as `/loci-link` step 7**:
+3. **Refresh the dossier from the repo**:
    - Read identity files (CLAUDE.md, README.md, package.json/pyproject.toml/etc., .git/config, LICENSE)
    - Scan directory skeleton (tree -L 2)
    - Extract structured data deterministically
    - Generate AI one-line summary
-   - All the same blacklist rules apply (never read .env, secrets, node_modules, etc.)
+   - Never read .env, secrets, node_modules, build outputs, or private credentials
 
-4. **Compare with existing profile** (if it exists):
+4. **Compare with existing `.loci/memory.md`**:
    - Show what changed (e.g. "Tech stack updated: added Prisma", "Scale changed: medium → large")
-   - Preserve user-edited fields: "Role" and "Related goals" under "Relationship to Brain" are never overwritten
-   - Append to Scan Log: "YYYY-MM-DD: Re-scanned, [summary of changes]"
+   - Preserve user-written Goal / Current State / Next Step unless the change is clear
+   - Append to Progress Log with an ISO 8601 timestamp
 
-5. **Write updated profile.md**
+5. **Write updated `.loci/memory.md`**
 
-6. **Confirm**: Show summary of changes or "Profile is up to date, no changes detected."
+6. **Update brain index only if needed**: If the one-line essence or status changed, update the project's entry in `projects/index.md`. Do not copy the full dossier into the brain.
+
+7. **Confirm**: Show summary of changes or "Project memory is up to date, no changes detected."
 
 ## Flags
 
-- `--all`: Run from brain directory to re-scan ALL connected sub-projects. Reads `.loci/links/registry.md`, iterates through each linked project, updates each profile.md. Shows a summary table at the end.
+- `--all`: Run from brain directory to review projects listed in `projects/index.md`. Only open repos that are relevant or explicitly requested. Shows a summary table at the end.

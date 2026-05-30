@@ -538,7 +538,15 @@
     list-style: none;
     max-width: 500px;
     width: 100%;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
+  }
+  #step-7 {
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 88px 24px 120px;
+  }
+  #step-7 .question-desc {
+    margin-bottom: 28px;
   }
   .review-item {
     display: flex;
@@ -591,6 +599,25 @@
     color: rgba(155,89,182,0.9);
     border-color: rgba(155,89,182,0.4);
     text-shadow: 0 0 12px rgba(155,89,182,0.2);
+  }
+  .review-actions {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 12;
+    margin-top: 6px;
+    padding: 3px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(26,188,156,0.75), rgba(155,89,182,0.78), rgba(26,188,156,0.55));
+    box-shadow: 0 18px 60px rgba(10,10,26,0.55), 0 0 32px rgba(26,188,156,0.16);
+  }
+  .review-actions .btn-star {
+    min-width: 220px;
+    justify-content: center;
+    color: #f4eff8;
+    background: rgba(10,10,26,0.94);
+    font-weight: 600;
   }
 
   /* ── Progress log items ── */
@@ -700,6 +727,20 @@
     transition: all 0.2s;
   }
   .error-box .retry-btn:hover { background: rgba(239,68,68,0.1); }
+
+  @media (max-height: 760px) {
+    #step-7 {
+      padding-top: 56px;
+      padding-bottom: 104px;
+    }
+    #step-7 .question-desc {
+      margin-bottom: 18px;
+    }
+    .review-item {
+      padding: 12px 0;
+      line-height: 1.6;
+    }
+  }
 
   /* ── Back button (floating) ── */
   .back-btn {
@@ -987,9 +1028,9 @@
   <div class="question-title" data-i18n="review_title">Review your setup</div>
   <div class="question-desc" data-i18n="review_desc">Everything look good? You can edit anything before creating your brain.</div>
   <ul class="review-list" id="reviewList"></ul>
-  <div class="btn-star-wrap pop" id="createBtnWrap" style="opacity:0;transition:opacity 0.6s ease;">
+  <div class="btn-star-wrap review-actions pop" id="createBtnWrap">
     <button class="btn-star" id="createBtn" onclick="createBrain()">
-      <span data-i18n="create_btn">CREATE MY BRAIN</span>
+      <span data-i18n="create_btn">CONFIRM AND CREATE</span>
     </button>
   </div>
   <div class="error-box" id="errorBox">
@@ -1105,7 +1146,7 @@ const i18n = {
     review_about: "About you",
     review_title: "Review your setup",
     review_desc: "Everything look good? You can edit anything before creating your brain.",
-    create_btn: "CREATE MY BRAIN",
+    create_btn: "CONFIRM AND CREATE",
     creating_title: "Creating your brain...",
     success_title: "Brain Ready!",
     success_desc: "Your memory palace has been initialized. Start a conversation and Loci will remember everything important.",
@@ -1153,7 +1194,7 @@ const i18n = {
     review_about: "\u5173\u4e8e\u4f60",
     review_title: "\u786e\u8ba4\u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u770b\u770b\u662f\u5426\u90fd\u5bf9? \u521b\u5efa\u524d\u53ef\u4ee5\u968f\u65f6\u4fee\u6539\u3002",
-    create_btn: "\u521b\u5efa\u6211\u7684\u5927\u8111",
+    create_btn: "\u786e\u8ba4\u5e76\u521b\u5efa",
     creating_title: "\u6b63\u5728\u521b\u5efa\u4f60\u7684\u5927\u8111...",
     success_title: "\u5927\u8111\u5c31\u7eea!",
     success_desc: "\u4f60\u7684\u8bb0\u5fc6\u5bab\u6bbf\u5df2\u7ecf\u521d\u59cb\u5316\u3002\u5f00\u59cb\u5bf9\u8bdd\u5427\uff0cLoci \u4f1a\u5e2e\u4f60\u8bb0\u4f4f\u91cd\u8981\u7684\u4e00\u5207\u3002",
@@ -1198,7 +1239,7 @@ const i18n = {
     review_about: "About you",
     review_title: "Review \u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u90fd\u5bf9\u5417? Create \u524d\u53ef\u4ee5\u968f\u65f6\u6539\u3002",
-    create_btn: "CREATE MY BRAIN",
+    create_btn: "\u786e\u8ba4\u5e76 Create",
     creating_title: "\u6b63\u5728 creating \u4f60\u7684 brain...",
     success_title: "Brain Ready!",
     success_desc: "\u4f60\u7684 memory palace \u5df2\u7ecf ready. Start \u5bf9\u8bdd\uff0cLoci \u4f1a remember everything important.",

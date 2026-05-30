@@ -109,7 +109,7 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 
 | Layer | Loaded | Contents |
 |-------|--------|----------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory |
+| **L1** | Every conversation | AGENTS.md, plan.md, inbox.md, .loci/activity-log.md, auto-memory |
 | **L2** | On demand | Module READMEs, specific files, references/ |
 | **L3** | Never auto-loaded | archive/, decisions/, old journals |
 

@@ -209,18 +209,20 @@ After using Loci for a few days, you'll want to connect your code projects. This
 
 ### How to connect a project
 
-Open Claude Code in any project folder and run:
+There is no command to learn. Open Claude Code or Codex in a project folder and work normally.
 
-```
-/loci-link
-```
+When the project starts looking serious, your AI should offer once at the end of the conversation:
 
-Your AI will:
-1. Scan the project (README, package.json, directory structure)
-2. Create a `.loci/` folder in the project with connection files
-3. Register the project in your brain's `.loci/links/`
+> "This project seems real now. Want me to leave memory here?"
 
-From now on, when you work in that project, your AI knows about your brain — decisions, goals, preferences, everything.
+If you say yes, your AI will:
+1. Create `.loci/memory.md` in the project repo
+2. Create `.loci/decisions/` for project decisions
+3. Inject a Loci project block into the repo's `CLAUDE.md`
+4. Add `.loci/` to the repo's `.gitignore`
+5. Add one index line to your brain's `projects/index.md`
+
+From now on, the project's memory lives in the project repo. The brain only keeps an index and knows where to look.
 
 ### What syncs between projects
 

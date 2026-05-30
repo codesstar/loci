@@ -7,9 +7,9 @@
 - 三层上下文系统（L1/L2/L3）
 - 信号驱动的自动持久化（自动/手动两种模式）
 - 对话蒸馏
-- 子项目链接（/loci-link）+ Synapse
-- 子项目本地持久化（.loci/memory.md）
-- 基于标签的同步（push_tags / local_tags）
+- AI 主动提示的项目记忆设置
+- 项目拥有自己的本地记忆（.loci/memory.md + .loci/decisions/）
+- 大脑项目索引（projects/index.md），不当项目记忆仓库
 - 跨终端感知（hooks）
 - Dashboard（build.py）
 - 多工具兼容（adapt.sh）

@@ -54,8 +54,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700;900&family=JetBrains+Mono:wght@300;400;500&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Local frontend runtime dependencies -->
+  <script src="vendor/tailwindcss.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -82,8 +82,7 @@
     }
   </script>
 
-  <!-- Vue 3 CDN -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="vendor/vue.global.prod.js"></script>
 
   <style>
     /* ===== Base ===== */
@@ -1520,6 +1519,79 @@
       background: rgba(255,180,50,0.056);
     }
 
+    .task-schedule-layout {
+      display: block;
+    }
+    .task-schedule-layout.split {
+      display: grid;
+      grid-template-columns: minmax(240px, var(--task-pane-width, 38%)) 10px minmax(340px, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .task-schedule-layout.split .task-schedule-panel {
+      min-width: 0;
+    }
+    .task-schedule-resizer {
+      align-self: stretch;
+      min-height: 220px;
+      cursor: col-resize;
+      position: relative;
+      border-radius: 4px;
+      touch-action: none;
+    }
+    .task-schedule-resizer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, rgba(255,180,50,0.04), rgba(255,180,50,0.26), rgba(255,180,50,0.04));
+      box-shadow: 0 0 10px rgba(255,180,50,0.1);
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .task-schedule-resizer::after {
+      content: '';
+      position: absolute;
+      top: 74px;
+      left: 50%;
+      width: 5px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      border: 1px solid rgba(255,180,50,0.18);
+      background: rgba(255,180,50,0.04);
+    }
+    .task-schedule-resizer:hover::before,
+    .task-schedule-resizer.active::before {
+      background: linear-gradient(180deg, rgba(255,180,50,0.08), rgba(255,180,50,0.62), rgba(255,180,50,0.08));
+      box-shadow: 0 0 18px rgba(255,180,50,0.24);
+    }
+    .task-schedule-calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .task-schedule-date-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 220px;
+      flex: 1;
+    }
+    @media (max-width: 900px) {
+      .task-schedule-layout.split {
+        display: block;
+      }
+      .task-schedule-resizer {
+        display: none;
+      }
+    }
+
     /* Inline event form HUD style */
     .hud-form-popup {
       position: absolute;
@@ -2951,178 +3023,138 @@
             <div style="flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,180,50,0.203), transparent);"></div>
           </div>
 
-          <!-- Date selector — same style as Journal -->
-          <div data-tour="date-picker" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
-            <button @click="calendarDayOffset--" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&larr;</button>
-            <div style="text-align: center; cursor: pointer; user-select: none; min-width: 180px;" @click="todayCalOpen = !todayCalOpen">
-              <div class="hud-mono" style="font-size: 8px; letter-spacing: 3px; color: rgba(255,180,50,0.35);">{{ todayWeekdayLabel }}</div>
-              <div class="hud-display" style="font-size: 18px; color: rgba(255,180,50,0.75); margin-top: 2px; display: inline-flex; align-items: center; gap: 6px;">
-                {{ todayDateLabel }}
-                <span style="font-size: 8px; color: rgba(255,180,50,0.25);">&#9660;</span>
+          <div data-tour="task-schedule-switch" style="display: flex; justify-content: center; margin-bottom: 22px;">
+            <div style="display: inline-flex; gap: 4px; padding: 4px; border: 1px solid rgba(255,180,50,0.12); background: rgba(255,180,50,0.035); border-radius: 6px;">
+              <button @click="taskScheduleView = 'split'"
+                :class="['hud-tab', taskScheduleView === 'split' ? 'active' : '']"
+                style="min-width: 104px;">{{ t('taskSchedule.split') }}</button>
+              <button @click="taskScheduleView = 'tasks'"
+                :class="['hud-tab', taskScheduleView === 'tasks' ? 'active' : '']"
+                style="min-width: 104px;">{{ t('taskSchedule.tasks') }}</button>
+              <button @click="taskScheduleView = 'schedule'"
+                :class="['hud-tab', taskScheduleView === 'schedule' ? 'active' : '']"
+                style="min-width: 104px;">{{ t('taskSchedule.schedule') }}</button>
+            </div>
+          </div>
+
+          <div :class="['task-schedule-layout', taskScheduleView === 'split' ? 'split' : '']"
+            :style="taskScheduleView === 'split' ? { '--task-pane-width': taskSchedulePanePct + '%' } : null">
+
+          <!-- TASK POOL: task-first model. Schedule is only a time-based projection. -->
+          <div v-if="taskScheduleView !== 'schedule'" class="card hud-card mb-6 task-schedule-panel" data-tour="task-pool">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">TASKS</span>
+                <span style="color: rgba(255,180,50,0.1);">|</span>
+                <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ taskPoolStats.open }} ACTIVE</h3>
               </div>
+              <span class="hud-mono" style="font-size: 9px; color: rgba(255,100,80,0.46);">{{ taskPoolStats.today }} TODAY</span>
             </div>
-            <button @click="calendarDayOffset++" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&rarr;</button>
-          </div>
-
-          <!-- Mini calendar picker for Today page -->
-          <div v-if="todayCalOpen" style="max-width: 320px; margin: 0 auto 20px; background: rgba(255,180,50,0.03); border: 1px solid rgba(255,180,50,0.08); border-radius: 8px; padding: 12px 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <button @click="todayCalMonth--" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&larr;</button>
-              <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.6); letter-spacing: 2px;">{{ todayCalMonthLabel }}</span>
-              <button @click="todayCalMonth++" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&rarr;</button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">
-              <div v-for="d in ['M','T','W','T','F','S','S']" :key="d" class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.25); padding: 4px 0;">{{ d }}</div>
-              <div v-for="cell in todayCalCells" :key="cell.key"
-                @click.stop="cell.day ? todayPickDate(cell.dateStr) : null"
-                :style="{
-                  padding: '5px 0', fontSize: '11px', borderRadius: '4px', cursor: cell.day ? 'pointer' : 'default',
-                  fontFamily: 'Share Tech Mono',
-                  color: cell.dateStr === todayDateLabel ? '#08080f' : cell.hasPlan ? 'rgba(100,220,180,0.8)' : cell.isToday ? 'rgba(255,180,50,0.9)' : cell.inMonth ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
-                  background: cell.dateStr === todayDateLabel ? 'rgba(255,180,50,0.7)' : 'transparent',
-                  border: cell.isToday && cell.dateStr !== todayDateLabel ? '1px solid rgba(255,180,50,0.5)' : '1px solid transparent',
-                  boxShadow: cell.isToday ? '0 0 6px rgba(255,180,50,0.2)' : 'none',
-                  fontWeight: cell.isToday ? '700' : '400',
-                }"
-              >{{ cell.day || '' }}</div>
-            </div>
-          </div>
-
-          <!-- Tasks — Starship Mission Log (always shows selected day) -->
-          <div class="s7-card mb-6" data-tour="mission-log">
-            <!-- Header -->
-            <div class="s7-header">
-              <div class="s7-icon"></div>
-              <div class="s7-title hud-title-glow">{{ t('today.missionLog') }}</div>
-              <div style="flex: 1;"></div>
-              <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3); letter-spacing: 1px; margin-right: 8px;">{{ missionLogDateLabel }}</span>
-              <button @click="showAddTask = !showAddTask" class="s7-add-btn" data-tour="add-task" :style="showAddTask ? 'background: rgba(255,160,50,0.28);' : ''">{{ t('today.add') }}</button>
-            </div>
-            <!-- Stats -->
-            <div class="s7-stats">
-              <div class="s7-stat"><span>{{ allUndoneTasks.length }}</span> {{ t('today.pending') }}</div>
-              <div class="s7-stat"><span>{{ finishedTasks.length }}</span> {{ t('today.complete') }}</div>
-              <div class="s7-stat"><span>{{ allUndoneTasks.length + finishedTasks.length > 0 ? Math.round(finishedTasks.length / (allUndoneTasks.length + finishedTasks.length) * 100) : 0 }}</span>% {{ t('today.progress') }}</div>
-            </div>
-            <!-- Quick-add -->
-            <div v-if="showAddTask" class="s7-add-bar" style="flex-wrap: wrap;">
-              <div style="display: flex; gap: 4px; width: 100%; align-items: center;">
+            <div class="card-body">
+              <div style="display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;">
                 <input v-model="newTaskText" @keyup.enter="addNewTask()" :placeholder="t('today.newMission')"
-                  class="s7-add-input" style="flex: 1;">
-                <select v-model="newTaskPriority" class="s7-add-input" style="flex: none; width: 80px; cursor: pointer;">
-                  <option value="P0">{{ t('priority.focus') }}</option>
-                  <option value="P1">{{ t('priority.queue') }}</option>
-                </select>
-                <button @click="showTaskTime = !showTaskTime"
-                  class="s7-add-input" style="flex: none; width: 60px; cursor: pointer; text-align: center; font-size: 13px; letter-spacing: 1px;"
+                  class="s7-add-input" style="flex: 1; min-width: 220px; font-size: 12px; padding: 7px 10px;">
+                <button @click="showTaskTime = !showTaskTime" class="s7-add-btn"
                   :style="showTaskTime ? 'background: rgba(255,180,50,0.12); color: rgba(255,180,50,1); border-color: rgba(255,180,50,0.35);' : (taskScheduleStart !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.3);' : '')">{{ t('today.time') }}</button>
-                <button @click="addNewTask()" class="s7-add-btn">{{ t('today.exec') }}</button>
-              </div>
-              <!-- Time picker row, shown on TIME click -->
-              <div v-if="showTaskTime" style="display: flex; gap: 6px; align-items: center; width: 100%; margin-top: 6px;">
-                <div style="position: relative; flex: none;">
-                  <input type="text" :value="taskStartLabel" @input="onTimeInput('taskStart', $event)"
-                    @focus="openTimePicker = 'taskStart'; scrollToPicked()" @click.stop
-                    maxlength="5" placeholder="--:--"
-                    class="s7-add-input hud-time-btn"
-                    style="flex: none; width: 68px; text-align: center; font-family: 'Share Tech Mono', monospace; font-size: 13px;"
-                    :style="taskScheduleStart !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.35);' : ''">
-                  <div v-if="openTimePicker === 'taskStart'" class="time-picker-list active" @mousedown.prevent @click.stop>
-                    <div v-for="s in timeSlots" :key="s.key"
-                      :class="{'tp-selected': s.key === taskScheduleStart}"
-                      class="tp-item" @click="pickTime('taskStart', s.key)">{{ s.label }}</div>
+                <button @click="addNewTask()" class="s7-add-btn">{{ t('plan.add') }}</button>
+                <div v-if="showTaskTime" style="display: flex; gap: 6px; align-items: center; width: 100%; margin-top: 4px;">
+                  <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.22); width: 42px;">START</span>
+                  <div style="position: relative;">
+                    <input type="text" :value="taskStartLabel" @input="onTimeInput('taskStart', $event)"
+                      @focus="openTimePicker = 'taskStart'; scrollToPicked()" @click.stop
+                      class="s7-add-input" style="width: 78px; font-size: 11px; padding: 5px 8px;">
+                    <div v-if="openTimePicker === 'taskStart'" class="time-picker-list active" @mousedown.prevent @click.stop>
+                      <div v-for="s in timeSlots" :key="'task-start-main-'+s.key" :class="{'tp-selected': s.key === taskScheduleStart}"
+                        class="tp-item" @click="pickTime('taskStart', s.key)">{{ s.label }}</div>
+                    </div>
                   </div>
-                </div>
-                <span style="color: rgba(255,180,50,0.2); font-size: 11px;">—</span>
-                <div style="position: relative; flex: none;">
-                  <input type="text" :value="taskEndLabel" @input="onTimeInput('taskEnd', $event)"
-                    @focus="openTimePicker = 'taskEnd'; scrollToPicked()" @click.stop
-                    maxlength="5" placeholder="--:--"
-                    class="s7-add-input hud-time-btn"
-                    style="flex: none; width: 68px; text-align: center; font-family: 'Share Tech Mono', monospace; font-size: 13px;"
-                    :style="taskScheduleEnd !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.35);' : ''">
-                  <div v-if="openTimePicker === 'taskEnd'" class="time-picker-list active" @mousedown.prevent @click.stop>
-                    <div v-for="s in timeSlots" :key="s.key"
-                      :class="{'tp-selected': s.key === taskScheduleEnd}"
-                      class="tp-item" @click="pickTime('taskEnd', s.key)">{{ s.label }}</div>
+                  <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.18);">END</span>
+                  <div style="position: relative;">
+                    <input type="text" :value="taskEndLabel" @input="onTimeInput('taskEnd', $event)"
+                      @focus="openTimePicker = 'taskEnd'; scrollToPicked()" @click.stop
+                      class="s7-add-input" style="width: 78px; font-size: 11px; padding: 5px 8px;">
+                    <div v-if="openTimePicker === 'taskEnd'" class="time-picker-list active" @mousedown.prevent @click.stop>
+                      <div v-for="s in timeSlots" :key="'task-end-main-'+s.key" :class="{'tp-selected': s.key === taskScheduleEnd}"
+                        class="tp-item" @click="pickTime('taskEnd', s.key)">{{ s.label }}</div>
+                    </div>
                   </div>
-                </div>
-                <span class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.2); letter-spacing: 1px; margin-left: 2px;">→ {{ t('today.toCalendar') }}</span>
-              </div>
-            </div>
-            <!-- Always day view — shows tasks for selected date -->
-            <div>
-              <!-- P0 Focus -->
-              <div @dragover.prevent @drop="dropTask($event, 'P0')"
-                :style="dragOverGroup === 'P0' ? 'background: rgba(255,160,50,0.03);' : ''"
-                @dragenter.prevent="dragOverGroup = 'P0'" @dragleave="dragOverGroup = null">
-                <div class="s7-group-label">{{ t('today.focus') }}</div>
-                <div v-for="(task, i) in undoneTasks('P0')" :key="'p0-'+i"
-                  draggable="true" @dragstart="dragTask($event, 'P0', task)"
-                  class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
-                  <div class="s7-num">{{ String(i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status active" @click="toggleMissionTask(task)"></div>
-                  <div class="s7-content">
-                    <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta">{{ t('today.priorityCritical') }}</div>
-                  </div>
+                  <span class="hud-mono" style="font-size: 9px; color: rgba(255,255,255,0.18);">{{ t('taskSchedule.timeHint') }}</span>
                 </div>
               </div>
-              <!-- P1 -->
-              <div @dragover.prevent @drop="dropTask($event, 'P1')"
-                :style="dragOverGroup === 'P1' ? 'background: rgba(255,160,50,0.03);' : ''"
-                @dragenter.prevent="dragOverGroup = 'P1'" @dragleave="dragOverGroup = null">
-                <div class="s7-group-label">{{ t('today.queue') }}</div>
-                <div v-for="(task, i) in undoneTasks('P1')" :key="'p1-'+i"
-                  draggable="true" @dragstart="dragTask($event, 'P1', task)"
-                  class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
-                  <div class="s7-num">{{ String(undoneTasks('P0').length + i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status pending" @click="toggleMissionTask(task)"></div>
-                  <div class="s7-content">
-                    <div class="s7-content-text" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta">{{ t('today.priorityNormal') }}</div>
-                  </div>
+
+              <div v-for="group in taskPoolGroups" :key="group.id" style="margin-top: 18px;">
+                <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,180,50,0.06);">
+                  <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.42); min-width: 36px;">{{ group.icon }}</span>
+                  <span style="font-size: 12px; color: rgba(255,255,255,0.42);">{{ group.label }}</span>
+                  <span style="margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.18);">{{ group.tasks.length }}</span>
                 </div>
-              </div>
-              <!-- Empty state -->
-              <div v-if="!hasAnyTodayTasks" class="loci-empty-state" style="margin: 12px 0;">
-                <div class="loci-empty-icon">&#9678;</div>
-                <div class="loci-empty-title">{{ t('empty.todayTitle') }}</div>
-                <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.todayDesc') }}</div>
-                <div class="loci-empty-hint">{{ t('empty.todayHint') }}</div>
-              </div>
-              <!-- Completed -->
-              <div @dragover.prevent @drop="dropTask($event, 'done')"
-                :style="dragOverGroup === 'done' ? 'background: rgba(255,160,50,0.03);' : ''"
-                @dragenter.prevent="dragOverGroup = 'done'" @dragleave="dragOverGroup = null"
-                v-if="finishedTasks.length">
-                <div class="s7-group-label" style="color: rgba(100,220,180,0.45); text-shadow: 0 0 8px rgba(100,220,180,0.15);">{{ t('today.completed') }}</div>
-                <div v-for="(task, i) in finishedTasks" :key="'done-'+i"
-                  draggable="true" @dragstart="dragTask($event, 'done', task)"
-                  class="s7-item" :class="draggingTask === task ? 'dragging' : ''">
-                  <div class="s7-num" style="color: rgba(100,220,180,0.2);">{{ String(allUndoneTasks.length + i + 1).padStart(2, '0') }}</div>
-                  <div class="s7-status done" @click="toggleMissionTask(task)"></div>
-                  <div class="s7-content">
-                    <div class="s7-content-text done" v-html="taskHtml(task.text)"></div>
-                    <div class="s7-content-meta done-meta">{{ t('today.completed') }}</div>
+                <div v-if="group.tasks.length === 0" style="padding: 10px 0 8px 44px; color: rgba(255,255,255,0.16); font-size: 12px;">{{ t('taskSchedule.noTasks') }}</div>
+                <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
+                  draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
+                  style="display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
+                  <div @click="toggleMissionTask(task)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                    :style="task.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.16);'">
+                    <span v-if="task.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
                   </div>
+                  <span style="flex: 1; font-size: 13px;" :style="task.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.58);'">{{ task.text }}</span>
+                  <span v-if="taskIntersectsDate(task, dateToKey(new Date()))" class="hud-mono" style="font-size: 9px; color: rgba(255,100,80,0.78); background: rgba(255,100,80,0.1); border: 1px solid rgba(255,100,80,0.2); padding: 1px 5px; border-radius: 3px;">TODAY</span>
+                  <span v-else-if="taskHasCalendarTime(task)" class="hud-mono" style="font-size: 9px; color: rgba(100,220,180,0.38);">SCHEDULE</span>
                 </div>
               </div>
             </div>
-            <!-- Scan line -->
-            <div class="s7-scan"></div>
           </div>
 
+          <div v-if="taskScheduleView === 'split'"
+            :class="['task-schedule-resizer', isTaskScheduleResizing ? 'active' : '']"
+            @pointerdown="startTaskScheduleResize"
+            :title="t('taskSchedule.resize')"
+            :aria-label="t('taskSchedule.resize')"></div>
+
+          <div v-if="taskScheduleView !== 'tasks'" class="task-schedule-panel">
           <!-- Calendar — Mission Control -->
           <div class="card hud-card mb-6" data-tour="day-manifest">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-header task-schedule-calendar-header">
               <h3 class="hud-title-glow">{{ t('today.dayManifest') }}</h3>
+              <div data-tour="date-picker" class="task-schedule-date-control">
+                <button @click="calendarDayOffset--" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&larr;</button>
+                <div style="text-align: center; cursor: pointer; user-select: none; min-width: 150px;" @click="todayCalOpen = !todayCalOpen">
+                  <div class="hud-mono" style="font-size: 8px; letter-spacing: 3px; color: rgba(255,180,50,0.35);">{{ todayWeekdayLabel }}</div>
+                  <div class="hud-display" style="font-size: 18px; color: rgba(255,180,50,0.75); margin-top: 2px; display: inline-flex; align-items: center; gap: 6px;">
+                    {{ todayDateLabel }}
+                    <span style="font-size: 8px; color: rgba(255,180,50,0.25);">&#9660;</span>
+                  </div>
+                </div>
+                <button @click="calendarDayOffset++" class="j-nav-btn" style="font-size: 10px; padding: 3px 8px;">&rarr;</button>
+              </div>
               <div style="display: flex; gap: 4px; align-items: center;">
                 <button v-for="v in ['day','week','month']" :key="v"
                   @click="switchCalendarView(v)"
                   :class="['hud-tab', calendarView === v ? 'active' : '']">
                   {{ t('today.' + v) }}
                 </button>
+              </div>
+            </div>
+            <!-- Mini calendar picker for Today page -->
+            <div v-if="todayCalOpen" style="max-width: 320px; margin: 14px auto 0; background: rgba(255,180,50,0.03); border: 1px solid rgba(255,180,50,0.08); border-radius: 8px; padding: 12px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <button @click="todayCalMonth--" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&larr;</button>
+                <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.6); letter-spacing: 2px;">{{ todayCalMonthLabel }}</span>
+                <button @click="todayCalMonth++" class="j-nav-btn" style="font-size: 10px; padding: 2px 8px;">&rarr;</button>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">
+                <div v-for="d in ['M','T','W','T','F','S','S']" :key="d" class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.25); padding: 4px 0;">{{ d }}</div>
+                <div v-for="cell in todayCalCells" :key="cell.key"
+                  @click.stop="cell.day ? todayPickDate(cell.dateStr) : null"
+                  :style="{
+                    padding: '5px 0', fontSize: '11px', borderRadius: '4px', cursor: cell.day ? 'pointer' : 'default',
+                    fontFamily: 'Share Tech Mono',
+                    color: cell.dateStr === todayDateLabel ? '#08080f' : cell.hasPlan ? 'rgba(100,220,180,0.8)' : cell.isToday ? 'rgba(255,180,50,0.9)' : cell.inMonth ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
+                    background: cell.dateStr === todayDateLabel ? 'rgba(255,180,50,0.7)' : 'transparent',
+                    border: cell.isToday && cell.dateStr !== todayDateLabel ? '1px solid rgba(255,180,50,0.5)' : '1px solid transparent',
+                    boxShadow: cell.isToday ? '0 0 6px rgba(255,180,50,0.2)' : 'none',
+                    fontWeight: cell.isToday ? '700' : '400',
+                  }"
+                >{{ cell.day || '' }}</div>
               </div>
             </div>
             <div class="card-body" style="position: relative; padding: 20px 32px 28px;">
@@ -3147,6 +3179,14 @@
                   <div v-if="calendarDayOffset === 0" :style="'position: absolute; top: -3px; width: 2px; height: 10px; background: rgba(255,100,80,0.6); border-radius: 1px; left: ' + dayProgressPct + '%;'"></div>
                 </div>
               </template>
+              <div v-if="calendarView === 'day' && getAllDayItemsForDay().length" style="display: grid; gap: 6px; margin-bottom: 12px;">
+                <div v-for="item in getAllDayItemsForDay()" :key="'allday-' + item.title"
+                  style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border: 1px solid rgba(100,220,180,0.24); background: rgba(100,220,180,0.075); border-radius: 4px;">
+                  <span class="hud-mono" style="font-size: 9px; color: rgba(100,220,180,0.62); min-width: 54px;">ALL DAY</span>
+                  <span style="font-size: 13px; color: rgba(255,255,255,0.66);">{{ item.title }}</span>
+                  <span v-if="item.startDate && item.endDate" class="hud-mono" style="margin-left: auto; font-size: 9px; color: rgba(255,255,255,0.24);">{{ item.startDate }} - {{ item.endDate }}</span>
+                </div>
+              </div>
               <!-- DAY CALENDAR -->
               <div v-if="calendarView === 'day'" style="user-select: none;">
                 <div ref="calendarScrollRef" style="display: flex; max-height: 700px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,180,50,0.203) transparent;">
@@ -3185,7 +3225,11 @@
                         style="position: absolute; top: -2px; left: 0; right: 0; height: 6px; cursor: n-resize; z-index: 4;"></div>
                       <div style="padding: 3px 10px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="min-width: 0; overflow: hidden;">
-                          <div style="font-size: 14px; color: rgba(255,255,255,0.69); line-height: 1.3; font-weight: 500;">{{ event.title }}</div>
+                          <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                            <span v-if="event.fromTask" class="hud-mono" style="font-size: 8px; color: rgba(255,100,80,0.72); background: rgba(255,100,80,0.11); border: 1px solid rgba(255,100,80,0.2); padding: 1px 4px; border-radius: 3px;">TASK</span>
+                            <span v-else class="hud-mono" style="font-size: 8px; color: rgba(255,180,50,0.34); border: 1px solid rgba(255,180,50,0.12); padding: 1px 4px; border-radius: 3px;">EVENT</span>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.69); line-height: 1.3; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ event.title }}</div>
+                          </div>
                           <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 24" style="font-family: 'Share Tech Mono'; font-size: 10px; color: rgba(255,180,50,0.42); letter-spacing: 1px; margin-top: 2px;">{{ keyToTime(event.startKey) }} — {{ keyToTime(event.endKey) }}</div>
                         </div>
                         <span @click.stop="removeEvent(event._ref || event)" style="cursor: pointer; color: rgba(255,180,50,0.203); font-size: 0.7rem; flex-shrink: 0; margin-left: 4px;">&times;</span>
@@ -3214,7 +3258,7 @@
                     <div v-if="addingEventStart !== null" @click.stop @mousedown.stop
                       class="hud-form-popup"
                       :style="'top: ' + minuteToY(addingEventStart) + 'px;'">
-                      <input v-model="newEventTitle" @keyup.enter="confirmAddEvent" @keyup.escape="addingEventStart = null"
+                      <input v-model="newEventTitle" @keyup.enter="confirmAddEvent" @keyup.escape="addingEventStart = null; addingEventFromTask = false"
                         :placeholder="t('today.eventDesignation')"
                         style="width: 100%; border: none; border-bottom: 1px solid rgba(255,180,50,0.203); padding: 6px 0; font-size: 1rem; background: transparent; color: rgba(255,255,255,0.99); outline: none; margin-bottom: 12px; font-weight: 400;">
                       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
@@ -3252,21 +3296,12 @@
                         <textarea v-model="newEventNote" :placeholder="t('today.additionalData')" rows="2"
                           class="hud-input" style="flex: 1; resize: vertical;"></textarea>
                       </div>
-                      <div v-if="!editingEvent" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.42); font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">{{ t('today.task') }}</span>
-                        <select v-model="newEventPriority" class="hud-input" style="width: 100px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
-                          <option value="">{{ t('today.none') }}</option>
-                          <option value="P0">{{ t('today.focus') }}</option>
-                          <option value="P1">{{ t('today.queue') }}</option>
-                        </select>
-                        <span class="hud-mono" style="color: rgba(255,180,50,0.15); font-size: 0.55rem; letter-spacing: 0.5px;">{{ t('today.optional') }}</span>
-                      </div>
                       <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <button v-if="editingEvent" @click.stop="removeEvent(editingEvent); editingEvent = null; addingEventStart = null;"
+                        <button v-if="editingEvent" @click.stop="removeEvent(editingEvent); editingEvent = null; addingEventStart = null; addingEventFromTask = false;"
                           class="hud-btn-danger">{{ t('today.delete') }}</button>
                         <span v-else></span>
                         <div style="display: flex; gap: 6px;">
-                          <button @click="editingEvent = null; addingEventStart = null;" class="hud-btn-secondary">{{ t('today.cancel') }}</button>
+                          <button @click="editingEvent = null; addingEventStart = null; addingEventFromTask = false;" class="hud-btn-secondary">{{ t('today.cancel') }}</button>
                           <button @click="editingEvent ? saveEditEvent() : confirmAddEvent()" class="hud-btn-primary">{{ t('today.confirm') }}</button>
                         </div>
                       </div>
@@ -3325,6 +3360,8 @@
                 <div style="position: absolute; top: 0; left: -30%; width: 30%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.28), transparent); animation: s7scan 4s linear infinite;"></div>
               </div>
             </div>
+          </div>
+          </div>
           </div>
 
         </section>
@@ -3888,123 +3925,70 @@
             </div>
           </div>
 
-          <!-- PLANNING (Month + Week + Someday stacked) -->
+          <!-- TASK POOL: task-first model. Calendar is only a time-based projection. -->
           <div v-if="planningTab === 'planning'">
-
-            <!-- WEEK PLAN -->
-            <div class="card hud-card mb-5" data-tour="plan-week" :style="planDropTarget === 'week' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
+            <div class="card hud-card mb-5" data-tour="task-pool">
               <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">WEEK PLAN</span>
+                  <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">TASKS</span>
                   <span style="color: rgba(255,180,50,0.1);">|</span>
-                  <button @click="planWeekOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
-                  <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planWeekLabel }}</h3>
-                  <button @click="planWeekOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
+                  <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ taskPoolStats.open }} ACTIVE</h3>
                 </div>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planWeekItems.filter(item => !item.done).length }} {{ t('memory.active') }}</span>
+                <span class="hud-mono" style="font-size: 9px; color: rgba(255,100,80,0.46);">{{ taskPoolStats.today }} TODAY</span>
               </div>
-              <div class="card-body" @dragover="onPlanDragOver($event, 'week')" @dragleave="onPlanDragLeave('week')" @drop="onPlanDrop($event, 'week', 'week')">
-                <div v-if="planWeekItems.length === 0" style="padding: 12px 0; text-align: center;">
-                  <span style="font-size: 11px; color: rgba(255,180,50,0.15); font-style: italic;">No daily plans for this week</span>
-                </div>
-                <div v-for="(item, i) in planWeekItems" :key="'w'+i"
-                  draggable="true" @dragstart="onPlanDragStart($event, item)"
-                  @contextmenu.prevent="openPlanCtx($event, item)"
-                  style="display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
-                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
-                    :style="item.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.15);'">
-                    <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
+              <div class="card-body">
+                <div style="display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;">
+                  <input v-model="newTaskText" @keyup.enter="addNewTask()" :placeholder="t('today.newMission')"
+                    class="s7-add-input" style="flex: 1; min-width: 220px; font-size: 12px; padding: 7px 10px;">
+                  <button @click="showTaskTime = !showTaskTime" class="s7-add-btn"
+                    :style="showTaskTime ? 'background: rgba(255,180,50,0.12); color: rgba(255,180,50,1); border-color: rgba(255,180,50,0.35);' : (taskScheduleStart !== null ? 'color: rgba(255,180,50,0.9); border-color: rgba(255,180,50,0.3);' : '')">{{ t('today.time') }}</button>
+                  <button @click="addNewTask()" class="s7-add-btn">{{ t('plan.add') }}</button>
+                  <div v-if="showTaskTime" style="display: flex; gap: 6px; align-items: center; width: 100%; margin-top: 4px;">
+                    <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.22); width: 42px;">START</span>
+                    <div style="position: relative;">
+                      <input type="text" :value="taskStartLabel" @input="onTimeInput('taskStart', $event)"
+                        @focus="openTimePicker = 'taskStart'; scrollToPicked()" @click.stop
+                        class="s7-add-input" style="width: 78px; font-size: 11px; padding: 5px 8px;">
+                      <div v-if="openTimePicker === 'taskStart'" class="time-picker-list active" @mousedown.prevent @click.stop>
+                        <div v-for="s in timeSlots" :key="'task-start-'+s.key" :class="{'tp-selected': s.key === taskScheduleStart}"
+                          class="tp-item" @click="pickTime('taskStart', s.key)">{{ s.label }}</div>
+                      </div>
+                    </div>
+                    <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.18);">END</span>
+                    <div style="position: relative;">
+                      <input type="text" :value="taskEndLabel" @input="onTimeInput('taskEnd', $event)"
+                        @focus="openTimePicker = 'taskEnd'; scrollToPicked()" @click.stop
+                        class="s7-add-input" style="width: 78px; font-size: 11px; padding: 5px 8px;">
+                      <div v-if="openTimePicker === 'taskEnd'" class="time-picker-list active" @mousedown.prevent @click.stop>
+                        <div v-for="s in timeSlots" :key="'task-end-'+s.key" :class="{'tp-selected': s.key === taskScheduleEnd}"
+                          class="tp-item" @click="pickTime('taskEnd', s.key)">{{ s.label }}</div>
+                      </div>
+                    </div>
+                    <span class="hud-mono" style="font-size: 9px; color: rgba(255,255,255,0.18);">With time, this appears in Schedule.</span>
                   </div>
-                  <span style="flex: 1; font-size: 13px;" :style="item.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.5);'">{{ item.text }}</span>
-                  <button @click="removePlanItem('week', i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
                 </div>
-                <!-- Add -->
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanWeek" @keyup.enter="addPlanItem('week', newPlanWeek)" :placeholder="t('plan.addToWeek')"
-                    class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem('week', newPlanWeek)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
+
+                <div v-for="group in taskPoolGroups" :key="group.id" style="margin-top: 18px;">
+                  <div style="display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,180,50,0.06);">
+                    <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.42); min-width: 36px;">{{ group.icon }}</span>
+                    <span style="font-size: 12px; color: rgba(255,255,255,0.42);">{{ group.label }}</span>
+                    <span style="margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.18);">{{ group.tasks.length }}</span>
+                  </div>
+                  <div v-if="group.tasks.length === 0" style="padding: 10px 0 8px 44px; color: rgba(255,255,255,0.16); font-size: 12px;">No tasks</div>
+                  <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
+                    draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
+                    style="display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
+                    <div @click="toggleMissionTask(task)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                      :style="task.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.16);'">
+                      <span v-if="task.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
+                    </div>
+                    <span style="flex: 1; font-size: 13px;" :style="task.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.58);'">{{ task.text }}</span>
+                    <span v-if="taskIntersectsDate(task, dateToKey(new Date()))" class="hud-mono" style="font-size: 9px; color: rgba(255,100,80,0.78); background: rgba(255,100,80,0.1); border: 1px solid rgba(255,100,80,0.2); padding: 1px 5px; border-radius: 3px;">TODAY</span>
+                    <span v-else-if="taskHasCalendarTime(task)" class="hud-mono" style="font-size: 9px; color: rgba(100,220,180,0.38);">SCHEDULE</span>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <!-- Separator -->
-            <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.12), transparent); margin: 8px 0 20px;"></div>
-
-            <!-- MONTH PLAN -->
-            <div class="card hud-card mb-5" data-tour="plan-month" :style="planDropTarget === 'month' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
-              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span class="hud-mono" style="font-size: 11px; color: rgba(255,180,50,0.4); letter-spacing: 1.5px;">MONTH PLAN</span>
-                  <span style="color: rgba(255,180,50,0.1);">|</span>
-                  <button @click="planMonthOffset--" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&lt;</button>
-                  <h3 class="hud-title-glow" style="font-size: 0.7rem; margin: 0;">{{ planMonthLabel }}</h3>
-                  <button @click="planMonthOffset++" class="hud-nav-btn" style="width: 22px; height: 22px; font-size: 11px;">&gt;</button>
-                </div>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.3);">{{ planMonthItems.length }} TASKS</span>
-              </div>
-              <div class="card-body" @dragover="onPlanDragOver($event, 'month')" @dragleave="onPlanDragLeave('month')" @drop="onPlanDrop($event, 'month', 'month')">
-                <!-- Month summary stats -->
-                <div v-if="planMonthItems.length > 0" style="display: flex; gap: 16px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,180,50,0.06);">
-                  <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.3);">{{ planMonthDailyCount }} DAYS</span>
-                  <span class="hud-mono" style="font-size: 10px; color: rgba(100,220,180,0.4);">{{ planMonthItems.filter(t => t.done).length }}/{{ planMonthItems.length }} DONE</span>
-                  <span class="hud-mono" style="font-size: 10px; color: rgba(255,180,50,0.3);">{{ planMonthItems.length > 0 ? Math.round(planMonthItems.filter(t => t.done).length / planMonthItems.length * 100) : 0 }}%</span>
-                </div>
-                <div v-if="planMonthItems.length === 0" style="padding: 12px 0; text-align: center;">
-                  <span style="font-size: 11px; color: rgba(255,180,50,0.15); font-style: italic;">No daily plans for this month</span>
-                </div>
-                <div v-for="(item, i) in planMonthItems" :key="'m'+i"
-                  draggable="true" @dragstart="onPlanDragStart($event, item)"
-                  @contextmenu.prevent="openPlanCtx($event, item)"
-                  style="display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,180,50,0.03); cursor: grab;">
-                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
-                    :style="item.done ? 'background: rgba(100,220,180,0.25); border: 1px solid rgba(100,220,180,0.4);' : 'border: 1px solid rgba(255,180,50,0.15);'">
-                    <span v-if="item.done" style="color: rgba(100,220,180,0.8); font-size: 10px;">&#10003;</span>
-                  </div>
-                  <span style="flex: 1; font-size: 13px;" :style="item.done ? 'color: rgba(255,255,255,0.18); text-decoration: line-through;' : 'color: rgba(255,255,255,0.5);'">{{ item.text }}</span>
-                  <button @click="removePlanItem('month', i)" style="background: none; border: none; color: rgba(255,180,50,0.12); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.12)'">&times;</button>
-                </div>
-                <!-- Add -->
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanMonth" @keyup.enter="addPlanItem('month', newPlanMonth)" :placeholder="t('plan.addToMonth')"
-                    class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem('month', newPlanMonth)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Separator -->
-            <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(255,180,50,0.06), transparent); margin: 8px 0 20px;"></div>
-
-            <!-- SOMEDAY -->
-            <div class="card hud-card mb-5" data-tour="plan-someday" :style="planDropTarget === 'someday' ? 'border-color: rgba(255,180,50,0.25); box-shadow: 0 0 12px rgba(255,180,50,0.06);' : ''">
-              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 class="hud-title-glow" style="font-size: 0.7rem;">{{ t('plan.someday') }}</h3>
-                <span class="hud-mono" style="font-size: 9px; color: rgba(255,180,50,0.2);">{{ planSomedayItems.length }} {{ t('plan.ideas') }}</span>
-              </div>
-              <div class="card-body" @dragover="onPlanDragOver($event, 'someday')" @dragleave="onPlanDragLeave('someday')" @drop="onPlanDrop($event, planSomedayItems, 'someday')">
-                <div v-for="(item, i) in planSomedayItems" :key="'s'+i"
-                  draggable="true" @dragstart="onPlanDragStart($event, item)"
-                  @contextmenu.prevent="openPlanCtx($event, item)"
-                  style="display: flex; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,180,50,0.02); cursor: grab;">
-                  <div @click="togglePlanItem(item)" style="cursor: pointer; width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
-                    :style="item.done ? 'background: rgba(100,220,180,0.2); border: 1px solid rgba(100,220,180,0.35);' : 'border: 1px solid rgba(255,180,50,0.08);'">
-                    <span v-if="item.done" style="color: rgba(100,220,180,0.7); font-size: 10px;">&#10003;</span>
-                  </div>
-                  <div style="flex: 1; min-width: 0;">
-                    <span style="font-size: 12px;" :style="item.done ? 'color: rgba(255,255,255,0.15); text-decoration: line-through;' : 'color: rgba(255,255,255,0.35);'">{{ item.text }}</span>
-                    <div v-if="item.note && !item.done" style="font-size: 10px; color: rgba(255,255,255,0.12); margin-top: 1px;">{{ item.note }}</div>
-                  </div>
-                  <button @click="removePlanItem(planSomedayItems, i)" style="background: none; border: none; color: rgba(255,180,50,0.08); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s;" onmouseover="this.style.color='rgba(255,100,80,0.6)'" onmouseout="this.style.color='rgba(255,180,50,0.08)'">&times;</button>
-                </div>
-                <!-- Add -->
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input v-model="newPlanSomeday" @keyup.enter="addPlanItem(planSomedayItems, newPlanSomeday)" :placeholder="t('plan.addIdea')"
-                    class="s7-add-input" style="flex: 1; font-size: 12px; padding: 6px 10px;">
-                  <button @click="addPlanItem(planSomedayItems, newPlanSomeday)" class="s7-add-btn" style="font-size: 9px; padding: 5px 12px;">{{ t('plan.add') }}</button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </section>
 
@@ -4847,8 +4831,8 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/"
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/three-addons/"
   }
 }
 </script>
@@ -5195,6 +5179,10 @@ createApp({
     const error = ref(null);
     const currentPage = ref('today');
     const sidebarOpen = ref(false);
+    const taskScheduleView = ref('split');
+    const savedTaskSchedulePanePct = Number(localStorage.getItem('loci-task-schedule-pane-pct'));
+    const taskSchedulePanePct = ref(Number.isFinite(savedTaskSchedulePanePct) && savedTaskSchedulePanePct >= 24 && savedTaskSchedulePanePct <= 64 ? savedTaskSchedulePanePct : 38);
+    const isTaskScheduleResizing = ref(false);
     const memoryTab = ref('identity');
     const planningTab = ref('planning');
 
@@ -5205,11 +5193,37 @@ createApp({
     watch(lang, (v) => localStorage.setItem('loci-dashboard-lang', v));
     function toggleLang() { lang.value = lang.value === 'zh' ? 'en' : 'zh'; }
 
+    function startTaskScheduleResize(event) {
+      if (taskScheduleView.value !== 'split') return;
+      const container = event.currentTarget?.parentElement;
+      if (!container) return;
+      isTaskScheduleResizing.value = true;
+      event.preventDefault();
+      event.currentTarget?.setPointerCapture?.(event.pointerId);
+
+      const updatePaneWidth = (pointerEvent) => {
+        const rect = container.getBoundingClientRect();
+        if (!rect.width) return;
+        const pct = ((pointerEvent.clientX - rect.left) / rect.width) * 100;
+        taskSchedulePanePct.value = Math.min(64, Math.max(24, Math.round(pct)));
+      };
+
+      const stopResize = () => {
+        isTaskScheduleResizing.value = false;
+        localStorage.setItem('loci-task-schedule-pane-pct', String(taskSchedulePanePct.value));
+        window.removeEventListener('pointermove', updatePaneWidth);
+      };
+
+      updatePaneWidth(event);
+      window.addEventListener('pointermove', updatePaneWidth);
+      window.addEventListener('pointerup', stopResize, { once: true });
+    }
+
     const i18n = {
       zh: {
         // Nav
-        'nav.today': '今天',
-        'nav.plan': '规划',
+        'nav.today': '任务',
+        'nav.plan': '任务',
         'nav.journal': '日记',
         'nav.memory': '记忆',
         'nav.people': '人脉',
@@ -5222,23 +5236,19 @@ createApp({
         'sys.threads': '线程',
         // Today page
         'today.commandCenter': '指挥中心',
-        'today.missionLog': '任务日志',
+        'today.missionLog': '今日日程',
         'today.add': '+ 添加',
         'today.pending': '待办',
         'today.complete': '已完成',
         'today.progress': '进度',
-        'today.focus': '专注',
-        'today.queue': '队列',
         'today.completed': '已完成',
         'today.noMissions': '暂无任务',
-        'today.priorityCritical': '优先级: 关键',
-        'today.priorityNormal': '优先级: 普通',
         'today.newMission': '新任务...',
         'today.exec': '执行',
         'today.time': '时间',
-        'today.toCalendar': '同步日历',
+        'today.toCalendar': '进入日程',
         'today.dailyPlan': '日计划',
-        'today.dayManifest': '日程面板',
+        'today.dayManifest': '日程',
         'today.day': '日',
         'today.week': '周',
         'today.month': '月',
@@ -5301,8 +5311,8 @@ createApp({
         'memory.experienceDb': '经验数据库',
         'memory.knowledgeAccum': '知识累积器 // 洞见引擎',
         // Planning
-        'plan.strategicOverview': '战略总览',
-        'plan.planning': '规划',
+        'plan.strategicOverview': '任务中心',
+        'plan.planning': '任务',
         'plan.direction': '方向',
         'plan.missionStatement': '使命宣言',
         'plan.fromPlan': '来自 PLAN.MD',
@@ -5310,7 +5320,6 @@ createApp({
         'plan.strategicPrinciples': '战略原则',
         'plan.weekLabel': '本周',
         'plan.monthLabel': '本月',
-        'plan.someday': '有空再说',
         'plan.ideas': '想法',
         'plan.addToWeek': '添加到本周...',
         'plan.addToMonth': '添加到本月...',
@@ -5397,9 +5406,15 @@ createApp({
         'frag.archive': '归档',
         'frag.total': '碎片',
         'frag.drifting': '漂浮中',
-        // Task priority select
-        'priority.focus': '专注',
-        'priority.queue': '队列',
+        'task.open': '待处理',
+        'task.stale': '很久没更新',
+        'task.done': '已勾选',
+        'taskSchedule.split': '并排',
+        'taskSchedule.tasks': '任务',
+        'taskSchedule.schedule': '日程',
+        'taskSchedule.resize': '拖动调整任务和日程宽度',
+        'taskSchedule.timeHint': '加时间后会出现在日程里',
+        'taskSchedule.noTasks': '暂无任务',
         // Welcome overlay
         'welcome.title': '系统在线',
         'welcome.subtitle': '欢迎登舰，指挥官',
@@ -5408,10 +5423,10 @@ createApp({
         'welcome.enter': '进入舰桥',
         'welcome.footnote': '7 个模块待命 — 首次进入每个页面时会自动引导你',
         'welcome.guide': '导航指南',
-        'welcome.secToday': '今天',
-        'welcome.secTodayDesc': '指挥中心',
-        'welcome.secPlan': '规划',
-        'welcome.secPlanDesc': '任务编排',
+        'welcome.secToday': '任务 / 日程',
+        'welcome.secTodayDesc': '待办与时间',
+        'welcome.secPlan': '任务',
+        'welcome.secPlanDesc': '待办池',
         'welcome.secJournal': '日记',
         'welcome.secJournalDesc': '航行日志',
         'welcome.secMemory': '记忆',
@@ -5422,8 +5437,8 @@ createApp({
         'welcome.secPeopleDesc': '船员名册',
         'welcome.secFragments': '碎片',
         'welcome.secFragmentsDesc': '漂流收集器',
-        'guide.todayIntro': '今天的任务和日程。跟 AI 说"今天要做..."自动添加，完成后打勾',
-        'guide.planIntro': '周计划、月目标、Someday 想法。把大方向拆成可执行的小步骤',
+        'guide.todayIntro': '任务和日程在同一个页面切换。任务有时间才投射到日程',
+        'guide.planIntro': '所有任务的统一入口。有时间的任务会投射到日程',
         'guide.journalIntro': '每天的 AI 自动总结 + 你的个人笔记。睡前说"总结"，AI 帮你写日记',
         'guide.memoryIntro': '你的身份、价值观、所学、成长轨迹。AI 从对话中自动提取并更新',
         'guide.brainIntro': '知识网络可视化。看到你的记忆、项目、决策之间的关联',
@@ -5437,16 +5452,16 @@ createApp({
         'briefing.features': '核心功能',
         'briefing.howToUse': '使用方法',
         'briefing.aiIntegration': 'AI 协作',
-        'briefing.today.title': '今天 — 指挥中心',
-        'briefing.today.overview': '你的每日任务控制台。一眼看到今天的任务、日程事件和完成进度。',
-        'briefing.today.featuresList': 'Focus/Queue 双轨任务系统|拖拽任务到时间线排期|每日日历视图|实时进度追踪',
-        'briefing.today.usage': '跟 AI 说"我要..."来添加任务。把任务拖到时间线上排期。完成后打勾。',
-        'briefing.today.ai': 'AI 维护你的任务列表，自动排优先级，提醒逾期事项。',
-        'briefing.planning.title': '规划 — 任务编排',
-        'briefing.planning.overview': '跨周、月、长期的战略规划视图。',
-        'briefing.planning.featuresList': '周/月任务看板|Someday 清单|跨时间维度拖拽|目标追踪',
-        'briefing.planning.usage': '周一规划本周。在周/月/Someday 之间移动任务。追踪目标进度。',
-        'briefing.planning.ai': 'AI 根据你的目标和截止日期建议优先级，自动把未完成任务向前推进。',
+        'briefing.today.title': '日程 — 时间视图',
+        'briefing.today.overview': '这里显示时间块：纯日程，以及从任务投射过来的时间安排。',
+        'briefing.today.featuresList': '每日时间线|周/月视图|纯日程独立存在|任务可投射到日程',
+        'briefing.today.usage': '在时间线上拖拽创建普通日程；从任务页给任务加时间后，它会显示到这里。',
+        'briefing.today.ai': 'AI 会先判断语义：会议、吃饭、课程是日程；需要完成的事项才是任务。',
+        'briefing.planning.title': '任务 — 待办池',
+        'briefing.planning.overview': '所有任务的统一入口。任务是最小主动单位，日历只是它的时间化视图。',
+        'briefing.planning.featuresList': '统一任务池|勾选完成|今天任务前置|有时间任务投射到日程',
+        'briefing.planning.usage': '把需要完成的事项放在这里。给任务加时间后，它会出现在对应日期的日程里。',
+        'briefing.planning.ai': 'AI 从对话里捕获任务；普通日程不会自动污染任务池。',
         'briefing.journal.title': '日记 — 航行日志',
         'briefing.journal.overview': '你的每日记录。想法、反思、决策——全部被捕捉并可搜索。',
         'briefing.journal.featuresList': '富文本编辑器|日/周/月视图|日历导航|多标签笔记',
@@ -5473,9 +5488,9 @@ createApp({
         'briefing.fragments.usage': '跟 AI 说"我有个想法..."或分享链接。碎片会自动整理。',
         'briefing.fragments.ai': 'AI 实时捕捉碎片，把可执行的想法路由到任务，归档旧的。',
         // Enhanced empty states
-        'empty.todayTitle': '暂无任务',
-        'empty.todayDesc': '今天还没有任务。跟 AI 说"今天要做..."来添加任务，\n或者在 active.md 的 Focus 区直接写入。',
-        'empty.todayHint': '专注区 = 今天必须做 / 队列 = 排队中',
+        'empty.todayTitle': '暂无日程',
+        'empty.todayDesc': '今天还没有时间安排。任务加上时间后，也会出现在这里。',
+        'empty.todayHint': '任务 = 要完成的事 / 日程 = 占用的时间',
         'empty.peopleTitle': '船员名册为空',
         'empty.peopleDesc': '还没有联系人数据。\n跟 AI 说 "添加联系人..." 来建立你的人脉档案。',
         'empty.peopleHint': '数据来源: 04-people/ 目录',
@@ -5496,8 +5511,8 @@ createApp({
         'lang.toggle': 'EN',
       },
       en: {
-        'nav.today': 'Today',
-        'nav.plan': 'Plan',
+        'nav.today': 'Tasks',
+        'nav.plan': 'Tasks',
         'nav.journal': 'Journal',
         'nav.memory': 'Memory',
         'nav.people': 'People',
@@ -5508,23 +5523,19 @@ createApp({
         'sys.error': 'ERROR',
         'sys.threads': 'THREADS',
         'today.commandCenter': 'Command Center',
-        'today.missionLog': 'MISSION LOG',
+        'today.missionLog': 'SCHEDULE',
         'today.add': '+ ADD',
         'today.pending': 'PENDING',
         'today.complete': 'COMPLETE',
         'today.progress': 'PROGRESS',
-        'today.focus': 'FOCUS',
-        'today.queue': 'QUEUE',
         'today.completed': 'COMPLETED',
         'today.noMissions': 'NO ACTIVE MISSIONS',
-        'today.priorityCritical': 'PRIORITY: CRITICAL',
-        'today.priorityNormal': 'PRIORITY: NORMAL',
         'today.newMission': 'New mission...',
         'today.exec': 'EXEC',
         'today.time': 'Time',
-        'today.toCalendar': 'CALENDAR',
+        'today.toCalendar': 'SCHEDULE',
         'today.dailyPlan': 'DAILY PLAN',
-        'today.dayManifest': 'DAY MANIFEST',
+        'today.dayManifest': 'SCHEDULE',
         'today.day': 'DAY',
         'today.week': 'WEEK',
         'today.month': 'MONTH',
@@ -5583,8 +5594,8 @@ createApp({
         'memory.valueMatrix': 'VALUE MATRIX // DECISION ENGINE',
         'memory.experienceDb': 'Experience Database',
         'memory.knowledgeAccum': 'KNOWLEDGE ACCUMULATOR // INSIGHT ENGINE',
-        'plan.strategicOverview': 'Strategic Overview',
-        'plan.planning': '规划',
+        'plan.strategicOverview': 'Task Center',
+        'plan.planning': 'Tasks',
         'plan.direction': '方向',
         'plan.missionStatement': 'MISSION STATEMENT',
         'plan.fromPlan': 'FROM PLAN.MD',
@@ -5592,7 +5603,6 @@ createApp({
         'plan.strategicPrinciples': 'STRATEGIC PRINCIPLES',
         'plan.weekLabel': 'WEEK',
         'plan.monthLabel': 'MONTH',
-        'plan.someday': 'SOMEDAY / MAYBE',
         'plan.ideas': 'IDEAS',
         'plan.addToWeek': 'Add to week...',
         'plan.addToMonth': 'Add to month...',
@@ -5671,8 +5681,15 @@ createApp({
         'frag.archive': 'ARCHIVE',
         'frag.total': 'FRAGMENTS',
         'frag.drifting': 'DRIFTING',
-        'priority.focus': 'Focus',
-        'priority.queue': 'Queue',
+        'task.open': 'Active',
+        'task.stale': 'Stale',
+        'task.done': 'Checked',
+        'taskSchedule.split': 'Split',
+        'taskSchedule.tasks': 'Tasks',
+        'taskSchedule.schedule': 'Schedule',
+        'taskSchedule.resize': 'Drag to resize Tasks and Schedule',
+        'taskSchedule.timeHint': 'With time, this appears in Schedule.',
+        'taskSchedule.noTasks': 'No tasks',
         // Welcome overlay
         'welcome.title': 'SYSTEM ONLINE',
         'welcome.subtitle': 'WELCOME ABOARD, COMMANDER',
@@ -5681,10 +5698,10 @@ createApp({
         'welcome.enter': 'ENTER BRIDGE',
         'welcome.footnote': '7 MODULES STANDING BY — GUIDED TOURS ACTIVATE ON FIRST VISIT',
         'welcome.guide': 'GUIDE',
-        'welcome.secToday': 'TODAY',
-        'welcome.secTodayDesc': 'Command center',
-        'welcome.secPlan': 'PLAN',
-        'welcome.secPlanDesc': 'Mission planning',
+        'welcome.secToday': 'TASKS / SCHEDULE',
+        'welcome.secTodayDesc': 'Work and time',
+        'welcome.secPlan': 'TASKS',
+        'welcome.secPlanDesc': 'Task pool',
         'welcome.secJournal': 'JOURNAL',
         'welcome.secJournalDesc': "Ship's log",
         'welcome.secMemory': 'MEMORY',
@@ -5695,8 +5712,8 @@ createApp({
         'welcome.secPeopleDesc': 'Crew roster',
         'welcome.secFragments': 'FRAGMENTS',
         'welcome.secFragmentsDesc': 'Drift collector',
-        'guide.todayIntro': 'Today\'s tasks and schedule. Tell AI "I need to..." to add tasks automatically',
-        'guide.planIntro': 'Weekly plans, monthly goals, someday ideas. Break big goals into actionable steps',
+        'guide.todayIntro': 'Tasks and Schedule live on one page. Timed tasks project into Schedule',
+        'guide.planIntro': 'The unified task pool. Timed tasks project into Schedule',
         'guide.journalIntro': 'AI daily summary + personal notes. Say "summarize" before bed — AI writes your journal',
         'guide.memoryIntro': 'Your identity, values, learnings, growth. AI auto-extracts from conversations',
         'guide.brainIntro': 'Knowledge network visualization. See connections between memories, projects, decisions',
@@ -5710,16 +5727,16 @@ createApp({
         'briefing.features': 'KEY FEATURES',
         'briefing.howToUse': 'HOW TO USE',
         'briefing.aiIntegration': 'AI INTEGRATION',
-        'briefing.today.title': 'TODAY — Command Center',
-        'briefing.today.overview': 'Your daily mission control. See today\'s tasks, calendar events, and progress at a glance.',
-        'briefing.today.featuresList': 'Focus/Queue task system|Drag tasks to timeline|Daily calendar view|Real-time progress tracking',
-        'briefing.today.usage': 'Tell AI "I need to..." to add tasks. Drag tasks onto the timeline to schedule. Check off completed missions.',
-        'briefing.today.ai': 'AI maintains your task list, auto-prioritizes, and reminds you of overdue items.',
-        'briefing.planning.title': 'PLAN — Mission Planning',
-        'briefing.planning.overview': 'Strategic planning across week, month, and long-term horizons.',
-        'briefing.planning.featuresList': 'Weekly/monthly mission boards|Someday list|Drag between timeframes|Goal tracking',
-        'briefing.planning.usage': 'Plan your week on Monday. Move items between week/month/someday. Track goal progress.',
-        'briefing.planning.ai': 'AI suggests priorities based on your goals and deadlines. Auto-carries unfinished tasks forward.',
+        'briefing.today.title': 'SCHEDULE — Time View',
+        'briefing.today.overview': 'A timeline for time blocks: pure events plus scheduled projections from tasks.',
+        'briefing.today.featuresList': 'Daily timeline|Week/month views|Pure events stay separate|Tasks can project into schedule',
+        'briefing.today.usage': 'Drag on the timeline to create an event. Add time to a task and it appears here.',
+        'briefing.today.ai': 'AI classifies intent first: meetings, meals, classes are events; completable work becomes tasks.',
+        'briefing.planning.title': 'TASKS — Task Center',
+        'briefing.planning.overview': 'The single home for tasks. A task is the smallest active unit; the calendar is only its time-based projection.',
+        'briefing.planning.featuresList': 'Unified task pool|Checkbox completion|Today tasks float up|Timed tasks project into Schedule',
+        'briefing.planning.usage': 'Keep completable work here. Add a time and the task appears on the matching schedule day.',
+        'briefing.planning.ai': 'AI captures tasks from conversation. Pure schedule items do not pollute the task pool.',
         'briefing.journal.title': 'JOURNAL — Ship\'s Log',
         'briefing.journal.overview': 'Your daily record. Thoughts, reflections, decisions — all captured and searchable.',
         'briefing.journal.featuresList': 'Rich text editor|Daily/weekly/monthly views|Calendar navigation|Multi-note tabs',
@@ -5742,13 +5759,13 @@ createApp({
         'briefing.people.ai': 'AI reminds you to stay in touch, tracks interaction history, suggests follow-ups.',
         'briefing.fragments.title': 'FRAGMENTS — Drift Collector',
         'briefing.fragments.overview': 'Where fleeting thoughts and saved links land before they become something more.',
-        'briefing.fragments.featuresList': 'Quick capture|Link bookmarking|Auto-categorization|Decay to someday',
+        'briefing.fragments.featuresList': 'Quick capture|Link bookmarking|Auto-categorization|Archive old notes',
         'briefing.fragments.usage': 'Tell AI "I had an idea..." or share a link. Fragments auto-organize over time.',
         'briefing.fragments.ai': 'AI captures fragments in real-time, routes actionable items to tasks, archives old ones.',
         // Enhanced empty states
-        'empty.todayTitle': 'NO ACTIVE MISSIONS',
-        'empty.todayDesc': 'No tasks for today. Tell AI "I need to..." to add tasks,\nor write directly in the Focus section of active.md.',
-        'empty.todayHint': 'FOCUS = must do today / QUEUE = in line',
+        'empty.todayTitle': 'NO EVENTS',
+        'empty.todayDesc': 'Nothing scheduled today. Timed tasks also appear here when they exist.',
+        'empty.todayHint': 'Tasks = things to finish / Schedule = time blocks',
         'empty.peopleTitle': 'CREW ROSTER EMPTY',
         'empty.peopleDesc': 'No contacts loaded yet.\nTell AI "Add person..." to build your network file.',
         'empty.peopleHint': 'Source: 04-people/ directory',
@@ -5778,7 +5795,6 @@ createApp({
     const guidePage = ref(0); // carousel page index (6 items per page)
     const guideModules = [
       { id: 'today', icon: '&#9678;', nameKey: 'welcome.secToday', introKey: 'guide.todayIntro' },
-      { id: 'planning', icon: '&#9670;', nameKey: 'welcome.secPlan', introKey: 'guide.planIntro' },
       { id: 'journal', icon: '&#9687;', nameKey: 'welcome.secJournal', introKey: 'guide.journalIntro' },
       { id: 'memory', icon: '&#9674;', nameKey: 'welcome.secMemory', introKey: 'guide.memoryIntro' },
       { id: 'brain', icon: '&#9673;', nameKey: 'welcome.secBrain', introKey: 'guide.brainIntro' },
@@ -5810,16 +5826,8 @@ createApp({
 
     const tourSteps = {
       today: [
-        { target: '[data-tour="date-picker"]', title: { zh: '\u65E5\u671F\u5BFC\u822A', en: 'Date Navigation' }, text: { zh: '\u5DE6\u53F3\u5207\u6362\u67E5\u770B\u4E0D\u540C\u65E5\u671F\u7684\u4EFB\u52A1\u548C\u65E5\u7A0B', en: 'Navigate between days to see tasks and events' }, pos: 'bottom' },
-        { target: '[data-tour="mission-log"]', title: { zh: '\u4EFB\u52A1\u65E5\u5FD7', en: 'Mission Log' }, text: { zh: 'Focus = \u4ECA\u5929\u5FC5\u987B\u505A\uFF0CQueue = \u6392\u961F\u4E2D\u3002\u62D6\u62FD\u4EFB\u52A1\u5230\u65F6\u95F4\u7EBF\u6392\u671F', en: 'Focus = must do today, Queue = in line. Drag tasks to timeline to schedule' }, pos: 'bottom' },
-        { target: '[data-tour="add-task"]', title: { zh: '\u6DFB\u52A0\u4EFB\u52A1', en: 'Add Task' }, text: { zh: '\u70B9\u8FD9\u91CC\u624B\u52A8\u6DFB\u52A0\uFF0C\u6216\u76F4\u63A5\u8DDF AI \u8BF4\u201C\u6211\u8981...\u201D', en: 'Click to add manually, or tell AI "I need to..."' }, pos: 'left' },
-        { target: '[data-tour="day-manifest"]', title: { zh: '\u65F6\u95F4\u7EBF', en: 'Timeline' }, text: { zh: '\u4F60\u7684\u65E5\u7A0B\u65F6\u95F4\u8F74\uFF0C\u53EF\u4EE5\u62D6\u62FD\u4EFB\u52A1\u5230\u5177\u4F53\u65F6\u95F4\u6BB5', en: 'Your day timeline \u2014 drag tasks onto time slots to schedule' }, pos: 'top' },
-      ],
-      planning: [
-        { target: '[data-tour="plan-tabs"]', title: { zh: '\u89C4\u5212\u89C6\u56FE', en: 'Planning Views' }, text: { zh: '\u5728\u300C\u89C4\u5212\u300D\u548C\u300C\u65B9\u5411\u300D\u4E4B\u95F4\u5207\u6362', en: 'Switch between Planning and Direction views' }, pos: 'bottom' },
-        { target: '[data-tour="plan-week"]', title: { zh: '\u672C\u5468\u4EFB\u52A1', en: 'Weekly Tasks' }, text: { zh: '\u672C\u5468\u8981\u505A\u7684\u4E8B\u3002\u53EF\u4EE5\u4ECE\u6708\u5EA6\u6216 Someday \u62D6\u8FDB\u6765', en: 'This week\'s tasks. Drag items in from month or someday' }, pos: 'right' },
-        { target: '[data-tour="plan-month"]', title: { zh: '\u672C\u6708\u76EE\u6807', en: 'Monthly Goals' }, text: { zh: '\u6708\u5EA6\u7EF4\u5EA6\u7684\u4EFB\u52A1\u548C\u76EE\u6807', en: 'Monthly tasks and goals' }, pos: 'right' },
-        { target: '[data-tour="plan-someday"]', title: { zh: '\u4EE5\u540E\u518D\u8BF4', en: 'Someday' }, text: { zh: '\u4E0D\u6025\u7684\u60F3\u6CD5\u653E\u8FD9\u91CC\uFF0C\u4E0D\u4F1A\u4E22', en: 'Non-urgent ideas live here \u2014 they won\'t get lost' }, pos: 'right' },
+        { target: '[data-tour="task-schedule-switch"]', title: { zh: '\u4EFB\u52A1 / \u65E5\u7A0B', en: 'Tasks / Schedule' }, text: { zh: '\u9ED8\u8BA4\u5E76\u6392\u770B\uFF1A\u4EFB\u52A1\u662F\u9700\u8981\u5B8C\u6210\u7684\u4E8B\uFF0C\u65E5\u7A0B\u662F\u5360\u7528\u7684\u65F6\u95F4\uFF1B\u4E5F\u53EF\u4EE5\u5207\u5230\u5355\u72EC\u89C6\u56FE', en: 'Default split view: tasks are things to finish, schedule is time blocks. You can also focus on either side.' }, pos: 'bottom' },
+        { target: '[data-tour="task-pool"]', title: { zh: '\u4EFB\u52A1', en: 'Tasks' }, text: { zh: '\u4ECA\u5929\u76F8\u5173\u7684\u4EFB\u52A1\u4F1A\u524D\u7F6E\u5E76\u6807\u7EA2\uFF1B\u666E\u901A\u65E5\u7A0B\u4E0D\u4F1A\u8FDB\u5165\u8FD9\u91CC', en: 'Tasks touching today float up with a red marker; pure events do not enter this list' }, pos: 'right' },
       ],
       journal: [
         { target: '[data-tour="journal-ai-summary"]', title: { zh: 'AI 每日总结', en: 'AI Daily Summary' }, text: { zh: '每天睡前跟 AI 说"总结"，AI 会自动回顾你今天做了什么、学了什么、做了哪些决策，生成精炼的每日报告。你不用自己写日记', en: 'Say "summarize" before bed — AI reviews your day automatically: what you did, learned, decided. It writes the journal for you' }, pos: 'bottom' },
@@ -6009,7 +6017,7 @@ createApp({
 
     // Parse plan.md HTML content into structured data for the template
     function parsePlanHtml(html) {
-      if (!html) return { mission: '', positioning: '', annualGoals: [], principles: [], someday: [] };
+      if (!html) return { mission: '', positioning: '', annualGoals: [], principles: [] };
 
       const parser = new DOMParser();
       const doc = parser.parseFromString('<div>' + html + '</div>', 'text/html');
@@ -6084,32 +6092,14 @@ createApp({
         }
       }
 
-      // Someday items from plan.md
-      const somedayItems = [];
-      const somedayEls = getSectionContent('h2', /someday|未来|以后/i);
-      for (const el of somedayEls) {
-        if (el.tagName === 'UL') {
-          for (const li of el.querySelectorAll('li')) {
-            const text = li.textContent.trim();
-            if (text) {
-              const dashMatch = text.match(/^(.+?)\s*[—–-]\s*(.+)$/);
-              const parenMatch = text.match(/^(.+?)\s*\((.+)\)\s*$/);
-              if (dashMatch) somedayItems.push({ text: dashMatch[1].trim(), note: dashMatch[2].trim() });
-              else if (parenMatch) somedayItems.push({ text: parenMatch[1].trim(), note: parenMatch[2].trim() });
-              else somedayItems.push({ text, note: '' });
-            }
-          }
-        }
-      }
-
-      return { mission, positioning, annualGoals, principles, someday: somedayItems };
+      return { mission, positioning, annualGoals, principles };
     }
 
     // Plan data from API (named mockPlanData to match existing template references)
     const mockPlanData = computed(() => {
       const planContent = data.value?.plan?.content;
       if (planContent) return parsePlanHtml(planContent);
-      return { mission: '', positioning: '', annualGoals: [], principles: [], someday: [] };
+      return { mission: '', positioning: '', annualGoals: [], principles: [] };
     });
 
     // --- Planning lists (data-driven with week/month navigation) ---
@@ -6205,17 +6195,6 @@ createApp({
     // Stable reactive arrays — loaded from server JSON files
     const planWeekItems = reactive([]);
     const planMonthItems = reactive([]);
-    const planSomedayItems = reactive([]);
-    // Populate someday items from API data when it loads
-    let _somedayInitialized = false;
-    watch(() => mockPlanData.value, (plan) => {
-      if (_somedayInitialized || !plan) return;
-      const items = (plan.someday || []).map(s => ({ text: s.text, note: s.note || '', done: false }));
-      if (items.length) {
-        planSomedayItems.splice(0, planSomedayItems.length, ...items);
-        _somedayInitialized = true;
-      }
-    }, { immediate: true });
 
     // Load week/month plan items from server
     let _lastWeekKey = '', _lastMonthKey = '';
@@ -6258,7 +6237,6 @@ createApp({
 
     const newPlanMonth = ref('');
     const newPlanWeek = ref('');
-    const newPlanSomeday = ref('');
 
     function togglePlanItem(item) {
       item.done = !item.done;
@@ -6280,7 +6258,6 @@ createApp({
         savePlanItems('month');
       } else {
         listOrName.push({ text: taskText, done: false });
-        newPlanSomeday.value = '';
       }
     }
 
@@ -6298,7 +6275,7 @@ createApp({
 
     // Drag-copy between plan lists
     const planDragText = ref('');
-    const planDropTarget = ref(null); // 'month' | 'week' | 'someday'
+    const planDropTarget = ref(null); // 'month' | 'week'
 
     function onPlanDragStart(e, item) {
       planDragText.value = item.text;
@@ -7699,7 +7676,6 @@ createApp({
 
     const navItems = computed(() => [
       { id: 'today',     label: t('nav.today'),    icon: '\u2600', termIcon: '[>]' },
-      { id: 'planning',  label: t('nav.plan'),     icon: '\u25C6', termIcon: '[#]' },
       { id: 'journal',   label: t('nav.journal'),  icon: '\u25C6', termIcon: '[~]' },
       { id: 'memory',    label: t('nav.memory'),   icon: '\u2665', termIcon: '[&]' },
       { id: 'people',    label: t('nav.people'),   icon: '\u2665', termIcon: '[@]' },
@@ -8619,21 +8595,6 @@ createApp({
       });
     }
 
-    function priorityClass(p) {
-      const map = { P0: 'badge-p0', P1: 'badge-p1', P2: 'badge-p2', P3: 'badge-p3' };
-      return map[p] || 'badge-p3';
-    }
-
-    function priorityLabel(p) {
-      const map = {
-        P0: '\u4ECA\u5929\u5FC5\u987B\u505A',
-        P1: '\u672C\u5468\u5185',
-        P2: '\u53EF\u5FEB\u901F\u5904\u7406',
-        P3: '\u6709\u7A7A\u518D\u8BF4'
-      };
-      return map[p] || '';
-    }
-
     function getClassOffset(classes, idx) {
       const cls = classes[idx];
       const overlapping = classes.filter((other, otherIdx) => {
@@ -9069,12 +9030,12 @@ createApp({
     // Parse tasks from a daily plan's HTML content
     function parseDailyPlanTasks(htmlContent) {
       if (!htmlContent) return {};
-      const tasks = { P0: [] };
+      const tasks = { P1: [] };
       // Match checkbox list items: <li class="task done"> or <li class="task">
       const re = /<li class="task(\s+done)?"><input[^>]*>\s*(.+?)<\/li>/g;
       let m;
       while ((m = re.exec(htmlContent)) !== null) {
-        tasks.P0.push({ text: m[2].trim(), done: !!m[1] });
+        tasks.P1.push({ text: m[2].trim(), done: !!m[1] });
       }
       return tasks;
     }
@@ -9083,119 +9044,150 @@ createApp({
     async function toggleMissionTask(task) {
       const newDone = !task.done;
       task.done = newDone; // optimistic UI update
+      if (task._eventRef) task._eventRef.done = newDone;
       const rawText = task.text.replace(/<[^>]*>/g, '').trim();
       try {
-        if (calendarDayOffset.value === 0) {
-          // Today: toggle in active.md
-          await fetch('/api/tasks/toggle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ task: rawText, checked: newDone })
-          });
-        } else {
-          // Other dates: toggle in daily plan markdown
-          const d = new Date();
-          d.setDate(d.getDate() + calendarDayOffset.value);
-          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-          await fetch('/api/daily/toggle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, taskText: rawText, done: newDone })
-          });
-        }
+        // Task-first model: task completion is stored in the task pool.
+        await fetch('/api/tasks/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: task.id, task: rawText, checked: newDone })
+        });
       } catch (e) { /* server unavailable, UI already updated */ }
     }
 
-    // Date-aware task source — reactive, updates when viewingDate changes
-    // Today: active_tasks. Other dates: daily plan tasks, then mock data fallback.
-    const viewingTasks = computed(() => {
-      if (calendarDayOffset.value === 0) {
-        // Today: merge daily plan tasks (no-time tasks) + active.md
-        const active = data.value?.tasks?.active_tasks || {};
-        const plan = todayPlan.value;
-        if (plan && plan.content) {
-          const dailyParsed = parseDailyPlanTasks(plan.content);
-          // Merge daily plan tasks into active tasks (daily plan = Focus/P0)
-          if (dailyParsed.P0 && dailyParsed.P0.length > 0) {
-            const merged = {};
-            // Copy active tasks
-            for (const p of Object.keys(active)) {
-              merged[p] = [...(active[p] || [])];
-            }
-            // Add daily plan tasks to P0 (Focus), avoiding duplicates
-            if (!merged.P0) merged.P0 = [];
-            for (const dt of dailyParsed.P0) {
-              const dtText = dt.text.replace(/<[^>]*>/g, '').trim();
-              const exists = merged.P0.some(t => t.text.replace(/<[^>]*>/g, '').trim() === dtText);
-              if (!exists) merged.P0.push(dt);
-            }
-            return merged;
-          }
-        }
-        return active;
-      }
-      // Other dates: daily plan tasks, then mock data fallback
-      const plan = todayPlan.value;
-      if (plan && plan.content) {
-        const parsed = parseDailyPlanTasks(plan.content);
-        if (parsed.P0 && parsed.P0.length > 0) return parsed;
-      }
-      const key = dateToKey(viewingDate.value);
-      if (mockDayTasks[key]) return mockDayTasks[key];
-      return {};
-    });
-
-    const todayP0Tasks = computed(() => {
-      return viewingTasks.value?.P0?.filter(t => !t.done) || [];
-    });
-
-    function todayPriorityTasks(p) {
-      return viewingTasks.value?.[p]?.filter(t => !t.done) || [];
-    }
-
-    function undoneTasks(p) {
-      return viewingTasks.value?.[p]?.filter(t => !t.done) || [];
-    }
-
-    const finishedTasks = computed(() => {
-      const at = viewingTasks.value;
-      if (!at) return [];
-      const done = [];
-      ['P0','P1'].forEach(p => {
-        (at[p] || []).forEach(t => { if (t.done) done.push(t); });
+    const allTaskPoolTasks = computed(() => {
+      const at = data.value?.tasks?.active_tasks || {};
+      return Object.entries(at).flatMap(([source, tasks]) => {
+        if (!Array.isArray(tasks)) return [];
+        return tasks.map(task => {
+          task._sourcePriority = source;
+          return task;
+        });
       });
-      return done;
     });
 
-    const hasAnyTodayTasks = computed(() => {
-      const at = viewingTasks.value;
-      if (!at) return false;
-      return ['P0','P1'].some(p => at[p]?.some(t => !t.done));
+    // Feishu-aligned task pool: only incomplete vs completed.
+    const taskPoolGroups = computed(() => {
+      const tasks = allTaskPoolTasks.value;
+      return [
+        { id: 'open', icon: '○', label: t('task.open'), tasks: sortTasksForTaskPage(tasks.filter(t => !t.done && !t.stale)) },
+        { id: 'stale', icon: '·', label: t('task.stale'), tasks: sortTasksForTaskPage(tasks.filter(t => !t.done && t.stale)) },
+        { id: 'done', icon: '✓', label: t('task.done'), tasks: sortTasksForTaskPage(tasks.filter(t => t.done)) },
+      ];
     });
-    const allUndoneTasks = computed(() => {
-      return [...undoneTasks('P0'), ...undoneTasks('P1')];
+
+    const taskPoolStats = computed(() => {
+      const tasks = allTaskPoolTasks.value;
+      return {
+        total: tasks.length,
+        open: tasks.filter(t => !t.done).length,
+        done: tasks.filter(t => t.done).length,
+        scheduled: tasks.filter(t => taskHasCalendarTime(t)).length,
+        today: tasks.filter(t => !t.done && taskIntersectsDate(t, dateToKey(new Date()))).length,
+      };
     });
+
+    function plainTaskText(task) {
+      return (task?.text || '').replace(/<[^>]*>/g, '').trim();
+    }
+
+    function taskProjectionEventsForTask(task) {
+      const text = plainTaskText(task);
+      if (!text) return [];
+      const events = [];
+      Object.values(calendarEvents || {}).forEach(day => {
+        if (!Array.isArray(day)) return;
+        day.forEach(ev => {
+          if (ev.fromTask && ((task.id && ev.taskId === task.id) || ev.title === text)) events.push(ev);
+        });
+      });
+      return events;
+    }
+
+    function taskHasCalendarTime(task) {
+      return taskProjectionEventsForTask(task).length > 0;
+    }
+
+    function taskIntersectsDate(task, dateKey) {
+      if (!dateKey) return false;
+      return taskProjectionEventsForTask(task).some(ev => {
+        if (ev.allDay || ev.startDate || ev.dateStart || ev.dateRange) return isRangeEventForDate(ev, dateKey);
+        return Object.entries(calendarEvents || {}).some(([key, events]) => Array.isArray(events) && key === dateKey && events.includes(ev));
+      });
+    }
+
+    function sortTasksForTaskPage(tasks) {
+      const todayKey = dateToKey(new Date());
+      return [...tasks].sort((a, b) => {
+        const aToday = taskIntersectsDate(a, todayKey) ? 1 : 0;
+        const bToday = taskIntersectsDate(b, todayKey) ? 1 : 0;
+        if (aToday !== bToday) return bToday - aToday;
+        const aScheduled = taskHasCalendarTime(a) ? 1 : 0;
+        const bScheduled = taskHasCalendarTime(b) ? 1 : 0;
+        if (aScheduled !== bScheduled) return bScheduled - aScheduled;
+        return 0;
+      });
+    }
+
+    function isRangeEventForDate(ev, dateKey) {
+      const start = ev.startDate || ev.dateStart || ev.fromDate;
+      const end = ev.endDate || ev.dateEnd || ev.toDate || start;
+      if (!start || !end) return false;
+      return dateKey >= start && dateKey <= end;
+    }
+
+    function rawCalendarItemsForDate(dateKey) {
+      const items = [...(calendarEvents[dateKey] || [])];
+      Object.entries(calendarEvents).forEach(([sourceDate, events]) => {
+        if (sourceDate === dateKey || !Array.isArray(events)) return;
+        events.forEach(ev => {
+          if (isRangeEventForDate(ev, dateKey) && !items.some(item => item.title === ev.title && (item.startDate || item.dateStart) === (ev.startDate || ev.dateStart))) {
+            items.push(ev);
+          }
+        });
+      });
+      return items;
+    }
+
+    function getAllDayItemsForDay(dateKey = dateToKey(viewingDate.value)) {
+      return rawCalendarItemsForDate(dateKey).filter(ev => ev.allDay || ev.startDate || ev.dateStart || ev.dateRange);
+    }
+
+    function scheduledTasksForDate(dateKey) {
+      return rawCalendarItemsForDate(dateKey)
+        .filter(ev => ev.fromTask)
+        .filter(ev => !(ev.allDay || ev.startDate || ev.dateStart || ev.dateRange))
+        .map(ev => ({
+          text: ev.title,
+          done: !!ev.done,
+          fromEvent: true,
+          _eventRef: ev,
+        }));
+    }
 
     // Get all tasks for a specific date key (for week/month cell display)
     function getDayTasks(dateKey) {
       if (!dateKey) return [];
-      const dt = mockDayTasks[dateKey];
-      if (!dt) return [];
-      const all = [];
-      ['P0','P1','P2'].forEach(p => { if (dt[p]) all.push(...dt[p]); });
-      return all;
+      return scheduledTasksForDate(dateKey);
     }
 
     // Combined items for week/month cells — deduplicates linked task↔event pairs
     function getDayItems(dateKey) {
       if (!dateKey) return [];
       const tasks = getDayTasks(dateKey);
-      const events = (calendarEvents[dateKey] || []);
+      const events = rawCalendarItemsForDate(dateKey);
       const items = [];
       const linkedTitles = new Set();
 
+      getAllDayItemsForDay(dateKey).forEach(ev => {
+        if (ev.fromTask) linkedTitles.add(ev.title);
+        items.push({ text: ev.title, type: ev.fromTask ? 'both' : 'event', done: !!ev.done, time: 'ALL DAY' });
+      });
+
       // Events that came from tasks — show as "both"
       events.forEach(ev => {
+        if (ev.allDay || ev.startDate || ev.dateStart || ev.dateRange) return;
         if (ev.fromTask) {
           linkedTitles.add(ev.title);
           items.push({ text: ev.title, type: 'both', done: false, time: keyToTime(ev.startKey) });
@@ -9221,10 +9213,10 @@ createApp({
     // --- Calendar add event (pixel-based drag, minute precision) ---
     const addingEventStart = ref(null);
     const addingEventEnd = ref(null);
+    const addingEventFromTask = ref(false);
     const newEventTitle = ref('');
     const newEventLocation = ref('');
     const newEventNote = ref('');
-    const newEventPriority = ref('');
     const isDraggingTime = ref(false);
     const dragStartKey = ref(null);
     const dragEndKey = ref(null);
@@ -9259,7 +9251,7 @@ createApp({
       newEventTitle.value = '';
       newEventLocation.value = '';
       newEventNote.value = '';
-      newEventPriority.value = '';
+      addingEventFromTask.value = false;
       editingEvent.value = null;
       dragStartKey.value = null;
       dragEndKey.value = null;
@@ -9269,7 +9261,7 @@ createApp({
       }, 50);
     }
 
-    function confirmAddEvent() {
+    async function confirmAddEvent() {
       if (!newEventTitle.value.trim()) return;
       const key = dateToKey(viewingDate.value);
       if (!calendarEvents[key]) calendarEvents[key] = [];
@@ -9279,34 +9271,34 @@ createApp({
         endKey: addingEventEnd.value,
         hour: Math.floor(addingEventStart.value / 60),
       };
+      if (addingEventFromTask.value) ev.fromTask = true;
       if (newEventLocation.value.trim()) ev.location = newEventLocation.value.trim();
       if (newEventNote.value.trim()) ev.note = newEventNote.value.trim();
       calendarEvents[key].push(ev);
       calendarEvents[key] = [...calendarEvents[key]];
 
-      // If priority is selected, also create a task in Mission Log
-      if (newEventPriority.value) {
-        let target;
-        if (mockDayTasks[key]) {
-          target = mockDayTasks[key];
-        } else if (calendarDayOffset.value === 0) {
-          target = data.value?.tasks?.active_tasks;
-        } else {
-          mockDayTasks[key] = {};
-          target = mockDayTasks[key];
-        }
-        if (target) {
-          if (!target[newEventPriority.value]) target[newEventPriority.value] = [];
-          target[newEventPriority.value].push({ text: newEventTitle.value.trim(), done: false, fromEvent: true });
-        }
-      }
+      try {
+        await fetch('/api/calendar/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: key,
+            title: ev.title,
+            startMin: ev.startKey,
+            endMin: ev.endKey,
+            location: ev.location,
+            note: ev.note,
+            fromTask: !!ev.fromTask
+          })
+        });
+      } catch (e) { /* localStorage keeps the optimistic event */ }
 
       newEventTitle.value = '';
       newEventLocation.value = '';
       newEventNote.value = '';
-      newEventPriority.value = '';
       addingEventStart.value = null;
       addingEventEnd.value = null;
+      addingEventFromTask.value = false;
     }
 
     function keyToTime(key) {
@@ -9423,6 +9415,7 @@ createApp({
       editingEvent.value = event;
       addingEventStart.value = event.startKey;
       addingEventEnd.value = event.endKey;
+      addingEventFromTask.value = !!event.fromTask;
       newEventTitle.value = event.title;
       newEventLocation.value = event.location || '';
       newEventNote.value = event.note || '';
@@ -9451,6 +9444,7 @@ createApp({
       newEventNote.value = '';
       addingEventStart.value = null;
       addingEventEnd.value = null;
+      addingEventFromTask.value = false;
     }
 
     // --- Event move & resize ---
@@ -9570,7 +9564,7 @@ createApp({
         if (!at[toGroup]) at[toGroup] = [];
         at[toGroup].push(task);
       } else {
-        // Move between priority groups
+        // Move between task groups
         const srcArr = at[from];
         const idx = srcArr ? srcArr.indexOf(task) : -1;
         if (idx > -1) srcArr.splice(idx, 1);
@@ -9583,7 +9577,7 @@ createApp({
         await fetch('/api/tasks/move', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ task: rawText, from, to: toGroup })
+          body: JSON.stringify({ id: task.id, task: rawText, from, to: toGroup })
         });
       } catch (e) {}
 
@@ -9628,7 +9622,7 @@ createApp({
       newEventTitle.value = task.text;
       newEventLocation.value = '';
       newEventNote.value = '';
-      newEventPriority.value = '';
+      addingEventFromTask.value = true;
       editingEvent.value = null;
 
       // Clear drag state
@@ -9805,7 +9799,7 @@ createApp({
 
     function getEventsForDay() {
       const key = dateToKey(viewingDate.value);
-      const events = calendarEvents[key] || [];
+      const events = rawCalendarItemsForDate(key).filter(ev => !(ev.allDay || ev.startDate || ev.dateStart || ev.dateRange));
       if (events.length === 0) return [];
 
       const sorted = [...events].sort((a, b) => a.startKey - b.startKey || (b.endKey - b.startKey) - (a.endKey - a.startKey));
@@ -9865,7 +9859,7 @@ createApp({
           date: d.getDate(),
           dateKey: key,
           isToday: d.toDateString() === today.toDateString(),
-          events: calendarEvents[key] || [],
+          events: rawCalendarItemsForDate(key),
         });
       }
       return days;
@@ -9905,7 +9899,7 @@ createApp({
       for (let i = 0; i < firstDay; i++) cells.push({ day: 0, isToday: false, events: [] });
       for (let i = 1; i <= daysInMonth; i++) {
         const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        cells.push({ day: i, dateKey: key, isToday: isCurrentMonth && i === today, events: calendarEvents[key] || [] });
+        cells.push({ day: i, dateKey: key, isToday: isCurrentMonth && i === today, events: rawCalendarItemsForDate(key) });
       }
       return cells;
     });
@@ -9983,102 +9977,43 @@ createApp({
       return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
     }
 
-    // --- Task section reactive to calendar view ---
-    const taskSectionTitle = computed(() => {
-      if (calendarView.value === 'week') return "This Week's Plan";
-      if (calendarView.value === 'month') return "This Month's Plan";
-      return "Today's Tasks";
-    });
-
-    const weeklyTasks = computed(() => {
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      const monday = new Date(today);
-      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7) + (calendarWeekOffset.value * 7));
-
-      const at = data.value?.tasks?.active_tasks || {};
-      const allTasks = [];
-      for (const p of ['P0', 'P1', 'P2']) {
-        (at[p] || []).forEach(t => allTasks.push({ ...t, priority: p }));
-      }
-
-      const result = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        const dayLabel = dayNames[d.getDay()];
-        const dateStr = (d.getMonth() + 1) + '/' + d.getDate();
-        const isToday = d.toDateString() === new Date().toDateString();
-
-        const dayTasks = allTasks.filter((_, idx) => idx % 7 === i).map(t => ({
-          text: t.text,
-          priority: t.priority,
-          done: t.done || false
-        }));
-
-        result.push({ day: dayLabel, date: dateStr, isToday, tasks: dayTasks });
-      }
-      return result;
-    });
-
-    const monthlyTaskSummary = computed(() => {
-      const at = data.value?.tasks?.active_tasks || {};
-      let total = 0, done = 0;
-      for (const p of ['P0', 'P1', 'P2']) {
-        const tasks = at[p] || [];
-        total += tasks.length;
-        done += tasks.filter(t => t.done).length;
-      }
-      const finished = data.value?.tasks?.finished || [];
-      total += finished.length;
-      done += finished.length;
-      const rate = total > 0 ? Math.round((done / total) * 100) : 0;
-      return { total, done, rate };
-    });
-
     // --- Quick-add task ---
     const showAddTask = ref(false);
     const newTaskText = ref('');
-    const newTaskPriority = ref('P0');
     async function addNewTask() {
       if (!newTaskText.value.trim()) return;
       const taskText = newTaskText.value.trim();
-      const priority = newTaskPriority.value;
       const key = dateToKey(viewingDate.value);
+      let savedTaskId = null;
 
       // Optimistic UI update
-      let target;
-      if (calendarDayOffset.value === 0) {
-        target = data.value?.tasks?.active_tasks;
-      } else {
-        if (!mockDayTasks[key]) mockDayTasks[key] = {};
-        target = mockDayTasks[key];
-      }
+      const localTask = { text: taskText, done: false };
+      const target = data.value?.tasks?.active_tasks;
       if (target) {
-        if (!target[priority]) target[priority] = [];
-        target[priority].push({ text: taskText, done: false });
+        if (!target.P1) target.P1 = [];
+        target.P1.push(localTask);
       }
 
       // Persist via API
       try {
-        if (calendarDayOffset.value === 0) {
-          // Today: add to active.md
-          await fetch('/api/tasks/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: taskText, priority })
-          });
-        } else {
-          // Other date: add to daily plan markdown
-          const d = new Date();
-          d.setDate(d.getDate() + calendarDayOffset.value);
-          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-          await fetch('/api/daily/add-task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, task: taskText })
-          });
+        // Task-first model: every task is created in the task pool.
+        const taskRes = await fetch('/api/tasks/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: taskText,
+            date: taskScheduleStart.value !== null ? key : null,
+            startTime: taskScheduleStart.value !== null ? keyToTime(taskScheduleStart.value) : null,
+            endTime: taskScheduleEnd.value !== null ? keyToTime(taskScheduleEnd.value) : null,
+            source: 'dashboard',
+          })
+        });
+        if (taskRes.ok) {
+          const result = await taskRes.json();
+          if (result.task?.id) {
+            savedTaskId = result.task.id;
+            localTask.id = savedTaskId;
+          }
         }
       } catch (e) { /* server unavailable, UI already updated */ }
 
@@ -10093,6 +10028,7 @@ createApp({
           endKey: endMin,
           hour: Math.floor(startMin / 60),
           fromTask: true,
+          taskId: savedTaskId || undefined,
         });
         calendarEvents[key] = [...calendarEvents[key]];
         // Also persist calendar event
@@ -10103,7 +10039,7 @@ createApp({
           await fetch('/api/calendar/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, title: taskText, startMin, endMin })
+            body: JSON.stringify({ date: dateStr, title: taskText, startMin, endMin, fromTask: true, taskId: savedTaskId })
           });
         } catch (e) {}
       }
@@ -10390,6 +10326,7 @@ createApp({
         if (openTimePicker.value) openTimePicker.value = null;
         if (addingEventStart.value !== null) {
           addingEventStart.value = null;
+          addingEventFromTask.value = false;
           editingEvent.value = null;
         }
       });
@@ -10544,6 +10481,7 @@ createApp({
     return {
       data, loading, error, now, weather, clockCanvas,
       currentPage, sidebarOpen,
+      taskScheduleView, taskSchedulePanePct, isTaskScheduleResizing, startTaskScheduleResize,
       memoryTab, planningTab,
       emptyHtml,
       lang, toggleLang, t,
@@ -10571,14 +10509,14 @@ createApp({
       journalWeekDays, journalMonthCells, journalWeekSummary, journalMonthSummary,
       journalCalOpen, journalCalMonth, journalCalMonthLabel, journalCalCells, journalPickDate,
       currentDay, currentDateFull, currentDateShort, currentWeekday, currentWeekdayEn, currentWeekdayShort, currentTime,
-      navigateTo, priorityClass, priorityLabel, getPersonInitial, getClassOffset,
+      navigateTo, getPersonInitial, getClassOffset,
       expandedLearning, toggleLearning, mockPlanData,
-      planMonthItems, planWeekItems, planSomedayItems,
+      planMonthItems, planWeekItems,
       planWeekOffset, planMonthOffset,
       planWeekLabel, planMonthLabel,
       loadPlanItems,
       planMonthDailyCount,
-      newPlanMonth, newPlanWeek, newPlanSomeday,
+      newPlanMonth, newPlanWeek,
       addPlanItem, removePlanItem, togglePlanItem,
       planDragText, planDropTarget, onPlanDragStart, onPlanDragOver, onPlanDragLeave, onPlanDrop,
       planCtx, openPlanCtx, closePlanCtx, planCtxAddToToday,
@@ -10591,8 +10529,7 @@ createApp({
       viewingDate, viewingDayLabel, viewingWeekLabel, goToDay, missionLogDateLabel, toggleMissionTask,
       todayCalOpen, todayCalMonth, todayWeekdayLabel, todayDateLabel, todayCalMonthLabel, todayCalCells, todayPickDate,
       switchCalendarView, calendarNav,
-      todayP0Tasks, todayPriorityTasks, undoneTasks, finishedTasks, hasAnyTodayTasks, allUndoneTasks,
-      addingEventStart, addingEventEnd, addingEventHour, newEventTitle, newEventLocation, newEventNote, confirmAddEvent, removeEvent,
+      addingEventStart, addingEventEnd, addingEventFromTask, addingEventHour, newEventTitle, newEventLocation, newEventNote, confirmAddEvent, removeEvent,
       editingEvent, startEditEvent, saveEditEvent,
       onEventMousedown, onResizeMousedown, onEventClick, eventDragState,
       isDraggingTime, dragStartKey, dragEndKey, onTimelineMousedown, onTimelineMousemove, onTimelineMouseup,
@@ -10604,10 +10541,9 @@ createApp({
       draggingTask, draggingFrom, dragOverGroup, dragTask, dropTask,
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
+      taskPoolGroups, taskPoolStats, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
       dayScheduledHours, dayProgressPct, weekTotalEvents, weekActiveDays, monthEventDays, monthTotalEvents, calendarScrollHeight,
-      taskSectionTitle, weeklyTasks, monthlyTaskSummary,
-      showAddTask, showTaskTime, newTaskText, newTaskPriority, addNewTask, onTimeInput, scrollToPicked,
-      newEventPriority,
+      showAddTask, showTaskTime, newTaskText, addNewTask, onTimeInput, scrollToPicked,
       brainFullscreen, toggleBrainFullscreen,
       initNetworkOrbit, destroyNetworkOrbit, initVortexCanvas, destroyVortexCanvas,
       fragmentTab, fragmentNotes, fragmentCollections,

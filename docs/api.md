@@ -27,51 +27,57 @@ curl http://localhost:8765/api/data
 
 ### POST /api/tasks/add
 
-Add a task to `tasks/active.md`.
+Add a task to `tasks/tasks.json` and regenerate `tasks/active.md`.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | `text` | string | yes | — | Task text |
-| `priority` | string | no | `P1` | Target section: `P0`, `P1`, `P2`, `P3` |
+| `date` | string | no | `null` | Intended date in `YYYY-MM-DD` format |
+| `startTime` | string | no | `null` | Optional `HH:MM` start time |
+| `endTime` | string | no | `null` | Optional `HH:MM` end time |
+| `project` | string | no | `null` | Related project |
+| `source` | string | no | `dashboard` | Source of the task |
 
 ```bash
 curl -X POST http://localhost:8765/api/tasks/add \
   -H 'Content-Type: application/json' \
-  -d '{"text":"Buy groceries","priority":"P0"}'
+  -d '{"text":"Buy groceries","date":"2026-05-31"}'
 ```
 
 ### POST /api/tasks/toggle
 
-Toggle a task's checked state in `tasks/active.md`.
+Toggle a task's completion state in `tasks/tasks.json`.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `task` | string | yes | Task text (exact match) |
+| `id` | string | recommended | Stable task id |
+| `task` | string | fallback | Task text (exact match) |
 | `checked` | boolean | yes | `true` = `[x]`, `false` = `[ ]` |
 
 ```bash
 curl -X POST http://localhost:8765/api/tasks/toggle \
   -H 'Content-Type: application/json' \
-  -d '{"task":"Buy groceries","checked":true}'
+  -d '{"id":"task_20260530_001","checked":true}'
 ```
 
 ### POST /api/tasks/move
 
-Move a task between priority sections or to/from done.
+Change a task status.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `task` | string | yes | Task text (exact match) |
-| `from` | string | no | Source: `P0`-`P3` or `done` |
-| `to` | string | yes | Target: `P0`-`P3` or `done` |
+| `id` | string | recommended | Stable task id |
+| `task` | string | fallback | Task text (exact match) |
+| `to` | string | yes | `open`, `done`, or `archived` |
 
-- `to: "done"` → marks `[x]`, keeps in `from` section
-- `from: "done"` → marks `[ ]`, moves to `to` section
+- `to: "done"` → sets `completedAt`
+- `to: "open"` → clears `completedAt`
+- `to: "archived"` → hides from normal startup/dashboard flow while keeping history
 
 ```bash
 curl -X POST http://localhost:8765/api/tasks/move \
   -H 'Content-Type: application/json' \
-  -d '{"task":"Buy groceries","from":"P0","to":"P1"}'
+  -d '{"id":"task_20260530_001","to":"archived"}'
 ```
 
 ---
@@ -80,7 +86,7 @@ curl -X POST http://localhost:8765/api/tasks/move \
 
 ### POST /api/daily/add-task
 
-Add a task to a daily plan file. Creates the file if it doesn't exist.
+Add a checklist line to a daily note. This is for notes/reviews, not the canonical task database. Real tasks should use `/api/tasks/add`.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -133,7 +139,10 @@ Add a calendar event to `tasks/calendar.json`.
 |-------|------|----------|-------------|
 | `title` | string | yes | Event title |
 | `date` | string | yes | Date in `YYYY-MM-DD` format |
-| `time` | string | no | Time in `HH:MM` format |
+| `startMin` | number | no | Start minutes from midnight |
+| `endMin` | number | no | End minutes from midnight |
+| `fromTask` | boolean | no | `true` when this event is a task projection |
+| `taskId` | string | no | Related task id when `fromTask` is true |
 
 ---
 

@@ -171,7 +171,7 @@ TIMESTAMP=$(date +%s)
 FILEPATH="${1#$LOCI_ROOT/}"
 
 case "$FILEPATH" in
-  inbox.md|plan.md|.loci/status.yml|tasks/*|.loci/links/*/to-hq.md)
+  inbox.md|plan.md|projects/index.md|projects/*|.loci/status.yml|tasks/*)
     echo "${TIMESTAMP}|${TERMINAL_ID}|WRITE|${FILEPATH}|" >> "$CHANGELOG"
     ;;
 esac
@@ -220,14 +220,14 @@ date +%s > "$LAST_CHECK"
 }
 ```
 
-### Relationship with Department Protocol
+### Relationship with Project Memory
 
 | Mechanism | Purpose | Scope |
 |-----------|---------|-------|
-| `from-hq.md` / `to-hq.md` | Strategic communication (decisions, directives) | Cross-department |
+| `.loci/memory.md` / `.loci/decisions/` | Project-owned memory and decisions | Project repo |
 | `changelog.log` | File change awareness (who modified what) | All terminals |
 
-They complement each other. The department protocol is for intentional messages; the changelog is for ambient awareness.
+They complement each other. Project memory is for durable project knowledge; the changelog is for ambient awareness.
 
 ---
 

@@ -634,6 +634,13 @@ generate_files() {
 
   local today_date
   today_date="$(today)"
+  local now_iso task_slug task_id json_focus
+  now_iso="$(date '+%Y-%m-%dT%H:%M:%S%z')"
+  task_slug="$(printf "%s" "$USER_FOCUS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9][^a-z0-9]*/_/g; s/^_*//; s/_*$//; s/^\(.\{48\}\).*/\1/')"
+  [ -z "$task_slug" ] && task_slug="first_task"
+  task_id="task_$(printf "%s" "$today_date" | tr -d '-')_${task_slug}"
+  json_focus="${USER_FOCUS//\\/\\\\}"
+  json_focus="${json_focus//\"/\\\"}"
 
   # --- me/identity.md ---
   (
@@ -684,26 +691,55 @@ PLANEOF
   ) &
   spin "$(t "plan.md" "plan.md")"
 
+  # --- tasks/tasks.json ---
+  (
+    cat > "$BRAIN_PATH/tasks/tasks.json" << TASKDBEOF
+{
+  "tasks": [
+    {
+      "id": "${task_id}",
+      "title": "${json_focus}",
+      "status": "open",
+      "date": null,
+      "startTime": null,
+      "endTime": null,
+      "project": null,
+      "source": "setup",
+      "createdAt": "${now_iso}",
+      "updatedAt": "${now_iso}",
+      "completedAt": null,
+      "archivedAt": null
+    }
+  ]
+}
+TASKDBEOF
+  ) &
+  spin "$(t "tasks/tasks.json" "tasks/tasks.json")"
+
   # --- tasks/active.md ---
   (
     cat > "$BRAIN_PATH/tasks/active.md" << TASKEOF
 ---
 updated: ${today_date}
+schema: task-view-v1
+source: tasks.json
 ---
 
 # Active Tasks
 
-> What you're working on right now. P0 = drop everything. P3 = nice to have.
+> Generated context cache from \`tasks/tasks.json\`. Do not edit by hand.
 
-## P0
+## Open
 
-- [ ] ${USER_FOCUS}
+- [ ] ${USER_FOCUS} <!-- id: ${task_id}; source: setup; updated: ${now_iso} -->
 
-## P1
+## Stale
 
-## P2
+<!-- No stale tasks. -->
 
-## P3
+## Recently Done
+
+<!-- No recently completed tasks. -->
 TASKEOF
   ) &
   spin "$(t "tasks/active.md" "tasks/active.md")"
@@ -784,13 +820,30 @@ CFGEOF
   },
   "tasks": {
     "active": {
-      "meta": { "updated": "${today_date}" },
+      "meta": { "updated": "${today_date}", "schema": "task-view-v1", "source": "tasks.json" },
       "content": "<h1>Active Tasks</h1>",
       "filename": "active.md",
       "path": "tasks/active.md"
     },
-    "someday": { "meta": { "updated": "" }, "content": "<h1>Someday / Maybe</h1>", "filename": "someday.md", "path": "tasks/someday.md" },
-    "active_tasks": { "P0": [{ "text": "${USER_FOCUS}", "done": false }], "P1": [], "P2": [], "P3": [] },
+    "records": [
+      {
+        "id": "${task_id}",
+        "title": "${json_focus}",
+        "text": "${json_focus}",
+        "status": "open",
+        "done": false,
+        "date": null,
+        "startTime": null,
+        "endTime": null,
+        "project": null,
+        "source": "setup",
+        "createdAt": "${now_iso}",
+        "updatedAt": "${now_iso}",
+        "completedAt": null,
+        "archivedAt": null
+      }
+    ],
+    "active_tasks": { "P1": [{ "id": "${task_id}", "text": "${json_focus}", "title": "${json_focus}", "done": false, "status": "open", "date": null, "stale": false }] },
     "finished": []
   },
   "planning": { "daily": [], "monthly": [], "quarterly": [], "reviews": [], "journal": [], "calendar_events": {} },
@@ -856,7 +909,13 @@ configure_global() {
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_PATH}/tasks/active.md\` (route by specificity: today/daily/week/month)
+- Tasks → use the guarded task writer, not manual JSON edits:
+  - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
+  - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
+  - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
+- Task with specific time → guarded writer also updates \`${BRAIN_PATH}/tasks/calendar.json\` with \`fromTask: true\` and \`taskId\`
+- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
+- Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
 - Personal info → \`${BRAIN_PATH}/me/\`
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
@@ -865,7 +924,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 
 ### Cross-Project Memory
 - In projects with \`.loci/\` directory: read \`.loci/memory.md\` for project context
-- Commands: /loci-sync, /loci-link, /loci-settings, /loci-scan, /loci-consolidate
+- Commands: /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 GEOF
     fi
@@ -927,28 +986,51 @@ GEOF
         print_check "$(t "Backed up existing ~/.codex/AGENTS.md" "已备份现有 ~/.codex/AGENTS.md")"
       fi
 
-      cat >> "$global_codex" << CODEXEOF
+      # Read the same global template Claude Code uses so both tools follow identical rules.
+      if [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
+        local block
+        block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+        printf "\n%s\n" "$block" >> "$global_codex"
+      else
+        # Inline fallback if template missing
+        cat >> "$global_codex" << CODEXEOF
 
 <!-- loci:start v2 -->
 ## Loci Brain Connection (Global)
 
 - Brain path: \`${BRAIN_PATH}\`
+- These rules apply **in every project and directory**, not just the brain folder.
+- Claude Code and Codex can share this same local brain.
 
 ### Automatic Context
-- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction
+- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
 - Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
 - Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
-- Tasks → \`${BRAIN_PATH}/tasks/active.md\` (route by specificity: today/daily/week/month)
+- Tasks → use the guarded task writer, not manual JSON edits:
+  - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
+  - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
+  - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
+- Task with specific time → guarded writer also updates \`${BRAIN_PATH}/tasks/calendar.json\` with \`fromTask: true\` and \`taskId\`
+- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
+- Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
 - Personal info → \`${BRAIN_PATH}/me/\`
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
-- Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
+- **Dashboard**: if \`server.js\` is running (\`node ${BRAIN_PATH}/.loci/dashboard/server.js\`), use its API. Otherwise use \`node ${BRAIN_PATH}/scripts/loci-task.js ...\` for task/schedule writes.
+
+### Cross-Project Memory
+- In projects with \`.loci/\` directory: read \`.loci/memory.md\` for project context, use \`.loci/to-hq.md\` / \`.loci/from-hq.md\` for cross-project sync
+- Tags: \`[decision]\` \`[architecture]\` \`[insight]\` \`[milestone]\` auto-push to brain; \`[local]\` \`[debug]\` \`[wip]\` stay local
+
+### Commands
+/loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 CODEXEOF
+      fi
       print_check "$(t "Codex awareness enabled (~/.codex/AGENTS.md)" "Codex 全局感知已启用 (~/.codex/AGENTS.md)")"
     fi
   else
@@ -1030,7 +1112,8 @@ show_success() {
   printf "\n"
   printf "  ${DIM}$(t "Created" "已创建")${NC}\n"
   printf "  ${GREEN}✓${NC} me/identity.md    ${GREEN}✓${NC} .loci/config.yml\n"
-  printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} tasks/active.md\n"
+  printf "  ${GREEN}✓${NC} plan.md            ${GREEN}✓${NC} tasks/tasks.json\n"
+  printf "  ${GREEN}✓${NC} tasks/active.md\n"
   [ "$CONNECT_CLAUDE" -eq 1 ] && printf "  ${GREEN}✓${NC} ~/.claude/CLAUDE.md ${GREEN}✓${NC} ~/.claude/commands/\n"
   [ "$CONNECT_CODEX" -eq 1 ] && printf "  ${GREEN}✓${NC} ~/.codex/AGENTS.md\n"
   printf "\n"

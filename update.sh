@@ -30,9 +30,11 @@ NEVER_TOUCH=(
   "me/goals.md"
   "me/evolution.md"
   "me/insights.md"
-  "me/projects.md"
+  "projects/side.md"
+  "projects/index.md"
+  "projects/*"
+  "tasks/tasks.json"
   "tasks/active.md"
-  "tasks/someday.md"
   "tasks/calendar.json"
   "tasks/journal/*"
   "tasks/daily/*"
@@ -51,8 +53,6 @@ NEVER_TOUCH=(
   ".loci/config.yml"
   ".loci/status.yml"
   ".loci/activity-log.md"
-  ".loci/links/*/memory.md"
-  ".loci/links/*/to-hq.md"
 )
 
 # ─── Helpers ────────────────────────────────────────────────────────────────

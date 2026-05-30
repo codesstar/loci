@@ -6,7 +6,7 @@
 
 ```
 Week 1: Install → chat → AI remembers you          Just talk. That's it.
-Week 2: Connect other projects → cross-project memory    One command: /loci-link
+Week 2: Connect other projects → project-owned memory    AI offers when a project gets serious
 Week 3: Dashboard + config tuning                   Visual overview + /loci-brain-settings
 Week 4+: Fine-grained control                       /loci-settings, /loci-sync flags
 ```
@@ -152,8 +152,8 @@ Nothing auto-saves. Only stores when you say "save this" or run `/loci-sync`.
 Available in both modes. Manual trigger for a full "distill + sync":
 
 ```
-/loci-sync              → Review conversation + save files + sync to sub-projects
-/loci-sync --local      → Save locally only, don't sync to sub-projects
+/loci-sync              → Review conversation + save files + update project index if needed
+/loci-sync --local      → Save locally only, don't update the brain project index
 /loci-sync --dry-run    → Show what would be saved, don't execute
 ```
 
@@ -167,17 +167,18 @@ This is the Week 2 feature — when you have multiple project folders.
 
 ### Connecting a Project
 
-```bash
-# In any project folder
-/loci-link
-```
+There is no command the user has to learn. When AI notices a project is getting serious, it offers once at the end of the conversation:
 
-What happens:
-1. Auto-scans the project (README, package.json, directory structure) → generates a profile
-2. Creates a symlink in the brain's `.loci/links/`
-3. Creates `.loci/` directory in the project with `link` file (points to brain path)
-4. Creates two-way communication files: `.loci/from-hq.md` (brain → project), `.loci/to-hq.md` (project → brain)
-5. Creates `.loci/memory.md` for project-local knowledge persistence
+> "This project seems real now. Want me to leave memory here?"
+
+If the user says yes:
+1. Creates `.loci/memory.md` in the project repo (living dossier)
+2. Creates `.loci/decisions/` in the project repo (decision stream)
+3. Injects a Loci project block into the repo's `CLAUDE.md`
+4. Adds `.loci/` to the repo's `.gitignore`
+5. Adds one index line to the brain's `projects/index.md`
+
+Loci aggregates memory; it does not own it. The project repo owns the project memory.
 
 ### Information Flow
 
@@ -188,38 +189,34 @@ What happens:
     Project A  Project B  Project C
     .loci/     .loci/     .loci/
 
-Upstream (.loci/to-hq.md): Project → Brain
-  "v1.0 shipped" [milestone]
-  "Should we switch databases?" [needs-decision]
+Brain index (projects/index.md): one line per serious project
+  "CloudMetrics — alerting SaaS. repo: ~/work/cloudmetrics. memory: .../.loci/memory.md"
 
-Downstream (.loci/from-hq.md): Brain → Project
-  "Decision: use PostgreSQL across all projects"
-  "This month's priority is Project A, deprioritize others"
+Project decisions (.loci/decisions/): durable project choices
+  "Chose PostgreSQL over SQLite because..."
 
-Local (.loci/memory.md): Project-specific knowledge
+Project dossier (.loci/memory.md): living project state
   Facts, decisions, and lessons that stay within this project
 ```
 
-### Tag-Based Sync (v1.0)
+### What Reaches the Brain
 
-When you work in a sub-project, entries in `.loci/memory.md` are tagged. Tags determine what syncs to the brain:
+Most project memory stays inside the project repo. The brain only keeps enough index to know the project exists and where to look.
 
-**Push tags** (auto-sync to brain via `to-hq.md`):
-- `[decision]` — architectural or strategic choices
-- `[architecture]` — system design, data models, tech stack
-- `[insight]` — learned patterns, performance findings
-- `[milestone]` — shipped features, releases
+**May update brain index**:
+- `[insight]` — lesson worth remembering across contexts
+- `[milestone]` — shipped feature, release, or phase change
+- brain-level decision links, only when promoted
 
-**Local tags** (stay in sub-project only):
+**Stay local**:
+- `[decision]` — normal project decisions live in `.loci/decisions/`
 - `[local]` — project-specific context
 - `[debug]` — bug fixes, workarounds
 - `[wip]` — work in progress
 
-> Advanced routing modes (open, manual, silent) are planned for v2.0. See [Roadmap](roadmap.md).
+### Project Configuration (/loci-settings)
 
-### Sub-Project Configuration (/loci-settings)
-
-Each project can configure which tags push to the brain via `/loci-settings`.
+Each connected project can configure what gets summarized in the brain index via `/loci-settings`.
 
 > Deep dive: [Departments](departments.md)
 
@@ -233,7 +230,7 @@ Each project can configure which tags push to the brain via `/loci-settings`.
 Loci built-in defaults → Brain settings → Sub-project settings → User override
 ```
 
-Privacy is always a hard boundary — sub-projects can never weaken it.
+Privacy is always a hard boundary — project indexes never copy private repo detail into the brain.
 
 ### Two Config Commands
 
@@ -290,7 +287,7 @@ Future versions will add file-level locking or conflict-free merge strategies.
 
 ## One-Line Summary
 
-**Loci = three-layer memory (L1/L2/L3) + signal-driven distillation + hub-and-spoke multi-project routing + pure markdown, zero dependencies.**
+**Loci = three-layer memory (L1/L2/L3) + signal-driven distillation + project-owned memory + pure markdown, zero dependencies.**
 
 Day one, the user just feels "my AI remembers me." The complexity underneath reveals itself gradually as usage deepens — never all at once.
 
@@ -300,7 +297,6 @@ Day one, the user just feels "my AI remembers me." The complexity underneath rev
 
 | Command | When you need it | What it does |
 |---------|-----------------|--------------|
-| `/loci-link` | Week 2 | Connect a project folder to your brain |
 | `/loci-sync` | Anytime | Manual distill + sync (flags: `--local`, `--dry-run`) |
 | `/loci-settings` | Week 2+ | Configure what a project syncs to brain |
 | `/loci-brain-settings` | Week 3+ | Configure persistence mode and notifications |

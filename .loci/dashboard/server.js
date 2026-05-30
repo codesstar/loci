@@ -6,8 +6,8 @@
  * Serves the dashboard and provides read/write API endpoints.
  *
  * GET  /api/data          — returns full dashboard JSON (same as build.py output)
- * POST /api/tasks/toggle  — toggle a task checkbox in active.md
- * POST /api/tasks/add     — add a task to active.md
+ * POST /api/tasks/toggle  — toggle a task in tasks.json
+ * POST /api/tasks/add     — add a task to tasks.json
  * POST /api/journal/save  — save journal entry
  * POST /api/inbox/add     — add item to inbox.md
  *
@@ -50,6 +50,8 @@ function findBrainRoot() {
 }
 
 const LOCI_ROOT = findBrainRoot();
+const DONE_HIDE_DAYS = 7;
+const STALE_AFTER_DAYS = 30;
 
 const CONFIG = {
   title: 'Loci Dashboard',
@@ -281,6 +283,133 @@ function scanMdFilesRecursive(directory) {
   return results;
 }
 
+// ─── Task database helpers ─────────────────────────────────────────────────
+
+function taskDbPath() {
+  return path.join(LOCI_ROOT, 'tasks', 'tasks.json');
+}
+
+function activeTaskViewPath() {
+  return path.join(LOCI_ROOT, 'tasks', 'active.md');
+}
+
+function isoNow() {
+  return new Date().toISOString();
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  const time = Date.parse(dateStr);
+  if (!Number.isFinite(time)) return 0;
+  return Math.floor((Date.now() - time) / 86400000);
+}
+
+function makeTaskId() {
+  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+  return `task_${stamp}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeTask(task) {
+  const now = isoNow();
+  const status = task.status || (task.done ? 'done' : 'open');
+  return {
+    id: task.id || makeTaskId(),
+    title: task.title || task.text || '',
+    status,
+    date: task.date || null,
+    endDate: task.endDate || null,
+    startTime: task.startTime || null,
+    endTime: task.endTime || null,
+    project: task.project || null,
+    source: task.source || 'conversation',
+    createdAt: task.createdAt || now,
+    updatedAt: task.updatedAt || task.createdAt || now,
+    completedAt: task.completedAt || (status === 'done' ? (task.updatedAt || now) : null),
+    archivedAt: task.archivedAt || null,
+  };
+}
+
+function loadTaskRecords() {
+  const filePath = taskDbPath();
+  if (!fs.existsSync(filePath)) return [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const tasks = Array.isArray(parsed) ? parsed : parsed.tasks;
+    if (!Array.isArray(tasks)) return [];
+    return tasks.map(normalizeTask).filter(t => t.title);
+  } catch (e) {
+    console.error('Failed to read tasks.json:', e.message);
+    return [];
+  }
+}
+
+function saveTaskRecords(tasks) {
+  const normalized = tasks.map(normalizeTask).filter(t => t.title);
+  const filePath = taskDbPath();
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify({ tasks: normalized }, null, 2) + '\n', 'utf-8');
+  writeActiveTaskView(normalized);
+  return normalized;
+}
+
+function isTaskStale(task) {
+  return task.status === 'open' && daysSince(task.updatedAt || task.createdAt) >= STALE_AFTER_DAYS;
+}
+
+function isTaskVisible(task) {
+  if (task.status === 'archived') return false;
+  if (task.status === 'done') {
+    return daysSince(task.completedAt || task.updatedAt) < DONE_HIDE_DAYS;
+  }
+  return true;
+}
+
+function taskLine(task) {
+  const checked = task.status === 'done' ? 'x' : ' ';
+  const meta = [
+    `id: ${task.id}`,
+    task.date ? `date: ${task.date}` : null,
+    task.endDate ? `endDate: ${task.endDate}` : null,
+    task.startTime ? `start: ${task.startTime}` : null,
+    task.endTime ? `end: ${task.endTime}` : null,
+    task.project ? `project: ${task.project}` : null,
+    `updated: ${task.updatedAt}`,
+  ].filter(Boolean).join('; ');
+  return `- [${checked}] ${task.title} <!-- ${meta} -->`;
+}
+
+function writeActiveTaskView(tasks) {
+  const open = tasks.filter(t => t.status === 'open' && !isTaskStale(t));
+  const stale = tasks.filter(t => t.status === 'open' && isTaskStale(t));
+  const done = tasks.filter(t => t.status === 'done' && isTaskVisible(t));
+
+  const lines = [
+    '---',
+    `updated: ${isoNow().slice(0, 10)}`,
+    'schema: task-view-v1',
+    'source: tasks.json',
+    '---',
+    '',
+    '# Active Tasks',
+    '',
+    '> Generated context cache from `tasks/tasks.json`. Do not edit by hand.',
+    '',
+    '## Open',
+    '',
+    ...(open.length ? open.map(taskLine) : ['<!-- No open tasks. -->']),
+    '',
+    '## Stale',
+    '',
+    ...(stale.length ? stale.map(taskLine) : ['<!-- No stale tasks. -->']),
+    '',
+    '## Recently Done',
+    '',
+    ...(done.length ? done.map(taskLine) : ['<!-- No recently completed tasks. -->']),
+  ];
+
+  fs.writeFileSync(activeTaskViewPath(), lines.join('\n') + '\n', 'utf-8');
+}
+
 // ─── Data builders ──────────────────────────────────────────────────────────
 
 function buildPlan() {
@@ -350,35 +479,30 @@ function buildMe() {
 
 function buildTasks() {
   const tasksDir = path.join(LOCI_ROOT, 'tasks');
+  const taskRecords = loadTaskRecords();
+  writeActiveTaskView(taskRecords);
   const active = readMdFileSimple(path.join(tasksDir, 'active.md'));
-  const someday = readMdFileSimple(path.join(tasksDir, 'someday.md'));
-
-  const activeTasks = { P0: [], P1: [], P2: [], P3: [] };
-  const rawResult = readMdFile(path.join(tasksDir, 'active.md'));
-  if (rawResult) {
-    const raw = rawResult.raw;
-    let currentPriority = null;
-    for (const line of raw.split('\n')) {
-      const pMatch = line.match(/^##\s+P(\d)/);
-      if (pMatch) {
-        currentPriority = `P${pMatch[1]}`;
-        continue;
-      }
-      const taskMatch = line.match(/^- \[([ x])\]\s+(.+)$/);
-      if (taskMatch && currentPriority) {
-        activeTasks[currentPriority] = activeTasks[currentPriority] || [];
-        activeTasks[currentPriority].push({
-          text: taskMatch[2],
-          done: taskMatch[1] === 'x',
-        });
-      }
-    }
-  }
+  const visibleTasks = taskRecords.filter(isTaskVisible).map(task => ({
+    id: task.id,
+    text: task.title,
+    done: task.status === 'done',
+    status: isTaskStale(task) ? 'stale' : task.status,
+    stale: isTaskStale(task),
+    date: task.date,
+    endDate: task.endDate,
+    startTime: task.startTime,
+    endTime: task.endTime,
+    project: task.project,
+    source: task.source,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
+    completedAt: task.completedAt,
+  }));
 
   return {
     active: active || { content: '', meta: {} },
-    someday: someday || { content: '', meta: {} },
-    active_tasks: activeTasks,
+    records: taskRecords,
+    active_tasks: { P1: visibleTasks },
   };
 }
 
@@ -628,150 +752,59 @@ function buildAllData() {
 // ─── Write-back API handlers ────────────────────────────────────────────────
 
 function handleTaskToggle(body) {
-  const { task, checked } = body;
-  if (!task) return { error: 'Missing task text' };
+  const { id, task, checked } = body;
+  const tasks = loadTaskRecords();
+  const target = tasks.find(t => (id && t.id === id) || (!id && task && t.title.trim() === task.trim()));
+  if (!target) return { error: 'Task not found' };
 
-  const filePath = path.join(LOCI_ROOT, 'tasks', 'active.md');
-  let content;
-  try {
-    content = fs.readFileSync(filePath, 'utf-8');
-  } catch (e) {
-    return { error: 'Cannot read active.md: ' + e.message };
-  }
-
-  const lines = content.split('\n');
-  let found = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    // Match the task text (could be checked or unchecked)
-    const taskMatch = line.match(/^(- \[)([ x])(\]\s+)(.+)$/);
-    if (taskMatch && taskMatch[4].trim() === task.trim()) {
-      const newState = checked ? 'x' : ' ';
-      lines[i] = `${taskMatch[1]}${newState}${taskMatch[3]}${taskMatch[4]}`;
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) return { error: 'Task not found: ' + task };
-
-  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
-  return { ok: true, task, checked };
+  target.status = checked ? 'done' : 'open';
+  target.updatedAt = isoNow();
+  target.completedAt = checked ? (target.completedAt || target.updatedAt) : null;
+  saveTaskRecords(tasks);
+  return { ok: true, task: target, checked };
 }
 
 function handleTaskMove(body) {
-  const { task, from, to } = body;
-  if (!task || !to) return { error: 'Missing task or target priority' };
+  const { id, task, to } = body;
+  if (!to) return { error: 'Missing target status' };
+  const tasks = loadTaskRecords();
+  const target = tasks.find(t => (id && t.id === id) || (!id && task && t.title.trim() === task.trim()));
+  if (!target) return { error: 'Task not found' };
 
-  const filePath = path.join(LOCI_ROOT, 'tasks', 'active.md');
-  let content;
-  try {
-    content = fs.readFileSync(filePath, 'utf-8');
-  } catch (e) {
-    return { error: 'Cannot read active.md: ' + e.message };
-  }
-
-  const lines = content.split('\n');
-
-  // Find and remove the task line
-  let taskLine = null;
-  for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(/^- \[[ x]\]\s+(.+)$/);
-    if (m && m[1].trim() === task.trim()) {
-      taskLine = lines[i];
-      lines.splice(i, 1);
-      break;
-    }
-  }
-  if (!taskLine) return { error: 'Task not found: ' + task };
-
-  // If moving to 'done', just mark as checked and put back in original section
   if (to === 'done') {
-    taskLine = taskLine.replace(/^- \[ \]/, '- [x]');
-    // Find the 'from' section header, or default to P0
-    const target = from || 'P0';
-    let inserted = false;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].match(new RegExp(`^## ${target}\\b`))) {
-        // Insert after the header (skip blank lines)
-        let j = i + 1;
-        while (j < lines.length && lines[j].trim() === '') j++;
-        // Insert before the first non-blank line or at j
-        while (j < lines.length && lines[j].match(/^- \[/)) j++;
-        lines.splice(j, 0, taskLine);
-        inserted = true;
-        break;
-      }
-    }
-    if (!inserted) lines.push(taskLine);
+    target.status = 'done';
+    target.completedAt = target.completedAt || isoNow();
+  } else if (to === 'archived') {
+    target.status = 'archived';
+    target.archivedAt = isoNow();
   } else {
-    // Uncheck if moving from done
-    if (from === 'done') {
-      taskLine = taskLine.replace(/^- \[x\]/, '- [ ]');
-    }
-    // Find target section and insert
-    let inserted = false;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].match(new RegExp(`^## ${to}\\b`))) {
-        let j = i + 1;
-        while (j < lines.length && lines[j].trim() === '') j++;
-        while (j < lines.length && lines[j].match(/^- \[/)) j++;
-        lines.splice(j, 0, taskLine);
-        inserted = true;
-        break;
-      }
-    }
-    if (!inserted) lines.push(taskLine);
+    target.status = 'open';
+    target.completedAt = null;
   }
-
-  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
-  return { ok: true, task, from, to };
+  target.updatedAt = isoNow();
+  saveTaskRecords(tasks);
+  return { ok: true, task: target, to };
 }
 
 function handleTaskAdd(body) {
-  const { text, priority } = body;
-  if (!text) return { error: 'Missing task text' };
+  const { text, title, date, endDate, startTime, endTime, project, source } = body;
+  const taskTitle = (title || text || '').trim();
+  if (!taskTitle) return { error: 'Missing task text' };
 
-  const p = priority || 'P1';
-  const filePath = path.join(LOCI_ROOT, 'tasks', 'active.md');
-  let content;
-  try {
-    content = fs.readFileSync(filePath, 'utf-8');
-  } catch (e) {
-    return { error: 'Cannot read active.md: ' + e.message };
-  }
-
-  const lines = content.split('\n');
-  const sectionHeader = `## ${p}`;
-  let insertIdx = -1;
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith(sectionHeader)) {
-      // Find the end of this section (next ## or end of file)
-      let j = i + 1;
-      while (j < lines.length && !lines[j].match(/^## /)) {
-        j++;
-      }
-      // Insert before the next section header, or at end
-      // Skip back over empty lines
-      let insertAt = j;
-      while (insertAt > i + 1 && lines[insertAt - 1].trim() === '') {
-        insertAt--;
-      }
-      insertIdx = insertAt;
-      break;
-    }
-  }
-
-  if (insertIdx === -1) {
-    // Section doesn't exist, append it
-    lines.push('', sectionHeader, '');
-    insertIdx = lines.length;
-  }
-
-  lines.splice(insertIdx, 0, `- [ ] ${text}`);
-  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
-  return { ok: true, text, priority: p };
+  const tasks = loadTaskRecords();
+  const task = normalizeTask({
+    title: taskTitle,
+    status: 'open',
+    date: date || null,
+    endDate: endDate || null,
+    startTime: startTime || null,
+    endTime: endTime || null,
+    project: project || null,
+    source: source || 'dashboard',
+  });
+  tasks.push(task);
+  saveTaskRecords(tasks);
+  return { ok: true, task };
 }
 
 function handleJournalSave(body) {
@@ -990,7 +1023,7 @@ function handleReferenceRemove(body) {
 }
 
 function handleCalendarAdd(body) {
-  const { date, title, startMin, endMin, location, note } = body;
+  const { date, title, startMin, endMin, location, note, startDate, endDate, allDay, fromTask, taskId } = body;
   if (!date || !title) return { error: 'Missing date or title' };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format (YYYY-MM-DD)' };
 
@@ -1001,14 +1034,20 @@ function handleCalendarAdd(body) {
   }
 
   if (!cal[date]) cal[date] = [];
-  const ev = {
-    title,
-    startKey: startMin || 540,
-    endKey: endMin || (startMin ? startMin + 60 : 600),
-    hour: Math.floor((startMin || 540) / 60),
-  };
+  const ev = { title };
+  if (allDay || startDate || endDate) {
+    ev.allDay = true;
+    ev.startDate = startDate || date;
+    ev.endDate = endDate || startDate || date;
+  } else {
+    ev.startKey = startMin || 540;
+    ev.endKey = endMin || (startMin ? startMin + 60 : 600);
+    ev.hour = Math.floor((startMin || 540) / 60);
+  }
   if (location) ev.location = location;
   if (note) ev.note = note;
+  if (fromTask) ev.fromTask = true;
+  if (taskId) ev.taskId = taskId;
   cal[date].push(ev);
 
   fs.mkdirSync(path.dirname(calPath), { recursive: true });

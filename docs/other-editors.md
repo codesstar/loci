@@ -10,7 +10,7 @@ Loci is built for Claude Code, but its memory is plain Markdown — any AI codin
 
 ## What requires Claude Code
 
-- **Slash commands** (`/loci-sync`, `/loci-link`, `/loci-consolidate`, etc.)
+- **Slash commands** (`/loci-sync`, `/loci-consolidate`, etc.)
 - **Auto-persistence** (Synapse) — automatic signal detection and storage
 - **Hooks** — cross-terminal awareness, activity logging
 - **Memory Consolidation** — daily pattern detection and insight generation
@@ -32,7 +32,7 @@ Loci is built for Claude Code, but its memory is plain Markdown — any AI codin
 ## Tips for partial-support editors
 
 - **Instead of `/loci-sync`**: Tell the AI "save this decision" or "add this task" — it can edit the Markdown files directly
-- **Instead of `/loci-link`**: Manually create a `.loci/` directory in your project with `memory.md`, `to-hq.md`, and `from-hq.md`
+- **Project memory**: When a project gets serious, ask your AI to "leave memory in this repo." It should create `.loci/memory.md`, `.loci/decisions/`, and a Loci project block in `CLAUDE.md`.
 - **Instead of auto-consolidation**: Periodically ask the AI "review my recent decisions and tasks, find patterns"
 
 ## Hybrid workflow
@@ -43,7 +43,7 @@ Some users run Claude Code in a terminal for brain management (commands, consoli
 Terminal (Claude Code)     Editor (Cursor/Windsurf)
 ├── Brain management       ├── Code writing
 ├── /loci-consolidate      ├── Reads brain context
-├── /loci-link             ├── AI knows your decisions
+├── project memory setup   ├── AI knows your decisions
 └── /loci-sync             └── Memory files accessible
 ```
 
