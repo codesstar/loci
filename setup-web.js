@@ -125,7 +125,7 @@ ${data.focus}
 `;
 }
 
-function buildSetupTask(data) {
+function generateTaskDb(data) {
   const now = new Date().toISOString();
   const dateKey = today().replace(/-/g, '');
   const slug = String(data.focus || 'first-task')
@@ -133,28 +133,27 @@ function buildSetupTask(data) {
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .slice(0, 48) || 'first_task';
-  return {
-    id: `task_${dateKey}_${slug}`,
-    title: data.focus,
-    status: 'open',
-    date: null,
-    endDate: null,
-    startTime: null,
-    endTime: null,
-    project: null,
-    source: 'setup',
-    createdAt: now,
-    updatedAt: now,
-    completedAt: null,
-    archivedAt: null
-  };
+  return JSON.stringify({
+    tasks: [
+      {
+        id: `task_${dateKey}_${slug}`,
+        title: data.focus,
+        status: 'open',
+        date: null,
+        startTime: null,
+        endTime: null,
+        project: null,
+        source: 'setup',
+        createdAt: now,
+        updatedAt: now,
+        completedAt: null,
+        archivedAt: null
+      }
+    ]
+  }, null, 2) + '\n';
 }
 
-function generateTaskDb(task) {
-  return JSON.stringify({ tasks: [task] }, null, 2) + '\n';
-}
-
-function generateActiveTaskView(task) {
+function generateActiveTaskView(data) {
   return `---
 updated: ${today()}
 schema: task-view-v1
@@ -167,7 +166,7 @@ source: tasks.json
 
 ## Open
 
-- [ ] ${task.title} <!-- id: ${task.id}; updated: ${task.updatedAt} -->
+- [ ] ${data.focus}
 
 ## Stale
 
@@ -234,6 +233,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`<brain-path>/projects/index.md\`.
 - In connected project repos: read \`.loci/memory.md\` for project context. Write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; update \`.loci/memory.md\` for goal/current-state/next-step/progress changes.
 - Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
+- Connect projects through the guarded writer when available: \`node <brain-path>/scripts/loci-project.js connect --repo <repo-path> --brain <brain-path> --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 
 ### Commands
 /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
@@ -274,10 +274,11 @@ function runSetup(data) {
   results.push('plan.md');
 
   // 3. tasks/tasks.json + generated active.md view
-  const setupTask = buildSetupTask(data);
-  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(setupTask));
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(data));
   results.push('tasks/tasks.json');
-  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(setupTask));
+  // Write a fallback view first, then let loci-task.js render the authoritative
+  // active.md so it is byte-identical to what `validate` expects (no day-one stale).
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(data));
   try {
     execSync(`node ${JSON.stringify(path.join(BRAIN_ROOT, 'scripts', 'loci-task.js'))} rebuild`, { stdio: 'ignore' });
   } catch { /* keep fallback view if the renderer is unavailable */ }

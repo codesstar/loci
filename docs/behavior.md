@@ -106,7 +106,7 @@ references/
 Loci aggregates memory, it does not own it. A serious project's memory belongs in that project's own repo:
 - `.loci/memory.md` — living dossier: goal, current state, next step, key people, progress log
 - `.loci/decisions/` — durable project decision stream
-- `CLAUDE.md` project block — tells future AI sessions how to read/write the repo memory
+- `CLAUDE.md` + `AGENTS.md` project blocks — tell future Claude Code and Codex sessions how to read/write the repo memory
 - Brain `projects/index.md` — one-line index only; never a warehouse for full project memory
 
 The user does not run a command to connect a project. AI notices "this is getting real" signals and offers once at the end of the conversation.
@@ -125,10 +125,19 @@ project-root/
 │   ├── memory.md          # Project memory (core file)
 │   ├── decisions/         # Project decision stream
 │   └── config.json        # Optional project memory settings
-├── CLAUDE.md              # Includes the Loci project block
+├── CLAUDE.md              # Includes the Loci project block for Claude Code
+├── AGENTS.md              # Includes the same Loci project block for Codex
 ```
 
 Keep this minimal. Do not create profile, link, to-hq, or from-hq files.
+
+When connecting a serious project, prefer the guarded writer:
+
+```bash
+node scripts/loci-project.js connect --repo /path/to/project --brain /path/to/brain --name "Project" --description "One line"
+```
+
+The writer creates `.loci/memory.md`, `.loci/decisions/`, injects both instruction files, updates `.gitignore`, and writes the brain `projects/index.md` entry. Manual file edits are only the fallback when the writer is unavailable.
 
 ### memory.md Format
 
@@ -297,6 +306,6 @@ When the user asks to create a new module (e.g., "help me manage finances", "I w
 ## Extension Rules
 
 - **New module**: `mkdir name` → Create README.md → Update directory map
-- **Connect external project**: AI offers once when the project gets serious; on yes, create `.loci/memory.md`, `.loci/decisions/`, inject the project block into repo `CLAUDE.md`, add `.loci/` to `.gitignore`, and add one index line to `projects/index.md`
+- **Connect external project**: AI offers once when the project gets serious; on yes, use `scripts/loci-project.js connect` to create `.loci/memory.md`, `.loci/decisions/`, inject the project block into repo `CLAUDE.md` and `AGENTS.md`, add `.loci/` to `.gitignore`, and add one index line to `projects/index.md`
 - **New template**: Place in `templates/`
 - Loci is the index + understanding layer; external projects own their own memory

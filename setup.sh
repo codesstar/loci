@@ -701,7 +701,6 @@ PLANEOF
       "title": "${json_focus}",
       "status": "open",
       "date": null,
-      "endDate": null,
       "startTime": null,
       "endTime": null,
       "project": null,
@@ -732,7 +731,7 @@ source: tasks.json
 
 ## Open
 
-- [ ] ${USER_FOCUS} <!-- id: ${task_id}; updated: ${now_iso} -->
+- [ ] ${USER_FOCUS} <!-- id: ${task_id}; source: setup; updated: ${now_iso} -->
 
 ## Stale
 
@@ -746,7 +745,7 @@ TASKEOF
   spin "$(t "tasks/active.md" "tasks/active.md")"
 
   # Re-render active.md with the authoritative renderer so it is byte-identical
-  # to what `loci-task.js validate` expects.
+  # to what `loci-task.js validate` expects (avoids a day-one "stale" warning).
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-task.js" ]; then
     node "$BRAIN_PATH/scripts/loci-task.js" rebuild >/dev/null 2>&1 || true
   fi
@@ -930,7 +929,10 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 
 ### Cross-Project Memory
-- In projects with \`.loci/\` directory: read \`.loci/memory.md\` for project context
+- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_PATH}/projects/index.md\`.
+- In connected project repos: read \`.loci/memory.md\` for project context. Write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; update \`.loci/memory.md\` for goal/current-state/next-step/progress changes.
+- Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
+- Connect projects through the guarded writer when available: \`node ${BRAIN_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 - Commands: /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 GEOF
@@ -1033,6 +1035,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_PATH}/projects/index.md\`.
 - In connected project repos: read \`.loci/memory.md\` for project context. Write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; update \`.loci/memory.md\` for goal/current-state/next-step/progress changes.
 - Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
+- Connect projects through the guarded writer when available: \`node ${BRAIN_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 
 ### Commands
 /loci-sync, /loci-settings, /loci-scan, /loci-consolidate

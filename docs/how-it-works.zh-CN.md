@@ -174,9 +174,11 @@ my-brain/
 用户点头后：
 1. 在项目 repo 里创建 `.loci/memory.md`（活档案）
 2. 在项目 repo 里创建 `.loci/decisions/`（决策流水）
-3. 往项目的 `CLAUDE.md` 注入 Loci project block
+3. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
 4. 把 `.loci/` 加到项目 `.gitignore`
 5. 只在大脑的 `projects/index.md` 里加一行索引
+
+内部实现上，AI 应优先用 `scripts/loci-project.js connect` 来做这个多文件写入。
 
 Loci 汇聚记忆，但不占有记忆。项目记忆归项目 repo 自己。
 
