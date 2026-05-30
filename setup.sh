@@ -701,6 +701,7 @@ PLANEOF
       "title": "${json_focus}",
       "status": "open",
       "date": null,
+      "endDate": null,
       "startTime": null,
       "endTime": null,
       "project": null,
@@ -731,7 +732,7 @@ source: tasks.json
 
 ## Open
 
-- [ ] ${USER_FOCUS} <!-- id: ${task_id}; source: setup; updated: ${now_iso} -->
+- [ ] ${USER_FOCUS} <!-- id: ${task_id}; updated: ${now_iso} -->
 
 ## Stale
 

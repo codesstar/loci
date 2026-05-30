@@ -125,7 +125,7 @@ ${data.focus}
 `;
 }
 
-function generateTaskDb(data) {
+function buildSetupTask(data) {
   const now = new Date().toISOString();
   const dateKey = today().replace(/-/g, '');
   const slug = String(data.focus || 'first-task')
@@ -133,27 +133,28 @@ function generateTaskDb(data) {
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .slice(0, 48) || 'first_task';
-  return JSON.stringify({
-    tasks: [
-      {
-        id: `task_${dateKey}_${slug}`,
-        title: data.focus,
-        status: 'open',
-        date: null,
-        startTime: null,
-        endTime: null,
-        project: null,
-        source: 'setup',
-        createdAt: now,
-        updatedAt: now,
-        completedAt: null,
-        archivedAt: null
-      }
-    ]
-  }, null, 2) + '\n';
+  return {
+    id: `task_${dateKey}_${slug}`,
+    title: data.focus,
+    status: 'open',
+    date: null,
+    endDate: null,
+    startTime: null,
+    endTime: null,
+    project: null,
+    source: 'setup',
+    createdAt: now,
+    updatedAt: now,
+    completedAt: null,
+    archivedAt: null
+  };
 }
 
-function generateActiveTaskView(data) {
+function generateTaskDb(task) {
+  return JSON.stringify({ tasks: [task] }, null, 2) + '\n';
+}
+
+function generateActiveTaskView(task) {
   return `---
 updated: ${today()}
 schema: task-view-v1
@@ -166,7 +167,7 @@ source: tasks.json
 
 ## Open
 
-- [ ] ${data.focus}
+- [ ] ${task.title} <!-- id: ${task.id}; updated: ${task.updatedAt} -->
 
 ## Stale
 
@@ -273,9 +274,10 @@ function runSetup(data) {
   results.push('plan.md');
 
   // 3. tasks/tasks.json + generated active.md view
-  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(data));
+  const setupTask = buildSetupTask(data);
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(setupTask));
   results.push('tasks/tasks.json');
-  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(data));
+  writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(setupTask));
   results.push('tasks/active.md');
 
   // 4. .loci/config.yml
