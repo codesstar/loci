@@ -274,7 +274,12 @@ function runSetup(data) {
   // 3. tasks/tasks.json + generated active.md view
   writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'tasks.json'), generateTaskDb(data));
   results.push('tasks/tasks.json');
+  // Write a fallback view first, then let loci-task.js render the authoritative
+  // active.md so it is byte-identical to what `validate` expects (no day-one stale).
   writeFileSafe(path.join(BRAIN_ROOT, 'tasks', 'active.md'), generateActiveTaskView(data));
+  try {
+    execSync(`node ${JSON.stringify(path.join(BRAIN_ROOT, 'scripts', 'loci-task.js'))} rebuild`, { stdio: 'ignore' });
+  } catch { /* keep fallback view if the renderer is unavailable */ }
   results.push('tasks/active.md');
 
   // 4. .loci/config.yml

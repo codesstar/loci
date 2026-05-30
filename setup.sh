@@ -744,6 +744,12 @@ TASKEOF
   ) &
   spin "$(t "tasks/active.md" "tasks/active.md")"
 
+  # Re-render active.md with the authoritative renderer so it is byte-identical
+  # to what `loci-task.js validate` expects (avoids a day-one "stale" warning).
+  if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-task.js" ]; then
+    node "$BRAIN_PATH/scripts/loci-task.js" rebuild >/dev/null 2>&1 || true
+  fi
+
   # --- .loci/config.yml ---
   local wake_time wind_time wellbeing_enabled
   case $USER_SCHEDULE in
