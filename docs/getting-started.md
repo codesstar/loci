@@ -40,7 +40,7 @@ The installer does a few extra things before launching Claude:
 - Checks that Claude Code is installed
 - Disconnects the template git remote (so your personal data never gets pushed to the public repo)
 - Installs slash commands to `~/.claude/commands/`
-- Adds global brain awareness to `~/.claude/CLAUDE.md`
+- Adds global brain awareness to `~/.claude/CLAUDE.md` and/or `~/.codex/AGENTS.md`
 
 Both options end the same way: Claude launches and starts the onboarding conversation.
 
@@ -218,9 +218,11 @@ When the project starts looking serious, your AI should offer once at the end of
 If you say yes, your AI will:
 1. Create `.loci/memory.md` in the project repo
 2. Create `.loci/decisions/` for project decisions
-3. Inject a Loci project block into the repo's `CLAUDE.md`
+3. Inject a Loci project block into the repo's `CLAUDE.md` and `AGENTS.md`
 4. Add `.loci/` to the repo's `.gitignore`
 5. Add one index line to your brain's `projects/index.md`
+
+Internally, AI tools should use `scripts/loci-project.js connect` for this, so the multi-file write stays consistent.
 
 From now on, the project's memory lives in the project repo. The brain only keeps an index and knows where to look.
 

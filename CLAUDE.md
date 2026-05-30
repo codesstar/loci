@@ -55,12 +55,10 @@ The brain is not a warehouse — it should only hold what actually matters to th
 - **Trigger A — the user asks (they already know it matters).** When the user says anything like "记住这个项目 / 帮我记住 XX / 把这个项目连到我的大脑 / link this project / remember this project," treat that as an explicit go-ahead and connect it right away. No need to judge whether it's "serious enough" — the user deciding it's worth remembering IS the signal. There is no command to learn; plain words are enough.
 - **Trigger B — you notice and offer (they might not have thought to ask).** When the user hasn't said it but the project is clearly getting real — a decision was made, they keep returning to it, a milestone happened, they're plainly investing (not just glancing) — **offer ONCE**, at the END of a conversation, never interrupting work. Plain language, e.g. "你这个项目好像做起来了，要不要我帮你在这儿留个记忆？" Never say "connect", "link", or "memory file". If the user **declines, never offer again** for that project.
 - Either trigger leads to the same steps below. If neither has fired, default to NOT creating project memory.
-- **On yes** — do all of this, stamping everything with an ISO 8601 timestamp:
-  1. In the project repo: create `.loci/memory.md` from `templates/project-memory.md`, **filled with your current understanding** (goal, current state, the decision that triggered this) — substance, not an empty shell.
-  2. Create `.loci/decisions/` (use `templates/project-decision.md` for entries).
-  3. Inject `templates/project-claude-block.md` into **both** the repo's `CLAUDE.md` **and** `AGENTS.md`, creating either file if it does not exist — so whichever tool enters this repo next (Claude Code reads `CLAUDE.md`, Codex reads `AGENTS.md`) auto-loads the project memory. The two blocks are identical. Marker: `<!-- loci:project:start v1 -->` … `<!-- loci:project:end -->`. If a block with that marker already exists in a file, replace it in place rather than appending a second one.
-  4. Append `.loci/` to the repo's `.gitignore` (create one if absent) if not already present.
-  5. In the brain: add a one-line index entry to `projects/index.md` (status + one-line essence + repo path).
+- **On yes** — prefer the guarded project writer instead of hand-editing multiple files. From the brain folder, run:
+  `node scripts/loci-project.js connect --repo <repo-path> --brain . --name "<project>" --description "<one-line>"`
+  Include `--goal`, `--state`, `--next`, and `--decision` when you already know them. The writer creates `.loci/memory.md`, `.loci/decisions/`, injects the project block into both `CLAUDE.md` and `AGENTS.md`, adds `.loci/` to `.gitignore`, and updates `projects/index.md`.
+  If the writer is unavailable, do those same steps manually, stamping everything with an ISO 8601 timestamp and replacing existing project blocks in place.
 - **Not serious yet** (a project-shaped idea, but the user hasn't committed) → put it in `projects/side.md`, don't touch any repo.
 
 ## Time & State Awareness

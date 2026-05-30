@@ -36,9 +36,11 @@ If the user says yes:
 
 1. Create `.loci/memory.md` from `templates/project-memory.md`
 2. Create `.loci/decisions/`
-3. Inject `templates/project-claude-block.md` into the repo's `CLAUDE.md`
+3. Inject `templates/project-claude-block.md` into the repo's `CLAUDE.md` and `AGENTS.md`
 4. Add `.loci/` to the repo's `.gitignore`
 5. Add one index line to brain `projects/index.md`
+
+Prefer `node scripts/loci-project.js connect ...` for this write path; manual edits are only the fallback.
 
 ## What Goes Where
 

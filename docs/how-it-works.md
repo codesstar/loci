@@ -174,9 +174,11 @@ There is no command the user has to learn. When AI notices a project is getting 
 If the user says yes:
 1. Creates `.loci/memory.md` in the project repo (living dossier)
 2. Creates `.loci/decisions/` in the project repo (decision stream)
-3. Injects a Loci project block into the repo's `CLAUDE.md`
+3. Injects a Loci project block into the repo's `CLAUDE.md` and `AGENTS.md`
 4. Adds `.loci/` to the repo's `.gitignore`
 5. Adds one index line to the brain's `projects/index.md`
+
+AI tools should use `scripts/loci-project.js connect` for this multi-file write whenever possible.
 
 Loci aggregates memory; it does not own it. The project repo owns the project memory.
 

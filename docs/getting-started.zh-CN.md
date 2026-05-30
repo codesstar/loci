@@ -40,7 +40,7 @@ bash install.sh
 - 检查 Claude Code 装了没
 - 断掉模板仓库的 git remote（防止你的个人数据被推到公开仓库）
 - 把 slash commands 装到 `~/.claude/commands/`
-- 在 `~/.claude/CLAUDE.md` 里加上全局 brain 感知
+- 在 `~/.claude/CLAUDE.md` 和/或 `~/.codex/AGENTS.md` 里加上全局 brain 感知
 
 两种方式效果一样：Claude 启动，开始引导对话。
 
@@ -215,9 +215,11 @@ AI 已经知道今天几号、昨天你干了什么、今天有什么安排。�
 你点头后，AI 会：
 1. 在项目 repo 里创建 `.loci/memory.md`
 2. 创建 `.loci/decisions/` 存项目决策
-3. 往项目的 `CLAUDE.md` 注入 Loci project block
+3. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
 4. 把 `.loci/` 加到项目 `.gitignore`
 5. 在大脑的 `projects/index.md` 里加一行索引
+
+内部实现上，AI 应优先用 `scripts/loci-project.js connect` 来做这件事，这样多文件写入不会漏步骤。
 
 之后，项目记忆归项目 repo 自己。大脑只保留索引，知道需要时去哪读。
 
