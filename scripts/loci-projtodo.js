@@ -1,0 +1,268 @@
+#!/usr/bin/env node
+/*
+ * loci-projtodo.js — guarded writer for a project's development to-do list.
+ *
+ * Each connected project keeps its own `.loci/todo.json` (NOT the brain's personal
+ * task pool). Every todo has a permanent `id`, so a dashboard can toggle / reorder /
+ * remove it by id and write back without ever losing track of which item is which.
+ *
+ * The brain's `loci-task.js` is the analog for personal tasks; this mirrors its
+ * shape (atomic JSON writes, normalize, validate) but lives per-project.
+ *
+ * Usage:
+ *   node scripts/loci-projtodo.js list     --repo <repo>
+ *   node scripts/loci-projtodo.js validate --repo <repo>
+ *   node scripts/loci-projtodo.js add      --repo <repo> --text "..." [--category "..."] [--status todo|doing|done]
+ *   node scripts/loci-projtodo.js update   --repo <repo> --id <id> [--text "..."] [--category "..."] [--status ...]
+ *   node scripts/loci-projtodo.js toggle   --repo <repo> --id <id>            # cycles todo → doing → done → todo
+ *   node scripts/loci-projtodo.js done     --repo <repo> --id <id>
+ *   node scripts/loci-projtodo.js move     --repo <repo> --id <id> --order <n>
+ *   node scripts/loci-projtodo.js remove   --repo <repo> --id <id>
+ *
+ * --repo defaults to the current working directory (so running it from inside a
+ * project repo just works).
+ */
+const fs = require('fs');
+const path = require('path');
+
+const STATUSES = ['todo', 'doing', 'done'];
+
+function usage() {
+  console.log(`Usage:
+  node scripts/loci-projtodo.js list     --repo <repo>
+  node scripts/loci-projtodo.js validate --repo <repo>
+  node scripts/loci-projtodo.js add      --repo <repo> --text "..." [--category "..."] [--status todo|doing|done]
+  node scripts/loci-projtodo.js update   --repo <repo> --id <id> [--text "..."] [--category "..."] [--status ...]
+  node scripts/loci-projtodo.js toggle   --repo <repo> --id <id>
+  node scripts/loci-projtodo.js done     --repo <repo> --id <id>
+  node scripts/loci-projtodo.js move     --repo <repo> --id <id> --order <n>
+  node scripts/loci-projtodo.js remove   --repo <repo> --id <id>`);
+}
+
+function parseArgs(argv) {
+  const args = {};
+  for (let i = 0; i < argv.length; i += 1) {
+    const item = argv[i];
+    if (!item.startsWith('--')) continue;
+    const eq = item.indexOf('=');
+    if (eq !== -1) {
+      args[item.slice(2, eq)] = item.slice(eq + 1);
+    } else if (argv[i + 1] && !argv[i + 1].startsWith('--')) {
+      args[item.slice(2)] = argv[i + 1];
+      i += 1;
+    } else {
+      args[item.slice(2)] = true;
+    }
+  }
+  return args;
+}
+
+function isoNow() {
+  return new Date().toISOString();
+}
+
+function todoDbPath(repo) {
+  return path.join(repo, '.loci', 'todo.json');
+}
+
+function makeTodoId(text, existingIds) {
+  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+  const slug = String(text || 'todo')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 32) || 'todo';
+  // Non-ASCII text slugs collapse to "todo", so same-second adds would collide.
+  // Append a short random suffix and ensure uniqueness against existing ids.
+  const taken = existingIds instanceof Set ? existingIds : new Set();
+  let id;
+  do {
+    const rand = Math.random().toString(36).slice(2, 6);
+    id = `ptd_${stamp}_${slug}_${rand}`;
+  } while (taken.has(id));
+  return id;
+}
+
+function readJson(filePath, fallback) {
+  if (!fs.existsSync(filePath)) return fallback;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (error) {
+    throw new Error(`${filePath} is invalid JSON: ${error.message}`);
+  }
+}
+
+function writeJson(filePath, value) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const tmp = `${filePath}.tmp`;
+  fs.writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, 'utf-8');
+  fs.renameSync(tmp, filePath);
+}
+
+function assertStatus(value) {
+  if (value == null || value === '') return 'todo';
+  if (!STATUSES.includes(value)) throw new Error(`status must be one of: ${STATUSES.join(', ')}`);
+  return value;
+}
+
+function normalizeTodo(todo, index, existingIds) {
+  const now = isoNow();
+  const text = String(todo.text || todo.title || '').trim();
+  const status = assertStatus(todo.status || (todo.done ? 'done' : 'todo'));
+  return {
+    id: todo.id || makeTodoId(text, existingIds),
+    text,
+    status,
+    category: (todo.category && String(todo.category).trim()) || 'Backlog',
+    order: Number.isFinite(todo.order) ? todo.order : (index + 1) * 10,
+    createdAt: todo.createdAt || now,
+    updatedAt: todo.updatedAt || todo.createdAt || now,
+    doneAt: todo.doneAt || (status === 'done' ? now : null),
+  };
+}
+
+function readTodos(repo) {
+  const parsed = readJson(todoDbPath(repo), { todos: [] });
+  const raw = Array.isArray(parsed) ? parsed : parsed.todos;
+  if (!Array.isArray(raw)) throw new Error('.loci/todo.json must contain a todos array');
+  return raw.map(normalizeTodo).filter(t => t.text);
+}
+
+function saveTodos(repo, todos) {
+  writeJson(todoDbPath(repo), { todos });
+}
+
+function sortTodos(todos) {
+  return todos.slice().sort((a, b) => a.order - b.order);
+}
+
+function resolveRepo(args) {
+  return path.resolve(args.repo ? String(args.repo) : process.cwd());
+}
+
+function cmdList(repo) {
+  const todos = sortTodos(readTodos(repo));
+  console.log(JSON.stringify({ ok: true, repo, count: todos.length, todos }, null, 2));
+}
+
+function cmdValidate(repo) {
+  const todos = readTodos(repo);
+  const ids = new Set();
+  for (const t of todos) {
+    if (ids.has(t.id)) throw new Error(`duplicate todo id: ${t.id}`);
+    ids.add(t.id);
+    assertStatus(t.status);
+  }
+  console.log(JSON.stringify({ ok: true, repo, count: todos.length, message: 'todo.json valid' }, null, 2));
+}
+
+function cmdAdd(repo, args) {
+  const text = String(args.text || '').trim();
+  if (!text) throw new Error('add requires --text');
+  const todos = readTodos(repo);
+  const maxOrder = todos.reduce((m, t) => Math.max(m, t.order), 0);
+  const existingIds = new Set(todos.map(t => t.id));
+  const todo = normalizeTodo({
+    text,
+    category: args.category,
+    status: args.status,
+    order: maxOrder + 10,
+  }, todos.length, existingIds);
+  todos.push(todo);
+  saveTodos(repo, todos);
+  console.log(JSON.stringify({ ok: true, added: todo }, null, 2));
+}
+
+function findTodo(todos, id) {
+  const todo = todos.find(t => t.id === id);
+  if (!todo) throw new Error(`no todo with id: ${id}`);
+  return todo;
+}
+
+function cmdUpdate(repo, args) {
+  if (!args.id) throw new Error('update requires --id');
+  const todos = readTodos(repo);
+  const todo = findTodo(todos, args.id);
+  if (args.text != null && args.text !== true) todo.text = String(args.text).trim();
+  if (args.category != null && args.category !== true) todo.category = String(args.category).trim();
+  if (args.status != null && args.status !== true) todo.status = assertStatus(String(args.status));
+  todo.doneAt = todo.status === 'done' ? (todo.doneAt || isoNow()) : null;
+  todo.updatedAt = isoNow();
+  saveTodos(repo, todos);
+  console.log(JSON.stringify({ ok: true, updated: todo }, null, 2));
+}
+
+function cmdToggle(repo, args) {
+  if (!args.id) throw new Error('toggle requires --id');
+  const todos = readTodos(repo);
+  const todo = findTodo(todos, args.id);
+  const next = STATUSES[(STATUSES.indexOf(todo.status) + 1) % STATUSES.length];
+  todo.status = next;
+  todo.doneAt = next === 'done' ? isoNow() : null;
+  todo.updatedAt = isoNow();
+  saveTodos(repo, todos);
+  console.log(JSON.stringify({ ok: true, toggled: todo }, null, 2));
+}
+
+function cmdDone(repo, args) {
+  if (!args.id) throw new Error('done requires --id');
+  const todos = readTodos(repo);
+  const todo = findTodo(todos, args.id);
+  todo.status = 'done';
+  todo.doneAt = isoNow();
+  todo.updatedAt = isoNow();
+  saveTodos(repo, todos);
+  console.log(JSON.stringify({ ok: true, done: todo }, null, 2));
+}
+
+function cmdMove(repo, args) {
+  if (!args.id) throw new Error('move requires --id');
+  const order = Number(args.order);
+  if (!Number.isFinite(order)) throw new Error('move requires a numeric --order');
+  const todos = readTodos(repo);
+  const todo = findTodo(todos, args.id);
+  todo.order = order;
+  todo.updatedAt = isoNow();
+  saveTodos(repo, todos);
+  console.log(JSON.stringify({ ok: true, moved: todo }, null, 2));
+}
+
+function cmdRemove(repo, args) {
+  if (!args.id) throw new Error('remove requires --id');
+  const todos = readTodos(repo);
+  const next = todos.filter(t => t.id !== args.id);
+  if (next.length === todos.length) throw new Error(`no todo with id: ${args.id}`);
+  saveTodos(repo, next);
+  console.log(JSON.stringify({ ok: true, removed: args.id }, null, 2));
+}
+
+function main() {
+  const [command, ...rest] = process.argv.slice(2);
+  const args = parseArgs(rest);
+  if (!command || args.help) {
+    usage();
+    return;
+  }
+  const repo = resolveRepo(args);
+  try {
+    switch (command) {
+      case 'list': cmdList(repo); break;
+      case 'validate': cmdValidate(repo); break;
+      case 'add': cmdAdd(repo, args); break;
+      case 'update': cmdUpdate(repo, args); break;
+      case 'toggle': cmdToggle(repo, args); break;
+      case 'done': cmdDone(repo, args); break;
+      case 'move': cmdMove(repo, args); break;
+      case 'remove': cmdRemove(repo, args); break;
+      default:
+        console.error(`Unknown command: ${command}`);
+        usage();
+        process.exit(1);
+    }
+  } catch (error) {
+    console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
+main();

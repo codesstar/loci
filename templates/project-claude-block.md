@@ -20,6 +20,11 @@ to store this project's full memory.
   in the brain's `<brain-path>/decisions/` instead.
 - **Status / progress change** (goal, current state, next step, a milestone) → update
   `.loci/memory.md` in place; add a stamped line under `## Progress Log`.
+- **A development to-do for THIS project** (something to build/fix/ship) → `.loci/todo.json`,
+  NOT the brain's personal task pool. Write it through the guarded writer, never by hand:
+  `node <brain-path>/scripts/loci-projtodo.js add --repo <this-repo> --text "..." [--category "..."]`
+  (also `toggle` / `done` / `move` / `remove` / `list` / `validate`). Each todo gets a permanent
+  `id` so the dashboard can toggle / reorder it. The dashboard reads this file to show project todos.
 - **An insight or milestone worth the brain knowing** (`[insight]` / `[milestone]`) →
   also update the project's index entry in the brain's `<brain-path>/projects/index.md`.
 - Keep `[local]` / `[debug]` / `[wip]` notes here only; do not push them to the brain.

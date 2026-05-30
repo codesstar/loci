@@ -114,6 +114,12 @@ function renderMemory(args) {
       `[${now}] Project memory initialized by Loci.`);
 }
 
+// The project to-do list is a structured todo.json (guarded by loci-projtodo.js),
+// so a dashboard can toggle / reorder / remove each item by its permanent id.
+function renderTodo() {
+  return `${JSON.stringify({ todos: [] }, null, 2)}\n`;
+}
+
 function ensureProjectIndex(brainPath, args) {
   const projectsDir = path.join(brainPath, 'projects');
   const indexPath = path.join(projectsDir, 'index.md');
@@ -201,6 +207,11 @@ function connectProject(rawArgs) {
     writeFile(memoryPath, renderMemory(args));
   }
 
+  const todoPath = path.join(lociDir, 'todo.json');
+  if (!fs.existsSync(todoPath)) {
+    writeFile(todoPath, renderTodo());
+  }
+
   const block = renderProjectBlock(brain);
   injectBlock(path.join(repo, 'CLAUDE.md'), block);
   injectBlock(path.join(repo, 'AGENTS.md'), block);
@@ -214,6 +225,7 @@ function connectProject(rawArgs) {
     brain,
     files: {
       memory: memoryPath,
+      todo: todoPath,
       decisions: decisionsDir,
       initialDecision: decisionPath,
       claude: path.join(repo, 'CLAUDE.md'),

@@ -675,6 +675,31 @@ function readRawBody(filepath) {
   return parsed ? parsed.raw : null;
 }
 
+// Read a connected project's own .loci/todo.json (guarded by loci-projtodo.js).
+// Returns a sorted, lightweight array for the dashboard; never throws on a bad
+// or missing file — a project simply shows no todos rather than breaking the page.
+function readProjectTodos(repoPath) {
+  try {
+    const todoFile = path.join(repoPath, '.loci', 'todo.json');
+    if (!fs.existsSync(todoFile)) return [];
+    const parsed = JSON.parse(fs.readFileSync(todoFile, 'utf-8'));
+    const todos = Array.isArray(parsed) ? parsed : parsed.todos;
+    if (!Array.isArray(todos)) return [];
+    return todos
+      .filter(t => t && (t.text || t.title))
+      .map(t => ({
+        id: t.id || null,
+        text: String(t.text || t.title || '').trim(),
+        status: ['todo', 'doing', 'done'].includes(t.status) ? t.status : 'todo',
+        category: (t.category && String(t.category).trim()) || 'Backlog',
+        order: Number.isFinite(t.order) ? t.order : 0,
+      }))
+      .sort((a, b) => a.order - b.order);
+  } catch {
+    return [];
+  }
+}
+
 // projects/index.md = light index of serious projects (one `## name` block each).
 // projects/side.md  = embryos under `## Incubating` / `## Archive` (one `### name` each).
 // The brain only aggregates: full project memory lives in each repo's .loci/.
@@ -696,11 +721,18 @@ function buildProjects() {
       const name = headline.replace(/<!--[\s\S]*?-->/g, '').trim();
       if (!name) continue;
       const bodyText = lines.join('\n').replace(/<!--[\s\S]*?-->/g, '').trim();
+      // Each index entry carries "repo: <path>. memory: ..." — follow the repo
+      // path into the project's own .loci/todo.json to show that project's todos.
+      // Path may contain spaces (e.g. "loci copy"); terminate at ". memory:" or EOL.
+      const repoMatch = bodyText.match(/repo:\s*(.+?)(?:\.\s*memory:|\.?\s*$)/m);
+      const repoPath = repoMatch ? repoMatch[1].trim() : null;
       serious.push({
         name,
         status: statusMatch ? statusMatch[1].toLowerCase() : 'active',
         summary: bodyText.split('\n')[0] || '',
         detail: bodyText,
+        repo: repoPath,
+        todos: repoPath ? readProjectTodos(repoPath) : [],
       });
     }
   }
@@ -771,7 +803,22 @@ function buildStats(data) {
     total_monthly_plans: (data.planning && data.planning.monthly) ? data.planning.monthly.length : 0,
     total_quarterly_plans: (data.planning && data.planning.quarterly) ? data.planning.quarterly.length : 0,
     total_projects: (data.projects && data.projects.serious) ? data.projects.serious.length : 0,
+    total_project_todos: projectTodoCount(data).total,
+    done_project_todos: projectTodoCount(data).done,
   };
+}
+
+function projectTodoCount(data) {
+  let total = 0;
+  let done = 0;
+  const serious = (data.projects && data.projects.serious) || [];
+  for (const p of serious) {
+    for (const t of (p.todos || [])) {
+      total += 1;
+      if (t.status === 'done') done += 1;
+    }
+  }
+  return { total, done };
 }
 
 // ─── Build all data ─────────────────────────────────────────────────────────
@@ -824,6 +871,58 @@ function handleTaskToggle(body) {
   target.completedAt = checked ? (target.completedAt || target.updatedAt) : null;
   saveTaskRecords(tasks);
   return { ok: true, task: target, checked };
+}
+
+// Project todos live in each project's own repo (.loci/todo.json), guarded by
+// scripts/loci-projtodo.js. The dashboard writes back by invoking that script —
+// so the validate/atomic-write logic stays in one place and is never duplicated.
+function projTodoScript() {
+  // server.js is at <brain>/.loci/dashboard/; the writer ships in the engine repo.
+  // Prefer the engine repo the brain was set up from, but it's the SAME script in
+  // every install, so resolve relative to this brain's scripts/ first, then repo.
+  const candidates = [
+    path.join(LOCI_ROOT, 'scripts', 'loci-projtodo.js'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
+}
+
+function handleProjectTodo(action, body) {
+  const { repo, id, text, category, status, order } = body;
+  if (!repo) return { error: 'Missing repo path' };
+  const script = projTodoScript();
+  if (!script) return { error: 'loci-projtodo.js not found in this brain' };
+
+  const { execFileSync } = require('child_process');
+  const args = [script, action, '--repo', repo];
+  if (action === 'add') {
+    if (!text || !String(text).trim()) return { error: 'Missing todo text' };
+    args.push('--text', String(text).trim());
+    if (category) args.push('--category', String(category));
+    if (status) args.push('--status', String(status));
+  } else {
+    if (!id) return { error: 'Missing todo id' };
+    args.push('--id', String(id));
+    if (action === 'update') {
+      if (text != null) args.push('--text', String(text));
+      if (category != null) args.push('--category', String(category));
+      if (status != null) args.push('--status', String(status));
+    }
+    if (action === 'move') {
+      if (order == null) return { error: 'Missing order' };
+      args.push('--order', String(order));
+    }
+  }
+  try {
+    const out = execFileSync('node', args, { encoding: 'utf-8' });
+    return JSON.parse(out);
+  } catch (e) {
+    const stderr = e.stderr ? e.stderr.toString() : e.message;
+    try { return { error: JSON.parse(stderr).error || stderr }; }
+    catch { return { error: stderr }; }
+  }
 }
 
 function handleTaskMove(body) {
@@ -1307,6 +1406,22 @@ const server = http.createServer(async (req, res) => {
       sendError(res, 'Build error: ' + e.message, 500);
     }
     return;
+  }
+
+  // Project todos: toggle / add / move / update — write back via loci-projtodo.js.
+  {
+    const m = pathname.match(/^\/api\/project-todos\/(toggle|add|move|update|done|remove)$/);
+    if (m && req.method === 'POST') {
+      try {
+        const body = await parseJsonBody(req);
+        const result = handleProjectTodo(m[1], body);
+        if (result.error) sendError(res, result.error);
+        else sendJson(res, result);
+      } catch (e) {
+        sendError(res, e.message, 500);
+      }
+      return;
+    }
   }
 
   if (pathname === '/api/tasks/move' && req.method === 'POST') {
