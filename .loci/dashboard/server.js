@@ -658,6 +658,25 @@ function buildReferences() {
   return { files, total: files.length };
 }
 
+// notes/ = the user's OWN notes (creation drafts, talk scripts, learning notes,
+// inline notes). notes/index.md is a one-line pointer index. Like references/,
+// this is L2 — shown on its own dashboard page, read-only here.
+function buildNotes() {
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  if (!fs.existsSync(notesDir) || !fs.statSync(notesDir).isDirectory()) {
+    return { index: null, files: [], total: 0 };
+  }
+  // The index file is rendered separately as the page header; don't list it among entries.
+  const indexFile = readMdFileSimple(path.join(notesDir, 'index.md'));
+  const files = scanMdFilesRecursive(notesDir).filter(f => f.filename !== 'index.md');
+  files.sort((a, b) => {
+    const da = (a.meta && (a.meta.created || a.meta.date)) || '';
+    const db = (b.meta && (b.meta.created || b.meta.date)) || '';
+    return db.localeCompare(da);
+  });
+  return { index: indexFile, files, total: files.length };
+}
+
 function buildLearning() {
   const learningDir = path.join(LOCI_ROOT, 'content', 'learning');
   const entries = scanMdFiles(learningDir);
@@ -700,6 +719,19 @@ function readProjectTodos(repoPath) {
   }
 }
 
+// Read a connected project's own .loci/memory.md (its living dossier) for the
+// detail panel. Never throws — a project with no/unreadable memory just shows
+// nothing rather than breaking the page. Returns rendered html + meta.
+function readProjectMemory(repoPath) {
+  try {
+    const memFile = path.join(repoPath, '.loci', 'memory.md');
+    if (!fs.existsSync(memFile)) return null;
+    return readMdFileSimple(memFile);
+  } catch {
+    return null;
+  }
+}
+
 // projects/index.md = light index of serious projects (one `## name` block each).
 // projects/side.md  = embryos under `## Incubating` / `## Archive` (one `### name` each).
 // The brain only aggregates: full project memory lives in each repo's .loci/.
@@ -726,12 +758,19 @@ function buildProjects() {
       // Path may contain spaces (e.g. "loci copy"); terminate at ". memory:" or EOL.
       const repoMatch = bodyText.match(/repo:\s*(.+?)(?:\.\s*memory:|\.?\s*$)/m);
       const repoPath = repoMatch ? repoMatch[1].trim() : null;
+      // The index line embeds "<desc>. repo: <path>. memory: <path>" — show the
+      // human description only, strip the machine path trailer.
+      const firstLine = bodyText.split('\n')[0] || '';
+      const cleanSummary = firstLine.replace(/\.?\s*repo:.*$/i, '').trim();
       serious.push({
         name,
         status: statusMatch ? statusMatch[1].toLowerCase() : 'active',
-        summary: bodyText.split('\n')[0] || '',
+        summary: cleanSummary || firstLine,
         detail: bodyText,
         repo: repoPath,
+        // The project's full dossier lives in its OWN repo (.loci/memory.md). The
+        // brain only indexes — so read it on demand here for the detail panel.
+        memory: repoPath ? readProjectMemory(repoPath) : null,
         todos: repoPath ? readProjectTodos(repoPath) : [],
       });
     }
@@ -839,6 +878,7 @@ function buildAllData() {
     ['learning', buildLearning],
     ['links', buildLinks],
     ['references', buildReferences],
+    ['notes', buildNotes],
     ['projects', buildProjects],
   ];
 

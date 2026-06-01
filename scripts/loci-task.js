@@ -86,14 +86,20 @@ function datesInRange(start, end) {
   throw new Error('date range is too large');
 }
 
-function makeTaskId(title) {
+function makeTaskId(title, existingIds) {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   const slug = String(title || 'task')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .slice(0, 40) || 'task';
-  return `task_${stamp}_${slug}`;
+  const taken = existingIds instanceof Set ? existingIds : new Set();
+  let id;
+  do {
+    const rand = Math.random().toString(36).slice(2, 6);
+    id = `task_${stamp}_${slug}_${rand}`;
+  } while (taken.has(id));
+  return id;
 }
 
 function readJson(filePath, fallback) {
@@ -112,12 +118,12 @@ function writeJson(filePath, value) {
   fs.renameSync(tmp, filePath);
 }
 
-function normalizeTask(task) {
+function normalizeTask(task, existingIds) {
   const now = isoNow();
   const title = String(task.title || task.text || '').trim();
   const status = task.status || (task.done ? 'done' : 'open');
   return {
-    id: task.id || makeTaskId(title),
+    id: task.id || makeTaskId(title, existingIds),
     title,
     status,
     date: assertDate(task.date || null, 'date'),
@@ -361,7 +367,7 @@ function addTask(args) {
     endTime: args.end || args.endTime || null,
     project: args.project || null,
     source: args.source || 'agent',
-  });
+  }, new Set(tasks.map(t => t.id)));
   tasks.push(task);
   saveTasks(tasks, { syncCalendar: true });
   console.log(JSON.stringify({ ok: true, task }, null, 2));
