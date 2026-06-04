@@ -118,6 +118,27 @@ function writeJson(filePath, value) {
   fs.renameSync(tmp, filePath);
 }
 
+// urgency / importance: 0 = normal (default), 1 = high, 2 = highest.
+// The AI sets these only when the user signals a task is urgent / important;
+// most tasks stay 0. They drive task ordering (urgency → importance → time).
+function clampLevel(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(2, Math.round(n)));
+}
+
+// Accept either a number (0/1/2) or a word the AI might pass, e.g.
+// --urgency very  /  --importance high  /  --urgency 2
+function parseLevelArg(v) {
+  if (v === undefined || v === null || v === '') return undefined;
+  const s = String(v).trim().toLowerCase();
+  if (/^(0|none|normal|no)$/.test(s)) return 0;
+  if (/^(1|high|urgent|important|yes)$/.test(s)) return 1;
+  if (/^(2|highest|very|very-?high|very-?urgent|very-?important|critical|max)$/.test(s)) return 2;
+  const n = Number(s);
+  return Number.isFinite(n) ? clampLevel(n) : undefined;
+}
+
 function normalizeTask(task, existingIds) {
   const now = isoNow();
   const title = String(task.title || task.text || '').trim();
@@ -131,6 +152,8 @@ function normalizeTask(task, existingIds) {
     startTime: assertTime(task.startTime || task.start || null, 'startTime'),
     endTime: assertTime(task.endTime || task.end || null, 'endTime'),
     project: task.project || null,
+    urgency: clampLevel(task.urgency),
+    importance: clampLevel(task.importance),
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,
@@ -291,6 +314,8 @@ function validateTasks(tasks) {
     ids.add(task.id);
     if (!task.title) errors.push(`Task ${task.id} is missing title`);
     if (!['open', 'done', 'archived'].includes(task.status)) errors.push(`Task ${task.id} has invalid status: ${task.status}`);
+    if (![0, 1, 2].includes(task.urgency)) errors.push(`Task ${task.id} has invalid urgency: ${task.urgency}`);
+    if (![0, 1, 2].includes(task.importance)) errors.push(`Task ${task.id} has invalid importance: ${task.importance}`);
     if (task.endDate && !task.date) errors.push(`Task ${task.id} has endDate without date`);
     if (task.endDate && task.date && task.endDate < task.date) errors.push(`Task ${task.id} endDate is before date`);
     if (task.endTime && !task.startTime) errors.push(`Task ${task.id} has endTime without startTime`);
@@ -366,6 +391,8 @@ function addTask(args) {
     startTime: args.start || args.startTime || null,
     endTime: args.end || args.endTime || null,
     project: args.project || null,
+    urgency: parseLevelArg(args.urgency),
+    importance: parseLevelArg(args.importance),
     source: args.source || 'agent',
   }, new Set(tasks.map(t => t.id)));
   tasks.push(task);
@@ -380,6 +407,8 @@ function updateTask(args) {
   if (args.title || args.text) task.title = String(args.title || args.text).trim();
   if (args.project !== undefined) task.project = args.project || null;
   if (args.status) task.status = args.status;
+  if (args.urgency !== undefined) { const lv = parseLevelArg(args.urgency); if (lv !== undefined) task.urgency = lv; }
+  if (args.importance !== undefined) { const lv = parseLevelArg(args.importance); if (lv !== undefined) task.importance = lv; }
   if (args['clear-date']) {
     task.date = null;
     task.endDate = null;

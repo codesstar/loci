@@ -321,12 +321,20 @@ function normalizeTask(task) {
     startTime: task.startTime || null,
     endTime: task.endTime || null,
     project: task.project || null,
+    urgency: clampLevel(task.urgency),
+    importance: clampLevel(task.importance),
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,
     completedAt: task.completedAt || (status === 'done' ? (task.updatedAt || now) : null),
     archivedAt: task.archivedAt || null,
   };
+}
+
+function clampLevel(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(2, Math.round(n)));
 }
 
 function loadTaskRecords() {
@@ -493,6 +501,8 @@ function buildTasks() {
     startTime: task.startTime,
     endTime: task.endTime,
     project: task.project,
+    urgency: task.urgency || 0,
+    importance: task.importance || 0,
     source: task.source,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
@@ -668,13 +678,47 @@ function buildNotes() {
   }
   // The index file is rendered separately as the page header; don't list it among entries.
   const indexFile = readMdFileSimple(path.join(notesDir, 'index.md'));
+
+  // Parse index.md's raw markdown into structured external pointers so the
+  // frontend can list them like notes. Each pointer line follows the format:
+  //   - **<title>** · <link> · <gist> · #tag1 #tag2
+  // Parsing the raw markdown here is far more robust than parsing rendered HTML
+  // on the client. `index.content` (rendered HTML) is left untouched for compat.
+  const pointers = [];
+  const indexRaw = readRawBody(path.join(notesDir, 'index.md')) || '';
+  for (const rawLine of indexRaw.split('\n')) {
+    const line = rawLine.trim();
+    if (!line.startsWith('- ')) continue;
+    const m = line.match(/^-\s+\*\*(.+?)\*\*\s*·\s*(\S+)\s*·\s*(.+?)\s*·\s*(#.+)$/);
+    if (m) {
+      pointers.push({
+        title: m[1].trim(),
+        link: m[2].trim(),
+        gist: m[3].trim(),
+        tags: m[4].split(/\s+/).map(t => t.replace(/^#/, '')).filter(Boolean),
+      });
+    }
+  }
+
   const files = scanMdFilesRecursive(notesDir).filter(f => f.filename !== 'index.md');
   files.sort((a, b) => {
     const da = (a.meta && (a.meta.created || a.meta.date)) || '';
     const db = (b.meta && (b.meta.created || b.meta.date)) || '';
     return db.localeCompare(da);
   });
-  return { index: indexFile, files, total: files.length };
+
+  // User-created categories that have no notes yet, persisted in notes/.categories.json.
+  // The left-pane tag nav merges these with tags drawn from actual notes.
+  let customCategories = [];
+  try {
+    const catFile = path.join(notesDir, '.categories.json');
+    if (fs.existsSync(catFile)) {
+      const arr = JSON.parse(fs.readFileSync(catFile, 'utf-8'));
+      if (Array.isArray(arr)) customCategories = arr.filter(c => typeof c === 'string');
+    }
+  } catch (e) { /* ignore malformed category file */ }
+
+  return { index: indexFile, pointers, files, customCategories, total: files.length };
 }
 
 function buildLearning() {
@@ -860,6 +904,102 @@ function projectTodoCount(data) {
   return { total, done };
 }
 
+// ─── Overview (总览) ─────────────────────────────────────────────────────────
+// Aggregates real data from tasks.json / decisions / notes / projects into the
+// shape the Overview page renders. No fabricated metrics — every number traces
+// back to a file. Built last in buildAllData() so it can read sibling sections.
+const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function stripHtml(s) {
+  return String(s || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function dayKey(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function buildOverview(data) {
+  const records = loadTaskRecords(); // structured tasks.json
+  const now = new Date();
+  const todayKey = dayKey(now);
+
+  const open = records.filter(t => t.status === 'open');
+  const done = records.filter(t => t.status === 'done');
+
+  // 7-day completion trend, oldest → newest, bucketed by completedAt
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push({ key: dayKey(d), label: WEEKDAY_SHORT[d.getDay()], count: 0 });
+  }
+  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
+  let doneThisWeek = 0;
+  for (const t of done) {
+    if (!t.completedAt) continue;
+    const k = dayKey(new Date(t.completedAt));
+    if (byKey[k]) { byKey[k].count += 1; doneThisWeek += 1; }
+  }
+  const trendMax = Math.max(1, ...days.map(d => d.count));
+
+  // Today's tasks: dated today, or open & undated (always-relevant pool)
+  const intersectsToday = t => {
+    if (t.date && t.date <= todayKey && (!t.endDate || t.endDate >= todayKey)) return true;
+    return false;
+  };
+  const todayTasks = open
+    .filter(t => intersectsToday(t))
+    .map(t => ({ id: t.id, text: t.title, date: t.date, startTime: t.startTime, project: t.project, status: t.status }));
+
+  const recentDone = [...done]
+    .filter(t => t.completedAt)
+    .sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)))
+    .slice(0, 6)
+    .map(t => ({ text: t.title, completedAt: t.completedAt }));
+
+  const decisions = Array.isArray(data.decisions) ? data.decisions : [];
+  const recentDecisions = decisions.slice(0, 6).map(d => ({
+    title: stripHtml((d.content || '').split('\n')[0]) || d.filename,
+    date: (d.meta && d.meta.date) || '',
+    tags: (d.meta && d.meta.tags) || [],
+  }));
+
+  const noteFiles = (data.notes && data.notes.files) || [];
+  const recentNotes = noteFiles.slice(0, 5).map(n => ({
+    title: (n.meta && n.meta.title) || n.filename,
+    date: (n.meta && (n.meta.created || n.meta.date)) || '',
+    tags: (n.meta && n.meta.tags) || [],
+  }));
+
+  const serious = (data.projects && data.projects.serious) || [];
+  const projects = serious.map(p => {
+    const todos = p.todos || [];
+    return {
+      name: p.name,
+      status: p.status || 'active',
+      total: todos.length,
+      done: todos.filter(t => t.status === 'done').length,
+    };
+  });
+
+  return {
+    kpis: {
+      activeTasks: open.length,
+      doneThisWeek,
+      projects: serious.length,
+      decisions: decisions.length,
+    },
+    trend: { days, max: trendMax },
+    todayTasks,
+    recentDone,
+    recentDecisions,
+    recentNotes,
+    projects,
+  };
+}
+
 // ─── Build all data ─────────────────────────────────────────────────────────
 
 function buildAllData() {
@@ -887,6 +1027,7 @@ function buildAllData() {
   }
 
   data.stats = buildStats(data);
+  data.overview = buildOverview(data);
   const now = new Date();
   data.build_time = now.getFullYear() + '-' +
     String(now.getMonth() + 1).padStart(2, '0') + '-' +
@@ -1174,6 +1315,29 @@ function handleInboxRemove(body) {
   if (!found) return { error: 'Item not found: ' + text };
   fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
   return { ok: true, text };
+}
+
+// Add a user-created note category (a tag with no notes yet) to notes/.categories.json.
+function handleNotesAddCategory(body) {
+  const name = (body && body.name || '').trim();
+  if (!name) return { error: 'Missing category name' };
+  if (name.length > 24) return { error: 'Category name too long' };
+
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  if (!fs.existsSync(notesDir)) fs.mkdirSync(notesDir, { recursive: true });
+  const catFile = path.join(notesDir, '.categories.json');
+
+  let cats = [];
+  try {
+    if (fs.existsSync(catFile)) {
+      const arr = JSON.parse(fs.readFileSync(catFile, 'utf-8'));
+      if (Array.isArray(arr)) cats = arr.filter(c => typeof c === 'string');
+    }
+  } catch (e) { /* start fresh on malformed file */ }
+
+  if (!cats.includes(name)) cats.push(name);
+  fs.writeFileSync(catFile, JSON.stringify(cats, null, 2), 'utf-8');
+  return { ok: true, categories: cats };
 }
 
 function handleReferenceAdd(body) {
@@ -1569,6 +1733,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (pathname === '/api/notes/add-category' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNotesAddCategory(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   if (pathname === '/api/references/remove' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -1699,6 +1878,9 @@ const server = http.createServer(async (req, res) => {
   let filePath;
   if (pathname === '/' || pathname === '/index.html') {
     filePath = path.join(SCRIPT_DIR, 'index.html');
+  } else if (pathname === '/clean' || pathname === '/clean.html') {
+    // Clean theme — standalone copy of the dashboard; original index.html untouched
+    filePath = path.join(SCRIPT_DIR, 'index-clean.html');
   } else {
     filePath = path.join(SCRIPT_DIR, pathname);
   }
