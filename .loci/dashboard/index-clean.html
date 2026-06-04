@@ -705,6 +705,187 @@
     .crystal-card::before, .crystal-card::after { content: none !important; display: none !important; }
     .crystal-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 
+    /* ===== Memory · Profile (avatar card + rings + radar + values + insights) ===== */
+    .mp-wrap{ max-width:1100px; margin:0 auto; }
+    .mp-statusbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+    .mp-brand{ display:flex; align-items:center; gap:10px; }
+    .mp-logo-dot{ width:9px;height:9px;border-radius:50%;background:var(--accent); box-shadow:0 0 0 4px var(--accent-weak); animation:mp-pulse 2.6s ease-in-out infinite; }
+    @keyframes mp-pulse{0%,100%{box-shadow:0 0 0 4px var(--accent-weak)}50%{box-shadow:0 0 0 7px rgba(217,245,233,.5)}}
+    .mp-sysline{ font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.06em; }
+    .mp-sysline b{ color:var(--ink-2); font-weight:600; }
+    .mp-online{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.12em; color:var(--accent-ink); background:var(--accent-weak); padding:5px 11px; border-radius:999px; }
+    .mp-online::before{ content:""; width:6px;height:6px;border-radius:50%;background:var(--accent); box-shadow:0 0 6px var(--accent); }
+    .mp-sheet{ display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; }
+    @media(max-width:900px){ .mp-sheet{ grid-template-columns:1fr; } }
+    .mp-card{ background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:0 1px 2px rgba(28,28,26,.04),0 8px 24px -12px rgba(28,28,26,.10); }
+    .mp-hero{ padding:30px 28px 26px; position:relative; overflow:hidden; }
+    .mp-hero::before{ content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(120% 80% at 50% -20%, rgba(16,185,129,.08), transparent 60%); }
+    .mp-corner{ position:absolute; top:14px; right:16px; font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--ink-4); text-transform:uppercase; }
+    .mp-avatar-stage{ position:relative; width:148px; height:148px; margin:8px auto 0; }
+    .mp-ring-svg{ position:absolute; inset:0; transform:rotate(-90deg); }
+    .mp-track{ fill:none; stroke:var(--line-2); stroke-width:5; }
+    .mp-prog{ fill:none; stroke:url(#mpgA); stroke-width:5; stroke-linecap:round; stroke-dasharray:434; stroke-dashoffset:434; animation:mp-draw 1.6s cubic-bezier(.22,1,.36,1) .25s forwards; }
+    @keyframes mp-draw{ to{ stroke-dashoffset:54; } }
+    .mp-avatar{ position:absolute; inset:16px; border-radius:50%; overflow:hidden; background:var(--surface-2); box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 26px -10px rgba(4,120,87,.4); }
+    .mp-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .mp-badge{ position:absolute; bottom:2px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.08em; padding:4px 11px; border-radius:999px; white-space:nowrap; box-shadow:0 6px 16px -6px rgba(0,0,0,.4); }
+    .mp-name{ text-align:center; margin-top:24px; }
+    .mp-name h1{ font-size:27px; font-weight:800; letter-spacing:-.5px; }
+    .mp-role{ margin-top:7px; display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.04em; color:var(--accent-ink); background:var(--accent-weak); padding:5px 12px; border-radius:999px; }
+    .mp-meta{ margin-top:22px; border-top:1px dashed var(--line-2); padding-top:18px; display:flex; flex-direction:column; gap:13px; }
+    .mp-meta-row{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
+    .mp-meta-row .k{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); flex:none; }
+    .mp-meta-row .v{ font-size:13.5px; font-weight:500; color:var(--ink); text-align:right; }
+    .mp-tags{ margin-top:22px; border-top:1px dashed var(--line-2); padding-top:18px; }
+    .mp-eyebrow{ display:block; margin-bottom:11px; font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-3); }
+    .mp-chips{ display:flex; flex-wrap:wrap; gap:7px; }
+    .mp-chip{ font-size:12px; font-weight:500; color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line); padding:6px 11px; border-radius:8px; transition:.18s; }
+    .mp-chip::before{ content:""; display:inline-block; width:5px;height:5px;border-radius:50%; background:var(--accent-mid); margin-right:7px; vertical-align:middle; }
+    .mp-chip:hover{ border-color:var(--accent-mid); color:var(--accent-ink); background:var(--accent-weak); }
+    .mp-right{ display:flex; flex-direction:column; gap:20px; }
+    .mp-panel{ padding:24px 26px; }
+    .mp-panel-head{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+    .mp-panel-head h2{ font-size:15px; font-weight:700; letter-spacing:-.2px; }
+    .mp-sub{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); letter-spacing:.08em; margin-left:auto; }
+    .mp-ic{ width:26px;height:26px;border-radius:8px;display:grid;place-items:center; background:var(--accent-weak); color:var(--accent-ink); flex:none; }
+    .mp-ic svg{ width:15px;height:15px; }
+    .mp-attrs{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    @media(max-width:620px){ .mp-attrs{ grid-template-columns:repeat(2,1fr); } }
+    .mp-attr{ background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:16px 12px 14px; text-align:center; transition:.2s; }
+    .mp-attr:hover{ transform:translateY(-3px); box-shadow:0 1px 2px rgba(28,28,26,.04),0 8px 24px -12px rgba(28,28,26,.10); border-color:var(--line-2); }
+    .mp-gauge{ position:relative; width:78px;height:78px; margin:0 auto 10px; }
+    .mp-gauge svg{ transform:rotate(-90deg); }
+    .mp-gt{ fill:none; stroke:var(--line-2); stroke-width:6; }
+    .mp-gp{ fill:none; stroke:var(--accent); stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+    .mp-gp.alt{ stroke:var(--orange); }
+    .mp-num{ position:absolute; inset:0; display:grid; place-items:center; font-family:var(--mono); font-size:18px; font-weight:600; color:var(--ink); }
+    .mp-lab{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); }
+    .mp-en{ display:block; font-size:9px; color:var(--ink-4); margin-top:3px; letter-spacing:.05em; }
+    .mp-radar-wrap{ display:grid; grid-template-columns:200px 1fr; gap:24px; align-items:center; }
+    @media(max-width:620px){ .mp-radar-wrap{ grid-template-columns:1fr; } }
+    .mp-radar{ width:200px;height:200px; margin:0 auto; }
+    .mp-grid-l{ fill:none; stroke:var(--line-2); stroke-width:1; }
+    .mp-axis{ stroke:var(--line); stroke-width:1; }
+    .mp-poly{ fill:rgba(16,185,129,.13); stroke:var(--accent); stroke-width:2; stroke-linejoin:round; transform-origin:center; animation:mp-bloom 1.1s cubic-bezier(.22,1,.36,1) .3s both; }
+    @keyframes mp-bloom{ from{transform:scale(.3);opacity:0} to{transform:scale(1);opacity:1} }
+    .mp-vtx{ fill:#fff; stroke:var(--accent); stroke-width:2; }
+    .mp-rlbl{ font-family:var(--mono); font-size:8.5px; fill:var(--ink-3); font-weight:600; letter-spacing:.04em; }
+    .mp-legend{ display:flex; flex-direction:column; gap:11px; }
+    .mp-li{ display:flex; align-items:center; gap:11px; }
+    .mp-dot{ width:9px;height:9px;border-radius:3px;background:var(--accent); flex:none; }
+    .mp-nm{ font-size:13px; font-weight:500; color:var(--ink-2); flex:1; }
+    .mp-vl{ font-family:var(--mono); font-size:13px; font-weight:600; color:var(--ink); }
+    .mp-barwrap{ margin-top:3px; height:4px; border-radius:999px; background:var(--line-2); overflow:hidden; }
+    .mp-bar{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent-ink),var(--accent-mid)); width:0; animation:mp-fill 1.2s cubic-bezier(.22,1,.36,1) .4s forwards; }
+    @keyframes mp-fill{ to{ width:var(--w); } }
+    .mp-skills{ display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    @media(max-width:620px){ .mp-skills{ grid-template-columns:1fr; } }
+    .mp-skill{ position:relative; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:16px 16px 16px 17px; overflow:hidden; transition:.2s; }
+    .mp-skill::before{ content:""; position:absolute; left:0;top:0;bottom:0; width:3px; background:linear-gradient(180deg,var(--accent-mid),var(--accent)); opacity:.85; }
+    .mp-skill:hover{ transform:translateY(-2px); box-shadow:0 1px 2px rgba(28,28,26,.04),0 8px 24px -12px rgba(28,28,26,.10); border-color:var(--line-2); background:#fff; }
+    .mp-skill-top{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+    .mp-pip{ width:24px;height:24px;border-radius:7px; background:var(--accent-weak); color:var(--accent-ink); display:grid;place-items:center; flex:none; font-family:var(--mono); font-size:11px; font-weight:600; }
+    .mp-ttl{ font-size:13.5px; font-weight:700; letter-spacing:-.1px; flex:1; }
+    .mp-skill-desc{ font-size:12.5px; color:var(--ink-2); line-height:1.55; }
+    .mp-skill.last{ grid-column:1 / -1; }
+    .mp-unlocks{ display:flex; flex-direction:column; }
+    .mp-unlock{ display:flex; align-items:flex-start; gap:14px; padding:15px 4px; border-bottom:1px solid var(--line); }
+    .mp-unlock:last-child{ border-bottom:none; }
+    .mp-mark{ width:28px;height:28px;border-radius:9px; flex:none; background:var(--accent-weak); display:grid;place-items:center; color:var(--accent-ink); transition:.2s; }
+    .mp-mark svg{ width:15px;height:15px; }
+    .mp-unlock:hover .mp-mark{ transform:scale(1.06); }
+    .mp-ubody{ flex:1; min-width:0; }
+    .mp-ut{ font-size:13.5px; font-weight:500; color:var(--ink); line-height:1.5; }
+    .mp-umeta{ display:flex; align-items:center; gap:10px; margin-top:6px; }
+    .mp-uid{ font-family:var(--mono); font-size:9.5px; font-weight:600; letter-spacing:.1em; color:var(--ink-3); text-transform:uppercase; }
+    .mp-ubadge{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.12em; color:var(--accent-ink); text-transform:uppercase; }
+    .mp-foot{ margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .mp-fl{ font-family:var(--mono); font-size:10.5px; color:var(--ink-4); letter-spacing:.1em; }
+    .mp-xp{ flex:1; max-width:300px; height:6px; border-radius:999px; background:var(--line-2); overflow:hidden; }
+    .mp-xp i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent-ink),var(--accent-mid)); width:0; animation:mp-fill 1.4s cubic-bezier(.22,1,.36,1) .5s forwards; }
+    /* right-top segmented toggle (价值观 / 洞察) */
+    .mp-seg{ margin-left:auto; display:inline-flex; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; }
+    .mp-seg button{ font-family:var(--sans); font-size:12px; font-weight:600; color:var(--ink-3); background:transparent; border:0; border-radius:7px; padding:5px 12px; cursor:pointer; transition:.16s; }
+    .mp-seg button:hover{ color:var(--ink-2); }
+    .mp-seg button.on{ color:#fff; background:var(--accent); box-shadow:0 1px 2px rgba(16,185,129,.25); }
+    /* values list */
+    .mp-vlist{ display:flex; flex-direction:column; }
+    .mp-vrow{ display:flex; align-items:flex-start; gap:13px; padding:13px 0; border-top:1px solid var(--line); }
+    .mp-vrow:first-child{ border-top:none; padding-top:4px; }
+    .mp-vnum{ flex:none; font-family:var(--mono); font-size:11px; font-weight:600; color:var(--accent-ink); width:22px;height:22px;border-radius:7px; background:var(--accent-weak); display:flex;align-items:center;justify-content:center; margin-top:1px; transition:.22s; }
+    .mp-vrow:hover .mp-vnum{ background:var(--accent); color:#fff; transform:translateY(-1px); }
+    .mp-vbody{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .mp-vt{ font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.005em; }
+    .mp-vd{ font-size:12.5px; color:var(--ink-3); line-height:1.5; }
+    /* insights timeline */
+    .mp-tl-sub{ font-size:12.5px; color:var(--ink-3); margin:2px 0 0; }
+    .mp-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; margin:16px 0 4px; padding:11px 14px; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; }
+    .mp-leg{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--ink-2); font-weight:500; }
+    .mp-sw{ width:8px;height:8px;border-radius:50%;flex:none; }
+    .mp-tl{ position:relative; margin-top:22px; padding-left:6px; }
+    .mp-tl::before{ content:""; position:absolute; left:14px; top:6px; bottom:6px; width:2px; background:linear-gradient(180deg,var(--line-2) 0%,var(--line) 8%,var(--line) 92%,transparent 100%); border-radius:2px; }
+    .mp-node{ position:relative; padding:0 4px 22px 44px; --hue:var(--accent); --hue-weak:var(--accent-weak); --hue-ink:var(--accent-ink);
+      opacity:0; transform:translateY(8px); animation:mp-rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
+    .mp-node:last-child{ padding-bottom:2px; }
+    .mp-node:nth-child(1){animation-delay:.05s}.mp-node:nth-child(2){animation-delay:.13s}.mp-node:nth-child(3){animation-delay:.21s}.mp-node:nth-child(4){animation-delay:.29s}.mp-node:nth-child(5){animation-delay:.37s}
+    @keyframes mp-rise{ to{ opacity:1; transform:translateY(0); } }
+    .mp-tl-dot{ position:absolute; left:6px; top:3px; width:18px;height:18px;border-radius:50%; background:var(--surface); border:2px solid var(--hue); display:flex;align-items:center;justify-content:center; z-index:2; box-shadow:0 0 0 5px var(--surface); transition:transform .28s cubic-bezier(.2,.7,.3,1); }
+    .mp-tl-dot::after{ content:""; width:7px;height:7px;border-radius:50%; background:var(--hue); }
+    .mp-halo{ position:absolute; inset:-2px; border-radius:50%; border:2px solid var(--hue); opacity:0; animation:mp-halo 4.2s ease-out infinite; }
+    @keyframes mp-halo{ 0%{transform:scale(1);opacity:.4} 55%{transform:scale(1.9);opacity:0} 100%{transform:scale(1.9);opacity:0} }
+    .mp-node:nth-child(1) .mp-halo{animation-delay:0s}.mp-node:nth-child(2) .mp-halo{animation-delay:.85s}.mp-node:nth-child(3) .mp-halo{animation-delay:1.7s}.mp-node:nth-child(4) .mp-halo{animation-delay:2.55s}.mp-node:nth-child(5) .mp-halo{animation-delay:3.4s}
+    .mp-node:hover .mp-tl-dot{ transform:scale(1.12); }
+    .mp-ncard{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px 15px; transition:.25s; position:relative; }
+    .mp-ncard::before{ content:""; position:absolute; left:-16px; top:13px; width:14px;height:1px; background:var(--line-2); }
+    .mp-node:hover .mp-ncard{ transform:translateX(2px); border-color:color-mix(in srgb, var(--hue) 38%, var(--line)); box-shadow:0 10px 28px -20px color-mix(in srgb, var(--hue) 70%, transparent); }
+    .mp-ncard-top{ display:flex; align-items:center; gap:9px; margin-bottom:6px; }
+    .mp-ntag{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--hue-ink); background:var(--hue-weak); padding:3px 9px; border-radius:999px; border:1px solid color-mix(in srgb,var(--hue) 22%, transparent); }
+    .mp-tsw{ width:6px;height:6px;border-radius:50%;background:var(--hue); }
+    .mp-nindex{ margin-left:auto; font-family:var(--mono); font-size:10.5px; font-weight:500; color:var(--ink-4); }
+    .mp-ntext{ font-size:14px; font-weight:500; color:var(--ink); letter-spacing:-.005em; line-height:1.55; }
+    @media (prefers-reduced-motion:reduce){ .mp-node{opacity:1;transform:none;animation:none} .mp-halo{animation:none} }
+    /* classic card top-right toggle button */
+    .mp-cardtoggle{ position:absolute; top:14px; right:14px; z-index:4; width:28px;height:28px; display:grid;place-items:center; border:1px solid var(--line); background:var(--surface); border-radius:8px; color:var(--ink-3); cursor:pointer; transition:.16s; }
+    .mp-cardtoggle:hover{ color:var(--accent-ink); border-color:var(--accent-mid); background:var(--accent-weak); }
+    .mp-cardtoggle svg{ width:15px;height:15px; }
+    /* ===== cover-style profile card (toggle alt) ===== */
+    .mc1-card{ position:relative; background:var(--surface); border:1px solid var(--line); border-radius:24px; overflow:hidden; box-shadow:0 1px 2px rgba(28,28,26,.04),0 12px 28px -12px rgba(28,28,26,.14),0 40px 80px -40px rgba(16,185,129,.18); animation:mp-rise .7s cubic-bezier(.16,1,.3,1) both; }
+    .mc1-toggle{ position:absolute; top:14px; right:14px; z-index:5; width:28px;height:28px; display:grid;place-items:center; border:1px solid rgba(255,255,255,.7); background:rgba(255,255,255,.7); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-radius:8px; color:var(--accent-ink); cursor:pointer; transition:.16s; box-shadow:0 2px 8px rgba(28,28,26,.06); }
+    .mc1-toggle:hover{ background:#fff; }
+    .mc1-toggle svg{ width:15px;height:15px; }
+    .mc1-banner{ position:relative; height:300px; overflow:hidden; background:linear-gradient(180deg,#eef8f2,#e7f4ee); }
+    .mc1-banner::before{ content:""; position:absolute; inset:0; z-index:0; background:radial-gradient(520px 360px at 50% -8%, rgba(52,211,153,.55) 0%, rgba(52,211,153,0) 62%), radial-gradient(360px 260px at 18% 18%, rgba(16,185,129,.30) 0%, rgba(16,185,129,0) 60%); animation:mc1-breathe 7s ease-in-out infinite; }
+    @keyframes mc1-breathe{ 0%,100%{opacity:.85;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
+    .mc1-banner img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 22%; z-index:1; animation:mc1-zoom 18s ease-in-out infinite alternate; }
+    @keyframes mc1-zoom{ from{transform:scale(1.02)} to{transform:scale(1.08)} }
+    .mc1-status{ position:absolute; top:16px; left:16px; z-index:3; display:inline-flex; align-items:center; gap:7px; padding:6px 11px 6px 9px; background:rgba(255,255,255,.7); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.7); border-radius:999px; font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--accent-ink); box-shadow:0 2px 8px rgba(28,28,26,.06); }
+    .mc1-sdot{ width:7px;height:7px;border-radius:50%; background:var(--accent); animation:mp-pulse 2.4s ease-out infinite; }
+    .mc1-banner-foot{ position:absolute; left:0;right:0;bottom:0; z-index:2; padding:42px 22px 18px; background:linear-gradient(180deg, rgba(246,246,244,0) 0%, rgba(246,246,244,.55) 38%, rgba(255,255,255,.92) 100%); }
+    .mc1-name-row{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
+    .mc1-name{ font-size:26px; font-weight:700; letter-spacing:-.02em; color:var(--ink); line-height:1; }
+    .mc1-name-meta{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-ink); background:var(--accent-weak); border:1px solid rgba(16,185,129,.18); padding:3px 7px; border-radius:6px; }
+    .mc1-role{ margin-top:7px; font-size:13px; font-weight:500; color:var(--ink-2); letter-spacing:.01em; }
+    .mc1-body{ padding:18px 22px 22px; }
+    .mc1-meta{ display:flex; align-items:center; padding-bottom:16px; border-bottom:1px solid var(--line); }
+    .mc1-meta-item{ flex:1; text-align:center; position:relative; }
+    .mc1-meta-item + .mc1-meta-item::before{ content:""; position:absolute; left:0;top:50%; transform:translateY(-50%); height:26px;width:1px; background:var(--line-2); }
+    .mc1-meta-k{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px; }
+    .mc1-meta-v{ font-size:12.5px; font-weight:600; color:var(--ink); }
+    .mc1-section-label{ font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin:18px 0 11px; }
+    .mc1-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+    .mc1-tag{ font-size:12px; font-weight:500; color:var(--accent-ink); background:var(--accent-weak); border:1px solid rgba(16,185,129,.16); padding:6px 12px; border-radius:999px; transition:.25s; }
+    .mc1-tag:hover{ transform:translateY(-2px); box-shadow:0 6px 14px -6px rgba(16,185,129,.5); }
+    .mc1-note{ margin-top:16px; padding:13px 14px; background:var(--surface-2); border:1px solid var(--line); border-radius:14px; display:flex; gap:11px; align-items:flex-start; }
+    .mc1-bar{ width:3px; align-self:stretch; border-radius:3px; background:linear-gradient(180deg,var(--accent-mid),var(--accent)); flex:none; }
+    .mc1-note-text{ font-size:12.5px; line-height:1.55; color:var(--ink-2); }
+    .mc1-stats{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(5,1fr); }
+    .mc1-stat{ text-align:center; position:relative; padding:0 2px; }
+    .mc1-stat + .mc1-stat::before{ content:""; position:absolute; left:0;top:8px;bottom:8px; width:1px; background:var(--line-2); }
+    .mc1-stat-n{ font-family:var(--mono); font-size:17px; font-weight:500; color:var(--ink); line-height:1; }
+    .mc1-stat:first-child .mc1-stat-n{ color:var(--accent-ink); }
+    .mc1-u{ font-size:10px; color:var(--ink-3); margin-left:1px; }
+    .mc1-stat-k{ margin-top:6px; font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+
     /* ----- mem-crystal (journal AI summary + memory tabs) → Clean card ----- */
     .mem-parallax-wrap { perspective: none !important; }
     .mem-crystal, .mem-parallax-content {
@@ -1896,6 +2077,71 @@
       .kpis { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
     }
 
+    /* ===== Notes · R2 (two-pane: source+entries / body-or-jump) ===== */
+    .nr{ position:relative; display:grid; grid-template-columns:300px 1fr; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; min-height:600px; font-family:var(--sans); color:var(--ink); letter-spacing:-.011em; }
+    .nr *{ box-sizing:border-box; }
+    .nr-left{ border-right:1px solid var(--line); background:var(--surface-2); display:flex; flex-direction:column; min-width:0; }
+    .nr-left-head{ padding:16px 18px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .nr-left-eyebrow{ font-family:var(--mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-3); }
+    .nr-left-title{ font-size:15px; font-weight:700; letter-spacing:-.01em; margin-top:3px; }
+    .nr-collapse{ flex:none; width:26px;height:26px; display:grid;place-items:center; border:1px solid var(--line); background:var(--surface); border-radius:8px; color:var(--ink-3); cursor:pointer; transition:.15s; }
+    .nr-collapse:hover{ color:var(--ink); border-color:var(--line-2); background:var(--surface-2); }
+    .nr-collapse svg{ width:15px;height:15px; }
+    .nr--collapsed{ grid-template-columns:1fr; }
+    .nr--collapsed .nr-left{ display:none; }
+    .nr-expand{ position:absolute; top:14px; left:14px; z-index:5; width:30px;height:30px; display:none; place-items:center; border:1px solid var(--line); background:var(--surface); border-radius:9px; color:var(--ink-2); cursor:pointer; box-shadow:var(--shadow-sm); transition:.15s; }
+    .nr-expand:hover{ color:var(--ink); border-color:var(--line-2); }
+    .nr-expand svg{ width:16px;height:16px; }
+    .nr--collapsed .nr-expand{ display:grid; }
+    .nr--collapsed .nr-right-head{ padding-left:56px; }
+    .nr-search{ margin:4px 14px 8px; display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
+    .nr-search svg{ width:14px;height:14px;color:var(--ink-3);flex:none; }
+    .nr-search input{ border:0; outline:0; background:transparent; font-family:var(--sans); font-size:12.5px; color:var(--ink); width:100%; }
+    .nr-srcs{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 14px 10px; border-bottom:1px solid var(--line); }
+    .nr-src{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-2); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 10px; cursor:pointer; transition:.16s; }
+    .nr-src:hover{ border-color:var(--line-2); }
+    .nr-src.on{ color:#fff; background:var(--accent); border-color:transparent; }
+    .nr-src .dot{ width:7px;height:7px;border-radius:50%; background:var(--ink-4); }
+    .nr-src.on .dot{ background:#fff; }
+    .nr-src .n{ font-family:var(--mono); font-size:10.5px; opacity:.75; }
+    .nr-list{ flex:1; overflow-y:auto; padding:8px; scrollbar-width:thin; scrollbar-color:#d9f5e9 transparent; }
+    .nr-grp{ font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-4); padding:10px 8px 5px; }
+    .nr-item{ display:flex; align-items:flex-start; gap:9px; padding:9px; border-radius:10px; cursor:pointer; transition:.14s; }
+    .nr-item:hover{ background:var(--surface); }
+    .nr-item.sel{ background:var(--surface); box-shadow:inset 0 0 0 1px var(--accent), var(--shadow-sm); }
+    .nr-ico{ flex:none; width:22px;height:22px; border-radius:7px; display:grid;place-items:center; margin-top:1px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); }
+    .nr-ico svg{ width:13px;height:13px; }
+    .nr-ico-lg{ width:28px;height:28px;border-radius:8px; } .nr-ico-lg svg{ width:16px;height:16px; }
+    .nr-ico-xl{ width:54px;height:54px;border-radius:15px;background:var(--surface);box-shadow:var(--shadow-sm);margin:0 auto 14px; } .nr-ico-xl svg{ width:26px;height:26px; }
+    .nr-mid{ min-width:0; flex:1; }
+    .nr-ti-row{ display:flex; align-items:center; gap:6px; min-width:0; }
+    .nr-ti{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nr-pill{ flex:none; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.3px; line-height:1; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 5px; }
+    .nr-sub{ font-size:11px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
+    .nr-badge{ flex:none; font-family:var(--mono); font-size:9px; letter-spacing:.5px; color:var(--ink-4); margin-top:3px; }
+    .nr-item.sel .nr-badge{ color:var(--accent-ink); }
+    .nr-empty{ padding:30px 14px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:1px; color:var(--ink-3); line-height:2; }
+    .nr-right{ display:flex; flex-direction:column; min-width:0; }
+    .nr-right-head{ display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:1px solid var(--line); }
+    .nr-htitle{ font-size:15px; font-weight:700; letter-spacing:-.01em; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .nr-hsrc{ margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--ink-3); }
+    .nr-doc{ flex:1; overflow-y:auto; padding:24px 30px 40px; scrollbar-width:thin; scrollbar-color:#d9f5e9 transparent; }
+    .nr-doc-meta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+    .nr-tag{ font-family:var(--mono); font-size:10.5px; color:var(--accent-ink); background:var(--accent-weak); border-radius:6px; padding:2px 7px; }
+    .nr-date{ font-family:var(--mono); font-size:10.5px; color:var(--ink-4); }
+    .nr-path{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+    .nr-ext{ margin:18px 0; border:1px solid var(--line); border-radius:16px; padding:32px 26px; text-align:center; background:var(--surface-2); }
+    .nr-gist{ font-size:14px; color:var(--ink-2); line-height:1.6; max-width:440px; margin:0 auto 18px; }
+    .nr-jump{ display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:650; color:#fff; background:var(--accent); border:0; border-radius:11px; padding:11px 20px; cursor:pointer; text-decoration:none; box-shadow:0 1px 2px rgba(16,185,129,.2),0 6px 16px rgba(16,185,129,.16); transition:.16s; }
+    .nr-jump:hover{ filter:brightness(1.04); transform:translateY(-1px); }
+    .nr-note{ margin-top:14px; font-family:var(--mono); font-size:10.5px; color:var(--ink-4); }
+    .nr-ph{ flex:1; display:grid; place-items:center; color:var(--ink-3); }
+    .nr-ph .box{ text-align:center; }
+    .nr-ph svg{ width:46px;height:46px; color:var(--line-2); margin-bottom:12px; }
+    .nr-ph .t{ font-size:14px; font-weight:600; color:var(--ink-2); }
+    .nr-ph .s{ font-size:12.5px; color:var(--ink-3); margin-top:4px; }
+    @media (max-width:920px){ .nr{ grid-template-columns:1fr; } .nr-left{ max-height:300px; } }
+
     /* ===== Notes · Fused (rail nvA- + content nvD-) ===== */
     .ntx-app{ display:grid; grid-template-columns:240px 1fr; gap:26px; max-width:1320px; margin:0; align-items:start; font-family:var(--sans); color:var(--ink); letter-spacing:-.011em; --obs:#6d54c0; --fs:var(--blue); --no:#1c1c1a; }
     .ntx-app *{box-sizing:border-box;}
@@ -2530,6 +2776,20 @@
 }
 
 /* notes strip (full width) */
+/* small overall-snapshot radar (moved from Memory) */
+.ovrad-body{ display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center; margin-top:8px; }
+.ovrad-radar{ width:140px; height:140px; }
+.ovrad-grid{ fill:none; stroke:var(--line-2); stroke-width:1; }
+.ovrad-axis{ stroke:var(--line); stroke-width:1; }
+.ovrad-poly{ fill:rgba(16,185,129,.13); stroke:var(--accent); stroke-width:2; stroke-linejoin:round; transform-origin:center; animation:mp-bloom 1s cubic-bezier(.22,1,.36,1) .2s both; }
+.ovrad-vtx{ fill:#fff; stroke:var(--accent); stroke-width:1.8; }
+.ovrad-lbl{ font-family:var(--mono); font-size:8px; fill:var(--ink-3); font-weight:600; letter-spacing:.04em; }
+.ovrad-legend{ display:flex; flex-direction:column; gap:7px; }
+.ovrad-li{ display:flex; align-items:center; gap:9px; }
+.ovrad-dot{ width:8px;height:8px;border-radius:3px;background:var(--accent); flex:none; }
+.ovrad-nm{ font-size:12px; color:var(--ink-2); flex:1; }
+.ovrad-vl{ font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink); }
+@media (max-width:520px){ .ovrad-body{ grid-template-columns:1fr; justify-items:center; } }
 .ovA-notes { grid-column: 1 / -1; }
 .ovA-note-grid {
   margin-top: 8px;
@@ -3225,6 +3485,33 @@
                   </div>
                 </div>
 
+                <!-- small radar: overall snapshot (moved from Memory) -->
+                <div class="ovA-card ovrad-card">
+                  <div class="ovA-sec-head">
+                    <span class="ovA-eyebrow ovA-eyebrow-grn">SNAPSHOT</span>
+                    <span class="ovA-sec-t">{{ lang === 'zh' ? '整体概览' : 'Overview' }}</span>
+                  </div>
+                  <div class="ovrad-body">
+                    <svg class="ovrad-radar" viewBox="0 0 200 200" aria-hidden="true">
+                      <polygon class="ovrad-grid" points="100,18 178,76 148,168 52,168 22,76"/>
+                      <polygon class="ovrad-grid" points="100,52 144,86 127,140 73,140 56,86"/>
+                      <line class="ovrad-axis" x1="100" y1="100" x2="100" y2="18"/><line class="ovrad-axis" x1="100" y1="100" x2="178" y2="76"/><line class="ovrad-axis" x1="100" y1="100" x2="148" y2="168"/><line class="ovrad-axis" x1="100" y1="100" x2="52" y2="168"/><line class="ovrad-axis" x1="100" y1="100" x2="22" y2="76"/>
+                      <polygon class="ovrad-poly" :points="memoryProfile.radarPoints"/>
+                      <circle class="ovrad-vtx" v-for="(p, pi) in memoryProfile.radarVerts" :key="pi" :cx="p.x" :cy="p.y" r="2.6"/>
+                      <text class="ovrad-lbl" x="100" y="11" text-anchor="middle">{{ memoryProfile.radar[0].nm }}</text>
+                      <text class="ovrad-lbl" x="184" y="74" text-anchor="start">{{ memoryProfile.radar[1].nm }}</text>
+                      <text class="ovrad-lbl" x="150" y="182" text-anchor="middle">{{ memoryProfile.radar[2].nm }}</text>
+                      <text class="ovrad-lbl" x="50" y="182" text-anchor="middle">{{ memoryProfile.radar[3].nm }}</text>
+                      <text class="ovrad-lbl" x="16" y="74" text-anchor="end">{{ memoryProfile.radar[4].nm }}</text>
+                    </svg>
+                    <div class="ovrad-legend">
+                      <div class="ovrad-li" v-for="r in memoryProfile.radar" :key="r.nm">
+                        <span class="ovrad-dot"></span><span class="ovrad-nm">{{ r.nm }}</span><span class="ovrad-vl">{{ r.vl }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               <!-- FULL-WIDTH: recent notes -->
@@ -3818,156 +4105,121 @@
 
         <!-- ========== MEMORY ========== -->
         <section v-if="currentPage === 'memory'">
-          <!-- Header -->
-          <header class="pagehead">
-            <div class="lead">
-              <h1>{{ t('memory.memoryCore') }}</h1>
-              <div class="sub">{{ lang === 'zh' ? '你是谁 · 你看重什么 · 你学到了什么' : 'Who you are · what you value · what you learned' }}</div>
+          <div class="mp-wrap">
+            <!-- status bar -->
+            <div class="mp-statusbar">
+              <div class="mp-brand"><span class="mp-logo-dot"></span><span class="mp-sysline">LOCI <b>· MEMORY</b></span></div>
+              <div class="mp-sysline">{{ lang === 'zh' ? '个人档案' : 'PERSONAL PROFILE' }}</div>
+              <span class="mp-online">{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + 'D' }}</span>
             </div>
-          </header>
 
-          <!-- Tabs -->
-          <div data-tour="memory-tabs" class="tabs" style="margin-bottom: 24px;">
-            <button v-for="tab in memoryTabs" :key="tab.id" @click="memoryTab = tab.id"
-              :class="['hud-tab', memoryTab === tab.id ? 'active' : '']">{{ tab.label }}</button>
-          </div>
+            <div class="mp-sheet">
+              <!-- LEFT : profile card -->
+              <aside v-if="memoryCardStyle === 'classic'" class="mp-card mp-hero">
+                <button class="mp-cardtoggle" type="button" :title="lang === 'zh' ? '换名片样式' : 'Switch card style'" @click="memoryCardStyle = 'cover'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+                </button>
+                <div class="mp-avatar-stage">
+                  <svg class="mp-ring-svg" viewBox="0 0 148 148" width="148" height="148">
+                    <defs><linearGradient id="mpgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#047857"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs>
+                    <circle class="mp-track" cx="74" cy="74" r="69"/>
+                    <circle class="mp-prog" cx="74" cy="74" r="69"/>
+                  </svg>
+                  <div class="mp-avatar"><img :src="memoryProfile.avatar" alt="avatar" /></div>
+                  <div class="mp-badge">{{ lang === 'zh' ? '记忆 ' + memoryProfile.stats.memories + ' · 活跃 ' + memoryProfile.stats.active + ' 天' : memoryProfile.stats.memories + ' memories · ' + memoryProfile.stats.active + 'd' }}</div>
+                </div>
+                <div class="mp-name">
+                  <h1>{{ memoryProfile.name }}</h1>
+                  <div class="mp-role">{{ memoryProfile.role }}</div>
+                </div>
+                <div class="mp-meta">
+                  <div class="mp-meta-row" v-for="m in memoryProfile.meta" :key="m.k"><span class="k">{{ m.k }}</span><span class="v">{{ m.v }}</span></div>
+                </div>
+                <div class="mp-tags">
+                  <span class="mp-eyebrow">{{ lang === 'zh' ? '标签' : 'Tags' }}</span>
+                  <div class="mp-chips"><span class="mp-chip" v-for="tg in memoryProfile.tags" :key="tg">{{ tg }}</span></div>
+                </div>
+              </aside>
 
-          <!-- ═══ IDENTITY ═══ -->
-          <div v-if="memoryTab === 'identity'" data-tour="memory-content">
-            <div class="mem-stats-bar">
-              <span class="mem-sync-indicator">
-                <span class="mem-sync-dot"></span>
-                <span class="stat-val">{{ memoryIdentityStats.fields }}</span> {{ t('memory.fields') }}
-              </span>
-              <span class="mem-sync-indicator">
-                <span class="mem-sync-dot"></span>
-                <span class="stat-val">{{ memoryIdentityStats.updated }}</span> {{ t('memory.lastUpdated') }}
-              </span>
-            </div>
-            <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
-              <div class="mem-crystal mem-parallax-content">
-                <div class="mc-glow"></div>
-                <div class="mc-glass">
-                  <canvas class="mc-neural" width="800" height="400"></canvas>
-                  <div class="mc-shine"></div>
-                  <div class="mc-edge-flow"></div>
-                  <div class="mc-accent-top"></div>
-                  <div class="mc-corner tl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner tr"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner bl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner br"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-content">
-                    <div class="mc-header">
-                      <div class="mc-icon">ID</div>
-                      <div class="mc-header-text">
-                        <h3>{{ t('memory.identityProfile') }}</h3>
-                        <div class="mc-subtitle">{{ t('memory.neuralIdMap') }}</div>
-                      </div>
+              <!-- cover-style card (toggle) -->
+              <aside v-else class="mc1-card">
+                <button class="mc1-toggle" type="button" :title="lang === 'zh' ? '换名片样式' : 'Switch card style'" @click="memoryCardStyle = 'classic'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+                </button>
+                <div class="mc1-banner">
+                  <span class="mc1-status"><span class="mc1-sdot"></span>{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + ' DAYS' }}</span>
+                  <img :src="memoryProfile.avatar" :alt="memoryProfile.name">
+                  <div class="mc1-banner-foot">
+                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '墨尔本 · MEL' : 'MELBOURNE' }}</span></div>
+                    <div class="mc1-role">{{ memoryProfile.role }}</div>
+                  </div>
+                </div>
+                <div class="mc1-body">
+                  <div class="mc1-meta">
+                    <div class="mc1-meta-item" v-for="m in memoryProfile.meta.slice(0,3)" :key="m.k"><span class="mc1-meta-k">{{ m.k }}</span><span class="mc1-meta-v">{{ m.v }}</span></div>
+                  </div>
+                  <div class="mc1-section-label">{{ lang === 'zh' ? '标签' : 'Tags' }}</div>
+                  <div class="mc1-tags"><span class="mc1-tag" v-for="tg in memoryProfile.tags" :key="tg">{{ tg }}</span></div>
+                  <div class="mc1-note"><span class="mc1-bar"></span><p class="mc1-note-text">{{ lang === 'zh' ? '深度专注，厌恶被打断。偏好极简、克制的设计 — 能不加的就不加。' : 'Deep focus, hates interruption. Prefers minimal, restrained design.' }}</p></div>
+                  <div class="mc1-stats">
+                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.memories }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '记忆' : 'MEM' }}</div></div>
+                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.links }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '连接' : 'LINK' }}</div></div>
+                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.active }}<span class="mc1-u">d</span></div><div class="mc1-stat-k">{{ lang === 'zh' ? '活跃' : 'ACT' }}</div></div>
+                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.decisions }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '决策' : 'DEC' }}</div></div>
+                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.projects }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '项目' : 'PRJ' }}</div></div>
+                  </div>
+                </div>
+              </aside>
+
+              <!-- RIGHT -->
+              <div class="mp-right">
+                <section class="mp-card mp-panel">
+                  <div class="mp-panel-head">
+                    <span class="mp-ic">
+                      <svg v-if="memoryView === 'values'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+                      <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
+                    </span>
+                    <h2>{{ memoryView === 'values' ? (lang === 'zh' ? '价值观' : 'Values') : (lang === 'zh' ? '洞察' : 'Insights') }}</h2>
+                    <div class="mp-seg">
+                      <button :class="{ on: memoryView === 'values' }" @click="memoryView = 'values'">{{ lang === 'zh' ? '价值观' : 'Values' }}</button>
+                      <button :class="{ on: memoryView === 'insights' }" @click="memoryView = 'insights'">{{ lang === 'zh' ? '洞察' : 'Insights' }}</button>
                     </div>
-                    <div class="md-content" v-html="memoryIdentityContent"></div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- ═══ VALUES ═══ -->
-          <div v-if="memoryTab === 'values'">
-            <div class="mem-stats-bar">
-              <span><span class="stat-val">{{ memoryValuesStats.principles }}</span> {{ t('memory.principles') }}</span>
-              <span>PRIORITY: <span class="stat-active">{{ t('memory.active') }}</span></span>
-            </div>
-            <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
-              <div class="mem-crystal v-values mem-parallax-content">
-                <div class="mc-glow"></div>
-                <div class="mc-glass">
-                  <canvas class="mc-neural" width="800" height="500"></canvas>
-                  <div class="mc-shine"></div>
-                  <div class="mc-edge-flow"></div>
-                  <div class="mc-accent-top"></div>
-                  <div class="mc-corner tl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner tr"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner bl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner br"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#047857" stroke-width="1.5"/></svg></div>
-                  <div class="mc-content">
-                    <div class="mc-header">
-                      <div class="mc-icon">DP</div>
-                      <div class="mc-header-text">
-                        <h3>{{ t('memory.decisionPrinciples') }}</h3>
-                        <div class="mc-subtitle">{{ t('memory.valueMatrix') }}</div>
-                      </div>
+                  <!-- VALUES -->
+                  <div v-if="memoryView === 'values'" class="mp-vlist">
+                    <div class="mp-vrow" v-for="(v, vi) in memoryProfile.values" :key="vi">
+                      <span class="mp-vnum">{{ vi + 1 }}</span>
+                      <div class="mp-vbody"><span class="mp-vt">{{ v.title }}</span><span class="mp-vd" v-if="v.desc">{{ v.desc }}</span></div>
                     </div>
-                    <div class="md-content" v-html="memoryValuesContent"></div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- ═══ GROWTH (经验 Lessons + 演变 Timeline 合并) ═══ -->
-          <div v-if="memoryTab === 'growth'">
-            <div class="mem-stats-bar">
-              <span><span class="stat-val">{{ memoryLearnedStats.insights }}</span> {{ t('memory.insights') }}</span>
-              <span><span class="stat-val">{{ memoryEvolutionEntries.length }}</span> {{ t('memory.evolutions') }}</span>
-              <span>MODE: <span class="stat-active">{{ t('memory.accumulating') }}</span></span>
-            </div>
-            <div class="mem-parallax-wrap" @mousemove="mcParallax($event)" @mouseleave="mcResetParallax($event)">
-              <div class="mem-crystal v-learned mem-parallax-content">
-                <div class="mc-glow"></div>
-                <div class="mc-glass">
-                  <canvas class="mc-neural" width="800" height="300"></canvas>
-                  <div class="mc-shine"></div>
-                  <div class="mc-edge-flow"></div>
-                  <div class="mc-accent-top"></div>
-                  <div class="mc-corner tl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#10b981" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner tr"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#10b981" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner bl"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#10b981" stroke-width="1.5"/></svg></div>
-                  <div class="mc-corner br"><svg width="20" height="20"><path d="M0,20 L0,4 Q0,0 4,0 L20,0" fill="none" stroke="#10b981" stroke-width="1.5"/></svg></div>
-                  <div class="mc-content">
-                    <div class="mc-header">
-                      <div class="mc-icon">XP</div>
-                      <div class="mc-header-text">
-                        <h3>{{ t('memory.experienceDb') }}</h3>
-                        <div class="mc-subtitle">{{ t('memory.knowledgeAccum') }}</div>
-                      </div>
+                  <!-- INSIGHTS · timeline -->
+                  <div v-else>
+                    <p class="mp-tl-sub">{{ lang === 'zh' ? '从工作中沉淀下来的结论 —— 按领域着色，串成一条思考的线。' : 'Conclusions distilled from the work — colored by domain, strung along one line.' }}</p>
+                    <div class="mp-legend" aria-hidden="true">
+                      <span class="mp-leg" v-for="c in memoryInsightCats" :key="c.key"><span class="mp-sw" :style="{ background: c.color }"></span>{{ c.label }}</span>
                     </div>
-                    <div class="md-content" v-html="memoryLearnedContent"></div>
+                    <div class="mp-tl">
+                      <article class="mp-node" v-for="(ins, ii) in memoryProfile.insights" :key="ii"
+                        :style="{ '--hue': ins.color, '--hue-weak': ins.weak, '--hue-ink': ins.ink }">
+                        <span class="mp-tl-dot"><span class="mp-halo"></span></span>
+                        <div class="mp-ncard">
+                          <div class="mp-ncard-top">
+                            <span class="mp-ntag"><span class="mp-tsw"></span>{{ ins.tag }}</span>
+                            <span class="mp-nindex">{{ String(ii + 1).padStart(2, '0') }}</span>
+                          </div>
+                          <p class="mp-ntext">{{ ins.text }}</p>
+                        </div>
+                      </article>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <!-- Learning log entries -->
-            <div v-if="memoryLearningLog.length" style="margin-top: 24px;">
-              <div style="font-size: 9px; color: #10b981; letter-spacing: 3px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">{{ t('memory.learningLog') }}</div>
-              <div v-for="(entry, idx) in memoryLearningLog" :key="idx" class="mem-log-entry">
-                <div @click="toggleLearning(entry.id)" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px;">
-                  <span style="font-size: 8px; color: #10b981; font-family: 'JetBrains Mono', monospace;">{{ expandedLearning[entry.id] ? '&#9660;' : '&#9654;' }}</span>
-                  <span style="font-size: 10px; color: #10b981; min-width: 75px; font-family: 'JetBrains Mono', monospace;">{{ entry.date }}</span>
-                  <span style="font-size: 12px; color: #5b5b57;">{{ entry.title }}</span>
-                  <div style="flex: 1;"></div>
-                  <div style="display: flex; gap: 4px;">
-                    <span v-for="tag in entry.tags" :key="tag" style="font-size: 7px; padding: 2px 6px; border: 1px solid #d9f5e9; border-radius: 2px; color: #10b981; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase;">{{ tag }}</span>
-                  </div>
-                </div>
-                <div v-if="expandedLearning[entry.id]" style="padding: 0 14px 12px 36px; border-top: 1px solid #ececea;">
-                  <div class="md-content" style="font-size: 13px;" v-html="entry.content"></div>
-                </div>
-              </div>
-            </div>
+                </section>
 
-            <!-- ─── 下半:成长时间线(原 Evolution) ─── -->
-            <div v-if="memoryEvolutionEntries.length" style="margin-top: 36px;">
-              <div style="font-size: 9px; color: #9a9a94; letter-spacing: 3px; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace;">{{ t('memory.growthTimeline') }}</div>
-              <div class="evo-timeline">
-                <div v-for="(entry, i) in memoryEvolutionEntries" :key="i" style="position: relative; margin-bottom: 20px;">
-                  <div class="evo-dot"></div>
-                  <div class="evo-card">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                      <span style="font-size: 10px; color: #047857; font-family: 'JetBrains Mono', monospace;">{{ entry.date }}</span>
-                      <span class="evo-type">{{ entry.type }}</span>
-                    </div>
-                    <div class="md-content" style="font-size: 13px; color: #9a9a94; line-height: 1.6;" v-html="entry.content"></div>
-                  </div>
+                <div class="mp-foot">
+                  <span class="mp-fl">{{ lang === 'zh' ? '记忆持续增长' : 'Memory growing' }}</span>
+                  <span class="mp-xp"><i :style="{ '--w': memoryProfile.growthPct + '%' }"></i></span>
+                  <span class="mp-fl">{{ memoryProfile.stats.memories }} {{ lang === 'zh' ? '条' : 'items' }}</span>
                 </div>
               </div>
             </div>
@@ -4665,180 +4917,81 @@
         <!-- ========== NOTES ========== -->
         <section v-if="currentPage === 'notes'" style="padding: 20px;">
           <div style="position: relative; background: var(--bg); margin: -20px; padding: 24px 28px; min-height: calc(100vh - 60px);">
-
-            <div class="ntx-app">
-
-              <!-- ===== LEFT GUIDE RAIL (Switchboard, vertical) ===== -->
-              <aside class="nvA-rail nvA-rail--vert" aria-label="Note sources">
-                <button class="nvA-hub nvA-hub--all" type="button"
-                  :class="{ 'is-active': notesSourceFilter === 'all' }"
-                  :aria-pressed="notesSourceFilter === 'all'"
-                  @click="notesSourceFilter = 'all'">
-                  <span class="nvA-hub-spine"></span>
-                  <span class="nvA-hub-top">
-                    <span class="nvA-hub-glyph nvA-g-all" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                    </span>
-                    <span class="nvA-hub-count">{{ notesSourceCounts.all }}</span>
-                  </span>
-                  <span class="nvA-hub-name">{{ lang === 'zh' ? '全部来源' : 'All sources' }}</span>
-                  <span class="nvA-hub-cap">{{ lang === 'zh' ? '所有已连接的应用' : 'every connected app' }}</span>
-                </button>
-
-                <button class="nvA-hub" type="button" data-src="obsidian"
-                  :class="{ 'is-active': notesSourceFilter === 'obsidian' }"
-                  :aria-pressed="notesSourceFilter === 'obsidian'"
-                  @click="notesSourceFilter = 'obsidian'">
-                  <span class="nvA-hub-spine"></span>
-                  <span class="nvA-hub-top">
-                    <span class="nvA-hub-glyph nvA-g-obs" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M12 2.5 4 8.2v7.6L12 21.5 20 15.8V8.2L12 2.5Z"/></svg>
-                    </span>
-                    <span class="nvA-hub-count">{{ notesSourceCounts.obsidian }}</span>
-                  </span>
-                  <span class="nvA-hub-name">Obsidian</span>
-                  <span class="nvA-hub-cap">{{ lang === 'zh' ? '本地 vault · 链接' : 'local vault · link' }}</span>
-                </button>
-
-                <button class="nvA-hub" type="button" data-src="feishu"
-                  :class="{ 'is-active': notesSourceFilter === 'feishu' }"
-                  :aria-pressed="notesSourceFilter === 'feishu'"
-                  @click="notesSourceFilter = 'feishu'">
-                  <span class="nvA-hub-spine"></span>
-                  <span class="nvA-hub-top">
-                    <span class="nvA-hub-glyph nvA-g-fs" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M4 6c5 0 9 3 11 7-4 2-9 1-12-2"/><path d="M8 16c4-1 8 0 11 3"/></svg>
-                    </span>
-                    <span class="nvA-hub-count">{{ notesSourceCounts.feishu }}</span>
-                  </span>
-                  <span class="nvA-hub-name">{{ lang === 'zh' ? '飞书 文档' : '飞书' }}</span>
-                  <span class="nvA-hub-cap">{{ lang === 'zh' ? '云文档 · 链接' : 'cloud doc · link' }}</span>
-                </button>
-
-                <button class="nvA-hub" type="button" data-src="notion"
-                  :class="{ 'is-active': notesSourceFilter === 'notion' }"
-                  :aria-pressed="notesSourceFilter === 'notion'"
-                  @click="notesSourceFilter = 'notion'">
-                  <span class="nvA-hub-spine"></span>
-                  <span class="nvA-hub-top">
-                    <span class="nvA-hub-glyph nvA-g-no" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
-                    </span>
-                    <span class="nvA-hub-count">{{ notesSourceCounts.notion }}</span>
-                  </span>
-                  <span class="nvA-hub-name">Notion</span>
-                  <span class="nvA-hub-cap">{{ lang === 'zh' ? '页面 · 链接' : 'page · link' }}</span>
-                </button>
-
-                <button class="nvA-hub nvA-hub--inline" type="button" data-src="inline"
-                  :class="{ 'is-active': notesSourceFilter === 'inline' }"
-                  :aria-pressed="notesSourceFilter === 'inline'"
-                  @click="notesSourceFilter = 'inline'">
-                  <span class="nvA-hub-spine"></span>
-                  <span class="nvA-hub-top">
-                    <span class="nvA-hub-glyph nvA-g-in" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M5 19v-3.5L15 5.5l3.5 3.5L8.5 19H5Z"/><line x1="13" y1="7.5" x2="16.5" y2="11"/></svg>
-                    </span>
-                    <span class="nvA-hub-count">{{ notesSourceCounts.inline }}</span>
-                  </span>
-                  <span class="nvA-hub-name">{{ lang === 'zh' ? 'Loci 行内' : 'Inline' }}</span>
-                  <span class="nvA-hub-cap">{{ lang === 'zh' ? '存在此处 · 可直接读' : 'kept in Loci · readable' }}</span>
-                </button>
+            <div class="nr" :class="{ 'nr--collapsed': notesCollapsed }">
+              <!-- LEFT -->
+              <aside class="nr-left">
+                <div class="nr-left-head">
+                  <div>
+                    <div class="nr-left-eyebrow">{{ lang === 'zh' ? 'NOTES · 索引' : 'NOTES · INDEX' }}</div>
+                    <div class="nr-left-title">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</div>
+                  </div>
+                  <button class="nr-collapse" type="button" :title="lang === 'zh' ? '收起' : 'Collapse'" @click="notesCollapsed = true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7l-5 5 5 5"/></svg>
+                  </button>
+                </div>
+                <div class="nr-search">
+                  <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <input v-model="notesSearch" :placeholder="lang === 'zh' ? '按标题 / 内容 / #标签 查找…' : 'search title / content / #tag…'" />
+                </div>
+                <div class="nr-srcs">
+                  <button v-for="s in notesSourceChips" :key="s.key" class="nr-src" :class="{ on: notesSourceFilter === s.key }" @click="notesSourceFilter = s.key">
+                    <span class="dot"></span>{{ s.label }}<span class="n">{{ notesSourceCounts[s.key] }}</span>
+                  </button>
+                </div>
+                <div class="nr-list">
+                  <template v-for="g in notesGroups" :key="g.source">
+                    <div class="nr-grp">{{ g.label }}</div>
+                    <div v-for="note in g.notes" :key="note.id" class="nr-item" :class="{ sel: notesSelected && notesSelected.id === note.id }" @click="notesSelected = note">
+                      <span class="nr-ico"><span v-html="noteSourceMeta(note.source).glyph"></span></span>
+                      <div class="nr-mid">
+                        <div class="nr-ti-row">
+                          <span class="nr-ti">{{ note.title }}</span>
+                          <span v-if="g.timeline" class="nr-pill">{{ noteSourceMeta(note.source).label }}</span>
+                        </div>
+                        <div class="nr-sub">{{ note.gist || note.date }}</div>
+                      </div>
+                      <span class="nr-badge">{{ note.readable ? (lang === 'zh' ? '正文' : 'read') : '↗' }}</span>
+                    </div>
+                  </template>
+                  <div v-if="!notesGroups.length" class="nr-empty">{{ notesSearch ? (lang === 'zh' ? '没有匹配的笔记' : 'No matching notes') : t('notes.empty') }}</div>
+                </div>
               </aside>
-
-              <!-- ===== RIGHT CONTENT (Across) ===== -->
-              <div class="nvD-root nvD-root--wide">
-                <header class="nvD-head">
-                  <div class="nvD-eyebrow">{{ lang === 'zh' ? '笔记 · 索引' : 'Notes · Index' }}</div>
-                  <h1 class="nvD-title">{{ lang === 'zh' ? '我写过的关于…' : 'Where did I write about…' }}</h1>
-                  <p class="nvD-sub">{{ lang === 'zh'
-                    ? '一个知道你所有笔记都在哪儿的地方 —— 并把你领到门口。正文留在原应用，Loci 只保管指针。'
-                    : 'One place that knows where everything you wrote lives — and walks you to the door. Loci keeps the pointer; the words stay in their app.' }}</p>
-                </header>
-
-                <div class="nvD-bar" role="search">
-                  <svg class="nvD-bar-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                  <input class="nvD-bar-input" type="text" v-model="notesSearch"
-                    :placeholder="lang === 'zh' ? '按标题、内容或 #标签查找…  跨每个应用搜索' : 'onboarding, #product, lisbon…  search across every app'"
-                    :aria-label="lang === 'zh' ? '跨应用查找笔记' : 'Search notes across apps'" />
-                  <kbd class="nvD-kbd">/</kbd>
-                </div>
-
-                <div class="nvD-scope">
-                  <span class="nvD-scope-sep" aria-hidden="true"></span>
-                  <span class="nvD-summary">
-                    <b>{{ notesResultCount }}</b> {{ lang === 'zh' ? '篇 · 跨' : 'notes across' }}
-                    <b>{{ notesGroups.length }}</b> {{ lang === 'zh' ? '个来源' : 'places' }}
-                  </span>
-                </div>
-
-                <!-- empty -->
-                <div v-if="!notesGroups.length"
-                  style="margin:48px 0; text-align:center; font-family:var(--mono); font-size:12px; letter-spacing:1px; color:var(--ink-3); line-height:2;">
-                  {{ notesSearch ? (lang === 'zh' ? '没有匹配的笔记' : 'No matching notes') : t('notes.empty') }}
-                </div>
-
-                <!-- grouped shelves -->
-                <section v-for="g in notesGroups" :key="'shelf-'+g.source"
-                  class="nvD-shelf" :class="{ 'nvD-shelf-inline': g.source === 'inline' }">
-                  <div class="nvD-shelf-head">
-                    <span class="nvD-dot" :data-src="g.source"></span>
-                    <span class="nvD-shelf-name">{{ g.label }}</span>
-                    <span class="nvD-shelf-meta">{{ g.meta }}</span>
-                    <span class="nvD-shelf-n">{{ g.notes.length }}</span>
+              <!-- RIGHT -->
+              <button class="nr-expand" type="button" :title="lang === 'zh' ? '展开列表' : 'Show list'" @click="notesCollapsed = false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <section class="nr-right">
+                <template v-if="notesSelected">
+                  <header class="nr-right-head">
+                    <span class="nr-ico nr-ico-lg"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
+                    <span class="nr-htitle">{{ notesSelected.title }}</span>
+                    <span class="nr-hsrc">{{ noteSourceMeta(notesSelected.source).label }}</span>
+                  </header>
+                  <div class="nr-doc">
+                    <div class="nr-doc-meta">
+                      <span v-for="tg in notesSelected.tags" :key="tg" class="nr-tag">#{{ String(tg).replace(/^#/, '') }}</span>
+                      <span v-if="notesSelected.date" class="nr-date">{{ notesSelected.date }}</span>
+                      <span v-if="!notesSelected.readable && notesSelected.link" class="nr-path">{{ notesSelected.link }}</span>
+                    </div>
+                    <div v-if="notesSelected.readable" class="md-content" v-html="notesSelected.content"></div>
+                    <div v-else class="nr-ext">
+                      <span class="nr-ico nr-ico-xl"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
+                      <p class="nr-gist">{{ notesSelected.gist || (lang === 'zh' ? '这条笔记的正文留在 ' + noteSourceMeta(notesSelected.source).label + ' 里。' : 'The body stays in ' + noteSourceMeta(notesSelected.source).label + '.') }}</p>
+                      <a class="nr-jump" :href="notesSelected.link" target="_blank" rel="noopener" @click.prevent="noteOpenExternal(notesSelected.link)">
+                        {{ noteSourceMeta(notesSelected.source).open }} <span aria-hidden="true">↗</span>
+                      </a>
+                      <div class="nr-note">{{ lang === 'zh' ? 'Loci 只保管指针，正文留在原应用' : 'Loci keeps the pointer; the body stays in its app' }}</div>
+                    </div>
                   </div>
-                  <div class="nvD-rows">
-
-                    <template v-for="note in g.notes" :key="note.id">
-                      <!-- external pointer row -->
-                      <article v-if="note.kind === 'external'" class="nvD-ptr" :data-src="note.source" tabindex="0">
-                        <span class="nvD-glyph" :data-src="note.source" aria-hidden="true">{{ noteSourceMeta(note.source).glyph }}</span>
-                        <div class="nvD-body">
-                          <div class="nvD-row1">
-                            <h3 class="nvD-name">{{ note.title }}</h3>
-                            <div class="nvD-tags">
-                              <span v-for="tg in note.tags" :key="tg" class="nvD-tag">#{{ String(tg).replace(/^#/, '') }}</span>
-                            </div>
-                          </div>
-                          <p v-if="note.gist" class="nvD-gist">{{ note.gist }}</p>
-                          <code class="nvD-path">{{ note.link }}</code>
-                        </div>
-                        <a class="nvD-open" href="#" :data-src="note.source"
-                          @click.prevent="noteOpenExternal(note.link)">
-                          {{ noteSourceMeta(note.source).open }} <span aria-hidden="true">↗</span>
-                        </a>
-                      </article>
-
-                      <!-- inline note row (expand in place) -->
-                      <article v-else class="nvD-inline" :data-src="note.source" tabindex="0">
-                        <div class="nvD-body">
-                          <div class="nvD-row1">
-                            <h3 class="nvD-name">{{ note.title }}</h3>
-                            <span class="nvD-pill-inline">{{ lang === 'zh' ? '行内' : 'inline' }}</span>
-                            <div class="nvD-tags">
-                              <span v-for="tg in note.tags" :key="tg" class="nvD-tag">#{{ String(tg).replace(/^#/, '') }}</span>
-                            </div>
-                          </div>
-                          <p v-if="note.gist && !noteIsOpen(note.id)" class="nvD-gist">{{ note.gist }}</p>
-                          <div v-show="noteIsOpen(note.id)" class="nvD-inline-read md-content" v-html="note.content"></div>
-                          <div class="nvD-inline-foot">
-                            <span class="nvD-date">{{ note.date }}</span>
-                            <button class="nvD-read" type="button" @click="noteToggleInline(note.id)">
-                              {{ noteIsOpen(note.id) ? (lang === 'zh' ? '收起' : 'Collapse') : (lang === 'zh' ? '在此阅读' : 'Read inline') }}
-                            </button>
-                          </div>
-                        </div>
-                      </article>
-                    </template>
-
+                </template>
+                <div v-else class="nr-ph">
+                  <div class="box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg>
+                    <div class="t">{{ lang === 'zh' ? '从左边选一篇笔记' : 'Pick a note on the left' }}</div>
+                    <div class="s">{{ lang === 'zh' ? '内置 / Obsidian 直接看正文 · 飞书 / Notion 一键跳转' : 'Inline / Obsidian read inline · Feishu / Notion jump out' }}</div>
                   </div>
-                </section>
-
-                <p class="nvD-footnote">{{ lang === 'zh'
-                  ? 'Loci 聚合你的笔记 —— 而不占有它们。外部笔记留在原应用，Loci 只保管指针与回去的路。'
-                  : 'Loci aggregates your notes — it doesn\'t own them. External notes stay in their app; Loci keeps the pointer and the path back.' }}</p>
-              </div>
-
+                </div>
+              </section>
             </div>
           </div>
         </section>
@@ -6689,6 +6842,101 @@ createApp({
     // --- Memory computed data with mock fallbacks ---
     const memoryIdentityContent = computed(() => {
       return data.value?.me?.identity?.content || mockMemory.identity;
+    });
+    // Structured profile for the new Memory page (avatar card + rings + radar + values + insights).
+    const memoryView = ref('values');   // 'values' | 'insights' — right panel toggle
+    const memoryCardStyle = ref('classic');  // 'classic' | 'cover' — left card style toggle
+    const memoryInsightCats = computed(() => {
+      const zh = lang.value === 'zh';
+      return [
+        { key:'memory',  label: zh?'记忆':'Memory',       color:'#10b981' },
+        { key:'arch',    label: zh?'架构':'Architecture', color:'#0ea5a4' },
+        { key:'product', label: zh?'产品':'Product',      color:'#3b82f6' },
+        { key:'design',  label: zh?'设计':'Design',       color:'#8b5cf6' },
+        { key:'habit',   label: zh?'习惯':'Ritual',       color:'#f59e0b' },
+      ];
+    });
+    const memoryProfile = computed(() => {
+      const zh = lang.value === 'zh';
+      const net = (data.value && data.value.network) || {};
+      const ov = (data.value && data.value.overview && data.value.overview.kpis) || {};
+      const memories = net.memories || 164, links = net.connections || 21,
+            active = net.days_active || 16, decisions = ov.decisions || 5, projects = ov.projects || 2;
+      // map raw values to a 0..1 fill for the gauges (relative to a soft cap)
+      const attrs = [
+        { key:'mem',  label: zh?'记忆':'Memory',    en:'MEMORY',     value: memories, pct: Math.min(1, memories/180) },
+        { key:'link', label: zh?'连接':'Links',     en:'LINKS',      value: links,    pct: Math.min(1, links/30) },
+        { key:'act',  label: zh?'活跃':'Active',    en:'STREAK · D', value: active,   pct: Math.min(1, active/20), alt:true },
+        { key:'dec',  label: zh?'决策':'Decisions', en:'DECISIONS',  value: decisions,pct: Math.min(1, decisions/10) },
+      ];
+      // radar (5 axes) — pentagon geometry centered at 100,100, max radius 82
+      const radar = [
+        { nm: zh?'记忆':'Memory',    vl: String(memories),     pct: Math.round(Math.min(1, memories/180)*100) },
+        { nm: zh?'连接':'Links',     vl: String(links),        pct: Math.round(Math.min(1, links/30)*100) },
+        { nm: zh?'活跃':'Active',    vl: active + 'd',         pct: Math.round(Math.min(1, active/20)*100) },
+        { nm: zh?'决策':'Decisions', vl: String(decisions),    pct: Math.round(Math.min(1, decisions/10)*100) },
+        { nm: zh?'项目':'Projects',  vl: String(projects),     pct: Math.round(Math.min(1, projects/3)*100) },
+      ];
+      const angles = [-90, -18, 54, 126, 198].map(d => d*Math.PI/180);
+      const verts = radar.map((r,i) => ({ x: +(100 + Math.cos(angles[i])*82*(r.pct/100)).toFixed(1), y: +(100 + Math.sin(angles[i])*82*(r.pct/100)).toFixed(1) }));
+      const radarPoints = verts.map(v => v.x + ',' + v.y).join(' ');
+      // values & insights — structured (mock; /clean is self-contained)
+      const values = zh ? [
+        { title:'先发布，再打磨', desc:'厌恶在没人用的功能上抛光。' },
+        { title:'诚实地报告结果', desc:'不粉饰，如实呈现。' },
+        { title:'聚合而非占有',   desc:'记忆属于它所在的地方。' },
+        { title:'状态优先于产出', desc:'先看人的状态，再谈产出。' },
+        { title:'克制',           desc:'能不加的就不加 —— 默认的减法主义。' },
+      ] : [
+        { title:'Ship first, polish later', desc:'No polishing features nobody uses.' },
+        { title:'Report results honestly',  desc:'No sugar-coating.' },
+        { title:'Aggregate, not own',  desc:'Memory belongs where it lives.' },
+        { title:'State over output',         desc:'Check the person first.' },
+        { title:'Restraint',                 desc:'If it can be left out, leave it out.' },
+      ];
+      // category palette (restrained) — keyed to each insight's domain
+      const CAT = [
+        { color:'#10b981', weak:'var(--accent-weak)', ink:'var(--accent-ink)' }, // memory
+        { color:'#0ea5a4', weak:'#d7f3f1', ink:'#0b7c79' },                       // architecture
+        { color:'#3b82f6', weak:'#e2edff', ink:'#1d4ed8' },                       // product
+        { color:'#8b5cf6', weak:'#ede7fd', ink:'#6d28d9' },                       // design
+        { color:'#f59e0b', weak:'#fdf0d8', ink:'var(--orange-ink)' },             // habit
+      ];
+      const rawInsights = zh ? [
+        { text:'记忆系统的价值在于"能找回"，不在于"存了多少"。', tag:'记忆' },
+        { text:'分层加载比一次性塞满上下文更可用。', tag:'架构' },
+        { text:'真实用户拉代码即用，胜过华丽的演示。', tag:'产品' },
+        { text:'单一强调色让界面更专业。', tag:'设计' },
+        { text:'傍晚做当日小结，第二天启动更快。', tag:'习惯' },
+      ] : [
+        { text:'A memory system is about recall, not volume.', tag:'Memory' },
+        { text:'Layered loading beats stuffing the whole context.', tag:'Architecture' },
+        { text:'Real users running the code beats a flashy demo.', tag:'Product' },
+        { text:'A single accent color reads more professional.', tag:'Design' },
+        { text:'An evening recap makes the next day start faster.', tag:'Ritual' },
+      ];
+      const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
+      return {
+        avatar: '/avatar-user.png',
+        name: 'Sam',
+        role: zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder',
+        meta: zh ? [
+          { k:'Location', v:'墨尔本 · Melbourne' },
+          { k:'Language', v:'中文优先' },
+          { k:'Workstyle', v:'深度专注，厌恶被打断' },
+          { k:'Aesthetic', v:'极简、克制的设计' },
+        ] : [
+          { k:'Location', v:'Melbourne' },
+          { k:'Language', v:'Chinese-first' },
+          { k:'Workstyle', v:'Deep focus, hates interruption' },
+          { k:'Aesthetic', v:'Minimal, restrained' },
+        ],
+        tags: zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
+        stats: { memories, links, active, decisions, projects },
+        attrs, radar, radarPoints, radarVerts: verts,
+        values, insights,
+        growthPct: Math.round(Math.min(1, memories/200)*100),
+      };
     });
     const memoryIdentityStats = computed(() => {
       const c = memoryIdentityContent.value || '';
@@ -9460,6 +9708,18 @@ createApp({
     const notesSourceFilter = ref('all');       // 'all'|'obsidian'|'feishu'|'notion'|'inline'
     const notesSearch = ref('');                // live search text
     const notesOpenInline = ref(new Set());     // ids of expanded inline notes
+    const notesSelected = ref(null);            // the note shown in the right pane
+    const notesCollapsed = ref(false);          // left rail collapsed?
+    const notesSourceChips = computed(() => {
+      const zh = lang.value === 'zh';
+      return [
+        { key:'all',      label: zh ? '全部' : 'All' },
+        { key:'feishu',   label: zh ? '飞书' : 'Feishu' },
+        { key:'obsidian', label: 'Obsidian' },
+        { key:'notion',   label: 'Notion' },
+        { key:'inline',   label: zh ? '内置' : 'Inline' },
+      ];
+    });
     // ── Overview (总览) ──────────────────────────────────────────────
     // Server pre-aggregates everything into data.overview; the page just renders.
     const overview = computed(() => {
@@ -9633,12 +9893,20 @@ createApp({
     // ── Notes: source identity (label/glyph/accent per source) ──
     function noteSourceMeta(src) {
       const zh = lang.value === 'zh';
+      // uniform hand-drawn black line glyphs (currentColor); brand color is NOT used.
+      const G = {
+        feishu:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5a3 3 0 0 1 3-3h7.5a3 3 0 0 1 3 3v3a4 4 0 0 1-4 4H8l-3.2 2.6a.5.5 0 0 1-.8-.4V7.5Z"/><path d="M8 9.2c2.4.4 4.4 1.7 5.6 3.6"/></svg>',
+        obsidian: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5.5 9v6L12 21l6.5-6V9L12 3Z"/><path d="M12 3v9l6.5 3M12 12 5.5 15M12 12v9"/></svg>',
+        notion:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M9 16V8l6 8V8"/></svg>',
+        inline:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18.5 16 7.5l2.5 2.5L7.5 21H5v-2.5Z"/><path d="M14 9.5 16.5 12"/></svg>',
+        external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>',
+      };
       switch (src) {
-        case 'obsidian': return { key:'obsidian', label:'Obsidian', meta: zh?'本地 vault':'local vault', glyph:'◇', accent:'#6d54c0', open: zh?'在 Obsidian 打开':'Open in Obsidian' };
-        case 'feishu':   return { key:'feishu',   label:'飞书',     meta: zh?'云文档':'cloud doc',   glyph:'◆', accent:'#3b82f6', open: zh?'在飞书打开':'Open in 飞书' };
-        case 'notion':   return { key:'notion',   label:'Notion',   meta: zh?'工作区':'workspace',   glyph:'▢', accent:'#1c1c1a', open: zh?'在 Notion 打开':'Open in Notion' };
-        case 'inline':   return { key:'inline',   label: zh?'Loci 行内':'Inline', meta: zh?'存在此处 · 可直接读':'kept in Loci', glyph:'✎', accent:'#10b981', open: zh?'在此阅读':'Read inline' };
-        default:         return { key:'external', label: zh?'外部链接':'External', meta: zh?'链接':'link', glyph:'↗', accent:'#9a9a94', open: zh?'打开链接':'Open link' };
+        case 'obsidian': return { key:'obsidian', label:'Obsidian', meta: zh?'本地 vault':'local vault', glyph:G.obsidian, open: zh?'在 Obsidian 打开':'Open in Obsidian' };
+        case 'feishu':   return { key:'feishu',   label:'飞书',     meta: zh?'云文档':'cloud doc',   glyph:G.feishu, open: zh?'在飞书打开':'Open in 飞书' };
+        case 'notion':   return { key:'notion',   label:'Notion',   meta: zh?'工作区':'workspace',   glyph:G.notion, open: zh?'在 Notion 打开':'Open in Notion' };
+        case 'inline':   return { key:'inline',   label: zh?'内置':'Inline', meta: zh?'存在此处 · 可直接读':'kept in Loci', glyph:G.inline, open: zh?'在此阅读':'Read inline' };
+        default:         return { key:'external', label: zh?'外部链接':'External', meta: zh?'链接':'link', glyph:G.external, open: zh?'打开链接':'Open link' };
       }
     }
     // infer a source from a pointer link (pointers carry no explicit source)
@@ -9668,11 +9936,15 @@ createApp({
       const n = (data.value && data.value.notes) || {};
       const out = [];
       (n.pointers || []).forEach((p, i) => {
+        const src = noteInferSource(p.link);
+        // Obsidian is a local vault → Loci can read the body inline (if provided).
+        const readable = src === 'obsidian' && !!p.content;
         out.push({
-          id: 'ptr-' + i, kind: 'external', source: noteInferSource(p.link),
+          id: 'ptr-' + i, kind: readable ? 'inline' : 'external', source: src,
           title: p.title || p.link || '', gist: p.gist || '',
           tags: Array.isArray(p.tags) ? p.tags : (p.tags ? [p.tags] : []),
-          link: p.link || '', date: p.date || (p.meta && (p.meta.created || p.meta.date)) || '', content: '',
+          link: p.link || '', date: p.date || (p.meta && (p.meta.created || p.meta.date)) || '',
+          content: p.content || '', readable,
         });
       });
       (n.files || []).forEach((f, i) => {
@@ -9681,7 +9953,7 @@ createApp({
           id: 'inl-' + i, kind: 'inline', source: 'inline',
           title: noteTitle(f), gist: meta.gist || noteGistFromContent(f.content),
           tags: Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []),
-          link: '', date: meta.created || meta.date || '', content: f.content || '',
+          link: '', date: meta.created || meta.date || '', content: f.content || '', readable: true,
         });
       });
       return out;
@@ -9697,20 +9969,26 @@ createApp({
       const hay = (x.title + ' ' + x.gist + ' ' + (x.tags || []).join(' ') + ' ' + x.link).toLowerCase();
       return hay.includes(q);
     }
+    const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
     const notesGroups = computed(() => {
       const q = notesSearch.value.trim().toLowerCase();
-      const order = ['obsidian', 'feishu', 'notion', 'external', 'inline'];
       const filter = notesSourceFilter.value;
-      const groups = [];
-      order.forEach(src => {
-        if (filter !== 'all' && filter !== src) return;
-        const notes = notesUnified.value.filter(x => x.source === src && noteMatchesSearch(x, q));
-        if (!notes.length) return;
-        const m = noteSourceMeta(src);
-        groups.push({ source: src, label: m.label, meta: m.meta, glyph: m.glyph, accent: m.accent, notes });
-      });
-      return groups;
+      const zh = lang.value === 'zh';
+      // "全部" → one flat timeline (newest first); each item shows a source pill.
+      if (filter === 'all') {
+        const notes = notesUnified.value.filter(x => noteMatchesSearch(x, q)).slice().sort(byDateDesc);
+        return notes.length ? [{ source: 'all', label: zh ? '最近' : 'Recent', timeline: true, notes }] : [];
+      }
+      // single source → just that source's notes, no group label needed
+      const notes = notesUnified.value.filter(x => x.source === filter && noteMatchesSearch(x, q)).slice().sort(byDateDesc);
+      return notes.length ? [{ source: filter, label: noteSourceMeta(filter).label, timeline: false, notes }] : [];
     });
+    // keep the right pane selection valid as the list changes; auto-pick the first note.
+    watch([notesGroups], () => {
+      const first = notesGroups.value[0] && notesGroups.value[0].notes[0];
+      const stillThere = notesSelected.value && notesGroups.value.some(g => g.notes.some(n => n.id === notesSelected.value.id));
+      if (!stillThere) notesSelected.value = first || null;
+    }, { immediate: true });
     const notesResultCount = computed(() => notesGroups.value.reduce((s, g) => s + g.notes.length, 0));
     function noteToggleInline(id) {
       const s = new Set(notesOpenInline.value);
@@ -11735,16 +12013,18 @@ createApp({
         notes: {
           index: mk('<ul><li>Loci 发布博客 · loci-launch-blog.md · 发布稿草稿 · #blog</li><li>线下分享脚本 · meetup-talk-script.md · #talk</li></ul>', {}, 'index.md'),
           pointers: [
-            { title: '里斯本生活手册', link: 'obsidian://vault/life/lisbon.md', gist: '签证 / 租房 / 网络 / 常去的咖啡馆', tags: ['life', '移居'], date: '2026-05-30' },
-            { title: '设计灵感库', link: 'obsidian://vault/design/swipe-file.md', gist: '收集的好界面截图和交互细节', tags: ['design', 'inspiration'], date: '2026-05-24' },
+            { title: '里斯本生活手册', link: 'obsidian://vault/life/lisbon.md', gist: '签证 / 租房 / 网络 / 常去的咖啡馆', tags: ['life', '移居'], date: '2026-05-30',
+              content: '<h1>里斯本生活手册</h1><p><em>本地 vault · Loci 能直接读到正文</em></p><h2>签证</h2><p>D7 被动收入签证，需准备银行流水。</p><h2>租房</h2><ul><li>Alfama：老城，氛围好但吵</li><li>Príncipe Real：安静，咖啡馆多</li></ul><h2>常去的咖啡馆</h2><blockquote>Copenhagen Coffee Lab — 安静、有插座、适合写代码。</blockquote>' },
+            { title: '设计灵感库', link: 'obsidian://vault/design/swipe-file.md', gist: '收集的好界面截图和交互细节', tags: ['design', 'inspiration'], date: '2026-05-24',
+              content: '<h1>设计灵感库</h1><p>收集的好界面与交互细节。</p><ul><li>Linear 的命令面板动效</li><li>Vercel 的渐变 hero</li><li>Things 3 的"今天"清单留白</li></ul>' },
             { title: 'Loci 产品愿景', link: 'https://feishu.cn/docx/loci-vision', gist: '给投资人看的一页纸定位', tags: ['product', 'pitch'], date: '2026-05-28' },
             { title: '2026 阅读清单', link: 'https://notion.so/reading-2026', gist: '今年想读完的 12 本书 + 读书笔记', tags: ['reading'], date: '2026-05-26' },
             { title: '2026 Q3 OKR', link: 'https://notion.so/q3-okr-2026', gist: '这季度的目标规划', tags: ['life'], date: '2026-05-20' },
           ],
           files: [
-            mk('<h1>Loci 发布博客草稿</h1><p>开篇用"记忆宫殿"的隐喻……</p>', { title: 'Loci 发布博客草稿', created: '2026-05-31', tags: ['blog', 'launch'] }, 'loci-launch-blog.md'),
-            mk('<h1>线下分享脚本</h1><p>5 分钟闪电演讲的结构与节奏。</p>', { title: '线下分享脚本', created: '2026-05-28', tags: ['talk'] }, 'meetup-talk-script.md'),
-            mk('<p>Vue 性能优化的几个落地要点：v-for 要给稳定 key，长列表用虚拟滚动，重计算放进 computed。</p>', { title: 'Vue 性能学习笔记', created: '2026-05-22', tags: ['vue', '学习笔记'] }, 'learning-vue-perf.md'),
+            mk('<h1>Loci 发布博客草稿</h1><p>开篇用<strong>"记忆宫殿"</strong>的隐喻 —— 把 AI 的记忆比作一座你能随意走动的宫殿。</p><h2>结构</h2><ul><li>痛点：AI 每次都忘了你是谁</li><li>方案：分层记忆 + 聚合而非占有</li><li>Demo：Dashboard 一图看全</li></ul><blockquote>一句话：Loci 让 AI 真正"记得"你。</blockquote>', { title: 'Loci 发布博客草稿', created: '2026-05-31', tags: ['blog', 'launch'] }, 'loci-launch-blog.md'),
+            mk('<h1>线下分享脚本</h1><p>5 分钟闪电演讲的结构与节奏。</p><ol><li><strong>0:30</strong> 一个扎心的提问</li><li><strong>2:00</strong> 现场 demo</li><li><strong>1:30</strong> 愿景收尾</li></ol>', { title: '线下分享脚本', created: '2026-05-28', tags: ['talk'] }, 'meetup-talk-script.md'),
+            mk('<h1>Vue 性能学习笔记</h1><p>几个落地要点：</p><ul><li><code>v-for</code> 要给稳定 <code>key</code></li><li>长列表用<strong>虚拟滚动</strong></li><li>重计算放进 <code>computed</code></li></ul>', { title: 'Vue 性能学习笔记', created: '2026-05-22', tags: ['vue', '学习笔记'] }, 'learning-vue-perf.md'),
           ],
           total: 8,
         },
@@ -12245,6 +12525,7 @@ createApp({
       addPlanItem, removePlanItem, togglePlanItem,
       planDragText, planDropTarget, onPlanDragStart, onPlanDragOver, onPlanDragLeave, onPlanDrop,
       planCtx, openPlanCtx, closePlanCtx, planCtxAddToToday,
+      memoryProfile, memoryView, memoryInsightCats, memoryCardStyle,
       memoryIdentityContent, memoryIdentityStats,
       memoryValuesContent, memoryValuesStats,
       memoryLearnedContent, memoryLearnedStats,
@@ -12278,7 +12559,7 @@ createApp({
       roadmapFocusName, roadmapFocusProject, rmArcDash, rmTagClass, rmSparkBars, rmDossierCells,
       roadmapConnectOpen, roadmapConnectForm, roadmapConnectSubmit,
       notesFiles, notesUnified, notesIndexContent, notesOpenId, notesIndexOpen, noteTitle,
-      notesSourceFilter, notesSearch, notesOpenInline,
+      notesSourceFilter, notesSearch, notesOpenInline, notesSelected, notesCollapsed, notesSourceChips,
       noteSourceMeta, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
       overview, ovKpiCards, ovKpiGapCards, ovBubbles, ovTrendHasData, ovRelDate,
