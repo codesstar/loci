@@ -558,6 +558,44 @@
   .dual-note{ margin-top:26px; max-width:560px; margin-left:auto; margin-right:auto; text-align:center; font-size:14.5px; color:var(--ink-2); }
   .dual-note code{ font-family:var(--mono); font-size:13px; color:var(--accent-ink); background:var(--accent-weak); padding:2px 7px; border-radius:6px; }
 
+  /* ===== how to use it — 3 steps (.use-) ===== */
+  .use-steps{ margin-top:52px; display:flex; flex-direction:column; gap:20px; }
+  .use-step{ display:grid; grid-template-columns:52px minmax(0,1fr) minmax(0,360px); gap:0 32px; align-items:center;
+    background:var(--surface); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:30px 34px; }
+  .use-no{ width:40px; height:40px; border-radius:50%; background:var(--accent-weak); color:var(--accent-ink);
+    font-family:var(--mono); font-size:15px; font-weight:700; display:grid; place-items:center; }
+  .use-body{ min-width:0; }
+  .use-h{ font-size:19px; font-weight:720; letter-spacing:-0.02em; color:var(--ink); }
+  .use-p{ font-size:14.5px; color:var(--ink-2); line-height:1.6; margin-top:7px; }
+  .use-aside{ min-width:0; }
+  /* step-1 command block */
+  .use-cmds{ display:flex; flex-direction:column; gap:9px; }
+  .use-cmd{ display:flex; align-items:center; gap:11px; background:#14211c; border-radius:11px; padding:12px 15px; box-shadow:var(--shadow-sm); }
+  .use-cmd .pmt{ color:var(--accent-mid); font-family:var(--mono); font-size:13.5px; font-weight:600; flex:none; }
+  .use-cmd code{ font-family:var(--mono); font-size:13px; color:#eafff5; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .use-cmd .tag{ margin-left:auto; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--accent-mid); background:rgba(52,211,153,.14); padding:3px 8px; border-radius:6px; flex:none; }
+  .use-cmd-alt code{ color:rgba(234,255,245,.7); }
+  /* step-2 screenshot */
+  .use-shot{ border:1px solid var(--line-2); border-radius:13px; overflow:hidden; box-shadow:var(--shadow); background:var(--surface); }
+  .use-shot img{ display:block; width:100%; height:auto; }
+  /* step-3 example list — wider aside, two-column on desktop */
+  .use-step-3{ grid-template-columns:52px minmax(0,1fr) minmax(0,520px); align-items:start; }
+  .use-examples{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .use-ex{ display:flex; flex-direction:column; gap:4px; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:11px; padding:11px 13px; min-width:0; }
+  .use-ex-k{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); }
+  .use-ex-q{ font-size:13px; color:var(--ink); line-height:1.45; }
+  .use-ex-foot{ margin-top:14px; font-size:13px; color:var(--ink-3); line-height:1.55; }
+  @media (max-width:760px){
+    .use-step{ grid-template-columns:44px minmax(0,1fr); gap:12px 18px; padding:24px 22px; }
+    .use-step-3{ grid-template-columns:44px minmax(0,1fr); }
+    .use-aside{ grid-column:1 / -1; margin-top:6px; }
+  }
+  @media (max-width:480px){
+    .use-examples{ grid-template-columns:1fr; }
+  }
+
   /* compare */
   .cmp{ margin-top:48px; border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); background:var(--surface); }
   .cmp table{ width:100%; border-collapse:collapse; }
@@ -733,12 +771,24 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
   .arch-card p{ font-size:13.5px; color:var(--ink-2); margin-top:8px; }
   .diagram{ margin-top:40px; background:var(--surface); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:14px 16px; }
   .diagram svg{ width:100%; height:auto; display:block; }
+  /* layered diagram now carries its own card chrome inside the SVG — drop the outer frame and cap its size so the text isn't blown up */
+  .diagram-bare{ background:none; border:0; box-shadow:none; padding:0; }
+  .diagram-layered{ max-width:760px; margin-left:auto; margin-right:auto; }
 
   /* close */
-  .close{ text-align:center; }
-  .close-seahorse{ width:64px; height:64px; object-fit:contain; margin:0 auto 24px; display:block; opacity:.92; }
-  .close h2{ font-size:30px; font-weight:800; letter-spacing:-0.03em; }
-  .close .why{ max-width:560px; margin:18px auto 0; font-size:15.5px; color:var(--ink-2); }
+  .close{ position:relative; text-align:center; overflow:hidden; }
+  /* soft emerald aura behind the headline — the "green glow" mood from the hero */
+  .close::before{ content:""; position:absolute; left:50%; top:34%; width:680px; height:420px; transform:translate(-50%,-50%);
+    background:radial-gradient(closest-side, rgba(52,211,153,.22), rgba(52,211,153,.06) 52%, transparent 72%); pointer-events:none; z-index:0; }
+  .close .wrap{ position:relative; z-index:1; }
+  .close-badge{ display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); background:var(--accent-weak);
+    padding:7px 16px; border-radius:999px; margin:0 auto 26px; }
+  .close-badge-dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(16,185,129,.45); animation:hxPulse 1.9s ease-in-out infinite; }
+  .close-title{ font-size:clamp(38px,6vw,64px); font-weight:820; letter-spacing:-0.045em; line-height:1.04; text-wrap:balance; color:var(--ink); }
+  .close-title .grad{ background:linear-gradient(100deg, var(--accent-ink), var(--accent-mid) 60%, #5be3ab);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .close .why{ max-width:580px; margin:22px auto 0; font-size:15.5px; color:var(--ink-2); line-height:1.7; }
   .close .why b{ color:var(--ink); }
   .footer{ border-top:1px solid var(--line); padding:32px 28px; text-align:center; color:var(--ink-3); font-size:13px; font-family:var(--mono); }
   .footer a{ color:var(--accent-ink); }
@@ -2369,48 +2419,10 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
 
 </div>
 
-    <div class="arch-grid">
-      <div class="arch-card"><div class="lyr">L1 · ALWAYS</div><h4 data-i="l1h"></h4><p data-i="l1p"></p></div>
-      <div class="arch-card"><div class="lyr">L2 · ON DEMAND</div><h4 data-i="l2h"></h4><p data-i="l2p"></p></div>
-      <div class="arch-card"><div class="lyr">L3 · ARCHIVE</div><h4 data-i="l3h"></h4><p data-i="l3p"></p></div>
-    </div>
-    <p class="sec-sub" data-i="layeredSub" style="margin-top:44px"></p>
-    <div class="diagram" data-diagram="layered"></div>
+    <div class="diagram diagram-bare diagram-layered" data-diagram="layered"></div>
   </div>
 </section>
 
-<!-- ④ DUAL SYNC -->
-<section class="dual">
-  <div class="wrap">
-    <span class="eyebrow" data-i="dualEye"></span>
-    <h2 class="sec-title" data-i="dualTitle"></h2>
-    <p class="sec-sub" data-i="dualSub"></p>
-    <div class="dual-diagram">
-      <svg class="dual-svg" viewBox="0 0 680 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M340 150 C 230 150, 200 80, 150 80" stroke="#34d399" stroke-width="2" fill="none"/>
-        <path d="M340 150 C 450 150, 480 80, 530 80" stroke="#34d399" stroke-width="2" fill="none"/>
-        <path d="M340 150 C 230 150, 200 220, 150 220" stroke="#c4c4be" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
-        <path d="M340 150 C 450 150, 480 220, 530 220" stroke="#c4c4be" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
-        <circle cx="340" cy="150" r="54" fill="#d9f5e9" stroke="#10b981" stroke-width="2"/>
-        <text x="340" y="145" text-anchor="middle" font-family="Inter" font-size="14" font-weight="700" fill="#047857">.loci/</text>
-        <text x="340" y="164" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#047857" data-svg="brainSub">shared brain</text>
-        <rect x="60" y="56" width="180" height="48" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
-        <text x="150" y="78" text-anchor="middle" font-family="Inter" font-size="13" font-weight="650" fill="#1c1c1a">Claude Code</text>
-        <text x="150" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#5b5b57">reads CLAUDE.md</text>
-        <rect x="440" y="56" width="180" height="48" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
-        <text x="530" y="78" text-anchor="middle" font-family="Inter" font-size="13" font-weight="650" fill="#1c1c1a">Codex</text>
-        <text x="530" y="94" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#5b5b57">reads AGENTS.md</text>
-        <rect x="60" y="196" width="180" height="48" rx="12" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
-        <text x="150" y="218" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5b5b57">tasks · decisions</text>
-        <text x="150" y="234" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5b5b57">me · journal</text>
-        <rect x="440" y="196" width="180" height="48" rx="12" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
-        <text x="530" y="218" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5b5b57">plain Markdown</text>
-        <text x="530" y="234" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5b5b57">100% local · git</text>
-      </svg>
-    </div>
-    <p class="dual-note" data-i-html="dualNote"></p>
-  </div>
-</section>
 
 <!-- ⑤ WHY NOT NOTION -->
 <section>
@@ -2435,22 +2447,93 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
 <!-- ⑥b INSTALL -->
 <section class="dual">
   <div class="wrap">
-    <span class="eyebrow" data-i="instEye"></span>
-    <h2 class="sec-title" data-i="instTitle"></h2>
-    <p class="sec-sub" data-i="instSub"></p>
-    <div class="diagram" data-diagram="install"></div>
+    <span class="eyebrow" data-i="useEye"></span>
+    <h2 class="sec-title" data-i="useTitle"></h2>
+    <p class="sec-sub" data-i="useSub"></p>
+    <div class="use-steps">
+
+      <!-- STEP 1 · install -->
+      <div class="use-step">
+        <div class="use-no">1</div>
+        <div class="use-body">
+          <div class="use-h" data-i="use1h"></div>
+          <p class="use-p" data-i="use1p"></p>
+        </div>
+        <div class="use-aside">
+          <div class="use-cmds">
+            <div class="use-cmd"><span class="pmt">$</span><code>npx create-loci</code><span class="tag"><span class="ap-zh">推荐</span><span class="ap-en">recommended</span></span></div>
+            <div class="use-cmd use-cmd-alt"><span class="pmt">$</span><code>git clone … &amp;&amp; ./setup.sh</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 · open the dashboard -->
+      <div class="use-step">
+        <div class="use-no">2</div>
+        <div class="use-body">
+          <div class="use-h" data-i="use2h"></div>
+          <p class="use-p" data-i="use2p"></p>
+          <div class="use-cmds" style="margin-top:16px;max-width:420px">
+            <div class="use-cmd"><span class="pmt">$</span><code>node .loci/dashboard/server.js</code></div>
+            <div class="use-cmd use-cmd-alt"><span class="pmt">↳</span><code>localhost:8765</code><span class="tag"><span class="ap-zh">浏览器打开</span><span class="ap-en">in browser</span></span></div>
+          </div>
+        </div>
+        <div class="use-aside">
+          <div class="use-shot"><img src="demo-assets/onboarding-welcome.png" alt="Loci onboarding — pick your language and open the dashboard" loading="lazy"></div>
+        </div>
+      </div>
+
+      <!-- STEP 3 · start chatting -->
+      <div class="use-step use-step-3">
+        <div class="use-no">3</div>
+        <div class="use-body">
+          <div class="use-h" data-i="use3h"></div>
+          <p class="use-p" data-i="use3p"></p>
+        </div>
+        <div class="use-aside">
+          <div class="use-examples">
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">日程</span><span class="ap-en">Schedule</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"明天下午 3 点跟投资人开会"</span><span class="ap-en">"Meeting with the investor 3pm tomorrow"</span></span>
+            </div>
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">待办</span><span class="ap-en">To-do</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"提醒我这周把 logo 交了"</span><span class="ap-en">"Remind me to ship the logo this week"</span></span>
+            </div>
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">项目</span><span class="ap-en">Project</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"记住这个项目,以后帮我跟进"</span><span class="ap-en">"Remember this project and track it for me"</span></span>
+            </div>
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">决策</span><span class="ap-en">Decision</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"存储我们定了用 PostgreSQL,别用 Mongo"</span><span class="ap-en">"We're going with PostgreSQL, not Mongo"</span></span>
+            </div>
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">收藏</span><span class="ap-en">Save a link</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"这篇 agent UI 文章不错,存一下"</span><span class="ap-en">"This article on agent UIs is great — save it"</span></span>
+            </div>
+            <div class="use-ex">
+              <span class="use-ex-k"><span class="ap-zh">想法</span><span class="ap-en">An idea</span></span>
+              <span class="use-ex-q"><span class="ap-zh">"突然想到一个增长点子,记一下"</span><span class="ap-en">"Just had a growth idea — jot it down"</span></span>
+            </div>
+          </div>
+          <p class="use-ex-foot"><span class="ap-zh">说就行,Loci 自动判断该归到哪、写进对应文件 —— 你不用记着去存。</span><span class="ap-en">Just say it. Loci figures out where each one belongs and files it — you never have to remember to save.</span></p>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
 <!-- ⑦ CLOSE -->
 <section class="close">
   <div class="wrap">
-    <img class="close-seahorse" src="loci-seahorse.png" alt="seahorse">
-    <h2 data-i="closeTitle"></h2>
+    <span class="close-badge"><span class="close-badge-dot"></span><span class="ap-zh">记忆术 · 公元前 477 年</span><span class="ap-en">The art of memory · 477 BC</span></span>
+    <h2 class="close-title" data-i-html="closeTitle"></h2>
     <p class="why" data-i-html="closeWhy"></p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="https://github.com/codesstar/loci" target="_blank"><span data-i="closeBtn1"></span></a>
-      <a class="btn btn-ghost" href="/demo/" target="_blank"><span data-i="closeBtn2"></span></a>
+      <a class="btn btn-ghost" href="/demo/" target="_blank" rel="noopener"><span data-i="closeBtn2"></span></a>
     </div>
   </div>
 </section>
@@ -2611,9 +2694,15 @@ const I = {
   l3p: { zh:'旧日记、历史版本静静躺着,需要时才唤醒,不占注意力。', en:'Old journals and past versions rest quietly, woken only when needed.' },
   layeredSub: { zh:'四层记忆,启动时只读 L0(地图)+ L1(当前上下文)。其余按需调、归档不打扰 —— 所以积累几个月也依然快。', en:'Four layers. On start it reads only L0 (the map) + L1 (active context). The rest is on-demand or archived — fast even after months.' },
   routeSub: { zh:'你随口说的每句话,经过三道闸门,被蒸馏、路由,落到正确的文件 —— 七个去处,各司其职。', en:'Everything you say passes three gates, gets distilled and routed, and lands in the right file — seven destinations, each with its job.' },
-  instEye: { zh:'怎么装', en:'HOW TO INSTALL' },
-  instTitle: { zh:'一行命令装好,自动接上每个 AI 工具', en:'One command — auto-wired into every AI tool' },
-  instSub: { zh:'两条路径任选,装好后 Loci 会把大脑放到你的用户目录、用软链接接进项目、再把规则块写进 CLAUDE.md 和 AGENTS.md —— 下次打开任意 AI 工具就自动接上。', en:'Pick either path. Loci puts the brain in your home dir, symlinks it into projects, and writes the rules block into CLAUDE.md and AGENTS.md — so any AI tool auto-connects next time.' },
+  useEye: { zh:'怎么用', en:'HOW TO USE IT' },
+  useTitle: { zh:'三步开始用', en:'Up and running in three steps' },
+  useSub: { zh:'装好、打开、开始说话 —— 剩下的交给 Loci。', en:'Install, open, start talking — Loci handles the rest.' },
+  use1h: { zh:'装上并初始化', en:'Install & set up' },
+  use1p: { zh:'一行命令搞定。装的过程是个引导向导,问你几个问题(名字、在做什么、当前重点、作息、连哪些工具),再建好大脑、把规则块写进 CLAUDE.md 和 AGENTS.md。约两分钟。', en:'One command. It runs a short setup wizard — a few questions (your name, what you do, your current focus, your hours, which tools to connect) — then builds your brain and writes the rules block into CLAUDE.md and AGENTS.md. About two minutes.' },
+  use2h: { zh:'打开 Dashboard', en:'Open the dashboard' },
+  use2p: { zh:'想看大脑全貌时,在大脑目录里跑这条命令,再用浏览器打开 localhost:8765 —— 或者干脆跟 Codex / Claude Code 说一句"帮我打开 dashboard",它会替你启动。第一次进来选个语言、点 Open Dashboard,就是你记忆系统的平静界面。', en:'When you want to see your whole brain, run this from your brain folder and open localhost:8765 — or just tell Codex / Claude Code "open my dashboard" and it starts it for you. On first open, pick your language and hit Open Dashboard — the calm surface of your memory system.' },
+  use3h: { zh:'开始说话', en:'Start chatting' },
+  use3p: { zh:'回到 Claude Code 或 Codex,像平时一样说话就行。下面这些都可以直接对它说 —— 排日程、记待办、跟进项目、留决策、存链接、记灵感:', en:'Back in Claude Code or Codex, just talk like always. Any of these you can say straight to it — schedule things, capture to-dos, track projects, record decisions, save links, jot ideas:' },
 
   featEye: { zh:'能干嘛', en:'WHAT IT DOES' },
   featTitle: { zh:'一条记忆的旅程:捕捉 → 整理 → 记住 → 同步', en:'One journey for your memory: capture → organize → remember → sync' },
@@ -2695,8 +2784,8 @@ const I = {
   cmpR3k: { zh:'越用越…', en:'Over time' }, cmpR3a: { zh:'膨胀、塞爆上下文、拖慢 AI', en:'Bloats, fills context, slows the AI' }, cmpR3b: { zh:'<b>分层加载</b>,只进相关记忆 —— 越用越聪明', en:'<b>Layered loading</b> — smarter, not slower' },
   cmpR4k: { zh:'管理工作', en:'Work mgmt' }, cmpR4a: { zh:'不管', en:'None' }, cmpR4b: { zh:'<b>晨间 briefing、任务、模式识别、日记、可视化 dashboard</b>', en:'<b>Briefings, tasks, pattern detection, journals, a dashboard</b>' },
 
-  closeTitle: { zh:'记忆,放回它该在的地方', en:'Memory, where it belongs' },
-  closeWhy: { zh:'<b>记忆宫殿(Method of Loci)</b>是人类最古老的记忆术 —— 把每条要记的东西放进想象宫殿的一个房间,要用时走进去就找得到。我们的 logo 是一只海马,因为 Loci 就是你 AI 的<b>海马体</b>:把转瞬即逝的对话,变成留得住的记忆。', en:'<b>The Method of Loci</b> is the oldest memory technique — place each thing in a room of an imagined palace, walk back in to recall it. Our logo is a seahorse because Loci is your AI\'s <b>hippocampus</b> — turning fleeting talk into lasting memory.' },
+  closeTitle: { zh:'记忆,<span class="grad">放回它该在的地方</span>', en:'Memory, <span class="grad">where it belongs</span>' },
+  closeWhy: { zh:'<b>记忆宫殿(Method of Loci)</b>是人类最古老的记忆术 —— 把每条要记的东西放进想象宫殿的一个房间,要用时走进去就找得到。Loci 就是你 AI 的<b>海马体</b>:把转瞬即逝的对话,变成留得住的记忆。', en:'<b>The Method of Loci</b> is the oldest memory technique — place each thing in a room of an imagined palace, walk back in to recall it. Loci is your AI\'s <b>hippocampus</b> — turning fleeting talk into lasting memory.' },
   closeBtn1: { zh:'在 GitHub 上开始', en:'Get started on GitHub' },
   closeBtn2: { zh:'打开 Dashboard →', en:'Open the dashboard →' },
   footTag: { zh:'给你的 AI 一个真正的大脑', en:'Give your AI a real brain' },
