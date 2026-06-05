@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/loci-banner-v2.png" alt="Loci — Memory Palace for AI" width="600" />
+  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — Memory Palace for AI" width="600" />
 </p>
 
 <p align="center">
