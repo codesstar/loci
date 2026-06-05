@@ -1,0 +1,79 @@
+<svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="800" height="440" fill="#f6f6f4"/>
+
+  <!-- Section label -->
+  <text id="d-title" data-en="Install in one command — what it does" x="40" y="38" font-size="14" font-weight="700" fill="#1c1c1a">一行命令装好 — 它到底做了什么</text>
+
+  <!-- ===== Entry paths ===== -->
+  <!-- Path A -->
+  <rect x="118" y="62" width="234" height="58" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
+  <text id="d-pa-cmd" data-en="npx create-loci" x="135" y="88" font-size="13" font-weight="650" font-family="'JetBrains Mono', monospace" fill="#1c1c1a">npx create-loci</text>
+  <text id="d-pa-sub" data-en="one command" x="135" y="106" font-size="10.5" fill="#5b5b57">一行命令</text>
+
+  <!-- OR -->
+  <circle cx="400" cy="91" r="17" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
+  <text id="d-or" data-en="OR" x="400" y="95" font-size="11" font-weight="700" fill="#9a9a94" text-anchor="middle">或</text>
+
+  <!-- Path B -->
+  <rect x="448" y="62" width="234" height="58" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
+  <text id="d-pb-cmd" data-en="git clone + bash setup.sh" x="465" y="88" font-size="12" font-weight="650" font-family="'JetBrains Mono', monospace" fill="#1c1c1a">git clone + bash setup.sh</text>
+  <text id="d-pb-sub" data-en="from GitHub" x="465" y="106" font-size="10.5" fill="#5b5b57">从 GitHub 装</text>
+
+  <!-- Converge connectors (secondary, dashed) -->
+  <path d="M235 120 L235 142 Q235 150 243 150 L392 150" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <path d="M565 120 L565 142 Q565 150 557 150 L408 150" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <!-- Converge down to step row (primary) -->
+  <path d="M400 150 L400 172" fill="none" stroke="#c4c4be" stroke-width="1.5"/>
+  <path d="M396 167 L400 173 L404 167" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== Step 1 ===== -->
+  <rect x="40" y="178" width="222" height="92" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
+  <circle cx="64" cy="202" r="12" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
+  <text x="64" y="206" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace" fill="#5b5b57" text-anchor="middle">1</text>
+  <text id="d-s1-title" data-en="Clone the brain to your home dir" x="84" y="201" font-size="13" font-weight="650" fill="#1c1c1a">下载大脑到用户目录</text>
+  <text id="d-s1-hint" data-en="~/loci/" x="56" y="245" font-size="11" font-family="'JetBrains Mono', monospace" fill="#047857">~/loci/</text>
+
+  <!-- arrow 1 -> 2 -->
+  <path d="M262 224 L290 224" fill="none" stroke="#c4c4be" stroke-width="1.5"/>
+  <path d="M285 220 L291 224 L285 228" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== Step 2 ===== -->
+  <rect x="290" y="178" width="222" height="92" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
+  <circle cx="314" cy="202" r="12" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
+  <text x="314" y="206" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace" fill="#5b5b57" text-anchor="middle">2</text>
+  <text id="d-s2-title" data-en="Symlink it into projects" x="334" y="201" font-size="13" font-weight="650" fill="#1c1c1a">写软链接</text>
+  <text id="d-s2-hint" data-en=".loci/links/ → ~/loci" x="306" y="234" font-size="11" font-family="'JetBrains Mono', monospace" fill="#5b5b57">.loci/links/ → ~/loci</text>
+  <text id="d-s2-note" data-en="aggregates, not owns" x="306" y="254" font-size="10.5" font-style="italic" fill="#9a9a94">汇聚而非占有</text>
+
+  <!-- arrow 2 -> 3 -->
+  <path d="M512 224 L540 224" fill="none" stroke="#c4c4be" stroke-width="1.5"/>
+  <path d="M535 220 L541 224 L535 228" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== Step 3 (climax, emerald) ===== -->
+  <rect x="540" y="178" width="222" height="92" rx="13" fill="#d9f5e9" stroke="#10b981" stroke-width="1.5"/>
+  <circle cx="564" cy="202" r="12" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
+  <text x="564" y="206" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace" fill="#047857" text-anchor="middle">3</text>
+  <text id="d-s3-title" data-en="Inject rules into your AI files" x="584" y="201" font-size="13" font-weight="650" fill="#047857">注入规则块</text>
+  <!-- two files side by side -->
+  <rect x="558" y="218" width="86" height="22" rx="6" fill="#ffffff" stroke="#34d399" stroke-width="1.5"/>
+  <text id="d-s3-f1" data-en="CLAUDE.md" x="601" y="233" font-size="10.5" font-family="'JetBrains Mono', monospace" fill="#047857" text-anchor="middle">CLAUDE.md</text>
+  <rect x="652" y="218" width="86" height="22" rx="6" fill="#ffffff" stroke="#34d399" stroke-width="1.5"/>
+  <text id="d-s3-f2" data-en="AGENTS.md" x="695" y="233" font-size="10.5" font-family="'JetBrains Mono', monospace" fill="#047857" text-anchor="middle">AGENTS.md</text>
+  <text id="d-s3-note" data-en="Claude Code → CLAUDE.md · Codex → AGENTS.md" x="558" y="258" font-size="9" fill="#5b5b57">Claude Code 读 CLAUDE.md · Codex 读 AGENTS.md</text>
+
+  <!-- ===== Marker block snippet (under step 3) ===== -->
+  <rect x="540" y="284" width="222" height="58" rx="10" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
+  <text x="556" y="303" font-size="10" font-family="'JetBrains Mono', monospace" fill="#9a9a94"><!-- loci:start v2 --></text>
+  <text x="556" y="318" font-size="10" font-family="'JetBrains Mono', monospace" fill="#047857">Brain path: ~/loci</text>
+  <text x="556" y="333" font-size="10" font-family="'JetBrains Mono', monospace" fill="#9a9a94"><!-- loci:end --></text>
+
+  <!-- connector step3 -> end state -->
+  <path d="M651 342 L651 366" fill="none" stroke="#c4c4be" stroke-width="1.5"/>
+  <path d="M647 361 L651 367 L655 361" fill="none" stroke="#c4c4be" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ===== End state ===== -->
+  <rect x="40" y="372" width="722" height="46" rx="13" fill="#fafafa" stroke="#e3e3e0" stroke-width="1.5"/>
+  <circle cx="68" cy="395" r="7" fill="#d9f5e9" stroke="#10b981" stroke-width="1.5"/>
+  <path d="M64.5 395 L67 397.5 L71.5 392.5" fill="none" stroke="#047857" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text id="d-end" data-en="Next time any AI tool opens, it auto-connects to your brain" x="88" y="400" font-size="13" font-weight="650" fill="#1c1c1a">下次打开任意 AI 工具,它自动接上你的大脑</text>
+</svg>

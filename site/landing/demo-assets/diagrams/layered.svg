@@ -1,0 +1,65 @@
+<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="d-title">
+  <title id="d-title" data-en="Layered Memory — L0/L1/L2/L3">分层记忆 — L0/L1/L2/L3</title>
+
+  <!-- background -->
+  <rect x="0" y="0" width="800" height="420" rx="16" fill="#f6f6f4"/>
+
+  <!-- heading -->
+  <text id="d-heading" data-en="Layered Memory" x="40" y="44" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="#1c1c1a">分层记忆</text>
+  <text id="d-sub" data-en="how Loci loads context" x="40" y="64" font-family="Inter, sans-serif" font-size="12.5" fill="#9a9a94">Loci 如何加载上下文</text>
+
+  <!-- ===================== LEFT: load-on-start bracket ===================== -->
+  <!-- bracket spans L0 (y 92) + L1 (y 170), ends near 240 -->
+  <path d="M 96 96 H 84 A 6 6 0 0 0 78 102 V 158 A 6 6 0 0 1 72 164 A 6 6 0 0 1 78 170 V 226 A 6 6 0 0 0 84 232 H 96"
+        fill="none" stroke="#10b981" stroke-width="1.5"/>
+  <text id="d-bracket" data-en="loaded on start" x="66" y="160" font-family="Inter, sans-serif" font-size="12.5" font-weight="650" fill="#047857" text-anchor="middle" transform="rotate(-90 66 160)">启动时加载</text>
+
+  <!-- ===================== HEAT STRIP (right) ===================== -->
+  <defs>
+    <linearGradient id="heat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="45%" stop-color="#34d399"/>
+      <stop offset="72%" stop-color="#c4c4be"/>
+      <stop offset="100%" stop-color="#ececea"/>
+    </linearGradient>
+  </defs>
+  <rect x="746" y="92" width="6" height="296" rx="3" fill="url(#heat)"/>
+  <text id="d-hot" data-en="hot" x="743" y="100" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#047857" text-anchor="end">热</text>
+  <text id="d-cold" data-en="cold" x="743" y="386" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#9a9a94" text-anchor="end">冷</text>
+
+  <!-- ===================== L0 · Map (emerald, emphasized) ===================== -->
+  <g>
+    <rect x="116" y="92" width="618" height="62" rx="13" fill="#d9f5e9" stroke="#10b981" stroke-width="1.5"/>
+    <text id="d-l0" data-en="L0" x="140" y="129" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#047857">L0</text>
+    <text id="d-l0t" data-en="Map" x="178" y="118" font-family="Inter, sans-serif" font-size="13" font-weight="650" fill="#1c1c1a">地图</text>
+    <text id="d-l0p" data-en=".loci/map.md" x="178" y="137" font-family="'JetBrains Mono', monospace" font-size="10.5" fill="#047857">.loci/map.md</text>
+    <text id="d-l0d" data-en="knows where everything is, not the content" x="470" y="128" font-family="Inter, sans-serif" font-size="11" fill="#5b5b57" text-anchor="end">只告诉 AI 哪里有什么</text>
+  </g>
+
+  <!-- ===================== L1 · Active Context (emerald, emphasized) ===================== -->
+  <g>
+    <rect x="116" y="170" width="618" height="62" rx="13" fill="#d9f5e9" stroke="#10b981" stroke-width="1.5"/>
+    <text id="d-l1" data-en="L1" x="140" y="207" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#047857">L1</text>
+    <text id="d-l1t" data-en="Active Context" x="178" y="196" font-family="Inter, sans-serif" font-size="13" font-weight="650" fill="#1c1c1a">当前上下文</text>
+    <text id="d-l1p" data-en="plan.md · tasks/active.md · inbox.md" x="178" y="215" font-family="'JetBrains Mono', monospace" font-size="10.5" fill="#047857">plan.md · tasks/active.md · inbox.md</text>
+    <text id="d-l1d" data-en="loaded every conversation" x="722" y="206" font-family="Inter, sans-serif" font-size="11" fill="#5b5b57" text-anchor="end">每次对话都加载</text>
+  </g>
+
+  <!-- ===================== L2 · On-demand (neutral white) ===================== -->
+  <g>
+    <rect x="116" y="248" width="618" height="62" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
+    <text id="d-l2" data-en="L2" x="140" y="285" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#1c1c1a">L2</text>
+    <text id="d-l2t" data-en="On-demand" x="178" y="274" font-family="Inter, sans-serif" font-size="13" font-weight="650" fill="#1c1c1a">按需记忆</text>
+    <text id="d-l2p" data-en="decisions/ · people/ · references/ · me/" x="178" y="293" font-family="'JetBrains Mono', monospace" font-size="10.5" fill="#5b5b57">decisions/ · people/ · references/ · me/</text>
+    <text id="d-l2d" data-en="pulled in only when relevant" x="722" y="284" font-family="Inter, sans-serif" font-size="11" fill="#5b5b57" text-anchor="end">用到才进上下文</text>
+  </g>
+
+  <!-- ===================== L3 · Archive (dim / muted) ===================== -->
+  <g>
+    <rect x="116" y="326" width="618" height="62" rx="13" fill="#fafafa" stroke="#ececea" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text id="d-l3" data-en="L3" x="140" y="363" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#9a9a94">L3</text>
+    <text id="d-l3t" data-en="Archive" x="178" y="352" font-family="Inter, sans-serif" font-size="13" font-weight="650" fill="#9a9a94">归档</text>
+    <text id="d-l3p" data-en="archive/ · old journals" x="178" y="371" font-family="'JetBrains Mono', monospace" font-size="10.5" fill="#c4c4be">archive/ · 旧日记</text>
+    <text id="d-l3d" data-en="almost never loaded" x="722" y="362" font-family="Inter, sans-serif" font-size="11" fill="#9a9a94" text-anchor="end">几乎不碰</text>
+  </g>
+</svg>
