@@ -480,6 +480,14 @@
   /* ============ DASHBOARD CAROUSEL (.dc-) ============ */
   .dc{ margin-top:48px; }
   #dashboard .wrap{ max-width:1280px; }
+  /* SEE IT LIVE header: title block left, "open live demo" CTA right */
+  .dash-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:32px; flex-wrap:wrap; }
+  .dash-head-text{ min-width:0; }
+  .dash-live-btn{ flex-shrink:0; white-space:nowrap; }
+  .dash-live-btn:hover{ box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+  .dash-live-dot{ width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 0 0 rgba(255,255,255,.7); animation:dashPulse 1.8s ease-out infinite; }
+  @keyframes dashPulse{ 0%{ box-shadow:0 0 0 0 rgba(255,255,255,.6); } 70%{ box-shadow:0 0 0 6px rgba(255,255,255,0); } 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0); } }
+  @media (max-width:680px){ .dash-head{ align-items:flex-start; } .dash-live-btn{ width:100%; justify-content:center; } }
   .dc-stage{ position:relative; display:grid; grid-template-columns:0.82fr 1.8fr; gap:52px; align-items:center;
     background:var(--surface); border:1px solid var(--line-2); border-radius:24px; box-shadow:var(--shadow-lg);
     padding:44px 48px; min-height:560px; overflow:hidden; }
@@ -2104,9 +2112,18 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
 <!-- ③ DASHBOARD — real dashboard screenshots (Why-Loci point 3 hooks here) -->
 <section id="dashboard">
   <div class="wrap">
-    <span class="eyebrow" data-i="seeEye"></span>
-    <h2 class="sec-title" data-i="seeTitle"></h2>
-    <p class="sec-sub" data-i="seeSub"></p>
+    <div class="dash-head">
+      <div class="dash-head-text">
+        <span class="eyebrow" data-i="seeEye"></span>
+        <h2 class="sec-title" data-i="seeTitle"></h2>
+        <p class="sec-sub" data-i="seeSub"></p>
+      </div>
+      <a class="btn btn-primary dash-live-btn" href="/demo/" target="_blank" rel="noopener">
+        <span class="dash-live-dot" aria-hidden="true"></span>
+        <span data-i="seeDemoBtn"></span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
     <div class="dc">
       <div class="dc-stage">
         <!-- LEFT: copy slides (one visible at a time) -->
@@ -2727,6 +2744,7 @@ const I = {
   seeEye: { zh:'看看真实界面', en:'SEE IT LIVE' },
   seeTitle: { zh:'不是画的饼 —— 这是真实的 Dashboard', en:'Not a mockup — this is the real dashboard' },
   seeSub: { zh:'下面每张图都来自实际运行的 Loci dashboard(Clean 主题),用真实的演示数据截的。', en:'Every shot below comes from the actual running Loci dashboard (Clean theme), captured with real demo data.' },
+  seeDemoBtn: { zh:'打开在线 Demo', en:'Open live demo' },
   f1h: { zh:'全局总览 · 一眼看清当前状态', en:'Overview · your whole state at a glance' },
   f1p: { zh:'晨间 briefing:今天的任务、本周完成、记忆趋势。打开就是满的,10 秒进入状态。', en:'Morning briefing: today\'s tasks, this week\'s wins, memory trends. In context in 10 seconds.' },
   f1b1: { zh:'今日聚焦 + 任务进度环', en:'Today\'s focus + progress ring' },
