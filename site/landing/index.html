@@ -578,6 +578,9 @@
   .use-aside{ min-width:0; }
   /* step-1 command block */
   .use-cmds{ display:flex; flex-direction:column; gap:9px; }
+  .use-or{ display:flex; align-items:center; gap:12px; margin:1px 4px; }
+  .use-or::before, .use-or::after{ content:''; flex:1; height:1px; background:var(--line-2); }
+  .use-or span{ font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); }
   .use-cmd{ display:flex; align-items:center; gap:11px; background:#14211c; border-radius:11px; padding:12px 15px; box-shadow:var(--shadow-sm); }
   .use-cmd .pmt{ color:var(--accent-mid); font-family:var(--mono); font-size:13.5px; font-weight:600; flex:none; }
   .use-cmd code{ font-family:var(--mono); font-size:13px; color:#eafff5; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -2479,6 +2482,7 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
         <div class="use-aside">
           <div class="use-cmds">
             <div class="use-cmd"><span class="pmt">$</span><code>npx create-loci</code><span class="tag"><span class="ap-zh">推荐</span><span class="ap-en">recommended</span></span></div>
+            <div class="use-or"><span data-i="useOr"></span></div>
             <div class="use-cmd use-cmd-alt"><span class="pmt">$</span><code>git clone … &amp;&amp; ./setup.sh</code></div>
           </div>
         </div>
@@ -2715,6 +2719,7 @@ const I = {
   useTitle: { zh:'三步开始用', en:'Up and running in three steps' },
   useSub: { zh:'装好、打开、开始说话 —— 剩下的交给 Loci。', en:'Install, open, start talking — Loci handles the rest.' },
   use1h: { zh:'装上并初始化', en:'Install & set up' },
+  useOr: { zh:'或', en:'or' },
   use1p: { zh:'一行命令搞定。装的过程是个引导向导,问你几个问题(名字、在做什么、当前重点、作息、连哪些工具),再建好大脑、把规则块写进 CLAUDE.md 和 AGENTS.md。约两分钟。', en:'One command. It runs a short setup wizard — a few questions (your name, what you do, your current focus, your hours, which tools to connect) — then builds your brain and writes the rules block into CLAUDE.md and AGENTS.md. About two minutes.' },
   use2h: { zh:'打开 Dashboard', en:'Open the dashboard' },
   use2p: { zh:'想看大脑全貌时,在大脑目录里跑这条命令,再用浏览器打开 localhost:8765 —— 或者干脆跟 Codex / Claude Code 说一句"帮我打开 dashboard",它会替你启动。第一次进来选个语言、点 Open Dashboard,就是你记忆系统的平静界面。', en:'When you want to see your whole brain, run this from your brain folder and open localhost:8765 — or just tell Codex / Claude Code "open my dashboard" and it starts it for you. On first open, pick your language and hit Open Dashboard — the calm surface of your memory system.' },
