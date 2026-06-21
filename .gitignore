@@ -35,3 +35,6 @@ tasks/daily/
 # NOTE: The .loci/config settings file is intentionally tracked (NOT ignored).
 # It contains persistence/routing/privacy settings that should be version-controlled
 # so your brain configuration is portable and restorable. No secrets are stored there.
+
+# Internal dev/test artifacts — not for the public repo
+docs/reports/

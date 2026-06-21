@@ -232,7 +232,7 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 <!-- loci:project:start v1 -->
 ## Loci Project Memory
 
-This project is connected to a Loci brain at `/Users/user/loci`.
+This project is connected to a Loci brain at `~/loci`.
 
 **Principle — Loci aggregates memory, it does not own it.** This project's memory lives
 HERE, in this repo. The brain only keeps a one-line index entry. Never expect the brain
@@ -248,7 +248,7 @@ to store this project's full memory.
   Test: if the decision is internal to THIS project (tech, architecture, a feature trade-off),
   it stays here — that's almost always the case. Only a decision that is really the user's
   personal direction / strategy / methodology (meaningful even without this project) belongs
-  in the brain's `/Users/user/loci/decisions/` instead.
+  in the brain's `~/loci/decisions/` instead.
 - **Status / progress change** (goal, current state, next step, a milestone) → update
   `.loci/memory.md` in place; add a stamped line under `## Progress Log`.
 - **A development to-do for THIS project** (something to build/fix/ship) → `.loci/todo.json`,
@@ -257,7 +257,7 @@ to store this project's full memory.
   (also `toggle` / `done` / `move` / `remove` / `list` / `validate`). Each todo gets a permanent
   `id` so the dashboard can toggle / reorder it. The dashboard reads this file to show project todos.
 - **An insight or milestone worth the brain knowing** (`[insight]` / `[milestone]`) →
-  also update the project's index entry in the brain's `/Users/user/loci/projects/index.md`.
+  also update the project's index entry in the brain's `~/loci/projects/index.md`.
 - Keep `[local]` / `[debug]` / `[wip]` notes here only; do not push them to the brain.
 
 ### Always
