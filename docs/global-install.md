@@ -2,80 +2,124 @@
 
 Use Loci from any terminal directory, not just the brain folder.
 
-## What it does
+The recommended path is:
 
-After global install, opening `claude` in **any folder** gives you:
-- Automatic daily context (date, tasks, plan) injected at session start
-- AI knows your brain path and saves tasks/decisions/insights there
-- No need to `cd` into the brain directory for everyday use
+```bash
+npx create-loci
+```
 
-## How it works
+The installer creates or selects a local brain, then connects Claude Code, Codex, or both to that same brain path.
 
-Three components:
+## What It Enables
 
-1. **`~/.loci/brain-path`** — a file containing the absolute path to your brain directory (created during onboarding)
-2. **`~/.claude/hooks/loci-context.sh`** — a SessionStart hook that reads the brain path and injects today's plan, active tasks, and yesterday's journal into every Claude session
-3. **`~/.claude/CLAUDE.md`** — contains a `<!-- loci:start -->` block that tells Claude about persistence rules, brain path, and cross-project memory
-4. **`~/.claude/settings.json`** — registers the global hook
+After global install, opening Claude Code or Codex in any project gives the AI:
+
+- The path to your Loci brain
+- Startup context such as plan, active tasks, and recent inbox items
+- Rules for saving tasks, decisions, notes, people, schedules, and project memory
+- Cross-project memory: a project can keep its own `.loci/` memory while the brain keeps only an index
+
+You do not need to `cd` into the brain directory for everyday use.
+
+## How It Works
+
+Global install writes user-level instruction blocks:
+
+| Tool | User-level file |
+|---|---|
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex | `~/.codex/AGENTS.md` |
+
+Those files receive an idempotent `<!-- loci:start --> ... <!-- loci:end -->` block that tells the tool:
+
+- where the brain lives
+- which startup files to read
+- how to route tasks, schedules, decisions, notes, people, references, and project memory
+- how to write safely through guarded scripts or dashboard APIs
+
+The brain itself remains an ordinary local folder of Markdown, JSON, and scripts.
 
 ## Install
 
-### Automatic (recommended)
+### Automatic
 
-Run onboarding inside your brain directory — global install happens automatically during first-time setup. No extra steps needed.
+Run:
+
+```bash
+npx create-loci
+```
+
+The browser wizard asks:
+
+1. Where should the brain live?
+2. What is your name, role, language, and current focus?
+3. Which detected tools should connect: Claude Code, Codex, or both?
+
+Prefer terminal setup:
+
+```bash
+npx create-loci --cli
+```
 
 ### Manual
 
-1. **Set brain path:**
-   ```bash
-   mkdir -p ~/.loci
-   echo "/absolute/path/to/your/brain" > ~/.loci/brain-path
-   ```
+Clone the repository and run setup:
 
-2. **Install the global hook:**
-   ```bash
-   mkdir -p ~/.claude/hooks
-   cp /path/to/loci/templates/../.claude/hooks/loci-context.sh ~/.claude/hooks/loci-context.sh
-   chmod +x ~/.claude/hooks/loci-context.sh
-   ```
-   Or copy from `<brain-dir>/.claude/hooks/loci-context.sh`.
+```bash
+git clone https://github.com/codesstar/loci.git ~/loci
+cd ~/loci
+./setup.sh
+```
 
-3. **Register the hook in global settings:**
+Manual setup can still add the Loci blocks to Claude Code and/or Codex. If you edit the blocks by hand, keep the `<!-- loci:start -->` and `<!-- loci:end -->` markers so future installs can update them safely.
 
-   If `~/.claude/settings.json` doesn't exist, copy `templates/global-settings.json`:
-   ```bash
-   cp /path/to/loci/templates/global-settings.json ~/.claude/settings.json
-   ```
+## Verify
 
-   If it already exists, merge the `SessionStart` hook entry into your existing hooks config.
+Open a new terminal in any project and start your AI tool:
 
-4. **Add the Loci block to global CLAUDE.md:**
+```bash
+claude
+# or
+codex
+```
 
-   Copy the content of `templates/global-claude-block.md` and append it to `~/.claude/CLAUDE.md`. Replace `<brain-path>` with your actual brain path.
+Ask:
+
+```text
+where is my Loci brain?
+```
+
+It should report the configured brain path and load the current plan/tasks context.
+
+## Dashboard
+
+The dashboard is local and optional:
+
+```bash
+node .loci/dashboard/server.js
+```
+
+Open:
+
+```text
+http://127.0.0.1:8765/
+```
+
+`/` and `/clean` show the Clean demo experience. `/sci` keeps the original sci-fi dashboard available.
 
 ## Uninstall
 
-1. **Remove the global hook:**
-   ```bash
-   rm ~/.claude/hooks/loci-context.sh
-   ```
+1. Remove the Loci block from `~/.claude/CLAUDE.md`, if installed.
+2. Remove the Loci block from `~/.codex/AGENTS.md`, if installed.
+3. Delete any Loci slash commands or shortcuts you installed manually.
+4. Optionally delete the brain directory.
 
-2. **Remove the hook registration** from `~/.claude/settings.json`:
-   Delete the `SessionStart` entry that references `loci-context.sh`.
-
-3. **Remove the Loci block** from `~/.claude/CLAUDE.md`:
-   Delete everything between `<!-- loci:start` and `<!-- loci:end -->`.
-
-4. **Optionally remove brain path:**
-   ```bash
-   rm ~/.loci/brain-path
-   ```
-
-Your brain directory and all its data remain untouched.
+Your brain data is not deleted by removing the user-level blocks.
 
 ## Troubleshooting
 
-- **Hook not firing**: Check that `~/.claude/settings.json` has the SessionStart hook registered and that `loci-context.sh` is executable (`chmod +x`).
-- **"No brain configured" message**: `~/.loci/brain-path` is missing. Create it with `echo "/path/to/brain" > ~/.loci/brain-path`.
-- **"Brain directory not found"**: The path in `~/.loci/brain-path` points to a directory that doesn't exist. Update the path.
-- **Date calculation issues**: The hook uses `date -v-1d` (macOS) with fallback to `date -d yesterday` (Linux). Both should work out of the box.
+- **AI does not know the brain path**: rerun `npx create-loci` and reconnect the tool, or check that the Loci block exists in the correct user-level file.
+- **Claude works but Codex does not**: make sure Codex was selected during setup and `~/.codex/AGENTS.md` contains the Loci block.
+- **Codex works but Claude does not**: make sure Claude Code was selected during setup and `~/.claude/CLAUDE.md` contains the Loci block.
+- **Dashboard opens but data looks empty**: the Clean demo should always have sample data; live API views depend on your local brain files.
+- **Moved the brain folder**: rerun setup so the user-level blocks point at the new absolute path.

@@ -13,9 +13,9 @@ date: 2026-03-19
 
 ## GET /api/data
 
-返回完整的 brain 状态。Dashboard 每 5 秒调用一次。
+返回完整的 live brain 状态，用于 Dashboard/API 的真实读写流程。Clean demo 路由使用自包含测试数据，不需要调用这个接口。
 
-**响应字段**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `stats`, `build_time`
+**响应字段**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `notes`, `projects`, `stats`, `build_time`
 
 ```bash
 curl http://localhost:8765/api/data

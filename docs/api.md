@@ -13,9 +13,9 @@ Success response: `{"ok": true, ...}`. Error response: `{"error": "message"}`.
 
 ## GET /api/data
 
-Returns the full brain state. Called by Dashboard every 5 seconds.
+Returns the full live brain state for dashboard/API workflows. The Clean demo route uses self-contained sample data and does not need this endpoint.
 
-**Response keys**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `stats`, `build_time`
+**Response keys**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `notes`, `projects`, `stats`, `build_time`
 
 ```bash
 curl http://localhost:8765/api/data

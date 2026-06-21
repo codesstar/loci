@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/loci-banner-v2.png" alt="Loci — Memory Palace for AI" width="600" />
+  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — Memory Palace for AI" width="600" />
 </p>
 
 <p align="center">
@@ -147,18 +147,22 @@ Loci 对你的 AI 做的就是这件事。每一个决策、每一个偏好、�
 
 ### 2. 项目之间互通
 
-一条命令连接任意项目文件夹。你在项目 A 踩的坑，会变成项目 B 的主动提醒。
+不用记命令。你在某个项目里工作时，如果 AI 发现这个项目真的做起来了，它会在对话结尾轻问一次："要不要我帮你在这里留个记忆？"
+
+你点头后，Loci 会在这个项目 repo 里创建自己的 `.loci/memory.md` 和 `.loci/decisions/`。大脑只保留一行索引，知道这个项目在哪里。项目记忆归项目自己，大脑负责汇聚和调度。
 
 ```
 大脑（你的记忆中枢）
- ├── 主项目         "部署搞了 6 小时，因为忘了配 staging 的
- │                   环境变量。已经建了 checklist。"
+ ├── projects/index.md
+ │    "主项目在 ~/work/main-app，项目记忆见 .loci/memory.md"
  │
- ├── 副业项目       "你准备部署了。提醒一下，上次主项目因为
- │                   漏配环境变量搞了 6 小时。用你建的 checklist。"
+ ├── me/、tasks/、decisions/
+ │    你的全局偏好、任务、跨项目决策
  │
- └── 客户项目       "这边也要部署了——直接套用你的
-                     环境变量 checklist，别再踩一次。"
+ └── 项目 repo/.loci/
+      memory.md       项目当前状态
+      decisions/      项目自己的决策流水
+      todo.json       项目开发待办
 ```
 
 ### 3. 它能看到你看不到的规律
@@ -216,39 +220,52 @@ Loci 对你的 AI 做的就是这件事。每一个决策、每一个偏好、�
 | **成长追踪** | 身份或目标变化时，旧版本自动归档 | 随时回头看自己是怎么一步步走过来的 |
 | **Git 原生** | 全是 git 仓库里的 Markdown 文件。`git diff` 看 AI 今天学了什么，`git log` 就是你的记忆时间线 | 完整版本历史，离线可用，数据完全属于你 |
 
-> **想深入了解？** [工作原理](docs/how-it-works.zh-CN.md)——一篇文档讲透整个系统。
+> **想看完整项目文档？** [项目总览](docs/project-overview.zh-CN.md)——定位、安装、架构、数据落点、Dashboard 和测试重点都在这里。
 
 ---
 
 ## 可视化仪表盘
 
-Loci 内置一个可选的可视化 Dashboard——科幻风格的大脑指挥中心。零依赖，`node server.js` 即可运行。
+Loci 内置一个可选的本地 Dashboard。它不是云服务，也不是另一套数据库，而是本地大脑的可视化窗口。
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
-- **Today**：任务管理，Focus/Queue/Complete 拖拽，日历时间线
-- **Plan**：独立的周计划和月计划目标管理
-- **Journal**：富文本编辑器，支持图片，AI 摘要，日/周/月视图
-- **Memory**：你的身份、价值观、成长轨迹——全部从 Markdown 文件渲染
-- **Brain**：完整的记忆宫殿文件浏览器
+```bash
+node .loci/dashboard/server.js
+```
 
-所有操作通过本地 API 持久化到 Markdown 文件。Dashboard 是大脑的窗口，不是独立系统。
+默认打开：
 
-> **API 文档**：[docs/api.zh-CN.md](docs/api.zh-CN.md)——11 个 REST 端点，读写你的大脑。
+```text
+http://127.0.0.1:8765/
+```
+
+当前默认入口 `/` 和 `/clean` 使用新的 **Clean dashboard**：浅色、克制、以绿色为主强调色，带入口引导和中文 / English 语言选择。这个页面内置了一套完整测试数据，适合截图、演示和第一次理解产品；它不会写入你的真实 brain 文件。
+
+旧的 sci-fi dashboard 仍保留在 `/sci`。本地 `server.js` 同时暴露读写 API，供真实任务、日程、日志、项目 todo 等流程使用。
+
+- **Overview**：总览、关键指标、今日状态、记忆构成和项目进度
+- **Tasks / Schedule**：任务池和日程时间线。任务是最小主动单位，纯日程不会污染任务池
+- **Journal**：每日复盘、周/月回顾和个人记录
+- **Memory**：身份、偏好、成长轨迹和记忆概览
+- **People**：人脉档案、关系强度和联系人详情
+- **Projects**：连接项目的 `.loci/memory.md` 与 repo-local todo
+- **Notes / Fragments**：用户自己的 Obsidian / 飞书 / Notion 笔记索引、短笔记、碎片想法和收藏材料入口
+
+> **Dashboard 文档**：[docs/dashboard.zh-CN.md](docs/dashboard.zh-CN.md)。
 
 ---
 
 ## 集成
 
-Loci 是 **CLI 优先**的——只要能跑 Claude Code 的地方都能用，不需要 GUI。Dashboard 是可选的。
+Loci 先专注 Claude Code 和 Codex。两者会共用同一个本地大脑：Claude Code 里保存的任务、决策和上下文，Codex 下次也能接上。
 
 | 平台 | 状态 |
 |------|------|
-| **Claude Code** | 完整支持（为此而生） |
-| **Cursor / Windsurf / Cline** | 通过[适配器](docs/other-editors.zh-CN.md)支持 |
-| **OpenClaw** | 即将推出——替换 OpenClaw 默认记忆的插件 |
-
-> **OpenClaw 用户**：Loci 解决了 OpenClaw 的记忆问题。一条命令安装，你的龙虾就有了真正的大脑。[了解更多](docs/roadmap.zh-CN.md)
+| **Claude Code** | 重点支持 |
+| **Codex** | 重点支持 |
+| **Cursor / Windsurf / Cline** | 后续适配 |
+| **OpenClaw** | 实验性集成 |
 
 ---
 
@@ -269,6 +286,7 @@ Loci 是 **CLI 优先**的——只要能跑 Claude Code 的地方都能用，�
 | | |
 |---|---|
 | **[入门指南](docs/getting-started.zh-CN.md)** | 手把手带你跑通 |
+| **[项目总览](docs/project-overview.zh-CN.md)** | 一份文档讲清项目定位、架构和当前状态 |
 | **[工作原理](docs/how-it-works.zh-CN.md)** | 一篇文档讲透整个系统 |
 | **[用户故事](docs/user-stories.zh-CN.md)** | 日常用起来什么感觉 |
 | **[命令和结构](docs/getting-started.zh-CN.md#理解你的大脑)** | 目录结构、命令、配置 |

@@ -1876,11 +1876,12 @@ const server = http.createServer(async (req, res) => {
 
   // Static file serving
   let filePath;
-  if (pathname === '/' || pathname === '/index.html') {
-    filePath = path.join(SCRIPT_DIR, 'index.html');
-  } else if (pathname === '/clean' || pathname === '/clean.html') {
-    // Clean theme — standalone copy of the dashboard; original index.html untouched
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/clean' || pathname === '/clean.html') {
+    // Default theme is now the Clean dashboard; '/clean' kept as an alias for old links
     filePath = path.join(SCRIPT_DIR, 'index-clean.html');
+  } else if (pathname === '/sci' || pathname === '/sci.html') {
+    // Original sci-fi theme — moved off the root, kept available under /sci
+    filePath = path.join(SCRIPT_DIR, 'index.html');
   } else {
     filePath = path.join(SCRIPT_DIR, pathname);
   }

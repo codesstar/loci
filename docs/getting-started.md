@@ -6,49 +6,62 @@
 
 ## Prerequisites
 
-You need two things:
+Recommended:
 
-1. **Claude Code** — Loci is built for Claude Code. [Install it here](https://docs.anthropic.com/en/docs/claude-code/overview) if you haven't already.
-2. **Git** — You almost certainly have this. Run `git --version` to check.
+1. **Claude Code or Codex** — Loci is currently focused on these two agent coding tools, and both can share the same local brain.
+2. **Node.js / npm** — required for `npx create-loci`.
+3. **Git** — strongly recommended for backup, diffs, and history.
 
 Optional:
-- **Python 3** — Only needed for the dashboard. Everything else works without it.
+- **Python 3** — not required for the core system. The current dashboard uses a Node.js server.
 
 ---
 
 ## Installation
 
-### Option A: Clone and launch (recommended)
+### Option A: npx installer (recommended)
 
 ```bash
-git clone https://github.com/codesstar/loci.git my-brain
-cd my-brain
+npx create-loci
+```
+
+The installer opens a browser wizard and helps you:
+
+1. Create or choose a local brain directory
+2. Enter your name, role, language, current focus, and preferences
+3. Detect Claude Code and Codex
+4. Choose whether to connect Claude Code, Codex, or both
+5. Write user-level Loci rules so both tools know the same brain path
+
+Prefer a terminal wizard?
+
+```bash
+npx create-loci --cli
+```
+
+### Option B: Manual setup
+
+```bash
+git clone https://github.com/codesstar/loci.git ~/loci
+cd ~/loci
+./setup.sh
+```
+
+After setup, open Claude Code or Codex from any project:
+
+```bash
 claude
+# or
+codex
 ```
 
-Claude will detect that this is a fresh brain and walk you through setup.
-
-### Option B: Use the installer script
-
-```bash
-git clone https://github.com/codesstar/loci.git my-brain
-cd my-brain
-bash install.sh
-```
-
-The installer does a few extra things before launching Claude:
-- Checks that Claude Code is installed
-- Disconnects the template git remote (so your personal data never gets pushed to the public repo)
-- Installs slash commands to `~/.claude/commands/`
-- Adds global brain awareness to `~/.claude/CLAUDE.md` and/or `~/.codex/AGENTS.md`
-
-Both options end the same way: Claude launches and starts the onboarding conversation.
+They will read the same local brain. Decisions, tasks, and project context saved in one tool are available to the other.
 
 ---
 
 ## Your First Conversation
 
-When Claude launches in a fresh brain, it will ask you a few questions:
+If you used `npx create-loci`, the browser wizard already asked these questions:
 
 ```
   Welcome to Loci! Let me set up your brain.
@@ -62,7 +75,7 @@ When Claude launches in a fresh brain, it will ask you a few questions:
 
 Answer honestly — these shape your initial files. You can change everything later.
 
-After you answer, Claude creates your starter files:
+After setup, Loci creates your starter files:
 
 ```
   Done! Your brain is ready. Here's what I created:
@@ -76,7 +89,7 @@ After you answer, Claude creates your starter files:
   just keep working — I'll remember what matters.
 ```
 
-That's it. You're set up. From now on, just talk normally.
+The first time Claude Code or Codex opens after that, it reads those files and is ready to work. From now on, just talk normally.
 
 ---
 
@@ -105,9 +118,9 @@ my-brain/
 │   └── evolution.md       Old versions of identity/values (growth log)
 │
 ├── tasks/                 Your work.
-│   ├── active.md          Current tasks, sorted by priority (P0-P3)
-│   ├── someday.md         Ideas you might do eventually
-│   ├── daily/             One file per day — schedule + what got done
+│   ├── tasks.json         Canonical task database
+│   ├── calendar.json      Schedule and timed-task projections
+│   ├── active.md          Generated active task cache for fast AI loading
 │   └── journal/           Daily summaries and reflections
 │
 ├── decisions/             One file per major decision. Each records
@@ -119,9 +132,8 @@ my-brain/
 │
 ├── .loci/                 System internals.
 │   ├── config.yml         Your settings (persistence mode, work hours)
-│   ├── links/             Connected external projects
 │   ├── hooks/             Auto-sync scripts
-│   ├── dashboard/         Visual panel (HTML + data.json)
+│   ├── dashboard/         Local visual dashboard (Node server + HTML)
 │   └── activity/          Activity ledger (one file per month — "what did I do?")
 │
 └── docs/                  Documentation (you're reading one now)
@@ -132,6 +144,8 @@ Extension modules are created when you need them:
 - `people/` — contacts and meeting notes
 - `content/` — writing and publishing
 - `references/` — articles, books, links you want to remember
+- `notes/` — pointers to your own Obsidian / Feishu / Notion notes, plus short inline notes
+- `people/` — relationship context and contact notes
 
 ---
 
@@ -200,6 +214,30 @@ When you're wrapping up:
 ```
 
 If you say "summarize" or "journal", your AI will write a daily journal entry in `tasks/journal/`.
+
+---
+
+## Opening The Dashboard
+
+The dashboard is optional, but it is the fastest way to understand what Loci is storing.
+
+From your brain directory:
+
+```bash
+node .loci/dashboard/server.js
+```
+
+Open:
+
+```text
+http://127.0.0.1:8765/
+```
+
+The default `/` route opens the Clean dashboard. It includes polished demo data, onboarding, and a Chinese / English language selector, so you can explore the product safely without touching your real memory files.
+
+The local API is still available at `/api/data`, and the original sci-fi dashboard is available at `/sci`.
+
+More detail: [Dashboard docs](dashboard.md).
 
 ---
 
@@ -275,7 +313,7 @@ Later, you're in Project B:
 
 **Your brain is just files.** You can edit any file directly in your editor. Loci will pick up the changes next conversation. There's no lock-in.
 
-**The dashboard gives you a visual overview.** Run `cd .loci/dashboard && python3 build.py && python3 -m http.server 8765` and open `localhost:8765` in your browser.
+**The dashboard gives you a visual overview.** Run `node .loci/dashboard/server.js` from your brain directory and open `http://127.0.0.1:8765/`.
 
 ---
 
@@ -285,7 +323,7 @@ Later, you're in Project B:
 No. Everything stays in local Markdown files on your machine. There's no server, no account, no telemetry. Your conversations go through Claude Code (which has its own privacy policy), but Loci's memory files never leave your computer.
 
 **Q: Can I use Loci with Cursor / Windsurf / other editors?**
-Partially. Any AI editor can read your memory files (they're just Markdown). But the full experience — auto-save, slash commands, cross-project sync — requires Claude Code. See the [Other Editors Guide](other-editors.md).
+Partially. Any AI editor can read your memory files (they're just Markdown). The full experience is currently focused on Claude Code and Codex, which can share one local brain. See the [Other Editors Guide](other-editors.md).
 
 **Q: What happens if I have two terminals open?**
 Loci detects file changes from other terminals at the start of each conversation. Simultaneous writes to the same file can cause conflicts, but git tracks everything so no data is truly lost. In practice, this is rare.

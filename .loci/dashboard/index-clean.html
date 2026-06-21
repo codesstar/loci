@@ -48,6 +48,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loci · Dashboard</title>
+  <link rel="icon" type="image/png" href="/assets/loci-logo2.png">
 
   <!-- Google Fonts: Clean theme — Inter (UI) + JetBrains Mono (data/labels) only -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -778,6 +779,11 @@
     .mp-barwrap{ margin-top:3px; height:4px; border-radius:999px; background:var(--line-2); overflow:hidden; }
     .mp-bar{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent-ink),var(--accent-mid)); width:0; animation:mp-fill 1.2s cubic-bezier(.22,1,.36,1) .4s forwards; }
     @keyframes mp-fill{ to{ width:var(--w); } }
+    /* work-style note with a green accent bar on the left (classic card) */
+    .mp-note{ margin-top:16px; padding:13px 14px; background:var(--surface-2); border:1px solid var(--line); border-radius:14px; display:flex; gap:11px; align-items:flex-start; }
+    .mp-note .mp-note-bar{ display:block; width:4px; align-self:stretch; min-height:34px; border-radius:3px; background:var(--accent); flex:0 0 auto; }
+    .mp-note-text{ font-size:12.5px; line-height:1.55; color:var(--ink-2); }
+    .mp-note-text b{ color:var(--ink); font-weight:600; }
     .mp-skills{ display:grid; grid-template-columns:1fr 1fr; gap:13px; }
     @media(max-width:620px){ .mp-skills{ grid-template-columns:1fr; } }
     .mp-skill{ position:relative; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:16px 16px 16px 17px; overflow:hidden; transition:.2s; }
@@ -1155,6 +1161,32 @@
     }
     .people-stats { display: flex; gap: 20px; flex-wrap: wrap; }
     .ps-val { font-family: var(--mono); color: var(--ink); font-weight: 600; }
+
+    /* People header — network proportion bar (variant B) */
+    .phb-cat-core   { --c: #047857; }  /* 核心 deep emerald */
+    .phb-cat-collab { --c: #10b981; }  /* 协作 emerald */
+    .phb-cat-friend { --c: #6ee7b7; }  /* 朋友 soft mint */
+    .phb-cat-signal { --c: #a7b8a8; }  /* 关注 grey-green */
+    .phb {
+      margin-top: 18px; background: var(--surface); border: 1px solid var(--line);
+      border-radius: 16px; padding: 18px 22px 16px; max-width: 560px;
+      box-shadow: 0 1px 2px rgba(28,28,26,0.03), 0 8px 24px -16px rgba(28,28,26,0.10);
+    }
+    .phb-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 13px; }
+    .phb-head .phb-label { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+    .phb-head .phb-total { display: flex; align-items: baseline; gap: 5px; }
+    .phb-head .phb-total .n { font-family: var(--mono); font-size: 21px; font-weight: 600; color: var(--ink); line-height: 1; }
+    .phb-head .phb-total .u { font-size: 12px; color: var(--ink-3); }
+    .phb-bar { display: flex; width: 100%; height: 10px; border-radius: 999px; overflow: hidden; background: var(--line); gap: 2px; }
+    .phb-seg { height: 100%; background: var(--c); transition: flex .35s cubic-bezier(.22,1,.36,1); }
+    .phb-seg:first-child { border-radius: 999px 0 0 999px; }
+    .phb-seg:last-child { border-radius: 0 999px 999px 0; }
+    .phb-legend { display: flex; flex-wrap: wrap; gap: 14px 24px; margin-top: 16px; }
+    .phb-leg { display: flex; align-items: center; gap: 8px; }
+    .phb-leg .phb-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+    .phb-leg .phb-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+    .phb-leg .phb-sub { font-size: 11px; color: var(--ink-3); margin-left: -3px; }
+    .phb-leg .phb-cnt { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink-2); }
 
     /* people detail overlay internals */
     .detail-scanline { display: none !important; }
@@ -1869,8 +1901,13 @@
     }
     .welcome-overlay::before, .welcome-overlay::after { content: none !important; display: none !important; }
     .welcome-inner {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
-      box-shadow: var(--shadow-lg); padding: 40px 44px; max-width: 520px; text-align: center;
+      position: relative; overflow: hidden;
+      background: rgba(255,255,255,.97); border: 1px solid rgba(227,227,224,.92); border-radius: 24px;
+      box-shadow: var(--shadow-lg); padding: 42px 44px 40px; max-width: 540px; text-align: center;
+    }
+    .welcome-inner::before {
+      content: ""; position: absolute; inset: 0 0 auto; height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 22%, #34d399 70%, transparent 100%);
     }
     .welcome-headline {
       font-family: var(--sans); font-size: 26px; font-weight: 700;
@@ -1878,23 +1915,174 @@
       animation: none !important; margin-bottom: 14px;
     }
     .welcome-philosophy { color: var(--ink-2); font-size: 14.5px; line-height: 1.6; }
-    .welcome-enter-btn {
-      margin-top: 24px; background: var(--ink); color: #fff;
-      padding: 11px 24px; border-radius: 12px; font-weight: 550; font-size: 14px;
-      box-shadow: var(--shadow-sm);
+    /* Language picker — two pills above the enter button */
+    .welcome-lang {
+      margin-top: 26px; display: inline-flex; gap: 6px; padding: 4px;
+      background: var(--surface-2); border: 1px solid var(--line);
+      border-radius: 12px;
     }
-    .welcome-enter-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .welcome-lang-btn {
+      padding: 7px 20px; border-radius: 9px; font-size: 13.5px; font-weight: 550;
+      color: var(--ink-2); background: transparent; border: 1px solid transparent;
+      cursor: pointer; transition: all 0.18s; font-family: var(--sans);
+    }
+    .welcome-lang-btn:hover { color: var(--accent-ink); }
+    .welcome-lang-btn.active {
+      background: var(--surface); color: var(--accent-ink);
+      border-color: var(--accent-weak); box-shadow: var(--shadow-sm);
+    }
+    .welcome-enter-btn {
+      display: block; margin: 18px auto 0; background: var(--accent); color: #fff;
+      padding: 12px 30px; border-radius: 12px; font-weight: 600; font-size: 14px;
+      letter-spacing: 0.01em; box-shadow: 0 4px 14px rgba(16,185,129,.28);
+      transition: all 0.18s;
+    }
+    .welcome-enter-btn:hover { background: var(--accent-ink); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,.36); }
+    @media (max-width: 520px) {
+      .welcome-inner { width: calc(100vw - 28px); padding: 34px 22px 32px; }
+      .welcome-headline { font-size: 27px; line-height: 1.28; }
+      .welcome-philosophy { font-size: 13.5px; line-height: 1.72; overflow-wrap: anywhere; }
+    }
+
+    .guide-overlay {
+      position: fixed; inset: 0; z-index: 99998;
+      display: flex; align-items: center; justify-content: center;
+      overflow-y: auto; padding: 24px;
+      background: rgba(246,246,244,.78);
+      backdrop-filter: blur(12px);
+    }
+    .guide-panel {
+      position: relative; overflow: hidden;
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(227,227,224,.9);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      padding: 32px 36px 28px;
+      max-width: 700px; width: min(94vw, 700px);
+    }
+    .guide-panel::before {
+      content: ""; position: absolute; inset: 0 0 auto; height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 18%, #34d399 66%, transparent 100%);
+    }
+    .guide-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 20px;
+    }
+    .guide-title {
+      font-family: var(--mono); font-size: 12px; font-weight: 650;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--accent-ink);
+    }
+    .guide-head-actions {
+      display: flex; align-items: center; gap: 10px;
+      flex: none;
+    }
+    .guide-lang {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+    .guide-lang-btn {
+      min-width: 68px; height: 28px; padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 650;
+      color: var(--ink-2);
+      transition: background .16s ease, color .16s ease, box-shadow .16s ease;
+    }
+    .guide-lang-btn:hover { color: var(--accent-ink); }
+    .guide-lang-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 5px 14px rgba(16,185,129,.20);
+    }
+    .guide-close {
+      width: 30px; height: 30px; border-radius: 999px;
+      display: grid; place-items: center;
+      background: var(--surface-2); border: 1px solid var(--line);
+      color: var(--ink-3); font-size: 18px; line-height: 1;
+      transition: all .16s ease;
+    }
+    .guide-close:hover { color: var(--accent-ink); border-color: var(--accent-weak); background: var(--accent-weak); }
+    .guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .guide-card {
+      padding: 17px 18px; cursor: pointer; border-radius: 16px;
+      transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent-weak);
+      text-align: left;
+    }
+    .guide-card:hover {
+      background: #fbfffd;
+      border-color: var(--accent-weak);
+      border-left-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+    .guide-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .guide-card-icon { color: var(--accent-ink); font-size: 18px; line-height: 1; }
+    .guide-card-name {
+      font-family: var(--mono); font-size: 10.5px; font-weight: 650;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink);
+    }
+    .guide-card-desc {
+      font-family: var(--mono); font-size: 11px; line-height: 1.65;
+      color: var(--ink-2);
+    }
+    .guide-actions {
+      display: flex; justify-content: center; margin-top: 20px;
+    }
+    .guide-skip {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 34px; padding: 0 22px; border-radius: 999px;
+      background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 650; letter-spacing: .12em;
+      text-transform: uppercase; box-shadow: 0 8px 20px rgba(16,185,129,.22);
+      transition: background .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+    .guide-skip:hover { background: var(--accent-ink); transform: translateY(-1px); box-shadow: 0 12px 26px rgba(4,120,87,.22); }
+    @media (max-width: 640px) {
+      .guide-overlay { padding: 14px; align-items: flex-start; }
+      .guide-panel { padding: 28px 20px 24px; border-radius: 20px; }
+      .guide-head { align-items: flex-start; flex-direction: column; }
+      .guide-head-actions { width: 100%; justify-content: space-between; }
+      .guide-lang { flex: 1; }
+      .guide-lang-btn { flex: 1; min-width: 0; }
+      .guide-grid { grid-template-columns: 1fr; }
+    }
 
     .tour-tooltip {
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: 14px; box-shadow: var(--shadow-lg); color: var(--ink);
-      padding: 16px 18px; max-width: 320px;
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(227,227,224,.95);
+      border-radius: 18px; box-shadow: var(--shadow-lg); color: var(--ink);
+      padding: 18px 18px 16px; max-width: 340px;
     }
-    .tour-tooltip-title { font-weight: 650; font-size: 15px; color: var(--ink); margin-bottom: 6px; }
-    .tour-tooltip-text { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+    .tour-tooltip-title { font-weight: 700; font-size: 15.5px; color: var(--ink); margin-bottom: 7px; }
+    .tour-tooltip-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+    .tour-tooltip-nav {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 14px;
+    }
+    .tour-tooltip-count {
+      margin-right: auto;
+      font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink-2);
+    }
     .tour-btn {
-      background: var(--ink); color: #fff; border-radius: 9px;
-      padding: 6px 13px; font-size: 12.5px; font-weight: 550;
+      min-height: 32px; padding: 0 13px; border-radius: 999px;
+      font-size: 12.5px; font-weight: 650;
+      background: var(--surface-2); color: var(--ink-2);
+      border: 1px solid var(--line);
+      transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease;
+    }
+    .tour-btn:hover { transform: translateY(-1px); border-color: var(--accent-weak); color: var(--accent-ink); }
+    .tour-btn-primary {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+      box-shadow: 0 7px 18px rgba(16,185,129,.22);
+    }
+    .tour-btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); color: #fff; }
+    .tour-btn-skip {
+      background: transparent; color: var(--ink-3);
     }
     .tour-btn.ghost { background: var(--surface); border: 1px solid var(--line-2); color: var(--ink-2); }
 
@@ -3128,6 +3316,11 @@
         <template v-if="!guideBriefing">
           <div class="welcome-headline" v-html="t('welcome.headline')"></div>
           <div class="welcome-philosophy" v-html="t('welcome.philosophy')"></div>
+          <!-- Language picker: choose the language you enter in -->
+          <div class="welcome-lang">
+            <button class="welcome-lang-btn" :class="{ active: lang === 'zh' }" @click="lang = 'zh'">中文</button>
+            <button class="welcome-lang-btn" :class="{ active: lang === 'en' }" @click="lang = 'en'">English</button>
+          </div>
           <button class="welcome-enter-btn" @click="dismissWelcome">{{ t('welcome.enter') }}</button>
         </template>
 
@@ -3136,44 +3329,45 @@
     </div>
 
     <!-- Guide picker (module overview — 2-column grid) -->
-    <div v-if="showGuide" style="position: fixed; inset: 0; z-index: 99998; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow-y: auto;" @click.self="showGuide = false">
-      <div style="background: rgba(12,14,24,0.97); border: 1px solid var(--line); border-radius: 6px; padding: 32px 36px; max-width: 680px; width: 94%;">
+    <div v-if="showGuide" class="guide-overlay" @click.self="showGuide = false">
+      <div class="guide-panel">
         <!-- Header -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 4px; color: #10b981;">{{ lang === 'zh' ? '模块总览' : 'MODULE OVERVIEW' }}</div>
-          <button @click="showGuide = false" style="background: none; border: none; color: #9a9a94; cursor: pointer; font-size: 18px; padding: 4px 8px;">&times;</button>
+        <div class="guide-head">
+          <div class="guide-title">{{ lang === 'zh' ? '模块总览' : 'MODULE OVERVIEW' }}</div>
+          <div class="guide-head-actions" :aria-label="lang === 'zh' ? '选择语言' : 'Choose language'">
+            <div class="guide-lang">
+              <button class="guide-lang-btn" :class="{ active: lang === 'zh' }" @click.stop="lang = 'zh'">中文</button>
+              <button class="guide-lang-btn" :class="{ active: lang === 'en' }" @click.stop="lang = 'en'">English</button>
+            </div>
+            <button class="guide-close" @click="showGuide = false" aria-label="Close">&times;</button>
+          </div>
         </div>
         <!-- Card grid (6 per page) -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+        <div class="guide-grid">
           <div v-for="sec in guidePageItems" :key="sec.id" @click="showGuide = false; startTour(sec.id)"
-            style="padding: 16px 18px; cursor: pointer; border-radius: 6px; transition: all 0.25s; background: var(--surface); border: 1px solid var(--line); border-left: 2px solid #d9f5e9;"
-            @mouseenter="$event.currentTarget.style.borderColor='#d9f5e9'; $event.currentTarget.style.background='#ececea'; $event.currentTarget.style.transform='translateY(-2px)'; $event.currentTarget.style.boxShadow='0 4px 20px #ececea'"
-            @mouseleave="$event.currentTarget.style.borderColor='#ececea'; $event.currentTarget.style.borderLeftColor='#d9f5e9'; $event.currentTarget.style.background='#ececea'; $event.currentTarget.style.transform='none'; $event.currentTarget.style.boxShadow='none'"
+            class="guide-card"
           >
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <span v-html="sec.icon" style="font-size: 18px; filter: grayscale(0.4);"></span>
-              <span style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 2px; color: #10b981;">{{ t(sec.nameKey) }}</span>
+            <div class="guide-card-head">
+              <span v-html="sec.icon" class="guide-card-icon"></span>
+              <span class="guide-card-name">{{ t(sec.nameKey) }}</span>
             </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7; color: #9a9a94;">{{ t(sec.introKey) }}</div>
+            <div class="guide-card-desc">{{ t(sec.introKey) }}</div>
           </div>
         </div>
         <!-- Pagination dots + arrows (only if more than 1 page) -->
         <div v-if="guideTotalPages > 1" style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px;">
-          <button @click="guidePage = Math.max(0, guidePage - 1)" :style="{ background: 'none', border: 'none', color: guidePage > 0 ? '#10b981' : '#e3e3e0', cursor: guidePage > 0 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Inter\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9664;</button>
+          <button @click="guidePage = Math.max(0, guidePage - 1)" :style="{ background: 'none', border: 'none', color: guidePage > 0 ? 'var(--accent)' : 'var(--line-2)', cursor: guidePage > 0 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Inter\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9664;</button>
           <div style="display: flex; gap: 8px;">
             <span v-for="p in guideTotalPages" :key="p"
               @click="guidePage = p - 1"
-              :style="{ width: '8px', height: '8px', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s', background: guidePage === p - 1 ? '#10b981' : '#c4c4be' }"
+              :style="{ width: '8px', height: '8px', borderRadius: '50%', cursor: 'pointer', transition: 'all 0.2s', background: guidePage === p - 1 ? 'var(--accent)' : 'var(--ink-4)' }"
             ></span>
           </div>
-          <button @click="guidePage = Math.min(guideTotalPages - 1, guidePage + 1)" :style="{ background: 'none', border: 'none', color: guidePage < guideTotalPages - 1 ? '#10b981' : '#e3e3e0', cursor: guidePage < guideTotalPages - 1 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Inter\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9654;</button>
+          <button @click="guidePage = Math.min(guideTotalPages - 1, guidePage + 1)" :style="{ background: 'none', border: 'none', color: guidePage < guideTotalPages - 1 ? 'var(--accent)' : 'var(--line-2)', cursor: guidePage < guideTotalPages - 1 ? 'pointer' : 'default', fontSize: '12px', fontFamily: '\'Inter\', sans-serif', padding: '4px 8px', transition: 'color 0.2s', letterSpacing: '-2px' }">&#9654;</button>
         </div>
         <!-- Skip button -->
-        <div style="text-align: center; margin-top: 14px;">
-          <button @click="showGuide = false" style="font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 3px; color: #c4c4be; background: none; border: 1px solid #e3e3e0; border-radius: 3px; padding: 8px 24px; cursor: pointer; transition: all 0.2s;"
-            @mouseenter="$event.target.style.color='#10b981'; $event.target.style.borderColor='#d9f5e9'"
-            @mouseleave="$event.target.style.color='#c4c4be'; $event.target.style.borderColor='#e3e3e0'"
-          >{{ lang === 'zh' ? '跳过，直接进入' : 'SKIP — GO TO DASHBOARD' }}</button>
+        <div class="guide-actions">
+          <button class="guide-skip" @click="showGuide = false">{{ lang === 'zh' ? '进入仪表盘' : 'Open Dashboard' }}</button>
         </div>
       </div>
     </div>
@@ -4139,6 +4333,7 @@
                   <span class="mp-eyebrow">{{ lang === 'zh' ? '标签' : 'Tags' }}</span>
                   <div class="mp-chips"><span class="mp-chip" v-for="tg in memoryProfile.tags" :key="tg">{{ tg }}</span></div>
                 </div>
+                <div class="mp-note"><span class="mp-note-bar"></span><p class="mp-note-text">{{ lang === 'zh' ? '深度专注，厌恶被打断。偏好极简、克制的设计 — 能不加的就不加。' : 'Deep focus, hates interruption. Prefers minimal, restrained design.' }}</p></div>
               </aside>
 
               <!-- cover-style card (toggle) -->
@@ -4150,7 +4345,7 @@
                   <span class="mc1-status"><span class="mc1-sdot"></span>{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + ' DAYS' }}</span>
                   <img :src="memoryProfile.avatar" :alt="memoryProfile.name">
                   <div class="mc1-banner-foot">
-                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '墨尔本 · MEL' : 'MELBOURNE' }}</span></div>
+                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '里斯本 · LIS' : 'LISBON' }}</span></div>
                     <div class="mc1-role">{{ memoryProfile.role }}</div>
                   </div>
                 </div>
@@ -5015,12 +5210,23 @@
             </div>
           </div>
 
-          <div class="people-stats" data-tour="people-stats">
-            <span>{{ t('people.total') }}: <span class="ps-val">{{ peopleData.length }}</span></span>
-            <span>{{ t('people.shield') }}: <span class="ps-val">{{ shieldPeople.length }}</span></span>
-            <span>{{ t('people.neural') }}: <span class="ps-val">{{ neuralPeople.length }}</span></span>
-            <span>{{ t('people.crew') }}: <span class="ps-val">{{ crewPeople.length }}</span></span>
-            <span>{{ t('people.signal') }}: <span class="ps-val">{{ signalPeople.length }}</span></span>
+          <div class="phb" data-tour="people-stats">
+            <div class="phb-head">
+              <span class="phb-label">Network</span>
+              <span class="phb-total"><span class="n">{{ peopleData.length }}</span><span class="u">{{ lang === 'zh' ? '位' : '' }}</span></span>
+            </div>
+            <div class="phb-bar" role="img" :aria-label="t('people.shield') + ' ' + shieldPeople.length + '、' + t('people.neural') + ' ' + neuralPeople.length + '、' + t('people.crew') + ' ' + crewPeople.length + '、' + t('people.signal') + ' ' + signalPeople.length">
+              <div class="phb-seg phb-cat-core"   :style="{ flex: shieldPeople.length || 0, display: shieldPeople.length ? 'block' : 'none' }"></div>
+              <div class="phb-seg phb-cat-collab" :style="{ flex: neuralPeople.length || 0, display: neuralPeople.length ? 'block' : 'none' }"></div>
+              <div class="phb-seg phb-cat-friend" :style="{ flex: crewPeople.length || 0, display: crewPeople.length ? 'block' : 'none' }"></div>
+              <div class="phb-seg phb-cat-signal" :style="{ flex: signalPeople.length || 0, display: signalPeople.length ? 'block' : 'none' }"></div>
+            </div>
+            <div class="phb-legend">
+              <span class="phb-leg phb-cat-core"><span class="phb-dot"></span><span class="phb-name">{{ t('people.shield') }}</span><span class="phb-sub">{{ lang === 'zh' ? '投资人/合伙人' : 'Investor/Partner' }}</span><span class="phb-cnt">{{ shieldPeople.length }}</span></span>
+              <span class="phb-leg phb-cat-collab"><span class="phb-dot"></span><span class="phb-name">{{ t('people.neural') }}</span><span class="phb-sub">{{ lang === 'zh' ? '技术/开发' : 'Tech/Dev' }}</span><span class="phb-cnt">{{ neuralPeople.length }}</span></span>
+              <span class="phb-leg phb-cat-friend"><span class="phb-dot"></span><span class="phb-name">{{ t('people.crew') }}</span><span class="phb-sub">{{ lang === 'zh' ? '朋友/家人' : 'Friend/Family' }}</span><span class="phb-cnt">{{ crewPeople.length }}</span></span>
+              <span class="phb-leg phb-cat-signal"><span class="phb-dot"></span><span class="phb-name">{{ t('people.signal') }}</span><span class="phb-sub">{{ lang === 'zh' ? '新联系' : 'New' }}</span><span class="phb-cnt">{{ signalPeople.length }}</span></span>
+            </div>
           </div>
 
           <!-- People empty state -->
@@ -5522,7 +5728,7 @@
 
     <!-- Tour overlay -->
     <div v-if="tourActive && currentTourStep" style="position: fixed; inset: 0; z-index: 100000; pointer-events: none;">
-      <!-- Dark overlay with cutout -->
+      <!-- Light overlay with cutout -->
       <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto;" @click="tourSkip">
         <defs>
           <mask id="tour-mask">
@@ -5530,11 +5736,13 @@
             <rect :x="tourRect.left - 6" :y="tourRect.top - 6" :width="tourRect.width + 12" :height="tourRect.height + 12" rx="6" fill="black"/>
           </mask>
         </defs>
-        <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,0.7)" mask="url(#tour-mask)"/>
-        <!-- Highlight border -->
-        <rect :x="tourRect.left - 6" :y="tourRect.top - 6" :width="tourRect.width + 12" :height="tourRect.height + 12" rx="6"
-          fill="none" stroke="#047857" stroke-width="1.5"
-          style=""/>
+        <!-- Soft light scrim — keeps the page readable, just gently dims the rest -->
+        <rect x="0" y="0" width="100%" height="100%" fill="rgba(246,246,244,0.55)" mask="url(#tour-mask)"/>
+        <!-- Highlight ring — translucent green halo + crisp accent border -->
+        <rect :x="tourRect.left - 8" :y="tourRect.top - 8" :width="tourRect.width + 16" :height="tourRect.height + 16" rx="10"
+          fill="none" stroke="rgba(16,185,129,0.25)" stroke-width="6"/>
+        <rect :x="tourRect.left - 6" :y="tourRect.top - 6" :width="tourRect.width + 12" :height="tourRect.height + 12" rx="8"
+          fill="none" stroke="#10b981" stroke-width="2"/>
       </svg>
       <!-- Tooltip -->
       <div style="pointer-events: auto; position: absolute; z-index: 100001;"
@@ -5903,6 +6111,30 @@ function initBrain(container) {
 // PART B: Vue.js App
 // ============================================================
 
+// ===== Demo mode =====
+// This build (index-clean.html / the public demo) is fully self-contained: it
+// loads a mock dataset and NEVER reads or writes the user's real brain. When
+// DEMO_MODE is true, every write/read against the local /api/* server is
+// short-circuited so the static demo works on GitHub Pages (no backend) with
+// zero console 404s. All write handlers already update the reactive state
+// optimistically and persist to localStorage, so visitors can really add /
+// drag / edit; a page refresh resets to the pristine demo state.
+const DEMO_MODE = true;
+
+// Drop-in replacement for fetch() on /api/* endpoints. In demo mode it resolves
+// to a benign "empty success" Response so callers that check `r.ok` / parse JSON
+// keep working and fall through to their local fallbacks. In a real server
+// build, set DEMO_MODE = false and this passes straight through to fetch().
+function demoFetch(url, opts) {
+  if (DEMO_MODE && typeof url === 'string' && url.startsWith('/api')) {
+    return Promise.resolve(new Response('{}', {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+  }
+  return fetch(url, opts);
+}
+
 const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
 
 createApp({
@@ -5940,7 +6172,15 @@ createApp({
     const savedLang = localStorage.getItem('loci-dashboard-lang');
     const defaultLang = savedLang || (navigator.language.startsWith('zh') ? 'zh' : 'en');
     const lang = ref(defaultLang);
-    watch(lang, (v) => localStorage.setItem('loci-dashboard-lang', v));
+    watch(lang, (v) => {
+      localStorage.setItem('loci-dashboard-lang', v);
+      // Demo mode: reload the mock dataset in the new language so data content
+      // (tasks, journal, decisions, people, calendar…) switches too, not just
+      // the UI labels. loadDemoData is hoisted; it's safe to call here.
+      if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE && data.value) {
+        loadDemoData();
+      }
+    });
     function toggleLang() { lang.value = lang.value === 'zh' ? 'en' : 'zh'; }
 
     const savedDashboardTheme = (() => {
@@ -6236,9 +6476,9 @@ createApp({
         // Welcome overlay
         'welcome.title': '系统在线',
         'welcome.subtitle': '欢迎登舰，指挥官',
-        'welcome.headline': '第一个 AI-Native<br>生活仪表盘',
-        'welcome.philosophy': '所有操作的核心是<em>跟 AI 对话</em>。<br>跟 AI 说"帮我排计划"、"记住这个人"、"我有个想法"——<br>AI 帮你<em>记录、整理、追踪一切</em>。<br>这里只是你的<em>全景展示板</em>。',
-        'welcome.enter': '进入舰桥',
+        'welcome.headline': '你的 AI-Native<br>生活仪表盘',
+        'welcome.philosophy': '核心仍然是<em>跟 AI 对话</em>。<br>说"帮我排计划"、"记住这个人"、"我有个想法"——<br>Loci 会<em>记录、整理、追踪</em>这些线索。<br>这里是记忆系统露在外面的安静表层。',
+        'welcome.enter': '打开仪表盘',
         'welcome.footnote': '7 个模块待命 — 首次进入每个页面时会自动引导你',
         'welcome.guide': '导航指南',
         'welcome.secToday': '任务 / 日程',
@@ -6560,9 +6800,9 @@ createApp({
         // Welcome overlay
         'welcome.title': 'SYSTEM ONLINE',
         'welcome.subtitle': 'WELCOME ABOARD, COMMANDER',
-        'welcome.headline': 'The First AI-Native<br>Life Dashboard',
-        'welcome.philosophy': 'The core of everything is <em>talking to AI</em>.<br>Say "plan my week", "remember this person", "I had an idea" —<br>AI <em>records, organizes, and tracks</em> it all.<br>This is just your <em>panoramic display board</em>.',
-        'welcome.enter': 'ENTER BRIDGE',
+        'welcome.headline': 'Your AI-Native<br>Life Dashboard',
+        'welcome.philosophy': 'The core is still <em>talking to AI</em>.<br>Say "plan my week", "remember this person", "I had an idea" —<br>Loci <em>records, organizes, and tracks</em> it all.<br>This is the calm surface of your memory system.',
+        'welcome.enter': 'OPEN DASHBOARD',
         'welcome.footnote': '7 MODULES STANDING BY — GUIDED TOURS ACTIVATE ON FIRST VISIT',
         'welcome.guide': 'GUIDE',
         'welcome.secToday': 'TASKS / SCHEDULE',
@@ -6664,7 +6904,6 @@ createApp({
       { id: 'today', icon: '&#9678;', nameKey: 'welcome.secToday', introKey: 'guide.todayIntro' },
       { id: 'journal', icon: '&#9687;', nameKey: 'welcome.secJournal', introKey: 'guide.journalIntro' },
       { id: 'memory', icon: '&#9674;', nameKey: 'welcome.secMemory', introKey: 'guide.memoryIntro' },
-      { id: 'brain', icon: '&#9673;', nameKey: 'welcome.secBrain', introKey: 'guide.brainIntro' },
       { id: 'people', icon: '&#9671;', nameKey: 'welcome.secPeople', introKey: 'guide.peopleIntro' },
       { id: 'fragments', icon: '&#10043;', nameKey: 'welcome.secFragments', introKey: 'guide.fragmentsIntro' },
     ];
@@ -6679,8 +6918,7 @@ createApp({
       showWelcome.value = false;
       guideBriefing.value = null;
       localStorage.setItem('loci-welcome-done', '1');
-      // Show the GUIDE picker so user can explore modules
-      setTimeout(() => { showGuide.value = true; }, 300);
+      setTimeout(() => { showGuide.value = true; }, 220);
     }
     // ===== End Welcome Overlay =====
 
@@ -6917,16 +7155,16 @@ createApp({
       ];
       const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
       return {
-        avatar: '/avatar-user.png',
-        name: 'Sam',
+        avatar: '/assets/people-avatars/avatar-c-core-m.png',
+        name: 'Sam Rivera',
         role: zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder',
         meta: zh ? [
-          { k:'Location', v:'墨尔本 · Melbourne' },
+          { k:'Location', v:'里斯本 · Lisbon' },
           { k:'Language', v:'中文优先' },
           { k:'Workstyle', v:'深度专注，厌恶被打断' },
           { k:'Aesthetic', v:'极简、克制的设计' },
         ] : [
-          { k:'Location', v:'Melbourne' },
+          { k:'Location', v:'Lisbon' },
           { k:'Language', v:'Chinese-first' },
           { k:'Workstyle', v:'Deep focus, hates interruption' },
           { k:'Aesthetic', v:'Minimal, restrained' },
@@ -7167,7 +7405,7 @@ createApp({
       if (type === 'month' && key === _lastMonthKey) return;
       if (type === 'week') _lastWeekKey = key; else _lastMonthKey = key;
       try {
-        const r = await fetch('/api/plan/load', {
+        const r = await demoFetch('/api/plan/load', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type, key })
         });
@@ -7186,7 +7424,7 @@ createApp({
       const target = type === 'week' ? planWeekItems : planMonthItems;
       const items = target.map(t => ({ text: t.text, done: t.done }));
       try {
-        await fetch('/api/plan/save', {
+        await demoFetch('/api/plan/save', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type, key, items })
         });
@@ -8617,19 +8855,8 @@ createApp({
       if (newPage === 'journal') {
         nextTick(() => { setTimeout(initMemoryCanvases, 100); });
       }
-      // Auto-tour on first visit to any page (only if welcome is done and not already touring)
-      if (newPage && localStorage.getItem('loci-welcome-done') && !tourActive.value && tourSteps[newPage] && !isPageToured(newPage)) {
-        nextTick(() => {
-          setTimeout(() => {
-            if (!tourActive.value) {
-              tourPage.value = newPage;
-              tourStep.value = 0;
-              tourActive.value = true;
-              nextTick(() => updateTourPosition());
-            }
-          }, 500); // brief delay so page content renders first
-        });
-      }
+      // Tours are now opt-in from the Guide button; page navigation should not
+      // interrupt the dashboard with automatic onboarding overlays.
     });
 
     watch(memoryTab, () => {
@@ -8660,7 +8887,7 @@ createApp({
     const navGroups = computed(() => [
       { label: null,                    items: ['overview'] },
       { label: t('nav.sec.daily'),      items: ['today', 'journal', 'fragments'] },
-      { label: t('nav.sec.workspace'),  items: ['memory', 'people', 'brain', 'roadmap', 'notes'] },
+      { label: t('nav.sec.workspace'),  items: ['memory', 'people', 'roadmap', 'notes'] }, // 'brain' hidden (page kept, removed from sidebar)
     ].map(g => ({ label: g.label, items: g.items.map(navById).filter(Boolean) })));
 
     const memoryTabs = computed(() => [
@@ -8928,7 +9155,7 @@ createApp({
       // Try server first, fallback to localStorage
       let loaded = false;
       try {
-        const r = await fetch('/api/journal/load-notes', {
+        const r = await demoFetch('/api/journal/load-notes', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ date: journalViewDate.value })
         });
@@ -8981,7 +9208,7 @@ createApp({
       const data = journalNotes.map(n => ({ id: n.id, name: n.name, content: n.content }));
       localStorage.setItem(key, JSON.stringify(data));
       // Persist to server
-      fetch('/api/journal/save-notes', {
+      demoFetch('/api/journal/save-notes', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: journalViewDate.value, notes: data })
       }).catch(() => {});
@@ -9658,14 +9885,79 @@ createApp({
       return 'signal';
     }
 
+    // Default-avatar resolver (assets/people-avatars/) — ALL avatars are the unified 3D age set.
+    // When a contact has no uploaded photo, resolve an age band + gender, highest-confidence first:
+    //   1. EXPLICIT AGE — a number or band word (青少年/成年/中年/老年, teen/adult/middle/senior).
+    //   2. PROFESSION → implied age band — a known job hints an age (student→teen, founder→adult, …).
+    //   3. GENDER fallback — nothing else known → 'adult' for the gender.
+    // The chosen band + gender maps to age-{teen|adult|middle|senior}-{m|f}.png (3D blind-box style).
+    const AVA = '/assets/people-avatars/';
+    function genderKey(g) { return /female|woman|女|^f/i.test(String(g || '')) ? 'f' : 'm'; }
+
+    // profession keyword → implied age band (used only when no explicit age is given)
+    const PROFESSION_AGE = [
+      { keys: ['student', '学生', '高中', '初中', '中学'],                          band: 'teen' },
+      { keys: ['intern', '实习', '应届', '研究生', '本科'],                         band: 'adult' },
+      { keys: ['founder', '创始人', 'ceo', 'engineer', 'developer', '工程师', '开发', '程序', 'designer', '设计', 'doctor', '医生', 'teacher', '老师', '教师', 'product', '产品', '律师', 'lawyer'], band: 'adult' },
+      { keys: ['advisor', '顾问', '前辈', '总监', 'director', 'vp', '合伙人', 'partner', 'investor', '投资', '教授', 'professor', '主任'], band: 'middle' },
+      { keys: ['retired', '退休', '长辈'],                                          band: 'senior' },
+    ];
+
+    function ageBandFromAge(age, bandWord) {
+      const w = String(bandWord || '').toLowerCase();
+      if (/teen|青少年|少年/.test(w))  return 'teen';
+      if (/adult|成年|青年/.test(w))   return 'adult';
+      if (/middle|中年/.test(w))       return 'middle';
+      if (/senior|老年|elder/.test(w)) return 'senior';
+      const n = Number(age);
+      if (Number.isFinite(n) && n > 0) {
+        if (n < 20) return 'teen';
+        if (n < 40) return 'adult';
+        if (n < 60) return 'middle';
+        return 'senior';
+      }
+      return null;
+    }
+
+    // relation/tag category → green 3D blind-box slot (used when we only know the relationship,
+    // not an age). shield→core, neural→collab, crew→friend, signal→watch.
+    const CAT_TO_SLOT = { shield: 'core', neural: 'collab', crew: 'friend', signal: 'watch' };
+
+    function defaultAvatar(person) {
+      const g = genderKey(person.gender);
+      // tier 1: explicit age / age band → 3D age avatar
+      let band = ageBandFromAge(person.age, person.ageBand);
+      // tier 2: profession → implied age band → 3D age avatar
+      if (!band) {
+        const hay = [person.title, person.relation, person.org, person.industry,
+                     ...(Array.isArray(person.tags) ? person.tags : [])].join(' ').toLowerCase();
+        for (const p of PROFESSION_AGE) {
+          if (p.keys.some(k => hay.includes(k))) { band = p.band; break; }
+        }
+      }
+      if (band) return `${AVA}age-${band}-${g}.png`;
+      // tier 3: no age clue → green 3D blind-box keyed by relationship category
+      const slot = CAT_TO_SLOT[person.category];
+      if (slot) return `${AVA}avatar-c-${slot}-${g}.png`;
+      // tier 4: gender fallback → adult 3D age avatar
+      return `${AVA}age-adult-${g}.png`;
+    }
+
     function mapContactToPerson(contact) {
       const m = contact.meta || {};
       const tags = Array.isArray(m.tags) ? m.tags : (m.tags ? [m.tags] : []);
       const category = derivePeopleCategory(m.relation, tags);
+      const avatarSeed = {
+        gender: m.gender, title: m.title, relation: m.relation,
+        org: m.org || m.company, industry: m.industry, tags,
+        age: m.age, ageBand: m.age_band || m.ageBand, category,
+      };
       return {
         name: m.name || contact.filename?.replace('.md', '') || '?',
         nickname: m.nickname || '',
-        photo: m.photo || '',
+        age: m.age || '',
+        ageBand: m.age_band || m.ageBand || '',
+        photo: m.photo || defaultAvatar(avatarSeed),
         lineart: !!m.lineart,
         gender: m.gender || '',
         birthday: m.birthday || '',
@@ -9782,7 +10074,7 @@ createApp({
     // ── ovA hero / new-overview helpers ───────────────────────────────
     const ovUserName = computed(() => {
       const u = data.value && data.value.config && data.value.config.username;
-      return (u || 'Sam').toUpperCase();
+      return (u || 'Sam Rivera').toUpperCase();
     });
     // Focus task: first timed task today, else first task today.
     const ovFocusTask = computed(() => {
@@ -11110,7 +11402,7 @@ createApp({
       calendarEvents[key] = [...calendarEvents[key]];
 
       try {
-        await fetch('/api/calendar/add', {
+        await demoFetch('/api/calendar/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -11406,7 +11698,7 @@ createApp({
 
       // Persist via API
       try {
-        await fetch('/api/tasks/move', {
+        await demoFetch('/api/tasks/move', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: task.id, task: rawText, from, to: toGroup })
@@ -11838,7 +12130,7 @@ createApp({
       // Persist via API
       try {
         // Task-first model: every task is created in the task pool.
-        const taskRes = await fetch('/api/tasks/add', {
+        const taskRes = await demoFetch('/api/tasks/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -11877,7 +12169,7 @@ createApp({
           const d = new Date();
           d.setDate(d.getDate() + calendarDayOffset.value);
           const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-          await fetch('/api/calendar/add', {
+          await demoFetch('/api/calendar/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date: dateStr, title: taskText, startMin, endMin, fromTask: true, taskId: savedTaskId })
@@ -11896,11 +12188,300 @@ createApp({
     // dataset so /clean always looks full and polished WITHOUT touching the
     // user's real tasks.json / calendar.json / brain files. Shape mirrors what
     // GET /api/data returns (see server.js buildAllData).
+
+    // ===== Demo data localization (zh -> en) =====
+    // The mock dataset below is authored in Chinese. When the dashboard language
+    // is English we recursively walk the loaded data object and swap any string
+    // that has an English translation in this table. Keeping the translations in
+    // one place (instead of inlining L(zh,en) across ~250 lines) keeps the mock
+    // data readable and easy to extend. Strings with no entry are left as-is.
+    const MOCK_TR = {
+      "AI 的记忆宫殿": "A memory palace for AI",
+      "打磨 README + demo 闭环": "Polish the README + close the demo loop",
+      "移居": "relocation",
+      "学习笔记": "study notes",
+      "<h2>北极星</h2><p>把 Loci 做成最懂你的 AI 记忆系统 —— 聚合而非占有。</p><h2>年度目标</h2><ul><li>Loci 正式发布 (Q3)</li><li>积累 1000 名活跃用户</li><li>完成液态玻璃 / Clean 双主题</li></ul>": "<h2>North Star</h2><p>Make Loci the AI memory system that understands you best — it aggregates, it doesn't own.</p><h2>Goals for the Year</h2><ul><li>Loci officially launches (Q3)</li><li>Reach 1000 active users</li><li>Ship both themes: Liquid Glass and Clean</li></ul>",
+      "突然想到：Dashboard 可以加一个深色模式切换": "Just thought of this: the Dashboard could use a dark mode toggle",
+      "调研一下竞品的 onboarding，尤其是第一屏怎么让人 10 秒内懂": "Look into competitors' onboarding — especially how the first screen gets people to grasp it in 10 seconds",
+      "回头看看那篇关于 React Server Components 的文章": "Circle back to that article on React Server Components",
+      "别忘了给 onboarding 流程录一个演示视频": "Don't forget to record a demo video of the onboarding flow",
+      "pitch 前 10 秒别讲功能，先讲\"忘东西的痛\"": "In the first 10 seconds of the pitch, don't talk features — start with the pain of forgetting",
+      "有个想法：把决策记录做成时间线视图": "An idea: turn the decision log into a timeline view",
+      "\"记忆应该像呼吸一样存在\" — 这句可以放进官网 hero 文案": "\"Memory should be as natural as breathing\" — this line could go in the homepage hero copy",
+      "<ul><li>姓名：Sam Rivera</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：里斯本</li></ul>": "<ul><li>Name: Sam Rivera</li><li>Role: indie developer / founder of Loci</li><li>Language: prefers Chinese</li><li>Work style: deep focus, hates being interrupted</li><li>Preference: minimal, restrained design</li><li>Location: Lisbon</li></ul>",
+      "<ul><li>先发布，再打磨 —— 厌恶在没人用的功能上抛光</li><li>诚实地报告结果，不粉饰</li><li>聚合而非占有：记忆属于它所在的地方</li><li>状态优先于产出</li><li>克制：能不加的就不加</li></ul>": "<ul><li>Ship first, polish later — hates buffing features nobody uses</li><li>Report results honestly, no sugarcoating</li><li>Aggregates, not owns: memory belongs where it lives</li><li>State over output</li><li>Restraint: if it can be left out, leave it out</li></ul>",
+      "<ul><li>记忆系统的价值在于\"能找回\"，不在于\"存了多少\"</li><li>分层加载比一次性塞满上下文更可用</li><li>真实用户拉代码即用，胜过华丽的演示</li><li>单一强调色让界面更专业</li><li>傍晚做当日小结，第二天启动更快</li></ul>": "<ul><li>A memory system is valuable for what you can retrieve, not how much you store</li><li>Layered loading beats cramming everything into context at once</li><li>Real users who pull the code and run it beat a flashy demo</li><li>A single accent color makes an interface feel more professional</li><li>An evening recap means a faster start the next day</li></ul>",
+      "认知升级": "Mindset shift",
+      "<p>意识到记忆系统的价值在于聚合而非占有 —— 大脑只做索引，正文留在各自项目仓库。</p>": "<p>Realized a memory system's value is in aggregating, not owning — the brain only indexes, the actual content stays in each project's own repo.</p>",
+      "习惯调整": "Habit change",
+      "<p>改为每天傍晚做一次当日小结，第二天进入状态明显更快。</p>": "<p>Switched to a daily recap each evening — getting into the zone the next day is noticeably faster.</p>",
+      "方法论": "Methodology",
+      "<p>确立\"先发布再打磨\"，停止在没人用的功能上过度投入。</p>": "<p>Committed to \"ship first, polish later\" — stopped overinvesting in features nobody uses.</p>",
+      "回复投资人邮件": "Reply to investor email",
+      "交季度税表": "File quarterly tax return",
+      "各大群宣传 Loci：收集群清单 + 写话术": "Promote Loci across the chat groups: build the group list + draft the pitch",
+      "黑客松 demo 页定稿": "Finalize the hackathon demo page",
+      "录黑客松拉票视频": "Record the hackathon vote-pitch video",
+      "完善 Loci 液态玻璃主题设计": "Polish the Loci Liquid Glass theme design",
+      "撰写产品定位文档": "Write the product positioning doc",
+      "接入飞书文档同步": "Wire up Feishu doc sync",
+      "打磨 README 与 demo 闭环": "Polish the README and close the demo loop",
+      "锤死前 10 秒差异化 hook": "Nail the differentiated hook in the first 10 seconds",
+      "研究新的视频选题方向": "Explore new video topic directions",
+      "录 Claude Code 系列视频": "Record the Claude Code video series",
+      "稳定生活节奏 + 早睡早起": "Steady the daily rhythm + sleep and wake earlier",
+      "调研竞品的记忆方案": "Research competitors' memory approaches",
+      "与团队评审 Dashboard 原型": "Review the Dashboard prototype with the team",
+      "设计 onboarding 流程": "Design the onboarding flow",
+      "修复任务 id 冲突 bug": "Fix the task id collision bug",
+      "隐藏大脑页 + 路由切默认主题": "Hide the brain page + switch the route to the default theme",
+      "Loci 系统": "Loci",
+      "CYC": "CYC Studio",
+      "调研": "Research",
+      "晨间规划": "Morning planning",
+      "午餐 & 休息": "Lunch & break",
+      "团队同步会": "Team sync",
+      "录 demo 视频": "Record demo video",
+      "晨跑": "Morning run",
+      "深度工作：飞书集成": "Deep work: Feishu integration",
+      "社区答疑直播": "Community Q&A livestream",
+      "午餐：和小柔对产品": "Lunch: product sync with Rou",
+      "用户访谈 ×2": "User interviews ×2",
+      "健身": "Workout",
+      "晚间小结": "Evening wrap-up",
+      "<p>今日重点：液态玻璃主题设计定稿 + 黑客松 demo 页推进。</p>": "<p>Today's focus: finalize the Liquid Glass theme design + push the hackathon demo page forward.</p>",
+      "<h2>今日小结</h2><p>完成了 Clean 主题的主体设计，团队评审反馈正面。下午把 Dashboard 的方向对齐了。</p><ul><li>主题设计推进到约 70%</li><li>和团队对齐了 Dashboard 信息架构</li><li>修了两个拖拽相关的小 bug</li></ul>": "<h2>Today's wrap-up</h2><p>Finished the core design of the Clean theme — positive feedback from the team review. Aligned on the Dashboard direction in the afternoon.</p><ul><li>Theme design now about 70% done</li><li>Aligned with the team on the Dashboard information architecture</li><li>Fixed two small drag-and-drop bugs</li></ul>",
+      "<p>昨天把 Dashboard 原型评审过了，整体方向获认可。把大脑页先隐藏、默认主题切到 Clean。</p>": "<p>Got the Dashboard prototype through review yesterday — the overall direction was well received. Hid the brain page for now and switched the default theme to Clean.</p>",
+      "<p>集中修了几个任务 id 冲突的 bug，顺手把守卫写入器补全。</p>": "<p>Knocked out a batch of task id collision bugs, and finished off the guarded writer while I was at it.</p>",
+      "<h2>当日小结</h2><p>定下\"先支持 Claude Code + Codex 双端\"的范围。砍掉了\"全平台\"的宏大叙事，反而轻松了。</p><blockquote>收窄不是退步，是聚焦。</blockquote>": "<h2>Day wrap-up</h2><p>Settled on the scope: \"support Claude Code + Codex first.\" Cutting the grand \"every platform\" narrative actually felt like a relief.</p><blockquote>Narrowing isn't a step back — it's focus.</blockquote>",
+      "<p>把记忆路由的七个落点理清楚了，画了一版架构图。任务/日程/决策/人脉/收藏/碎片/项目各归各位。</p>": "<p>Sorted out the seven destinations of memory routing and sketched an architecture diagram. Tasks / schedule / decisions / people / references / fragments / projects each have their place.</p>",
+      "<p>本周：主题系统从 0 做到可用，节奏不错；下周进入发布准备。</p>": "<p>This week: took the theme system from zero to usable, good pace; next week we move into release prep.</p>",
+      "<p>六月主线：发布准备 —— README、demo 闭环、社区宣传。</p>": "<p>June's main thread: release prep — README, a complete demo loop, community outreach.</p>",
+      "专注": "Focused",
+      "清醒": "Clear",
+      "<p>后端程序员，靠谱的技术搭子。</p>": "<p>Backend engineer, a solid technical partner.</p>",
+      "老周": "Zhou",
+      "后端程序员": "Backend Engineer",
+      "某大厂": "Big Tech",
+      "前公司": "Previous job",
+      "后端程序员，技术扎实，潜在合伙人。": "Backend engineer, technically strong, potential co-founder.",
+      "<p>产品经理，需求拆得很清楚。</p>": "<p>Product manager, breaks down requirements clearly.</p>",
+      "小柔": "Rou",
+      "产品经理": "Product Manager",
+      "黑客松": "hackathon",
+      "产品经理，一起做 Loci，需求拆得清楚。": "Product manager, building Loci together, breaks down requirements clearly.",
+      "<p>资深投资人，看早期项目。</p>": "<p>Seasoned investor, focuses on early-stage projects.</p>",
+      "林薇": "Lin Wei",
+      "基金合伙人": "Fund Partner",
+      "某基金": "A VC fund",
+      "路演": "Pitch event",
+      "资深投资人，给过很实在的建议。": "Seasoned investor, has given genuinely useful advice.",
+      "<p>实习生，刚来团队帮忙。</p>": "<p>Intern, just joined the team to help out.</p>",
+      "小航": "Hang",
+      "开发实习生": "Dev Intern",
+      "招聘": "Hiring",
+      "开发实习生，学得很快。": "Dev intern, learns fast.",
+      "<p>设计实习生，审美在线。</p>": "<p>Design intern, great eye for aesthetics.</p>",
+      "朵朵": "Duo",
+      "设计实习生": "Design Intern",
+      "自由职业": "Freelance",
+      "展览": "Exhibition",
+      "设计实习生，审美在线，常帮忙看视觉。": "Design intern, great eye for aesthetics, often helps review visuals.",
+      "<p>退休顾问，给过不少指点。</p>": "<p>Retired advisor, has offered plenty of guidance.</p>",
+      "钱伯": "Mr. Qian",
+      "退休顾问": "Retired Advisor",
+      "退休": "Retired",
+      "行业会": "Industry conf",
+      "退休顾问，行业前辈，给过不少指点。": "Retired advisor, an industry veteran who has offered plenty of guidance.",
+      "<p>退休教师，做得一手好菜。</p>": "<p>Retired teacher, a wonderful cook.</p>",
+      "王阿姨": "Auntie Wang",
+      "退休教师": "Retired Teacher",
+      "社区": "Neighborhood",
+      "退休教师，做得一手好菜，很热心。": "Retired teacher, a wonderful cook, very warm-hearted.",
+      "<p>路演认识的天使投资人。</p>": "<p>Angel investor I met at a pitch event.</p>",
+      "陈总": "Mr. Chen",
+      "天使投资人，待进一步跟进。": "Angel investor, needs further follow-up.",
+      "<p>开源社区认识的开发者。</p>": "<p>Developer I met in the open-source community.</p>",
+      "GitHub": "GitHub",
+      "开源社区的开发者，乐于分享。": "Developer from the open-source community, happy to share.",
+      "<p>球场上认识的球友。</p>": "<p>A buddy I met on the court.</p>",
+      "阿杰": "Jay",
+      "球场": "Basketball court",
+      "周末一起打球的球友。": "Weekend pickup-game buddy.",
+      "<p>活动上加的微信，还没深聊。</p>": "<p>Added on WeChat at an event, haven't talked much yet.</p>",
+      "小鹿": "Lu",
+      "活动": "Event",
+      "活动认识的新朋友，待跟进。": "New acquaintance from an event, needs follow-up.",
+      "<h1>项目精华上浮，靠标签为主 + AI 兜底</h1><p>[decision]/[insight]/[milestone] 自动进大脑，[local]/[debug]/[wip] 留本地;会话结束 AI 补问漏标的。</p>": "<h1>Surface what matters from a project — tags first, AI as backstop</h1><p>[decision]/[insight]/[milestone] flow up to the brain automatically; [local]/[debug]/[wip] stay local. At the end of a session the AI follows up on anything left untagged.</p>",
+      "<h1>规则用文本块注入，连接用软链接</h1><p>全局 CLAUDE.md/AGENTS.md 写可幂等替换的文本块;大脑↔项目用软链接,体现\"聚合而非占有\"。</p>": "<h1>Inject rules as text blocks, connect with symlinks</h1><p>Global CLAUDE.md/AGENTS.md get an idempotently replaceable text block; brain ↔ project link via symlinks — embodying \"aggregates not owns.\"</p>",
+      "<h1>Loci 聚合而非占有记忆</h1><p>项目正文留在各自仓库，大脑只存一行索引。</p>": "<h1>Loci aggregates memory, it doesn't own it</h1><p>A project's full content stays in its own repo; the brain keeps just a one-line index entry.</p>",
+      "<h1>项目记忆分层</h1><p>memory.md 为活档案，decisions/ 为追加流。</p>": "<h1>Layered project memory</h1><p>memory.md is the living dossier; decisions/ is an append-only stream.</p>",
+      "<h1>任务优先的日程模型</h1><p>任务即任务，时间块即日程，带时间的任务两处都出现。</p>": "<h1>A task-first scheduling model</h1><p>Tasks are tasks, time blocks are the schedule, and a timed task shows up in both.</p>",
+      "<h1>采用液态玻璃 + Clean 双视觉风格</h1><p>深色 cockpit 之外提供一套浅色专业风。</p>": "<h1>Two visual themes: Liquid Glass + Clean</h1><p>Alongside the dark cockpit, offer a light, professional look.</p>",
+      "<h1>先支持 Claude Code 与 Codex</h1><p>双端共用同一个本地大脑。</p>": "<h1>Support Claude Code and Codex first</h1><p>Both clients share the same local brain.</p>",
+      "项目精华上浮：标签为主 + AI 兜底": "Surfacing what matters: tags first, AI as backstop",
+      "规则文本块注入，连接用软链接": "Inject rules as text blocks, connect with symlinks",
+      "Loci 聚合而非占有记忆": "Loci aggregates memory, it doesn't own it",
+      "任务优先的日程模型": "A task-first scheduling model",
+      "采用液态玻璃 + Clean 视觉": "Adopt Liquid Glass + Clean visuals",
+      "记忆": "memory",
+      "工作流": "workflow",
+      "架构": "architecture",
+      "模型": "model",
+      "设计": "design",
+      "Vue 3 性能优化要点": "Vue 3 Performance Optimization Essentials",
+      "<p>响应式开销与 v-memo 的取舍。</p>": "<p>Reactivity overhead and the v-memo trade-off.</p>",
+      "RSC 心智模型": "The RSC Mental Model",
+      "<p>RSC 的心智模型与边界。</p>": "<p>The mental model and boundaries of RSC.</p>",
+      "深入理解 React Server Components": "Understanding React Server Components Deeply",
+      "<p>RSC 详解，适合分享时引用。</p>": "<p>A deep dive on RSC — handy to cite in a talk.</p>",
+      "液态玻璃 UI 灵感合集": "Liquid Glass UI Inspiration Collection",
+      "<p>玻璃材质与折射的参考集合。</p>": "<p>A reference collection on glass materials and refraction.</p>",
+      "Raycast 效率工具": "Raycast Productivity Tool",
+      "<p>启动器 + 工作流，效率神器。</p>": "<p>Launcher + workflows — a productivity powerhouse.</p>",
+      "excalidraw / excalidraw — 手绘风白板": "excalidraw / excalidraw — hand-drawn whiteboard",
+      "<p>开源白板，UX 值得学。</p>": "<p>Open-source whiteboard with UX worth studying.</p>",
+      "<p>排版与留白的数学。</p>": "<p>The math behind typography and whitespace.</p>",
+      "\"好产品是减出来的，不是加出来的\" — @karpathy": "\"Good products are made by subtracting, not adding\" — @karpathy",
+      "<p>克制即高级。</p>": "<p>Restraint is what makes it refined.</p>",
+      "Building a Second Brain — 信息流动而非囤积": "Building a Second Brain — flow information, don't hoard it",
+      "<p>第二大脑方法论。</p>": "<p>The Second Brain methodology.</p>",
+      "文章": "Article",
+      "灵感": "Inspiration",
+      "工具": "Tool",
+      "推文": "Tweet",
+      "<ul><li>Loci 发布博客 · loci-launch-blog.md · 发布稿草稿 · #blog</li><li>线下分享脚本 · meetup-talk-script.md · #talk</li></ul>": "<ul><li>Loci launch blog · loci-launch-blog.md · launch post draft · #blog</li><li>Meetup talk script · meetup-talk-script.md · #talk</li></ul>",
+      "里斯本生活手册": "Lisbon Living Handbook",
+      "签证 / 租房 / 网络 / 常去的咖啡馆": "Visa / housing / internet / go-to cafés",
+      "<h1>里斯本生活手册</h1><p><em>本地 vault · Loci 能直接读到正文</em></p><h2>签证</h2><p>D7 被动收入签证，需准备银行流水。</p><h2>租房</h2><ul><li>Alfama：老城，氛围好但吵</li><li>Príncipe Real：安静，咖啡馆多</li></ul><h2>常去的咖啡馆</h2><blockquote>Copenhagen Coffee Lab — 安静、有插座、适合写代码。</blockquote>": "<h1>Lisbon Living Handbook</h1><p><em>Local vault · Loci can read the body directly</em></p><h2>Visa</h2><p>D7 passive income visa — need to prepare bank statements.</p><h2>Housing</h2><ul><li>Alfama: old town, great vibe but noisy</li><li>Príncipe Real: quiet, lots of cafés</li></ul><h2>Go-to cafés</h2><blockquote>Copenhagen Coffee Lab — quiet, has outlets, great for coding.</blockquote>",
+      "设计灵感库": "Design Inspiration Library",
+      "收集的好界面截图和交互细节": "Collected screenshots of great UIs and interaction details",
+      "<h1>设计灵感库</h1><p>收集的好界面与交互细节。</p><ul><li>Linear 的命令面板动效</li><li>Vercel 的渐变 hero</li><li>Things 3 的\"今天\"清单留白</li></ul>": "<h1>Design Inspiration Library</h1><p>Collected great UIs and interaction details.</p><ul><li>Linear's command palette animations</li><li>Vercel's gradient hero</li><li>Things 3's whitespace on the \"Today\" list</li></ul>",
+      "Loci 产品愿景": "Loci Product Vision",
+      "给投资人看的一页纸定位": "One-pager positioning for investors",
+      "2026 阅读清单": "2026 Reading List",
+      "今年想读完的 12 本书 + 读书笔记": "12 books to finish this year + reading notes",
+      "2026 Q3 OKR": "2026 Q3 OKR",
+      "这季度的目标规划": "Goal planning for this quarter",
+      "Loci 发布博客草稿": "Loci Launch Blog Draft",
+      "<h1>Loci 发布博客草稿</h1><p>开篇用<strong>\"记忆宫殿\"</strong>的隐喻 —— 把 AI 的记忆比作一座你能随意走动的宫殿。</p><h2>结构</h2><ul><li>痛点：AI 每次都忘了你是谁</li><li>方案：分层记忆 + 聚合而非占有</li><li>Demo：Dashboard 一图看全</li></ul><blockquote>一句话：Loci 让 AI 真正\"记得\"你。</blockquote>": "<h1>Loci Launch Blog Draft</h1><p>Open with the <strong>\"memory palace\"</strong> metaphor — picture an AI's memory as a palace you can wander through at will.</p><h2>Structure</h2><ul><li>Pain point: the AI forgets who you are every single time</li><li>Solution: layered memory + aggregates not owns</li><li>Demo: the Dashboard, everything in one view</li></ul><blockquote>In a sentence: Loci makes AI truly \"remember\" you.</blockquote>",
+      "线下分享脚本": "Meetup Talk Script",
+      "<h1>线下分享脚本</h1><p>5 分钟闪电演讲的结构与节奏。</p><ol><li><strong>0:30</strong> 一个扎心的提问</li><li><strong>2:00</strong> 现场 demo</li><li><strong>1:30</strong> 愿景收尾</li></ol>": "<h1>Meetup Talk Script</h1><p>Structure and pacing for a 5-minute lightning talk.</p><ol><li><strong>0:30</strong> A question that hits a nerve</li><li><strong>2:00</strong> Live demo</li><li><strong>1:30</strong> Close on the vision</li></ol>",
+      "Vue 性能学习笔记": "Vue Performance Study Notes",
+      "<h1>Vue 性能学习笔记</h1><p>几个落地要点：</p><ul><li><code>v-for</code> 要给稳定 <code>key</code></li><li>长列表用<strong>虚拟滚动</strong></li><li>重计算放进 <code>computed</code></li></ul>": "<h1>Vue Performance Study Notes</h1><p>A few practical takeaways:</p><ul><li>Give <code>v-for</code> a stable <code>key</code></li><li>Use <strong>virtual scrolling</strong> for long lists</li><li>Move heavy computation into <code>computed</code></li></ul>",
+      "AI 的记忆宫殿，分层记忆系统": "A memory palace for AI — a layered memory system",
+      "<h2>目标</h2><p>做最懂你的 AI 记忆系统。</p><h2>当前状态</h2><p>Dashboard 与 Clean 主题开发中。</p><h2>下一步</h2><p>发布准备：README、demo 闭环、社区宣传。</p>": "<h2>Goal</h2><p>Build the AI memory system that knows you best.</p><h2>Current state</h2><p>Dashboard and Clean theme in development.</p><h2>Next step</h2><p>Prep for launch: README, end-to-end demo, community outreach.</p>",
+      "完成液态玻璃 / Clean 主题": "Finish the Liquid Glass / Clean theme",
+      "埋点与数据看板": "Add analytics tracking and a metrics dashboard",
+      "移动端适配": "Mobile responsiveness",
+      "编写发布文档 README": "Write the launch README",
+      "修复任务 id 冲突": "Fix task id collisions",
+      "Notes 页面 + Roadmap 看板": "Notes page + Roadmap board",
+      "个人博客": "Personal Blog",
+      "技术写作与内容沉淀": "Technical writing and content building",
+      "<h2>目标</h2><p>每月两篇深度技术文章。</p><h2>当前状态</h2><p>正在迁移到新框架。</p>": "<h2>Goal</h2><p>Two in-depth technical articles a month.</p><h2>Current state</h2><p>Migrating to a new framework.</p>",
+      "迁移到新框架": "Migrate to the new framework",
+      "写 RSC 深度文章": "Write a deep-dive article on RSC",
+      "旧文章归档整理": "Archive and tidy up old articles",
+      "AI 日程助手": "AI Schedule Assistant",
+      "记忆图谱可视化工具": "Memory Graph Viz",
+      "飞书妙搭公开发布": "Feishu Miaoda public launch",
+      "OpenClaw 记忆插件": "OpenClaw Memory Plugin",
+      "Loci 公网 Demo": "Loci Public Demo",
+      "个人 CRM": "Personal CRM",
+      "内容选题雷达": "Content Topic Radar",
+      "旧版命令行工具": "Legacy CLI Tool",
+      "个人知识中枢": "Personal knowledge hub",
+      "AI 记忆宫殿": "AI memory palace",
+      "内容与写作": "Content and writing",
+      "孵化中的原型": "Prototype in incubation",
+      "记忆图谱": "Memory Graph",
+      "可视化探索": "Visual exploration",
+      "本周发布清单": "This week's launch checklist",
+      "黑客松 pitch 大纲": "Hackathon pitch outline",
+      "飞书集成接口备忘": "Feishu integration API memo",
+      "用户访谈记录：开发者 A/B/C": "User interview notes: developers A/B/C",
+      "Clean 主题设计评审": "Clean theme design review",
+      "Agent 记忆 API 草案": "Agent memory API draft",
+      "Claude Code 视频脚本": "Claude Code video script",
+      "Loci README 发版清单": "Loci README release checklist",
+      "发布前一周所有公开动作与检查点": "All public launch actions and checkpoints for the week",
+      "10 秒 hook、问题、demo、结尾 CTA": "10-second hook, problem, demo, final CTA",
+      "OAuth、docx、drive 权限与错误码": "OAuth, Docx, Drive scopes, and error codes",
+      "三位开发者如何理解 AI 记忆": "How three developers understand AI memory",
+      "导航、引导、绿色按钮与空状态反馈": "Navigation, onboarding, green buttons, and empty-state feedback",
+      "给 CLI / dashboard / agent 共用的记忆读写接口": "A shared memory read/write interface for CLI, dashboard, and agents",
+      "Claude Code 系列第一期的拍摄提纲": "Shooting outline for episode one of the Claude Code series",
+      "安装、运行、截图、FAQ 与 demo 路径": "Install, run, screenshots, FAQ, and demo path",
+      "确认公网 demo 加载速度": "Check public demo loading speed",
+      "补齐 notes 样例与搜索标签": "Fill out note samples and search tags",
+      "整理 CYC 频道选题池": "Organize the CYC topic pool",
+      "剪 60 秒产品片头": "Cut the 60-second product intro",
+      "写 OpenClaw 插件 README": "Write the OpenClaw plugin README",
+      "把项目 todo 拖拽状态录成 gif": "Record project todo drag states as a GIF",
+      "创建公开演示应用": "Create the public demo app",
+      "检查移动端首屏": "Check the mobile first screen",
+      "补充隐私与本地优先说明": "Add privacy and local-first copy",
+      "整理 pitch Q&A": "Prepare pitch Q&A",
+      "完成公开 demo 可访问链接": "Ship the public demo URL",
+      "黑客松投票页文案复核": "Review hackathon voting-page copy",
+      "剪完 Claude Code 系列第一期": "Finish editing Claude Code episode one",
+      "与小柔复盘三位用户访谈": "Review three user interviews with Rou",
+      "完成 README 快速开始章节": "Finish the README quick-start section",
+      "给 OpenClaw 插件补 demo 数据": "Add demo data to the OpenClaw plugin",
+      "AI 记忆系统 + 本地优先 Dashboard": "AI memory system + local-first dashboard",
+      "内容品牌与 AI 工具视频": "Content brand and AI tooling videos",
+      "把 Loci 记忆能力接进 OpenClaw": "Bring Loci memory into OpenClaw",
+      "面向黑客松评委的静态演示版": "Static demo for hackathon judges",
+      "<h2>目标</h2><p>让开发者一眼理解：Loci 不是又一个笔记 App，而是 AI 的长期记忆层。</p><h2>当前状态</h2><p>Clean Dashboard 已能完整展示任务、项目、笔记、关系与决策。</p><h2>下一步</h2><p>公开 demo、README、投票页素材。</p>": "<h2>Goal</h2><p>Help developers understand instantly: Loci is not another notes app, it is the long-term memory layer for AI.</p><h2>Current state</h2><p>The Clean Dashboard can now show tasks, projects, notes, people, and decisions end to end.</p><h2>Next step</h2><p>Public demo, README, and voting-page assets.</p>",
+      "<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>": "<h2>Goal</h2><p>Turn CYC Studio into a content brand about AI tools and indie building.</p><h2>Current state</h2><p>Preparing episode one of the Claude Code series and Loci launch content.</p><h2>Next step</h2><p>Organize the topic pool, film the demo, and cut the product intro.</p>",
+      "<h2>目标</h2><p>让 OpenClaw 用户能把项目上下文写进 Loci，并在代理之间共享。</p><h2>当前状态</h2><p>插件协议草案完成，正在补 demo 数据与 README。</p><h2>下一步</h2><p>封装 memory read/write API，录集成演示。</p>": "<h2>Goal</h2><p>Let OpenClaw users write project context into Loci and share it across agents.</p><h2>Current state</h2><p>The plugin protocol draft is done; demo data and README are being filled in.</p><h2>Next step</h2><p>Wrap the memory read/write API and record the integration demo.</p>",
+      "<h2>目标</h2><p>给评委和早期用户一个免安装、可直接打开的 Loci 体验。</p><h2>当前状态</h2><p>Clean 主题、入口引导、语言选择与 demo 数据都在同一个静态页面里。</p><h2>下一步</h2><p>发布到公网并检查移动端。</p>": "<h2>Goal</h2><p>Give judges and early users an install-free Loci experience they can open immediately.</p><h2>Current state</h2><p>The Clean theme, entry guide, language picker, and demo data all live in one static page.</p><h2>Next step</h2><p>Publish publicly and check mobile.</p>",
+      "完成液态玻璃 / Clean 主题": "Finish the Liquid Glass / Clean themes",
+      "埋点与数据看板": "Telemetry and analytics dashboard",
+      "移动端适配": "Mobile adaptation",
+      "编写发布文档 README": "Write the release README",
+      "Notes 页面 + Roadmap 看板": "Notes page + Roadmap board",
+      "准备 Claude Code 第一集脚本": "Prepare the first Claude Code episode script",
+      "录制 Loci 发布介绍": "Record the Loci launch intro",
+      "剪辑 60 秒产品片头": "Edit the 60-second product intro",
+      "整理频道选题池": "Organize the channel topic pool",
+      "发布一条投票拉票短帖": "Publish a short voting post",
+      "设计插件 manifest": "Design the plugin manifest",
+      "实现 memory read API": "Implement the memory read API",
+      "实现 memory write API": "Implement the memory write API",
+      "补插件安装文档": "Add plugin installation docs",
+      "录 OpenClaw 集成演示": "Record the OpenClaw integration demo",
+      "配置妙搭公开访问": "Configure Miaoda public access",
+      "打包静态资源": "Package static assets",
+      "移动端首屏检查": "Mobile first-screen check",
+      "写隐私与本地优先说明": "Write privacy and local-first copy",
+      "公开链接回归测试": "Public URL regression test",
+      "公网 demo": "public demo",
+      "插件": "plugin",
+      "发布": "launch",
+      "视频": "video"
+};
+    function localizeMock(node) {
+      if (typeof node === "string") {
+        return Object.prototype.hasOwnProperty.call(MOCK_TR, node) ? MOCK_TR[node] : node;
+      }
+      if (Array.isArray(node)) return node.map(localizeMock);
+      if (node && typeof node === "object") {
+        const out = {};
+        for (const k of Object.keys(node)) out[k] = localizeMock(node[k]);
+        return out;
+      }
+      return node;
+    }
+
     function loadMockData() {
       const T = '2026-06-02';
       const mk = (content, meta, filename) => ({ meta: meta || {}, content, filename: filename || '', path: filename || '' });
+      // Journal entry with both a short AI summary (content) and an expandable full log (detail).
+      const jrnl = (content, detail, meta, filename) => ({ meta: meta || {}, content, detail: detail || '', filename: filename || '', path: filename || '' });
       data.value = {
-        config: { title: 'Loci Dashboard', username: 'Sam', description: 'AI 的记忆宫殿' },
+        config: { title: 'Loci Dashboard', username: 'Sam Rivera', description: 'AI 的记忆宫殿' },
         plan: mk('<h2>北极星</h2><p>把 Loci 做成最懂你的 AI 记忆系统 —— 聚合而非占有。</p><h2>年度目标</h2><ul><li>Loci 正式发布 (Q3)</li><li>积累 1000 名活跃用户</li><li>完成液态玻璃 / Clean 双主题</li></ul>', { status: 'active' }, 'plan.md'),
         inbox: {
           content: '', meta: { updated: T },
@@ -11915,7 +12496,7 @@ createApp({
           ],
         },
         me: {
-          identity: mk('<ul><li>姓名：Sam</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：墨尔本</li></ul>', { updated: '2026-03-11' }, 'identity.md'),
+          identity: mk('<ul><li>姓名：Sam Rivera</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：里斯本</li></ul>', { updated: '2026-03-11' }, 'identity.md'),
           goals: mk('', {}, 'goals.md'),
           values: mk('<ul><li>先发布，再打磨 —— 厌恶在没人用的功能上抛光</li><li>诚实地报告结果，不粉饰</li><li>聚合而非占有：记忆属于它所在的地方</li><li>状态优先于产出</li><li>克制：能不加的就不加</li></ul>', { updated: '2026-03-11' }, 'values.md'),
           learned: mk('<ul><li>记忆系统的价值在于"能找回"，不在于"存了多少"</li><li>分层加载比一次性塞满上下文更可用</li><li>真实用户拉代码即用，胜过华丽的演示</li><li>单一强调色让界面更专业</li><li>傍晚做当日小结，第二天启动更快</li></ul>', { updated: '2026-03-11' }, 'learned.md'),
@@ -11934,57 +12515,124 @@ createApp({
               { id: 't3', text: '回复投资人邮件', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: '09:00', endTime: '09:40', project: null, urgency: 2, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
               { id: 't10', text: '交季度税表', done: false, status: 'open', stale: false, date: '2026-05-31', endDate: null, startTime: null, endTime: null, project: null, urgency: 1, importance: 1, source: 'agent', createdAt: '2026-05-28T00:00:00Z', updatedAt: '2026-05-28T00:00:00Z', completedAt: null },
               { id: 't8', text: '各大群宣传 Loci：收集群清单 + 写话术', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 1, importance: 1, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't20', text: '黑客松 demo 页定稿', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: '16:00', endTime: '18:00', project: 'Loci 系统', urgency: 2, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't21', text: '录黑客松拉票视频', done: false, status: 'open', stale: false, date: '2026-06-03', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 2, importance: 1, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't28', text: '确认公网 demo 加载速度', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: '10:00', endTime: '10:40', project: 'Loci 公网 Demo', urgency: 2, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't29', text: '整理 pitch Q&A', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 1, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't30', text: '黑客松投票页文案复核', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 2, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
             ],
             P1: [
               { id: 't1', text: '完善 Loci 液态玻璃主题设计', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: '10:30', endTime: '12:00', project: 'Loci 系统', urgency: 0, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
               { id: 't2', text: '撰写产品定位文档', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't22', text: '接入飞书文档同步', done: false, status: 'open', stale: false, date: '2026-06-04', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't23', text: '打磨 README 与 demo 闭环', done: false, status: 'open', stale: false, date: '2026-06-05', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't24', text: '锤死前 10 秒差异化 hook', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 1, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
+              { id: 't31', text: '补齐 notes 样例与搜索标签', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: '11:00', endTime: '12:00', project: 'Loci 公网 Demo', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't32', text: '写 OpenClaw 插件 README', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'OpenClaw 记忆插件', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't33', text: '整理 CYC 频道选题池', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't34', text: '把项目 todo 拖拽状态录成 gif', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
             ],
             P2: [
               { id: 't9', text: '研究新的视频选题方向', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T00:00:00Z', completedAt: null },
+              { id: 't25', text: '录 Claude Code 系列视频', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
+              { id: 't26', text: '稳定生活节奏 + 早睡早起', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: null, urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
               { id: 't4', text: '调研竞品的记忆方案', done: false, status: 'stale', stale: true, date: null, endDate: null, startTime: null, endTime: null, project: '调研', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-04-28T00:00:00Z', updatedAt: '2026-04-28T00:00:00Z', completedAt: null },
               { id: 't5', text: '与团队评审 Dashboard 原型', done: true, status: 'done', stale: false, date: T, endDate: null, startTime: '14:00', endTime: '15:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: T + 'T06:00:00Z', completedAt: T + 'T06:00:00Z' },
               { id: 't6', text: '设计 onboarding 流程', done: true, status: 'done', stale: false, date: '2026-05-31', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T08:00:00Z', completedAt: '2026-05-31T08:00:00Z' },
               { id: 't7', text: '修复任务 id 冲突 bug', done: true, status: 'done', stale: false, date: '2026-05-30', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T10:00:00Z', completedAt: '2026-05-30T10:00:00Z' },
+              { id: 't27', text: '隐藏大脑页 + 路由切默认主题', done: true, status: 'done', stale: false, date: '2026-06-01', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: '2026-06-01T11:00:00Z', completedAt: '2026-06-01T11:00:00Z' },
+              { id: 't35', text: '剪 60 秒产品片头', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-02T00:00:00Z', updatedAt: '2026-06-02T00:00:00Z', completedAt: null },
+              { id: 't36', text: '补充隐私与本地优先说明', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-03T00:00:00Z', updatedAt: '2026-06-03T00:00:00Z', completedAt: null },
+              { id: 't37', text: '完成公开 demo 可访问链接', done: true, status: 'done', stale: false, date: '2026-06-05', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T09:00:00Z', completedAt: '2026-06-05T09:00:00Z' },
+              { id: 't38', text: '与小柔复盘三位用户访谈', done: true, status: 'done', stale: false, date: '2026-06-04', endDate: null, startTime: '16:00', endTime: '17:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-04T00:00:00Z', updatedAt: '2026-06-04T08:00:00Z', completedAt: '2026-06-04T08:00:00Z' },
+              { id: 't39', text: '完成 README 快速开始章节', done: true, status: 'done', stale: false, date: '2026-06-05', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T12:00:00Z', completedAt: '2026-06-05T12:00:00Z' },
             ],
           },
         },
         planning: {
-          daily: [ mk('<p>今日重点：液态玻璃主题设计定稿。</p>', {}, '2026-06-02.md') ],
+          daily: [ mk('<p>今日重点：液态玻璃主题设计定稿 + 黑客松 demo 页推进。</p>', {}, '2026-06-02.md') ],
           monthly: [], quarterly: [], reviews: [],
           journal: [
+            mk('<h2>公开发布检查</h2><p>把 Clean Dashboard 整理成评委能直接打开的版本：入口引导改成绿色按钮，弹窗补上中英文选择，demo 数据扩到能撑住项目、笔记、任务、日志四个核心页面。</p><ul><li>项目从 2 个扩到 5 个</li><li>Notes 加入 Obsidian / 飞书 / Notion / 内置四类来源</li><li>开始准备公网发布</li></ul>', { mood: '清醒' }, '2026-06-06.md'),
+            mk('<p>README 快速开始章节写完了，顺手把隐私与本地优先的说明补清楚。这个点对早期开发者很重要：记忆不是上传到某个黑盒服务，而是留在自己的项目里。</p>', { mood: '稳定' }, '2026-06-05.md'),
+            mk('<p>和小柔复盘了三位开发者访谈。大家最能理解的是“AI 不该每次都重新认识你”，但“聚合而非占有”需要借助项目列表和 notes 来源来讲清楚。</p>', {}, '2026-06-04.md'),
+            mk('<p>飞书集成路径基本跑通：OAuth、文档读取、公开 HTML 发布都拆成了独立 skill。晚上把错误码与权限说明记进了接口备忘。</p>', {}, '2026-06-03.md'),
             mk('<h2>今日小结</h2><p>完成了 Clean 主题的主体设计，团队评审反馈正面。下午把 Dashboard 的方向对齐了。</p><ul><li>主题设计推进到约 70%</li><li>和团队对齐了 Dashboard 信息架构</li><li>修了两个拖拽相关的小 bug</li></ul>', { mood: '专注' }, '2026-06-02.md'),
-            mk('<p>昨天把 Dashboard 原型评审过了，整体方向获认可。</p>', {}, '2026-06-01.md'),
+            mk('<p>昨天把 Dashboard 原型评审过了，整体方向获认可。把大脑页先隐藏、默认主题切到 Clean。</p>', {}, '2026-06-01.md'),
             mk('<p>集中修了几个任务 id 冲突的 bug，顺手把守卫写入器补全。</p>', {}, '2026-05-31.md'),
+            mk('<h2>当日小结</h2><p>定下"先支持 Claude Code + Codex 双端"的范围。砍掉了"全平台"的宏大叙事，反而轻松了。</p><blockquote>收窄不是退步，是聚焦。</blockquote>', { mood: '清醒' }, '2026-05-30.md'),
+            mk('<p>把记忆路由的七个落点理清楚了，画了一版架构图。任务/日程/决策/人脉/收藏/碎片/项目各归各位。</p>', {}, '2026-05-29.md'),
           ],
-          journal_weeks: [ mk('<p>本周：主题系统从 0 做到可用，节奏不错；下周进入发布准备。</p>', {}, '2026-W23.md') ],
+          journal_weeks: [
+            mk('<p>本周：Clean Dashboard 从“能看”推进到“能公开演示”，项目、笔记、任务、日志都能讲一个完整故事。</p>', {}, '2026-W23.md'),
+            mk('<p>上周：主题系统从 0 做到可用，节奏不错；这周进入发布准备。</p>', {}, '2026-W22.md'),
+          ],
           journal_months: [ mk('<p>六月主线：发布准备 —— README、demo 闭环、社区宣传。</p>', {}, '2026-06.md') ],
           calendar_events: {
+            '2026-06-06': [
+              { title: '公开 demo 回归测试', startKey: 540, endKey: 600, hour: 9 },
+              { title: '确认公网 demo 加载速度', startKey: 600, endKey: 640, hour: 10, fromTask: true, taskId: 't28' },
+              { title: '补齐 notes 样例与搜索标签', startKey: 660, endKey: 720, hour: 11, fromTask: true, taskId: 't31' },
+              { title: '整理 pitch Q&A', startKey: 930, endKey: 990, hour: 15, fromTask: true, taskId: 't29' },
+              { title: '投票页文案复核', startKey: 1020, endKey: 1080, hour: 17, fromTask: true, taskId: 't30' },
+            ],
             [T]: [
               { title: '晨间规划', startKey: 540, endKey: 570, hour: 9 },
               { title: '回复投资人邮件', startKey: 540, endKey: 580, hour: 9, fromTask: true, taskId: 't3' },
               { title: '完善 Loci 液态玻璃主题设计', startKey: 630, endKey: 720, hour: 10, fromTask: true, taskId: 't1' },
               { title: '午餐 & 休息', startKey: 750, endKey: 800, hour: 12 },
-              { title: '团队同步会', startKey: 900, endKey: 960, hour: 15 },
+              { title: '团队同步会', startKey: 840, endKey: 900, hour: 14 },
+              { title: '黑客松 demo 页定稿', startKey: 960, endKey: 1080, hour: 16, fromTask: true, taskId: 't20' },
               { title: '录 demo 视频', startKey: 1140, endKey: 1230, hour: 19 },
+            ],
+            '2026-06-03': [
+              { title: '晨跑', startKey: 420, endKey: 450, hour: 7 },
+              { title: '深度工作：飞书集成', startKey: 600, endKey: 720, hour: 10 },
+              { title: '录黑客松拉票视频', startKey: 840, endKey: 930, hour: 14, fromTask: true, taskId: 't21' },
+              { title: '社区答疑直播', startKey: 1200, endKey: 1260, hour: 20 },
+            ],
+            '2026-06-04': [
+              { title: '接入飞书文档同步', startKey: 570, endKey: 720, hour: 9, fromTask: true, taskId: 't22' },
+              { title: '午餐：和小柔对产品', startKey: 750, endKey: 810, hour: 12 },
+              { title: '用户访谈 ×2', startKey: 900, endKey: 1020, hour: 15 },
+            ],
+            '2026-06-05': [
+              { title: '打磨 README + demo 闭环', startKey: 600, endKey: 720, hour: 10, fromTask: true, taskId: 't23' },
+              { title: '完成 README 快速开始章节', startKey: 840, endKey: 900, hour: 14, fromTask: true, taskId: 't39' },
+              { title: '健身', startKey: 1080, endKey: 1140, hour: 18 },
+            ],
+            '2026-06-01': [
+              { title: '与团队评审 Dashboard 原型', startKey: 840, endKey: 900, hour: 14, fromTask: true, taskId: 't5' },
+              { title: '晚间小结', startKey: 1290, endKey: 1320, hour: 21 },
             ],
           },
         },
         people: {
           contacts: [
-            mk('<p>合伙人，一起做产品的搭档。</p>', { name: '陈屿', relation: 'partner', title: '联合创始人', org: 'Loci', strength: 88, tags: ['business', 'partner'], frequency: 'High', met_place: '黑客松', notes: '联合创始人，一起做 Loci 的搭档，技术 + 产品双修。', photo: '/assets/illus-2.jpg' }, 'chenyu.md'),
-            mk('<p>后端架构师，靠谱的技术合伙人选。</p>', { name: '老周', relation: 'engineer', title: '后端架构师', org: '前同事', strength: 70, tags: ['technical', 'backend'], frequency: 'Medium', met_place: '前公司', notes: '后端架构师，前同事，靠谱，潜在技术合伙人。', photo: '/assets/illus-1.jpg' }, 'laozhou.md'),
-            mk('<p>常一起喝咖啡聊产品的搭子。</p>', { name: '小柔', relation: 'friend', title: '产品搭子', org: '常联系', strength: 76, tags: ['friend', 'product'], frequency: 'High', met_place: '咖啡馆', notes: '每周一起喝咖啡聊产品的搭子，点子很多。', photo: '/assets/avatar-1.jpg', lineart: true }, 'xiaorou.md'),
-            mk('<p>大学室友，现在做儿童教育。</p>', { name: '糖糖', relation: 'friend', title: '幼教老师', org: '某教育机构', strength: 72, tags: ['friend'], frequency: 'Medium', met_place: '大学', notes: '大学室友，现在做儿童教育，元气满满。', photo: '/assets/illus-3.jpg' }, 'tangtang.md'),
-            mk('<p>表妹，在读研究生，常找我聊职业。</p>', { name: '小鹿', relation: 'family', title: '研究生', org: '某高校', strength: 80, tags: ['family'], frequency: 'High', met_place: '家里', notes: '表妹，在读研究生，常找我聊职业规划。', photo: '/assets/illus-4.jpg' }, 'xiaolu.md'),
-            mk('<p>Vue 性能优化高手，开源社区认识。</p>', { name: 'Sarah Chen', relation: 'engineer', title: '高级工程师', org: '开源社区', strength: 72, tags: ['technical', 'oss'], last_contact: '2026-05-25', frequency: 'Medium', met_place: 'GitHub', notes: 'Vue 性能优化高手，开源社区认识，乐于分享。', photo: '/assets/avatar-6.jpg', lineart: true }, 'sarah.md'),
-            mk('<p>插画师朋友，审美在线。</p>', { name: '小满', relation: 'friend', title: '插画师', org: '自由职业', strength: 68, tags: ['design', 'art'], frequency: 'Medium', met_place: '展览', notes: '插画师朋友，审美在线，常帮忙看视觉。', photo: '/assets/avatar-2.jpg', lineart: true }, 'xiaoman.md'),
-            mk('<p>大学同学，独立设计师，经常一起聊产品。</p>', { name: '阿杰', relation: 'friend', title: '设计师', org: '自由职业', strength: 55, tags: ['friend', 'design'], frequency: 'Low', met_place: '大学', notes: '大学同学，独立设计师，经常一起聊产品方向。', photo: '/assets/avatar-3.jpg', lineart: true }, 'ajie.md'),
-            mk('<p>读书会认识的写作者。</p>', { name: '阿念', relation: 'contact', title: '写作者', org: '读书会', strength: 48, tags: ['writing'], frequency: 'Low', met_place: '读书会', notes: '读书会认识的写作者，文字很有味道。', photo: '/assets/avatar-4.jpg', lineart: true }, 'anian.md'),
-            mk('<p>行业会议认识的产品经理。</p>', { name: '王敏', relation: 'contact', title: '产品经理', org: '某大厂', strength: 40, tags: ['product'], frequency: 'Low', met_place: '行业会议', notes: '行业会议认识的产品经理，待进一步跟进。', photo: '/assets/avatar-5.jpg', lineart: true }, 'wangmin.md'),
+            // 8 contacts, each in a DISTINCT age-band × gender slot → no repeated avatar.
+            // Profession lives in `title`; age locks the 3D avatar (teen/adult/middle/senior × m/f).
+            // ── adult ──
+            mk('<p>后端程序员，靠谱的技术搭子。</p>', { name: '老周', gender: 'male', age: 30, relation: 'engineer', title: '后端程序员', org: '某大厂', strength: 78, tags: ['technical', 'engineer'], frequency: 'High', met_place: '前公司', notes: '后端程序员，技术扎实，潜在合伙人。' }, 'laozhou.md'),
+            mk('<p>产品经理，需求拆得很清楚。</p>', { name: '小柔', gender: 'female', age: 29, relation: 'partner', title: '产品经理', org: 'Loci', strength: 84, tags: ['product', 'partner'], frequency: 'High', met_place: '黑客松', notes: '产品经理，一起做 Loci，需求拆得清楚。' }, 'xiaorou.md'),
+            // ── middle ──
+            mk('<p>资深投资人，看早期项目。</p>', { name: '林薇', gender: 'female', age: 46, relation: 'investor', title: '基金合伙人', org: '某基金', strength: 72, tags: ['business', 'investor'], frequency: 'Medium', met_place: '路演', notes: '资深投资人，给过很实在的建议。' }, 'linwei.md'),
+            // ── teen ──
+            mk('<p>实习生，刚来团队帮忙。</p>', { name: '小航', gender: 'male', age: 18, relation: 'engineer', title: '开发实习生', org: 'Loci', strength: 50, tags: ['technical', 'intern'], frequency: 'Medium', met_place: '招聘', notes: '开发实习生，学得很快。' }, 'xiaohang.md'),
+            mk('<p>设计实习生，审美在线。</p>', { name: '朵朵', gender: 'female', age: 19, relation: 'friend', title: '设计实习生', org: '自由职业', strength: 52, tags: ['friend', 'design'], frequency: 'Low', met_place: '展览', notes: '设计实习生，审美在线，常帮忙看视觉。' }, 'duoduo.md'),
+            // ── senior ──
+            mk('<p>退休顾问，给过不少指点。</p>', { name: '钱伯', gender: 'male', age: 66, relation: 'advisor', title: '退休顾问', org: '退休', strength: 58, tags: ['business', 'advisor'], frequency: 'Low', met_place: '行业会', notes: '退休顾问，行业前辈，给过不少指点。' }, 'qianbo.md'),
+            mk('<p>退休教师，做得一手好菜。</p>', { name: '王阿姨', gender: 'female', age: 64, relation: 'friend', title: '退休教师', org: '退休', strength: 60, tags: ['friend', 'teacher'], frequency: 'Medium', met_place: '社区', notes: '退休教师，做得一手好菜，很热心。' }, 'wangayi.md'),
+            // ── no age / no job, only a relationship category → green 3D blind-box set ──
+            mk('<p>路演认识的天使投资人。</p>', { name: '陈总', gender: 'male', relation: 'investor', strength: 56, tags: ['business', 'investor'], frequency: 'Low', met_place: '路演', notes: '天使投资人，待进一步跟进。' }, 'chenzong.md'),
+            mk('<p>开源社区认识的开发者。</p>', { name: 'Mia', gender: 'female', relation: 'developer', strength: 62, tags: ['technical', 'oss'], frequency: 'Medium', met_place: 'GitHub', notes: '开源社区的开发者，乐于分享。' }, 'mia.md'),
+            mk('<p>球场上认识的球友。</p>', { name: '阿杰', gender: 'male', relation: 'friend', strength: 54, tags: ['friend'], frequency: 'Medium', met_place: '球场', notes: '周末一起打球的球友。' }, 'ajie.md'),
+            mk('<p>活动上加的微信，还没深聊。</p>', { name: '小鹿', gender: 'female', relation: 'contact', strength: 38, tags: ['contact'], frequency: 'Low', met_place: '活动', notes: '活动认识的新朋友，待跟进。' }, 'xiaolu.md'),
           ],
           meetings: [],
         },
         decisions: [
+          mk('<h1>项目精华上浮，靠标签为主 + AI 兜底</h1><p>[decision]/[insight]/[milestone] 自动进大脑，[local]/[debug]/[wip] 留本地;会话结束 AI 补问漏标的。</p>', { date: '2026-06-01', tags: ['memory', 'workflow'] }, '2026-06-01-tag-routing.md'),
+          mk('<h1>规则用文本块注入，连接用软链接</h1><p>全局 CLAUDE.md/AGENTS.md 写可幂等替换的文本块;大脑↔项目用软链接,体现"聚合而非占有"。</p>', { date: '2026-05-31', tags: ['architecture'] }, '2026-05-31-inject-vs-symlink.md'),
           mk('<h1>Loci 聚合而非占有记忆</h1><p>项目正文留在各自仓库，大脑只存一行索引。</p>', { date: '2026-05-30', tags: ['architecture', 'memory'] }, '2026-05-30-loci-aggregates.md'),
           mk('<h1>项目记忆分层</h1><p>memory.md 为活档案，decisions/ 为追加流。</p>', { date: '2026-05-30', tags: ['memory'] }, '2026-05-30-memory-tiers.md'),
           mk('<h1>任务优先的日程模型</h1><p>任务即任务，时间块即日程，带时间的任务两处都出现。</p>', { date: '2026-05-29', tags: ['model'] }, '2026-05-29-task-first.md'),
@@ -12011,27 +12659,37 @@ createApp({
           total: 7,
         },
         notes: {
-          index: mk('<ul><li>Loci 发布博客 · loci-launch-blog.md · 发布稿草稿 · #blog</li><li>线下分享脚本 · meetup-talk-script.md · #talk</li></ul>', {}, 'index.md'),
+          index: mk('<ul><li>Loci 发布博客 · loci-launch-blog.md · 发布稿草稿 · #blog</li><li>黑客松 pitch 大纲 · hackathon-pitch-outline.md · 10 秒 hook、问题、demo、结尾 CTA · #pitch</li><li>飞书集成接口备忘 · feishu-api-memo.md · OAuth、docx、drive 权限与错误码 · #integration</li><li>Clean 主题设计评审 · clean-theme-review.md · 导航、引导、绿色按钮与空状态反馈 · #design</li></ul>', {}, 'index.md'),
           pointers: [
+            { title: '本周发布清单', link: 'obsidian://vault/loci/launch-week.md', gist: '发布前一周所有公开动作与检查点', tags: ['launch', '发布'], date: '2026-06-06',
+              content: '<h1>本周发布清单</h1><ul><li>公网 demo 链接可访问</li><li>README 快速开始可在 3 分钟内跑通</li><li>投票页文案不讲功能堆砌，先讲 AI 总忘记人的痛点</li><li>录一段 60 秒无剪切 demo</li></ul>' },
+            { title: '用户访谈记录：开发者 A/B/C', link: 'obsidian://vault/research/loci-user-interviews.md', gist: '三位开发者如何理解 AI 记忆', tags: ['research', 'product'], date: '2026-06-04',
+              content: '<h1>用户访谈记录</h1><p>三位开发者都能理解“每次重新解释上下文”的痛点，但需要看到项目记忆如何留在 repo 本地。</p><h2>共识</h2><ul><li>Dashboard 要先展示结果，而不是解释规则</li><li>项目与笔记来源要非常清楚</li><li>公开 demo 不能依赖本机服务</li></ul>' },
             { title: '里斯本生活手册', link: 'obsidian://vault/life/lisbon.md', gist: '签证 / 租房 / 网络 / 常去的咖啡馆', tags: ['life', '移居'], date: '2026-05-30',
               content: '<h1>里斯本生活手册</h1><p><em>本地 vault · Loci 能直接读到正文</em></p><h2>签证</h2><p>D7 被动收入签证，需准备银行流水。</p><h2>租房</h2><ul><li>Alfama：老城，氛围好但吵</li><li>Príncipe Real：安静，咖啡馆多</li></ul><h2>常去的咖啡馆</h2><blockquote>Copenhagen Coffee Lab — 安静、有插座、适合写代码。</blockquote>' },
             { title: '设计灵感库', link: 'obsidian://vault/design/swipe-file.md', gist: '收集的好界面截图和交互细节', tags: ['design', 'inspiration'], date: '2026-05-24',
               content: '<h1>设计灵感库</h1><p>收集的好界面与交互细节。</p><ul><li>Linear 的命令面板动效</li><li>Vercel 的渐变 hero</li><li>Things 3 的"今天"清单留白</li></ul>' },
             { title: 'Loci 产品愿景', link: 'https://feishu.cn/docx/loci-vision', gist: '给投资人看的一页纸定位', tags: ['product', 'pitch'], date: '2026-05-28' },
+            { title: '飞书集成接口备忘', link: 'https://feishu.cn/docx/loci-feishu-api', gist: 'OAuth、docx、drive 权限与错误码', tags: ['integration', 'feishu'], date: '2026-06-03' },
             { title: '2026 阅读清单', link: 'https://notion.so/reading-2026', gist: '今年想读完的 12 本书 + 读书笔记', tags: ['reading'], date: '2026-05-26' },
             { title: '2026 Q3 OKR', link: 'https://notion.so/q3-okr-2026', gist: '这季度的目标规划', tags: ['life'], date: '2026-05-20' },
+            { title: 'Agent 记忆 API 草案', link: 'https://notion.so/loci-agent-memory-api', gist: '给 CLI / dashboard / agent 共用的记忆读写接口', tags: ['api', 'agent'], date: '2026-06-02' },
           ],
           files: [
+            mk('<h1>黑客松 pitch 大纲</h1><p>开头不要解释“知识管理”，先让人看到痛点：你每天都在重新告诉 AI 你是谁、你在做什么、项目到哪了。</p><ol><li><strong>0:10</strong> 痛点：AI 没有长期记忆</li><li><strong>0:40</strong> Loci：本地优先的记忆层</li><li><strong>1:30</strong> Dashboard：任务、笔记、项目、决策一图看全</li><li><strong>0:30</strong> CTA：打开 demo，感受它怎么记得你</li></ol>', { title: '黑客松 pitch 大纲', created: '2026-06-06', tags: ['pitch', 'launch'] }, 'hackathon-pitch-outline.md'),
+            mk('<h1>Clean 主题设计评审</h1><p>入口引导保留，但改成绿色主按钮；弹窗使用浅色背景；进入后先让用户选择中文或英文。</p><h2>待检查</h2><ul><li>空状态不能显得像坏了</li><li>按钮要符合页面里的 emerald accent</li><li>所有卡片避免黑色遮罩</li></ul>', { title: 'Clean 主题设计评审', created: '2026-06-06', tags: ['design', 'onboarding'] }, 'clean-theme-review.md'),
             mk('<h1>Loci 发布博客草稿</h1><p>开篇用<strong>"记忆宫殿"</strong>的隐喻 —— 把 AI 的记忆比作一座你能随意走动的宫殿。</p><h2>结构</h2><ul><li>痛点：AI 每次都忘了你是谁</li><li>方案：分层记忆 + 聚合而非占有</li><li>Demo：Dashboard 一图看全</li></ul><blockquote>一句话：Loci 让 AI 真正"记得"你。</blockquote>', { title: 'Loci 发布博客草稿', created: '2026-05-31', tags: ['blog', 'launch'] }, 'loci-launch-blog.md'),
             mk('<h1>线下分享脚本</h1><p>5 分钟闪电演讲的结构与节奏。</p><ol><li><strong>0:30</strong> 一个扎心的提问</li><li><strong>2:00</strong> 现场 demo</li><li><strong>1:30</strong> 愿景收尾</li></ol>', { title: '线下分享脚本', created: '2026-05-28', tags: ['talk'] }, 'meetup-talk-script.md'),
+            mk('<h1>Claude Code 视频脚本</h1><p>第一期主题：为什么 AI 编程工具需要长期记忆。用 Loci 的项目记忆做现场例子。</p><ul><li>开场：同一个 bug 解释三遍</li><li>中段：项目记忆如何跟着 repo 走</li><li>结尾：开放 demo 链接</li></ul>', { title: 'Claude Code 视频脚本', created: '2026-06-05', tags: ['video', 'content'] }, 'claude-code-video-script.md'),
+            mk('<h1>Loci README 发版清单</h1><ul><li>安装命令</li><li>启动 Dashboard</li><li>连接第一个项目</li><li>截图：Overview / Notes / Projects</li><li>FAQ：记忆存在哪里？会不会上传？</li></ul>', { title: 'Loci README 发版清单', created: '2026-06-05', tags: ['docs', 'launch'] }, 'loci-readme-release-checklist.md'),
             mk('<h1>Vue 性能学习笔记</h1><p>几个落地要点：</p><ul><li><code>v-for</code> 要给稳定 <code>key</code></li><li>长列表用<strong>虚拟滚动</strong></li><li>重计算放进 <code>computed</code></li></ul>', { title: 'Vue 性能学习笔记', created: '2026-05-22', tags: ['vue', '学习笔记'] }, 'learning-vue-perf.md'),
           ],
-          total: 8,
+          total: 16,
         },
         projects: {
           serious: [
-            { name: 'Loci 系统', status: 'active', summary: 'AI 的记忆宫殿，分层记忆系统', detail: 'repo: /Users/user/Desktop/ship/loci copy', repo: '/Users/user/Desktop/ship/loci copy',
-              memory: mk('<h2>目标</h2><p>做最懂你的 AI 记忆系统。</p><h2>当前状态</h2><p>Dashboard 与 Clean 主题开发中。</p><h2>下一步</h2><p>发布准备：README、demo 闭环、社区宣传。</p>', {}, 'memory.md'),
+            { name: 'Loci 系统', status: 'active', summary: 'AI 记忆系统 + 本地优先 Dashboard', detail: 'repo: ~/loci', repo: '~/loci',
+              memory: mk('<h2>目标</h2><p>让开发者一眼理解：Loci 不是又一个笔记 App，而是 AI 的长期记忆层。</p><h2>当前状态</h2><p>Clean Dashboard 已能完整展示任务、项目、笔记、关系与决策。</p><h2>下一步</h2><p>公开 demo、README、投票页素材。</p>', {}, 'memory.md'),
               todos: [
                 { id: 'td1', text: '完成液态玻璃 / Clean 主题', status: 'doing', category: 'Design', order: 0 },
                 { id: 'td6', text: '埋点与数据看板', status: 'doing', category: 'Feature', order: 1 },
@@ -12040,64 +12698,126 @@ createApp({
                 { id: 'td2', text: '修复任务 id 冲突', status: 'done', category: 'Bug', order: 4 },
                 { id: 'td3', text: 'Notes 页面 + Roadmap 看板', status: 'done', category: 'Feature', order: 5 },
               ] },
-            { name: '个人博客', status: 'active', summary: '技术写作与内容沉淀', detail: 'repo: /Users/user/Desktop/blog', repo: '/Users/user/Desktop/blog',
+            { name: '个人博客', status: 'active', summary: '技术写作与内容沉淀', detail: 'repo: ~/blog', repo: '~/blog',
               memory: mk('<h2>目标</h2><p>每月两篇深度技术文章。</p><h2>当前状态</h2><p>正在迁移到新框架。</p>', {}, 'memory.md'),
               todos: [
                 { id: 'b1', text: '迁移到新框架', status: 'doing', category: 'Infra', order: 0 },
                 { id: 'b2', text: '写 RSC 深度文章', status: 'todo', category: 'Content', order: 1 },
                 { id: 'b3', text: '旧文章归档整理', status: 'done', category: 'Content', order: 2 },
               ] },
+            { name: 'CYC', status: 'active', summary: '内容品牌与 AI 工具视频', detail: 'repo: ~/Desktop/CYC', repo: '~/Desktop/CYC',
+              memory: mk('<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>', {}, 'memory.md'),
+              todos: [
+                { id: 'cyc1', text: '准备 Claude Code 第一集脚本', status: 'doing', category: 'Content', order: 0 },
+                { id: 'cyc2', text: '录制 Loci 发布介绍', status: 'todo', category: 'Video', order: 1 },
+                { id: 'cyc3', text: '剪辑 60 秒产品片头', status: 'todo', category: 'Video', order: 2 },
+                { id: 'cyc4', text: '整理频道选题池', status: 'doing', category: 'Content', order: 3 },
+                { id: 'cyc5', text: '发布一条投票拉票短帖', status: 'todo', category: 'Launch', order: 4 },
+                { id: 'cyc6', text: '剪完 Claude Code 系列第一期', status: 'done', category: 'Video', order: 5 },
+              ] },
+            { name: 'OpenClaw 记忆插件', status: 'active', summary: '把 Loci 记忆能力接进 OpenClaw', detail: 'repo: ~/Desktop/ship/openclaw-loci-plugin', repo: '~/Desktop/ship/openclaw-loci-plugin',
+              memory: mk('<h2>目标</h2><p>让 OpenClaw 用户能把项目上下文写进 Loci，并在代理之间共享。</p><h2>当前状态</h2><p>插件协议草案完成，正在补 demo 数据与 README。</p><h2>下一步</h2><p>封装 memory read/write API，录集成演示。</p>', {}, 'memory.md'),
+              todos: [
+                { id: 'oc1', text: '设计插件 manifest', status: 'done', category: 'Infra', order: 0 },
+                { id: 'oc2', text: '实现 memory read API', status: 'doing', category: 'Feature', order: 1 },
+                { id: 'oc3', text: '实现 memory write API', status: 'todo', category: 'Feature', order: 2 },
+                { id: 'oc4', text: '补插件安装文档', status: 'todo', category: 'Docs', order: 3 },
+                { id: 'oc5', text: '录 OpenClaw 集成演示', status: 'todo', category: 'Demo', order: 4 },
+              ] },
+            { name: 'Loci 公网 Demo', status: 'active', summary: '面向黑客松评委的静态演示版', detail: 'repo: ~/Desktop/ship/loci-demo-public', repo: '~/Desktop/ship/loci-demo-public',
+              memory: mk('<h2>目标</h2><p>给评委和早期用户一个免安装、可直接打开的 Loci 体验。</p><h2>当前状态</h2><p>Clean 主题、入口引导、语言选择与 demo 数据都在同一个静态页面里。</p><h2>下一步</h2><p>发布到公网并检查移动端。</p>', {}, 'memory.md'),
+              todos: [
+                { id: 'pub1', text: '配置妙搭公开访问', status: 'doing', category: 'Launch', order: 0 },
+                { id: 'pub2', text: '打包静态资源', status: 'done', category: 'Infra', order: 1 },
+                { id: 'pub3', text: '移动端首屏检查', status: 'todo', category: 'QA', order: 2 },
+                { id: 'pub4', text: '写隐私与本地优先说明', status: 'todo', category: 'Copy', order: 3 },
+                { id: 'pub5', text: '公开链接回归测试', status: 'todo', category: 'QA', order: 4 },
+                { id: 'pub6', text: '创建公开演示应用', status: 'done', category: 'Launch', order: 5 },
+              ] },
           ],
-          side: { incubating: [ { name: 'AI 日程助手' }, { name: '记忆图谱可视化工具' } ], archived: [ { name: '旧版命令行工具' } ] },
+          side: { incubating: [ { name: 'AI 日程助手' }, { name: '记忆图谱可视化工具' }, { name: '个人 CRM' }, { name: '内容选题雷达' } ], archived: [ { name: '旧版命令行工具' } ] },
         },
-        stats: { total_files: 142, total_tasks: 9, done_tasks: 3, total_people: 4, total_decisions: 5, total_daily_plans: 1, total_monthly_plans: 0, total_quarterly_plans: 0, total_projects: 2, total_project_todos: 9, done_project_todos: 3 },
+        stats: { total_files: 214, total_tasks: 30, done_tasks: 7, total_people: 11, total_decisions: 7, total_daily_plans: 1, total_monthly_plans: 0, total_quarterly_plans: 0, total_projects: 5, total_project_todos: 26, done_project_todos: 7 },
         overview: {
-          kpis: { activeTasks: 6, doneThisWeek: 3, projects: 2, decisions: 5 },
+          kpis: { activeTasks: 23, doneThisWeek: 7, projects: 5, decisions: 7 },
           trend: { days: [
-            { key: '2026-05-27', label: 'Wed', count: 1 },
-            { key: '2026-05-28', label: 'Thu', count: 0 },
-            { key: '2026-05-29', label: 'Fri', count: 2 },
-            { key: '2026-05-30', label: 'Sat', count: 1 },
-            { key: '2026-05-31', label: 'Sun', count: 1 },
-            { key: '2026-06-01', label: 'Mon', count: 2 },
-            { key: '2026-06-02', label: 'Tue', count: 0 },
-          ], max: 2 },
+            { key: '2026-05-31', label: 'Sun', count: 2 },
+            { key: '2026-06-01', label: 'Mon', count: 3 },
+            { key: '2026-06-02', label: 'Tue', count: 4 },
+            { key: '2026-06-03', label: 'Wed', count: 3 },
+            { key: '2026-06-04', label: 'Thu', count: 5 },
+            { key: '2026-06-05', label: 'Fri', count: 5 },
+            { key: '2026-06-06', label: 'Sat', count: 4 },
+          ], max: 5 },
           todayTasks: [
-            { id: 't3', text: '回复投资人邮件', date: T, startTime: '09:00', project: null, status: 'open' },
-            { id: 't1', text: '完善 Loci 液态玻璃主题设计', date: T, startTime: '10:30', project: 'Loci 系统', status: 'open' },
-            { id: 't2', text: '撰写产品定位文档', date: T, startTime: null, project: 'Loci 系统', status: 'open' },
+            { id: 't28', text: '确认公网 demo 加载速度', date: '2026-06-06', startTime: '10:00', project: 'Loci 公网 Demo', status: 'open' },
+            { id: 't31', text: '补齐 notes 样例与搜索标签', date: '2026-06-06', startTime: '11:00', project: 'Loci 公网 Demo', status: 'open' },
+            { id: 't29', text: '整理 pitch Q&A', date: '2026-06-06', startTime: null, project: 'Loci 公网 Demo', status: 'open' },
+            { id: 't30', text: '黑客松投票页文案复核', date: '2026-06-06', startTime: null, project: 'Loci 系统', status: 'open' },
+            { id: 't34', text: '把项目 todo 拖拽状态录成 gif', date: '2026-06-07', startTime: null, project: 'Loci 公网 Demo', status: 'open' },
           ],
           recentDone: [
+            { text: '完成 README 快速开始章节', completedAt: '2026-06-05T12:00:00Z' },
+            { text: '完成公开 demo 可访问链接', completedAt: '2026-06-05T09:00:00Z' },
+            { text: '与小柔复盘三位用户访谈', completedAt: '2026-06-04T08:00:00Z' },
+            { text: '隐藏大脑页 + 路由切默认主题', completedAt: '2026-06-01T11:00:00Z' },
             { text: '与团队评审 Dashboard 原型', completedAt: '2026-06-01T06:00:00Z' },
-            { text: '设计 onboarding 流程', completedAt: '2026-05-31T08:00:00Z' },
           ],
           recentDecisions: [
+            { title: '项目精华上浮：标签为主 + AI 兜底', date: '2026-06-01', tags: ['记忆', '工作流'] },
+            { title: '规则文本块注入，连接用软链接', date: '2026-05-31', tags: ['架构'] },
             { title: 'Loci 聚合而非占有记忆', date: '2026-05-30', tags: ['架构', '记忆'] },
-            { title: '项目记忆分层', date: '2026-05-30', tags: ['记忆'] },
             { title: '任务优先的日程模型', date: '2026-05-29', tags: ['模型'] },
             { title: '采用液态玻璃 + Clean 视觉', date: '2026-05-27', tags: ['设计'] },
           ],
           recentNotes: [
+            { title: '黑客松 pitch 大纲', date: '2026-06-06', tags: ['pitch'] },
+            { title: 'Clean 主题设计评审', date: '2026-06-06', tags: ['design'] },
+            { title: 'Claude Code 视频脚本', date: '2026-06-05', tags: ['video'] },
             { title: 'Loci 发布博客草稿', date: '2026-05-31', tags: ['blog'] },
-            { title: '线下分享脚本', date: '2026-05-28', tags: ['talk'] },
           ],
           projects: [
             { name: 'Loci 系统', status: 'active', total: 6, done: 2 },
             { name: '个人博客', status: 'active', total: 3, done: 1 },
+            { name: 'CYC', status: 'active', total: 6, done: 1 },
+            { name: 'OpenClaw 记忆插件', status: 'active', total: 5, done: 1 },
+            { name: 'Loci 公网 Demo', status: 'active', total: 6, done: 2 },
           ],
         },
         network: {
-          memories: 164, connections: 21, days_active: 16,
+          memories: 236, connections: 42, days_active: 22,
           nodes: [
             { name: 'My Brain', status: 'active', activity: 0.9, desc: '个人知识中枢' },
-            { name: 'Loci 系统', status: 'active', activity: 0.85, desc: 'AI 记忆宫殿' },
-            { name: '个人博客', status: 'active', activity: 0.6, desc: '内容与写作' },
+            { name: 'Loci 系统', status: 'active', activity: 0.92, desc: 'AI 记忆宫殿' },
+            { name: 'Loci 公网 Demo', status: 'active', activity: 0.82, desc: '公网 demo' },
+            { name: 'CYC', status: 'active', activity: 0.72, desc: '内容与写作' },
+            { name: 'OpenClaw 记忆插件', status: 'active', activity: 0.64, desc: '插件' },
+            { name: '个人博客', status: 'active', activity: 0.5, desc: '发布' },
             { name: 'AI 日程助手', status: 'pending', activity: 0.3, desc: '孵化中的原型' },
             { name: '记忆图谱', status: 'idle', activity: 0.15, desc: '可视化探索' },
           ],
         },
         build_time: '2026-06-02 09:30:00',
       };
+      // Localize the demo dataset when the UI language is English.
+      if (lang.value === 'en') data.value = localizeMock(data.value);
+    }
+
+    // Load the mock dataset AND (re)populate the reactive calendar from it.
+    // Called once on mount and again whenever the language switches, so the
+    // whole demo — including localized calendar event titles — re-renders in the
+    // chosen language. This resets any in-session edits, which is the expected
+    // behavior when switching languages in a demo.
+    function loadDemoData() {
+      loadMockData();
+      // Reset the reactive calendar, then fill it from the (localized) dataset.
+      Object.keys(calendarEvents).forEach(k => delete calendarEvents[k]);
+      const djEvents = data.value?.planning?.calendar_events;
+      if (djEvents && typeof djEvents === 'object') {
+        Object.keys(djEvents).forEach(dateKey => {
+          calendarEvents[dateKey] = (djEvents[dateKey] || []).map(ev => ({ ...ev }));
+        });
+      }
     }
 
     onMounted(async () => {
@@ -12107,21 +12827,7 @@ createApp({
       // Clean demo build: use the self-contained mock dataset directly so /clean
       // always looks full and polished and NEVER reads/writes the user's real
       // brain files. (The original index.html still fetches /api/data live.)
-      loadMockData();
-
-      // Merge calendar_events from loaded data into reactive calendarEvents
-      const djEvents = data.value?.planning?.calendar_events;
-      if (djEvents && typeof djEvents === 'object') {
-        Object.keys(djEvents).forEach(dateKey => {
-          if (!calendarEvents[dateKey]) calendarEvents[dateKey] = [];
-          const existing = calendarEvents[dateKey];
-          (djEvents[dateKey] || []).forEach(ev => {
-            const dup = existing.some(e => e.title === ev.title && e.startKey === ev.startKey);
-            if (!dup) existing.push(ev);
-          });
-          calendarEvents[dateKey] = [...existing];
-        });
-      }
+      loadDemoData();
       loading.value = false;
 
       // Start canvas clock

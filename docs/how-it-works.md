@@ -263,13 +263,14 @@ persistence:
 
 ### Activity Log
 - The AI records each change it makes to the brain in `.loci/activity/<YYYY-MM>.md` (a plain-language activity ledger, one file per month — ask "what did I do today?")
-- New conversations read the last 7 days → know what happened last session
-- Monthly cleanup: entries older than 14 days get removed
+- The activity ledger is an audit layer: it is written after brain-facing changes, but read only when the user asks what happened today / this week / recently
+- It gives a traceable timeline without loading historical noise into every conversation
 
 ### Dashboard
-- `.loci/dashboard/` — local web page, pixel-art style, shows goals/tasks/inbox/project status
-- `python3 build.py` generates `data.json` from your markdown files
-- AI proactively offers to open it once you have 2-3 tasks
+- `.loci/dashboard/` — local Node-powered web dashboard for overview, tasks, schedule, journal, memory, people, projects, notes, fragments, and decisions
+- `node .loci/dashboard/server.js` starts the dashboard at `http://127.0.0.1:8765/`
+- `/` and `/clean` show the Clean demo experience with self-contained sample data; `/sci` keeps the original sci-fi dashboard available
+- The server also exposes local API endpoints for live task, schedule, journal, note, reference, and project-todo workflows
 
 ### Cross-Terminal Sync
 - `.loci/hooks/check-updates.sh` — detects file changes from other terminals

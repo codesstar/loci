@@ -1,5 +1,7 @@
 # Architecture — The Three-Layer Memory System
 
+> **Current project overview**: this document explains the memory-layering model, but some file examples come from earlier versions. For the latest task/calendar JSON model, project-owned memory, dashboard routes, and Claude Code + Codex sync, see [Project Overview](project-overview.zh-CN.md).
+
 ## Overview
 
 Loci organizes your AI's context into three layers, inspired by how human memory works: working memory (always active), episodic memory (recalled on demand), and long-term storage (archived for reference).

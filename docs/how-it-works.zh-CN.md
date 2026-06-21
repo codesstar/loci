@@ -2,6 +2,8 @@
 
 > 一篇读完就全懂。每个章节层层递进，跟你实际使用 Loci 的节奏一致。
 
+> **当前项目总览**：本文保留了较完整的机制解释，但部分示例仍来自早期版本。最新的安装流程、任务/日程模型、Claude Code + Codex 同步、项目记忆归 repo 等设计，以 [项目总览](project-overview.zh-CN.md) 为准。
+
 ## 上手节奏
 
 ```
@@ -265,14 +267,15 @@ persistence:
 ### 活动日志
 
 - AI 把每次对大脑的改动记到 `.loci/activity/<YYYY-MM>.md`（人话操作总账，一月一个文件 —— 问"我今天做了啥？"）
-- 新对话启动时会读最近 7 天的记录 → 知道上回聊了什么
-- 每月清理：超过 14 天的条目自动干掉
+- 活动日志是审计层：每次 brain-facing 写入后追加，但只有用户问"今天 / 这周 / 最近做了啥"时才读取
+- 它提供可追踪时间线，但不会把历史噪音塞进每次对话
 
 ### Dashboard
 
-- `.loci/dashboard/` — 本地网页，像素风，展示目标/任务/收集箱/项目状态
-- `python3 build.py` 从 Markdown 文件生成 `data.json`
-- 当你攒了 2-3 个任务之后，AI 会主动提议打开看看
+- `.loci/dashboard/` — Node 驱动的本地可视化控制台，展示 overview、tasks、schedule、journal、memory、people、projects、notes、fragments、decisions
+- `node .loci/dashboard/server.js` 启动，默认地址 `http://127.0.0.1:8765/`
+- `/` 和 `/clean` 是 Clean demo 体验，内置完整测试数据；`/sci` 保留旧 sci-fi dashboard
+- server 同时提供本地 API，给真实任务、日程、日志、笔记、收藏、项目 todo 流程使用
 
 ### 跨终端同步
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/loci-banner-transparent.png" alt="Loci — Memory Palace for AI" width="600" />
+  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — Memory Palace for AI" width="600" />
 </p>
 
 <p align="center">
@@ -93,7 +93,7 @@ npx create-loci
 
 The installer opens a browser setup wizard, creates your brain, detects Claude Code and Codex, and asks which tools should connect. Takes about 2 minutes. Prefer terminal setup? Run `npx create-loci --cli`.
 
-### OpenClaw
+### OpenClaw (experimental)
 
 ```bash
 clawhub install loci-brain
@@ -229,34 +229,50 @@ July:     "founder, shipped v1, first 50 users"
 
 ## Dashboard
 
-Loci includes an optional visual dashboard — a sci-fi command center for your brain. Zero dependencies, runs with `node server.js`.
+Loci includes an optional local dashboard for seeing the shape of your brain: today's work, project memory, notes, people, decisions, fragments, and the activity around them.
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
-- **Today**: Task management with drag-drop between Focus/Queue/Complete, calendar timeline
-- **Plan**: Week and month planning with independent goal tracking
-- **Journal**: Rich text editor with image support, AI summaries, daily/weekly/monthly views
-- **Memory**: Your identity, values, and growth — all rendered from your markdown files
-- **Brain**: Full file browser for your memory palace
+```bash
+node .loci/dashboard/server.js
+```
 
-Everything persists to your markdown files via a local API. The dashboard is a window into your brain, not a separate system.
+Open:
 
-> **API docs**: [docs/api.md](docs/api.md) — 11 REST endpoints for reading and writing your brain.
+```text
+http://127.0.0.1:8765/
+```
+
+The default route serves the new **Clean dashboard** (`/` and `/clean`): a polished, light-theme demo experience with self-contained sample data. It is safe for screenshots, public demos, and first-run exploration because it does not write to your real brain files.
+
+The dashboard server also exposes the local API used by Loci's live workflows. The original sci-fi dashboard is still available at `/sci`.
+
+- **Overview**: Current focus, task velocity, memory mix, recent notes, decisions, and project progress
+- **Tasks / Schedule**: Task-first model with dated tasks, timed task projections, and schedule-only events
+- **Journal**: Daily/weekly/monthly reflections and AI summaries
+- **Memory**: Identity, values, learned lessons, and growth history
+- **People**: Relationship cards and contact context
+- **Projects**: Connected project memory plus repo-local development todos
+- **Notes / Fragments**: Your own notes from Obsidian/Feishu/Notion, inline notes, loose ideas, and references
+
+The dashboard is a window into your brain, not a separate cloud system. User data stays in local Markdown and JSON files.
+
+> **API docs**: [docs/api.md](docs/api.md) — local REST endpoints for reading and writing your brain.
+>
+> **Dashboard docs**: [docs/dashboard.md](docs/dashboard.md) — routes, data sources, demo mode, and live API behavior.
 
 ---
 
 ## Integrations
 
-Loci is **CLI-first** — it works anywhere your AI runs. The dashboard is optional.
+Loci currently focuses on Claude Code and Codex. Both can share the same local brain: a task, decision, preference, or project context saved in one tool is available to the other.
 
-| Platform | Install | Global Memory |
-|----------|---------|---------------|
-| **Claude Code** | `npx create-loci` or `./setup.sh` | Yes — auto-injects `~/.claude/CLAUDE.md` |
-| **Codex CLI** | `npx create-loci` or `./setup.sh` | Yes — auto-injects `~/.codex/AGENTS.md` |
-| **OpenClaw** | `clawhub install loci-brain` | Yes — via skill system |
-| **Cursor / Windsurf** | `git clone` + `./setup.sh` | No — brain directory only |
-
-> **OpenClaw users**: Loci fixes OpenClaw's memory problem. One install command, and your lobster gets a real brain. [Learn more](docs/roadmap.md)
+| Platform | Status |
+|----------|--------|
+| **Claude Code** | Primary support |
+| **Codex** | Primary support |
+| **Cursor / Windsurf / Cline** | Future adapters |
+| **OpenClaw** | Experimental integration |
 
 ---
 
