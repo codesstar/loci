@@ -4345,7 +4345,7 @@
                   <span class="mc1-status"><span class="mc1-sdot"></span>{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + ' DAYS' }}</span>
                   <img :src="memoryProfile.avatar" :alt="memoryProfile.name">
                   <div class="mc1-banner-foot">
-                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '墨尔本 · MEL' : 'MELBOURNE' }}</span></div>
+                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '里斯本 · LIS' : 'LISBON' }}</span></div>
                     <div class="mc1-role">{{ memoryProfile.role }}</div>
                   </div>
                 </div>
@@ -7156,15 +7156,15 @@ createApp({
       const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
       return {
         avatar: '/assets/people-avatars/avatar-c-core-m.png',
-        name: 'Sam',
+        name: 'Sam Rivera',
         role: zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder',
         meta: zh ? [
-          { k:'Location', v:'墨尔本 · Melbourne' },
+          { k:'Location', v:'里斯本 · Lisbon' },
           { k:'Language', v:'中文优先' },
           { k:'Workstyle', v:'深度专注，厌恶被打断' },
           { k:'Aesthetic', v:'极简、克制的设计' },
         ] : [
-          { k:'Location', v:'Melbourne' },
+          { k:'Location', v:'Lisbon' },
           { k:'Language', v:'Chinese-first' },
           { k:'Workstyle', v:'Deep focus, hates interruption' },
           { k:'Aesthetic', v:'Minimal, restrained' },
@@ -10074,7 +10074,7 @@ createApp({
     // ── ovA hero / new-overview helpers ───────────────────────────────
     const ovUserName = computed(() => {
       const u = data.value && data.value.config && data.value.config.username;
-      return (u || 'Sam').toUpperCase();
+      return (u || 'Sam Rivera').toUpperCase();
     });
     // Focus task: first timed task today, else first task today.
     const ovFocusTask = computed(() => {
@@ -12208,7 +12208,7 @@ createApp({
       "pitch 前 10 秒别讲功能，先讲\"忘东西的痛\"": "In the first 10 seconds of the pitch, don't talk features — start with the pain of forgetting",
       "有个想法：把决策记录做成时间线视图": "An idea: turn the decision log into a timeline view",
       "\"记忆应该像呼吸一样存在\" — 这句可以放进官网 hero 文案": "\"Memory should be as natural as breathing\" — this line could go in the homepage hero copy",
-      "<ul><li>姓名：Sam</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：墨尔本</li></ul>": "<ul><li>Name: Sam</li><li>Role: indie developer / founder of Loci</li><li>Language: prefers Chinese</li><li>Work style: deep focus, hates being interrupted</li><li>Preference: minimal, restrained design</li><li>Location: Melbourne</li></ul>",
+      "<ul><li>姓名：Sam Rivera</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：里斯本</li></ul>": "<ul><li>Name: Sam Rivera</li><li>Role: indie developer / founder of Loci</li><li>Language: prefers Chinese</li><li>Work style: deep focus, hates being interrupted</li><li>Preference: minimal, restrained design</li><li>Location: Lisbon</li></ul>",
       "<ul><li>先发布，再打磨 —— 厌恶在没人用的功能上抛光</li><li>诚实地报告结果，不粉饰</li><li>聚合而非占有：记忆属于它所在的地方</li><li>状态优先于产出</li><li>克制：能不加的就不加</li></ul>": "<ul><li>Ship first, polish later — hates buffing features nobody uses</li><li>Report results honestly, no sugarcoating</li><li>Aggregates, not owns: memory belongs where it lives</li><li>State over output</li><li>Restraint: if it can be left out, leave it out</li></ul>",
       "<ul><li>记忆系统的价值在于\"能找回\"，不在于\"存了多少\"</li><li>分层加载比一次性塞满上下文更可用</li><li>真实用户拉代码即用，胜过华丽的演示</li><li>单一强调色让界面更专业</li><li>傍晚做当日小结，第二天启动更快</li></ul>": "<ul><li>A memory system is valuable for what you can retrieve, not how much you store</li><li>Layered loading beats cramming everything into context at once</li><li>Real users who pull the code and run it beat a flashy demo</li><li>A single accent color makes an interface feel more professional</li><li>An evening recap means a faster start the next day</li></ul>",
       "认知升级": "Mindset shift",
@@ -12481,7 +12481,7 @@ createApp({
       // Journal entry with both a short AI summary (content) and an expandable full log (detail).
       const jrnl = (content, detail, meta, filename) => ({ meta: meta || {}, content, detail: detail || '', filename: filename || '', path: filename || '' });
       data.value = {
-        config: { title: 'Loci Dashboard', username: 'Sam', description: 'AI 的记忆宫殿' },
+        config: { title: 'Loci Dashboard', username: 'Sam Rivera', description: 'AI 的记忆宫殿' },
         plan: mk('<h2>北极星</h2><p>把 Loci 做成最懂你的 AI 记忆系统 —— 聚合而非占有。</p><h2>年度目标</h2><ul><li>Loci 正式发布 (Q3)</li><li>积累 1000 名活跃用户</li><li>完成液态玻璃 / Clean 双主题</li></ul>', { status: 'active' }, 'plan.md'),
         inbox: {
           content: '', meta: { updated: T },
@@ -12496,7 +12496,7 @@ createApp({
           ],
         },
         me: {
-          identity: mk('<ul><li>姓名：Sam</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：墨尔本</li></ul>', { updated: '2026-03-11' }, 'identity.md'),
+          identity: mk('<ul><li>姓名：Sam Rivera</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：里斯本</li></ul>', { updated: '2026-03-11' }, 'identity.md'),
           goals: mk('', {}, 'goals.md'),
           values: mk('<ul><li>先发布，再打磨 —— 厌恶在没人用的功能上抛光</li><li>诚实地报告结果，不粉饰</li><li>聚合而非占有：记忆属于它所在的地方</li><li>状态优先于产出</li><li>克制：能不加的就不加</li></ul>', { updated: '2026-03-11' }, 'values.md'),
           learned: mk('<ul><li>记忆系统的价值在于"能找回"，不在于"存了多少"</li><li>分层加载比一次性塞满上下文更可用</li><li>真实用户拉代码即用，胜过华丽的演示</li><li>单一强调色让界面更专业</li><li>傍晚做当日小结，第二天启动更快</li></ul>', { updated: '2026-03-11' }, 'learned.md'),
