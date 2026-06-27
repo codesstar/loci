@@ -2460,38 +2460,80 @@
 
     /* ===== Sidebar · Reference Faithful (carded + grouped) ===== */
     /* host: the fixed aside becomes a transparent inset frame holding a floating card */
-    .sbA-host{ padding:14px 0 14px 14px; }
+    .sbA-host{ width:256px; padding:14px 0 14px 14px; transition:transform .18s ease; }
     .sbA-sidebar{ height:100%; }
+    @media (min-width:768px){
+      .loci-main{ margin-left:256px; }
+      .loci-main--sidebar-expanded{ margin-left:256px; }
+      .loci-main--sidebar-collapsed{ margin-left:0; }
+      .sbA-host--expanded{ width:256px; }
+      .sbA-host--collapsed{ width:0; padding:0; overflow:visible; }
+      .loci-main--sidebar-collapsed .today-head,
+      .loci-main--sidebar-collapsed .hc-wrap{ padding-left:58px; }
+    }
+    @media (max-width:767.98px){
+      .sbA-collapse{ display:none !important; }
+      .sbA-restore{ display:none !important; }
+    }
 
 /* ===== floating carded sidebar ===== */
 .sbA-sidebar{
   width:240px; background:var(--surface); border-radius:22px; box-shadow:var(--shadow-md, 0 6px 24px rgba(28,28,26,.06), 0 1px 2px rgba(28,28,26,.04));
   padding:20px 14px; display:flex; flex-direction:column; gap:4px;
   border:1px solid var(--line);
+  overflow:hidden;
 }
+.sbA-host--collapsed .sbA-sidebar{
+  display:none;
+}
+.sbA-host--expanded .sbA-sidebar{
+  width:240px; padding:20px 14px; align-items:stretch; border-radius:22px;
+}
+.sbA-restore{
+  position:fixed; left:18px; top:54px; z-index:55;
+  width:30px; height:30px; border-radius:10px; display:grid; place-items:center;
+  background:rgba(255,255,255,.92); border:1px solid var(--line);
+  box-shadow:0 8px 22px rgba(28,28,26,.07), 0 1px 2px rgba(28,28,26,.04);
+  color:var(--ink-3); cursor:pointer; font-size:17px; line-height:1;
+  transition:background .14s ease, color .14s ease, border-color .14s ease, transform .14s ease;
+}
+.sbA-restore:hover{ background:var(--surface-2); color:var(--ink); border-color:var(--line-2); transform:translateX(1px); }
 
 /* brand */
-.sbA-brand{ display:flex; align-items:center; gap:9px; padding:6px 10px 16px; }
+.sbA-brand{ display:flex; align-items:center; gap:9px; padding:6px 10px 16px; position:relative; width:100%; }
 .sbA-mk{
   width:26px; height:26px; border-radius:8px; background:var(--ink); color:#fff;
   display:grid; place-items:center; font-size:15px; font-weight:700; letter-spacing:-.02em;
 }
-.sbA-nm{ font-size:16px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+.sbA-nm{ font-size:16px; font-weight:700; letter-spacing:-.02em; color:var(--ink); white-space:nowrap; transition:opacity .16s ease, max-width .2s ease; }
 .sbA-date{
   margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--ink-3);
-  letter-spacing:.02em; white-space:nowrap;
+  letter-spacing:.02em; white-space:nowrap; transition:opacity .16s ease, max-width .2s ease;
 }
 /* seahorse app-icon logo + Loci wordmark */
 .sbA-logo2{ width:30px; height:30px; border-radius:8px; display:block; flex:none; }
+.sbA-collapse{
+  width:24px; height:24px; border-radius:999px; display:grid; place-items:center;
+  flex:none; background:var(--surface-2); border:1px solid var(--line);
+  color:var(--ink-3); cursor:pointer; font-size:16px; line-height:1;
+  transition:background .14s ease, color .14s ease, border-color .14s ease, transform .14s ease;
+}
+.sbA-collapse:hover{ background:var(--surface); color:var(--ink); border-color:var(--line-2); transform:translateX(-1px); }
+.sbA-host--collapsed .sbA-brand{ justify-content:center; padding:6px 0 18px; }
+.sbA-host--collapsed .sbA-collapse{ transform:none; }
+.sbA-host--collapsed .sbA-collapse:hover{ transform:translateX(1px); }
 
 /* section label */
 .sbA-sec{
   font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--ink-4); padding:14px 10px 6px;
+  white-space:nowrap; transition:opacity .16s ease, max-height .2s ease, padding .2s ease;
 }
+.sbA-host--collapsed .sbA-sec{ opacity:0; max-height:0; padding:0; overflow:hidden; }
 
 /* nav group */
-.sbA-nav{ display:flex; flex-direction:column; gap:2px; }
+.sbA-nav{ display:flex; flex-direction:column; gap:2px; width:100%; }
+.sbA-host--collapsed .sbA-nav{ display:none; }
 
 /* nav item */
 .sbA-item{
@@ -2500,10 +2542,22 @@
   background:none; border:0; cursor:pointer; transition:all .14s ease; position:relative;
   font-family:inherit;
 }
-.sbA-ic{ width:17px; text-align:center; color:var(--ink-3); font-size:14px; transition:color .14s; line-height:1; }
+.sbA-ic{ width:17px; text-align:center; color:var(--ink-3); font-size:14px; transition:color .14s, width .2s ease; line-height:1; flex:none; }
+.sbA-lbl{ white-space:nowrap; overflow:hidden; transition:opacity .16s ease, max-width .2s ease; }
 .sbA-ct{
   margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--ink-4);
-  font-weight:500; letter-spacing:.01em;
+  font-weight:500; letter-spacing:.01em; transition:opacity .16s ease, max-width .2s ease;
+}
+.sbA-host--collapsed .sbA-item{ width:44px; justify-content:center; padding:9px 0; gap:0; }
+.sbA-host--collapsed .sbA-ic{ width:44px; }
+.sbA-host--collapsed .sbA-lbl,
+.sbA-host--collapsed .sbA-nm,
+.sbA-host--collapsed .sbA-date,
+.sbA-host--collapsed .sbA-ct,
+.sbA-host--collapsed .sbA-ver,
+.sbA-host--collapsed .sbA-sync-label,
+.sbA-host--collapsed .sbA-lang{
+  opacity:0; max-width:0; overflow:hidden; pointer-events:none;
 }
 
 .sbA-item:hover{ background:var(--surface-2); color:var(--ink); }
@@ -2517,16 +2571,21 @@
   content:""; position:absolute; left:-14px; top:50%; transform:translateY(-50%);
   width:3px; height:16px; border-radius:0 3px 3px 0; background:var(--accent);
 }
+.sbA-host--collapsed .sbA-item.active::before{ left:-10px; }
 
 /* footer */
-.sbA-foot{ margin-top:auto; padding:14px 10px 2px; border-top:1px solid var(--line); }
+.sbA-foot{ margin-top:auto; padding:14px 10px 2px; border-top:1px solid var(--line); width:100%; }
 .sbA-sync{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-3); font-family:var(--mono); }
+.sbA-sync-label{ white-space:nowrap; transition:opacity .16s ease, max-width .2s ease; }
 .sbA-d{
   width:6px; height:6px; border-radius:50%; background:var(--accent);
   box-shadow:0 0 0 3px rgba(16,185,129,.16);
 }
+.sbA-host--collapsed .sbA-foot{ padding:14px 0 2px; display:flex; flex-direction:column; align-items:center; }
+.sbA-host--collapsed .sbA-sync{ justify-content:center; }
 
 .sbA-foot-row{ display:flex; align-items:center; gap:8px; margin-top:12px; }
+.sbA-host--collapsed .sbA-foot-row{ flex-direction:column; gap:8px; }
 .sbA-lang{
   display:inline-flex; align-items:center; gap:3px; padding:4px 9px; border-radius:999px;
   background:var(--surface-2); border:1px solid var(--line); cursor:pointer;
@@ -3386,8 +3445,9 @@
 
     <!-- Sidebar — Clean -->
     <aside :class="[
-      'sbA-host fixed top-0 left-0 h-full w-64 z-50 flex flex-col',
-      sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      'sbA-host fixed top-0 left-0 h-full z-50 flex flex-col',
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      sidebarCollapsed ? 'sbA-host--collapsed' : 'sbA-host--expanded'
     ]">
       <div class="sbA-sidebar">
 
@@ -3409,16 +3469,25 @@
               @click="navigateTo(item.id)"
               :class="['sbA-item', currentPage === item.id ? 'active' : '']"
             >
-              <span class="sbA-ic">{{ item.icon }}</span>{{ item.label }}<span v-if="navCount(item.id)" class="sbA-ct">{{ navCount(item.id) }}</span>
+              <span class="sbA-ic">{{ item.icon }}</span><span class="sbA-lbl">{{ item.label }}</span><span v-if="navCount(item.id)" class="sbA-ct">{{ navCount(item.id) }}</span>
             </button>
           </nav>
         </template>
 
         <!-- Footer -->
         <div class="sbA-foot">
-          <div class="sbA-sync"><span class="sbA-d"></span>{{ t('sys.online') }}</div>
+          <div class="sbA-sync"><span class="sbA-d"></span><span class="sbA-sync-label">{{ t('sys.online') }}</span></div>
           <div class="sbA-foot-row">
             <button class="sbA-lang" @click="toggleLang()"><span class="on">A</span><span class="sl">/</span><span>文</span></button>
+            <button
+              class="sbA-collapse"
+              type="button"
+              @click="toggleSidebarCollapsed"
+              :aria-label="sidebarCollapsed ? (lang === 'zh' ? '展开侧边栏' : 'Expand sidebar') : (lang === 'zh' ? '收起侧边栏' : 'Collapse sidebar')"
+              :title="sidebarCollapsed ? (lang === 'zh' ? '展开侧边栏' : 'Expand sidebar') : (lang === 'zh' ? '收起侧边栏' : 'Collapse sidebar')"
+            >
+              <span aria-hidden="true">{{ sidebarCollapsed ? '›' : '‹' }}</span>
+            </button>
             <button class="sbA-help" @click="showGuide = true" aria-label="Guide">?</button>
             <span class="sbA-ver">LOCI v0.3.1</span>
           </div>
@@ -3427,9 +3496,19 @@
     </aside>
 
     <!-- (brain removed) -->
+    <button
+      v-if="sidebarCollapsed"
+      class="sbA-restore"
+      type="button"
+      @click="toggleSidebarCollapsed"
+      :aria-label="lang === 'zh' ? '展开侧边栏' : 'Expand sidebar'"
+      :title="lang === 'zh' ? '展开侧边栏' : 'Expand sidebar'"
+    >
+      <span aria-hidden="true">›</span>
+    </button>
 
     <!-- Main content -->
-    <main class="md:ml-64 min-h-screen pt-14 md:pt-0" style="background: var(--bg);">
+    <main :class="['loci-main min-h-screen pt-14 md:pt-0', sidebarCollapsed ? 'loci-main--sidebar-collapsed' : 'loci-main--sidebar-expanded']" style="background: var(--bg);">
 
       <!-- Loading -->
       <div v-if="loading" class="flex items-center justify-center h-screen">
@@ -6144,6 +6223,14 @@ createApp({
     const error = ref(null);
     const currentPage = ref('overview');
     const sidebarOpen = ref(false);
+    const sidebarCollapsed = ref(false);
+    try {
+      sidebarCollapsed.value = localStorage.getItem('loci.sidebarCollapsed') === '1';
+    } catch {}
+    function toggleSidebarCollapsed() {
+      sidebarCollapsed.value = !sidebarCollapsed.value;
+      try { localStorage.setItem('loci.sidebarCollapsed', sidebarCollapsed.value ? '1' : '0'); } catch {}
+    }
     // Layout: default 'split' (two panels side by side). Clicking a panel's
     // top-right expand button focuses THAT panel full-width (the other hides);
     // clicking again returns to split. taskScheduleFocus = null | 'tasks' | 'schedule'.
@@ -13188,7 +13275,7 @@ createApp({
 
     return {
       data, loading, error, now, weather, clockCanvas,
-      currentPage, sidebarOpen,
+      currentPage, sidebarOpen, sidebarCollapsed, toggleSidebarCollapsed,
       taskScheduleView, taskSchedulePanePct, isTaskScheduleResizing, startTaskScheduleResize,
       stackOrder, stackDragging, stackDropTarget, toggleTaskScheduleExpand, taskScheduleFocus, focusPanel,
       stackDragStart, stackDragOver, stackDrop, stackDragEnd,

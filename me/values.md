@@ -1,11 +1,23 @@
 ---
-created:
-updated:
+created: 2026-01-05
+updated: 2026-05-20
 tags: [values, core]
-status: template
+status: active
 ---
 
 # Values & Principles
 
-<!-- Will be shaped through your conversations with Loci. -->
-<!-- For a complete example, see examples/alex/me/values.md -->
+## 核心信念
+- **小而完整 > 大而臃肿**:宁可做一个有人真心喜欢的小工具,也不做一个谁都不爱的大平台
+- **本地优先**:我的数据应该躺在我自己的硬盘上,而不是别人的服务器里
+- **诚实的进度**:对自己和用户都不粉饰——做完就是做完,没做就是没做
+
+## 决策原则
+- **可逆的事快做,不可逆的事慢做**:能撤销的决定靠直觉,删库/发邮件/签合同要冷静
+- **先发布,再打磨**:没上线的完美等于零;真实反馈比内部争论值钱
+- **为未来的自己写代码**:三个月后的我会感谢现在写注释、起好名字的我
+
+## 红线(绝不做)
+- 不为了增长牺牲用户的信任
+- 不在没验证需求前就大规模投入
+- 不让"忙碌"冒充"进展"

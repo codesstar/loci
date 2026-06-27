@@ -297,6 +297,16 @@ function isoNow() {
   return new Date().toISOString();
 }
 
+// Reject path-traversal in user-supplied file keys/names. A safe segment has no
+// slash, no "..", no NUL, and no leading dot — so it can never escape its dir.
+function isSafeSegment(s) {
+  s = String(s == null ? '' : s);
+  if (!s || s.length > 200) return false;
+  if (s.includes('/') || s.includes('\\') || s.includes('\0')) return false;
+  if (s.includes('..') || s.startsWith('.')) return false;
+  return true;
+}
+
 function daysSince(dateStr) {
   if (!dateStr) return 0;
   const time = Date.parse(dateStr);
@@ -328,6 +338,14 @@ function normalizeTask(task) {
     updatedAt: task.updatedAt || task.createdAt || now,
     completedAt: task.completedAt || (status === 'done' ? (task.updatedAt || now) : null),
     archivedAt: task.archivedAt || null,
+    // task detail fields — all optional, only written when the user sets them,
+    // so existing tasks stay clean and untouched.
+    location: task.location || null,
+    color: task.color || null,
+    note: task.note || null,
+    // manual drag-to-reorder position; only present once the user has dragged.
+    // Kept optional so untouched tasks stay clean and fall back to auto-sort.
+    ...(typeof task.manualOrder === 'number' ? { manualOrder: task.manualOrder } : {}),
   };
 }
 
@@ -503,6 +521,10 @@ function buildTasks() {
     project: task.project,
     urgency: task.urgency || 0,
     importance: task.importance || 0,
+    manualOrder: task.manualOrder,
+    location: task.location || null,
+    color: task.color || null,
+    note: task.note || null,
     source: task.source,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
@@ -545,11 +567,40 @@ function buildPlanning() {
   };
 }
 
+// Read the people relationship edges (people/.connections.json). Undirected:
+// each [a, b] means a knows b. Returns { edges: [[a,b],...] }. Fault-tolerant.
+function readPeopleConnections() {
+  try {
+    const f = path.join(LOCI_ROOT, 'people', '.connections.json');
+    if (!fs.existsSync(f)) return { edges: [] };
+    const parsed = JSON.parse(fs.readFileSync(f, 'utf-8'));
+    // each edge: [a, b] or [a, b, "how they know each other"]
+    const edges = Array.isArray(parsed.edges) ? parsed.edges.filter(e => Array.isArray(e) && e.length >= 2) : [];
+    return { edges };
+  } catch { return { edges: [] }; }
+}
+
 function buildPeople() {
   const peopleDir = path.join(LOCI_ROOT, 'people');
+  const contacts = scanMdFiles(peopleDir);
+  const { edges } = readPeopleConnections();
+  // attach a `connections` list (other people's names) to each contact's meta,
+  // so the relationship-graph view can draw person↔person links.
+  const byName = new Map();
+  for (const c of contacts) {
+    const nm = (c.meta && c.meta.name) ? String(c.meta.name) : null;
+    if (nm) byName.set(nm, c);
+    if (c.meta) c.meta.connections = [];
+  }
+  for (const [a, b] of edges) {
+    const ca = byName.get(a), cb = byName.get(b);
+    if (ca && ca.meta && !ca.meta.connections.includes(b)) ca.meta.connections.push(b);
+    if (cb && cb.meta && !cb.meta.connections.includes(a)) cb.meta.connections.push(a);
+  }
   return {
-    contacts: scanMdFiles(peopleDir),
+    contacts,
     meetings: scanMdFiles(path.join(peopleDir, 'meetings')),
+    connections: edges,
   };
 }
 
@@ -776,6 +827,57 @@ function readProjectMemory(repoPath) {
   }
 }
 
+// Read a connected project's OWN decision stream (<repo>/.loci/decisions/*.md).
+// The decision files are named YYYY-MM-DD-slug.md and start with "# Title".
+// Fully fault-tolerant: no dir / unreadable → []. Returns newest-first
+// [{ title, date }], capped at `limit`.
+function readProjectDecisions(repoPath, limit = 5) {
+  try {
+    const decDir = path.join(repoPath, '.loci', 'decisions');
+    if (!fs.existsSync(decDir)) return [];
+    const files = fs.readdirSync(decDir)
+      .filter(f => f.endsWith('.md'))
+      .sort()
+      .reverse()
+      .slice(0, limit);
+    return files.map(f => {
+      const dateMatch = f.match(/(\d{4})-(\d{2})-(\d{2})/);
+      const date = dateMatch ? `${dateMatch[2]}-${dateMatch[3]}` : '';
+      let title = f.replace(/\.md$/, '');
+      try {
+        const head = fs.readFileSync(path.join(decDir, f), 'utf-8').split('\n');
+        const h1 = head.find(l => /^#\s+/.test(l));
+        if (h1) title = h1.replace(/^#\s+/, '').trim();
+      } catch {}
+      return { title, date };
+    });
+  } catch {
+    return [];
+  }
+}
+
+// Read a connected project's recent git commits via `git log`. Fully
+// fault-tolerant: not a git repo / git missing / timeout → []. Returns
+// [{ sha, msg, rel }] newest-first, capped at `limit`.
+function readProjectGitLog(repoPath, limit = 4) {
+  try {
+    const { execFileSync } = require('child_process');
+    const SEP = '|::|';   // unlikely to appear in a commit subject
+    const out = execFileSync(
+      'git',
+      ['-C', repoPath, 'log', `-${limit}`, '--no-merges', `--pretty=format:%h${SEP}%s${SEP}%cr`],
+      { encoding: 'utf-8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore'] }
+    );
+    return out.split('\n').filter(Boolean).map(line => {
+      const [sha, msg, rel] = line.split(SEP);
+      return { sha: sha || '', msg: msg || '', rel: rel || '' };
+    });
+  } catch {
+    return [];
+  }
+}
+
+
 // projects/index.md = light index of serious projects (one `## name` block each).
 // projects/side.md  = embryos under `## Incubating` / `## Archive` (one `### name` each).
 // The brain only aggregates: full project memory lives in each repo's .loci/.
@@ -816,6 +918,10 @@ function buildProjects() {
         // brain only indexes — so read it on demand here for the detail panel.
         memory: repoPath ? readProjectMemory(repoPath) : null,
         todos: repoPath ? readProjectTodos(repoPath) : [],
+        // The project's own decision stream + recent git commits (both fault-
+        // tolerant; absent -> empty arrays, never breaks the page).
+        decisions: repoPath ? readProjectDecisions(repoPath) : [],
+        commits: repoPath ? readProjectGitLog(repoPath) : [],
       });
     }
   }
@@ -1128,8 +1234,214 @@ function handleTaskMove(body) {
   return { ok: true, task: target, to };
 }
 
+// Open a connected project's folder in the OS file manager (macOS Finder via
+// `open`, Linux `xdg-open`, Windows `explorer`). SECURITY: only opens a path
+// that is actually a connected project's repo (verified against projects/index.md)
+// — never an arbitrary path from the request. Never throws to the client.
+function handleProjectOpen(body) {
+  const { repo } = body || {};
+  if (!repo || typeof repo !== 'string') return { error: 'Missing repo path' };
+  // verify this repo belongs to a connected project
+  const known = buildProjects().serious.some(p => p.repo && p.repo === repo);
+  if (!known) return { error: 'Unknown project repo' };
+  if (!fs.existsSync(repo)) return { error: 'Folder not found on disk' };
+  try {
+    const { execFileSync } = require('child_process');
+    const opener = process.platform === 'darwin' ? 'open'
+      : process.platform === 'win32' ? 'explorer' : 'xdg-open';
+    execFileSync(opener, [repo], { timeout: 3000, stdio: 'ignore' });
+    return { ok: true, opened: repo };
+  } catch (e) {
+    return { error: 'Could not open folder' };
+  }
+}
+
+// Disconnect a project from the brain: remove its `## name` block from
+// projects/index.md. This ONLY removes the brain's index entry — it never
+// touches the project's own files or repo on disk. Safe by design.
+function handleProjectDisconnect(body) {
+  const { name } = body || {};
+  if (!name || typeof name !== 'string') return { error: 'Missing project name' };
+  try {
+    const indexFile = path.join(LOCI_ROOT, 'projects', 'index.md');
+    if (!fs.existsSync(indexFile)) return { error: 'index.md not found' };
+    const raw = fs.readFileSync(indexFile, 'utf-8');
+    // Split into the leading section + per-project "## " blocks; drop the match.
+    const lines = raw.split('\n');
+    const out = [];
+    let skipping = false;
+    let removed = false;
+    for (const line of lines) {
+      const head = line.match(/^##\s+(.+?)(?:\s*<!--.*-->)?\s*$/);
+      if (head) {
+        const blockName = head[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+        skipping = (blockName === name.trim());
+        if (skipping) { removed = true; continue; }
+      }
+      if (!skipping) out.push(line);
+    }
+    if (!removed) return { error: 'Project not found in index' };
+    fs.writeFileSync(indexFile, out.join('\n'));
+    return { ok: true, disconnected: name };
+  } catch (e) {
+    return { error: 'Could not update index: ' + e.message };
+  }
+}
+
+// Add/remove an undirected people relationship edge in people/.connections.json.
+// `op` is 'connect' or 'disconnect'. Validates both names exist as people.
+function handlePeopleEdge(op, body) {
+  const { a, b } = body || {};
+  const how = body && body.how ? String(body.how).trim() : '';
+  if (!a || !b || a === b) return { error: 'Need two distinct people' };
+  // verify both are real people
+  const names = new Set(scanMdFiles(path.join(LOCI_ROOT, 'people'))
+    .map(c => c.meta && c.meta.name).filter(Boolean).map(String));
+  if (!names.has(a) || !names.has(b)) return { error: 'Unknown person' };
+  const f = path.join(LOCI_ROOT, 'people', '.connections.json');
+  let data = { edges: [] };
+  try { if (fs.existsSync(f)) data = JSON.parse(fs.readFileSync(f, 'utf-8')); } catch {}
+  if (!Array.isArray(data.edges)) data.edges = [];
+  const same = (e, x, y) => (e[0] === x && e[1] === y) || (e[0] === y && e[1] === x);
+  if (op === 'connect') {
+    const existing = data.edges.find(e => same(e, a, b));
+    if (existing) { if (how) existing[2] = how; }              // update label if given
+    else data.edges.push(how ? [a, b, how] : [a, b]);
+  } else {
+    data.edges = data.edges.filter(e => !same(e, a, b));
+  }
+  try {
+    if (!data._comment) data._comment = '人物关系边（无向）。dashboard 关系图读写这个文件。';
+    fs.writeFileSync(f, JSON.stringify(data, null, 2) + '\n');
+  } catch (e) { return { error: 'Could not write connections' }; }
+  return { ok: true, op, a, b, count: data.edges.length };
+}
+
+// The person fields the dashboard can write to frontmatter, in display order.
+// (Free-text "note" goes in the body, not frontmatter.)
+const PERSON_FIELDS = ['name', 'relation', 'gender', 'photo', 'title', 'org', 'industry', 'location', 'age',
+  'met_date', 'met_place', 'met_how', 'last_contact', 'frequency', 'strength',
+  'phone', 'email', 'wechat', 'twitter', 'linkedin',
+  'nickname', 'birthday', 'zodiac', 'mbti', 'blood', 'hobby', 'hometown', 'school', 'major'];
+
+// Build a YAML frontmatter + body markdown string from a person object.
+function personToMd(p) {
+  const lines = ['---'];
+  for (const k of PERSON_FIELDS) {
+    const v = p[k];
+    if (v === undefined || v === null || v === '') continue;
+    if (k === 'tags') continue;
+    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
+  }
+  const tags = Array.isArray(p.tags) ? p.tags.map(t => String(t).trim()).filter(Boolean) : [];
+  if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
+  const reminders = Array.isArray(p.reminders) ? p.reminders.map(r => String(r).trim()).filter(Boolean) : [];
+  if (reminders.length) lines.push('reminders: [' + reminders.map(r => JSON.stringify(r)).join(', ') + ']');
+  lines.push('---', '');
+  lines.push((p.note ? String(p.note).trim() : '') + '\n');
+  return lines.join('\n');
+}
+
+// Save an uploaded avatar (base64 data URL) to people/avatars/<slug>.<ext> and
+// return its web path (/people-avatars-user/<file>) for the person's `photo` field.
+function handleAvatarUpload(body) {
+  const name = body && body.name ? String(body.name).trim() : '';
+  const dataUrl = body && body.data ? String(body.data) : '';
+  if (!name || !dataUrl) return { error: 'Need name and image data' };
+  const m = dataUrl.match(/^data:image\/(png|jpe?g|webp|gif);base64,(.+)$/i);
+  if (!m) return { error: 'Unsupported image data' };
+  const ext = m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase();
+  const buf = Buffer.from(m[2], 'base64');
+  if (buf.length > 3 * 1024 * 1024) return { error: 'Image too large (max 3MB)' };
+  let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('p' + Date.now());
+  const dir = path.join(LOCI_ROOT, 'people', 'avatars');
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, slug + '.' + ext);
+    fs.writeFileSync(file, buf);
+    return { ok: true, photo: '/people-avatars-user/' + slug + '.' + ext };
+  } catch (e) { return { error: 'Could not save image' }; }
+}
+
+// Create a new person: writes people/<slug>.md. Name required; everything else
+// optional. Refuses if a person with that name already exists.
+function handlePersonAdd(body) {
+  const name = body && body.name ? String(body.name).trim() : '';
+  if (!name) return { error: 'Need a name' };
+  const peopleDir = path.join(LOCI_ROOT, 'people');
+  const existing = scanMdFiles(peopleDir).map(c => c.meta && c.meta.name).filter(Boolean).map(String);
+  if (existing.includes(name)) return { error: 'Person already exists' };
+  let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!slug) slug = 'person-' + Date.now();
+  let file = path.join(peopleDir, slug + '.md');
+  let n = 2;
+  while (fs.existsSync(file)) { file = path.join(peopleDir, slug + '-' + n + '.md'); n++; }
+  // collect known fields from the request; default last_contact to today
+  const p = { name };
+  for (const k of PERSON_FIELDS) { if (k !== 'name' && body[k] != null && body[k] !== '') p[k] = String(body[k]).trim(); }
+  if (Array.isArray(body.tags)) p.tags = body.tags;
+  if (Array.isArray(body.reminders)) p.reminders = body.reminders;
+  if (body.note) p.note = body.note;
+  if (!p.last_contact) p.last_contact = isoNow().slice(0, 10);
+  try {
+    if (!fs.existsSync(peopleDir)) fs.mkdirSync(peopleDir, { recursive: true });
+    fs.writeFileSync(file, personToMd(p));
+  } catch (e) { return { error: 'Could not create person file' }; }
+  return { ok: true, name, file: path.basename(file) };
+}
+
+// Update an existing person: finds their .md by current name, merges the given
+// fields into its frontmatter, rewrites the file. Renaming is allowed (name field).
+function handlePersonUpdate(body) {
+  const orig = body && body.origName ? String(body.origName).trim() : (body && body.name ? String(body.name).trim() : '');
+  if (!orig) return { error: 'Need the person to update' };
+  const peopleDir = path.join(LOCI_ROOT, 'people');
+  const contacts = scanMdFiles(peopleDir);
+  const target = contacts.find(c => c.meta && String(c.meta.name) === orig);
+  if (!target) return { error: 'Person not found' };
+  // merge: start from existing meta, overlay incoming fields
+  const p = {};
+  for (const k of PERSON_FIELDS) { const v = target.meta && target.meta[k]; if (v != null && v !== '') p[k] = v; }
+  if (target.meta && Array.isArray(target.meta.tags)) p.tags = target.meta.tags;
+  if (target.meta && Array.isArray(target.meta.reminders)) p.reminders = target.meta.reminders;
+  // preserve the existing body text (note) by reading the raw file
+  try {
+    const raw = fs.readFileSync(path.join(peopleDir, target.filename), 'utf-8');
+    const m = raw.match(/^---[\s\S]*?---\s*([\s\S]*)$/);
+    if (m && m[1].trim()) p.note = m[1].trim();
+  } catch {}
+  for (const k of PERSON_FIELDS) { if (body[k] !== undefined) p[k] = body[k] === null ? '' : String(body[k]).trim(); }
+  if (body.tags !== undefined) p.tags = Array.isArray(body.tags) ? body.tags : [];
+  if (body.reminders !== undefined) p.reminders = Array.isArray(body.reminders) ? body.reminders : [];
+  if (body.note !== undefined) p.note = body.note;
+  p.name = p.name || orig;
+  const file = path.join(peopleDir, target.filename);
+  try { fs.writeFileSync(file, personToMd(p)); }
+  catch (e) { return { error: 'Could not save person' }; }
+  return { ok: true, name: p.name, file: target.filename };
+}
+
+// Persist a manual task order. `order` is an array of task ids in the desired
+// top-to-bottom sequence; each listed task gets manualOrder = its index. Tasks
+// not in the list keep whatever they had (e.g. the done group is untouched).
+function handleTaskReorder(body) {
+  const { order } = body;
+  if (!Array.isArray(order) || order.length === 0) return { error: 'Missing order array' };
+  const tasks = loadTaskRecords();
+  const byId = new Map(tasks.map(t => [t.id, t]));
+  let changed = 0;
+  order.forEach((id, i) => {
+    const t = byId.get(id);
+    if (t) { t.manualOrder = i; t.updatedAt = isoNow(); changed++; }
+  });
+  if (!changed) return { error: 'No matching tasks for given order' };
+  saveTaskRecords(tasks);
+  return { ok: true, reordered: changed };
+}
+
 function handleTaskAdd(body) {
-  const { text, title, date, endDate, startTime, endTime, project, source } = body;
+  const { text, title, date, endDate, startTime, endTime, project, source,
+          location, color, note, urgency, importance } = body;
   const taskTitle = (title || text || '').trim();
   if (!taskTitle) return { error: 'Missing task text' };
 
@@ -1143,10 +1455,41 @@ function handleTaskAdd(body) {
     endTime: endTime || null,
     project: project || null,
     source: source || 'dashboard',
+    location: location || null,
+    color: color || null,
+    note: note || null,
+    urgency: urgency,
+    importance: importance,
   });
   tasks.push(task);
   saveTaskRecords(tasks);
   return { ok: true, task };
+}
+
+// Edit detail fields of an existing task (location / color / note / urgency /
+// importance / date / time). Only provided fields are changed; the rest stay.
+function handleTaskUpdateDetail(body) {
+  const { id, title, location, color, note, urgency, importance,
+          date, endDate, startTime, endTime } = body;
+  if (!id) return { error: 'Missing task id' };
+  const tasks = loadTaskRecords();
+  const target = tasks.find(t => t.id === id);
+  if (!target) return { error: 'Task not found' };
+
+  // title is only changed when a non-empty value is sent (never blanked out)
+  if (title !== undefined && String(title).trim()) target.title = String(title).trim();
+  if (location !== undefined)  target.location  = location || null;
+  if (color !== undefined)     target.color     = color || null;
+  if (note !== undefined)      target.note      = note || null;
+  if (urgency !== undefined)   target.urgency   = clampLevel(urgency);
+  if (importance !== undefined) target.importance = clampLevel(importance);
+  if (date !== undefined)      target.date      = date || null;
+  if (endDate !== undefined)   target.endDate   = endDate || null;
+  if (startTime !== undefined) target.startTime = startTime || null;
+  if (endTime !== undefined)   target.endTime   = endTime || null;
+  target.updatedAt = isoNow();
+  saveTaskRecords(tasks);
+  return { ok: true, task: target };
 }
 
 function handleJournalSave(body) {
@@ -1214,6 +1557,7 @@ function handlePlanSave(body) {
   const { type, key, items } = body;
   if (!type || !key || !items) return { error: 'Missing type, key, or items' };
   if (!['week', 'month'].includes(type)) return { error: 'Invalid type' };
+  if (!isSafeSegment(key)) return { error: 'Invalid key' };
 
   const dir = path.join(LOCI_ROOT, 'tasks', 'plans', type);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -1226,6 +1570,8 @@ function handlePlanSave(body) {
 function handlePlanLoad(body) {
   const { type, key } = body;
   if (!type || !key) return { error: 'Missing type or key' };
+  if (!['week', 'month'].includes(type)) return { error: 'Invalid type' };
+  if (!isSafeSegment(key)) return { error: 'Invalid key' };
 
   const filePath = path.join(LOCI_ROOT, 'tasks', 'plans', type, `${key}.json`);
   if (!fs.existsSync(filePath)) return { ok: true, items: null };
@@ -1376,15 +1722,18 @@ function handleReferenceAdd(body) {
 function handleReferenceRemove(body) {
   const { file } = body;
   if (!file) return { error: 'Missing file' };
+  if (!isSafeSegment(file)) return { error: 'Invalid file' };
 
   const filePath = path.join(LOCI_ROOT, 'references', file);
   if (!fs.existsSync(filePath)) return { error: 'File not found: ' + file };
 
   // Move to archive instead of deleting
-  const archiveDir = path.join(LOCI_ROOT, 'archive', 'references');
-  if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
-  fs.renameSync(filePath, path.join(archiveDir, path.basename(file)));
-  return { ok: true, file };
+  try {
+    const archiveDir = path.join(LOCI_ROOT, 'archive', 'references');
+    if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
+    fs.renameSync(filePath, path.join(archiveDir, path.basename(file)));
+    return { ok: true, file };
+  } catch (e) { return { error: 'Could not archive file' }; }
 }
 
 function handleCalendarAdd(body) {
@@ -1628,6 +1977,80 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+
+  // People relationship edges: connect / disconnect two people.
+  {
+    const m = pathname.match(/^\/api\/people\/(connect|disconnect)$/);
+    if (m && req.method === 'POST') {
+      try {
+        const body = await parseJsonBody(req);
+        const result = handlePeopleEdge(m[1], body);
+        if (result.error) sendError(res, result.error);
+        else sendJson(res, result);
+      } catch (e) { sendError(res, e.message, 500); }
+      return;
+    }
+  }
+
+  // Add a new person (creates people/<slug>.md).
+  if (pathname === '/api/people/add' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePersonAdd(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Update an existing person (rewrites their people/<slug>.md).
+  if (pathname === '/api/people/update' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePersonUpdate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Upload an avatar image (base64) → saves to people/avatars/, returns its path.
+  if (pathname === '/api/people/avatar' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleAvatarUpload(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Open a connected project's folder in Finder/Explorer (local machine only).
+  if (pathname === '/api/project/open' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProjectOpen(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  // Disconnect a project (remove its index entry; never touches repo files).
+  if (pathname === '/api/project/disconnect' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProjectDisconnect(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   if (pathname === '/api/tasks/move' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -1658,10 +2081,40 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (pathname === '/api/tasks/reorder' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleTaskReorder(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   if (pathname === '/api/tasks/add' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
       const result = handleTaskAdd(body);
+      if (result.error) {
+        sendError(res, result.error);
+      } else {
+        sendJson(res, result);
+      }
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  if (pathname === '/api/tasks/update-detail' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleTaskUpdateDetail(body);
       if (result.error) {
         sendError(res, result.error);
       } else {
@@ -1871,6 +2324,16 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       sendError(res, e.message, 500);
     }
+    return;
+  }
+
+  // Serve user-uploaded avatars from people/avatars/ (outside SCRIPT_DIR).
+  if (pathname.startsWith('/people-avatars-user/')) {
+    const fname = path.basename(decodeURIComponent(pathname.slice('/people-avatars-user/'.length)));
+    const avPath = path.join(LOCI_ROOT, 'people', 'avatars', fname);
+    if (path.resolve(avPath).startsWith(path.resolve(path.join(LOCI_ROOT, 'people', 'avatars'))) && fs.existsSync(avPath)) {
+      serveStaticFile(res, avPath);
+    } else { sendError(res, 'Not found', 404); }
     return;
   }
 
