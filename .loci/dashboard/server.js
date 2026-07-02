@@ -719,6 +719,73 @@ function buildReferences() {
   return { files, total: files.length };
 }
 
+// ── Mounted folder sources ─────────────────────────────────────────────
+// Loci can "mount" any folder of markdown (e.g. an Obsidian vault, a docs/ dir)
+// as a note source. It aggregates, it does not own: the folder stays where it is,
+// its files are scanned live each request, and only a small mount record is kept
+// in notes/.sources.json — never the file bodies. Record shape:
+//   { id, name, path, type, recursive }
+function sourcesFile() { return path.join(LOCI_ROOT, 'notes', '.sources.json'); }
+
+function readFolderSources() {
+  try {
+    const f = sourcesFile();
+    if (!fs.existsSync(f)) return [];
+    const arr = JSON.parse(fs.readFileSync(f, 'utf-8'));
+    if (!Array.isArray(arr)) return [];
+    return arr.filter(s => s && s.path && s.id).map(s => ({
+      id: String(s.id),
+      name: String(s.name || path.basename(s.path)),
+      path: String(s.path),
+      type: String(s.type || 'folder'),
+      recursive: s.recursive !== false,   // default: recurse into subfolders
+    }));
+  } catch { return []; }
+}
+
+function writeFolderSources(list) {
+  fs.mkdirSync(path.join(LOCI_ROOT, 'notes'), { recursive: true });
+  fs.writeFileSync(sourcesFile(), JSON.stringify(list, null, 2), 'utf-8');
+}
+
+// Scan one mounted folder for .md files and return them shaped like note files,
+// each carrying its absolute path (so the frontend makes it editable) and the
+// owning source id/name (so the left rail can group by source). Live read; a big
+// vault is capped so the dashboard never stalls.
+function scanFolderSource(src, cap = 500) {
+  let root = src.path;
+  if (root.startsWith('~/')) root = path.join(require('os').homedir(), root.slice(2));
+  if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
+    return { missing: true, files: [] };
+  }
+  const out = [];
+  const walk = (dir, depth) => {
+    if (out.length >= cap) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const ent of entries) {
+      if (out.length >= cap) return;
+      if (ent.name.startsWith('.')) continue;            // skip .obsidian, .git, etc.
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        if (src.recursive && depth < 6) walk(full, depth + 1);
+      } else if (/\.md$/i.test(ent.name) && ent.name !== 'README.md') {
+        const parsed = readMdFileSimple(full);
+        if (parsed) {
+          out.push({
+            filename: full,                               // absolute path = write target
+            sourceId: src.id, sourceName: src.name, sourceType: src.type,
+            rel: path.relative(root, full),
+            content: parsed.content || '', meta: parsed.meta || {},
+          });
+        }
+      }
+    }
+  };
+  walk(root, 0);
+  return { missing: false, files: out, capped: out.length >= cap };
+}
+
 // notes/ = the user's OWN notes (creation drafts, talk scripts, learning notes,
 // inline notes). notes/index.md is a one-line pointer index. Like references/,
 // this is L2 — shown on its own dashboard page, read-only here.
@@ -740,15 +807,48 @@ function buildNotes() {
   for (const rawLine of indexRaw.split('\n')) {
     const line = rawLine.trim();
     if (!line.startsWith('- ')) continue;
-    const m = line.match(/^-\s+\*\*(.+?)\*\*\s*·\s*(\S+)\s*·\s*(.+?)\s*·\s*(#.+)$/);
-    if (m) {
-      pointers.push({
-        title: m[1].trim(),
-        link: m[2].trim(),
-        gist: m[3].trim(),
-        tags: m[4].split(/\s+/).map(t => t.replace(/^#/, '')).filter(Boolean),
-      });
+    // Accept both bold (`- **title** · …`) and plain (`- title · …`) index rows.
+    // Link uses .+? (not \S+) so paths containing spaces (e.g. "Obsidian Vault") match.
+    const m = line.match(/^-\s+(?:\*\*(.+?)\*\*|(.+?))\s*·\s*(.+?)\s*·\s*(.+?)\s*·\s*(#.+)$/);
+    if (!m) continue;
+    const title = (m[1] || m[2] || '').trim();
+    const link = m[3].trim();
+    // Only rows whose link is an ABSOLUTE path or a URL are real *external*
+    // pointers (Obsidian vault file / Feishu / Notion). Rows pointing at
+    // `notes/xxx.md` are just internal index lines for inline notes — skip
+    // them here so they don't show up twice.
+    const isExternal = /^(https?:\/\/|obsidian:\/\/|\/)/.test(link) || /^~\//.test(link);
+    if (!isExternal) continue;
+    let source = 'external';
+    if (/^https?:\/\/(.*\.)?(feishu|larksuite)\./.test(link)) source = 'feishu';
+    else if (/^https?:\/\/(.*\.)?notion\./.test(link)) source = 'notion';
+    else if (/^obsidian:\/\//.test(link) || /\.md$/i.test(link)) source = 'obsidian';
+    else if (/^https?:\/\//.test(link)) source = 'link';
+
+    const ptr = {
+      title,
+      link,
+      source,
+      gist: m[4].trim(),
+      tags: m[5].split(/\s+/).map(t => t.replace(/^#/, '')).filter(Boolean),
+    };
+    // A local markdown file (e.g. an Obsidian note) IS markdown — Loci can render
+    // its body inline, read fresh from disk each request. This does NOT copy or
+    // own the note: nothing is stored, edits happen only in the source app, and a
+    // refresh here re-reads the current file. "Readable, not owned."
+    let localPath = link;
+    if (localPath.startsWith('~/')) localPath = path.join(require('os').homedir(), localPath.slice(2));
+    if (path.isAbsolute(localPath) && /\.md$/i.test(localPath)) {
+      const parsed = readMdFileSimple(localPath);   // null if missing/unreadable
+      if (parsed) {
+        ptr.content = parsed.content || '';
+        ptr.meta = parsed.meta || {};
+        ptr.missing = false;
+      } else {
+        ptr.missing = true;   // file moved/deleted → show a friendly notice
+      }
     }
+    pointers.push(ptr);
   }
 
   const files = scanMdFilesRecursive(notesDir).filter(f => f.filename !== 'index.md');
@@ -769,7 +869,316 @@ function buildNotes() {
     }
   } catch (e) { /* ignore malformed category file */ }
 
-  return { index: indexFile, pointers, files, customCategories, total: files.length };
+  // Mounted folders (Obsidian vaults, docs dirs, …): scan each live and expose
+  // both the flattened note files and the source records for the left-rail nav.
+  const folderSources = readFolderSources();
+  const folderNotes = [];
+  const sourceStates = [];
+  for (const src of folderSources) {
+    const scan = scanFolderSource(src);
+    sourceStates.push({
+      id: src.id, name: src.name, path: src.path, type: src.type,
+      recursive: src.recursive, missing: !!scan.missing,
+      count: scan.files.length, capped: !!scan.capped,
+    });
+    for (const f of scan.files) folderNotes.push(f);
+  }
+
+  return {
+    index: indexFile, pointers, files, folderNotes, sources: sourceStates,
+    customCategories, total: files.length + folderNotes.length,
+  };
+}
+
+// ---- Note editing. Two kinds of markdown files are editable, because they are
+// the same thing underneath — plain .md on disk:
+//   1. inline notes  → notes/<filename>.md      (identified by a bare filename)
+//   2. local externals → e.g. an Obsidian vault  (identified by an absolute path)
+// Only *web* links (Feishu/Notion URLs) stay read-only, since there is no local
+// file to write. "Same as ours underneath → editable the same way."
+
+// Roots outside the brain that Loci is allowed to write .md files into. Editing an
+// absolute path is permitted only if it resolves inside one of these — a guard
+// against path traversal writing arbitrary system files.
+function noteWriteRoots() {
+  const home = require('os').homedir();
+  return [
+    path.join(home, 'Documents'),   // Obsidian's default vault location
+    path.join(home, 'Desktop'),
+    path.join(home, 'Obsidian'),
+    path.join(home, 'vaults'),
+  ];
+}
+
+// Resolve a note identifier to a concrete, writable absolute path.
+// Returns { file, id, external } or { error }.
+//   - bare filename (no slash) → notes/<filename>.md (inline)
+//   - absolute path .md within an allowed root → that file (external, editable)
+function resolveNotePath(ident) {
+  let s = String(ident || '').trim();
+  if (!s) return { error: 'Bad filename' };
+  if (s.startsWith('~/')) s = path.join(require('os').homedir(), s.slice(2));
+
+  if (path.isAbsolute(s)) {
+    if (!/\.md$/i.test(s)) return { error: 'Not a markdown file' };
+    const real = path.resolve(s);
+    const ok = noteWriteRoots().some(root => real === root || real.startsWith(root + path.sep));
+    if (!ok) return { error: '这个位置不允许编辑' };
+    return { file: real, id: real, external: true };
+  }
+  // otherwise treat as an inline note filename
+  if (!isSafeSegment(s)) return { error: 'Bad filename' };
+  if (!s.endsWith('.md')) return { error: 'Not a markdown file' };
+  return { file: path.join(LOCI_ROOT, 'notes', s), id: s, external: false };
+}
+
+// Return the raw markdown of a note (inline or local-external) for the editor.
+function handleNoteRaw(query) {
+  const r = resolveNotePath(query && query.file);
+  if (r.error) return { error: r.error };
+  if (!fs.existsSync(r.file)) return { error: 'Note not found' };
+  try {
+    return { ok: true, filename: r.id, external: r.external, md: fs.readFileSync(r.file, 'utf-8') };
+  } catch (e) {
+    return { error: 'Could not read note' };
+  }
+}
+
+// Overwrite a note's markdown with the edited text (inline or local-external).
+function handleNoteSave(body) {
+  const { filename, md } = body || {};
+  if (typeof md !== 'string') return { error: 'Missing content' };
+  const r = resolveNotePath(filename);
+  if (r.error) return { error: r.error };
+  if (!fs.existsSync(r.file)) return { error: 'Note not found' };
+  try {
+    fs.writeFileSync(r.file, md, 'utf-8');
+    return { ok: true, filename: r.id };
+  } catch (e) {
+    return { error: 'Could not save note' };
+  }
+}
+
+// Serialize a props object into a YAML frontmatter block. tags → inline array;
+// values with YAML-special chars get JSON-quoted so they round-trip through
+// parseFrontmatter. Order: title, tags, date/created/updated first, then the rest.
+function propsToFrontmatter(props) {
+  const lines = ['---'];
+  const quote = v => {
+    const s = String(v);
+    return /[:#\[\]{}"']/.test(s) ? JSON.stringify(s) : s;
+  };
+  const emit = (k, v) => {
+    if (v == null || v === '') return;
+    if (Array.isArray(v)) {
+      lines.push(`${k}: [${v.map(x => quote(x)).join(', ')}]`);
+    } else {
+      lines.push(`${k}: ${quote(v)}`);
+    }
+  };
+  // preferred order for the common fields
+  const order = ['title', 'tags', 'created', 'date', 'updated', 'link'];
+  order.forEach(k => { if (k in props) emit(k, props[k]); });
+  // then any remaining custom fields, in their own order
+  Object.keys(props).forEach(k => { if (!order.includes(k)) emit(k, props[k]); });
+  lines.push('---');
+  return lines.join('\n');
+}
+
+// Update a note's frontmatter (title/tags/date/link/custom) WITHOUT touching the
+// body — reads the file, keeps the markdown body, rewrites only the YAML on top.
+function handleNoteProps(body) {
+  const { filename, props } = body || {};
+  if (!props || typeof props !== 'object') return { error: 'Missing props' };
+  const r = resolveNotePath(filename);
+  if (r.error) return { error: r.error };
+  if (!fs.existsSync(r.file)) return { error: 'Note not found' };
+  try {
+    const raw = fs.readFileSync(r.file, 'utf-8');
+    const [, mdBody] = parseFrontmatter(raw);   // keep the body verbatim
+    const next = { ...props };
+    next.updated = new Date().toISOString().slice(0, 10);   // stamp edits
+    const front = propsToFrontmatter(next);
+    fs.writeFileSync(r.file, front + '\n\n' + (mdBody || '') + '\n', 'utf-8');
+    return { ok: true, filename: r.id };
+  } catch (e) {
+    return { error: 'Could not save properties' };
+  }
+}
+
+// Create a new inline note (a fresh notes/<slug>.md) and return its filename.
+function handleNoteCreate(body) {
+  const title = (body && body.title ? String(body.title) : '').trim() || '新笔记';
+  // slugify: keep CJK + alnum, collapse the rest to '-'
+  let slug = title.toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60) || 'note';
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  try { fs.mkdirSync(notesDir, { recursive: true }); } catch (e) {}
+  // avoid clobbering an existing file
+  let filename = slug + '.md';
+  let n = 2;
+  while (fs.existsSync(path.join(notesDir, filename))) { filename = slug + '-' + n + '.md'; n++; }
+  if (!isSafeSegment(filename)) return { error: 'Bad title' };
+  const today = new Date().toISOString().slice(0, 10);
+  const md = `---\ntitle: ${title}\ntags: []\ncreated: ${today}\nupdated: ${today}\n---\n\n# ${title}\n\n`;
+  try {
+    fs.writeFileSync(path.join(notesDir, filename), md, 'utf-8');
+    return { ok: true, filename, md, title };
+  } catch (e) {
+    return { error: 'Could not create note' };
+  }
+}
+
+// Delete an inline note's .md file. Only removes notes/<filename>; never touches
+// external pointers. Guarded by isSafeSegment against path traversal.
+function handleNoteDelete(body) {
+  const { filename } = body || {};
+  if (!filename || !isSafeSegment(filename)) return { error: 'Bad filename' };
+  if (!filename.endsWith('.md')) return { error: 'Not a markdown file' };
+  const file = path.join(LOCI_ROOT, 'notes', filename);
+  if (!fs.existsSync(file)) return { error: 'Note not found' };
+  try {
+    fs.unlinkSync(file);
+    return { ok: true, filename };
+  } catch (e) {
+    return { error: 'Could not delete note' };
+  }
+}
+
+// Import an EXTERNAL note (e.g. an Obsidian vault file) as a pointer, WITHOUT
+// copying its body into the brain. Loci aggregates, it does not own: we read the
+// file only to auto-fill title/gist/tags, then append one index line to
+// notes/index.md whose link is the file's ABSOLUTE path. The original file is
+// never modified or moved. Accepts an absolute path or a URL.
+function handleNoteImport(body) {
+  let src = (body && (body.path || body.link) ? String(body.path || body.link) : '').trim();
+  if (!src) return { error: '缺少文件路径或链接' };
+  // expand a leading ~ to the user's home
+  if (src.startsWith('~/')) src = path.join(require('os').homedir(), src.slice(2));
+
+  const isUrl = /^(https?:\/\/|obsidian:\/\/)/.test(src);
+  let title = (body && body.title ? String(body.title).trim() : '');
+  let gist = (body && body.gist ? String(body.gist).trim() : '');
+  let tags = Array.isArray(body && body.tags) ? body.tags.map(String) : [];
+
+  if (!isUrl) {
+    // must be an absolute path to an existing readable file
+    if (!path.isAbsolute(src)) return { error: '请用绝对路径(以 / 开头)或链接' };
+    if (!fs.existsSync(src) || !fs.statSync(src).isFile()) return { error: '找不到这个文件' };
+    try {
+      const raw = fs.readFileSync(src, 'utf-8');
+      const [meta, mdBody] = parseFrontmatter(raw);
+      if (!title) {
+        title = (meta && meta.title) ||
+          ((mdBody.match(/^#\s+(.+)$/m) || [])[1]) ||
+          path.basename(src).replace(/\.md$/i, '');
+      }
+      if (!tags.length && meta && Array.isArray(meta.tags)) tags = meta.tags.map(String);
+      if (!gist) {
+        // first non-empty, non-heading line → one-line gist
+        const firstLine = (mdBody.split('\n')
+          .map(l => l.trim())
+          .find(l => l && !l.startsWith('#'))) || '';
+        gist = firstLine.replace(/[*_`]/g, '').slice(0, 60);
+      }
+    } catch (e) {
+      return { error: '读不了这个文件' };
+    }
+  }
+  title = title || '外部笔记';
+  gist = gist || '(外部笔记)';
+  const tagStr = (tags.length ? tags : ['笔记']).map(t => '#' + String(t).replace(/^#/, '')).join(' ');
+
+  // Append the pointer line to notes/index.md (create the file if missing).
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  const indexFile = path.join(notesDir, 'index.md');
+  try {
+    fs.mkdirSync(notesDir, { recursive: true });
+    let content = fs.existsSync(indexFile) ? fs.readFileSync(indexFile, 'utf-8') : '# Notes\n';
+    // avoid importing the same file twice
+    if (content.includes('· ' + src + ' ·')) {
+      return { error: '这个文件已经引入过了' };
+    }
+    const line = `- ${title} · ${src} · ${gist} · ${tagStr}`;
+    // Prefer to slot it under an "## 外部笔记" heading; create one if absent.
+    const heading = '## 外部笔记';
+    if (content.includes(heading)) {
+      content = content.replace(heading, heading + '\n\n' + line);
+    } else {
+      content = content.replace(/\s*$/, '') + `\n\n${heading}\n\n${line}\n`;
+    }
+    fs.writeFileSync(indexFile, content, 'utf-8');
+    return { ok: true, title, link: src, gist, tags };
+  } catch (e) {
+    return { error: '写入索引失败' };
+  }
+}
+
+// Pop a native folder picker (macOS) so the user can choose a folder to mount.
+function handleFolderBrowse() {
+  if (process.platform !== 'darwin') return { error: '文件夹选择目前只支持 macOS' };
+  try {
+    const { execFileSync } = require('child_process');
+    const script = 'POSIX path of (choose folder with prompt "选择要引入的笔记文件夹")';
+    const out = execFileSync('osascript', ['-e', script], { timeout: 120000, encoding: 'utf-8' }).trim();
+    if (!out) return { error: 'cancelled' };
+    return { ok: true, path: out.replace(/\/+$/, '') };
+  } catch (e) {
+    return { error: 'cancelled' };
+  }
+}
+
+// Mount a folder as a note source: record it in notes/.sources.json. Nothing in
+// the folder is copied or moved — Loci only remembers the path and scans it live.
+// If the folder contains a `.obsidian/` dir, it's tagged as an Obsidian vault.
+function handleSourceMount(body) {
+  let p = (body && body.path ? String(body.path) : '').trim();
+  if (!p) return { error: '缺少文件夹路径' };
+  if (p.startsWith('~/')) p = path.join(require('os').homedir(), p.slice(2));
+  if (!path.isAbsolute(p)) return { error: '请用绝对路径' };
+  p = p.replace(/\/+$/, '');
+  if (!fs.existsSync(p) || !fs.statSync(p).isDirectory()) return { error: '找不到这个文件夹' };
+
+  // Only allow mounting folders under the same write-roots we allow editing in,
+  // so a mounted note stays editable and we never index arbitrary system dirs.
+  const real = path.resolve(p);
+  const allowed = noteWriteRoots().some(root => real === root || real.startsWith(root + path.sep));
+  if (!allowed) return { error: '这个位置不允许引入(仅限个人文件夹)' };
+
+  const sources = readFolderSources();
+  if (sources.some(s => path.resolve(s.path) === real)) return { error: '这个文件夹已经引入过了' };
+
+  const isObsidian = fs.existsSync(path.join(p, '.obsidian'));
+  const name = (body && body.name ? String(body.name).trim() : '') || path.basename(p);
+  // stable-ish id without Date.now(): base on the path
+  const id = 'src-' + Buffer.from(real).toString('base64').replace(/[^a-z0-9]/gi, '').slice(-12).toLowerCase();
+  const record = { id, name, path: p, type: isObsidian ? 'obsidian' : 'folder', recursive: true };
+  sources.push(record);
+  try {
+    writeFolderSources(sources);
+    const scan = scanFolderSource(record);
+    return { ok: true, source: record, count: scan.files.length };
+  } catch (e) {
+    return { error: '保存挂载记录失败' };
+  }
+}
+
+// Unmount a folder source: remove its record from notes/.sources.json. This only
+// forgets the folder — it never deletes or touches the folder or its files.
+function handleSourceUnmount(body) {
+  const id = (body && body.id ? String(body.id) : '').trim();
+  if (!id) return { error: '缺少来源 id' };
+  const sources = readFolderSources();
+  const next = sources.filter(s => s.id !== id);
+  if (next.length === sources.length) return { error: '找不到这个来源' };
+  try {
+    writeFolderSources(next);
+    return { ok: true, id };
+  } catch (e) {
+    return { error: '移除失败' };
+  }
 }
 
 function buildLearning() {
@@ -877,7 +1286,6 @@ function readProjectGitLog(repoPath, limit = 4) {
   }
 }
 
-
 // projects/index.md = light index of serious projects (one `## name` block each).
 // projects/side.md  = embryos under `## Incubating` / `## Archive` (one `### name` each).
 // The brain only aggregates: full project memory lives in each repo's .loci/.
@@ -919,7 +1327,7 @@ function buildProjects() {
         memory: repoPath ? readProjectMemory(repoPath) : null,
         todos: repoPath ? readProjectTodos(repoPath) : [],
         // The project's own decision stream + recent git commits (both fault-
-        // tolerant; absent -> empty arrays, never breaks the page).
+        // tolerant; absent → empty arrays, never breaks the page).
         decisions: repoPath ? readProjectDecisions(repoPath) : [],
         commits: repoPath ? readProjectGitLog(repoPath) : [],
       });
@@ -1212,6 +1620,47 @@ function handleProjectTodo(action, body) {
   }
 }
 
+// Connect a project for real: invoke scripts/loci-project.js connect, which
+// creates <repo>/.loci/ (memory.md + todo.json + decisions/), injects the Loci
+// block into the repo's CLAUDE.md + AGENTS.md, adds .loci/ to .gitignore, and
+// writes the one-line entry into the brain's projects/index.md. Guarded/idempotent:
+// an existing memory.md is left untouched. From then on the dashboard reads/writes
+// this project's todos straight from its own .loci/todo.json.
+function projectScript() {
+  const c = path.join(LOCI_ROOT, 'scripts', 'loci-project.js');
+  return fs.existsSync(c) ? c : null;
+}
+
+function handleProjectConnect(body) {
+  const { name, repo, summary } = body || {};
+  if (!repo || !String(repo).trim()) return { error: 'Missing repo path' };
+  if (!name || !String(name).trim()) return { error: 'Missing project name' };
+  const script = projectScript();
+  if (!script) return { error: 'loci-project.js not found in this brain' };
+
+  // Expand a leading ~ so the picker/typed path resolves to a real directory.
+  let repoPath = String(repo).trim();
+  if (repoPath === '~' || repoPath.startsWith('~/')) {
+    repoPath = path.join(require('os').homedir(), repoPath.slice(1));
+  }
+  if (!fs.existsSync(repoPath) || !fs.statSync(repoPath).isDirectory()) {
+    return { error: 'Folder not found on disk: ' + repoPath };
+  }
+
+  const { execFileSync } = require('child_process');
+  const args = [script, 'connect', '--repo', repoPath, '--brain', LOCI_ROOT,
+    '--name', String(name).trim()];
+  if (summary && String(summary).trim()) args.push('--description', String(summary).trim());
+  try {
+    const out = execFileSync('node', args, { encoding: 'utf-8' });
+    const result = JSON.parse(out);
+    return { ok: true, ...result };
+  } catch (e) {
+    const stderr = e.stderr ? e.stderr.toString() : e.message;
+    return { error: stderr.trim() || 'connect failed' };
+  }
+}
+
 function handleTaskMove(body) {
   const { id, task, to } = body;
   if (!to) return { error: 'Missing target status' };
@@ -1253,6 +1702,30 @@ function handleProjectOpen(body) {
     return { ok: true, opened: repo };
   } catch (e) {
     return { error: 'Could not open folder' };
+  }
+}
+
+// Pop a native "choose folder" dialog and return the picked path. macOS only
+// (uses osascript). Local machine only — in the demo build demoFetch no-ops, so
+// this never runs there. Lets the connect-project form fill a repo path without
+// hand-typing it.
+function handleProjectBrowse() {
+  if (process.platform !== 'darwin') {
+    return { error: 'Folder picker only supported on macOS' };
+  }
+  try {
+    const { execFileSync } = require('child_process');
+    const script = 'POSIX path of (choose folder with prompt "选择项目仓库文件夹")';
+    const out = execFileSync('osascript', ['-e', script], {
+      timeout: 120000, encoding: 'utf-8'
+    }).trim();
+    if (!out) return { error: 'No folder chosen' };
+    // strip trailing slash for a clean repo path
+    const picked = out.replace(/\/+$/, '');
+    return { ok: true, path: picked };
+  } catch (e) {
+    // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
+    return { error: 'cancelled' };
   }
 }
 
@@ -1324,24 +1797,6 @@ const PERSON_FIELDS = ['name', 'relation', 'gender', 'photo', 'title', 'org', 'i
   'phone', 'email', 'wechat', 'twitter', 'linkedin',
   'nickname', 'birthday', 'zodiac', 'mbti', 'blood', 'hobby', 'hometown', 'school', 'major'];
 
-// Build a YAML frontmatter + body markdown string from a person object.
-function personToMd(p) {
-  const lines = ['---'];
-  for (const k of PERSON_FIELDS) {
-    const v = p[k];
-    if (v === undefined || v === null || v === '') continue;
-    if (k === 'tags') continue;
-    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
-  }
-  const tags = Array.isArray(p.tags) ? p.tags.map(t => String(t).trim()).filter(Boolean) : [];
-  if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
-  const reminders = Array.isArray(p.reminders) ? p.reminders.map(r => String(r).trim()).filter(Boolean) : [];
-  if (reminders.length) lines.push('reminders: [' + reminders.map(r => JSON.stringify(r)).join(', ') + ']');
-  lines.push('---', '');
-  lines.push((p.note ? String(p.note).trim() : '') + '\n');
-  return lines.join('\n');
-}
-
 // Save an uploaded avatar (base64 data URL) to people/avatars/<slug>.<ext> and
 // return its web path (/people-avatars-user/<file>) for the person's `photo` field.
 function handleAvatarUpload(body) {
@@ -1361,6 +1816,24 @@ function handleAvatarUpload(body) {
     fs.writeFileSync(file, buf);
     return { ok: true, photo: '/people-avatars-user/' + slug + '.' + ext };
   } catch (e) { return { error: 'Could not save image' }; }
+}
+
+// Build a YAML frontmatter + body markdown string from a person object.
+function personToMd(p) {
+  const lines = ['---'];
+  for (const k of PERSON_FIELDS) {
+    const v = p[k];
+    if (v === undefined || v === null || v === '') continue;
+    if (k === 'tags') continue;
+    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
+  }
+  const tags = Array.isArray(p.tags) ? p.tags.map(t => String(t).trim()).filter(Boolean) : [];
+  if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
+  const reminders = Array.isArray(p.reminders) ? p.reminders.map(r => String(r).trim()).filter(Boolean) : [];
+  if (reminders.length) lines.push('reminders: [' + reminders.map(r => JSON.stringify(r)).join(', ') + ']');
+  lines.push('---', '');
+  lines.push((p.note ? String(p.note).trim() : '') + '\n');
+  return lines.join('\n');
 }
 
 // Create a new person: writes people/<slug>.md. Name required; everything else
@@ -1977,7 +2450,6 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-
   // People relationship edges: connect / disconnect two people.
   {
     const m = pathname.match(/^\/api\/people\/(connect|disconnect)$/);
@@ -2025,11 +2497,36 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Connect a project for real — build its .loci/ + wire the brain index.
+  if (pathname === '/api/project/connect' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProjectConnect(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   // Open a connected project's folder in Finder/Explorer (local machine only).
   if (pathname === '/api/project/open' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
       const result = handleProjectOpen(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  // Pop a native folder picker; return the chosen path (macOS, local only).
+  if (pathname === '/api/project/browse' && req.method === 'POST') {
+    try {
+      const result = handleProjectBrowse();
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) {
@@ -2198,6 +2695,87 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       sendError(res, e.message, 500);
     }
+    return;
+  }
+
+  // Inline-note editing: load raw md, save edits, create a new note.
+  if (pathname === '/api/notes/raw' && req.method === 'GET') {
+    try {
+      const result = handleNoteRaw(Object.fromEntries(parsed.searchParams));
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/save' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteSave(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/props' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteProps(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/create' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteCreate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/delete' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteDelete(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/import' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteImport(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/folder-browse' && req.method === 'POST') {
+    try {
+      const result = handleFolderBrowse();
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/source/mount' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleSourceMount(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/source/unmount' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleSourceUnmount(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
     return;
   }
 

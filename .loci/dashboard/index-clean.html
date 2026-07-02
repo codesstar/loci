@@ -53,7 +53,7 @@
   <!-- Google Fonts: Clean theme — Inter (UI) + JetBrains Mono (data/labels) only -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Playfair+Display:wght@700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Local frontend runtime dependencies -->
   <script src="vendor/tailwindcss.js"></script>
@@ -1485,7 +1485,7 @@
     .rmC-app{
       --rmC-pad:24px;
       display:grid; grid-template-columns:264px 1fr; gap:20px;
-      max-width:1320px; margin:0; align-items:start;
+      max-width:none; width:100%; margin:0; align-items:start;
       font-family:var(--sans); color:var(--ink); letter-spacing:-.011em;
     }
     .rmC-app *{box-sizing:border-box;}
@@ -1503,28 +1503,39 @@
     }
     .rmC-rail-head{padding:4px 8px 14px;}
     .rmC-rail-title{font-size:17px;font-weight:650;letter-spacing:-.02em;margin-top:7px;}
-    .rmC-rail-list{display:flex;flex-direction:column;gap:4px;}
+    .rmC-rail-list{display:flex;flex-direction:column;gap:9px;}
+    /* Project card — C2 "app-icon" style: solid gradient initial-mark + bottom
+       progress line. Each project carries its own accent color (rmProjColor). */
     .rmC-proj{
-      position:relative; display:flex; align-items:center; gap:11px;
-      width:100%; text-align:left; padding:10px 12px 10px 14px; border-radius:12px;
-      transition:background .15s ease, transform .15s ease;
+      position:relative; display:block; width:100%; text-align:left;
+      padding:14px 15px 15px; border-radius:16px; overflow:hidden;
+      border:1px solid var(--line); background:var(--surface);
+      transition:transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s ease, border-color .18s ease;
     }
-    .rmC-proj:hover{background:var(--surface-2);}
-    .rmC-proj-bar{position:absolute;left:5px;top:14px;bottom:14px;width:3px;border-radius:999px;background:transparent;transition:background .15s ease;}
-    .rmC-proj--active{background:var(--surface-2);}
-    .rmC-proj--active .rmC-proj-bar{background:var(--accent);}
-    .rmC-proj--active .rmC-proj-name{color:var(--ink);}
-    .rmC-proj-arc{position:relative;flex:none;width:34px;height:34px;display:grid;place-items:center;}
-    .rmC-arc-bg{fill:none;stroke:var(--line);stroke-width:3;}
-    .rmC-arc-fg{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;}
-    .rmC-arc-pct{position:absolute;font-family:var(--mono);font-size:9px;font-weight:600;color:var(--ink-2);}
-    .rmC-proj-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
-    .rmC-proj-name{font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink-2);}
-    .rmC-proj-meta{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);}
-    .rmC-proj-count{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-3);flex:none;}
-    .rmC-proj--active .rmC-proj-count{color:var(--accent-ink);}
-    .rmC-proj-disc{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink-4);background:var(--surface);opacity:0;transition:all .12s;}
-    .rmC-proj{position:relative;}
+    .rmC-proj:hover{transform:translateY(-1px);box-shadow:0 6px 20px -8px rgba(20,20,18,.13);}
+    .rmC-proj-top{display:flex;align-items:center;gap:12px;}
+    .rmC-proj-mark{
+      position:relative;
+      flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+      font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em;
+      box-shadow:0 3px 8px -2px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.28);
+    }
+    /* Done badge: a small check corner on the mark — keeps the project's own color,
+       just flags completion instead of graying the whole card out. */
+    .rmC-proj-check{
+      position:absolute;right:-4px;bottom:-4px;width:16px;height:16px;border-radius:50%;
+      background:var(--surface);display:grid;place-items:center;font-size:9px;font-weight:800;
+      box-shadow:0 1px 3px rgba(20,20,18,.2);
+    }
+    .rmC-proj-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+    .rmC-proj-name{font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rmC-proj-meta{font-size:10.5px;color:var(--ink-4);font-family:var(--mono);letter-spacing:.02em;}
+    .rmC-proj-pct{flex:none;font-family:var(--mono);font-size:12px;font-weight:600;}
+    .rmC-proj-track{display:block;margin-top:12px;height:3px;border-radius:3px;background:var(--surface-3);overflow:hidden;}
+    .rmC-proj-fill{display:block;height:100%;border-radius:3px;transition:width .3s ease;}
+    /* Done projects: keep their color, just a touch quieter (not grayed out). */
+    .rmC-proj--done{opacity:.9;}
+    .rmC-proj-disc{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink-4);background:var(--surface);opacity:0;transition:all .12s;z-index:2;}
     .rmC-proj:hover .rmC-proj-disc{opacity:1;}
     .rmC-proj-disc:hover{background:#fdeaea;color:var(--p0);}
     .rmC-rail-foot{padding:14px 10px 4px;margin-top:8px;border-top:1px dashed var(--line);}
@@ -1544,6 +1555,11 @@
     .rmC-modal-input:focus{border-color:var(--accent);background:var(--surface);}
     .rmC-modal-input::placeholder{color:var(--ink-4);}
     .rmC-modal-mono{font-family:var(--mono);font-size:12.5px;}
+    .rmC-repo-row{display:flex;gap:8px;align-items:stretch;}
+    .rmC-repo-row .rmC-modal-input{flex:1;min-width:0;}
+    .rmC-browse-btn{flex:none;white-space:nowrap;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:0 13px;font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:border-color .15s,background .15s,color .15s;}
+    .rmC-browse-btn:hover{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-weak);}
+    .rmC-browse-btn:disabled{opacity:.5;cursor:default;}
     .rmC-modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;}
     .rmC-modal-btn{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:550;border:1px solid var(--line)!important;background:var(--surface);color:var(--ink-2);transition:all .15s;}
     .rmC-modal-btn:hover{background:var(--surface-2);color:var(--ink);}
@@ -1551,6 +1567,7 @@
     .rmC-modal-btn--primary:hover{background:#000;color:#fff;}
     .rmC-modal-btn--primary:disabled{opacity:.4;cursor:not-allowed;}
     .rmC-modal-hint{margin:14px 0 0;padding-top:13px;border-top:1px dashed var(--line);font-size:11.5px;line-height:1.55;color:var(--ink-3);}
+    .rmC-modal-err{margin:12px 0 0;font-size:12px;line-height:1.5;color:#c0392b;font-family:var(--mono);word-break:break-all;}
 
     /* ============ CANVAS ============ */
     .rmC-canvas{display:flex;flex-direction:column;gap:16px;min-width:0;}
@@ -1659,8 +1676,57 @@
     }
 
     /* ===== Roadmap · Focus v2 (board-hero command deck, polished) ===== */
-    .rmF-canvas{display:flex;flex-direction:column;gap:14px;min-width:0;}
+    .rmF-canvas{display:flex;flex-direction:column;gap:16px;min-width:0;}
     .rmF-canvas h2,.rmF-canvas h3{margin:0;}
+
+    /* ===== HERO (big project header) ===== */
+    .rmH{display:grid;grid-template-columns:minmax(0,1fr) auto;background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);}
+    /* slim variant: name + status only, no metric rail */
+    .rmH--slim{display:block;}
+    .rmH-main{display:grid;grid-template-columns:78px minmax(0,1fr);gap:22px;align-items:center;padding:26px 30px;}
+    .rmH-ring{position:relative;width:78px;height:78px;display:grid;place-items:center;}
+    .rmH-ring svg{position:absolute;inset:0;}
+    .rmH-pct{position:relative;z-index:1;font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink);}
+    .rmH-pct i{font-style:normal;font-size:11px;color:var(--ink-3);margin-left:1px;}
+    .rmH-body{min-width:0;}
+    .rmH-kicker{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent-ink);font-weight:700;}
+    .rmH-kdot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent);}
+    .rmH-name{margin:9px 0 0;font-size:29px;line-height:1.08;letter-spacing:-.04em;font-weight:750;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+    .rmH-pill{transform:translateY(-3px);padding:4px 11px;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+    .rmH-sum{margin-top:9px;color:var(--ink-3);font-size:13px;line-height:1.55;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+    .rmH-path{display:inline-flex;align-items:center;gap:8px;margin-top:13px;max-width:100%;overflow:hidden;padding:6px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink-3);font-family:var(--mono);font-size:11px;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
+    .rmH-path:hover{border-color:var(--accent-weak);color:var(--accent-ink);background:var(--proj-soft);}
+    .rmH-path-tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .rmH-path-act{flex:none;color:var(--accent-ink);font-weight:600;}
+    .rmH-metrics{display:grid;grid-template-columns:repeat(3,104px) 240px 78px;border-left:1px solid var(--line);background:#fcfcfa;}
+    .rmH-metric{display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:128px;padding:16px 18px;border-right:1px solid var(--line);}
+    .rmH-metric:last-child{border-right:0;}
+    .rmH-mk{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
+    .rmH-mv{font-size:18px;font-weight:800;color:var(--ink);}
+    .rmH-mv.good{color:#047857;}   /* WIP health: stays green */
+    .rmH-mv.warn{color:var(--orange-ink);}
+    .rmH-spark{height:24px;display:flex;align-items:flex-end;gap:3px;}
+    .rmH-spark i{width:4px;border-radius:4px 4px 0 0;background:var(--accent);}
+    .rmH-next{background:linear-gradient(135deg,var(--proj),color-mix(in srgb,var(--proj) 78%,#000));}
+    .rmH-next .rmH-mk{color:rgba(255,255,255,.82);}
+    .rmH-next .rmH-mv{color:#fff;font-size:13px;line-height:1.35;font-weight:700;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .rmH-repo{display:grid;place-items:center;gap:5px;color:var(--ink-2);font-weight:700;font-size:11px;text-decoration:none;transition:color .15s,background .15s;}
+    .rmH-repo:hover{color:var(--ink);background:var(--surface-2);}
+
+    /* ===== INFO ROW (project intro + file location) ===== */
+    .rmInfo{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;}
+    .rmInfo-card{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:16px 18px 16px 21px;box-shadow:var(--shadow-sm);text-align:left;}
+    .rmInfo-card::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:3px;border-radius:999px;background:var(--proj);}
+    .rmInfo-k{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700;}
+    .rmInfo-intro{margin:9px 0 0;color:var(--ink-2);font-size:13px;line-height:1.6;}
+    /* file location card is a button (reveals in Finder) */
+    .rmC-app .rmInfo-loc{background:var(--surface);cursor:pointer;display:flex;flex-direction:column;gap:0;transition:border-color .15s,box-shadow .15s,transform .15s;}
+    .rmInfo-loc:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--proj) 34%,var(--line));box-shadow:0 6px 18px -10px color-mix(in srgb,var(--proj) 60%,transparent);}
+    .rmInfo-path{display:flex;align-items:center;gap:8px;margin-top:11px;color:var(--ink);font-family:var(--mono);font-size:12px;min-width:0;}
+    .rmInfo-path svg{flex:none;color:var(--proj);}
+    .rmInfo-path-tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .rmInfo-act{margin-top:9px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--proj);}
+
     /* essence bar */
     .rmF-bar{display:flex;align-items:stretch;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden;flex-wrap:wrap;}
     .rmF-bar-id{display:flex;align-items:center;gap:14px;padding:16px 20px;flex:1 1 280px;min-width:0;}
@@ -1671,7 +1737,7 @@
     .rmF-bar-pill{font-family:var(--mono);font-size:9.5px;background:var(--accent-weak);color:var(--accent-ink);padding:3px 9px;border-radius:20px;font-weight:600;flex:none;display:inline-flex;align-items:center;gap:5px;}
     .rmF-bar-sum{font-size:11.5px;color:var(--ink-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px;}
     .rmF-path{display:inline-flex;align-items:center;gap:6px;margin-top:6px;max-width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:4px 9px;cursor:pointer;color:var(--ink-3);transition:all .15s;font:inherit;}
-    .rmF-path:hover{border-color:var(--accent-weak);background:#f5fdfb;color:var(--accent-ink);}
+    .rmF-path:hover{border-color:var(--accent-weak);background:var(--proj-soft);color:var(--accent-ink);}
     .rmF-path svg{flex:none;color:var(--ink-4);}
     .rmF-path:hover svg{color:var(--accent-ink);}
     .rmF-path-tx{font-family:var(--mono);font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
@@ -1681,29 +1747,29 @@
     .rmF-bar-cell{padding:13px 16px;display:flex;flex-direction:column;gap:3px;justify-content:center;border-left:1px solid var(--line);min-width:84px;}
     .rmF-bar-cell .k{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);}
     .rmF-bar-cell .v{font-size:15px;font-weight:720;display:flex;align-items:center;gap:4px;}
-    .rmF-bar-cell .v.ok{color:var(--accent-ink);}.rmF-bar-cell .v.warn{color:var(--p1);}
+    .rmF-bar-cell .v.ok{color:#047857;}.rmF-bar-cell .v.warn{color:var(--p1);}   /* WIP health: stays green (green=ok / red=over), not project-tinted */
     .rmF-bar-cell .v small{font-weight:500;color:var(--ink-3);font-size:10px;}
     .rmF-spark{display:flex;align-items:flex-end;gap:2px;height:18px;margin-top:3px;}
     .rmF-spark span{width:3px;border-radius:1px;background:var(--accent);opacity:.45;}
-    .rmF-bar-cell.next{background:linear-gradient(135deg,var(--accent),#0d9d70);max-width:240px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}
+    .rmF-bar-cell.next{background:linear-gradient(135deg,var(--proj),color-mix(in srgb,var(--proj) 78%,#000));max-width:240px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);}
     .rmF-bar-cell.next .k{color:rgba(255,255,255,.85);}
     .rmF-bar-cell.next .v{color:#fff;font-size:12.5px;font-weight:620;line-height:1.3;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .rmF-bar-gh{display:flex;align-items:center;gap:6px;padding:0 16px;border-left:1px solid var(--line);color:var(--ink-2);text-decoration:none;font-size:12px;font-weight:500;align-self:stretch;}
     .rmF-bar-gh:hover{color:var(--ink);background:var(--surface-2);}
     /* board */
-    .rmF-board-panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);}
-    .rmF-board-top{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-    .rmF-board-top h2{font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:9px;letter-spacing:-.02em;}
-    .rmF-wip{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:7px;background:var(--accent-weak);color:var(--accent-ink);font-weight:600;}
+    .rmF-board-panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px 26px;box-shadow:var(--shadow);}
+    .rmF-board-top{display:flex;align-items:center;gap:11px;margin-bottom:20px;}
+    .rmF-board-top h2{font-size:18px;font-weight:700;display:flex;align-items:center;gap:9px;letter-spacing:-.03em;}
+    .rmF-wip{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:7px;background:#d9f5e9;color:#047857;font-weight:600;}   /* WIP health: stays green vs red .over */
     .rmF-wip.over{background:#fdeaea;color:var(--p0);}
     .rmF-total{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-4);}
-    .rmF-board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
-    .rmF-col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:13px;min-width:0;min-height:180px;}
-    .rmF-col.doing{background:linear-gradient(180deg,#f3fdf9,#fafafa);border-color:var(--accent-weak);}
-    .rmF-col-h{display:flex;align-items:center;gap:8px;margin-bottom:13px;padding:2px;}
+    .rmF-board{display:grid;grid-template-columns:1.08fr 1fr .92fr;gap:16px;align-items:start;}
+    .rmF-col{background:#fbfbfa;border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0;min-height:236px;}
+    .rmF-col.doing{background:linear-gradient(180deg,var(--proj-soft),#fbfbfa);border-color:var(--accent-weak);}
+    .rmF-col-h{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:2px 2px 11px;border-bottom:1px solid var(--line);}
     .rmF-col-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);font-weight:700;}
     .rmF-col-c{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3);background:var(--surface);border:1px solid var(--line);border-radius:7px;min-width:22px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:600;}
-    .rmF-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 26px 12px 13px;margin-bottom:9px;box-shadow:var(--shadow-xs);transition:all .15s;cursor:grab;}
+    .rmF-card{position:relative;background:var(--surface);border:1px solid #e7e7e2;border-radius:13px;padding:13px 27px 13px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(28,28,26,.04),0 10px 24px -20px rgba(28,28,26,.38);transition:all .15s;cursor:grab;}
     .rmF-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);border-color:var(--line-2);}
     .rmF-card--doing{border-left:3px solid var(--accent);}
     .rmF-card--done{opacity:.6;box-shadow:none;}
@@ -1713,7 +1779,7 @@
     .rmF-box{width:17px;height:17px;border-radius:5px;border:1.7px solid var(--ink-4);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;transition:all .12s;}
     .rmF-box:hover{border-color:var(--accent);}
     .rmF-card--doing .rmF-box{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 38%,transparent 41%);}
-    .rmF-box--on{background:var(--accent);border-color:var(--accent);}
+    .rmF-box--on{background:var(--accent);border-color:var(--accent);}   /* completed check follows the project color */
     .rmF-card-tx{font-size:13px;line-height:1.45;flex:1;min-width:0;overflow-wrap:anywhere;}
     .rmF-card--done .rmF-card-tx{text-decoration:line-through;color:var(--ink-3);}
     .rmF-del{position:absolute;top:9px;right:8px;border:0;background:none;color:var(--ink-4);cursor:pointer;font-size:11px;padding:0 2px;opacity:0;transition:opacity .12s;}
@@ -1727,7 +1793,9 @@
     .rmF-tag.rmC-tag--feature{background:#eef4fe;color:#2563eb;}
     .rmF-tag.rmC-tag--bug{background:#fdecea;color:var(--p0);}
     .rmF-add{display:flex;align-items:center;gap:9px;border:1.5px dashed var(--line-2);border-radius:11px;padding:10px 12px;margin-top:3px;transition:all .15s;}
-    .rmF-add:hover{border-color:var(--accent);background:#f7fdfb;}
+    .rmF-add:hover{border-color:var(--accent);background:var(--proj-soft);}
+    /* When the add-row sits at the TOP of the TO-DO column: no top gap, push the cards below it away. */
+    .rmF-add--top{margin-top:0;margin-bottom:10px;}
     .rmF-add-plus{width:18px;height:18px;border-radius:6px;background:var(--surface-3,#f5f5f3);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-3);flex:none;}
     .rmF-add-input{border:0;background:none;outline:none;font:inherit;font-size:12.5px;color:var(--ink);flex:1;min-width:0;}
     .rmF-add-input::placeholder{color:var(--ink-3);}
@@ -1735,10 +1803,10 @@
     .rmF-empty .ic{font-size:20px;opacity:.5;}
     .rmF-empty .tx{font-size:11.5px;line-height:1.5;}
     /* bottom row */
-    .rmF-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-    .rmF-bpanel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:17px 18px;box-shadow:var(--shadow-sm);min-width:0;display:flex;flex-direction:column;}
-    .rmF-bhead{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
-    .rmF-bhead .bic{width:26px;height:26px;border-radius:8px;background:var(--surface-3,#f5f5f3);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink-2);}
+    .rmF-bottom{display:grid;grid-template-columns:1.35fr .95fr .95fr;gap:14px;}
+    .rmF-bpanel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 19px;box-shadow:var(--shadow-sm);min-width:0;min-height:212px;display:flex;flex-direction:column;}
+    .rmF-bhead{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .rmF-bhead .bic{width:28px;height:28px;border-radius:9px;background:var(--surface-3,#f5f5f3);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink-2);}
     .rmF-bhead .bic svg{width:14px;height:14px;}
     .rmF-bhead h3{font-size:13.5px;font-weight:680;letter-spacing:-.01em;}
     .rmF-bsrc{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--ink-4);}
@@ -1767,6 +1835,13 @@
     .rmF-sha{font-family:var(--mono);font-size:9.5px;color:var(--accent-ink);background:var(--accent-weak);padding:2px 6px;border-radius:5px;height:fit-content;flex:none;}
     .rmF-cmsg{color:var(--ink-2);line-height:1.45;min-width:0;}
     .rmF-crel{font-family:var(--mono);font-size:8.5px;color:var(--ink-4);display:block;margin-top:2px;}
+    @media (max-width:1240px){
+      .rmH{grid-template-columns:1fr;}
+      .rmH-metrics{grid-template-columns:repeat(3,1fr);border-left:0;border-top:1px solid var(--line);}
+      .rmH-metric.rmH-next{grid-column:1/-1;}
+      .rmH-repo{grid-column:1/-1;min-height:46px;border-top:1px solid var(--line);}
+      .rmInfo{grid-template-columns:1fr;}
+    }
     @media (max-width:1100px){ .rmF-bottom{grid-template-columns:1fr;} .rmF-board{grid-template-columns:1fr;} }
 
 
@@ -2756,9 +2831,13 @@
     }
 
     /* ===== Notes · R2 (two-pane: source+entries / body-or-jump) ===== */
-    .nr{ position:relative; display:grid; grid-template-columns:300px 1fr; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; min-height:600px; font-family:var(--sans); color:var(--ink); letter-spacing:-.011em; }
+    /* Fixed to the viewport height so the card never grows/shrinks with content;
+       the left list and right doc each scroll inside their own column instead. */
+    .nr{ position:relative; display:grid; grid-template-columns:300px 1fr; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; height:calc(100vh - 108px); min-height:420px; font-family:var(--sans); color:var(--ink); letter-spacing:-.011em; }
     .nr *{ box-sizing:border-box; }
-    .nr-left{ border-right:1px solid var(--line); background:var(--surface-2); display:flex; flex-direction:column; min-width:0; }
+    /* Notes left rail — very light warm paper, matches the reader without going dark. */
+    .nr-left{ --nr-gold:#c9a24b; --nr-gold-ink:#8a6d34; --nr-gold-weak:#f7efdf; --nr-paper:#fdfcfa;
+      border-right:1px solid #eee9df; background:#fdfcfa; display:flex; flex-direction:column; min-width:0; min-height:0; }
     .nr-left-head{ padding:16px 18px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
     .nr-left-eyebrow{ font-family:var(--mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-3); }
     .nr-left-title{ font-size:15px; font-weight:700; letter-spacing:-.01em; margin-top:3px; }
@@ -2772,47 +2851,147 @@
     .nr-expand svg{ width:16px;height:16px; }
     .nr--collapsed .nr-expand{ display:grid; }
     .nr--collapsed .nr-right-head{ padding-left:56px; }
-    .nr-search{ margin:4px 14px 8px; display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
+    .nr-search{ margin:4px 14px 10px; display:flex; align-items:center; gap:7px; background:#fdfcf9; border:1px solid #eee9df; border-radius:11px; padding:8px 11px; }
     .nr-search svg{ width:14px;height:14px;color:var(--ink-3);flex:none; }
     .nr-search input{ border:0; outline:0; background:transparent; font-family:var(--sans); font-size:12.5px; color:var(--ink); width:100%; }
-    .nr-srcs{ display:flex; flex-wrap:wrap; gap:6px; padding:4px 14px 10px; border-bottom:1px solid var(--line); }
-    .nr-src{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-2); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 10px; cursor:pointer; transition:.16s; }
-    .nr-src:hover{ border-color:var(--line-2); }
-    .nr-src.on{ color:#fff; background:var(--accent); border-color:transparent; }
-    .nr-src .dot{ width:7px;height:7px;border-radius:50%; background:var(--ink-4); }
-    .nr-src.on .dot{ background:#fff; }
-    .nr-src .n{ font-family:var(--mono); font-size:10.5px; opacity:.75; }
-    .nr-list{ flex:1; overflow-y:auto; padding:8px; scrollbar-width:thin; scrollbar-color:#d9f5e9 transparent; }
-    .nr-grp{ font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-4); padding:10px 8px 5px; }
-    .nr-item{ display:flex; align-items:flex-start; gap:9px; padding:9px; border-radius:10px; cursor:pointer; transition:.14s; }
-    .nr-item:hover{ background:var(--surface); }
-    .nr-item.sel{ background:var(--surface); box-shadow:inset 0 0 0 1px var(--accent), var(--shadow-sm); }
-    .nr-ico{ flex:none; width:22px;height:22px; border-radius:7px; display:grid;place-items:center; margin-top:1px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); }
-    .nr-ico svg{ width:13px;height:13px; }
+    .nr-srcs{ display:flex; flex-wrap:wrap; gap:7px; padding:2px 14px 12px; border-bottom:1px solid #eee9df; }
+    .nr-src{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-2); background:#fdfcf9; border:1px solid #eee9df; border-radius:999px; padding:5px 11px; cursor:pointer; transition:.16s; }
+    .nr-src:hover{ border-color:var(--nr-gold); color:var(--nr-gold-ink); }
+    .nr-src.on{ color:#fff; background:var(--nr-gold); border-color:transparent; }
+    .nr-src .dot{ width:7px;height:7px;border-radius:50%;flex:none; }
+    .nr-src.on .dot{ background:#fff !important; }
+    .nr-src .n{ font-family:var(--mono); font-size:10.5px; opacity:.7; }
+    .nr-src.on .n{ opacity:.9; }
+    .nr-list{ flex:1; overflow-y:auto; padding:6px 8px; scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; }
+    .nr-grp{ display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-4); padding:12px 10px 6px; }
+    /* Note row — Notion-style: one compact line (icon + title), no card frame.
+       Only hover/selected get a soft highlight; everything else blends in. */
+    .nr-item{ display:flex; align-items:center; gap:9px; padding:6px 10px; margin-bottom:1px; background:transparent; border:0; border-radius:8px; cursor:pointer; transition:background .12s; }
+    .nr-item:hover{ background:rgba(180,150,90,.09); }
+    .nr-item.sel{ background:var(--nr-gold-weak); }
+    /* icon is a small tinted glyph (color from inline :style), no box. */
+    .nr-ico{ flex:none; width:18px;height:18px; display:grid;place-items:center; }
+    .nr-ico svg{ width:15px;height:15px; }
     .nr-ico-lg{ width:28px;height:28px;border-radius:8px; } .nr-ico-lg svg{ width:16px;height:16px; }
     .nr-ico-xl{ width:54px;height:54px;border-radius:15px;background:var(--surface);box-shadow:var(--shadow-sm);margin:0 auto 14px; } .nr-ico-xl svg{ width:26px;height:26px; }
-    .nr-mid{ min-width:0; flex:1; }
-    .nr-ti-row{ display:flex; align-items:center; gap:6px; min-width:0; }
-    .nr-ti{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .nr-pill{ flex:none; font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.3px; line-height:1; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:2px 5px; }
-    .nr-sub{ font-size:11px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
-    .nr-badge{ flex:none; font-family:var(--mono); font-size:9px; letter-spacing:.5px; color:var(--ink-4); margin-top:3px; }
-    .nr-item.sel .nr-badge{ color:var(--accent-ink); }
+    .nr-ti{ font-size:13px; font-weight:500; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; }
+    .nr-item:hover .nr-ti, .nr-item.sel .nr-ti{ color:var(--ink); }
+    .nr-item.sel .nr-ti{ font-weight:600; }
+    /* New-note button pinned at the bottom of the rail. */
+    .nr-actions{ display:flex; flex-direction:column; gap:0; }
+    .nr-new{ margin:8px 14px 6px; padding:11px; border:1.5px dashed #d8cba8 !important; border-radius:12px; background:transparent; color:var(--nr-gold-ink); font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s; }
+    .nr-new:hover{ border-color:var(--nr-gold) !important; background:var(--nr-gold-weak); }
+    .nr-new span{ font-size:14px; }
+    /* "mount folder" — secondary, quieter than New note */
+    .nr-mount{ display:flex; align-items:center; justify-content:center; gap:6px; margin:0 14px 12px; padding:8px; border:0; border-radius:10px; background:transparent; color:var(--ink-3); font-size:11.5px; font-weight:550; cursor:pointer; transition:.15s; }
+    .nr-mount:hover{ background:var(--surface-2); color:var(--ink-2); }
+    .nr-mount:disabled{ opacity:.5; cursor:default; }
+    .nr-mount svg{ opacity:.75; }
+    .nr-mount-msg{ margin:-6px 14px 10px; font-size:11px; color:var(--nr-gold-ink); text-align:center; }
+    /* mounted-source info bar (path + remove) */
+    .nr-srcbar{ display:flex; align-items:center; gap:7px; margin:0 12px 6px; padding:5px 9px; background:var(--surface-2); border-radius:8px; font-size:10.5px; }
+    .nr-srcbar-path{ flex:1; min-width:0; font-family:var(--mono); color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .nr-srcbar-miss{ color:#c0503a; font-weight:600; flex:none; }
+    .nr-srcbar-x{ flex:none; border:0; background:transparent; color:var(--ink-3); font-size:10.5px; cursor:pointer; padding:2px 4px; border-radius:5px; }
+    .nr-srcbar-x:hover{ color:#c0503a; background:rgba(192,80,58,.09); }
     .nr-empty{ padding:30px 14px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:1px; color:var(--ink-3); line-height:2; }
-    .nr-right{ display:flex; flex-direction:column; min-width:0; }
+    .nr-right{ display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; background:#fbfaf7; }
+    /* body row: document (left) + properties panel (right), side by side */
+    .nr-body{ display:flex; flex:1; min-height:0; }
+    .nr-body .nr-doc{ flex:1; min-width:0; }
+    /* ===== Properties panel (Obsidian-style key/value frontmatter editor) ===== */
+    .nr-props{ flex:none; width:270px; border-left:1px solid var(--line); background:#fff; overflow-y:auto; padding:20px 16px; }
+    .nr-props-head{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-4); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+    .nr-props-saving{ color:var(--nr-gold-ink,#8a6d34); }
+    .nr-prop{ display:grid; grid-template-columns:70px 1fr; gap:8px; align-items:start; padding:6px 0; border-bottom:1px solid #f4f2ee; }
+    .nr-prop-k{ font-size:11.5px; color:var(--ink-3); display:flex; align-items:center; gap:5px; padding-top:5px; min-width:0; }
+    .nr-prop-k svg{ width:12px; height:12px; color:var(--ink-4); flex:none; }
+    .nr-prop-in{ width:100%; border:0; background:transparent; font:inherit; font-size:12.5px; color:var(--ink); outline:none; padding:3px 5px; border-radius:6px; transition:background .12s, box-shadow .12s; }
+    .nr-prop-in:hover{ background:#faf9f6; }
+    .nr-prop-in:focus{ background:#fffdf9; box-shadow:inset 0 0 0 1px var(--nr-gold-weak,#f7efdf); }
+    .nr-prop--tags{ align-items:start; }
+    .nr-prop-tags{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding-top:2px; }
+    .nr-prop-tag{ display:inline-flex; align-items:center; gap:3px; font-family:var(--mono); font-size:10.5px; padding:2px 7px; border-radius:6px; }
+    .nr-prop-tag .x{ cursor:pointer; opacity:.5; font-size:11px; }
+    .nr-prop-tag .x:hover{ opacity:1; }
+    .nr-prop-tag--alias{ color:var(--ink-2); background:var(--surface-2); }
+    .nr-prop-tagin{ border:0; background:transparent; font:inherit; font-size:11px; color:var(--ink); outline:none; width:56px; padding:2px 3px; }
+    .nr-prop-tagin::placeholder{ color:var(--ink-4); }
+    .nr-prop--custom .nr-prop-k{ font-family:var(--mono); font-size:11px; color:var(--ink-2); }
+    .nr-prop-del{ border:0; background:transparent; color:var(--ink-4); cursor:pointer; font-size:12px; margin-left:2px; padding:0 2px; opacity:0; transition:opacity .12s; }
+    .nr-prop--custom:hover .nr-prop-del{ opacity:1; }
+    .nr-prop-del:hover{ color:#c0392b; }
+    .nr-prop-add{ margin-top:12px; }
+    .nr-prop-addin{ width:100%; border:1px dashed var(--line); background:transparent; font:inherit; font-size:12px; color:var(--ink-3); outline:none; padding:6px 8px; border-radius:8px; }
+    .nr-prop-addin::placeholder{ color:var(--ink-4); }
+    .nr-prop-addin:focus{ border-color:var(--nr-gold,#c9a24b); color:var(--ink); }
     .nr-right-head{ display:flex; align-items:center; gap:10px; padding:14px 22px; border-bottom:1px solid var(--line); }
     .nr-htitle{ font-size:15px; font-weight:700; letter-spacing:-.01em; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .nr-hsrc{ margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--ink-3); }
-    .nr-doc{ flex:1; overflow-y:auto; padding:24px 30px 40px; scrollbar-width:thin; scrollbar-color:#d9f5e9 transparent; }
-    .nr-doc-meta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-    .nr-tag{ font-family:var(--mono); font-size:10.5px; color:var(--accent-ink); background:var(--accent-weak); border-radius:6px; padding:2px 7px; }
+    /* Edit controls (inline notes) — sit at the far right of the header. */
+    .nr-edit{ flex:none; font-size:12.5px; font-weight:600; color:var(--nr-gold-ink,#8a6d34); background:var(--nr-gold-weak,#f7efdf); border:1px solid transparent!important; border-radius:9px; padding:6px 14px; cursor:pointer; transition:.14s; }
+    .nr-edit:first-of-type{ margin-left:8px; }
+    .nr-edit:hover{ filter:brightness(.97); }
+    /* icon-only edit button (pencil) */
+    .nr-edit--icon{ display:grid; place-items:center; padding:7px; width:30px; height:30px; }
+    /* per-note delete icon (inline notes) — appears on row hover */
+    .nr-del{ flex:none; width:22px; height:22px; display:grid; place-items:center; border:0; border-radius:6px; background:transparent; color:var(--ink-4); cursor:pointer; opacity:0; transition:opacity .12s, color .12s, background .12s; }
+    .nr-item:hover .nr-del, .nr-item.sel .nr-del{ opacity:1; }
+    .nr-del:hover{ color:#c0392b; background:#fde8e8; }
+    /* delete confirmation bar (bottom of the rail) */
+    .nr-delbar{ margin:8px 14px 14px; padding:10px 12px; border:1px solid #f2cfce; border-radius:12px; background:#fdf0ef; }
+    .nr-delbar-tx{ display:block; font-size:12px; color:#a33; line-height:1.5; margin-bottom:8px; word-break:break-word; }
+    .nr-delbar-btns{ display:flex; gap:8px; justify-content:flex-end; }
+    .nr-delbar-btn{ font-size:12px; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer; }
+    .nr-delbar-btn--danger{ border-color:transparent; background:#e0524d; color:#fff; }
+    .nr-delbar-btn:disabled{ opacity:.6; cursor:default; }
+    .nr-edit--ghost{ color:var(--ink-2); background:var(--surface-2); }
+    .nr-edit--save{ color:#fff; background:var(--nr-gold,#c9a24b); }
+    .nr-edit:disabled{ opacity:.55; cursor:default; }
+    /* Editor: raw-markdown textarea inside the reading column. */
+    .nr-editwrap{ display:flex; flex-direction:column; gap:10px; }
+    .nr-editarea{ width:100%; min-height:460px; resize:vertical; border:1px solid var(--line); border-radius:12px; padding:16px 18px; font-family:var(--mono); font-size:13px; line-height:1.7; color:var(--ink); background:#fff; outline:none; transition:border-color .15s; }
+    .nr-editarea:focus{ border-color:var(--nr-gold,#c9a24b); }
+    .nr-edit-hint{ font-family:var(--mono); font-size:11px; color:var(--ink-4); margin:0; }
+    .nr-edit-err{ font-size:12px; color:#c0392b; margin:0; font-family:var(--mono); }
+    /* ===== NOTES READER — magazine style (P1 + warm-gold accents from P3) ===== */
+    /* Warm palette scoped to the notes reader only; nothing else uses --nr-*. */
+    .nr-doc{ --nr-gold:#c9a24b; --nr-gold-ink:#8a6d34; --nr-gold-weak:#f7efdf;
+      flex:1; overflow-y:auto; padding:34px 30px 56px; scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; background:#fbfaf7; }
+    /* Centered reading column — long lines were the main readability problem. */
+    .nr-doc-inner{ max-width:680px; margin:0 auto; }
+    .nr-doc-meta{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+    .nr-tag{ font-family:var(--mono); font-size:10.5px; color:var(--nr-gold-ink); background:#f0ede6; border-radius:6px; padding:2px 8px; }
     .nr-date{ font-family:var(--mono); font-size:10.5px; color:var(--ink-4); }
+
+    /* Serif reading typography, scoped to the notes doc so other .md-content
+       (journal, project dossier) is untouched. */
+    .nr-doc .nr-doctitle{ font-family:'Fraunces',serif; font-size:33px; font-weight:600; letter-spacing:-.02em; line-height:1.14; margin:0 0 16px; color:var(--ink); }
+    .nr-doc .md-content{ color:#33322e; font-size:16px; line-height:1.75; }
+    /* The doc title is shown once as .nr-doctitle, so drop the markdown's own leading H1. */
+    .nr-doc .md-content > h1:first-child{ display:none; }
+    .nr-doc .md-content h1{ font-family:'Fraunces',serif; font-size:27px; font-weight:600; letter-spacing:-.02em; margin:1em 0 .5em; }
+    .nr-doc .md-content h2{ font-family:'Fraunces',serif; font-size:21px; font-weight:600; letter-spacing:-.01em; margin:1.4em 0 .5em; color:var(--ink); }
+    .nr-doc .md-content h3{ font-family:var(--sans); font-size:13.5px; font-weight:700; letter-spacing:.01em; margin:1.5em 0 .5em; color:var(--nr-gold-ink); }
+    .nr-doc .md-content p, .nr-doc .md-content li{ font-family:'Noto Serif SC','Fraunces',Georgia,serif; font-size:16px; line-height:1.78; color:#3a362f; }
+    .nr-doc .md-content ul, .nr-doc .md-content ol{ margin:.6em 0 .6em 1.3em; }
+    .nr-doc .md-content li{ margin:.4em 0; }
+    .nr-doc .md-content strong{ font-weight:700; color:#1c1c1a; }
+    .nr-doc .md-content a{ color:var(--nr-gold-ink); text-underline-offset:3px; }
+    .nr-doc .md-content blockquote{ font-family:'Noto Serif SC',serif; border-left:3px solid var(--nr-gold); background:var(--nr-gold-weak); border-radius:0 10px 10px 0; padding:10px 16px; margin:1em 0; color:#6d6047; font-size:15.5px; line-height:1.7; }
+    .nr-doc .md-content hr{ border:0; border-top:1px solid #e7e3d9; margin:1.6em 0; }
+    .nr-doc .md-content code{ font-family:var(--mono); font-size:12.5px; background:#f4f1ea; border:1px solid #e7e3d9; border-radius:6px; padding:1px 6px; color:var(--nr-gold-ink); }
     .nr-path{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
     .nr-ext{ margin:18px 0; border:1px solid var(--line); border-radius:16px; padding:32px 26px; text-align:center; background:var(--surface-2); }
     .nr-gist{ font-size:14px; color:var(--ink-2); line-height:1.6; max-width:440px; margin:0 auto 18px; }
     .nr-jump{ display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:650; color:#fff; background:var(--accent); border:0; border-radius:11px; padding:11px 20px; cursor:pointer; text-decoration:none; box-shadow:0 1px 2px rgba(16,185,129,.2),0 6px 16px rgba(16,185,129,.16); transition:.16s; }
     .nr-jump:hover{ filter:brightness(1.04); transform:translateY(-1px); }
     .nr-note{ margin-top:14px; font-family:var(--mono); font-size:10.5px; color:var(--ink-4); }
+    /* read-only footnote under an external note's live-rendered body */
+    .nr-extfoot{ margin:34px 0 8px; padding-top:14px; border-top:1px solid var(--line); display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-3); }
+    .nr-extfoot-dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+    .nr-extfoot-link{ margin-left:auto; font-weight:600; color:var(--nr-gold-ink); text-decoration:none; white-space:nowrap; }
+    .nr-extfoot-link:hover{ text-decoration:underline; }
     .nr-ph{ flex:1; display:grid; place-items:center; color:var(--ink-3); }
     .nr-ph .box{ text-align:center; }
     .nr-ph svg{ width:46px;height:46px; color:var(--line-2); margin-bottom:12px; }
@@ -5405,25 +5584,24 @@
 
                 <nav class="rmC-rail-list">
                   <button v-for="p in roadmapProjects" :key="p.name"
-                    class="rmC-proj" :class="{ 'rmC-proj--active': p.name === roadmapFocusName }"
+                    class="rmC-proj" :class="{ 'rmC-proj--active': p.name === roadmapFocusName, 'rmC-proj--done': p.status === 'done' }"
+                    :style="p.name === roadmapFocusName ? { borderColor: rmProjColor(p) + '40', boxShadow: '0 4px 16px -8px ' + rmProjColor(p) + '66' } : null"
                     :aria-current="p.name === roadmapFocusName ? 'true' : null"
                     @click="roadmapFocusName = p.name">
-                    <span class="rmC-proj-bar"></span>
-                    <span class="rmC-proj-arc">
-                      <svg viewBox="0 0 36 36" width="34" height="34" aria-hidden="true">
-                        <circle class="rmC-arc-bg" cx="18" cy="18" r="15"></circle>
-                        <circle class="rmC-arc-fg" cx="18" cy="18" r="15"
-                          :style="{ strokeDasharray: 94.2, strokeDashoffset: rmArcDash(p, 94.2) }"></circle>
-                      </svg>
-                      <span class="rmC-arc-pct">{{ Math.round(roadmapDoneCount(p) / ((p.todos||[]).length || 1) * 100) }}</span>
-                    </span>
-                    <span class="rmC-proj-main">
-                      <span class="rmC-proj-name">{{ p.name }}</span>
-                      <span class="rmC-proj-meta">
-                        <i class="rmC-dot rmC-dot--ok"></i>{{ p.status === 'active' ? (lang === 'zh' ? '进行中' : 'Active') : (p.status || (lang === 'zh' ? '进行中' : 'Active')) }} · {{ (p.todos||[]).length }} {{ t('roadmap.todos') }}
+                    <span class="rmC-proj-top">
+                      <span class="rmC-proj-mark" :style="{ background: 'linear-gradient(140deg, ' + rmProjColor(p) + ', ' + rmProjColor(p) + 'cc)' }">
+                        {{ rmProjInitial(p) }}
+                        <span v-if="p.status === 'done'" class="rmC-proj-check" :style="{ color: rmProjColor(p) }" aria-hidden="true">✓</span>
                       </span>
+                      <span class="rmC-proj-main">
+                        <span class="rmC-proj-name">{{ p.name }}</span>
+                        <span class="rmC-proj-meta">{{ p.status === 'active' ? (lang === 'zh' ? '进行中' : 'Active') : (p.status === 'done' ? (lang === 'zh' ? '已完成' : 'Done') : (p.status || (lang === 'zh' ? '进行中' : 'Active'))) }} · {{ roadmapDoneCount(p) }}/{{ (p.todos||[]).length }} {{ t('roadmap.todos') }}</span>
+                      </span>
+                      <span class="rmC-proj-pct" :style="{ color: rmProjColor(p) }">{{ rmProjPct(p) }}%</span>
                     </span>
-                    <span class="rmC-proj-count">{{ roadmapDoneCount(p) }}/{{ (p.todos||[]).length }}</span>
+                    <span class="rmC-proj-track">
+                      <span class="rmC-proj-fill" :style="{ width: (rmProjPct(p) || 3) + '%', background: rmProjColor(p) }"></span>
+                    </span>
                     <span class="rmC-proj-disc" role="button" :title="lang === 'zh' ? '断开连接（不删代码）' : 'Disconnect (keeps files)'" @click.stop="roadmapDisconnect(p)">✕</span>
                   </button>
                 </nav>
@@ -5439,42 +5617,53 @@
               </aside>
 
               <!-- FOCUS CANVAS: selected project -->
-              <main class="rmF-canvas" v-if="roadmapFocusProject">
+              <!-- Tint the whole detail area with the focused project's color: we
+                   override --accent* on this root so every var(--accent) inside
+                   (header ring, "next" block, doing column, badges, dossier bars…)
+                   follows the project. Semantic greens that must stay green
+                   (done-check, WIP-health) are hard-coded in CSS, not via these vars. -->
+              <main class="rmF-canvas" v-if="roadmapFocusProject"
+                :style="{
+                  '--accent': rmProjColor(roadmapFocusProject),
+                  '--accent-ink': rmProjColor(roadmapFocusProject),
+                  '--accent-weak': rmProjColor(roadmapFocusProject) + '22',
+                  '--proj': rmProjColor(roadmapFocusProject),
+                  '--proj-soft': rmProjColor(roadmapFocusProject) + '14'
+                }">
 
-                <!-- essence bar: identity + health + next + github -->
-                <div class="rmF-bar">
-                  <div class="rmF-bar-id">
-                    <div class="rmF-bar-ring">
-                      <svg viewBox="0 0 46 46" width="46" height="46" aria-hidden="true">
-                        <circle cx="23" cy="23" r="19" fill="none" stroke="var(--line)" stroke-width="4.5"></circle>
-                        <circle cx="23" cy="23" r="19" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"
-                          :style="{ strokeDasharray: 119.4, strokeDashoffset: rmArcDash(roadmapFocusProject, 119.4), transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }"></circle>
+                <!-- ===== HERO: big identity ring + name + status only ===== -->
+                <section class="rmH rmH--slim">
+                  <div class="rmH-main">
+                    <div class="rmH-ring">
+                      <svg viewBox="0 0 82 82" width="78" height="78" aria-hidden="true">
+                        <circle cx="41" cy="41" r="34" fill="none" stroke="var(--line)" stroke-width="7"></circle>
+                        <circle cx="41" cy="41" r="34" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"
+                          :style="{ strokeDasharray: 213.6, strokeDashoffset: rmArcDash(roadmapFocusProject, 213.6), transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }"></circle>
                       </svg>
-                      <span class="rmF-bar-pct">{{ Math.round(roadmapDoneCount(roadmapFocusProject) / ((roadmapFocusProject.todos||[]).length || 1) * 100) }}<i>%</i></span>
+                      <strong class="rmH-pct">{{ rmProjPct(roadmapFocusProject) }}<i>%</i></strong>
                     </div>
-                    <div style="min-width:0">
-                      <div class="rmF-bar-name">{{ roadmapFocusProject.name }}<span class="rmF-bar-pill">{{ roadmapFocusProject.status === 'active' ? (lang === 'zh' ? '进行中' : 'Active') : (roadmapFocusProject.status || (lang === 'zh' ? '进行中' : 'Active')) }}</span></div>
-                      <div v-if="roadmapFocusProject.summary" class="rmF-bar-sum">{{ roadmapFocusProject.summary }}</div>
-                      <button v-if="roadmapFocusProject.repo" class="rmF-path" :title="lang === 'zh' ? '在访达中打开' : 'Reveal in Finder'" @click="openProjectFolder(roadmapFocusProject)">
-                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                        <span class="rmF-path-tx">{{ roadmapFocusProject.repo }}</span>
-                        <span class="rmF-path-act">{{ openFolderState[roadmapFocusProject.name] === 'ok' ? (lang === 'zh' ? '已打开 ✓' : 'Opened ✓') : (openFolderState[roadmapFocusProject.name] === 'err' ? (lang === 'zh' ? '打不开' : 'Failed') : (lang === 'zh' ? '在访达打开' : 'Reveal')) }}</span>
-                      </button>
+                    <div class="rmH-body">
+                      <div class="rmH-kicker"><span class="rmH-kdot"></span>{{ lang === 'zh' ? '项目脉搏' : 'Project pulse' }}</div>
+                      <h2 class="rmH-name">{{ roadmapFocusProject.name }}<span class="rmH-pill">{{ roadmapFocusProject.status === 'active' ? (lang === 'zh' ? '进行中' : 'Active') : (roadmapFocusProject.status === 'done' ? (lang === 'zh' ? '已完成' : 'Done') : (roadmapFocusProject.status || (lang === 'zh' ? '进行中' : 'Active'))) }}</span></h2>
                     </div>
                   </div>
-                  <div class="rmF-bar-cells">
-                    <div class="rmF-bar-cell"><span class="k">{{ lang === 'zh' ? 'WIP 在做' : 'WIP' }}</span><span class="v" :class="roadmapTodosByStatus(roadmapFocusProject, 'doing').length <= 3 ? 'ok' : 'warn'">{{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length }} {{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length <= 3 ? '✓' : '⚠' }}</span></div>
-                    <div class="rmF-bar-cell"><span class="k">{{ lang === 'zh' ? '已完成' : 'Done' }}</span><span class="v">{{ roadmapDoneCount(roadmapFocusProject) }}/{{ (roadmapFocusProject.todos||[]).length }}</span></div>
-                    <div class="rmF-bar-cell" v-if="(roadmapFocusProject.todos||[]).length">
-                      <span class="k">{{ lang === 'zh' ? '进度' : 'Progress' }}</span>
-                      <div class="rmF-spark"><span v-for="(bar, i) in rmSparkBars(roadmapFocusProject)" :key="i" :style="{ height: bar.h + '%', opacity: bar.cls === 'rmC-spark--done' ? 1 : (bar.cls === 'rmC-spark--doing' ? .7 : .4) }"></span></div>
-                    </div>
-                    <div class="rmF-bar-cell next"><span class="k">{{ lang === 'zh' ? '下一步' : 'Next' }}</span><span class="v">{{ (roadmapTodosByStatus(roadmapFocusProject, 'doing')[0] || roadmapTodosByStatus(roadmapFocusProject, 'todo')[0] || {}).text || (lang === 'zh' ? '加一项待办' : 'Add a todo') }}</span></div>
+                </section>
+
+                <!-- ===== INFO ROW: project intro + file location ===== -->
+                <section class="rmInfo">
+                  <div class="rmInfo-card">
+                    <span class="rmInfo-k">{{ lang === 'zh' ? '项目介绍' : 'About' }}</span>
+                    <p class="rmInfo-intro">{{ roadmapFocusProject.summary || (lang === 'zh' ? '还没有项目简介。在仓库里跟我说「记住这个项目」，我会补上。' : 'No summary yet.') }}</p>
                   </div>
-                  <a v-if="roadmapFocusProject.repo" class="rmF-bar-gh" :href="'#'" :title="roadmapFocusProject.repo">
-                    <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Repo
-                  </a>
-                </div>
+                  <button v-if="roadmapFocusProject.repo" class="rmInfo-card rmInfo-loc" :title="lang === 'zh' ? '在访达中打开' : 'Reveal in Finder'" @click="openProjectFolder(roadmapFocusProject)">
+                    <span class="rmInfo-k">{{ lang === 'zh' ? '文件位置' : 'Location' }}</span>
+                    <span class="rmInfo-path">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                      <span class="rmInfo-path-tx">{{ roadmapFocusProject.repo }}</span>
+                    </span>
+                    <span class="rmInfo-act">{{ openFolderState[roadmapFocusProject.name] === 'ok' ? (lang === 'zh' ? '已打开 ✓' : 'Opened ✓') : (openFolderState[roadmapFocusProject.name] === 'err' ? (lang === 'zh' ? '打不开' : 'Failed') : (lang === 'zh' ? '在访达打开 →' : 'Reveal →')) }}</span>
+                  </button>
+                </section>
 
                 <!-- BOARD (hero) -->
                 <div class="rmF-board-panel">
@@ -5502,6 +5691,12 @@
                     <!-- TO DO -->
                     <div class="rmF-col" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'todo')">
                       <div class="rmF-col-h"><span class="rmC-dot" style="background:var(--ink-4)"></span><span class="rmF-col-name">{{ t('roadmap.col.todo') }}</span><span class="rmF-col-c">{{ roadmapTodosByStatus(roadmapFocusProject, 'todo').length }}</span></div>
+                      <form class="rmF-add rmF-add--top" @submit.prevent="roadmapAdd(roadmapFocusProject)">
+                        <span class="rmF-add-plus" aria-hidden="true">+</span>
+                        <input class="rmF-add-input" type="text" :placeholder="t('roadmap.addPlaceholder')"
+                          v-model="roadmapNewText[roadmapFocusProject.name]"
+                          @keydown.enter="$event.isComposing ? null : (roadmapNewText[roadmapFocusProject.name] || '').trim() && ($event.preventDefault(), roadmapAdd(roadmapFocusProject))" />
+                      </form>
                       <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'todo')" :key="todo.id"
                         class="rmF-card" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
                         <span class="rmF-grip" aria-hidden="true"></span>
@@ -5512,12 +5707,6 @@
                         </div>
                         <div v-if="todo.category" class="rmF-card-foot"><span class="rmF-tag" :class="rmTagClass(todo.category)">{{ todo.category }}</span></div>
                       </div>
-                      <form class="rmF-add" @submit.prevent="roadmapAdd(roadmapFocusProject)">
-                        <span class="rmF-add-plus" aria-hidden="true">+</span>
-                        <input class="rmF-add-input" type="text" :placeholder="t('roadmap.addPlaceholder')"
-                          v-model="roadmapNewText[roadmapFocusProject.name]"
-                          @keydown.enter.prevent="roadmapAdd(roadmapFocusProject)" />
-                      </form>
                     </div>
                     <!-- DONE -->
                     <div class="rmF-col" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'done')">
@@ -5613,9 +5802,14 @@
                 </div>
                 <div class="rmC-modal-field">
                   <label class="rmC-modal-label">{{ lang === 'zh' ? '仓库路径' : 'Repo path' }}</label>
-                  <input class="rmC-modal-input rmC-modal-mono" type="text" v-model="roadmapConnectForm.repo"
-                    :placeholder="'~/code/my-project'"
-                    @keydown.enter="roadmapConnectSubmit" />
+                  <div class="rmC-repo-row">
+                    <input class="rmC-modal-input rmC-modal-mono" type="text" v-model="roadmapConnectForm.repo"
+                      :placeholder="'~/code/my-project'"
+                      @keydown.enter="roadmapConnectSubmit" />
+                    <button type="button" class="rmC-browse-btn" :disabled="roadmapBrowsing" @click="roadmapBrowseRepo">
+                      {{ roadmapBrowsing ? (lang === 'zh' ? '选择中…' : 'Choosing…') : (lang === 'zh' ? '浏览…' : 'Browse…') }}
+                    </button>
+                  </div>
                 </div>
                 <div class="rmC-modal-field">
                   <label class="rmC-modal-label">{{ lang === 'zh' ? '一句话描述' : 'One-line summary' }}</label>
@@ -5623,11 +5817,12 @@
                     :placeholder="lang === 'zh' ? '这个项目是做什么的' : 'What this project is about'"
                     @keydown.enter="roadmapConnectSubmit" />
                 </div>
+                <p v-if="roadmapConnectError" class="rmC-modal-err">{{ roadmapConnectError }}</p>
                 <div class="rmC-modal-actions">
-                  <button class="rmC-modal-btn" @click="roadmapConnectOpen = false">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
-                  <button class="rmC-modal-btn rmC-modal-btn--primary" :disabled="!roadmapConnectForm.name.trim()" @click="roadmapConnectSubmit">{{ lang === 'zh' ? '连接' : 'Connect' }}</button>
+                  <button class="rmC-modal-btn" :disabled="roadmapConnecting" @click="roadmapConnectOpen = false">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                  <button class="rmC-modal-btn rmC-modal-btn--primary" :disabled="!roadmapConnectForm.name.trim() || roadmapConnecting" @click="roadmapConnectSubmit">{{ roadmapConnecting ? (lang === 'zh' ? '连接中…' : 'Connecting…') : (lang === 'zh' ? '连接' : 'Connect') }}</button>
                 </div>
-                <p class="rmC-modal-hint">{{ lang === 'zh' ? '提示：真实使用时，在项目仓库里跟我说「记住这个项目」即可自动连接 —— 我会读取代码、建立记忆、写好索引。这里的表单用于演示。' : 'Tip: in real use, say “remember this project” inside a repo and I’ll connect it automatically — reading the code, building its memory, wiring the index. This form is for the demo.' }}</p>
+                <p class="rmC-modal-hint">{{ lang === 'zh' ? '连接后，我会在这个仓库里建一个隐藏的 .loci/ 文件夹（存项目记忆、待办、决策），并写好索引 —— 之后你在这里给它记的待办就会存进那个仓库。也可以直接在仓库里跟我说「记住这个项目」，效果一样。' : 'On connect, I create a hidden .loci/ folder in the repo (its memory, todos, decisions) and wire the index — todos you add here then live in that repo. You can also just say “remember this project” inside the repo; same result.' }}</p>
               </div>
             </div>
 
@@ -5874,25 +6069,45 @@
                 </div>
                 <div class="nr-srcs">
                   <button v-for="s in notesSourceChips" :key="s.key" class="nr-src" :class="{ on: notesSourceFilter === s.key }" @click="notesSourceFilter = s.key">
-                    <span class="dot"></span>{{ s.label }}<span class="n">{{ notesSourceCounts[s.key] }}</span>
+                    <span v-if="s.key !== 'all'" class="dot" :style="{ background: noteSourceColor(s.key) }"></span>{{ s.label }}<span class="n">{{ notesSourceCounts[s.key] }}</span>
                   </button>
+                </div>
+                <!-- info bar for a selected mounted folder: path + missing warning + remove -->
+                <div v-if="notesSelectedSource" class="nr-srcbar">
+                  <span class="nr-srcbar-path" :title="notesSelectedSource.path">{{ notesSelectedSource.path }}</span>
+                  <span v-if="notesSelectedSource.missing" class="nr-srcbar-miss">{{ lang === 'zh' ? '找不到' : 'missing' }}</span>
+                  <button class="nr-srcbar-x" :disabled="notesMounting" @click="notesUnmountFolder(notesSelectedSource)" :title="lang === 'zh' ? '移除这个来源(不删原文件)' : 'Remove this source (files untouched)'">{{ lang === 'zh' ? '移除' : 'Remove' }}</button>
                 </div>
                 <div class="nr-list">
                   <template v-for="g in notesGroups" :key="g.source">
                     <div class="nr-grp">{{ g.label }}</div>
                     <div v-for="note in g.notes" :key="note.id" class="nr-item" :class="{ sel: notesSelected && notesSelected.id === note.id }" @click="notesSelected = note">
-                      <span class="nr-ico"><span v-html="noteSourceMeta(note.source).glyph"></span></span>
-                      <div class="nr-mid">
-                        <div class="nr-ti-row">
-                          <span class="nr-ti">{{ note.title }}</span>
-                          <span v-if="g.timeline" class="nr-pill">{{ noteSourceMeta(note.source).label }}</span>
-                        </div>
-                        <div class="nr-sub">{{ note.gist || note.date }}</div>
-                      </div>
-                      <span class="nr-badge">{{ note.readable ? (lang === 'zh' ? '正文' : 'read') : '↗' }}</span>
+                      <span class="nr-ico" :style="{ color: noteColor(note) }"><span v-html="noteSourceMeta(note.source).glyph"></span></span>
+                      <span class="nr-ti">{{ note.title }}</span>
+                      <button v-if="note.source === 'inline'" class="nr-del" :title="lang === 'zh' ? '删除' : 'Delete'" @click.stop="notesAskDelete(note)">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+                      </button>
                     </div>
                   </template>
                   <div v-if="!notesGroups.length" class="nr-empty">{{ notesSearch ? (lang === 'zh' ? '没有匹配的笔记' : 'No matching notes') : t('notes.empty') }}</div>
+                </div>
+                <!-- delete confirmation bar -->
+                <div v-if="notesConfirmDelete" class="nr-delbar">
+                  <span class="nr-delbar-tx">{{ lang === 'zh' ? '删除「' + notesConfirmDelete.title + '」？' : 'Delete “' + notesConfirmDelete.title + '”?' }}</span>
+                  <div class="nr-delbar-btns">
+                    <button class="nr-delbar-btn" :disabled="notesSaving" @click="notesCancelDelete()">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                    <button class="nr-delbar-btn nr-delbar-btn--danger" :disabled="notesSaving" @click="notesDoDelete()">{{ notesSaving ? (lang === 'zh' ? '删除中…' : 'Deleting…') : (lang === 'zh' ? '删除' : 'Delete') }}</button>
+                  </div>
+                </div>
+                <div v-else class="nr-actions">
+                  <button class="nr-new" type="button" :disabled="notesSaving" @click="notesCreate()">
+                    <span aria-hidden="true">+</span> {{ lang === 'zh' ? '新建笔记' : 'New note' }}
+                  </button>
+                  <button class="nr-mount" type="button" :disabled="notesMounting" @click="notesMountFolder()" :title="lang === 'zh' ? '引入一个装着 markdown 的文件夹(如 Obsidian vault)' : 'Mount a folder of markdown (e.g. an Obsidian vault)'">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-9Z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/></svg>
+                    {{ notesMounting ? (lang === 'zh' ? '引入中…' : 'Mounting…') : (lang === 'zh' ? '引入文件夹' : 'Mount folder') }}
+                  </button>
+                  <p v-if="notesMountMsg" class="nr-mount-msg">{{ notesMountMsg }}</p>
                 </div>
               </aside>
               <!-- RIGHT -->
@@ -5905,22 +6120,88 @@
                     <span class="nr-ico nr-ico-lg"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
                     <span class="nr-htitle">{{ notesSelected.title }}</span>
                     <span class="nr-hsrc">{{ noteSourceMeta(notesSelected.source).label }}</span>
+                    <!-- edit controls: any local .md (inline OR Obsidian) — same thing underneath -->
+                    <template v-if="notesSelected.editable">
+                      <button v-if="!notesEditing" class="nr-edit nr-edit--icon" :title="lang === 'zh' ? '修改' : 'Edit'" @click="notesStartEdit()">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                      </button>
+                      <template v-else>
+                        <button class="nr-edit nr-edit--ghost" :disabled="notesSaving" @click="notesCancelEdit()">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                        <button class="nr-edit nr-edit--save" :disabled="notesSaving" @click="notesSaveEdit()">{{ notesSaving ? (lang === 'zh' ? '保存中…' : 'Saving…') : (lang === 'zh' ? '确定' : 'Save') }}</button>
+                      </template>
+                    </template>
                   </header>
+                  <div class="nr-body">
                   <div class="nr-doc">
-                    <div class="nr-doc-meta">
-                      <span v-for="tg in notesSelected.tags" :key="tg" class="nr-tag">#{{ String(tg).replace(/^#/, '') }}</span>
-                      <span v-if="notesSelected.date" class="nr-date">{{ notesSelected.date }}</span>
-                      <span v-if="!notesSelected.readable && notesSelected.link" class="nr-path">{{ notesSelected.link }}</span>
+                    <div class="nr-doc-inner">
+                      <!-- edit mode: raw-markdown textarea -->
+                      <div v-if="notesEditing" class="nr-editwrap">
+                        <p v-if="notesEditError" class="nr-edit-err">{{ notesEditError }}</p>
+                        <textarea class="nr-editarea" v-model="notesEditText" spellcheck="false"></textarea>
+                        <p class="nr-edit-hint">{{ lang === 'zh' ? 'Markdown 格式 · 顶部 --- 之间是标签/日期等信息' : 'Markdown · frontmatter between the --- lines' }}</p>
+                      </div>
+                      <template v-else>
+                      <h1 class="nr-doctitle">{{ notesSelected.title }}</h1>
+                      <div class="nr-doc-meta">
+                        <span v-for="tg in notesSelected.tags" :key="tg" class="nr-tag">#{{ String(tg).replace(/^#/, '') }}</span>
+                        <span v-if="notesSelected.date" class="nr-date">{{ notesSelected.date }}</span>
+                        <span v-if="!notesSelected.readable && notesSelected.link" class="nr-path">{{ notesSelected.link }}</span>
+                      </div>
+                      <template v-if="notesSelected.readable">
+                        <div class="md-content" v-html="notesSelected.content"></div>
+                        <!-- source footnote: body lives in the external app, synced live & editable both ways -->
+                        <div v-if="notesSelected.source !== 'inline'" class="nr-extfoot">
+                          <span class="nr-extfoot-dot" :style="{ background: noteSourceColor(notesSelected.source) }"></span>
+                          {{ lang === 'zh' ? '文件在 ' + noteSourceMeta(notesSelected.source).label + ' 里 · 两边改都实时同步' : 'File lives in ' + noteSourceMeta(notesSelected.source).label + ' · edits sync both ways' }}
+                          <a class="nr-extfoot-link" :href="notesSelected.link" @click.prevent="noteOpenExternal(notesSelected.link)">{{ noteSourceMeta(notesSelected.source).open }} ↗</a>
+                        </div>
+                      </template>
+                      <div v-else-if="notesSelected.missing" class="nr-ext">
+                        <span class="nr-ico nr-ico-xl"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
+                        <p class="nr-gist">{{ lang === 'zh' ? '找不到这个文件了 — 可能在 ' + noteSourceMeta(notesSelected.source).label + ' 里被移动或删除了。' : 'File not found — it may have been moved or deleted in ' + noteSourceMeta(notesSelected.source).label + '.' }}</p>
+                        <div class="nr-path">{{ notesSelected.link }}</div>
+                      </div>
+                      <div v-else class="nr-ext">
+                        <span class="nr-ico nr-ico-xl"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
+                        <p class="nr-gist">{{ notesSelected.gist || (lang === 'zh' ? '这条笔记的正文留在 ' + noteSourceMeta(notesSelected.source).label + ' 里。' : 'The body stays in ' + noteSourceMeta(notesSelected.source).label + '.') }}</p>
+                        <a class="nr-jump" :href="notesSelected.link" target="_blank" rel="noopener" @click.prevent="noteOpenExternal(notesSelected.link)">
+                          {{ noteSourceMeta(notesSelected.source).open }} <span aria-hidden="true">↗</span>
+                        </a>
+                        <div class="nr-note">{{ lang === 'zh' ? 'Loci 只保管指针，正文留在原应用' : 'Loci keeps the pointer; the body stays in its app' }}</div>
+                      </div>
+                      </template>
                     </div>
-                    <div v-if="notesSelected.readable" class="md-content" v-html="notesSelected.content"></div>
-                    <div v-else class="nr-ext">
-                      <span class="nr-ico nr-ico-xl"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
-                      <p class="nr-gist">{{ notesSelected.gist || (lang === 'zh' ? '这条笔记的正文留在 ' + noteSourceMeta(notesSelected.source).label + ' 里。' : 'The body stays in ' + noteSourceMeta(notesSelected.source).label + '.') }}</p>
-                      <a class="nr-jump" :href="notesSelected.link" target="_blank" rel="noopener" @click.prevent="noteOpenExternal(notesSelected.link)">
-                        {{ noteSourceMeta(notesSelected.source).open }} <span aria-hidden="true">↗</span>
-                      </a>
-                      <div class="nr-note">{{ lang === 'zh' ? 'Loci 只保管指针，正文留在原应用' : 'Loci keeps the pointer; the body stays in its app' }}</div>
+                  </div>
+                  <!-- ===== PROPERTIES PANEL — edit frontmatter of any local .md ===== -->
+                  <aside v-if="notesSelected.editable" class="nr-props">
+                    <div class="nr-props-head">{{ lang === 'zh' ? '文档属性' : 'Properties' }}<span v-if="notesPropsSaving" class="nr-props-saving">·{{ lang === 'zh' ? '保存中' : 'saving' }}</span></div>
+                    <!-- title -->
+                    <div class="nr-prop">
+                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h10M4 17h7"/></svg>{{ lang === 'zh' ? '标题' : 'Title' }}</span>
+                      <input class="nr-prop-in" :value="notesSelected.title" @blur="notesSetTitle" @keydown.enter="$event.target.blur()" />
                     </div>
+                    <!-- tags -->
+                    <div class="nr-prop nr-prop--tags">
+                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 13.4 11 3.8A2 2 0 0 0 9.6 3H4v5.6a2 2 0 0 0 .6 1.4l9.6 9.6a2 2 0 0 0 2.8 0l3.6-3.6a2 2 0 0 0 0-2.8Z"/><circle cx="7.5" cy="7.5" r="1"/></svg>{{ lang === 'zh' ? '标签' : 'Tags' }}</span>
+                      <div class="nr-prop-tags">
+                        <span v-for="tg in notesSelected.tags" :key="tg" class="nr-prop-tag" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '18' }">#{{ String(tg).replace(/^#/, '') }}<span class="x" @click="notesRemoveTag(tg)">×</span></span>
+                        <input class="nr-prop-tagin" v-model="notesNewTag" :placeholder="lang === 'zh' ? '+ 标签' : '+ tag'" @keydown.enter="notesAddTag" @blur="notesAddTag" />
+                      </div>
+                    </div>
+                    <!-- aliases -->
+                    <div class="nr-prop nr-prop--tags">
+                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h16M4 12l4-4M4 12l4 4"/><path d="M20 12l-4-4M20 12l-4 4"/></svg>{{ lang === 'zh' ? '别名' : 'Aliases' }}</span>
+                      <div class="nr-prop-tags">
+                        <span v-for="al in notesAliases" :key="al" class="nr-prop-tag nr-prop-tag--alias">{{ al }}<span class="x" @click="notesRemoveAlias(al)">×</span></span>
+                        <input class="nr-prop-tagin" v-model="notesNewAlias" :placeholder="lang === 'zh' ? '+ 别名' : '+ alias'" @keydown.enter="notesAddAlias" @blur="notesAddAlias" />
+                      </div>
+                    </div>
+                    <!-- date -->
+                    <div class="nr-prop">
+                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>{{ lang === 'zh' ? '日期' : 'Date' }}</span>
+                      <input class="nr-prop-in" :value="notesSelected.date" :placeholder="'YYYY-MM-DD'" @blur="notesSetField('date', $event)" @keydown.enter="$event.target.blur()" />
+                    </div>
+                  </aside>
                   </div>
                 </template>
                 <div v-else class="nr-ph">
@@ -11246,19 +11527,246 @@ createApp({
     const notesOpenId = ref(null);              // index of expanded note card
     const notesIndexOpen = ref(false);          // notes/index.md panel toggle
     const notesSourceFilter = ref('all');       // 'all'|'obsidian'|'feishu'|'notion'|'inline'
+    const notesTagFilter = ref('all');          // 'all' | a real tag from notesTagChips
     const notesSearch = ref('');                // live search text
     const notesOpenInline = ref(new Set());     // ids of expanded inline notes
     const notesSelected = ref(null);            // the note shown in the right pane
     const notesCollapsed = ref(false);          // left rail collapsed?
+    // --- Inline-note editing: only notes with source==='inline' can be edited. ---
+    const notesEditing = ref(false);            // is the right pane in edit mode?
+    const notesEditText = ref('');              // the markdown being edited
+    const notesSaving = ref(false);
+    const notesEditError = ref('');
+    // Enter edit mode: pull the note's raw markdown from the server into the editor.
+    async function notesStartEdit() {
+      const note = notesSelected.value;
+      if (!note || !note.editable || !note.filename) return;
+      notesEditError.value = '';
+      try {
+        const res = await demoFetch('/api/notes/raw?file=' + encodeURIComponent(note.filename));
+        const out = await res.json().catch(() => ({}));
+        notesEditText.value = (out && out.md != null) ? out.md
+          : (lang.value === 'zh' ? '# ' + note.title + '\n\n' : '# ' + note.title + '\n\n');
+        notesEditing.value = true;
+      } catch (e) {
+        notesEditError.value = lang.value === 'zh' ? '打不开编辑：' + e.message : 'Cannot open editor: ' + e.message;
+      }
+    }
+    function notesCancelEdit() { notesEditing.value = false; notesEditError.value = ''; }
+
+    // ── Properties panel: edit a note's frontmatter (title / tags / aliases / date) ──
+    const notesNewTag = ref('');                 // the "add tag" input buffer
+    const notesPropsSaving = ref(false);
+    function notesCurrentProps() {
+      const n = notesSelected.value;
+      if (!n) return {};
+      const meta = (n.meta && typeof n.meta === 'object') ? { ...n.meta } : {};
+      meta.title = n.title || meta.title || '';
+      meta.tags = Array.isArray(n.tags) ? n.tags.slice() : [];
+      return meta;
+    }
+    async function notesSaveProps(patch) {
+      const n = notesSelected.value;
+      if (!n || !n.editable || !n.filename || notesPropsSaving.value) return;
+      notesPropsSaving.value = true;
+      try {
+        const props = { ...notesCurrentProps(), ...patch };
+        Object.keys(props).forEach(k => {
+          if (props[k] === '' || props[k] == null) delete props[k];
+          if (Array.isArray(props[k]) && !props[k].length && k !== 'tags') delete props[k];
+        });
+        const res = await demoFetch('/api/notes/props', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: n.filename, props })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (res.ok && !out.error) await notesReload(n.filename);
+      } catch (e) { /* keep view */ }
+      finally { notesPropsSaving.value = false; }
+    }
+    function notesSetTitle(e) {
+      const v = String(e.target.value || '').trim();
+      if (v && v !== notesSelected.value.title) notesSaveProps({ title: v });
+    }
+    function notesSetField(key, e) {
+      const v = String(e.target.value || '').trim();
+      const cur = (notesSelected.value.meta && notesSelected.value.meta[key]) || '';
+      if (v !== String(cur)) notesSaveProps({ [key]: v });
+    }
+    function notesAddTag() {
+      const t = String(notesNewTag.value || '').replace(/^#/, '').trim();
+      notesNewTag.value = '';
+      if (!t) return;
+      const tags = (notesSelected.value.tags || []).slice();
+      if (tags.includes(t)) return;
+      tags.push(t);
+      notesSaveProps({ tags });
+    }
+    function notesRemoveTag(t) {
+      const tags = (notesSelected.value.tags || []).filter(x => x !== t);
+      notesSaveProps({ tags });
+    }
+    // Aliases (like Obsidian's) — a multi-value chip field stored in frontmatter.
+    const notesNewAlias = ref('');
+    const notesAliases = computed(() => {
+      const a = notesSelected.value && notesSelected.value.meta && notesSelected.value.meta.aliases;
+      return Array.isArray(a) ? a : (a ? [a] : []);
+    });
+    function notesAddAlias() {
+      const v = String(notesNewAlias.value || '').trim();
+      notesNewAlias.value = '';
+      if (!v) return;
+      const cur = notesAliases.value.slice();
+      if (cur.includes(v)) return;
+      cur.push(v);
+      notesSaveProps({ aliases: cur });
+    }
+    function notesRemoveAlias(a) {
+      notesSaveProps({ aliases: notesAliases.value.filter(x => x !== a) });
+    }
+
+    // Save the edited markdown back to the note's .md file, then reload data.
+    async function notesSaveEdit() {
+      const note = notesSelected.value;
+      if (!note || !note.filename || notesSaving.value) return;
+      notesSaving.value = true; notesEditError.value = '';
+      try {
+        const res = await demoFetch('/api/notes/save', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: note.filename, md: notesEditText.value })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error) { notesEditError.value = out.error || (lang.value === 'zh' ? '保存失败' : 'Save failed'); notesSaving.value = false; return; }
+        await notesReload(note.filename);
+        notesEditing.value = false;
+      } catch (e) {
+        notesEditError.value = lang.value === 'zh' ? '保存失败：' + e.message : 'Save failed: ' + e.message;
+      } finally { notesSaving.value = false; }
+    }
+    // Create a new inline note, then select it and drop straight into edit mode.
+    async function notesCreate() {
+      if (notesSaving.value) return;
+      notesSaving.value = true; notesEditError.value = '';
+      try {
+        const res = await demoFetch('/api/notes/create', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: lang.value === 'zh' ? '新笔记' : 'New note' })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error) { notesEditError.value = out.error || (lang.value === 'zh' ? '新建失败' : 'Create failed'); notesSaving.value = false; return; }
+        await notesReload(out.filename);
+        // open the freshly created note in edit mode
+        if (out.md != null) { notesEditText.value = out.md; notesEditing.value = true; }
+      } catch (e) {
+        notesEditError.value = lang.value === 'zh' ? '新建失败：' + e.message : 'Create failed: ' + e.message;
+      } finally { notesSaving.value = false; }
+    }
+    // Delete flow: click the trash icon → ask to confirm → confirm deletes the .md.
+    const notesConfirmDelete = ref(null);       // the note pending delete-confirmation
+    function notesAskDelete(note) {
+      notesConfirmDelete.value = note;          // opens the confirm bar for this note
+    }
+    function notesCancelDelete() { notesConfirmDelete.value = null; }
+    async function notesDoDelete() {
+      const note = notesConfirmDelete.value;
+      if (!note || !note.filename || notesSaving.value) return;
+      notesSaving.value = true;
+      try {
+        const res = await demoFetch('/api/notes/delete', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: note.filename })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (res.ok && !out.error) {
+          const wasSelected = notesSelected.value && notesSelected.value.id === note.id;
+          if (wasSelected) { notesEditing.value = false; notesSelected.value = null; }
+          notesConfirmDelete.value = null;
+          await notesReload(null);
+        }
+      } catch (e) { /* keep view */ }
+      finally { notesSaving.value = false; }
+    }
+    // Re-pull /api/data and re-select the note by filename (ids shift on reload).
+    async function notesReload(filename) {
+      try {
+        const r = await fetch('/api/data');
+        if (r.ok) data.value = await r.json();
+        await nextTick();
+        if (filename) {
+          const found = (notesUnified.value || []).find(n => n.filename === filename);
+          if (found) notesSelected.value = found;
+        }
+      } catch (e) { /* keep current view */ }
+    }
+
+    // ── Mount / unmount folder sources (Obsidian vaults, docs dirs, …) ──
+    const notesMounting = ref(false);
+    const notesMountMsg = ref('');
+    // the mounted-source record currently being viewed (when the source filter is a folder)
+    const notesSelectedSource = computed(() =>
+      notesMountedSources.value.find(s => s.id === notesSourceFilter.value) || null);
+    async function notesMountFolder() {
+      if (notesMounting.value) return;
+      notesMounting.value = true; notesMountMsg.value = '';
+      try {
+        // 1) native folder picker
+        const br = await demoFetch('/api/notes/folder-browse', { method: 'POST' });
+        const pick = await br.json().catch(() => ({}));
+        if (!br.ok || pick.error || !pick.path) { notesMounting.value = false; return; }  // cancelled
+        // 2) mount it
+        const res = await demoFetch('/api/notes/source/mount', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: pick.path })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error) {
+          notesMountMsg.value = out.error || (lang.value === 'zh' ? '引入失败' : 'Mount failed');
+        } else {
+          await notesReload(null);
+          if (out.source) notesSourceFilter.value = out.source.id;   // jump to the new source
+          notesMountMsg.value = (lang.value === 'zh' ? '已引入 ' : 'Mounted ') + (out.count || 0) + (lang.value === 'zh' ? ' 篇' : ' notes');
+        }
+      } catch (e) {
+        notesMountMsg.value = lang.value === 'zh' ? '引入失败：' + e.message : 'Mount failed: ' + e.message;
+      } finally { notesMounting.value = false; }
+    }
+    async function notesUnmountFolder(src) {
+      if (!src || notesMounting.value) return;
+      notesMounting.value = true;
+      try {
+        const res = await demoFetch('/api/notes/source/unmount', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: src.id })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (res.ok && !out.error) {
+          if (notesSourceFilter.value === src.id) notesSourceFilter.value = 'all';
+          notesSelected.value = null;
+          await notesReload(null);
+        }
+      } catch (e) { /* keep view */ }
+      finally { notesMounting.value = false; }
+    }
+    // Mounted folder sources from the backend (Obsidian vaults, docs dirs, …).
+    const notesMountedSources = computed(() => {
+      const s = (data.value && data.value.notes && data.value.notes.sources) || [];
+      return Array.isArray(s) ? s : [];
+    });
     const notesSourceChips = computed(() => {
       const zh = lang.value === 'zh';
-      return [
-        { key:'all',      label: zh ? '全部' : 'All' },
-        { key:'feishu',   label: zh ? '飞书' : 'Feishu' },
-        { key:'obsidian', label: 'Obsidian' },
-        { key:'notion',   label: 'Notion' },
-        { key:'inline',   label: zh ? '内置' : 'Inline' },
+      const counts = notesSourceCounts.value;
+      const chips = [
+        { key:'all',    label: zh ? '全部' : 'All' },
+        { key:'inline', label: zh ? '内置' : 'Inline' },
       ];
+      // one chip per mounted folder
+      notesMountedSources.value.forEach(s => {
+        chips.push({ key: s.id, label: s.name, mounted: true, missing: s.missing, sourceType: s.type });
+      });
+      // web-link sources only appear when there's actually such a note
+      if (counts.feishu) chips.push({ key:'feishu', label: zh ? '飞书' : 'Feishu' });
+      if (counts.notion) chips.push({ key:'notion', label: 'Notion' });
+      return chips;
     });
     // ── Overview (总览) ──────────────────────────────────────────────
     // Server pre-aggregates everything into data.overview; the page just renders.
@@ -11439,6 +11947,7 @@ createApp({
         obsidian: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5.5 9v6L12 21l6.5-6V9L12 3Z"/><path d="M12 3v9l6.5 3M12 12 5.5 15M12 12v9"/></svg>',
         notion:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M9 16V8l6 8V8"/></svg>',
         inline:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18.5 16 7.5l2.5 2.5L7.5 21H5v-2.5Z"/><path d="M14 9.5 16.5 12"/></svg>',
+        folder:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2v-9Z"/></svg>',
         external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>',
       };
       switch (src) {
@@ -11446,8 +11955,56 @@ createApp({
         case 'feishu':   return { key:'feishu',   label:'飞书',     meta: zh?'云文档':'cloud doc',   glyph:G.feishu, open: zh?'在飞书打开':'Open in 飞书' };
         case 'notion':   return { key:'notion',   label:'Notion',   meta: zh?'工作区':'workspace',   glyph:G.notion, open: zh?'在 Notion 打开':'Open in Notion' };
         case 'inline':   return { key:'inline',   label: zh?'内置':'Inline', meta: zh?'存在此处 · 可直接读':'kept in Loci', glyph:G.inline, open: zh?'在此阅读':'Read inline' };
-        default:         return { key:'external', label: zh?'外部链接':'External', meta: zh?'链接':'link', glyph:G.external, open: zh?'打开链接':'Open link' };
       }
+      // a mounted folder source (id like "src-xxxx")
+      const m = notesMountedSources.value.find(s => s.id === src);
+      if (m) {
+        const isObs = m.type === 'obsidian';
+        return {
+          key: m.id, label: m.name,
+          meta: isObs ? (zh?'Obsidian vault':'Obsidian vault') : (zh?'文件夹':'folder'),
+          glyph: isObs ? G.obsidian : G.folder,
+          open: zh ? '打开文件' : 'Open file',
+        };
+      }
+      return { key:'external', label: zh?'外部链接':'External', meta: zh?'链接':'link', glyph:G.external, open: zh?'打开链接':'Open link' };
+    }
+    // A distinct color per note SOURCE (used for the source filter dots).
+    // Mounted folders get a stable color derived from their id so multiple vaults
+    // are visually distinct.
+    const FOLDER_HUES = ['#9b7ed0', '#5b86d6', '#e8836b', '#3fae8f', '#e0a23c', '#c86fa8'];
+    function noteSourceColor(src) {
+      switch (src) {
+        case 'obsidian': return '#9b7ed0';   // purple
+        case 'feishu':   return '#5b86d6';   // blue
+        case 'notion':   return '#5b5b57';   // ink
+        case 'inline':   return '#10b981';   // green
+      }
+      const m = notesMountedSources.value.find(s => s.id === src);
+      if (m) {
+        if (m.type === 'obsidian') return '#9b7ed0';
+        let h = 0; for (const ch of m.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        return FOLDER_HUES[h % FOLDER_HUES.length];
+      }
+      return '#e0a23c';   // amber (external)
+    }
+    // A lively color for a NOTE's list icon. Most real notes are all "inline"
+    // (same source → all green), which looks flat — so color by the note's first
+    // tag/title instead, giving the list a varied, multi-hue feel.
+    const NOTE_HUES = ['#10b981', '#5b86d6', '#9b7ed0', '#e0a23c', '#e8836b', '#3aa5a0'];
+    function noteColor(note) {
+      const seed = String(((note && note.tags && note.tags[0]) || (note && note.title) || '')).replace(/^#/, '');
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+      return NOTE_HUES[h % NOTE_HUES.length];
+    }
+    // Per-tag color: each tag gets its own hue (hashed from its text), so a card's
+    // little tags read as a multi-color set rather than all one color.
+    function noteTagColor(tag) {
+      const seed = String(tag || '').replace(/^#/, '');
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+      return NOTE_HUES[h % NOTE_HUES.length];
     }
     // infer a source from a pointer link (pointers carry no explicit source)
     function noteInferSource(link) {
@@ -11476,15 +12033,23 @@ createApp({
       const n = (data.value && data.value.notes) || {};
       const out = [];
       (n.pointers || []).forEach((p, i) => {
-        const src = noteInferSource(p.link);
-        // Obsidian is a local vault → Loci can read the body inline (if provided).
-        const readable = src === 'obsidian' && !!p.content;
+        // prefer the source the backend already tagged; fall back to inferring
+        const src = p.source || noteInferSource(p.link);
+        // A local markdown file (Obsidian) → Loci renders the body inline, read
+        // live from disk. It's the SAME as our own notes underneath (plain .md),
+        // so it's editable too: filename = its absolute path, editable = true.
+        // Only web links (Feishu/Notion) have no local file → read-only.
+        const readable = !!p.content;
+        const isLocalMd = readable && /\.md$/i.test(p.link || '');
         out.push({
           id: 'ptr-' + i, kind: readable ? 'inline' : 'external', source: src,
           title: p.title || p.link || '', gist: p.gist || '',
           tags: Array.isArray(p.tags) ? p.tags : (p.tags ? [p.tags] : []),
           link: p.link || '', date: p.date || (p.meta && (p.meta.created || p.meta.date)) || '',
-          content: p.content || '', readable,
+          content: p.content || '', readable, missing: !!p.missing,
+          filename: isLocalMd ? p.link : '',       // absolute path = the write target
+          editable: isLocalMd,
+          meta: (p.meta && typeof p.meta === 'object') ? p.meta : {},
         });
       });
       (n.files || []).forEach((f, i) => {
@@ -11494,6 +12059,26 @@ createApp({
           title: noteTitle(f), gist: meta.gist || noteGistFromContent(f.content),
           tags: Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []),
           link: '', date: meta.created || meta.date || '', content: f.content || '', readable: true,
+          filename: f.filename || '', editable: true,
+          meta: meta,   // full frontmatter, so the properties panel can show custom fields
+        });
+      });
+      // Notes from mounted folders (Obsidian vaults, docs dirs, …). Each is a real
+      // local .md → readable AND editable, same as inline notes. Its `source` is the
+      // mount's id so the left rail can group by folder.
+      (n.folderNotes || []).forEach((f, i) => {
+        const meta = f.meta || {};
+        const title = (meta.title) ||
+          (f.content && (f.content.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1] || '').replace(/<[^>]+>/g, '') ||
+          String(f.rel || '').replace(/\.md$/i, '');
+        out.push({
+          id: 'fld-' + i, kind: 'inline', source: f.sourceId || 'folder',
+          sourceName: f.sourceName || '', sourceType: f.sourceType || 'folder',
+          title, gist: meta.gist || noteGistFromContent(f.content),
+          tags: Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []),
+          link: f.filename || '', date: meta.created || meta.date || '',
+          content: f.content || '', readable: true,
+          filename: f.filename || '', editable: true, meta,
         });
       });
       return out;
@@ -11501,9 +12086,39 @@ createApp({
     const notesFiles = computed(() => notesUnified.value);   // keep old name (stats etc.)
     const notesSourceCounts = computed(() => {
       const c = { all: 0, obsidian: 0, feishu: 0, notion: 0, inline: 0, external: 0 };
-      notesUnified.value.forEach(x => { c.all++; if (c[x.source] != null) c[x.source]++; });
+      notesUnified.value.forEach(x => {
+        c.all++;
+        c[x.source] = (c[x.source] || 0) + 1;   // count any source key, incl. mounted folder ids
+      });
       return c;
     });
+    // Filter chips built from the notes' OWN tags: "全部" + the most-used tags,
+    // each with a count. Clicking one filters the list by that tag (notesTagFilter).
+    const notesTagChips = computed(() => {
+      const counts = new Map();
+      (notesUnified.value || []).forEach(n => {
+        (n.tags || []).forEach(raw => {
+          const tag = String(raw).replace(/^#/, '').trim();
+          if (!tag) return;
+          counts.set(tag, (counts.get(tag) || 0) + 1);
+        });
+      });
+      const top = [...counts.entries()]
+        .map(([tag, count]) => ({ key: tag, label: tag, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12);
+      return [{ key: 'all', label: lang.value === 'zh' ? '全部' : 'All', count: (notesUnified.value || []).length }, ...top];
+    });
+    // Human-friendly date for the note list: "今天" if it's today, else "MM-DD".
+    function noteWhen(dateStr) {
+      const d = String(dateStr || '').slice(0, 10);
+      if (!d) return '';
+      let today = '';
+      try { today = dateToKey(new Date()); } catch (e) {}
+      if (today && d === today) return lang.value === 'zh' ? '今天' : 'Today';
+      const m = d.match(/^\d{4}-(\d{2})-(\d{2})$/);
+      return m ? m[1] + '-' + m[2] : d;
+    }
     function noteMatchesSearch(x, q) {
       if (!q) return true;
       const hay = (x.title + ' ' + x.gist + ' ' + (x.tags || []).join(' ') + ' ' + x.link).toLowerCase();
@@ -11514,12 +12129,12 @@ createApp({
       const q = notesSearch.value.trim().toLowerCase();
       const filter = notesSourceFilter.value;
       const zh = lang.value === 'zh';
-      // "全部" → one flat timeline (newest first); each item shows a source pill.
+      // "全部" → one flat timeline (newest first).
       if (filter === 'all') {
         const notes = notesUnified.value.filter(x => noteMatchesSearch(x, q)).slice().sort(byDateDesc);
-        return notes.length ? [{ source: 'all', label: zh ? '最近' : 'Recent', timeline: true, notes }] : [];
+        return notes.length ? [{ source: 'all', label: zh ? '最近编辑' : 'Recent', timeline: true, notes }] : [];
       }
-      // single source → just that source's notes, no group label needed
+      // single source → just that source's notes
       const notes = notesUnified.value.filter(x => x.source === filter && noteMatchesSearch(x, q)).slice().sort(byDateDesc);
       return notes.length ? [{ source: filter, label: noteSourceMeta(filter).label, timeline: false, notes }] : [];
     });
@@ -11563,6 +12178,33 @@ createApp({
       const total = todos.length;
       const pct = total ? roadmapDoneCount(p) / total : 0;
       return (circumference * (1 - pct)).toFixed(1);
+    }
+
+    // Per-project accent color. Each project gets a stable color from a 5-hue
+    // palette (coral / blue / amber / purple / green — reused from the people
+    // module's kind-ring), keyed by its position in the list so the same project
+    // always keeps the same color across renders.
+    const RM_PALETTE = ['#e8836b', '#5b86d6', '#e0a23c', '#9b7ed0', '#10b981'];
+    function rmProjColor(p) {
+      const list = roadmapProjects.value || [];
+      const idx = list.findIndex(x => x.name === (p && p.name));
+      return RM_PALETTE[(idx < 0 ? 0 : idx) % RM_PALETTE.length];
+    }
+    // First glyph for the project's icon-mark: a CJK char keeps its first char,
+    // a latin name uses its capitalized initial.
+    function rmProjInitial(p) {
+      const n = String((p && p.name) || '').trim();
+      if (!n) return '·';
+      if (/^[A-Za-z]/.test(n)) return n.charAt(0).toUpperCase();
+      const cjk = n.match(/[一-龥]/);
+      if (cjk) return cjk[0];
+      const lat = n.match(/[A-Za-z]/);
+      return lat ? lat[0].toUpperCase() : '·';
+    }
+    // Completion percent (0–100) for the bottom progress line.
+    function rmProjPct(p) {
+      const total = ((p && p.todos) || []).length;
+      return total ? Math.round(roadmapDoneCount(p) / total * 100) : 0;
     }
 
     // Map a todo category to its tag color class.
@@ -11609,26 +12251,83 @@ createApp({
       return buckets.filter(b => b.body);
     }
 
-    // Connect-project dialog. Clean demo build: adds a project to the local mock
-    // list only — real "connect a project" is an AI-driven action (reads the repo,
-    // injects memory.md, writes projects/index.md), not a dashboard form. The
-    // dialog's hint tells the user how to really connect.
+    // Connect-project dialog.
+    // - Live brain: really connects — POST /api/project/connect runs
+    //   loci-project.js, which builds <repo>/.loci/ (memory.md + todo.json +
+    //   decisions/), injects the Loci block into the repo's CLAUDE.md/AGENTS.md,
+    //   and writes the brain's projects/index.md. Then we re-pull /api/data so the
+    //   project shows up for real and its .loci/todo.json is where new todos land.
+    // - Demo build (DEMO_MODE): the repo isn't on this machine, so we can't build
+    //   anything — just push a mock entry to the local list so the UI reacts.
     const roadmapConnectOpen = ref(false);
     const roadmapConnectForm = reactive({ name: '', repo: '', summary: '' });
-    function roadmapConnectSubmit() {
+    const roadmapConnecting = ref(false);
+    const roadmapConnectError = ref('');
+    async function roadmapConnectSubmit() {
       const name = roadmapConnectForm.name.trim();
-      if (!name) return;
+      if (!name || roadmapConnecting.value) return;
       const repo = roadmapConnectForm.repo.trim() || ('~/code/' + name);
       const summary = roadmapConnectForm.summary.trim();
-      const proj = (data.value && data.value.projects && data.value.projects.serious);
-      if (Array.isArray(proj)) {
-        proj.push({ name, status: 'active', summary, detail: 'repo: ' + repo, repo, memory: null, todos: [] });
+      roadmapConnectError.value = '';
+
+      // Demo build: no real repo on disk → just a local mock entry.
+      if (DEMO_MODE) {
+        const proj = (data.value && data.value.projects && data.value.projects.serious);
+        if (Array.isArray(proj)) {
+          proj.push({ name, status: 'active', summary, detail: 'repo: ' + repo, repo, memory: null, todos: [] });
+        }
+        roadmapFocusName.value = name;
+        roadmapConnectForm.name = ''; roadmapConnectForm.repo = ''; roadmapConnectForm.summary = '';
+        roadmapConnectOpen.value = false;
+        return;
       }
-      roadmapFocusName.value = name;        // focus the freshly added project
-      roadmapConnectForm.name = '';
-      roadmapConnectForm.repo = '';
-      roadmapConnectForm.summary = '';
-      roadmapConnectOpen.value = false;
+
+      // Live brain: build the project's .loci/ for real, then reload.
+      roadmapConnecting.value = true;
+      try {
+        const res = await fetch('/api/project/connect', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, repo, summary })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error) {
+          roadmapConnectError.value = out.error || (lang.value === 'zh' ? '连接失败' : 'Connect failed');
+          roadmapConnecting.value = false;
+          return;
+        }
+        // Re-pull live data so the freshly connected project (and its empty
+        // .loci/todo.json) appears in the list.
+        try {
+          const r = await fetch('/api/data');
+          if (r.ok) data.value = await r.json();
+        } catch (e) { /* keep old data; project is still connected on disk */ }
+        roadmapFocusName.value = name;
+        roadmapConnectForm.name = ''; roadmapConnectForm.repo = ''; roadmapConnectForm.summary = '';
+        roadmapConnectOpen.value = false;
+      } catch (e) {
+        roadmapConnectError.value = lang.value === 'zh' ? '连接失败：' + e.message : 'Connect failed: ' + e.message;
+      } finally {
+        roadmapConnecting.value = false;
+      }
+    }
+
+    // Pop the native folder picker (macOS, local only) and drop the chosen path
+    // into the repo field. In the demo build demoFetch no-ops, so nothing pops —
+    // the user just types the path, which is fine for a demo.
+    const roadmapBrowsing = ref(false);
+    async function roadmapBrowseRepo() {
+      if (roadmapBrowsing.value) return;
+      roadmapBrowsing.value = true;
+      try {
+        const res = await demoFetch('/api/project/browse', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+        });
+        if (res && res.ok) {
+          const data = await res.json();
+          if (data && data.path) roadmapConnectForm.repo = data.path;
+        }
+      } catch (e) { /* cancelled or unsupported — quiet no-op */ }
+      finally { roadmapBrowsing.value = false; }
     }
 
     // Open the project's folder in Finder/Explorer (local machine only). In the
@@ -14343,7 +15042,7 @@ createApp({
       "修复任务 id 冲突 bug": "Fix the task id collision bug",
       "隐藏大脑页 + 路由切默认主题": "Hide the brain page + switch the route to the default theme",
       "Loci 系统": "Loci",
-      "CYC": "CYC Studio",
+      "内容工作室": "CYC Studio",
       "调研": "Research",
       "晨间规划": "Morning planning",
       "午餐 & 休息": "Lunch & break",
@@ -14541,7 +15240,7 @@ createApp({
       "把 Loci 记忆能力接进 OpenClaw": "Bring Loci memory into OpenClaw",
       "面向黑客松评委的静态演示版": "Static demo for hackathon judges",
       "<h2>目标</h2><p>让开发者一眼理解：Loci 不是又一个笔记 App，而是 AI 的长期记忆层。</p><h2>当前状态</h2><p>Clean Dashboard 已能完整展示任务、项目、笔记、关系与决策。</p><h2>下一步</h2><p>公开 demo、README、投票页素材。</p>": "<h2>Goal</h2><p>Help developers understand instantly: Loci is not another notes app, it is the long-term memory layer for AI.</p><h2>Current state</h2><p>The Clean Dashboard can now show tasks, projects, notes, people, and decisions end to end.</p><h2>Next step</h2><p>Public demo, README, and voting-page assets.</p>",
-      "<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>": "<h2>Goal</h2><p>Turn CYC Studio into a content brand about AI tools and indie building.</p><h2>Current state</h2><p>Preparing episode one of the Claude Code series and Loci launch content.</p><h2>Next step</h2><p>Organize the topic pool, film the demo, and cut the product intro.</p>",
+      "<h2>目标</h2><p>把内容工作室做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>": "<h2>Goal</h2><p>Turn CYC Studio into a content brand about AI tools and indie building.</p><h2>Current state</h2><p>Preparing episode one of the Claude Code series and Loci launch content.</p><h2>Next step</h2><p>Organize the topic pool, film the demo, and cut the product intro.</p>",
       "<h2>目标</h2><p>让 OpenClaw 用户能把项目上下文写进 Loci，并在代理之间共享。</p><h2>当前状态</h2><p>插件协议草案完成，正在补 demo 数据与 README。</p><h2>下一步</h2><p>封装 memory read/write API，录集成演示。</p>": "<h2>Goal</h2><p>Let OpenClaw users write project context into Loci and share it across agents.</p><h2>Current state</h2><p>The plugin protocol draft is done; demo data and README are being filled in.</p><h2>Next step</h2><p>Wrap the memory read/write API and record the integration demo.</p>",
       "<h2>目标</h2><p>给评委和早期用户一个免安装、可直接打开的 Loci 体验。</p><h2>当前状态</h2><p>Clean 主题、入口引导、语言选择与 demo 数据都在同一个静态页面里。</p><h2>下一步</h2><p>发布到公网并检查移动端。</p>": "<h2>Goal</h2><p>Give judges and early users an install-free Loci experience they can open immediately.</p><h2>Current state</h2><p>The Clean theme, entry guide, language picker, and demo data all live in one static page.</p><h2>Next step</h2><p>Publish publicly and check mobile.</p>",
       "完成液态玻璃 / Clean 主题": "Finish the Liquid Glass / Clean themes",
@@ -14636,19 +15335,19 @@ createApp({
               { id: 't24', text: '锤死前 10 秒差异化 hook', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 1, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
               { id: 't31', text: '补齐 notes 样例与搜索标签', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: '11:00', endTime: '12:00', project: 'Loci 公网 Demo', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
               { id: 't32', text: '写 OpenClaw 插件 README', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'OpenClaw 记忆插件', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
-              { id: 't33', text: '整理 CYC 频道选题池', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't33', text: '整理 CYC 频道选题池', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
               { id: 't34', text: '把项目 todo 拖拽状态录成 gif', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
             ],
             P2: [
-              { id: 't9', text: '研究新的视频选题方向', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T00:00:00Z', completedAt: null },
-              { id: 't25', text: '录 Claude Code 系列视频', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
+              { id: 't9', text: '研究新的视频选题方向', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T00:00:00Z', completedAt: null },
+              { id: 't25', text: '录 Claude Code 系列视频', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
               { id: 't26', text: '稳定生活节奏 + 早睡早起', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: null, urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
               { id: 't4', text: '调研竞品的记忆方案', done: false, status: 'stale', stale: true, date: null, endDate: null, startTime: null, endTime: null, project: '调研', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-04-28T00:00:00Z', updatedAt: '2026-04-28T00:00:00Z', completedAt: null },
               { id: 't5', text: '与团队评审 Dashboard 原型', done: true, status: 'done', stale: false, date: T, endDate: null, startTime: '14:00', endTime: '15:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: T + 'T06:00:00Z', completedAt: T + 'T06:00:00Z' },
               { id: 't6', text: '设计 onboarding 流程', done: true, status: 'done', stale: false, date: '2026-05-31', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T08:00:00Z', completedAt: '2026-05-31T08:00:00Z' },
               { id: 't7', text: '修复任务 id 冲突 bug', done: true, status: 'done', stale: false, date: '2026-05-30', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T10:00:00Z', completedAt: '2026-05-30T10:00:00Z' },
               { id: 't27', text: '隐藏大脑页 + 路由切默认主题', done: true, status: 'done', stale: false, date: '2026-06-01', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: '2026-06-01T11:00:00Z', completedAt: '2026-06-01T11:00:00Z' },
-              { id: 't35', text: '剪 60 秒产品片头', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-02T00:00:00Z', updatedAt: '2026-06-02T00:00:00Z', completedAt: null },
+              { id: 't35', text: '剪 60 秒产品片头', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-02T00:00:00Z', updatedAt: '2026-06-02T00:00:00Z', completedAt: null },
               { id: 't36', text: '补充隐私与本地优先说明', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-03T00:00:00Z', updatedAt: '2026-06-03T00:00:00Z', completedAt: null },
               { id: 't37', text: '完成公开 demo 可访问链接', done: true, status: 'done', stale: false, date: '2026-06-05', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T09:00:00Z', completedAt: '2026-06-05T09:00:00Z' },
               { id: 't38', text: '与小柔复盘三位用户访谈', done: true, status: 'done', stale: false, date: '2026-06-04', endDate: null, startTime: '16:00', endTime: '17:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-04T00:00:00Z', updatedAt: '2026-06-04T08:00:00Z', completedAt: '2026-06-04T08:00:00Z' },
@@ -14812,8 +15511,8 @@ createApp({
                 { id: 'b2', text: '写 RSC 深度文章', status: 'todo', category: 'Content', order: 1 },
                 { id: 'b3', text: '旧文章归档整理', status: 'done', category: 'Content', order: 2 },
               ] },
-            { name: 'CYC', status: 'active', summary: '内容品牌与 AI 工具视频', detail: 'repo: ~/Desktop/CYC', repo: '~/Desktop/CYC',
-              memory: mk('<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>', {}, 'memory.md'),
+            { name: '内容工作室', status: 'active', summary: '内容品牌与 AI 工具视频', detail: 'repo: ~/Desktop/content-studio', repo: '~/Desktop/content-studio',
+              memory: mk('<h2>目标</h2><p>把内容工作室做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>', {}, 'memory.md'),
               todos: [
                 { id: 'cyc1', text: '准备 Claude Code 第一集脚本', status: 'doing', category: 'Content', order: 0 },
                 { id: 'cyc2', text: '录制 Loci 发布介绍', status: 'todo', category: 'Video', order: 1 },
@@ -14886,7 +15585,7 @@ createApp({
           projects: [
             { name: 'Loci 系统', status: 'active', total: 6, done: 2 },
             { name: '个人博客', status: 'active', total: 3, done: 1 },
-            { name: 'CYC', status: 'active', total: 6, done: 1 },
+            { name: '内容工作室', status: 'active', total: 6, done: 1 },
             { name: 'OpenClaw 记忆插件', status: 'active', total: 5, done: 1 },
             { name: 'Loci 公网 Demo', status: 'active', total: 6, done: 2 },
           ],
@@ -14897,7 +15596,7 @@ createApp({
             { name: 'My Brain', status: 'active', activity: 0.9, desc: '个人知识中枢' },
             { name: 'Loci 系统', status: 'active', activity: 0.92, desc: 'AI 记忆宫殿' },
             { name: 'Loci 公网 Demo', status: 'active', activity: 0.82, desc: '公网 demo' },
-            { name: 'CYC', status: 'active', activity: 0.72, desc: '内容与写作' },
+            { name: '内容工作室', status: 'active', activity: 0.72, desc: '内容与写作' },
             { name: 'OpenClaw 记忆插件', status: 'active', activity: 0.64, desc: '插件' },
             { name: '个人博客', status: 'active', activity: 0.5, desc: '发布' },
             { name: 'AI 日程助手', status: 'pending', activity: 0.3, desc: '孵化中的原型' },
@@ -15384,11 +16083,18 @@ createApp({
       roadmapAdd, roadmapRemove, roadmapDragStart, roadmapDrop,
       roadmapDossierOpen, roadmapToggleDossier,
       roadmapFocusName, roadmapFocusProject, rmArcDash, rmTagClass, rmSparkBars, rmDossierCells,
-      roadmapConnectOpen, roadmapConnectForm, roadmapConnectSubmit,
+      rmProjColor, rmProjInitial, rmProjPct,
+      roadmapConnectOpen, roadmapConnectForm, roadmapConnectSubmit, roadmapBrowseRepo, roadmapBrowsing,
+      roadmapConnecting, roadmapConnectError,
       openProjectFolder, openFolderState, roadmapDisconnect,
       notesFiles, notesUnified, notesIndexContent, notesOpenId, notesIndexOpen, noteTitle,
-      notesSourceFilter, notesSearch, notesOpenInline, notesSelected, notesCollapsed, notesSourceChips,
-      noteSourceMeta, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
+      notesSourceFilter, notesTagFilter, notesTagChips, notesSearch, notesOpenInline, notesSelected, notesCollapsed, notesSourceChips, noteWhen,
+      notesEditing, notesEditText, notesSaving, notesEditError, notesStartEdit, notesCancelEdit, notesSaveEdit, notesCreate,
+      notesNewTag, notesPropsSaving, notesSetTitle, notesSetField, notesAddTag, notesRemoveTag,
+      notesNewAlias, notesAliases, notesAddAlias, notesRemoveAlias,
+      notesConfirmDelete, notesAskDelete, notesCancelDelete, notesDoDelete,
+      notesMounting, notesMountMsg, notesMountedSources, notesSelectedSource, notesMountFolder, notesUnmountFolder,
+      noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
       overview, ovKpiCards, ovKpiGapCards, ovBubbles, ovTrendHasData, ovRelDate,
       ovUserName, ovFocusTask, ovTrendTotal, ovDayShort, ovMonthDay, ovSpark, ovRing,
