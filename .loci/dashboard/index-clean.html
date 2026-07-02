@@ -2871,12 +2871,17 @@
     .nr-allico{ width:16px;height:16px;color:var(--ink-3);display:grid;place-items:center; } .nr-allico svg{ width:15px;height:15px; }
     .nr-allnm{ font-size:12.5px;font-weight:650;color:var(--ink);flex:1; }
     .nr-allct{ font-family:var(--mono);font-size:9.5px;color:var(--ink-4); }
-    /* section header = a colored pill: green for owned, gold for linked */
-    .nr-sec{ display:flex; align-items:center; gap:7px; margin:14px 4px 6px; padding:6px 10px; border-radius:9px; font-size:11.5px; font-weight:700; }
-    .nr-sec .ic{ width:13px;height:13px;display:grid;place-items:center;flex:none; } .nr-sec .ic svg{ width:13px;height:13px; }
+    /* section header = a colored pill: green for owned, gold for linked.
+       Clicking the pill collapses/expands the whole section. */
+    .nr-sec{ display:flex; align-items:center; gap:8px; margin:16px 4px 7px; padding:10px 12px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:filter .12s; }
+    .nr-sec:hover{ filter:brightness(.97); }
+    .nr-sec .caret{ width:14px;height:14px;flex:none;display:grid;place-items:center; transition:transform .15s; opacity:.75; }
+    .nr-sec .caret svg{ width:12px;height:12px; }
+    .nr-sec .caret.open{ transform:rotate(90deg); }
+    .nr-sec .ic{ width:16px;height:16px;display:grid;place-items:center;flex:none; } .nr-sec .ic svg{ width:16px;height:16px; }
     .nr-sec .lbl{ flex:1; }
-    .nr-sec .ct{ font-family:var(--mono); font-size:10px; opacity:.7; }
-    .nr-sec .plus{ cursor:pointer; font-size:15px; line-height:1; opacity:.6; padding:0 2px; } .nr-sec .plus:hover{ opacity:1; }
+    .nr-sec .ct{ font-family:var(--mono); font-size:11px; opacity:.7; }
+    .nr-sec .plus{ cursor:pointer; font-size:17px; line-height:1; opacity:.6; padding:0 2px; } .nr-sec .plus:hover{ opacity:1; }
     .nr-sec.owned{ background:#e7f6ef; color:#0b7d5a; }
     .nr-sec.linked{ background:#f5ecd8; color:#a5822f; }
     .nr-trow{ display:flex; align-items:center; gap:6px; padding:5px 8px; border-radius:8px; cursor:pointer; user-select:none; }
@@ -6128,25 +6133,29 @@
                   <!-- 正常:拥有 + 链接 两分区的可折叠树 -->
                   <template v-else>
                     <!-- 拥有 -->
-                    <div class="nr-sec owned">
+                    <div class="nr-sec owned" @click="notesToggleSec('owned')">
+                      <span class="caret" :class="{ open: notesSecOpen.owned }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/></svg></span>
                       <span class="lbl">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</span>
                       <span class="ct">{{ notesOwned.count }}</span>
-                      <span class="plus" :title="lang === 'zh' ? '新建文件夹' : 'New folder'" @click="notesMkdir('')">＋</span>
+                      <span class="plus" :title="lang === 'zh' ? '新建文件夹' : 'New folder'" @click.stop="notesMkdir('')">＋</span>
                     </div>
-                    <note-tree-node v-for="node in notesOwned.children" :key="node.id" :node="node" :depth="0"
-                      :sel-id="notesSelected && notesSelected.id" :open-set="notesOpenFolders" :color="'#10b981'"
-                      @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)"></note-tree-node>
-                    <div v-if="!notesOwned.children.length" class="nr-empty-sm">{{ lang === 'zh' ? '还没有笔记' : 'No notes yet' }}</div>
+                    <template v-if="notesSecOpen.owned">
+                      <note-tree-node v-for="node in notesOwned.children" :key="node.id" :node="node" :depth="0"
+                        :sel-id="notesSelected && notesSelected.id" :open-set="notesOpenFolders" :color="'#10b981'"
+                        @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)"></note-tree-node>
+                      <div v-if="!notesOwned.children.length" class="nr-empty-sm">{{ lang === 'zh' ? '还没有笔记' : 'No notes yet' }}</div>
+                    </template>
 
                     <!-- 链接 -->
-                    <div class="nr-sec linked" v-if="notesLinked.length">
+                    <div class="nr-sec linked" v-if="notesLinked.length" @click="notesToggleSec('linked')">
+                      <span class="caret" :class="{ open: notesSecOpen.linked }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg></span>
                       <span class="lbl">{{ lang === 'zh' ? '链接的文件夹' : 'Linked folders' }}</span>
                       <span class="ct">{{ notesLinked.length }}</span>
-                      <span class="plus" :title="lang === 'zh' ? '链接文件夹' : 'Link a folder'" @click="notesMountFolder()">＋</span>
+                      <span class="plus" :title="lang === 'zh' ? '链接文件夹' : 'Link a folder'" @click.stop="notesMountFolder()">＋</span>
                     </div>
-                    <template v-for="src in notesLinked" :key="src.id">
+                    <template v-if="notesSecOpen.linked" v-for="src in notesLinked" :key="src.id">
                       <note-tree-node :node="src" :depth="0" :linked="true" :missing="src.missing"
                         :sel-id="notesSelected && notesSelected.id" :open-set="notesOpenFolders" :color="noteSourceColor(src.id)"
                         @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)"
@@ -12162,6 +12171,9 @@ const lociApp = createApp({
       if (notesOpenFolders.has(id)) notesOpenFolders.delete(id);
       else notesOpenFolders.add(id);
     }
+    // The two top sections ("my notes" / "linked folders") collapse too.
+    const notesSecOpen = reactive({ owned: true, linked: true });
+    function notesToggleSec(key) { notesSecOpen[key] = !notesSecOpen[key]; }
     // `owned` notes → source 'inline' (no footnote); linked → source 'linked'
     // (footnote "linked from X"). Both are local .md → editable.
     function notesAdaptNote(n, color, glyph, owned, srcLabel) {
@@ -16287,7 +16299,7 @@ const lociApp = createApp({
       notesNewAlias, notesAliases, notesAddAlias, notesRemoveAlias,
       notesConfirmDelete, notesAskDelete, notesCancelDelete, notesDoDelete,
       notesMounting, notesMountMsg, notesMountedSources, notesSelectedSource, notesMountFolder, notesUnmountFolder,
-      notesView, notesOpenFolders, notesToggleFolder, notesOwned, notesLinked, notesTotal, notesSearchHits, notesMkdir,
+      notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesTotal, notesSearchHits, notesMkdir,
       noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
       overview, ovKpiCards, ovKpiGapCards, ovBubbles, ovTrendHasData, ovRelDate,
