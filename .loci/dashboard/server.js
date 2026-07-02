@@ -1141,12 +1141,16 @@ function handleNoteMkdir(body) {
 // external pointers. Guarded by isSafeSegment against path traversal.
 function handleNoteDelete(body) {
   const { filename } = body || {};
-  if (!filename || !isSafeSegment(filename)) return { error: 'Bad filename' };
-  if (!filename.endsWith('.md')) return { error: 'Not a markdown file' };
-  const file = path.join(LOCI_ROOT, 'notes', filename);
-  if (!fs.existsSync(file)) return { error: 'Note not found' };
+  // Resolve like save/props/raw do: accepts a bare inline filename OR an absolute
+  // path inside an allowed root. The left-rail tree keys its leaves by ABSOLUTE
+  // path (dirToTree → filename: full), so a plain isSafeSegment check here would
+  // reject every tree-driven delete with "Bad filename". resolveNotePath keeps the
+  // same path-traversal guard while handling both shapes.
+  const r = resolveNotePath(filename);
+  if (r.error) return { error: r.error };
+  if (!fs.existsSync(r.file)) return { error: 'Note not found' };
   try {
-    fs.unlinkSync(file);
+    fs.unlinkSync(r.file);
     return { ok: true, filename };
   } catch (e) {
     return { error: 'Could not delete note' };

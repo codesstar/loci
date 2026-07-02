@@ -2884,24 +2884,30 @@
     .nr-sec .plus{ cursor:pointer; font-size:17px; line-height:1; opacity:.6; padding:0 2px; } .nr-sec .plus:hover{ opacity:1; }
     .nr-sec.owned{ background:#e7f6ef; color:#0b7d5a; }
     .nr-sec.linked{ background:#f5ecd8; color:#a5822f; }
-    .nr-trow{ display:flex; align-items:center; gap:6px; padding:5px 8px; border-radius:8px; cursor:pointer; user-select:none; }
+    .nr-trow{ display:flex; align-items:center; gap:7px; padding:6px 8px; border-radius:8px; cursor:pointer; user-select:none; }
     .nr-trow:hover{ background:rgba(180,150,90,.09); }
-    .nr-trow:hover .nr-trm{ opacity:.6; }
+    .nr-trow:hover .nr-trm, .nr-trow:hover .nr-tdel{ opacity:.55; }
     .nr-trow.sel{ background:var(--nr-gold-weak); }
     .nr-tw{ width:13px;height:13px;flex:none;display:grid;place-items:center;color:var(--ink-4);transition:transform .15s; }
     .nr-tw svg{ width:10px;height:10px; } .nr-tw.open{ transform:rotate(90deg); } .nr-tw.leaf{ visibility:hidden; }
-    .nr-tic{ width:16px;height:16px;flex:none;display:grid;place-items:center;position:relative; }
-    .nr-tic svg{ width:14px;height:14px; }
+    .nr-tic{ width:19px;height:19px;flex:none;display:grid;place-items:center;position:relative; }
+    .nr-tic svg{ width:17px;height:17px; }
     .nr-linkdot{ position:absolute; right:-3px; bottom:-3px; width:9px;height:9px; background:var(--surface); border-radius:50%; display:grid;place-items:center; }
     .nr-linkdot svg{ width:7px;height:7px; color:#b08a3a; }
-    .nr-tnm{ font-size:12.5px; color:var(--ink-2); white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1; }
-    .nr-trow.folder .nr-tnm{ font-weight:650; color:var(--ink); }
-    .nr-trow.sel .nr-tnm{ color:var(--ink); font-weight:600; }
-    .nr-trow.note .nr-tnm{ font-weight:500; }
+    .nr-tnm{ font-size:12.5px; font-weight:400; color:var(--ink-2); white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1; }
+    /* folder vs note: same weight (no bolding), separated by color depth + a touch
+       of spacing so a folder reads as a container and its notes as contents inside. */
+    .nr-trow.folder{ margin-top:5px; }
+    .nr-trow.folder .nr-tnm{ font-weight:400; color:var(--ink); }
+    .nr-trow.note .nr-tnm{ font-weight:400; color:var(--ink-3); }
+    .nr-trow.sel .nr-tnm{ color:var(--ink); font-weight:500; }
     .nr-tct{ font-family:var(--mono); font-size:9.5px; color:var(--ink-4); flex:none; }
     .nr-tmiss{ color:#c0503a; font-weight:700; flex:none; font-size:12px; }
     .nr-trm{ opacity:0; border:0;background:transparent;color:var(--ink-3);cursor:pointer;padding:2px;flex:none;transition:opacity .12s; }
     .nr-trm:hover{ color:#c0503a; } .nr-trm svg{ width:12px;height:12px; }
+    /* delete a note leaf (owned notes only) — quiet trash, appears on row hover */
+    .nr-tdel{ opacity:0; border:0;background:transparent;color:var(--ink-3);cursor:pointer;padding:2px;flex:none;transition:opacity .12s; }
+    .nr-tdel:hover{ color:#c0503a; opacity:1 !important; } .nr-tdel svg{ width:13px;height:13px; }
     .nr-empty-sm{ font-size:11px;color:var(--ink-4);padding:4px 12px 8px; }
     /* Note row — Notion-style: one compact line (icon + title), no card frame.
        Only hover/selected get a soft highlight; everything else blends in. */
@@ -2913,20 +2919,20 @@
     .nr-ico svg{ width:15px;height:15px; }
     .nr-ico-lg{ width:28px;height:28px;border-radius:8px; } .nr-ico-lg svg{ width:16px;height:16px; }
     .nr-ico-xl{ width:54px;height:54px;border-radius:15px;background:var(--surface);box-shadow:var(--shadow-sm);margin:0 auto 14px; } .nr-ico-xl svg{ width:26px;height:26px; }
-    .nr-ti{ font-size:13px; font-weight:500; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; }
+    .nr-ti{ font-size:15px; font-weight:500; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; }
     .nr-item:hover .nr-ti, .nr-item.sel .nr-ti{ color:var(--ink); }
     .nr-item.sel .nr-ti{ font-weight:600; }
     /* New-note button pinned at the bottom of the rail. */
     .nr-actions{ display:flex; flex-direction:column; gap:0; }
-    .nr-new{ margin:8px 14px 6px; padding:11px; border:1.5px dashed #d8cba8 !important; border-radius:12px; background:transparent; color:var(--nr-gold-ink); font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s; }
+    .nr-new{ display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 14px 6px; padding:11px; line-height:15px; border:1.5px dashed #d8cba8 !important; border-radius:12px; background:transparent; color:var(--nr-gold-ink); font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s; }
     .nr-new:hover{ border-color:var(--nr-gold) !important; background:var(--nr-gold-weak); }
-    .nr-new span{ font-size:14px; }
-    /* bottom action row: new-folder + link-folder, side by side, quiet */
-    .nr-actrow{ display:flex; gap:8px; margin:0 14px 10px; }
-    .nr-act2{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:7px; border:1px solid var(--line); border-radius:9px; background:transparent; color:var(--ink-3); font-size:11px; font-weight:550; cursor:pointer; transition:.15s; }
-    .nr-act2:hover{ color:var(--ink-2); border-color:var(--line-2); }
+    .nr-new span{ font-size:15px; line-height:15px; }
+    /* bottom action row: link-folder — same size/shape as the New-note button above */
+    .nr-actrow{ display:flex; gap:8px; margin:0 14px 6px; }
+    .nr-act2{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:11px; line-height:15px; border:1.5px dashed #d8cba8 !important; border-radius:12px; background:transparent; color:var(--nr-gold-ink); font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s; }
+    .nr-act2:hover{ color:var(--nr-gold-ink); border-color:var(--nr-gold) !important; background:var(--nr-gold-weak); }
     .nr-act2:disabled{ opacity:.5; cursor:default; }
-    .nr-act2 svg{ opacity:.8; }
+    .nr-act2 svg{ width:15px; height:15px; opacity:.9; }
     /* "mount folder" — secondary, quieter than New note */
     .nr-mount{ display:flex; align-items:center; justify-content:center; gap:6px; margin:0 14px 12px; padding:8px; border:0; border-radius:10px; background:transparent; color:var(--ink-3); font-size:11.5px; font-weight:550; cursor:pointer; transition:.15s; }
     .nr-mount:hover{ background:var(--surface-2); color:var(--ink-2); }
@@ -2940,7 +2946,19 @@
     .nr-srcbar-x{ flex:none; border:0; background:transparent; color:var(--ink-3); font-size:10.5px; cursor:pointer; padding:2px 4px; border-radius:5px; }
     .nr-srcbar-x:hover{ color:#c0503a; background:rgba(192,80,58,.09); }
     .nr-empty{ padding:30px 14px; text-align:center; font-family:var(--mono); font-size:11px; letter-spacing:1px; color:var(--ink-3); line-height:2; }
-    .nr-right{ display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; background:#fbfaf7; }
+    .nr-right{ display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; background:#fbfaf7; position:relative; }
+    /* view switch (read / graph) — floats top-right of the reading pane */
+    .nr-viewswitch{ position:absolute; top:14px; right:16px; z-index:6; display:flex; gap:2px; padding:3px; background:rgba(255,255,255,.82); backdrop-filter:blur(6px); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-sm); }
+    .nr-viewswitch button{ display:flex; align-items:center; gap:5px; padding:5px 11px; border:0; background:transparent; border-radius:8px; font-size:12px; font-weight:600; color:var(--ink-3); cursor:pointer; transition:.14s; }
+    .nr-viewswitch button svg{ opacity:.85; }
+    .nr-viewswitch button:hover{ color:var(--ink-2); }
+    .nr-viewswitch button.active{ background:#e7f6ef; color:#0b7d5a; }
+    /* knowledge graph stage */
+    .kg-stage{ position:absolute; inset:0; background:radial-gradient(120% 120% at 50% 0%, #fdfcf9 0%, #f5f3ee 100%); overflow:hidden; }
+    .kg-canvas{ width:100%; height:100%; display:block; cursor:grab; }
+    .kg-canvas:active{ cursor:grabbing; }
+    .kg-hint{ position:absolute; left:16px; bottom:14px; font-family:var(--mono); font-size:10.5px; color:var(--ink-4); background:rgba(255,255,255,.7); padding:4px 9px; border-radius:7px; pointer-events:none; }
+    .kg-empty{ position:absolute; inset:0; display:grid; place-items:center; font-size:13px; color:var(--ink-4); pointer-events:none; }
     /* body row: document (left) + properties panel (right), side by side */
     .nr-body{ display:flex; flex:1; min-height:0; }
     .nr-body .nr-doc{ flex:1; min-width:0; }
@@ -6101,8 +6119,8 @@
               <aside class="nr-left">
                 <div class="nr-left-head">
                   <div>
-                    <div class="nr-left-eyebrow">{{ lang === 'zh' ? 'NOTES · 索引' : 'NOTES · INDEX' }}</div>
-                    <div class="nr-left-title">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</div>
+                    <div class="nr-left-eyebrow">{{ lang === 'zh' ? '知识库 · 索引' : 'KNOWLEDGE · INDEX' }}</div>
+                    <div class="nr-left-title">{{ lang === 'zh' ? '我的知识库' : 'My knowledge' }}</div>
                   </div>
                   <button class="nr-collapse" type="button" :title="lang === 'zh' ? '收起' : 'Collapse'" @click="notesCollapsed = true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7l-5 5 5 5"/></svg>
@@ -6138,12 +6156,11 @@
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/></svg></span>
                       <span class="lbl">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</span>
                       <span class="ct">{{ notesOwned.count }}</span>
-                      <span class="plus" :title="lang === 'zh' ? '新建文件夹' : 'New folder'" @click.stop="notesMkdir('')">＋</span>
                     </div>
                     <template v-if="notesSecOpen.owned">
                       <note-tree-node v-for="node in notesOwned.children" :key="node.id" :node="node" :depth="0"
                         :sel-id="notesSelected && notesSelected.id" :open-set="notesOpenFolders" :color="'#10b981'"
-                        @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)"></note-tree-node>
+                        @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)" @del-note="notesAskDelete($event)"></note-tree-node>
                       <div v-if="!notesOwned.children.length" class="nr-empty-sm">{{ lang === 'zh' ? '还没有笔记' : 'No notes yet' }}</div>
                     </template>
 
@@ -6151,7 +6168,7 @@
                     <div class="nr-sec linked" v-if="notesLinked.length" @click="notesToggleSec('linked')">
                       <span class="caret" :class="{ open: notesSecOpen.linked }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg></span>
-                      <span class="lbl">{{ lang === 'zh' ? '链接的文件夹' : 'Linked folders' }}</span>
+                      <span class="lbl">{{ lang === 'zh' ? '外部知识库' : 'External knowledge' }}</span>
                       <span class="ct">{{ notesLinked.length }}</span>
                       <span class="plus" :title="lang === 'zh' ? '链接文件夹' : 'Link a folder'" @click.stop="notesMountFolder()">＋</span>
                     </div>
@@ -6176,10 +6193,6 @@
                     <span aria-hidden="true">+</span> {{ lang === 'zh' ? '新建笔记' : 'New note' }}
                   </button>
                   <div class="nr-actrow">
-                    <button class="nr-act2" type="button" :disabled="notesSaving" @click="notesMkdir('')" :title="lang === 'zh' ? '在「我的笔记」里新建一个文件夹' : 'New folder in My notes'">
-                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                      {{ lang === 'zh' ? '新建文件夹' : 'New folder' }}
-                    </button>
                     <button class="nr-act2" type="button" :disabled="notesMounting" @click="notesMountFolder()" :title="lang === 'zh' ? '链接一个外部文件夹(如 Obsidian vault),Loci 只指过去不占有' : 'Link an external folder (e.g. an Obsidian vault) — pointer only'">
                       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg>
                       {{ notesMounting ? (lang === 'zh' ? '链接中…' : 'Linking…') : (lang === 'zh' ? '链接文件夹' : 'Link folder') }}
@@ -6193,7 +6206,26 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
               </button>
               <section class="nr-right">
-                <template v-if="notesSelected">
+                <!-- view switch: reading list vs knowledge graph -->
+                <div class="nr-viewswitch">
+                  <button :class="{ active: !notesGraphView }" @click="notesSetGraph(false)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                    {{ lang === 'zh' ? '阅读' : 'Read' }}
+                  </button>
+                  <button :class="{ active: notesGraphView }" @click="notesSetGraph(true)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M7.8 7.3 10.4 15M16.4 8.7 13.4 15.4M8 6.4 15.7 6.7"/></svg>
+                    {{ lang === 'zh' ? '图谱' : 'Graph' }}
+                  </button>
+                </div>
+
+                <!-- ===== KNOWLEDGE GRAPH ===== -->
+                <div v-if="notesGraphView" class="kg-stage">
+                  <canvas ref="kgCanvas" class="kg-canvas"></canvas>
+                  <div class="kg-hint">{{ lang === 'zh' ? '拖动节点 · 点节点看笔记 · 线越粗关系越紧' : 'Drag nodes · click to open · thicker line = closer' }}</div>
+                  <div v-if="kgEmpty" class="kg-empty">{{ lang === 'zh' ? '还没有可成图的笔记' : 'No notes to graph yet' }}</div>
+                </div>
+
+                <template v-else-if="notesSelected">
                   <header class="nr-right-head">
                     <span class="nr-ico nr-ico-lg"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
                     <span class="nr-htitle">{{ notesSelected.title }}</span>
@@ -7783,7 +7815,7 @@ const lociApp = createApp({
         // Fragments
         'nav.fragments': '碎片',
         'nav.roadmap': '项目',
-        'nav.notes': '笔记',
+        'nav.notes': '知识库',
         'nav.sec.daily': '日常',
         'nav.sec.workspace': '工作台',
         // Overview
@@ -7799,7 +7831,7 @@ const lociApp = createApp({
         'ov.trend.empty': '近 7 天还没有完成的任务。',
         'ov.recent.title': '最近决策',
         'ov.recent.empty': '还没有记录决策。',
-        'ov.notes.title': '最近笔记',
+        'ov.notes.title': '最近知识',
         'ov.notes.empty': '还没有笔记。',
         'ov.today.title': '今日任务',
         'ov.today.empty': '今天没有排期任务 — 干净的一天。',
@@ -8107,7 +8139,7 @@ const lociApp = createApp({
         'cal.satShort': 'S',
         'nav.fragments': 'Fragments',
         'nav.roadmap': 'Projects',
-        'nav.notes': 'Notes',
+        'nav.notes': 'Knowledge',
         'nav.sec.daily': 'Daily',
         'nav.sec.workspace': 'Workspace',
         // Overview
@@ -8123,7 +8155,7 @@ const lociApp = createApp({
         'ov.trend.empty': 'No tasks completed in the last 7 days.',
         'ov.recent.title': 'Recent Decisions',
         'ov.recent.empty': 'No decisions recorded yet.',
-        'ov.notes.title': 'Recent Notes',
+        'ov.notes.title': 'Recent Knowledge',
         'ov.notes.empty': 'No notes yet.',
         'ov.today.title': "Today's Tasks",
         'ov.today.empty': 'Nothing scheduled today — a clean slate.',
@@ -10236,6 +10268,10 @@ const lociApp = createApp({
       if (newPage === 'journal') {
         nextTick(() => { setTimeout(initMemoryCanvases, 100); });
       }
+      // knowledge graph: stop its RAF when leaving notes; resume if returning while
+      // the graph view was left on.
+      if (oldPage === 'notes') kgStop();
+      if (newPage === 'notes' && notesGraphView.value) kgStart();
       // Tours are now opt-in from the Guide button; page navigation should not
       // interrupt the dashboard with automatic onboarding overlays.
     });
@@ -11770,7 +11806,14 @@ const lociApp = createApp({
         if (r.ok) data.value = await r.json();
         await nextTick();
         if (filename) {
-          const found = (notesUnified.value || []).find(n => n.filename === filename);
+          // Re-select by filename. The left rail shows the folder TREE, whose leaves
+          // carry the ABSOLUTE path in `filename` (dirToTree → filename: full). The
+          // old flat `notesUnified` list keys inline notes by basename, so matching
+          // there missed tree/linked notes and the view looked like the edit "didn't
+          // take". Match against the tree leaves first (same shape as what's shown),
+          // then fall back to the flat list for any legacy path.
+          const found = (notesAllLeaves.value || []).find(n => n.filename === filename)
+            || (notesUnified.value || []).find(n => n.filename === filename);
           if (found) notesSelected.value = found;
         }
       } catch (e) { /* keep current view */ }
@@ -12224,6 +12267,262 @@ const lociApp = createApp({
       notesLinked.value.forEach(l => notesFlatten(l.children, acc));
       return acc;
     });
+
+    // ════════════════════ KNOWLEDGE GRAPH ════════════════════
+    // A force-directed map that simply mirrors the knowledge base's STRUCTURE:
+    //   我的知识库 (root)
+    //     ├─ 我的笔记 (group) ─ folder ─ note / or note directly
+    //     └─ 外部知识库 (group) ─ Obsidian vault (source) ─ folder ─ note
+    // Every edge is a parent→child containment link — no tag/similarity math. It's a
+    // file-tree fanned out into a graph, meant to SHOW the shape at a glance.
+    // Independent of the People graph (kg* vs pg*), so one never breaks the other.
+    const notesGraphView = ref(false);
+    const kgCanvas = ref(null);
+    const kgEmpty = ref(false);
+    const KG_DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let kgRAF = null, kgNodes = [], kgEdges = [], kgW = 0, kgH = 0;
+    let kgPanX = 0, kgPanY = 0, kgScale = 1;
+    let kgDrag = null, kgHover = null, kgPan = null, kgDragging = false, kgMx = 0, kgMy = 0;
+    let kgDownX = 0, kgDownY = 0, kgMoved = false;
+
+    // node size by role: root biggest, then groups, sources, folders, notes.
+    function kgRadius(n) {
+      switch (n.kind) {
+        case 'root':   return 26;
+        case 'group':  return 18;
+        case 'source': return 16;
+        case 'folder': return 13;
+        default:       return 10;   // note
+      }
+    }
+    // colour by role: structure nodes use the warm/green palette, notes keep their
+    // source colour so local vs external still reads.
+    function kgNodeColor(n) {
+      switch (n.kind) {
+        case 'root':   return '#0b7d5a';
+        case 'group':  return n.gid === 'ext' ? '#c9a24b' : '#10b981';
+        case 'source': return noteSourceColor(n.srcId) || '#9b7ed0';
+        case 'folder': return n.gid === 'ext' ? '#d8b45e' : '#3aa5a0';
+        default:       return n.color || '#10b981';
+      }
+    }
+    function kgBuild() {
+      kgNodes = []; kgEdges = [];
+      let seq = 0;
+      const add = (node) => { kgNodes.push(node); return node.id; };
+      const link = (a, b) => kgEdges.push({ a, b });
+      // recurse a tree of {kind:'folder'|'note', name/title, children, ...} nodes,
+      // attaching each to its parent. `gid` tags which group (mine/ext) it's under.
+      const walk = (children, parentId, gid) => {
+        (children || []).forEach(c => {
+          if (c.kind === 'folder') {
+            const id = 'g' + (seq++);
+            add({ id, label: c.name || '文件夹', kind: 'folder', gid, x: 0, y: 0, vx: 0, vy: 0 });
+            link(parentId, id);
+            walk(c.children, id, gid);
+          } else {
+            const id = 'g' + (seq++);
+            add({ id, label: c.title || c.name || '(untitled)', kind: 'note', gid,
+              color: noteSourceColor(c.source) || noteColor(c), note: c, x: 0, y: 0, vx: 0, vy: 0 });
+            link(parentId, id);
+          }
+        });
+      };
+      const rootId = add({ id: 'root', label: lang.value === 'zh' ? '我的知识库' : 'My knowledge',
+        kind: 'root', x: 0, y: 0, vx: 0, vy: 0 });
+      // 我的笔记 group
+      const owned = notesOwned.value || { children: [], count: 0 };
+      const mineId = add({ id: 'grp-mine', label: lang.value === 'zh' ? '我的笔记' : 'My notes',
+        kind: 'group', gid: 'mine', x: 0, y: 0, vx: 0, vy: 0 });
+      link(rootId, mineId);
+      walk(owned.children, mineId, 'mine');
+      // 外部知识库 group (only if there are linked sources)
+      const linked = notesLinked.value || [];
+      if (linked.length) {
+        const extId = add({ id: 'grp-ext', label: lang.value === 'zh' ? '外部知识库' : 'External knowledge',
+          kind: 'group', gid: 'ext', x: 0, y: 0, vx: 0, vy: 0 });
+        link(rootId, extId);
+        linked.forEach(src => {
+          const sid = 'g' + (seq++);
+          add({ id: sid, label: src.name || '来源', kind: 'source', gid: 'ext', srcId: src.id, x: 0, y: 0, vx: 0, vy: 0 });
+          link(extId, sid);
+          walk(src.children, sid, 'ext');
+        });
+      }
+      kgEmpty.value = kgNodes.filter(n => n.kind === 'note').length === 0;
+      kgLayout();
+    }
+    const kgById = id => kgNodes.find(n => n.id === id);
+    function kgLayout() {
+      const cx = (kgW > 0 ? kgW / 2 : 300), cy = (kgH > 0 ? kgH / 2 : 300);
+      const others = kgNodes.filter(n => n.id !== 'root');
+      const N = Math.max(others.length, 1);
+      kgNodes.forEach(n => {
+        if (n.id === 'root') { n.x = cx; n.y = cy; n.vx = n.vy = 0; return; }
+        const i = others.indexOf(n);                 // always ≥0 for non-root
+        const a = (i / N) * Math.PI * 2 - Math.PI / 2;
+        const rad = 150 + (i % 5) * 26;
+        n.x = cx + Math.cos(a) * rad + (Math.random() - 0.5) * 30;
+        n.y = cy + Math.sin(a) * rad * 0.85 + (Math.random() - 0.5) * 30;
+        n.vx = n.vy = 0;
+      });
+    }
+    function kgResize() {
+      const cv = kgCanvas.value; if (!cv) return;
+      const r = cv.getBoundingClientRect(); kgW = r.width; kgH = r.height;
+      cv.width = kgW * KG_DPR; cv.height = kgH * KG_DPR;
+      if (!kgNodes.length || kgNodes[0].x === 0) kgLayout();
+    }
+    function kgTick() {
+      const cx = kgW / 2, cy = kgH / 2;
+      for (const n of kgNodes) {
+        if (n === kgDrag) continue;
+        const k = n.id === 'root' ? 0.045 : 0.0022;
+        n.vx += (cx - n.x) * k; n.vy += (cy - n.y) * k;
+      }
+      // repulsion + hard min-distance so discs never overlap
+      for (let i = 0; i < kgNodes.length; i++) for (let j = i + 1; j < kgNodes.length; j++) {
+        const a = kgNodes[i], b = kgNodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy || 1, d = Math.sqrt(d2);
+        const f = 15000 / d2, fx = dx / d * f, fy = dy / d * f;
+        if (a !== kgDrag) { a.vx += fx; a.vy += fy; } if (b !== kgDrag) { b.vx -= fx; b.vy -= fy; }
+        const minD = kgRadius(a) + kgRadius(b) + 34;
+        if (d < minD) { const push = (minD - d) * 0.5, px = dx / d * push, py = dy / d * push;
+          if (a !== kgDrag) { a.x += px; a.y += py; } if (b !== kgDrag) { b.x -= px; b.y -= py; } }
+      }
+      // edge springs: heavier edges (more shared points) pull tighter & shorter
+      for (const e of kgEdges) {
+        const a = kgById(e.a), b = kgById(e.b); if (!a || !b) continue;
+        let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+        // parent→child containment springs. Links off the root/groups stay long so
+        // top-level branches fan out; deeper links (folder→note) sit tighter.
+        const topLevel = a.kind === 'root' || b.kind === 'root' || a.kind === 'group' || b.kind === 'group';
+        const rest = topLevel ? 165 : 92;
+        const strength = topLevel ? 0.03 : 0.06;
+        const f = (d - rest) * strength, fx = dx / d * f, fy = dy / d * f;
+        if (a !== kgDrag) { a.vx += fx; a.vy += fy; } if (b !== kgDrag) { b.vx -= fx; b.vy -= fy; }
+      }
+      for (const n of kgNodes) { if (n === kgDrag) continue; n.vx *= 0.85; n.vy *= 0.85; n.x += n.vx; n.y += n.vy; }
+    }
+    function kgDraw() {
+      const cv = kgCanvas.value; if (!cv) return; const ctx = cv.getContext('2d');
+      ctx.setTransform(KG_DPR, 0, 0, KG_DPR, 0, 0); ctx.clearRect(0, 0, kgW, kgH);
+      ctx.save(); ctx.translate(kgPanX, kgPanY); ctx.scale(kgScale, kgScale);
+      const hoverNbrs = kgHover ? new Set(kgEdges.flatMap(e => e.a === kgHover ? [e.b] : e.b === kgHover ? [e.a] : [])) : null;
+      // edges — plain parent→child links; the hovered node's links light up green
+      for (const e of kgEdges) {
+        const a = kgById(e.a), b = kgById(e.b); if (!a || !b) continue;
+        const rel = kgHover && (e.a === kgHover || e.b === kgHover);
+        ctx.strokeStyle = rel ? 'rgba(16,185,129,0.6)' : 'rgba(130,150,140,0.28)';
+        ctx.lineWidth = rel ? 2.4 : 1.1;
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, nx = -(b.y - a.y), ny = (b.x - a.x), L = Math.hypot(nx, ny) || 1, bend = 12;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo(mx + nx / L * bend, my + ny / L * bend, b.x, b.y); ctx.stroke();
+      }
+      // nodes
+      for (const n of kgNodes) {
+        const isRoot = n.id === 'root', isH = n.id === kgHover;
+        const dim = kgHover && !isH && !(hoverNbrs && hoverNbrs.has(n.id)) && !isRoot;
+        const r = kgRadius(n);
+        ctx.globalAlpha = dim ? 0.28 : 1;
+        if (isRoot || isH) { const g = ctx.createRadialGradient(n.x, n.y, r * 0.6, n.x, n.y, r * 2.2); g.addColorStop(0, 'rgba(16,185,129,0.18)'); g.addColorStop(1, 'rgba(16,185,129,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, r * 2.2, 0, 7); ctx.fill(); }
+        ctx.save();
+        ctx.shadowColor = isH || isRoot ? 'rgba(16,120,80,0.25)' : 'rgba(20,20,18,0.12)';
+        ctx.shadowBlur = isH || isRoot ? 14 : 8; ctx.shadowOffsetY = 3;
+        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 7);
+        ctx.fillStyle = kgNodeColor(n); ctx.fill();
+        ctx.restore();
+        // glyph inside the disc: root=KB, folder=▸, source=◆, note=initial, group=none
+        ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        if (isRoot) { ctx.font = '700 11px Inter, sans-serif'; ctx.fillText(lang.value === 'zh' ? '知识库' : 'KB', n.x, n.y + 1); }
+        else if (n.kind === 'note') { ctx.font = `650 ${r * 0.8}px Inter, sans-serif`; ctx.fillText((n.label[0] || '?').toUpperCase(), n.x, n.y + 1); }
+        else if (n.kind === 'folder') { ctx.font = `${r}px Inter, sans-serif`; ctx.fillText('▸', n.x, n.y + 1); }
+        else if (n.kind === 'source') { ctx.font = `${r * 0.9}px Inter, sans-serif`; ctx.fillText('◆', n.x, n.y + 1); }
+        // label below: structure nodes (root/group/source/folder) always; notes when
+        // hovered or the graph is small enough to stay legible.
+        const showLabel = n.kind !== 'note' || isH || (!kgHover && kgNodes.length <= 40);
+        if (showLabel) {
+          ctx.fillStyle = dim ? '#c4c4be' : '#2a2a27';
+          const fw = (n.kind === 'root' || n.kind === 'group') ? 700 : 600;
+          const fs = n.kind === 'root' ? 12.5 : (n.kind === 'group' ? 12 : 11.5);
+          ctx.font = `${fw} ${fs}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+          const lbl = n.label.length > 16 ? n.label.slice(0, 15) + '…' : n.label;
+          ctx.fillText(lbl, n.x, n.y + r + 15);
+        }
+        ctx.globalAlpha = 1;
+      }
+      ctx.restore();
+    }
+    function kgFrame() { kgTick(); kgDraw(); kgRAF = requestAnimationFrame(kgFrame); }
+    // hit-test in graph coords
+    function kgPick(mx, my) {
+      const x = (mx - kgPanX) / kgScale, y = (my - kgPanY) / kgScale;
+      for (let i = kgNodes.length - 1; i >= 0; i--) {
+        const n = kgNodes[i]; if (Math.hypot(n.x - x, n.y - y) <= kgRadius(n) + 4) return n;
+      }
+      return null;
+    }
+    function kgEvtXY(ev) { const r = kgCanvas.value.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    function kgOnDown(ev) {
+      const { x, y } = kgEvtXY(ev); kgDownX = x; kgDownY = y; kgMoved = false;
+      const hit = kgPick(x, y);
+      if (hit) { kgDrag = hit; kgDragging = true; }
+      else { kgPan = { x, y, px: kgPanX, py: kgPanY }; }
+    }
+    function kgOnMove(ev) {
+      const { x, y } = kgEvtXY(ev); kgMx = x; kgMy = y;
+      if (Math.abs(x - kgDownX) > 4 || Math.abs(y - kgDownY) > 4) kgMoved = true;
+      if (kgDrag) { kgDrag.x = (x - kgPanX) / kgScale; kgDrag.y = (y - kgPanY) / kgScale; kgDrag.vx = kgDrag.vy = 0; return; }
+      if (kgPan) { kgPanX = kgPan.px + (x - kgPan.x); kgPanY = kgPan.py + (y - kgPan.y); return; }
+      const hit = kgPick(x, y); kgHover = hit ? hit.id : null;
+      kgCanvas.value.style.cursor = hit ? 'pointer' : 'grab';
+    }
+    function kgOnUp(ev) {
+      const wasDrag = kgDrag;
+      if (wasDrag && !kgMoved && wasDrag.kind === 'note') {
+        // a click (not a drag) on a note → open it in the reading view
+        notesSelected.value = wasDrag.note; notesGraphView.value = false; kgStop();
+      }
+      kgDrag = null; kgPan = null; kgDragging = false;
+    }
+    function kgOnWheel(ev) {
+      ev.preventDefault();
+      const { x, y } = kgEvtXY(ev);
+      const before = { x: (x - kgPanX) / kgScale, y: (y - kgPanY) / kgScale };
+      kgScale = Math.max(0.4, Math.min(2.4, kgScale * (ev.deltaY < 0 ? 1.1 : 0.9)));
+      kgPanX = x - before.x * kgScale; kgPanY = y - before.y * kgScale;
+    }
+    function kgBindEvents(cv) {
+      cv.addEventListener('mousedown', kgOnDown);
+      window.addEventListener('mousemove', kgOnMove);
+      window.addEventListener('mouseup', kgOnUp);
+      cv.addEventListener('wheel', kgOnWheel, { passive: false });
+    }
+    function kgUnbindEvents(cv) {
+      if (cv) { cv.removeEventListener('mousedown', kgOnDown); cv.removeEventListener('wheel', kgOnWheel); }
+      window.removeEventListener('mousemove', kgOnMove);
+      window.removeEventListener('mouseup', kgOnUp);
+    }
+    let kgResizeObs = null;
+    function kgStart() {
+      nextTick(() => {
+        const cv = kgCanvas.value; if (!cv) return;
+        kgPanX = 0; kgPanY = 0; kgScale = 1;
+        kgResize(); kgBuild(); kgResize();
+        kgBindEvents(cv);
+        kgResizeObs = new ResizeObserver(() => kgResize()); kgResizeObs.observe(cv);
+        if (kgRAF) cancelAnimationFrame(kgRAF); kgFrame();
+      });
+    }
+    function kgStop() {
+      if (kgRAF) { cancelAnimationFrame(kgRAF); kgRAF = null; }
+      if (kgResizeObs) { kgResizeObs.disconnect(); kgResizeObs = null; }
+      kgUnbindEvents(kgCanvas.value);
+    }
+    function notesSetGraph(on) {
+      if (notesGraphView.value === on) return;
+      notesGraphView.value = on;
+      if (on) kgStart(); else kgStop();
+    }
     const notesSearchHits = computed(() => {
       const q = notesSearch.value.trim().toLowerCase();
       if (!q) return [];
@@ -16298,6 +16597,7 @@ const lociApp = createApp({
       notesNewTag, notesPropsSaving, notesSetTitle, notesSetField, notesAddTag, notesRemoveTag,
       notesNewAlias, notesAliases, notesAddAlias, notesRemoveAlias,
       notesConfirmDelete, notesAskDelete, notesCancelDelete, notesDoDelete,
+      notesGraphView, notesSetGraph, kgCanvas, kgEmpty,
       notesMounting, notesMountMsg, notesMountedSources, notesSelectedSource, notesMountFolder, notesUnmountFolder,
       notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesTotal, notesSearchHits, notesMkdir,
       noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
@@ -16349,7 +16649,7 @@ lociApp.component('note-tree-node', {
     node: Object, depth: Number, selId: [String, null], openSet: Object,
     color: String, linked: Boolean, missing: Boolean,
   },
-  emits: ['pick-note', 'toggle', 'remove-src'],
+  emits: ['pick-note', 'toggle', 'remove-src', 'del-note'],
   computed: {
     isOpen() { return this.openSet.has(this.node.id); },
     pad() { return (8 + this.depth * 16) + 'px'; },
@@ -16384,11 +16684,14 @@ lociApp.component('note-tree-node', {
       <button v-if="linked && depth===0" class="nr-trm" title="移除链接(不删原文件)" @click.stop="$emit('remove-src')">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
+      <button v-if="!linked && node.kind==='note'" class="nr-tdel" title="删除这篇笔记" @click.stop="$emit('del-note', node)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
     </div>
     <template v-if="isOpen && node.kind==='folder' && node.children">
       <note-tree-node v-for="c in node.children" :key="c.id" :node="c" :depth="depth+1"
         :sel-id="selId" :open-set="openSet" :color="color" :linked="linked"
-        @pick-note="$emit('pick-note', $event)" @toggle="$emit('toggle', $event)"></note-tree-node>
+        @pick-note="$emit('pick-note', $event)" @toggle="$emit('toggle', $event)" @del-note="$emit('del-note', $event)"></note-tree-node>
     </template>
   `,
 });
