@@ -786,6 +786,62 @@ function scanFolderSource(src, cap = 500) {
   return { missing: false, files: out, capped: out.length >= cap };
 }
 
+// Serialize a directory into a folder tree the notes UI can render as a collapsible
+// tree. Both "owned" (notes/) and "linked" (mounted vault) folders use this — they
+// are the same shape underneath (dirs of markdown), differing only in ownership.
+//   node = { id, kind:'folder', name, count, children:[...] }
+//        | { id, kind:'note',   title, filename(abs), rel, content, meta, tags, date }
+// `filename` is always the ABSOLUTE path → the write target for edits. `count` on a
+// folder = total notes beneath it (recursive). Guards: skip dotfiles, cap total notes,
+// max depth. `skip` filters files (e.g. index.md in notes/).
+function dirToTree(rootAbs, opts = {}) {
+  const { maxDepth = 8, cap = 800, skip = () => false, counter = { n: 0 } } = opts;
+  const build = (dir, depth) => {
+    const folders = [];
+    const notes = [];
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return { folders, notes, count: 0 }; }
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+    let count = 0;
+    for (const ent of entries) {
+      if (counter.n >= cap) break;
+      if (ent.name.startsWith('.')) continue;                 // skip .obsidian/.git/…
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        if (depth >= maxDepth) continue;
+        const sub = build(full, depth + 1);
+        // hide empty folders — a dir with no markdown anywhere isn't a note folder
+        if (sub.count > 0) {
+          folders.push({
+            id: 'd:' + full, kind: 'folder', name: ent.name,
+            count: sub.count, children: [...sub.folders, ...sub.notes],
+          });
+          count += sub.count;
+        }
+      } else if (/\.md$/i.test(ent.name) && ent.name !== 'README.md' && !skip(full)) {
+        counter.n++;
+        const parsed = readMdFileSimple(full);
+        const meta = (parsed && parsed.meta) || {};
+        const title = meta.title ||
+          ((parsed && parsed.content && (parsed.content.match(/<h1[^>]*>(.*?)<\/h1>/i) || [])[1]) || '')
+            .replace(/<[^>]+>/g, '') ||
+          ent.name.replace(/\.md$/i, '');
+        notes.push({
+          id: 'f:' + full, kind: 'note', title,
+          filename: full, rel: path.relative(rootAbs, full),
+          content: (parsed && parsed.content) || '', meta,
+          tags: Array.isArray(meta.tags) ? meta.tags : (meta.tags ? [meta.tags] : []),
+          date: meta.created || meta.date || '',
+        });
+        count++;
+      }
+    }
+    return { folders, notes, count };
+  };
+  const top = build(rootAbs, 0);
+  return { children: [...top.folders, ...top.notes], count: top.count, capped: counter.n >= cap };
+}
+
 // notes/ = the user's OWN notes (creation drafts, talk scripts, learning notes,
 // inline notes). notes/index.md is a one-line pointer index. Like references/,
 // this is L2 — shown on its own dashboard page, read-only here.
@@ -884,9 +940,27 @@ function buildNotes() {
     for (const f of scan.files) folderNotes.push(f);
   }
 
+  // ── Collapsible folder trees (the new left-rail model) ──
+  // "owned"  = notes/ itself, a tree Loci truly owns (files live here).
+  // "linked" = each mounted folder, a tree Loci only points at (files stay put).
+  // Same shape underneath; ownership is the only difference. index.md is not a note.
+  const ownedIndex = path.join(notesDir, 'index.md');
+  const owned = dirToTree(notesDir, { skip: (f) => f === ownedIndex });
+  const linked = folderSources.map(src => {
+    let root = src.path;
+    if (root.startsWith('~/')) root = path.join(require('os').homedir(), root.slice(2));
+    const missing = !fs.existsSync(root) || !fs.statSync(root).isDirectory();
+    const tree = missing ? { children: [], count: 0, capped: false } : dirToTree(root, { cap: 500 });
+    return {
+      id: src.id, name: src.name, path: src.path, type: src.type,
+      missing, count: tree.count, capped: tree.capped, children: tree.children,
+    };
+  });
+
   return {
     index: indexFile, pointers, files, folderNotes, sources: sourceStates,
-    customCategories, total: files.length + folderNotes.length,
+    owned, linked,
+    customCategories, total: owned.count + linked.reduce((s, l) => s + l.count, 0),
   };
 }
 
@@ -1028,6 +1102,38 @@ function handleNoteCreate(body) {
     return { ok: true, filename, md, title };
   } catch (e) {
     return { error: 'Could not create note' };
+  }
+}
+
+// Create a subfolder inside notes/ (the owned tree). `parent` is a path relative to
+// notes/ (each segment isSafeSegment-guarded, so no traversal out of notes/); empty
+// parent = notes/ root. `name` is the new folder's name. Owned-only: we never mkdir
+// inside a linked/external source.
+function handleNoteMkdir(body) {
+  const name = (body && body.name ? String(body.name) : '').trim();
+  if (!name || !isSafeSegment(name)) return { error: '文件夹名不合法' };
+  const parent = (body && body.parent ? String(body.parent) : '').trim();
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  let baseDir = notesDir;
+  if (parent) {
+    const segs = parent.split('/').filter(Boolean);
+    for (const s of segs) {
+      if (!isSafeSegment(s)) return { error: '父目录不合法' };
+    }
+    baseDir = path.join(notesDir, ...segs);
+    // parent must resolve inside notes/ and already exist
+    if (!path.resolve(baseDir).startsWith(path.resolve(notesDir) + path.sep) ||
+        !fs.existsSync(baseDir)) {
+      return { error: '父目录不存在' };
+    }
+  }
+  const target = path.join(baseDir, name);
+  if (fs.existsSync(target)) return { error: '这个文件夹已存在' };
+  try {
+    fs.mkdirSync(target, { recursive: false });
+    return { ok: true, rel: path.relative(notesDir, target) };
+  } catch (e) {
+    return { error: '新建文件夹失败' };
   }
 }
 
@@ -2729,6 +2835,15 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleNoteCreate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/mkdir' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteMkdir(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) { sendError(res, e.message, 500); }
