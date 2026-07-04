@@ -1226,6 +1226,27 @@ function handleNoteImport(body) {
   }
 }
 
+// Remove a pasted URL pointer: an external link isn't a file, it's ONE line in
+// notes/index.md (format: "- title · link · gist · #tags"). handleNoteDelete only
+// unlinks real files, so URL pointers need this — match the line by its link and
+// drop it. Nothing on disk is touched beyond index.md; the remote doc is untouched.
+function handleNoteUnlink(body) {
+  const link = (body && body.link ? String(body.link) : '').trim();
+  if (!link) return { error: '缺少链接' };
+  const indexFile = path.join(LOCI_ROOT, 'notes', 'index.md');
+  if (!fs.existsSync(indexFile)) return { error: '索引文件不存在' };
+  try {
+    const lines = fs.readFileSync(indexFile, 'utf-8').split('\n');
+    // a pointer line contains the link between " · " separators
+    const kept = lines.filter(l => !(l.trim().startsWith('- ') && l.includes('· ' + link + ' ·')));
+    if (kept.length === lines.length) return { error: '没找到这个链接' };
+    fs.writeFileSync(indexFile, kept.join('\n'), 'utf-8');
+    return { ok: true, link };
+  } catch (e) {
+    return { error: '移除失败' };
+  }
+}
+
 // Pop a native folder picker (macOS) so the user can choose a folder to mount.
 function handleFolderBrowse() {
   if (process.platform !== 'darwin') return { error: '文件夹选择目前只支持 macOS' };
@@ -1237,6 +1258,32 @@ function handleFolderBrowse() {
     return { ok: true, path: out.replace(/\/+$/, '') };
   } catch (e) {
     return { error: 'cancelled' };
+  }
+}
+
+// Reveal the notes/ folder (or a subfolder within it) in the OS file manager, so
+// the user can create folders / drag files around with the native tools. Guarded:
+// the target must resolve inside notes/ — no escaping the brain. `sub` is optional.
+function handleNoteReveal(body) {
+  const sub = (body && body.sub ? String(body.sub) : '').trim();
+  const notesDir = path.join(LOCI_ROOT, 'notes');
+  let target = notesDir;
+  if (sub) {
+    const resolved = path.resolve(notesDir, sub);
+    if (resolved !== notesDir && !resolved.startsWith(notesDir + path.sep)) {
+      return { error: '路径不允许' };
+    }
+    target = resolved;
+  }
+  if (!fs.existsSync(target)) { try { fs.mkdirSync(target, { recursive: true }); } catch (e) { return { error: '文件夹不存在' }; } }
+  try {
+    const { execFile } = require('child_process');
+    const cmd = process.platform === 'darwin' ? 'open'
+      : (process.platform === 'win32' ? 'explorer' : 'xdg-open');
+    execFile(cmd, [target], () => {});   // fire-and-forget; don't block the response
+    return { ok: true, path: target };
+  } catch (e) {
+    return { error: '打不开文件夹' };
   }
 }
 
@@ -2235,7 +2282,20 @@ function handleInboxRemove(body) {
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(/^[-*]\s+(.+)/);
     if (m && m[1].trim() === text.trim()) {
-      lines.splice(i, 1);
+      // Delete the whole item: this top-level "- …" line PLUS any indented
+      // continuation lines that belong to it (sub-bullets, wrapped detail), i.e.
+      // everything until the next top-level list item / heading / blank-then-list.
+      let end = i + 1;
+      while (end < lines.length) {
+        const l = lines[end];
+        if (/^[-*]\s+/.test(l)) break;          // next top-level item
+        if (/^#{1,6}\s/.test(l)) break;         // next heading
+        if (/^\s+\S/.test(l) || l.trim() === '') { end++; continue; }  // indented or blank → part of this item
+        break;                                   // any other flush-left content ends it
+      }
+      // trim trailing blank lines back so we don't leave a growing gap
+      while (end - 1 > i && lines[end - 1].trim() === '') end--;
+      lines.splice(i, end - i);
       found = true;
       break;
     }
@@ -2271,6 +2331,9 @@ function handleNotesAddCategory(body) {
 
 function handleReferenceAdd(body) {
   const { title, url, type, note } = body;
+  const tags = Array.isArray(body && body.tags)
+    ? body.tags.map(t => String(t).replace(/^#/, '').trim()).filter(Boolean)
+    : [];
   if (!title && !url) return { error: 'Missing title or url' };
 
   const refsDir = path.join(LOCI_ROOT, 'references');
@@ -2293,7 +2356,8 @@ function handleReferenceAdd(body) {
   let content = `---\ndate: ${dateStr}\ntitle: "${(title || '').replace(/"/g, '\\"')}"\n`;
   if (url) content += `url: "${url}"\n`;
   if (type) content += `type: ${type}\n`;
-  content += `tags: []\nstatus: active\n---\n\n`;
+  const tagsYaml = tags.length ? '[' + tags.map(t => JSON.stringify(t)).join(', ') + ']' : '[]';
+  content += `tags: ${tagsYaml}\nstatus: active\n---\n\n`;
   if (title) content += `# ${title}\n\n`;
   if (url) content += `- **Link:** ${url}\n`;
   if (note) content += `\n${note}\n`;
@@ -2853,6 +2917,15 @@ const server = http.createServer(async (req, res) => {
     } catch (e) { sendError(res, e.message, 500); }
     return;
   }
+  if (pathname === '/api/notes/reveal' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteReveal(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
   if (pathname === '/api/notes/delete' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
@@ -2866,6 +2939,15 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleNoteImport(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/notes/unlink' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleNoteUnlink(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) { sendError(res, e.message, 500); }

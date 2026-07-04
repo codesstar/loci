@@ -125,7 +125,8 @@
       --p1: #f59e0b;
       --p2: #3b82f6;
 
-      --shadow-xs: 0 1px 2px rgba(20,20,18,.04);      --shadow-sm: 0 1px 2px rgba(20,20,18,.04), 0 1px 3px rgba(20,20,18,.03);
+      --shadow-xs: 0 1px 2px rgba(20,20,18,.04);
+      --shadow-sm: 0 1px 2px rgba(20,20,18,.04), 0 1px 3px rgba(20,20,18,.03);
       --shadow:    0 1px 2px rgba(20,20,18,.04), 0 4px 12px rgba(20,20,18,.05), 0 12px 28px rgba(20,20,18,.04);
       --shadow-lg: 0 2px 4px rgba(20,20,18,.04), 0 8px 24px rgba(20,20,18,.06), 0 24px 56px rgba(20,20,18,.06);
       --shadow-md: 0 4px 12px rgba(20,20,18,.05), 0 1px 2px rgba(20,20,18,.04);
@@ -981,6 +982,16 @@
     .mp-vbody{ display:flex; flex-direction:column; gap:2px; min-width:0; }
     .mp-vt{ font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.005em; }
     .mp-vd{ font-size:12.5px; color:var(--ink-3); line-height:1.5; }
+    /* decisions view — real trade-offs, list family shared with values */
+    .mp-dlist{ display:flex; flex-direction:column; margin-top:14px; }
+    .mp-drow{ display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-top:1px solid var(--line); transition:.22s; }
+    .mp-drow:first-child{ border-top:none; padding-top:4px; }
+    .mp-ddate{ flex:none; font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.02em; color:#a35a2f; background:color-mix(in srgb,#c2683a 12%,transparent); padding:4px 8px; border-radius:8px; margin-top:1px; white-space:nowrap; transition:.22s; }
+    .mp-drow:hover .mp-ddate{ background:#c2683a; color:#fff; transform:translateY(-1px); }
+    .mp-dbody{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+    .mp-dt{ font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-.005em; line-height:1.45; }
+    .mp-dtags{ display:flex; flex-wrap:wrap; gap:6px; }
+    .mp-dtag{ font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.03em; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); padding:2px 8px; border-radius:999px; }
     /* insights timeline */
     .mp-tl-sub{ font-size:12.5px; color:var(--ink-3); margin:2px 0 0; }
     .mp-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; margin:16px 0 4px; padding:11px 14px; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; }
@@ -1079,13 +1090,14 @@
     .jrnl-hero-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
     .jrnl-date-grp { display: flex; align-items: flex-end; gap: 16px; }
     .jrnl-bigday {
-      font-family: 'Playfair Display', serif; font-size: 60px; font-weight: 800; line-height: .9; letter-spacing: -.01em;
+      font-family: 'Playfair Display', serif; font-size: 58px; font-weight: 800; line-height: 1.04; letter-spacing: -.01em;
+      padding-bottom: 2px;
       background: linear-gradient(100deg, #fbbf24 0%, #f59e0b 40%, #10b981 110%);
       -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
     }
-    .jrnl-datemeta { display: flex; flex-direction: column; gap: 3px; padding-bottom: 7px; }
-    .jrnl-datemeta .wd { font-size: 18px; color: var(--ink); font-weight: 700; letter-spacing: -.01em; line-height: 1; }
-    .jrnl-datemeta .m { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); letter-spacing: .06em; line-height: 1; }
+    /* 周四 and 2026·06月 share the same understated style */
+    .jrnl-datemeta { display: flex; flex-direction: column; gap: 4px; padding-bottom: 11px; }
+    .jrnl-datemeta .wd, .jrnl-datemeta .m { font-family: var(--mono); font-size: 12px; color: var(--ink-3); letter-spacing: .06em; line-height: 1; font-weight: 500; }
     .jrnl-datemeta .caret { color: var(--ink-4); font-size: 8px; }
     .jrnl-hero-nav { display: inline-flex; align-items: center; gap: 6px; }
     .jrnl-today-btn { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent-weak); border: 1px solid #b7ebd6; border-radius: 999px; padding: 5px 13px; cursor: pointer; margin-right: 2px; transition: background .14s, border-color .14s; }
@@ -1209,7 +1221,8 @@
       margin: 0; width: 100%; border-radius: 0;
       aspect-ratio: 1 / 1.32;
     }
-    /* fade the bottom of the photo into the card surface */
+    /* fade the bottom of the photo into the card surface — taller, multi-stop
+       gradient so there's no visible hard line where the fade begins */
     .crystal-card.bleed .pc-photo::after {
       content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 58%;
       background: linear-gradient(to bottom,
@@ -1249,7 +1262,6 @@
     .pc-layout-toggle { display: inline-flex; flex: none; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
     .pc-layout-toggle button { border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ink-3); padding: 5px 14px; border-radius: 999px; transition: background .14s ease, color .14s ease; }
     .pc-layout-toggle button.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
-
 
     /* ============================================================
        People Relationship Graph (viewMode === 'graph')
@@ -1844,7 +1856,6 @@
     }
     @media (max-width:1100px){ .rmF-bottom{grid-template-columns:1fr;} .rmF-board{grid-template-columns:1fr;} }
 
-
     /* ===== Fragments · tri-state (Scratch Desk board / Drift Stream notes / Drift Wall collections) ===== */
     /* notes cards: white surface (the markup sets #ececea inline — override) */
     .note-card, .notes-index-panel { background: var(--surface) !important; border: 1px solid var(--line) !important; }
@@ -1962,6 +1973,207 @@
   .fgC-note{animation:none;}
   .fgC-triage{transition:opacity .14s ease;}
 }
+
+    /* ── Quiet Desk (board redesign, fgE-, direction C) ── minimal split desk:
+       two columns, no card chrome, just hairline-separated rows. Left is plain
+       white, right is warm paper, so 随手记 vs 收藏 read as different by feel.
+       Green dot = notes, gold dot = saves. Breathing room over density. ── */
+.fgE-wrap{max-width:1240px;margin:0 auto;font-family:var(--sans);color:var(--ink);container-type:inline-size;container-name:fgpage;}
+    /* masthead — softer than A: thin rule, medium serif title */
+.fgE-masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:4px 2px 20px;margin-bottom:2px;}
+.fgE-title{font-family:'Fraunces',Georgia,serif;font-size:clamp(30px,4cqi,40px);font-weight:600;letter-spacing:-.025em;line-height:.9;}
+.fgE-sub{font-size:13.5px;color:var(--ink-3);margin-top:11px;}
+.fgE-ledger{display:flex;gap:24px;flex:none;padding-bottom:2px;}
+.fgE-stat{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
+.fgE-stat b{font-family:var(--mono);font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.02em;}
+.fgE-stat i{font-style:normal;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:7px;}
+.fgE-stat--triage b{color:var(--gold-ink);}
+.fgE-stat--triage i{color:var(--gold-ink);}
+    /* two panes, hairline between; left white, right warm paper */
+    /* two/three separate card panels with a gap between them — all the same height */
+.fgE-desk{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:stretch;height:calc(100vh - 170px);min-height:560px;}
+.fgE-desk.has-detail{grid-template-columns:250px 1fr 300px;}
+@container fgpage (max-width: 900px){ .fgE-desk, .fgE-desk.has-detail{grid-template-columns:1fr;height:auto;} }
+.fgE-pane{padding:20px 22px 16px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(20,20,18,.04);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.fgE-pane--saved{background:var(--surface);}
+    /* the list area inside a pane scrolls; the header stays put */
+.fgE-tl,.fgE-shelf-wrap,.fgE-pane--detail{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
+.fgE-tl::-webkit-scrollbar,.fgE-shelf-wrap::-webkit-scrollbar,.fgE-pane--detail::-webkit-scrollbar{width:7px;}
+.fgE-tl::-webkit-scrollbar-thumb,.fgE-shelf-wrap::-webkit-scrollbar-thumb,.fgE-pane--detail::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px;}
+.fgE-tl::-webkit-scrollbar-thumb:hover,.fgE-shelf-wrap::-webkit-scrollbar-thumb:hover{background:var(--ink-4);}
+.fgE-pane--detail{border-left:1px solid var(--line);padding:22px 22px 24px;}
+    /* pane head */
+.fgE-ph{display:flex;align-items:center;gap:9px;margin-bottom:20px;}
+.fgE-ph-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
+.fgE-ph-dot--gold{background:var(--gold);}
+.fgE-ph-name{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;letter-spacing:-.01em;}
+.fgE-ph-n{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
+.fgE-ph-n--gold{color:var(--gold-ink);}
+.fgE-expand{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.02em;color:var(--accent-ink);background:none;border:0;cursor:pointer;padding:3px 6px;border-radius:6px;transition:background .14s;}
+.fgE-expand:hover{background:var(--accent-weak);}
+.fgE-expand--gold{color:var(--gold-ink);}
+.fgE-expand--gold:hover{background:var(--gold-weak);}
+    /* capture inputs */
+.fgE-capture{display:flex;align-items:center;gap:9px;border:1px solid var(--line-2);border-radius:12px;padding:9px 9px 9px 13px;margin-bottom:22px;transition:border-color .18s,box-shadow .18s,background .18s;}
+.fgE-capture:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(16,185,129,.09);}
+.fgE-capture--gold:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
+.fgE-capture-glyph{width:16px;height:16px;flex:none;color:var(--ink-4);} .fgE-capture-glyph svg{width:16px;height:16px;}
+.fgE-capture:focus-within .fgE-capture-glyph{color:var(--accent-ink);}
+.fgE-capture--gold:focus-within .fgE-capture-glyph{color:var(--gold-ink);}
+.fgE-capture-input{flex:1;min-width:0;border:0;background:none;font-family:var(--sans);font-size:13.5px;color:var(--ink);padding:4px 0;}
+.fgE-capture-input::placeholder{color:var(--ink-4);}
+.fgE-capture-input:focus{outline:none;}
+.fgE-capture-btn{flex:none;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:7px 14px;border-radius:9px;cursor:pointer;transition:all .16s;}
+.fgE-capture-btn:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
+.fgE-capture-btn--gold:hover{color:var(--gold-ink);border-color:var(--gold);background:var(--gold-weak);}
+    /* collapsed "+ new save" button (default state, keeps the pane clean) */
+.fgE-newbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-bottom:22px;padding:11px;border:1.5px dashed #e0d3af;border-radius:12px;background:transparent;color:var(--gold-ink);font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;}
+.fgE-newbtn:hover{border-color:var(--gold);background:var(--gold-weak);}
+.fgE-newbtn span{font-size:15px;line-height:1;}
+    /* save form: title (main) → link (its own line, it's the important field) → tags */
+.fgE-save-form{margin-bottom:22px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 4px 14px rgba(20,20,18,.05);animation:fgE-in .2s ease both;}
+.fgE-save-foot{display:flex;justify-content:flex-end;margin-top:10px;}
+.fgE-save-cancel{border:0;background:none;color:var(--ink-4);font-family:var(--mono);font-size:11px;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .14s;}
+.fgE-save-cancel:hover{color:var(--ink-2);}
+.fgE-save-main{display:flex;align-items:center;gap:9px;}
+.fgE-save-title{flex:1;min-width:0;border:1px solid var(--line-2);border-radius:11px;background:none;font-family:var(--sans);font-size:13.5px;color:var(--ink);padding:10px 13px;transition:border-color .18s,box-shadow .18s;}
+.fgE-save-title::placeholder{color:var(--ink-4);}
+.fgE-save-title:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
+.fgE-save-btn{flex:none;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .16s;}
+.fgE-save-btn:hover{color:var(--gold-ink);border-color:var(--gold);background:var(--gold-weak);}
+.fgE-save-url{display:block;width:100%;box-sizing:border-box;margin-top:8px;border:1px solid var(--line-2);border-radius:11px;background:none;font-family:var(--mono);font-size:12px;color:var(--ink-2);padding:9px 13px;transition:border-color .18s,box-shadow .18s;}
+.fgE-save-url::placeholder{color:var(--ink-4);}
+.fgE-save-url:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
+    /* multi-tag chip input */
+.fgE-tagbox{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;padding:2px;}
+.fgE-tagchip{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;letter-spacing:.02em;}
+.fgE-tagchip .x{cursor:pointer;opacity:.5;font-size:12px;line-height:1;transition:opacity .12s;}
+.fgE-tagchip .x:hover{opacity:1;}
+.fgE-tagin{flex:1;min-width:80px;border:0;background:none;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:4px 4px;}
+.fgE-tagin::placeholder{color:var(--ink-4);}
+.fgE-tagin:focus{outline:none;}
+    /* tag chip on saved rows */
+.fgE-tag{font-family:var(--mono);font-size:9.5px;padding:1px 7px;border-radius:20px;letter-spacing:.02em;}
+    /* left: notes as a vertical timeline — green dots strung on a hairline, date
+       above, serif body below. The editorial look from preview A. */
+.fgE-empty{font-size:13px;color:var(--ink-4);padding:16px 2px;}
+.fgE-tlrail{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);margin:18px 0 12px;}
+.fgE-tlrail:first-child{margin-top:0;}
+.fgE-tlrail--new{color:var(--gold-ink);}
+.fgE-tlrail em{font-style:normal;margin-left:2px;background:var(--gold-weak);color:var(--gold-ink);padding:1px 7px;border-radius:20px;font-size:9.5px;}
+.fgE-tlitem{position:relative;padding:0 0 20px 0;animation:fgE-in .32s ease both;}
+.fgE-tlitem + .fgE-tlitem{border-top:1px solid var(--line);padding-top:16px;}
+.fgE-tlitem:last-child{padding-bottom:4px;}
+.fgE-tlhead{display:flex;align-items:center;gap:10px;margin-bottom:6px;min-height:20px;}
+.fgE-tldate{font-family:var(--mono);font-size:10px;color:var(--ink-4);letter-spacing:.03em;}
+.fgE-text{font-family:'Noto Serif SC',serif;font-size:14px;line-height:1.6;color:var(--ink);letter-spacing:.005em;}
+.fgE-tlitem:not(.fgE-tlitem--new) .fgE-text{color:var(--ink-2);}
+.fgE-acts{display:flex;align-items:center;gap:5px;margin-left:auto;opacity:0;transform:translateY(2px);transition:opacity .16s,transform .16s;}
+.fgE-tlitem:hover .fgE-acts{opacity:1;transform:none;}
+.fgE-act{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:3px 8px;border-radius:7px;cursor:pointer;transition:all .14s;white-space:nowrap;}
+.fgE-act:hover{color:var(--ink);border-color:var(--ink-4);}
+.fgE-act--promote:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
+.fgE-act--dismiss{padding:3px 7px;color:var(--ink-4);}
+.fgE-act--dismiss:hover{color:#c0503a;border-color:#e0b0a5;background:#fbeeeb;}
+    /* ── note cards (left rail) — a card each: green rail, date·category head,
+       bold body, tag chips, delete on hover ── */
+.fgE-ncard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px 12px 15px;margin-bottom:10px;overflow:hidden;transition:box-shadow .15s,border-color .15s;animation:fgE-in .3s ease both;}
+.fgE-ncard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ink-4);}
+.fgE-ncard--new::before{background:var(--accent);}
+.fgE-ncard:hover{box-shadow:0 3px 10px rgba(20,20,18,.07);border-color:var(--line-2);}
+.fgE-nc-head{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.fgE-nc-date{font-family:var(--mono);font-size:9.5px;color:var(--ink-4);letter-spacing:.02em;}
+.fgE-nc-sep{color:var(--ink-4);font-size:9px;}
+.fgE-nc-cat{font-family:var(--mono);font-size:9.5px;color:var(--gold-ink);}
+.fgE-nc-del{margin-left:auto;border:0;background:none;color:var(--ink-4);cursor:pointer;padding:2px;border-radius:5px;opacity:0;transition:opacity .14s,color .14s;display:grid;place-items:center;}
+.fgE-ncard:hover .fgE-nc-del{opacity:.6;}
+.fgE-nc-del:hover{color:#c0503a;opacity:1 !important;}
+.fgE-nc-text{font-family:'Noto Serif SC',serif;font-size:13px;line-height:1.55;color:var(--ink);font-weight:600;}
+.fgE-nc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+.fgE-nc-tag{font-family:var(--mono);font-size:9px;color:var(--accent-ink);background:var(--accent-weak);padding:2px 7px;border-radius:5px;}
+    /* right: saves as a numbered index — no thumbnails, just 01 · title · meta */
+.fgE-saved{display:flex;gap:15px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;transition:padding-left .16s;}
+.fgE-saved:last-child{border-bottom:0;}
+.fgE-saved:hover{padding-left:4px;}
+.fgE-saved:hover .fgE-arch{opacity:.5;}
+.fgE-idx{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink-4);flex:none;width:18px;letter-spacing:.02em;}
+.fgE-saved:hover .fgE-idx{color:var(--gold-ink);}
+.fgE-saved-body{flex:1;min-width:0;}
+.fgE-saved-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;line-height:1.45;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fgE-saved-meta{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.fgE-src{font-family:var(--mono);font-size:10px;color:var(--ink-3);}
+.fgE-src::after{content:'·';margin-left:8px;color:var(--ink-4);}
+.fgE-type{font-family:var(--mono);font-size:10px;font-style:italic;color:var(--gold-ink);letter-spacing:.02em;}
+.fgE-type::after{content:'·';margin-left:8px;color:var(--ink-4);font-style:normal;}
+.fgE-when{font-family:var(--mono);font-size:10px;color:var(--ink-4);}
+.fgE-arch{flex:none;border:0;background:none;color:var(--ink-4);font-size:12px;cursor:pointer;opacity:0;padding:2px 4px;border-radius:6px;transition:opacity .14s,color .14s;align-self:center;}
+.fgE-arch:hover{color:#c0503a;opacity:1 !important;}
+@keyframes fgE-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion: reduce){ .fgE-row,.fgE-tlitem,.fgE-book{animation:none;} }
+
+    /* ── 情报书架 (bookshelf) — saves as books standing on a wooden plank ── */
+.fgE-shelf-head{display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+.fgE-shelf-tools{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.fgE-shelf-wrap{}
+.fgE-shelf-row{position:relative;margin-bottom:26px;}
+.fgE-shelf-books{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:16px;position:relative;z-index:2;padding:0 2px;}
+.fgE-book{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 13px 11px;box-shadow:0 3px 8px rgba(20,20,18,.08),0 1px 2px rgba(20,20,18,.05);cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column;min-height:190px;animation:fgE-in .3s ease both;}
+.fgE-book:hover{transform:translateY(-4px);box-shadow:0 11px 22px rgba(20,20,18,.14);}
+.fgE-book.sel{border-color:var(--accent);box-shadow:0 6px 16px rgba(16,185,129,.2);}
+.fgE-book-cover{aspect-ratio:1/1;width:100%;border-radius:7px;margin-bottom:11px;overflow:hidden;background-size:cover;background-position:center;background-color:var(--surface-3);}
+.fgE-book-title{font-family:'Noto Serif SC',serif;font-size:12px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.fgE-book-src{font-family:var(--mono);font-size:9px;color:var(--ink-3);}
+.fgE-book-foot{margin-top:auto;display:flex;align-items:center;gap:6px;padding-top:7px;}
+.fgE-book-date{font-family:var(--mono);font-size:8.5px;color:var(--ink-4);}
+.fgE-book-tag{font-family:var(--mono);font-size:8px;color:var(--gold-ink);background:var(--gold-weak);padding:1px 5px;border-radius:4px;}
+    /* the wooden plank under a row of books */
+.fgE-plank{position:absolute;left:-4px;right:-4px;bottom:-10px;height:13px;border-radius:3px;background:linear-gradient(180deg,#c9a877 0%,#b8935f 55%,#a8865a 100%);box-shadow:0 5px 12px rgba(120,90,50,.22);z-index:1;}
+.fgE-plank::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:rgba(255,255,255,.25);border-radius:3px 3px 0 0;}
+    /* add-book tile */
+.fgE-book.add{border:1.5px dashed var(--line-2);box-shadow:none;background:var(--surface);align-items:center;justify-content:center;color:var(--ink-4);text-align:center;gap:6px;}
+.fgE-book.add:hover{transform:none;border-color:var(--gold);color:var(--gold-ink);}
+.fgE-book.add .plus{font-size:22px;line-height:1;}
+    /* ── detail pane (right) — simple: title, summary, one delete ── */
+.fgE-detail-empty{display:grid;place-items:center;height:200px;color:var(--ink-4);font-size:12.5px;text-align:center;line-height:1.7;}
+.fgE-dt-head{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:16px;}
+.fgE-dt-cover{aspect-ratio:1/1;width:100%;border-radius:11px;overflow:hidden;margin-bottom:16px;background-size:cover;background-position:center;background-color:var(--surface-3);}
+.fgE-dt-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:10px;}
+.fgE-dt-metaline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.fgE-dt-dateline{font-family:var(--mono);font-size:10px;color:var(--ink-4);margin-bottom:18px;}
+.fgE-dt-src{font-family:var(--mono);font-size:10px;color:var(--ink-3);}
+.fgE-dt-date{font-family:var(--mono);font-size:10px;color:var(--ink-4);}
+.fgE-dt-tag{font-family:var(--mono);font-size:9.5px;padding:1px 8px;border-radius:20px;}
+.fgE-dt-sec{margin-bottom:18px;}
+.fgE-dt-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);margin-bottom:7px;}
+.fgE-dt-body{font-size:13px;line-height:1.7;color:var(--ink-2);}
+.fgE-dt-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--accent-ink);text-decoration:none;word-break:break-all;}
+.fgE-dt-link:hover{text-decoration:underline;}
+.fgE-dt-del{width:100%;margin-top:8px;padding:11px;background:none;border:1px solid var(--line-2);border-radius:11px;font-size:12.5px;color:var(--ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;}
+.fgE-dt-del:hover{color:#c0503a;border-color:#e0b0a5;background:#fbeeeb;}
+    /* capture bar: tabs + input, saves flow into the shelf */
+.fgE-cap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,18,.04);}
+.fgE-cap-tabs{display:flex;gap:5px;margin-bottom:12px;}
+.fgE-cap-tab{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:9px;font-size:12.5px;color:var(--ink-3);cursor:pointer;border:1px solid transparent;transition:.14s;}
+.fgE-cap-tab:hover{color:var(--ink-2);}
+.fgE-cap-tab.on{background:var(--surface-3);color:var(--ink);border-color:var(--line);}
+.fgE-cap-tab.soon{opacity:.55;}
+.fgE-cap-in{display:flex;gap:9px;}
+.fgE-cap-in input{flex:1;min-width:0;border:1px solid var(--line-2);border-radius:11px;padding:10px 13px;font-size:13.5px;font-family:var(--sans);color:var(--ink);outline:none;transition:border-color .16s,box-shadow .16s;}
+.fgE-cap-in input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(16,185,129,.09);}
+.fgE-cap-in input::placeholder{color:var(--ink-4);}
+.fgE-cap-save{flex:none;background:#0b7d5a;color:#fff;border:0;border-radius:11px;padding:0 22px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s;}
+.fgE-cap-save:hover{filter:brightness(1.08);}
+.fgE-cap-soon{padding:14px 4px;font-size:12px;color:var(--ink-4);text-align:center;}
+    /* link capture: title + link + tags on the left, save button on the right */
+.fgE-cap-link{display:flex;align-items:stretch;gap:9px;}
+.fgE-cap-link-fields{flex:1;min-width:0;display:grid;grid-template-columns:1.3fr 1.6fr 1fr;gap:9px;}
+.fgE-cap-link-in{border:1px solid var(--line-2);border-radius:10px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;transition:border-color .16s,box-shadow .16s;}
+.fgE-cap-link-in::placeholder{color:var(--ink-4);}
+.fgE-cap-link-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.09);}
+.fgE-cap-tagbox{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border:1px solid var(--line-2);border-radius:10px;padding:6px 8px;}
+.fgE-cap-tagbox:focus-within{border-color:var(--accent);}
+.fgE-cap-tagin{flex:1;min-width:70px;border:0;background:none;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:3px;outline:none;}
+.fgE-cap-tagin::placeholder{color:var(--ink-4);}
 
     /* ── Drift Stream (notes expanded, fgA-) ── */
 .fgA-wrap{max-width:920px;margin:0;font-family:var(--sans);color:var(--ink);letter-spacing:-.011em;}
@@ -2332,7 +2544,9 @@
     .detail-edit-btn { position: absolute; top: 16px; right: 54px; z-index: 3; height: 30px; padding: 0 13px; display: inline-flex; align-items: center; background: var(--accent-weak); border: 1px solid transparent; color: var(--accent-ink); border-radius: 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
     .detail-edit-btn:hover { background: var(--accent); color: #fff; }
     .detail-content { padding: 28px 26px 36px; }
+    /* edit form */
     .detail-edit-head { font-size: 16px; font-weight: 680; margin-bottom: 18px; letter-spacing: -.02em; }
+    /* avatar picker */
     .pe-avatar-row { position: relative; display: flex; justify-content: center; margin-bottom: 18px; }
     .pe-avatar { position: relative; width: 76px; height: 76px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid var(--line-2); background: var(--surface-2); display: flex; align-items: center; justify-content: center; }
     .pe-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -2882,6 +3096,7 @@
     .nr-sec .lbl{ flex:1; }
     .nr-sec .ct{ font-family:var(--mono); font-size:11px; opacity:.7; }
     .nr-sec .plus{ cursor:pointer; font-size:17px; line-height:1; opacity:.6; padding:0 2px; } .nr-sec .plus:hover{ opacity:1; }
+    .nr-sec .nr-reveal{ cursor:pointer; display:grid; place-items:center; opacity:.55; padding:0 2px; transition:opacity .12s; } .nr-sec .nr-reveal:hover{ opacity:1; } .nr-sec .nr-reveal svg{ width:14px; height:14px; }
     .nr-sec.owned{ background:#e7f6ef; color:#0b7d5a; }
     .nr-sec.linked{ background:#f5ecd8; color:#a5822f; }
     .nr-trow{ display:flex; align-items:center; gap:7px; padding:6px 8px; border-radius:8px; cursor:pointer; user-select:none; }
@@ -2939,6 +3154,19 @@
     .nr-mount:disabled{ opacity:.5; cursor:default; }
     .nr-mount svg{ opacity:.75; }
     .nr-mount-msg{ margin:-6px 14px 10px; font-size:11px; color:var(--nr-gold-ink); text-align:center; }
+    /* paste-link form: URL → external knowledge node */
+    .nr-linkform{ margin:2px 14px 8px; padding:11px; background:var(--nr-gold-weak,#f7efdf); border:1px solid #ece0c4; border-radius:12px; display:flex; flex-direction:column; gap:7px; }
+    .nr-linkin{ width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #e6dcc4; border-radius:8px; background:#fff; font-size:12px; color:var(--ink); outline:none; transition:border-color .14s; }
+    .nr-linkin:focus{ border-color:var(--nr-gold,#c9a24b); }
+    .nr-linksrc{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--nr-gold-ink,#8a6d34); margin:-2px 0 -1px; }
+    .nr-linksrc-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+    .nr-linkbtns{ display:flex; gap:7px; margin-top:1px; }
+    .nr-linkbtn{ flex:1; padding:7px; border:1px solid #e6dcc4; border-radius:8px; background:#fff; color:var(--ink-3); font-size:12px; font-weight:600; cursor:pointer; transition:.14s; }
+    .nr-linkbtn:hover{ color:var(--ink-2); }
+    .nr-linkbtn--ok{ background:var(--nr-gold-ink,#8a6d34); color:#fff; border-color:transparent; }
+    .nr-linkbtn--ok:hover{ filter:brightness(1.08); color:#fff; }
+    .nr-linkbtn--ok:disabled{ opacity:.45; cursor:default; }
+    .nr-linkhint{ margin:1px 0 0; font-size:10px; line-height:1.5; color:var(--ink-4); }
     /* mounted-source info bar (path + remove) */
     .nr-srcbar{ display:flex; align-items:center; gap:7px; margin:0 12px 6px; padding:5px 9px; background:var(--surface-2); border-radius:8px; font-size:10.5px; }
     .nr-srcbar-path{ flex:1; min-width:0; font-family:var(--mono); color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -5337,11 +5565,13 @@
                   <div class="mp-panel-head">
                     <span class="mp-ic">
                       <svg v-if="memoryView === 'values'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+                      <svg v-else-if="memoryView === 'decisions'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
                       <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
                     </span>
-                    <h2>{{ memoryView === 'values' ? (lang === 'zh' ? '价值观' : 'Values') : (lang === 'zh' ? '洞察' : 'Insights') }}</h2>
+                    <h2>{{ memoryView === 'values' ? (lang === 'zh' ? '价值观' : 'Values') : memoryView === 'decisions' ? (lang === 'zh' ? '决策' : 'Decisions') : (lang === 'zh' ? '洞察' : 'Insights') }}</h2>
                     <div class="mp-seg">
                       <button :class="{ on: memoryView === 'values' }" @click="memoryView = 'values'">{{ lang === 'zh' ? '价值观' : 'Values' }}</button>
+                      <button :class="{ on: memoryView === 'decisions' }" @click="memoryView = 'decisions'">{{ lang === 'zh' ? '决策' : 'Decisions' }}</button>
                       <button :class="{ on: memoryView === 'insights' }" @click="memoryView = 'insights'">{{ lang === 'zh' ? '洞察' : 'Insights' }}</button>
                     </div>
                   </div>
@@ -5351,6 +5581,20 @@
                     <div class="mp-vrow" v-for="(v, vi) in memoryProfile.values" :key="vi">
                       <span class="mp-vnum">{{ vi + 1 }}</span>
                       <div class="mp-vbody"><span class="mp-vt">{{ v.title }}</span><span class="mp-vd" v-if="v.desc">{{ v.desc }}</span></div>
+                    </div>
+                  </div>
+
+                  <!-- DECISIONS · real trade-offs from decisions/*.md -->
+                  <div v-else-if="memoryView === 'decisions'">
+                    <p class="mp-tl-sub">{{ lang === 'zh' ? '真做过的取舍 —— 每条都追溯到一次对话、一个决定。' : 'Real trade-offs made — each traces back to a conversation, a decision.' }}</p>
+                    <div class="mp-dlist">
+                      <div class="mp-drow" v-for="(d, di) in memoryProfile.decisions" :key="di">
+                        <span class="mp-ddate">{{ ovMonthDay(d.date) }}</span>
+                        <div class="mp-dbody">
+                          <span class="mp-dt">{{ d.title }}</span>
+                          <span class="mp-dtags"><span class="mp-dtag" v-for="tg in d.tags" :key="tg">{{ tg }}</span></span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -5899,119 +6143,132 @@
           <!-- triage toast -->
           <div v-if="fragToast" class="fgToast"><span class="fgToast-dot"></span>{{ fragToast }}</div>
 
-          <!-- ════════════ BOARD (default) · Scratch Desk ════════════ -->
-          <div v-if="fragMode === 'board'" class="fgC-wrap">
-            <header class="fgC-head">
-              <div class="fgC-lead">
-                <h1 class="fgC-title" :class="lang === 'zh' ? 'pgttl-zh' : 'pgttl-en'">{{ t('frag.title') }}</h1>
-                <p class="fgC-sub">{{ t('frag.sub') }}</p>
+          <!-- ════════════ BOARD (default) · Quiet Desk (C) ════════════ -->
+          <div v-if="fragMode === 'board'" class="fgE-wrap">
+            <!-- capture bar: pick a kind, type/paste, it flows into the shelf or notes -->
+            <div class="fgE-cap">
+              <div class="fgE-cap-tabs">
+                <div class="fgE-cap-tab" :class="{ on: fragCapTab === 'note' }" @click="fragCapTab = 'note'">✎ {{ lang === 'zh' ? '随手记' : 'Note' }}</div>
+                <div class="fgE-cap-tab" :class="{ on: fragCapTab === 'link' }" @click="fragCapTab = 'link'">🔗 {{ lang === 'zh' ? '收藏链接' : 'Link' }}</div>
+                <div class="fgE-cap-tab soon" :class="{ on: fragCapTab === 'image' }" @click="fragCapTab = 'image'">▦ {{ lang === 'zh' ? '截图/图片' : 'Image' }}</div>
+                <div class="fgE-cap-tab soon" :class="{ on: fragCapTab === 'file' }" @click="fragCapTab = 'file'">▤ {{ lang === 'zh' ? '文件' : 'File' }}</div>
               </div>
-              <div class="fgC-ledger">
-                <span class="fgC-stat"><b>{{ fragmentNotes.length }}</b><i>{{ t('frag.notes') }}</i></span>
-                <span class="fgC-statsep"></span>
-                <span class="fgC-stat"><b>{{ fragmentCollections.length }}</b><i>{{ t('frag.collections') }}</i></span>
-                <span class="fgC-statsep"></span>
-                <span class="fgC-stat fgC-stat--triage"><b>{{ fragTriageCount }}</b><i>{{ lang === 'zh' ? '待整理' : 'to triage' }}</i></span>
-              </div>
-            </header>
-
-            <div class="fgC-desk">
-              <!-- LEFT · quick notes -->
-              <section class="fgC-pane">
-                <button class="fgC-paneHead" type="button" @click="fragExpand('notes')"
-                  :title="lang === 'zh' ? '展开为时间流' : 'Expand to stream'"
-                  style="width:100%;background:none;border:0;cursor:pointer;text-align:left;">
-                  <span class="fgC-eyebrow">QUICK</span>
-                  <span class="fgC-paneTitle">{{ t('frag.notes') }}</span>
-                  <span class="fgC-count">{{ fragmentNotes.length }}</span>
-                  <span class="fgC-expand" style="margin-left:8px;font-family:var(--mono);font-size:10.5px;color:var(--accent-ink);">{{ lang === 'zh' ? '展开 ↗' : 'Expand ↗' }}</span>
-                </button>
-
-                <form class="fgC-capture" @submit.prevent="addFragmentNote">
-                  <span class="fgC-captureGlyph">✎</span>
-                  <input class="fgC-captureInput" type="text" v-model="newFragmentNote"
-                    :placeholder="t('frag.addNote')" @keydown.enter.prevent="addFragmentNote">
-                  <button class="fgC-captureBtn" type="submit">{{ t('frag.save') }}</button>
-                </form>
-
-                <div class="fgC-stream">
-                  <p v-if="!fragmentNotes.length" class="fgC-sub" style="padding:18px 2px;">{{ t('frag.empty') }}</p>
-
-                  <!-- 新 · 还没整理 -->
-                  <div v-if="fragNotesNew.length" class="fgC-newRail">
-                    <span class="fgC-newDot"></span>{{ lang === 'zh' ? '新 · 还没整理' : 'New · to triage' }} <em>{{ fragNotesNew.length }}</em>
+              <form v-if="fragCapTab === 'note'" class="fgE-cap-in" @submit.prevent="addFragmentNote">
+                <input type="text" v-model="newFragmentNote" :placeholder="lang === 'zh' ? '记录想法、要点…' : 'Jot a thought…'" @keydown.enter.prevent="addFragmentNote">
+                <button class="fgE-cap-save" type="submit">{{ t('frag.save') }}</button>
+              </form>
+              <form v-else-if="fragCapTab === 'link'" class="fgE-cap-link" @submit.prevent="addFragmentCollection">
+                <div class="fgE-cap-link-fields">
+                  <input class="fgE-cap-link-in" type="text" v-model="newCollectionTitle" :placeholder="lang === 'zh' ? '标题' : 'Title'" @keydown.enter.prevent="addFragmentCollection">
+                  <input class="fgE-cap-link-in" type="text" v-model="newCollectionUrl" :placeholder="lang === 'zh' ? '链接(可选)' : 'Link (optional)'" @keydown.enter.prevent="addFragmentCollection">
+                  <div class="fgE-cap-tagbox">
+                    <span v-for="(tg, i) in fgTagList" :key="tg+i" class="fgE-tagchip" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '1e' }">#{{ tg }}<span class="x" @click="fgRemoveTag(i)">×</span></span>
+                    <input class="fgE-cap-tagin" type="text" v-model="fgTagDraft" :placeholder="fgTagList.length ? (lang === 'zh' ? '再加标签…' : 'more…') : (lang === 'zh' ? '+ 标签' : '+ tag')" @keydown.enter.prevent="fgAddTag" @keydown="fgTagKeydown" @blur="fgAddTag">
                   </div>
-                  <article v-for="(note, idx) in fragNotesNew" :key="'fnn-'+idx" class="fgC-note fgC-note--new">
-                    <span class="fgC-noteDot"></span>
-                    <div class="fgC-noteBody">
-                      <p class="fgC-noteText">{{ note.text }}</p>
-                      <div class="fgC-noteFoot">
-                        <span class="fgC-when">{{ note.created || t('frag.drifting') }}</span>
-                        <div class="fgC-triage">
-                          <button class="fgC-act fgC-act--promote" type="button" @click="fragPromoteToTask(note)">{{ lang === 'zh' ? '↑ 任务' : '↑ Task' }}</button>
-                          <button class="fgC-act" type="button" @click="fragPromoteToNote(note)">{{ lang === 'zh' ? '→ 笔记' : '→ Note' }}</button>
-                          <button class="fgC-act fgC-act--dismiss" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">×</button>
-                        </div>
-                      </div>
+                </div>
+                <button class="fgE-cap-save" type="submit">{{ t('frag.save') }}</button>
+              </form>
+              <div v-else class="fgE-cap-soon">{{ lang === 'zh' ? '截图 / 图片 / 文件收藏即将支持' : 'Image & file capture — coming soon' }}</div>
+            </div>
+
+            <div class="fgE-desk" :class="{ 'has-detail': !!fragSelectedCol }">
+              <!-- LEFT · quick notes — quiet hairline-separated rows -->
+              <section class="fgE-pane fgE-pane--notes">
+                <div class="fgE-ph">
+                  <span class="fgE-ph-dot"></span>
+                  <span class="fgE-ph-name">{{ t('frag.notes') }}</span>
+                  <span class="fgE-ph-n">{{ fragmentNotes.length }}</span>
+                  <button type="button" class="fgE-expand" @click="fragExpand('notes')" :title="lang === 'zh' ? '展开为时间流' : 'Expand to stream'">{{ lang === 'zh' ? '展开 ↗' : 'Expand ↗' }}</button>
+                </div>
+
+                <div class="fgE-tl">
+                  <p v-if="!fragmentNotes.length" class="fgE-empty">{{ t('frag.empty') }}</p>
+
+                  <article v-for="(note, idx) in fragNotesNew" :key="'fnn-'+idx" class="fgE-ncard fgE-ncard--new">
+                    <div class="fgE-nc-head">
+                      <span class="fgE-nc-date">{{ note.created || t('frag.drifting') }}</span>
+                      <span v-if="fragNoteTags(note).length" class="fgE-nc-sep">·</span>
+                      <span v-if="fragNoteTags(note).length" class="fgE-nc-cat">{{ fragNoteTags(note)[0] }}</span>
+                      <button class="fgE-nc-del" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
+                      </button>
+                    </div>
+                    <p class="fgE-nc-text">{{ fragCleanText(note.text) }}</p>
+                    <div v-if="fragNoteTags(note).length" class="fgE-nc-tags">
+                      <span v-for="tg in fragNoteTags(note)" :key="tg" class="fgE-nc-tag">#{{ tg }}</span>
                     </div>
                   </article>
-
-                  <!-- 更早 -->
-                  <div v-if="fragNotesSeen.length" class="fgC-seenRail">{{ lang === 'zh' ? '更早' : 'Earlier' }}</div>
-                  <article v-for="(note, idx) in fragNotesSeen" :key="'fns-'+idx" class="fgC-note">
-                    <span class="fgC-noteDot fgC-noteDot--muted"></span>
-                    <div class="fgC-noteBody">
-                      <p class="fgC-noteText">{{ note.text }}</p>
-                      <div class="fgC-noteFoot">
-                        <span class="fgC-when">{{ note.created || t('frag.drifting') }}</span>
-                        <div class="fgC-triage">
-                          <button class="fgC-act fgC-act--promote" type="button" @click="fragPromoteToTask(note)">{{ lang === 'zh' ? '↑ 任务' : '↑ Task' }}</button>
-                          <button class="fgC-act" type="button" @click="fragPromoteToNote(note)">{{ lang === 'zh' ? '→ 笔记' : '→ Note' }}</button>
-                          <button class="fgC-act fgC-act--dismiss" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">×</button>
-                        </div>
-                      </div>
+                  <article v-for="(note, idx) in fragNotesSeen" :key="'fns-'+idx" class="fgE-ncard">
+                    <div class="fgE-nc-head">
+                      <span class="fgE-nc-date">{{ note.created || t('frag.drifting') }}</span>
+                      <span v-if="fragNoteTags(note).length" class="fgE-nc-sep">·</span>
+                      <span v-if="fragNoteTags(note).length" class="fgE-nc-cat">{{ fragNoteTags(note)[0] }}</span>
+                      <button class="fgE-nc-del" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
+                      </button>
+                    </div>
+                    <p class="fgE-nc-text">{{ fragCleanText(note.text) }}</p>
+                    <div v-if="fragNoteTags(note).length" class="fgE-nc-tags">
+                      <span v-for="tg in fragNoteTags(note)" :key="tg" class="fgE-nc-tag">#{{ tg }}</span>
                     </div>
                   </article>
                 </div>
               </section>
 
-              <!-- RIGHT · collections -->
-              <section class="fgC-pane">
-                <button class="fgC-paneHead" type="button" @click="fragExpand('collections')"
-                  :title="lang === 'zh' ? '展开为收藏墙' : 'Expand to wall'"
-                  style="width:100%;background:none;border:0;cursor:pointer;text-align:left;">
-                  <span class="fgC-eyebrow">SAVED</span>
-                  <span class="fgC-paneTitle">{{ t('frag.collections') }}</span>
-                  <span class="fgC-count">{{ fragmentCollections.length }}</span>
-                  <span class="fgC-expand" style="margin-left:8px;font-family:var(--mono);font-size:10.5px;color:var(--accent-ink);">{{ lang === 'zh' ? '展开 ↗' : 'Expand ↗' }}</span>
-                </button>
-
-                <form class="fgC-capture fgC-capture--link" @submit.prevent="addFragmentCollection">
-                  <span class="fgC-captureGlyph">🔗</span>
-                  <input class="fgC-captureInput" type="text" v-model="newCollectionTitle"
-                    :placeholder="lang === 'zh' ? '标题或链接… 回车收藏' : 'Title or link… enter to save'" @keydown.enter.prevent="addFragmentCollection">
-                  <button class="fgC-captureBtn" type="submit">{{ t('frag.save') }}</button>
-                </form>
-
-                <div class="fgC-stream">
-                  <p v-if="!fragmentCollections.length" class="fgC-sub" style="padding:18px 2px;">{{ t('frag.emptyCol') }}</p>
-                  <a v-for="(col, idx) in fragCollectionsSorted" :key="'fc-'+idx" class="fgC-link"
-                     :href="col.url || '#'" :target="col.url ? '_blank' : '_self'" rel="noopener">
-                    <span class="fgC-fav" :class="fragTypeMeta(col.type).fav">{{ fragTypeMeta(col.type).glyph }}</span>
-                    <div class="fgC-linkBody">
-                      <p class="fgC-linkTitle">{{ col.title || col.name }}</p>
-                      <div class="fgC-linkMeta">
-                        <span class="fgC-src">{{ fragHost(col.url) }}</span>
-                        <span class="fgC-type" :class="fragTypeMeta(col.type).fgc">{{ fragTypeMeta(col.type).label }}</span>
-                        <span class="fgC-when">{{ col.date || '' }}</span>
+              <!-- RIGHT · collections — favicon + title rows on warm paper -->
+              <!-- CENTER · 情报书架 (bookshelf) -->
+              <section class="fgE-pane fgE-pane--saved">
+                <div class="fgE-shelf-head">
+                  <span class="fgE-ph-dot fgE-ph-dot--gold"></span>
+                  <span class="fgE-ph-name">{{ lang === 'zh' ? '收藏夹' : 'Shelf' }}</span>
+                  <span class="fgE-ph-n fgE-ph-n--gold">{{ fragmentCollections.length }}</span>
+                </div>
+                <div class="fgE-shelf-wrap">
+                  <p v-if="!fragmentCollections.length && !fragCollectionsSorted.length" class="fgE-empty">{{ t('frag.emptyCol') }}</p>
+                  <div class="fgE-shelf-row">
+                    <div class="fgE-shelf-books">
+                      <div v-for="(col, idx) in fragCollectionsSorted" :key="'bk-'+idx" class="fgE-book"
+                        :class="{ sel: fragSelectedCol && fragSelectedCol.file === col.file }" @click="fragSelectCol(col)">
+                        <div class="fgE-book-cover" :style="{ backgroundImage: 'url(' + fragCoverImg(col.title || col.name) + ')' }"></div>
+                        <div class="fgE-book-title">{{ col.title || col.name }}</div>
+                        <div class="fgE-book-src">{{ fragHost(col.url) || (lang === 'zh' ? '收藏' : 'saved') }}</div>
+                        <div class="fgE-book-foot">
+                          <span v-if="(col.tags || []).length" class="fgE-book-tag">#{{ col.tags[0] }}</span>
+                          <span class="fgE-book-date">{{ col.date || '' }}</span>
+                        </div>
+                      </div>
+                      <!-- add-book tile → opens the link capture tab up top -->
+                      <div class="fgE-book add" @click="fragCapTab = 'link'">
+                        <span class="plus">+</span>
+                        <div style="font-size:11px">{{ lang === 'zh' ? '添加收藏' : 'Add' }}</div>
                       </div>
                     </div>
-                    <div class="fgC-triage fgC-triage--link">
-                      <button class="fgC-act fgC-act--dismiss" type="button" :aria-label="t('frag.archive')"
-                        @click.prevent="archiveCollection(col)">⌫</button>
-                    </div>
-                  </a>
+                  </div>
                 </div>
+              </section>
+
+              <!-- RIGHT · detail (only when a book is selected) -->
+              <section v-if="fragSelectedCol" class="fgE-pane fgE-pane--detail">
+                <div class="fgE-dt-head">{{ lang === 'zh' ? '碎片详情' : 'Detail' }}</div>
+                <div class="fgE-dt-cover" :style="{ backgroundImage: 'url(' + fragCoverImg(fragSelectedCol.title || fragSelectedCol.name) + ')' }"></div>
+                <div class="fgE-dt-title">{{ fragSelectedCol.title || fragSelectedCol.name }}</div>
+                <div class="fgE-dt-metaline" v-if="fragHost(fragSelectedCol.url) || (fragSelectedCol.tags || []).length">
+                  <span v-if="fragHost(fragSelectedCol.url)" class="fgE-dt-src">{{ fragHost(fragSelectedCol.url) }}</span>
+                  <span v-for="tg in (fragSelectedCol.tags || [])" :key="tg" class="fgE-dt-tag" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '18' }">#{{ tg }}</span>
+                </div>
+                <div class="fgE-dt-dateline" v-if="fragSelectedCol.date">{{ fragSelectedCol.date }}</div>
+                <div v-if="fragSelectedCol.url" class="fgE-dt-sec">
+                  <div class="fgE-dt-label">{{ lang === 'zh' ? '链接' : 'Link' }}</div>
+                  <a class="fgE-dt-link" :href="fragSelectedCol.url" target="_blank" rel="noopener">{{ fragSelectedCol.url }} ↗</a>
+                </div>
+                <div v-if="fragDetailSummary(fragSelectedCol)" class="fgE-dt-sec">
+                  <div class="fgE-dt-label">{{ lang === 'zh' ? '摘要' : 'Summary' }}</div>
+                  <div class="fgE-dt-body">{{ fragDetailSummary(fragSelectedCol) }}</div>
+                </div>
+                <button class="fgE-dt-del" @click="fragDeleteSelected">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
+                  {{ lang === 'zh' ? '删除' : 'Delete' }}
+                </button>
               </section>
             </div>
           </div>
@@ -6156,6 +6413,9 @@
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/></svg></span>
                       <span class="lbl">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</span>
                       <span class="ct">{{ notesOwned.count }}</span>
+                      <span class="nr-reveal" :title="lang === 'zh' ? '在访达里打开这个文件夹(建文件夹 / 整理都在这里做)' : 'Open this folder in Finder'" @click.stop="notesReveal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/><path d="M9 12h6M12 9l3 3-3 3"/></svg>
+                      </span>
                     </div>
                     <template v-if="notesSecOpen.owned">
                       <note-tree-node v-for="node in notesOwned.children" :key="node.id" :node="node" :depth="0"
@@ -6165,18 +6425,38 @@
                     </template>
 
                     <!-- 链接 -->
-                    <div class="nr-sec linked" v-if="notesLinked.length" @click="notesToggleSec('linked')">
+                    <div class="nr-sec linked" v-if="notesLinked.length || notesLinkPointers.length" @click="notesToggleSec('linked')">
                       <span class="caret" :class="{ open: notesSecOpen.linked }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg></span>
                       <span class="lbl">{{ lang === 'zh' ? '外部知识库' : 'External knowledge' }}</span>
-                      <span class="ct">{{ notesLinked.length }}</span>
+                      <span class="ct">{{ notesLinked.length + notesLinkPointers.length }}</span>
                       <span class="plus" :title="lang === 'zh' ? '链接文件夹' : 'Link a folder'" @click.stop="notesMountFolder()">＋</span>
                     </div>
-                    <template v-if="notesSecOpen.linked" v-for="src in notesLinked" :key="src.id">
-                      <note-tree-node :node="src" :depth="0" :linked="true" :missing="src.missing"
+                    <template v-if="notesSecOpen.linked">
+                      <note-tree-node v-for="src in notesLinked" :key="src.id" :node="src" :depth="0" :linked="true" :missing="src.missing"
                         :sel-id="notesSelected && notesSelected.id" :open-set="notesOpenFolders" :color="noteSourceColor(src.id)"
                         @pick-note="notesSelected = $event" @toggle="notesToggleFolder($event)"
                         @remove-src="notesUnmountFolder(src)"></note-tree-node>
+                      <!-- pasted URL pointers (Feishu/Notion/web) collected in an
+                           "外部链接" folder, sibling to the linked vaults -->
+                      <template v-if="notesLinkPointers.length">
+                        <div class="nr-trow folder" @click="notesToggleFolder('extlinks-folder')">
+                          <span class="nr-tw" :class="{ open: notesOpenFolders.has('extlinks-folder') }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+                          <span class="nr-tic" style="color:#c9a24b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg></span>
+                          <span class="nr-tnm">{{ lang === 'zh' ? '外部链接' : 'External links' }}</span>
+                          <span class="nr-tct">{{ notesLinkPointers.length }}</span>
+                        </div>
+                        <template v-if="notesOpenFolders.has('extlinks-folder')">
+                          <div v-for="p in notesLinkPointers" :key="p.id" class="nr-trow note" :class="{ sel: notesSelected && notesSelected.id === p.id }" style="padding-left:40px" @click="notesSelected = p">
+                            <span class="nr-tw leaf"></span>
+                            <span class="nr-tic" :style="{ color: noteSourceColor(p.source) }"><span v-html="noteSourceMeta(p.source).glyph"></span></span>
+                            <span class="nr-tnm">{{ p.title }}</span>
+                            <button class="nr-tdel" :title="lang === 'zh' ? '移除这个链接' : 'Remove link'" @click.stop="notesAskDelete(p)">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
+                            </button>
+                          </div>
+                        </template>
+                      </template>
                     </template>
                   </template>
                 </div>
@@ -6193,12 +6473,32 @@
                     <span aria-hidden="true">+</span> {{ lang === 'zh' ? '新建笔记' : 'New note' }}
                   </button>
                   <div class="nr-actrow">
-                    <button class="nr-act2" type="button" :disabled="notesMounting" @click="notesMountFolder()" :title="lang === 'zh' ? '链接一个外部文件夹(如 Obsidian vault),Loci 只指过去不占有' : 'Link an external folder (e.g. an Obsidian vault) — pointer only'">
+                    <button class="nr-act2" type="button" @click="notesLinkOpen = !notesLinkOpen" :title="lang === 'zh' ? '粘贴一个飞书 / Notion / 网页链接,存成一条外部知识' : 'Paste a Feishu / Notion / web link as an external knowledge item'">
                       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg>
+                      {{ lang === 'zh' ? '粘贴链接' : 'Paste link' }}
+                    </button>
+                    <button class="nr-act2" type="button" :disabled="notesMounting" @click="notesMountFolder()" :title="lang === 'zh' ? '链接一个外部文件夹(如 Obsidian vault),Loci 只指过去不占有' : 'Link an external folder (e.g. an Obsidian vault) — pointer only'">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/></svg>
                       {{ notesMounting ? (lang === 'zh' ? '链接中…' : 'Linking…') : (lang === 'zh' ? '链接文件夹' : 'Link folder') }}
                     </button>
                   </div>
+                  <!-- paste-link form: turn a Feishu/Notion/web URL into an external knowledge node -->
+                  <div v-if="notesLinkOpen" class="nr-linkform">
+                    <input class="nr-linkin" v-model="notesLinkUrl" :placeholder="lang === 'zh' ? '粘贴链接(飞书 / Notion / 网页)' : 'Paste a link (Feishu / Notion / web)'" @input="notesLinkSniff" @keyup.enter="notesLinkSubmit" ref="notesLinkInput" />
+                    <div v-if="notesLinkUrl.trim()" class="nr-linksrc">
+                      <span class="nr-linksrc-dot" :style="{ background: noteSourceColor(notesLinkSource) }"></span>
+                      {{ noteSourceMeta(notesLinkSource).label }}
+                    </div>
+                    <input class="nr-linkin" v-model="notesLinkTitle" :placeholder="lang === 'zh' ? '标题(必填)' : 'Title (required)'" @keyup.enter="notesLinkSubmit" />
+                    <input class="nr-linkin" v-model="notesLinkTags" :placeholder="lang === 'zh' ? '标签,逗号分隔(可选)' : 'Tags, comma-separated (optional)'" @keyup.enter="notesLinkSubmit" />
+                    <div class="nr-linkbtns">
+                      <button class="nr-linkbtn" @click="notesLinkOpen = false">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                      <button class="nr-linkbtn nr-linkbtn--ok" :disabled="!notesLinkUrl.trim() || !notesLinkTitle.trim() || notesLinking" @click="notesLinkSubmit">{{ notesLinking ? (lang === 'zh' ? '保存中…' : 'Saving…') : (lang === 'zh' ? '加入知识库' : 'Add') }}</button>
+                    </div>
+                    <p class="nr-linkhint">{{ lang === 'zh' ? 'Loci 只存链接和标题,正文留在原应用,点开跳转过去看。' : 'Loci keeps the link + title; the body stays in its app, opened on click.' }}</p>
+                  </div>
                   <p v-if="notesMountMsg" class="nr-mount-msg">{{ notesMountMsg }}</p>
+                  <p v-if="notesLinkMsg" class="nr-mount-msg">{{ notesLinkMsg }}</p>
                 </div>
               </aside>
               <!-- RIGHT -->
@@ -6586,7 +6886,6 @@
             </div>
           </div>
 
-
           <!-- ===== GRAPH MODE: force-directed relationship graph ===== -->
           <div v-else-if="viewMode === 'graph'" class="pg-stage">
             <div class="pg-ctl pg-search">
@@ -6711,6 +7010,7 @@
               </div>
 
               <!-- ===== READ MODE ===== -->
+              <div v-else class="detail-content">
                 <!-- Header -->
                 <div class="detail-header">
                   <div v-if="selectedPerson.photo" class="detail-avatar circle" style="overflow: hidden; padding: 0;">
@@ -6818,7 +7118,6 @@
                   </div>
                 </template>
               </div>
-
             </div>
           </div>
 
@@ -6898,7 +7197,6 @@
               </div>
             </div>
           </div>
-
 
         </section>
 
@@ -8567,6 +8865,18 @@ const lociApp = createApp({
         { text:'An evening recap makes the next day start faster.', tag:'Ritual' },
       ];
       const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
+      // decisions — real data from overview.recentDecisions (reads decisions/*.md).
+      // Falls back to demo samples only when the API hasn't loaded yet.
+      const rawDec = (data.value && data.value.overview && data.value.overview.recentDecisions) || [];
+      const decisionsList = (rawDec.length ? rawDec : (zh ? [
+        { title:'先发布，再打磨 —— 砍掉没人用的功能', tags:['strategy','product'],  date:'2026-06-20' },
+        { title:'记忆聚合而非占有 —— 大脑只做索引',   tags:['architecture'],         date:'2026-06-08' },
+        { title:'纯 markdown、零依赖',                tags:['tech','moat'],          date:'2026-05-02' },
+      ] : [
+        { title:'Ship first, polish later — cut features nobody uses', tags:['strategy','product'], date:'2026-06-20' },
+        { title:'Aggregate memory, don\'t own it — the brain only indexes', tags:['architecture'], date:'2026-06-08' },
+        { title:'Plain markdown, zero dependencies', tags:['tech','moat'], date:'2026-05-02' },
+      ])).map(d => ({ title: d.title, tags: (d.tags || []).slice(0, 2), date: d.date }));
       return {
         avatar: '/assets/people-avatars/me-cyc.jpg',
         name: 'Sam Rivera',
@@ -8585,7 +8895,7 @@ const lociApp = createApp({
         tags: zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
         stats: { memories, links, active, decisions, projects },
         attrs, radar, radarPoints, radarVerts: verts,
-        values, insights,
+        values, insights, decisions: decisionsList,
         growthPct: Math.round(Math.min(1, memories/200)*100),
       };
     });
@@ -10396,12 +10706,14 @@ const lociApp = createApp({
     const journalHeadline = computed(() => {
       const e = journalAISummary.value;
       if (!e || !e.content) return '';
+      // strip html, take the first H1/title-ish line, drop a leading "YYYY-MM-DD 周X — " prefix
       const txt = String(e.content).replace(/<[^>]+>/g, '\n').replace(/&[a-z]+;/g, ' ');
       const lines = txt.split('\n').map(l => l.trim()).filter(Boolean);
       let h = lines[0] || '';
       h = h.replace(/^\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*·?\s*(周[一二三四五六日])?\s*[—–-]*\s*/, '').trim();
       return h.length > 64 ? h.slice(0, 62) + '…' : h;
     });
+    // AI-summary body with the leading <h1> title stripped (the hero already shows it)
     const journalBodyHtml = computed(() => {
       const e = journalAISummary.value;
       if (!e || !e.content) return '';
@@ -11544,7 +11856,7 @@ const lociApp = createApp({
 
       // tier 1: STUDENT — university-student look (takes priority over generic profession),
       // unless an explicit age says they're clearly older.
-      const isStudent = /student|学生|大学生|本科|研究生|同学|undergrad/.test(hay);
+      const isStudent = /\b(student|undergrad|大学生|本科|研究生|学生|同学)\b/.test(hay) || /student|学生/.test(hay);
       const looksYoung = !Number.isFinite(ageNum) || ageNum < 26;
       if (isStudent && looksYoung) return `${AVA}${pickAva('teen', g, seed)}.jpg`;
 
@@ -11670,20 +11982,24 @@ const lociApp = createApp({
     // ── Properties panel: edit a note's frontmatter (title / tags / aliases / date) ──
     const notesNewTag = ref('');                 // the "add tag" input buffer
     const notesPropsSaving = ref(false);
+    // Build the current props object from notesSelected (meta + known fields).
     function notesCurrentProps() {
       const n = notesSelected.value;
       if (!n) return {};
       const meta = (n.meta && typeof n.meta === 'object') ? { ...n.meta } : {};
+      // known fields override so edits to them win
       meta.title = n.title || meta.title || '';
       meta.tags = Array.isArray(n.tags) ? n.tags.slice() : [];
       return meta;
     }
+    // Persist a single-field change to the frontmatter, then reload.
     async function notesSaveProps(patch) {
       const n = notesSelected.value;
       if (!n || !n.editable || !n.filename || notesPropsSaving.value) return;
       notesPropsSaving.value = true;
       try {
         const props = { ...notesCurrentProps(), ...patch };
+        // drop empties so removed fields disappear from frontmatter
         Object.keys(props).forEach(k => {
           if (props[k] === '' || props[k] == null) delete props[k];
           if (Array.isArray(props[k]) && !props[k].length && k !== 'tags') delete props[k];
@@ -11697,15 +12013,18 @@ const lociApp = createApp({
       } catch (e) { /* keep view */ }
       finally { notesPropsSaving.value = false; }
     }
+    // Title edit (blur to save).
     function notesSetTitle(e) {
       const v = String(e.target.value || '').trim();
       if (v && v !== notesSelected.value.title) notesSaveProps({ title: v });
     }
+    // Date / link / a custom field.
     function notesSetField(key, e) {
       const v = String(e.target.value || '').trim();
       const cur = (notesSelected.value.meta && notesSelected.value.meta[key]) || '';
       if (v !== String(cur)) notesSaveProps({ [key]: v });
     }
+    // Tags: add / remove.
     function notesAddTag() {
       const t = String(notesNewTag.value || '').replace(/^#/, '').trim();
       notesNewTag.value = '';
@@ -11719,6 +12038,7 @@ const lociApp = createApp({
       const tags = (notesSelected.value.tags || []).filter(x => x !== t);
       notesSaveProps({ tags });
     }
+    // Add a custom property (key with an empty value; user fills it after).
     // Aliases (like Obsidian's) — a multi-value chip field stored in frontmatter.
     const notesNewAlias = ref('');
     const notesAliases = computed(() => {
@@ -11782,12 +12102,19 @@ const lociApp = createApp({
     function notesCancelDelete() { notesConfirmDelete.value = null; }
     async function notesDoDelete() {
       const note = notesConfirmDelete.value;
-      if (!note || !note.filename || notesSaving.value) return;
+      if (!note || notesSaving.value) return;
+      // A pasted URL pointer has no file — it's a line in index.md. Remove it via
+      // /api/notes/unlink (by link). A real note (inline / local .md) has a filename
+      // and is removed via /api/notes/delete. Anything with neither can't be removed.
+      const isPointer = !note.filename && !!note.link && note.kind === 'external';
+      if (!note.filename && !isPointer) return;
       notesSaving.value = true;
       try {
-        const res = await demoFetch('/api/notes/delete', {
+        const url = isPointer ? '/api/notes/unlink' : '/api/notes/delete';
+        const payload = isPointer ? { link: note.link } : { filename: note.filename };
+        const res = await demoFetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: note.filename })
+          body: JSON.stringify(payload)
         });
         const out = await res.json().catch(() => ({}));
         if (res.ok && !out.error) {
@@ -11817,6 +12144,43 @@ const lociApp = createApp({
           if (found) notesSelected.value = found;
         }
       } catch (e) { /* keep current view */ }
+    }
+
+    // ── Paste a link (Feishu / Notion / web) → one external-knowledge pointer ──
+    // Private Feishu/Notion docs can't be read without auth (they redirect to a
+    // login wall), so Loci stores just the link + title you give it and opens the
+    // doc in your own logged-in browser on click. "Aggregate, don't own."
+    const notesLinkOpen = ref(false);
+    const notesLinkUrl = ref('');
+    const notesLinkTitle = ref('');
+    const notesLinkTags = ref('');
+    const notesLinkSource = ref('link');
+    const notesLinkMsg = ref('');
+    const notesLinking = ref(false);
+    const notesLinkInput = ref(null);
+    // auto-detect the source (feishu / notion / obsidian / web) as you paste
+    function notesLinkSniff() { notesLinkSource.value = noteInferSource(notesLinkUrl.value); }
+    async function notesLinkSubmit() {
+      const url = notesLinkUrl.value.trim();
+      const title = notesLinkTitle.value.trim();
+      if (!url || !title || notesLinking.value) return;
+      notesLinking.value = true; notesLinkMsg.value = '';
+      try {
+        const tags = notesLinkTags.value.split(/[,，]/).map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+        const res = await demoFetch('/api/notes/import', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: url, title, tags })
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error) { notesLinkMsg.value = out.error || (lang.value === 'zh' ? '加入失败' : 'Failed'); notesLinking.value = false; return; }
+        // reset + close, then reload so the new pointer shows in the tree
+        notesLinkUrl.value = ''; notesLinkTitle.value = ''; notesLinkTags.value = '';
+        notesLinkOpen.value = false;
+        notesLinkMsg.value = '';
+        await notesReload(null);
+      } catch (e) {
+        notesLinkMsg.value = lang.value === 'zh' ? '加入失败:' + e.message : 'Failed: ' + e.message;
+      } finally { notesLinking.value = false; }
     }
 
     // ── Mount / unmount folder sources (Obsidian vaults, docs dirs, …) ──
@@ -12207,9 +12571,10 @@ const lociApp = createApp({
 
     // ── Folder-tree model (the new left rail) ──────────────────────────────
     // The backend hands us two trees: `owned` (notes/, files Loci owns) and
-    // `linked` (each mounted folder, files Loci only points at).
-    const notesView = ref('tree');
-    const notesOpenFolders = reactive(new Set());
+    // `linked` (each mounted folder, files Loci only points at). We normalize a
+    // note node so a click can open it in the reader (same shape the reader wants).
+    const notesView = ref('tree');                 // 'all' | 'tree' (folder view is default)
+    const notesOpenFolders = reactive(new Set(['extlinks-folder']));  // expanded folder ids ('外部链接' open by default)
     function notesToggleFolder(id) {
       if (notesOpenFolders.has(id)) notesOpenFolders.delete(id);
       else notesOpenFolders.add(id);
@@ -12217,8 +12582,10 @@ const lociApp = createApp({
     // The two top sections ("my notes" / "linked folders") collapse too.
     const notesSecOpen = reactive({ owned: true, linked: true });
     function notesToggleSec(key) { notesSecOpen[key] = !notesSecOpen[key]; }
-    // `owned` notes → source 'inline' (no footnote); linked → source 'linked'
-    // (footnote "linked from X"). Both are local .md → editable.
+    // Turn a backend note node into the object the reader/props panel expects.
+    // `owned` notes live in notes/ (source 'inline' → reader shows no external
+    // footnote); linked notes come from a mounted folder (source 'linked' → the
+    // reader shows the "file lives in X" footnote). Both are local .md → editable.
     function notesAdaptNote(n, color, glyph, owned, srcLabel) {
       const meta = n.meta || {};
       return {
@@ -12232,6 +12599,8 @@ const lociApp = createApp({
       };
     }
     const FILE_GLYPH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h9l5 5v13H5z"/></svg>';
+    // Recursively adapt a tree's note leaves (so selecting one opens the reader),
+    // leaving folder nodes intact for the tree component.
     function notesAdaptTree(nodes, color, owned, srcLabel) {
       return (nodes || []).map(n => {
         if (n.kind === 'folder') {
@@ -12252,8 +12621,14 @@ const lociApp = createApp({
         children: notesAdaptTree(src.children, noteSourceColor(src.id), false, src.name),
       }));
     });
+    // Pasted URL pointers (Feishu / Notion / web) — external knowledge that isn't a
+    // local file, so it lives as a flat pointer, not in a folder tree. Shown as leaves
+    // under the 外部知识库 section and hung off that node in the graph.
+    const notesLinkPointers = computed(() =>
+      (notesUnified.value || []).filter(n => n.kind === 'external' && n.link));
     const notesTotal = computed(() =>
-      notesOwned.value.count + notesLinked.value.reduce((s, l) => s + l.count, 0));
+      notesOwned.value.count + notesLinked.value.reduce((s, l) => s + l.count, 0) + notesLinkPointers.value.length);
+    // Flatten every note leaf (owned + linked) for global search.
     function notesFlatten(nodes, acc) {
       for (const n of (nodes || [])) {
         if (n.kind === 'folder') notesFlatten(n.children, acc);
@@ -12336,9 +12711,10 @@ const lociApp = createApp({
         kind: 'group', gid: 'mine', x: 0, y: 0, vx: 0, vy: 0 });
       link(rootId, mineId);
       walk(owned.children, mineId, 'mine');
-      // 外部知识库 group (only if there are linked sources)
+      // 外部知识库 group (linked folders AND pasted URL pointers)
       const linked = notesLinked.value || [];
-      if (linked.length) {
+      const pointers = notesLinkPointers.value || [];
+      if (linked.length || pointers.length) {
         const extId = add({ id: 'grp-ext', label: lang.value === 'zh' ? '外部知识库' : 'External knowledge',
           kind: 'group', gid: 'ext', x: 0, y: 0, vx: 0, vy: 0 });
         link(rootId, extId);
@@ -12348,6 +12724,18 @@ const lociApp = createApp({
           link(extId, sid);
           walk(src.children, sid, 'ext');
         });
+        // pasted Feishu/Notion/web links collect under an "外部链接" folder node
+        if (pointers.length) {
+          const linksFolder = 'g' + (seq++);
+          add({ id: linksFolder, label: lang.value === 'zh' ? '外部链接' : 'External links', kind: 'folder', gid: 'ext', x: 0, y: 0, vx: 0, vy: 0 });
+          link(extId, linksFolder);
+          pointers.forEach(p => {
+            const id = 'g' + (seq++);
+            add({ id, label: p.title || p.link || '(link)', kind: 'note', gid: 'ext',
+              color: noteSourceColor(p.source), note: p, x: 0, y: 0, vx: 0, vy: 0 });
+            link(linksFolder, id);
+          });
+        }
       }
       kgEmpty.value = kgNodes.filter(n => n.kind === 'note').length === 0;
       kgLayout();
@@ -12532,6 +12920,7 @@ const lociApp = createApp({
         return hay.includes(q);
       });
     });
+    // Create a subfolder inside notes/ (parent = '' → notes root).
     async function notesMkdir(parent) {
       const zh = lang.value === 'zh';
       const name = (window.prompt(zh ? '新文件夹名称：' : 'New folder name:') || '').trim();
@@ -12545,6 +12934,17 @@ const lociApp = createApp({
         if (res.ok && !out.error) await notesReload(null);
         else if (out.error) notesMountMsg.value = out.error;
       } catch (e) { /* keep view */ }
+    }
+
+    // Open the notes/ folder in the OS file manager (Finder), so folder-making and
+    // file-organizing happen with the native tools — the tree here just reflects it.
+    async function notesReveal(sub) {
+      try {
+        await demoFetch('/api/notes/reveal', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sub: sub || '' })
+        });
+      } catch (e) { /* nothing to show; it either opened or didn't */ }
     }
 
     const notesSourceCounts = computed(() => {
@@ -12822,6 +13222,7 @@ const lociApp = createApp({
       const serious = (data.value && data.value.projects && data.value.projects.serious) || [];
       const idx = serious.findIndex(s => s.name === p.name);
       const removed = idx >= 0 ? serious.splice(idx, 1)[0] : null;
+      // re-focus another project if we removed the focused one
       if (roadmapFocusName.value === p.name) {
         roadmapFocusName.value = (serious[0] && serious[0].name) || '';
       }
@@ -12832,7 +13233,7 @@ const lociApp = createApp({
         });
         if (!res.ok) throw new Error('disconnect failed: ' + res.status);
       } catch (e) {
-        if (removed && idx >= 0) serious.splice(idx, 0, removed);
+        if (removed && idx >= 0) serious.splice(idx, 0, removed);   // rollback
         console.error('Failed to disconnect project:', e);
       }
     }
@@ -12959,6 +13360,31 @@ const lociApp = createApp({
     const newFragmentNote = ref('');
     const newCollectionTitle = ref('');
     const newCollectionUrl = ref('');
+    // the save form is collapsed by default — click "+ new save" to reveal it
+    const fgSaveOpen = ref(false);
+    const fgTitleInput = ref(null);
+    function fgOpenSave() { fgSaveOpen.value = true; nextTick(() => { if (fgTitleInput.value) fgTitleInput.value.focus(); }); }
+    function fgCloseSave() {
+      fgSaveOpen.value = false;
+      newCollectionTitle.value = ''; newCollectionUrl.value = '';
+      fgTagList.value = []; fgTagDraft.value = '';
+    }
+    // multi-tag entry for a new save: committed chips + the in-progress draft
+    const fgTagList = ref([]);
+    const fgTagDraft = ref('');
+    const fgUrlInput = ref(null);
+    function fgAddTag() {
+      const t = String(fgTagDraft.value || '').replace(/^#/, '').trim();
+      fgTagDraft.value = '';
+      if (t && !fgTagList.value.includes(t)) fgTagList.value.push(t);
+    }
+    function fgRemoveTag(i) { fgTagList.value.splice(i, 1); }
+    function fgTagKeydown(e) {
+      // comma / space commit the current tag; backspace on empty removes the last chip
+      if (e.key === ',' || e.key === '，' || e.key === ' ') { e.preventDefault(); fgAddTag(); }
+      else if (e.key === 'Backspace' && !fgTagDraft.value && fgTagList.value.length) fgTagList.value.pop();
+    }
+    function fgFocusUrl() { nextTick(() => { if (fgUrlInput.value) fgUrlInput.value.focus(); }); }
 
     const fragmentNotes = computed(() => {
       const items = data.value?.inbox?.items;
@@ -12966,19 +13392,92 @@ const lociApp = createApp({
       return items;
     });
 
+    // Strip visual clutter from a raw inbox line for display: markdown bold/italic
+    // markers, list bullets, and a leading emoji/symbol. The raw text stays intact
+    // in the file — this only cleans what's shown so the timeline reads calm.
+    function fragCleanText(raw) {
+      let s = String(raw || '');
+      s = s.replace(/\*\*(.+?)\*\*/g, '$1');       // **bold** → bold
+      s = s.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '$1'); // *italic* → italic
+      s = s.replace(/`([^`]+)`/g, '$1');           // `code` → code
+      s = s.replace(/^\s*[-*+]\s+/, '');           // leading list bullet
+      // drop a leading emoji / pictograph + following space (💡 🔧 ⚠️ 📝 🎬 …)
+      s = s.replace(/^\s*(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+)\s*/u, '');
+      return s.trim();
+    }
+
     const fragmentCollections = computed(() => {
       const refs = data.value?.references;
       if (!refs || !refs.files || !Array.isArray(refs.files)) return [];
-      return refs.files.map(f => ({
-        name: f.name,
-        title: f.meta?.title || f.name?.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, ''),
-        url: f.meta?.url || '',
-        date: f.meta?.date || '',
-        type: f.meta?.type || '',
-        content: f.content || '',
-        file: f.name,
-      }));
+      return refs.files.map(f => {
+        const fname = f.filename || f.file || f.name || '';   // backend uses `filename`
+        const tg = f.meta?.tags;
+        return {
+          name: fname,
+          title: f.meta?.title || fname.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, ''),
+          url: f.meta?.url || '',
+          date: f.meta?.date || '',
+          type: f.meta?.type || '',
+          tags: Array.isArray(tg) ? tg.map(x => String(x).replace(/^#/, '')) : (tg ? [String(tg).replace(/^#/, '')] : []),
+          content: f.content || '',
+          file: fname,
+        };
+      });
     });
+
+    // Derive up-to-2 tags for a note card: explicit #tags in the text if any, else
+    // the leading "X想法 / X笔记 / X选题 / X清单" category word. Keeps cards labelled
+    // without asking the user to tag every quick thought.
+    function fragNoteTags(note) {
+      const raw = String(note && note.text || '');
+      const hash = (raw.match(/#([^\s#，、]+)/g) || []).map(t => t.replace(/^#/, '')).slice(0, 2);
+      if (hash.length) return hash;
+      const m = raw.replace(/^\s*[-*+]\s*/, '').replace(/^\s*(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]+)\s*/u, '')
+        .match(/^([一-鿿]{1,6}?)(想法|笔记|选题|清单|计划|流程|工作流|复盘)/u);
+      return m ? [m[1] + m[2]] : [];
+    }
+
+    // ── Bookshelf (情报书架) state ──
+    const fragCapTab = ref('note');          // capture bar: note | link | image | file
+    const fragSelectedCol = ref(null);       // the book whose detail is shown on the right
+    function fragSelectCol(col) {
+      // toggle: click the open book again to close the detail pane
+      fragSelectedCol.value = (fragSelectedCol.value && fragSelectedCol.value.file === col.file) ? null : col;
+    }
+    // stable cover colour (0..5) hashed from the title, so a book keeps its hue
+    function fragCoverHue(seed) {
+      const s = String(seed || '');
+      let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      return h % 6;
+    }
+    // A cover image for a save, when it has no real thumbnail: pick one of the
+    // shelf backdrops in assets/covers/ by a stable hash of the title, so a given
+    // save always shows the same picture. There are 8 covers (cover-1..8.jpg).
+    const FRAG_COVER_COUNT = 8;
+    function fragCoverImg(seed) {
+      const s = String(seed || '');
+      let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0;
+      return 'assets/covers/cover-' + (h % FRAG_COVER_COUNT + 1) + '.jpg';
+    }
+    // a one-line summary for the detail pane: gist/content if we have it, else nothing
+    function fragDetailSummary(col) {
+      if (!col) return '';
+      const raw = col.gist || (col.content ? String(col.content).replace(/<[^>]+>/g, ' ') : '');
+      return raw.replace(/\s+/g, ' ').trim().slice(0, 160);
+    }
+    // capture-bar link tab: reuse the collection add (url doubles as title if no title)
+    function fragCapSaveLink() {
+      const v = (newCollectionUrl.value || '').trim();
+      if (!v) return;
+      addFragmentCollection();   // reads newCollectionTitle/Url; here title is empty → host used
+    }
+    // delete the currently-selected book, then close the detail pane
+    function fragDeleteSelected() {
+      const col = fragSelectedCol.value;
+      if (!col) return;
+      archiveCollection(col);
+      fragSelectedCol.value = null;
+    }
 
     // Clean demo build: fragments writes stay purely local on data.value — /clean
     // uses self-contained mock data and must NEVER hit the real inbox.md / references.
@@ -12988,8 +13487,13 @@ const lociApp = createApp({
       if (!data.value.inbox) data.value.inbox = { content: '', meta: {}, items: [] };
       if (!Array.isArray(data.value.inbox.items)) data.value.inbox.items = [];
       const today = new Date().toISOString().slice(0, 10);
-      data.value.inbox.items.unshift({ text, created: today });   // newest-first
+      data.value.inbox.items.unshift({ text, created: today });   // optimistic
       newFragmentNote.value = '';
+      // persist to inbox.md
+      demoFetch('/api/inbox/add', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      }).catch(() => {});
     }
 
     function dismissFragment(idx) {
@@ -12998,39 +13502,67 @@ const lociApp = createApp({
       const note = fragNotesSorted.value[idx];   // idx comes from the sorted view
       if (!note) return;
       const real = items.indexOf(note);
-      if (real !== -1) items.splice(real, 1);
+      if (real !== -1) items.splice(real, 1);    // optimistic: drop from view now
+      // ...then persist to inbox.md so it stays gone after a reload. Matched by the
+      // raw text (the file stores the raw line, same as note.text).
+      demoFetch('/api/inbox/remove', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: note.text })
+      }).catch(() => { /* view already updated; a failed write just reappears on reload */ });
     }
 
     function addFragmentCollection() {
-      // Single input doubles as title and link: if it's a URL, it's clickable and
-      // the title falls back to the host; otherwise it's a plain title. Type is
-      // always the default '文章' (no auto-detection) — colors come from fragTypeMeta.
-      const raw = newCollectionTitle.value.trim();
-      if (!raw) return;
-      const isUrl = /^https?:\/\/\S+$/i.test(raw) || /^[\w-]+\.[a-z]{2,}(\/|$)/i.test(raw);
-      const url = isUrl ? (/^https?:\/\//i.test(raw) ? raw : 'https://' + raw) : '';
-      let title = raw;
-      if (isUrl) { try { title = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {} }
+      // Two fields now: a title and an optional link. Title is required; if only a
+      // link is given, fall back to its host as the title. Normalize a bare host to
+      // https://. Type stays the default '文章'.
+      let title = (newCollectionTitle.value || '').trim();
+      let rawUrl = (newCollectionUrl.value || '').trim();
+      if (!title && !rawUrl) return;
+      let url = '';
+      if (rawUrl) {
+        url = /^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl;
+        if (!title) { try { title = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { title = rawUrl; } }
+      }
+      if (!title) return;
+      // commit any half-typed tag, then take the full chip list
+      const draft = String(fgTagDraft.value || '').replace(/^#/, '').trim();
+      if (draft && !fgTagList.value.includes(draft)) fgTagList.value.push(draft);
+      fgTagDraft.value = '';
+      const tags = fgTagList.value.slice();
       const refs = data.value.references || (data.value.references = { files: [], total: 0 });
       if (!Array.isArray(refs.files)) refs.files = [];
       const today = new Date().toISOString().slice(0, 10);
-      const fname = today + '-' + raw.replace(/\s+/g, '-').replace(/[^\w.-]/g, '').slice(0, 40) + '.md';
-      refs.files.unshift({
-        name: fname, file: fname, filename: fname,
-        meta: { title, url, date: today, type: '文章' },
-        content: '', path: 'references/' + fname,
-      });
+      // optimistic entry so it shows instantly; then persist and re-pull /api/data so
+      // the entry carries the REAL server-assigned filename (needed for later archive).
+      refs.files.unshift({ name: '', file: '', filename: '', meta: { title, url, date: today, type: '文章', tags }, content: '', path: '' });
       refs.total = refs.files.length;
       newCollectionTitle.value = '';
       newCollectionUrl.value = '';
+      fgTagList.value = [];
+      fgTagDraft.value = '';
+      fgSaveOpen.value = false;   // collapse back to the "+ new save" button
+      demoFetch('/api/references/add', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, url, type: '文章', tags })
+      }).then(() => fragReloadData()).catch(() => {});
+    }
+    // Re-pull /api/data so the fragments view reflects what's actually on disk
+    // (avoids optimistic-entry drift for saves that get server-assigned filenames).
+    async function fragReloadData() {
+      try { const r = await fetch('/api/data'); if (r.ok) data.value = await r.json(); } catch (e) {}
     }
 
     function archiveCollection(col) {
       const refs = data.value && data.value.references;
       if (!refs || !Array.isArray(refs.files)) return;
       const key = col.file || col.name;
-      refs.files = refs.files.filter(f => (f.file || f.name) !== key);
+      refs.files = refs.files.filter(f => (f.filename || f.file || f.name) !== key);   // optimistic
       refs.total = refs.files.length;
+      // persist: server moves the file to archive/ (Loci archives, doesn't hard-delete)
+      if (key) demoFetch('/api/references/remove', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: key })
+      }).catch(() => {});
     }
 
     // ── tri-state mode + expand/back (mirrors roadmap focus pattern) ──
@@ -13077,20 +13609,34 @@ const lociApp = createApp({
         if (i !== -1) items.splice(i, 1);
       }
     }
+    // Persist an inbox removal by raw text (used after a promote consumes a note).
+    function fragPersistInboxRemove(text) {
+      demoFetch('/api/inbox/remove', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      }).catch(() => {});
+    }
     function fragPromoteToNote(note) {
       if (!note) return;
       const today = new Date().toISOString().slice(0, 10);
-      const title = note.text.length > 24 ? note.text.slice(0, 24) + '…' : note.text;
+      const cleaned = fragCleanText(note.text);
+      const title = cleaned.length > 24 ? cleaned.slice(0, 24) + '…' : cleaned;
       if (!data.value.notes) data.value.notes = { index: null, files: [] };
       if (!Array.isArray(data.value.notes.files)) data.value.notes.files = [];
       data.value.notes.files.unshift({
         meta: { title, created: today, tags: ['碎片'] },
-        content: '<p>' + note.text.replace(/[<>&]/g, '') + '</p>',
+        content: '<p>' + cleaned.replace(/[<>&]/g, '') + '</p>',
         filename: today + '-fragment-note.md',
         path: today + '-fragment-note.md',
       });
+      const rawText = note.text;
       fragRemoveNoteObj(note);
       showFragToast(lang.value === 'zh' ? '已变为笔记' : 'Promoted to note');
+      // persist: create the note file, then drop the thought from inbox.md
+      demoFetch('/api/notes/create', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body: cleaned })
+      }).catch(() => {}).finally(() => fragPersistInboxRemove(rawText));
     }
     function fragPromoteToTask(note) {
       if (!note) return;
@@ -13098,14 +13644,21 @@ const lociApp = createApp({
       if (!at) return;
       if (!Array.isArray(at.P2)) at.P2 = [];
       const now = new Date().toISOString();
+      const taskText = fragCleanText(note.text);
       at.P2.unshift({
-        id: 'frag_' + Math.round(performance.now() * 1000), text: note.text,
+        id: 'frag_' + Math.round(performance.now() * 1000), text: taskText,
         done: false, status: 'open', stale: false, date: null, endDate: null,
         startTime: null, endTime: null, project: null, urgency: 0, importance: 0,
         source: 'fragment', createdAt: now, updatedAt: now, completedAt: null,
       });
+      const rawText = note.text;
       fragRemoveNoteObj(note);
       showFragToast(lang.value === 'zh' ? '已加入任务' : 'Promoted to task');
+      // persist: add the task, then drop the thought from inbox.md
+      demoFetch('/api/tasks/add', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: taskText, source: 'fragment' })
+      }).catch(() => {}).finally(() => fragPersistInboxRemove(rawText));
     }
 
     // Drift Stream: group notes into 今天 / 昨天 / 更早 by created date,
@@ -13177,6 +13730,7 @@ const lociApp = createApp({
     function startEditPerson() {
       const p = selectedPerson.value; if (!p) return;
       editForm.name = p.name || ''; editForm.relation = p.relation || ''; editForm.gender = p.gender || '';
+      // only carry a real uploaded/url photo into the form (not the generated default)
       editForm.photo = (p.hasPhoto || (p.photo && !/\/assets\/people-avatars\//.test(p.photo))) ? (p.photo || '') : '';
       editForm.title = p.title || ''; editForm.org = p.org || ''; editForm.location = p.location || '';
       editForm.phone = p.phone || ''; editForm.email = p.email || ''; editForm.wechat = p.wechat || '';
@@ -13232,6 +13786,7 @@ const lociApp = createApp({
     const partnerPeople = computed(() => peopleData.value.filter(p => p.category === 'partner'));
     const prospectPeople = computed(() => peopleData.value.filter(p => p.category === 'prospect'));
     const mentorPeople = computed(() => peopleData.value.filter(p => p.category === 'mentor'));
+
     // ── grid search + tag filter ──
     const peopleQuery = ref('');
     const peopleTagFilter = ref('');
@@ -13254,6 +13809,7 @@ const lociApp = createApp({
     const prospectFiltered = computed(() => prospectPeople.value.filter(pplMatch));
     const mentorFiltered = computed(() => mentorPeople.value.filter(pplMatch));
     const peopleFilterActive = computed(() => !!(peopleQuery.value.trim() || peopleTagFilter.value));
+
     // ── tag chips for edit/add forms (backed by each form's tagsStr) ──
     const tagDraftEdit = ref('');
     const tagDraftAdd = ref('');
@@ -13496,7 +14052,7 @@ const lociApp = createApp({
     }
 
     // Build nodes/edges from real peopleData + connections.
-    const ME_PHOTO = '/assets/people-avatars/me-cyc.jpg';  // brain owner's avatar
+    const ME_PHOTO = '/assets/people-avatars/me-cyc.jpg';  // brain owner's avatar ( logo)
     function pgBuild() {
       const ppl = peopleData.value || [];
       pgNodes = [{ id: 'me', label: lang.value === 'zh' ? '我' : 'Me', category: 'me', photo: ME_PHOTO, x: 0, y: 0, vx: 0, vy: 0 }];
@@ -13511,8 +14067,7 @@ const lociApp = createApp({
         if (p.photo && !pgImgs[id]) { const im = new Image(); im.src = p.photo; im.onload = () => {}; pgImgs[id] = im; }
       });
       pgEdges = [];
-      // everyone connects to me
-      // each spoke to me carries my relation to them (朋友/客户…)
+      // everyone connects to me — the spoke carries "my relation to them" (朋友/客户…)
       ppl.forEach((p, i) => pgEdges.push({ a: 'me', b: 'p' + i, how: (p.relation || '').trim() }));
       // person↔person from the labeled edge list [a, b, how]
       const rawEdges = data.value?.people?.connections || [];
@@ -13562,7 +14117,8 @@ const lociApp = createApp({
         let dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy || 1, d = Math.sqrt(d2);
         const f = 17000 / d2, fx = dx / d * f, fy = dy / d * f;
         if (a !== pgDrag) { a.vx += fx; a.vy += fy; } if (b !== pgDrag) { b.vx -= fx; b.vy -= fy; }
-        const minD = pgRadius(a) + pgRadius(b) + 40;        // generous gap → no clumping
+        // collision: keep a generous gap so nodes never clump
+        const minD = pgRadius(a) + pgRadius(b) + 40;
         if (d < minD) { const push = (minD - d) * 0.5, px = dx / d * push, py = dy / d * push;
           if (a !== pgDrag) { a.x += px; a.y += py; } if (b !== pgDrag) { b.x -= px; b.y -= py; } }
       }
@@ -13613,18 +14169,22 @@ const lociApp = createApp({
         const cxp = mx + nx / L * bend, cyp = my + ny / L * bend;
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo(cxp, cyp, b.x, b.y);
         ctx.strokeStyle = rel ? 'rgba(16,185,129,0.62)' : `rgba(140,140,134,${al})`; ctx.lineWidth = lw; ctx.stroke();
+        // queue "how" labels to paint AFTER nodes so they never hide behind discs
         if (rel && e.how) pgLabelQueue.push({ x: cxp, y: cyp, t: e.how });
       }
       if (pgConnectMode && pgConnectFrom) { const a = pgById(pgConnectFrom); if (a) { ctx.setLineDash([4, 5]); ctx.strokeStyle = 'rgba(16,185,129,0.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pgMx, pgMy); ctx.stroke(); ctx.setLineDash([]); } }
       // nodes
+      // solid-fill colour by relationship kind (no dirty gradients, no hard rings)
       // fill colour = the bucket colour (one source of truth in pgKindRing)
       const pgSolid = n => pgKindRing(n);
       for (const n of pgNodes) {
         const isF = n.id === pgFocus, isH = n.id === pgHover, d = dim(n.id);
         const r = pgRadius(n);
         ctx.globalAlpha = d ? 0.22 : 1;
+        // soft brand halo behind me / focused node only
         if (n.id === 'me' || isF) { const g = ctx.createRadialGradient(n.x, n.y, r * 0.7, n.x, n.y, r * 2.1); g.addColorStop(0, 'rgba(16,185,129,0.16)'); g.addColorStop(1, 'rgba(16,185,129,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, r * 2.1, 0, 7); ctx.fill(); }
         const img = pgImgs[n.id];
+        // disc: solid colour, soft shadow, no stroke
         ctx.save();
         ctx.shadowColor = isF || isH ? 'rgba(16,120,80,0.22)' : 'rgba(20,20,18,0.12)';
         ctx.shadowBlur = isF || isH ? 14 : 9; ctx.shadowOffsetY = 3;
@@ -13632,11 +14192,13 @@ const lociApp = createApp({
         ctx.fillStyle = (img && img.complete && img.naturalWidth) ? '#fff' : pgSolid(n);
         ctx.fill();
         ctx.restore();
+        // photo fills the disc; thin white inset so the photo reads as a coin
         if (img && img.complete && img.naturalWidth) {
           ctx.save(); ctx.beginPath(); ctx.arc(n.x, n.y, r - 1, 0, 7); ctx.clip();
           const s = (r - 1) * 2; ctx.drawImage(img, n.x - r + 1, n.y - r + 1, s, s); ctx.restore();
           ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.arc(n.x, n.y, r - 1, 0, 7); ctx.stroke();
         } else {
+          // white initial centred in the solid disc
           ctx.fillStyle = '#ffffff';
           ctx.font = `650 ${r * 0.62}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText(n.id === 'me' ? n.label : (n.label[0] || '?').toUpperCase(), n.x, n.y + 1);
@@ -13651,13 +14213,15 @@ const lociApp = createApp({
         }
         ctx.globalAlpha = 1;
       }
-      // edge "how" labels — anti-overlap: nudge a pill until it doesn't collide.
+      // edge "how" labels — painted last as rounded pills, with anti-overlap:
+      // if a pill would collide with an already-placed one, nudge it until clear.
       ctx.font = '600 9.5px "JetBrains Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const placed = [];
       const hits = (x, y, w, h) => placed.some(p => Math.abs(x - p.x) < (w + p.w) / 2 + 4 && Math.abs(y - p.y) < (h + p.h) / 2 + 4);
       for (const lb of pgLabelQueue) {
         const tw = ctx.measureText(lb.t).width, pw = tw + 14, ph = 17, rx = 8.5;
         let cx2 = lb.x, cy2 = lb.y, step = 0;
+        // spiral outward in small vertical steps until no overlap (cap iterations)
         while (hits(cx2, cy2, pw, ph) && step < 14) { step++; cy2 = lb.y + (step % 2 ? 1 : -1) * Math.ceil(step / 2) * 17; }
         placed.push({ x: cx2, y: cy2, w: pw, h: ph });
         const x = cx2 - pw / 2, y = cy2 - ph / 2;
@@ -15505,7 +16069,7 @@ const lociApp = createApp({
       "修复任务 id 冲突 bug": "Fix the task id collision bug",
       "隐藏大脑页 + 路由切默认主题": "Hide the brain page + switch the route to the default theme",
       "Loci 系统": "Loci",
-      "内容工作室": "CYC Studio",
+      "CYC": "CYC Studio",
       "调研": "Research",
       "晨间规划": "Morning planning",
       "午餐 & 休息": "Lunch & break",
@@ -15703,7 +16267,7 @@ const lociApp = createApp({
       "把 Loci 记忆能力接进 OpenClaw": "Bring Loci memory into OpenClaw",
       "面向黑客松评委的静态演示版": "Static demo for hackathon judges",
       "<h2>目标</h2><p>让开发者一眼理解：Loci 不是又一个笔记 App，而是 AI 的长期记忆层。</p><h2>当前状态</h2><p>Clean Dashboard 已能完整展示任务、项目、笔记、关系与决策。</p><h2>下一步</h2><p>公开 demo、README、投票页素材。</p>": "<h2>Goal</h2><p>Help developers understand instantly: Loci is not another notes app, it is the long-term memory layer for AI.</p><h2>Current state</h2><p>The Clean Dashboard can now show tasks, projects, notes, people, and decisions end to end.</p><h2>Next step</h2><p>Public demo, README, and voting-page assets.</p>",
-      "<h2>目标</h2><p>把内容工作室做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>": "<h2>Goal</h2><p>Turn CYC Studio into a content brand about AI tools and indie building.</p><h2>Current state</h2><p>Preparing episode one of the Claude Code series and Loci launch content.</p><h2>Next step</h2><p>Organize the topic pool, film the demo, and cut the product intro.</p>",
+      "<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>": "<h2>Goal</h2><p>Turn CYC Studio into a content brand about AI tools and indie building.</p><h2>Current state</h2><p>Preparing episode one of the Claude Code series and Loci launch content.</p><h2>Next step</h2><p>Organize the topic pool, film the demo, and cut the product intro.</p>",
       "<h2>目标</h2><p>让 OpenClaw 用户能把项目上下文写进 Loci，并在代理之间共享。</p><h2>当前状态</h2><p>插件协议草案完成，正在补 demo 数据与 README。</p><h2>下一步</h2><p>封装 memory read/write API，录集成演示。</p>": "<h2>Goal</h2><p>Let OpenClaw users write project context into Loci and share it across agents.</p><h2>Current state</h2><p>The plugin protocol draft is done; demo data and README are being filled in.</p><h2>Next step</h2><p>Wrap the memory read/write API and record the integration demo.</p>",
       "<h2>目标</h2><p>给评委和早期用户一个免安装、可直接打开的 Loci 体验。</p><h2>当前状态</h2><p>Clean 主题、入口引导、语言选择与 demo 数据都在同一个静态页面里。</p><h2>下一步</h2><p>发布到公网并检查移动端。</p>": "<h2>Goal</h2><p>Give judges and early users an install-free Loci experience they can open immediately.</p><h2>Current state</h2><p>The Clean theme, entry guide, language picker, and demo data all live in one static page.</p><h2>Next step</h2><p>Publish publicly and check mobile.</p>",
       "完成液态玻璃 / Clean 主题": "Finish the Liquid Glass / Clean themes",
@@ -15798,19 +16362,19 @@ const lociApp = createApp({
               { id: 't24', text: '锤死前 10 秒差异化 hook', done: false, status: 'open', stale: false, date: T, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 1, importance: 2, source: 'agent', createdAt: T + 'T00:00:00Z', updatedAt: T + 'T00:00:00Z', completedAt: null },
               { id: 't31', text: '补齐 notes 样例与搜索标签', done: false, status: 'open', stale: false, date: '2026-06-06', endDate: null, startTime: '11:00', endTime: '12:00', project: 'Loci 公网 Demo', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
               { id: 't32', text: '写 OpenClaw 插件 README', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'OpenClaw 记忆插件', urgency: 0, importance: 2, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
-              { id: 't33', text: '整理 CYC 频道选题池', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
+              { id: 't33', text: '整理 CYC 频道选题池', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
               { id: 't34', text: '把项目 todo 拖拽状态录成 gif', done: false, status: 'open', stale: false, date: '2026-06-07', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T00:00:00Z', completedAt: null },
             ],
             P2: [
-              { id: 't9', text: '研究新的视频选题方向', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T00:00:00Z', completedAt: null },
-              { id: 't25', text: '录 Claude Code 系列视频', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
+              { id: 't9', text: '研究新的视频选题方向', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T00:00:00Z', completedAt: null },
+              { id: 't25', text: '录 Claude Code 系列视频', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
               { id: 't26', text: '稳定生活节奏 + 早睡早起', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: null, urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T00:00:00Z', completedAt: null },
               { id: 't4', text: '调研竞品的记忆方案', done: false, status: 'stale', stale: true, date: null, endDate: null, startTime: null, endTime: null, project: '调研', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-04-28T00:00:00Z', updatedAt: '2026-04-28T00:00:00Z', completedAt: null },
               { id: 't5', text: '与团队评审 Dashboard 原型', done: true, status: 'done', stale: false, date: T, endDate: null, startTime: '14:00', endTime: '15:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: T + 'T06:00:00Z', completedAt: T + 'T06:00:00Z' },
               { id: 't6', text: '设计 onboarding 流程', done: true, status: 'done', stale: false, date: '2026-05-31', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-05-31T00:00:00Z', updatedAt: '2026-05-31T08:00:00Z', completedAt: '2026-05-31T08:00:00Z' },
               { id: 't7', text: '修复任务 id 冲突 bug', done: true, status: 'done', stale: false, date: '2026-05-30', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-05-30T00:00:00Z', updatedAt: '2026-05-30T10:00:00Z', completedAt: '2026-05-30T10:00:00Z' },
               { id: 't27', text: '隐藏大脑页 + 路由切默认主题', done: true, status: 'done', stale: false, date: '2026-06-01', endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 0, source: 'agent', createdAt: '2026-06-01T00:00:00Z', updatedAt: '2026-06-01T11:00:00Z', completedAt: '2026-06-01T11:00:00Z' },
-              { id: 't35', text: '剪 60 秒产品片头', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: '内容工作室', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-02T00:00:00Z', updatedAt: '2026-06-02T00:00:00Z', completedAt: null },
+              { id: 't35', text: '剪 60 秒产品片头', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'CYC', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-02T00:00:00Z', updatedAt: '2026-06-02T00:00:00Z', completedAt: null },
               { id: 't36', text: '补充隐私与本地优先说明', done: false, status: 'open', stale: false, date: null, endDate: null, startTime: null, endTime: null, project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-03T00:00:00Z', updatedAt: '2026-06-03T00:00:00Z', completedAt: null },
               { id: 't37', text: '完成公开 demo 可访问链接', done: true, status: 'done', stale: false, date: '2026-06-05', endDate: null, startTime: null, endTime: null, project: 'Loci 公网 Demo', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-05T00:00:00Z', updatedAt: '2026-06-05T09:00:00Z', completedAt: '2026-06-05T09:00:00Z' },
               { id: 't38', text: '与小柔复盘三位用户访谈', done: true, status: 'done', stale: false, date: '2026-06-04', endDate: null, startTime: '16:00', endTime: '17:00', project: 'Loci 系统', urgency: 0, importance: 1, source: 'agent', createdAt: '2026-06-04T00:00:00Z', updatedAt: '2026-06-04T08:00:00Z', completedAt: '2026-06-04T08:00:00Z' },
@@ -15954,47 +16518,6 @@ const lociApp = createApp({
             mk('<h1>Vue 性能学习笔记</h1><p>几个落地要点：</p><ul><li><code>v-for</code> 要给稳定 <code>key</code></li><li>长列表用<strong>虚拟滚动</strong></li><li>重计算放进 <code>computed</code></li></ul>', { title: 'Vue 性能学习笔记', created: '2026-05-22', tags: ['vue', '学习笔记'] }, 'learning-vue-perf.md'),
           ],
           total: 16,
-          // Folder-tree model for the new left rail (demo data, anonymized).
-          // owned = notes Loci holds; linked = external folders Loci only points at.
-          owned: {
-            count: 7,
-            children: [
-              { id: 'd:launch', kind: 'folder', name: '发布', count: 3, children: [
-                { id: 'f:blog', kind: 'note', title: 'Loci 发布博客草稿', filename: 'notes/发布/loci-launch-blog.md', tags: ['blog','launch'], date: '2026-05-31',
-                  content: '<h1>Loci 发布博客草稿</h1><p>开篇用<strong>“记忆宫殿”</strong>的隐喻——把 AI 的记忆比作一座你能随意走动的宫殿。</p><blockquote>一句话：Loci 让 AI 真正“记得”你。</blockquote>', meta:{ title:'Loci 发布博客草稿', tags:['blog','launch'], created:'2026-05-31' } },
-                { id: 'f:pitch', kind: 'note', title: '黑客松 pitch 大纲', filename: 'notes/发布/hackathon-pitch-outline.md', tags:['pitch','launch'], date:'2026-06-06',
-                  content: '<h1>黑客松 pitch 大纲</h1><p>先让人看到痛点：你每天都在重新告诉 AI 你是谁、项目到哪了。</p>', meta:{ title:'黑客松 pitch 大纲', tags:['pitch','launch'], created:'2026-06-06' } },
-                { id: 'f:readme', kind: 'note', title: 'README 发版清单', filename: 'notes/发布/loci-readme-release-checklist.md', tags:['docs','launch'], date:'2026-06-05',
-                  content: '<h1>README 发版清单</h1><ul><li>安装命令</li><li>启动 Dashboard</li><li>连接第一个项目</li></ul>', meta:{ title:'README 发版清单', tags:['docs','launch'], created:'2026-06-05' } },
-              ]},
-              { id: 'd:learning', kind: 'folder', name: 'learning', count: 2, children: [
-                { id: 'f:vue', kind: 'note', title: 'Vue 性能学习笔记', filename: 'notes/learning/learning-vue-perf.md', tags:['vue','学习笔记'], date:'2026-05-22',
-                  content: '<h1>Vue 性能学习笔记</h1><ul><li><code>v-for</code> 要给稳定 <code>key</code></li><li>长列表用<strong>虚拟滚动</strong></li></ul>', meta:{ title:'Vue 性能学习笔记', tags:['vue','学习笔记'], created:'2026-05-22' } },
-                { id: 'f:design', kind: 'note', title: 'Clean 主题设计评审', filename: 'notes/learning/clean-theme-review.md', tags:['design'], date:'2026-06-06',
-                  content: '<h1>Clean 主题设计评审</h1><p>入口引导改成绿色主按钮；空状态不能显得像坏了。</p>', meta:{ title:'Clean 主题设计评审', tags:['design'], created:'2026-06-06' } },
-              ]},
-              { id: 'f:talk', kind: 'note', title: '线下分享脚本', filename: 'notes/meetup-talk-script.md', tags:['talk'], date:'2026-05-28',
-                content: '<h1>线下分享脚本</h1><ol><li><strong>0:30</strong> 一个扎心的提问</li><li><strong>2:00</strong> 现场 demo</li></ol>', meta:{ title:'线下分享脚本', tags:['talk'], created:'2026-05-28' } },
-              { id: 'f:video', kind: 'note', title: 'Claude Code 视频脚本', filename: 'notes/claude-code-video-script.md', tags:['video','content'], date:'2026-06-05',
-                content: '<h1>Claude Code 视频脚本</h1><p>第一期主题：为什么 AI 编程工具需要长期记忆。</p>', meta:{ title:'Claude Code 视频脚本', tags:['video','content'], created:'2026-06-05' } },
-            ],
-          },
-          linked: [
-            { id: 'src-vault', name: 'Obsidian Vault', type: 'obsidian', missing: false, count: 3, path: '~/Documents/Obsidian Vault', children: [
-              { id: 'f:lisbon', kind: 'note', title: '里斯本生活手册', filename: '/Users/demo/Documents/Obsidian Vault/life/lisbon.md', tags:['life','移居'], date:'2026-05-30',
-                content: '<h1>里斯本生活手册</h1><h2>签证</h2><p>D7 被动收入签证，需准备银行流水。</p><h2>常去的咖啡馆</h2><blockquote>Copenhagen Coffee Lab — 安静、有插座、适合写代码。</blockquote>', meta:{ title:'里斯本生活手册', tags:['life','移居'], created:'2026-05-30' } },
-              { id: 'f:interview', kind: 'note', title: '用户访谈记录', filename: '/Users/demo/Documents/Obsidian Vault/research/loci-user-interviews.md', tags:['research','product'], date:'2026-06-04',
-                content: '<h1>用户访谈记录</h1><p>三位开发者都能理解“每次重新解释上下文”的痛点。</p>', meta:{ title:'用户访谈记录', tags:['research','product'], created:'2026-06-04' } },
-              { id: 'f:swipe', kind: 'note', title: '设计灵感库', filename: '/Users/demo/Documents/Obsidian Vault/design/swipe-file.md', tags:['design','inspiration'], date:'2026-05-24',
-                content: '<h1>设计灵感库</h1><ul><li>Linear 的命令面板动效</li><li>Things 3 的“今天”清单留白</li></ul>', meta:{ title:'设计灵感库', tags:['design','inspiration'], created:'2026-05-24' } },
-            ]},
-            { id: 'src-research', name: '产品调研', type: 'folder', missing: false, count: 2, path: '~/Desktop/product-research', children: [
-              { id: 'f:vision', kind: 'note', title: 'Loci 产品愿景', filename: '/Users/demo/Desktop/product-research/vision.md', tags:['product','pitch'], date:'2026-05-28',
-                content: '<h1>Loci 产品愿景</h1><p>给投资人看的一页纸定位：AI 的长期记忆层。</p>', meta:{ title:'Loci 产品愿景', tags:['product','pitch'], created:'2026-05-28' } },
-              { id: 'f:api', kind: 'note', title: 'Agent 记忆 API 草案', filename: '/Users/demo/Desktop/product-research/agent-memory-api.md', tags:['api','agent'], date:'2026-06-02',
-                content: '<h1>Agent 记忆 API 草案</h1><p>给 CLI / dashboard / agent 共用的记忆读写接口。</p>', meta:{ title:'Agent 记忆 API 草案', tags:['api','agent'], created:'2026-06-02' } },
-            ]},
-          ],
         },
         projects: {
           serious: [
@@ -16015,8 +16538,8 @@ const lociApp = createApp({
                 { id: 'b2', text: '写 RSC 深度文章', status: 'todo', category: 'Content', order: 1 },
                 { id: 'b3', text: '旧文章归档整理', status: 'done', category: 'Content', order: 2 },
               ] },
-            { name: '内容工作室', status: 'active', summary: '内容品牌与 AI 工具视频', detail: 'repo: ~/Desktop/content-studio', repo: '~/Desktop/content-studio',
-              memory: mk('<h2>目标</h2><p>把内容工作室做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>', {}, 'memory.md'),
+            { name: 'CYC', status: 'active', summary: '内容品牌与 AI 工具视频', detail: 'repo: ~/Desktop/CYC', repo: '~/Desktop/CYC',
+              memory: mk('<h2>目标</h2><p>把CYC做成 AI 工具与独立开发记录的内容品牌。</p><h2>当前状态</h2><p>正在准备 Claude Code 系列第一期与 Loci 发布内容。</p><h2>下一步</h2><p>整理选题池、拍摄 demo、剪产品片头。</p>', {}, 'memory.md'),
               todos: [
                 { id: 'cyc1', text: '准备 Claude Code 第一集脚本', status: 'doing', category: 'Content', order: 0 },
                 { id: 'cyc2', text: '录制 Loci 发布介绍', status: 'todo', category: 'Video', order: 1 },
@@ -16089,7 +16612,7 @@ const lociApp = createApp({
           projects: [
             { name: 'Loci 系统', status: 'active', total: 6, done: 2 },
             { name: '个人博客', status: 'active', total: 3, done: 1 },
-            { name: '内容工作室', status: 'active', total: 6, done: 1 },
+            { name: 'CYC', status: 'active', total: 6, done: 1 },
             { name: 'OpenClaw 记忆插件', status: 'active', total: 5, done: 1 },
             { name: 'Loci 公网 Demo', status: 'active', total: 6, done: 2 },
           ],
@@ -16100,7 +16623,7 @@ const lociApp = createApp({
             { name: 'My Brain', status: 'active', activity: 0.9, desc: '个人知识中枢' },
             { name: 'Loci 系统', status: 'active', activity: 0.92, desc: 'AI 记忆宫殿' },
             { name: 'Loci 公网 Demo', status: 'active', activity: 0.82, desc: '公网 demo' },
-            { name: '内容工作室', status: 'active', activity: 0.72, desc: '内容与写作' },
+            { name: 'CYC', status: 'active', activity: 0.72, desc: '内容与写作' },
             { name: 'OpenClaw 记忆插件', status: 'active', activity: 0.64, desc: '插件' },
             { name: '个人博客', status: 'active', activity: 0.5, desc: '发布' },
             { name: 'AI 日程助手', status: 'pending', activity: 0.3, desc: '孵化中的原型' },
@@ -16134,10 +16657,31 @@ const lociApp = createApp({
       // Clear stale demo states (keep calendar events from localStorage)
       ['loci_goal_progresses', 'loci_task_done_states'].forEach(k => localStorage.removeItem(k));
 
-      // Clean demo build: use the self-contained mock dataset directly so /clean
-      // always looks full and polished and NEVER reads/writes the user's real
-      // brain files. (The original index.html still fetches /api/data live.)
-      loadDemoData();
+      // DEMO_MODE off: read the user's real brain via /api/data. The live server
+      // returns the same shape as the mock dataset (tasks.active_tasks,
+      // planning.calendar_events, projects.serious, notes…), so we can drop it
+      // straight into data.value and hydrate the calendar the same way
+      // loadDemoData does. On any failure we fall back to the demo dataset so the
+      // page never renders blank.
+      if (DEMO_MODE) {
+        loadDemoData();
+      } else {
+        try {
+          const r = await fetch('/api/data');
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          data.value = await r.json();
+          Object.keys(calendarEvents).forEach(k => delete calendarEvents[k]);
+          const liveEvents = data.value?.planning?.calendar_events;
+          if (liveEvents && typeof liveEvents === 'object') {
+            Object.keys(liveEvents).forEach(dateKey => {
+              calendarEvents[dateKey] = (liveEvents[dateKey] || []).map(ev => ({ ...ev }));
+            });
+          }
+        } catch (e) {
+          console.error('Failed to load /api/data, falling back to demo:', e);
+          loadDemoData();
+        }
+      }
       loading.value = false;
 
       // Start canvas clock
@@ -16599,7 +17143,8 @@ const lociApp = createApp({
       notesConfirmDelete, notesAskDelete, notesCancelDelete, notesDoDelete,
       notesGraphView, notesSetGraph, kgCanvas, kgEmpty,
       notesMounting, notesMountMsg, notesMountedSources, notesSelectedSource, notesMountFolder, notesUnmountFolder,
-      notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesTotal, notesSearchHits, notesMkdir,
+      notesLinkOpen, notesLinkUrl, notesLinkTitle, notesLinkTags, notesLinkSource, notesLinkMsg, notesLinking, notesLinkInput, notesLinkSniff, notesLinkSubmit,
+      notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesLinkPointers, notesTotal, notesSearchHits, notesMkdir, notesReveal, fragCleanText,
       noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
       overview, ovKpiCards, ovKpiGapCards, ovBubbles, ovTrendHasData, ovRelDate,
@@ -16611,7 +17156,10 @@ const lociApp = createApp({
       fragToast, fragPromoteToNote, fragPromoteToTask,
       fragmentNotes, fragmentCollections,
       newFragmentNote, newCollectionTitle, newCollectionUrl,
+      fgSaveOpen, fgOpenSave, fgCloseSave, fgTitleInput,
+      fgTagList, fgTagDraft, fgUrlInput, fgAddTag, fgRemoveTag, fgTagKeydown, fgFocusUrl,
       addFragmentNote, dismissFragment, addFragmentCollection, archiveCollection,
+      fragCapTab, fragSelectedCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
       peopleData, selectedPerson, detailMoreOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
