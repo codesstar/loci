@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] — 2026-07-06
+
+Release-readiness overhaul: a fresh install now starts truly blank, and the repo ships only what users need.
+
+### Changed
+- **Dashboard reads your real brain out of the box** — the shipped dashboard no longer boots into a demo dataset. Empty brains show clean empty states with gentle hints; demo data lives only in the public online demo
+- **Tasks and schedule are fully separate** — a timed task lives only in the task pool (reminders read it from there) and is no longer auto-projected onto the calendar; putting a task on the schedule is a deliberate action
+- `AGENTS.md` (Codex) synced to the same task/schedule model as `CLAUDE.md`, and added to the managed engine files so upgrades keep it current
+- One dashboard build: the Clean theme is now the only `index.html` (served at `/`)
+
+### Removed
+- Legacy dashboard builds (sci-fi theme, ink prototype, `pro/`, `demos/`, `server.py`, `build.py`)
+- Sample content that leaked into fresh installs: Sam Rivera persona files in `me/`, the `client-acme` sample department, sample decisions (the full worked example remains in `examples/alex/`)
+- ~15MB of unreferenced images and design-history pages; git history rewritten to shrink clones
+
+### Fixed
+- Dashboard logo 404 on fresh clones (referenced asset was never tracked)
+
 ## [1.0.0] — 2026-03-11
 
 ### Added

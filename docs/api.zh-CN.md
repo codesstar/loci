@@ -13,7 +13,7 @@ date: 2026-03-19
 
 ## GET /api/data
 
-返回完整的 live brain 状态，用于 Dashboard/API 的真实读写流程。Clean demo 路由使用自包含测试数据，不需要调用这个接口。
+返回完整的 live brain 状态。Dashboard 渲染的就是它，API 工作流也从这里读。
 
 **响应字段**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `notes`, `projects`, `stats`, `build_time`
 
@@ -115,15 +115,20 @@ curl -X POST http://localhost:8765/api/tasks/add \
 
 ### POST /api/calendar/add
 
-添加日历事件到 `tasks/calendar.json`。
+添加日程事件（一块被占用的时间）到 `tasks/calendar.json`。
+
+任务和日程是分开的：带时间的任务只存在于 `tasks/tasks.json`，**不会自动投影**到日历——dashboard 的提醒直接读任务池里的带时间任务。只有纯日程项，或用户刻意把任务拉上日程时，才调用这个端点。
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `title` | string | 是 | 事件标题 |
 | `date` | string | 是 | `YYYY-MM-DD` 格式 |
-| `startMin` | number | 否 | 从当天 0 点开始计算的开始分钟 |
-| `endMin` | number | 否 | 从当天 0 点开始计算的结束分钟 |
-| `fromTask` | boolean | 否 | 是否来自任务投影 |
+| `startMin` | number | 否 | 从当天 0 点开始计算的开始分钟（默认 540） |
+| `endMin` | number | 否 | 从当天 0 点开始计算的结束分钟（默认开始 + 60） |
+| `allDay` | boolean | 否 | 全天事件（可配 `startDate` / `endDate`） |
+| `location` | string | 否 | 地点 |
+| `note` | string | 否 | 备注 |
+| `fromTask` | boolean | 否 | 仅当用户刻意把任务拉上日程时为 `true` |
 | `taskId` | string | 否 | `fromTask` 为 true 时关联的任务 id |
 
 ---
@@ -194,6 +199,12 @@ curl -X POST http://localhost:8765/api/tasks/add \
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `date` | string | 是 | `YYYY-MM-DD` 格式 |
+
+---
+
+## 其他端点
+
+server 还提供以下端点组：任务（`/api/tasks/reorder`、`/api/tasks/update-detail`）、收件箱（`/api/inbox/remove`）、收藏（`/api/references/add`、`/api/references/remove`）、笔记（`/api/notes/*`——raw、save、create、delete、import、目录管理、source mount/unmount）、人脉（`/api/people/add`、`/api/people/update`、`/api/people/avatar`）、项目（`/api/project/connect`、`/api/project/open`、`/api/project/browse`、`/api/project/disconnect`）。以 `.loci/dashboard/server.js` 里的实现为准。
 
 ---
 

@@ -20,10 +20,19 @@ At the end of a conversation (or when triggered), the AI:
 | Personal facts | `me/identity.md` | "I just moved to Berlin" |
 | New values/principles | `me/values.md` | "I realized quality > speed" |
 | Lessons learned | `me/learned.md` | "Never deploy on Fridays" |
-| Decisions | `decisions/YYYY-MM-DD-slug.md` | "Chose React over Vue" |
-| New tasks | `tasks/active.md` | "Need to update the API docs" |
-| Insights/patterns | `.claude/memory/MEMORY.md` | "User prefers dark mode themes" |
+| Decisions (yours, cross-project) | `decisions/YYYY-MM-DD-slug.md` | "One project at a time from now on" |
+| Project decisions | That repo's `.loci/decisions/` | "Chose React over Vue" |
+| Project state/progress | That repo's `.loci/memory.md` | "MVP shipped, next up: billing" |
+| New tasks | Guarded task writer → `tasks/tasks.json` | "Need to update the API docs" |
+| Schedule items (occupied time) | Guarded task writer → `tasks/calendar.json` | "Meeting at 3pm" |
+| External material | `references/YYYY-MM-DD-slug.md` | "Save this pricing article" |
+| Insights/patterns | `me/insights.md` | "User prefers dark mode themes" |
 | Unprocessed thoughts | `inbox.md` | "Maybe I should learn Rust" |
+
+Two routing rules worth calling out:
+
+- **Tasks are never written by hand.** `tasks/tasks.json` is the single source of truth, written through the guarded writer (`node scripts/loci-task.js add ...` or the Dashboard API). `tasks/active.md` is just a generated read-only view. Tasks and schedule are kept separate — a timed task stays in the task pool and is not mirrored onto the calendar.
+- **Project memory stays in the project.** A serious project's decisions and state are distilled into that repo's own `.loci/` — the brain keeps only a one-line index in `projects/index.md`. Loci aggregates memory; it does not own it.
 
 ## Distillation Levels
 
@@ -56,10 +65,10 @@ User: Let's go with that. Also, I realized I need to stop checking Twitter first
 **me/learned.md** (appended):
 > Don't check Twitter first thing in the morning — it fragments focus.
 
-**tasks/active.md** (appended):
-> - [ ] Update landing page messaging for B2B positioning
+**tasks/tasks.json** (via the guarded writer):
+> `node scripts/loci-task.js add --title "Update landing page messaging for B2B positioning"`
 
-Three files updated. Zero raw transcript saved. Everything searchable and in context.
+Three places updated. Zero raw transcript saved. Everything searchable and in context.
 
 ## Growth Tracking
 
@@ -74,13 +83,13 @@ This creates a personal changelog — you can see how your thinking evolved over
 
 ### Auto mode (default)
 
-Signal-driven: the AI evaluates each conversation turn for storable information. When it detects a new task, decision, insight, or personal info change, it saves immediately and shows a one-line notification:
+Signal-driven: the AI evaluates each conversation turn for storable information. When it detects a new task, decision, insight, or personal info change, it saves immediately and shows a one-line natural confirmation:
 
 ```
-[Loci] Stored: new task "Update API docs" → active.md
+Got it — added task "Update API docs"
 ```
 
-No interrupting questions. Say "undo" to reverse.
+No interrupting questions, no file paths or internal terms. Say "undo" to reverse.
 
 ### Manual mode
 

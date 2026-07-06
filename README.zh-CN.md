@@ -102,7 +102,7 @@ npx create-loci
 
 安装器会打开浏览器引导，创建你的大脑，检测 Claude Code 和 Codex，并询问要接入哪些工具。2 分钟搞定。喜欢终端版的话，运行 `npx create-loci --cli`。
 
-### OpenClaw（龙虾）
+### OpenClaw（实验性）
 
 ```bash
 clawhub install loci-brain
@@ -143,7 +143,7 @@ Loci 对你的 AI 做的就是这件事。每一个决策、每一个偏好、�
 
 ## 装完之后你不需要学任何东西
 
-正常跟 AI 聊天就行，这四件事会自动发生：
+正常跟 AI 聊天就行，这五件事会自动发生：
 
 ### 1. 重要的事它都记着
 
@@ -228,7 +228,7 @@ Loci 对你的 AI 做的就是这件事。每一个决策、每一个偏好、�
 |------|--------|-----------|
 | **智能保存** | 从对话中提取决策、任务和洞察，永远不存原始聊天记录 | 记忆保持干净可搜索，不是一堵文字墙 |
 | **分层加载** | 只加载跟当前对话相关的内容，归档的东西不碍事 | 积累几个月的记忆，响应速度依然不掉 |
-| **跨项目同步** | 大脑是中枢，项目是分支，重要信息自动流转 | 一个项目的经验能用到另一个项目 |
+| **跨项目记忆** | 每个认真项目的记忆住在它自己的 repo（`.loci/memory.md` + `.loci/decisions/`），大脑只留一行索引。Loci 汇聚记忆，不占有记忆 | 项目经验各归其位，大脑不变成仓库，跨项目照样能调用 |
 | **每日复盘** | 晨间简报总结昨天、发现规律、提醒过期任务 | 10 秒进入状态，开始新一天 |
 | **成长追踪** | 身份或目标变化时，旧版本自动归档 | 随时回头看自己是怎么一步步走过来的 |
 | **Git 原生** | 全是 git 仓库里的 Markdown 文件。`git diff` 看 AI 今天学了什么，`git log` 就是你的记忆时间线 | 完整版本历史，离线可用，数据完全属于你 |
@@ -247,25 +247,25 @@ Loci 内置一个可选的本地 Dashboard。它不是云服务，也不是另�
 node .loci/dashboard/server.js
 ```
 
-默认打开：
+打开：
 
 ```text
-http://127.0.0.1:8765/
+http://localhost:8765
 ```
 
-当前默认入口 `/` 和 `/clean` 使用新的 **Clean dashboard**：浅色、克制、以绿色为主强调色，带入口引导和中文 / English 语言选择。这个页面内置了一套完整测试数据，适合截图、演示和第一次理解产品；它不会写入你的真实 brain 文件。
-
-旧的 sci-fi dashboard 仍保留在 `/sci`。本地 `server.js` 同时暴露读写 API，供真实任务、日程、日志、项目 todo 等流程使用。
+Dashboard 每次请求都实时读取你的 brain 文件。刚装好的大脑打开是干净的空态——随着 AI 保存记忆逐渐填充。同一个本地 server 也暴露读写 API，供任务、日程、日记、项目 todo 等真实流程使用。
 
 - **Overview**：总览、关键指标、今日状态、记忆构成和项目进度
-- **Tasks / Schedule**：任务池和日程时间线。任务是最小主动单位，纯日程不会污染任务池
+- **Tasks / Schedule**：任务池和日程时间线，两者严格分开——任务是要完成的事，日程是被占用的时间
 - **Journal**：每日复盘、周/月回顾和个人记录
 - **Memory**：身份、偏好、成长轨迹和记忆概览
 - **People**：人脉档案、关系强度和联系人详情
 - **Projects**：连接项目的 `.loci/memory.md` 与 repo-local todo
 - **Notes / Fragments**：用户自己的 Obsidian / 飞书 / Notion 笔记索引、短笔记、碎片想法和收藏材料入口
 
-> **Dashboard 文档**：[docs/dashboard.zh-CN.md](docs/dashboard.zh-CN.md)。
+> **API 文档**：[docs/api.zh-CN.md](docs/api.zh-CN.md)——本地读写大脑的 REST 接口。
+>
+> **Dashboard 文档**：[docs/dashboard.zh-CN.md](docs/dashboard.zh-CN.md)——页面结构、数据来源和 API 行为。
 
 ---
 
@@ -302,7 +302,7 @@ Loci 先专注 Claude Code 和 Codex。两者会共用同一个本地大脑：Cl
 | **[项目总览](docs/project-overview.zh-CN.md)** | 一份文档讲清项目定位、架构和当前状态 |
 | **[工作原理](docs/how-it-works.zh-CN.md)** | 一篇文档讲透整个系统 |
 | **[用户故事](docs/user-stories.zh-CN.md)** | 日常用起来什么感觉 |
-| **[命令和结构](docs/getting-started.zh-CN.md#理解你的大脑)** | 目录结构、命令、配置 |
+| **[命令和结构](docs/getting-started.zh-CN.md#认识你的-brain)** | 目录结构、命令、配置 |
 | **[其他编辑器](docs/other-editors.zh-CN.md)** | Cursor、Windsurf、Cline 支持 |
 | **[隐私保护](docs/privacy.zh-CN.md)** | 数据安全和存储方式 |
 | **[路线图](docs/roadmap.zh-CN.md)** | 接下来要做什么 |

@@ -1,8 +1,6 @@
 # Loci 工作原理 — 完整指南
 
-> 一篇读完就全懂。每个章节层层递进，跟你实际使用 Loci 的节奏一致。
-
-> **当前项目总览**：本文保留了较完整的机制解释，但部分示例仍来自早期版本。最新的安装流程、任务/日程模型、Claude Code + Codex 同步、项目记忆归 repo 等设计，以 [项目总览](project-overview.zh-CN.md) 为准。
+> 一篇读完就全懂。每个章节层层递进，跟你实际使用 Loci 的节奏一致。更完整的当前架构总览另见 [项目总览](project-overview.zh-CN.md)。
 
 ## 上手节奏
 
@@ -35,18 +33,20 @@ my-brain/
 │   └── evolution.md   ← 成长时间线（旧版本追加到这里）
 │
 ├── tasks/             ← 任务 + 规划（合在一起）
-│   ├── active.md      ← 当前任务（P0/P1/P2/P3 优先级）
-│   ├── someday.md     ← 以后再说
-│   ├── daily/         ← 每天一个 md 文件（安排 + 完成情况）
+│   ├── tasks.json     ← 任务数据库 —— 唯一真源（只走守卫写入器）
+│   ├── calendar.json  ← 日程 —— 占用时间的块，和任务分开存
+│   ├── active.md      ← 从 tasks.json 生成的只读快照（AI 启动快速读）
+│   ├── daily/         ← 每天一个 md 文件（当天背景 + 复盘，不是任务源）
 │   └── journal/       ← 每日复盘（buffer.md → 当天日记）
 │
 ├── decisions/         ← 每个重要决策一个文件（含背景 + 推理过程）
+├── projects/          ← index.md（每个认真项目一行）+ side.md（项目雏形）
 ├── archive/           ← 过期内容挪到这里，永不删除
+├── scripts/           ← 守卫写入器（loci-task.js、loci-project.js、loci-projtodo.js）
 │
 ├── .loci/             ← 系统文件
 │   ├── hooks/         ← 跨终端同步钩子
-│   ├── links/         ← 连接的外部项目
-│   ├── dashboard/     ← 可视化面板
+│   ├── dashboard/     ← 可视化面板（node server.js）
 │   ├── config.yml     ← Brain 设置（持久化模式、通知）
 │   ├── status.yml     ← 当前状态（疲了 / 精力好 / 在路上）
 │   └── activity/       ← 操作总账（一月一个文件，审计层 —— "我今天做了啥？"）
@@ -65,13 +65,13 @@ my-brain/
 
 | 层级 | 什么时候加载 | 装什么 | 打个比方 |
 |-------|------------|----------|---------------|
-| **L1** | 每次对话 | CLAUDE.md, plan.md, inbox.md, auto-memory | 工作记忆（你脑子里正在转的东西） |
+| **L1** | 每次对话 | CLAUDE.md, plan.md, tasks/active.md, inbox.md（最近 7 条）, auto-memory | 工作记忆（你脑子里正在转的东西） |
 | **L2** | 聊到相关话题时 | 模块 README、具体的人/任务/计划文件、参考资料、笔记 | 短期记忆（一个念头就能想起来） |
 | **L3** | 明确要求时才加载 | archive、旧决策、evolution.md、旧日记 | 长期记忆（得翻一翻才能想起来） |
 
 **为什么要分层？** AI 的上下文窗口是有限的。每次都加载所有内容，既浪费 token 又分散注意力。L1 保持精简（几百行），L2 按需加载，L3 无限增长也不影响性能。
 
-> 深入了解: [架构设计](architecture.md)
+> 深入了解: [架构设计](architecture.zh-CN.md)
 
 ---
 
@@ -90,9 +90,11 @@ my-brain/
    有   → 分类 + 路由:
          ├── 个人事实（"我搬到柏林了"）             → me/identity.md
          ├── 新认知（"周五千万别部署"）               → me/learned.md
-         ├── 决策（"数据库用 PostgreSQL"）           → decisions/2026-03-10-xxx.md
-         ├── 新任务（"API 文档得更新一下"）           → tasks/active.md
-         ├── 外部内容（文章、推文、引用）              → references/inbox.md
+         ├── 你个人的决策（"以后一次只做一个项目"）    → decisions/2026-03-10-xxx.md
+         ├── 项目决策（"数据库用 PostgreSQL"）        → 那个项目 repo 的 .loci/decisions/
+         ├── 新任务（"API 文档得更新一下"）           → 守卫写入器 → tasks/tasks.json
+         ├── 日程（"下午 3 点开会"）                 → 守卫写入器 → tasks/calendar.json
+         ├── 外部内容（文章、推文、引用）              → references/
          └── 模糊想法（"要不要学学 Rust"）           → inbox.md
 ```
 
@@ -117,11 +119,11 @@ my-brain/
 **Loci 存下来的：**
 - `decisions/2026-03-10-pivot-to-b2b.md`：转 B2B，定价 $49/月，利用企业服务经验
 - `me/learned.md`（追加）：早上别先刷推特——会打碎专注力
-- `tasks/active.md`（追加）：更新落地页为 B2B 定位
+- `tasks/tasks.json`（走守卫写入器）：更新落地页为 B2B 定位
 
-三个文件更新，零原始对话保存。所有信息都能搜到，而且都在对的地方。
+三个地方更新，零原始对话保存。所有信息都能搜到，而且都在对的地方。
 
-> 深入了解: [蒸馏机制](distillation.md)
+> 深入了解: [蒸馏机制](distillation.zh-CN.md)
 
 ---
 
@@ -137,8 +139,8 @@ my-brain/
 每一轮，AI 内部判断: 这轮有值得存的东西吗？
     ↓
   没有 → 安安静静，继续聊
-  有   → 立刻存 → 一行通知:
-          [Loci] 已保存: 新任务 "买电源线" → active.md
+  有   → 立刻存 → 一句自然的确认:
+          记住了：新任务 "买电源线"
     ↓
 你看到通知，不用回复，继续聊
 存错了 → 说"撤销"
@@ -160,7 +162,7 @@ my-brain/
 /loci-sync --dry-run    → 预览会存什么，但不实际执行
 ```
 
-> 深入了解: [Synapse](synapse.md)
+> 深入了解: [Synapse](synapse.zh-CN.md)
 
 ---
 
@@ -223,7 +225,7 @@ Loci 汇聚记忆，但不占有记忆。项目记忆归项目 repo 自己。
 
 每个已连接项目都能通过 `/loci-settings` 配置什么内容会进入大脑索引。
 
-> 深入了解: [部门系统](departments.md)
+> 深入了解: [Synapse](synapse.zh-CN.md) —— 信号路由与项目自持记忆
 
 ---
 
@@ -260,7 +262,7 @@ persistence:
 
 ### 日计划 + 日记
 
-- `tasks/daily/YYYY-MM-DD.md` — 今天的安排 + 完成情况
+- `tasks/daily/YYYY-MM-DD.md` — 当天背景 + 复盘（只当上下文用；任务本体在 `tasks/tasks.json`）
 - `tasks/journal/buffer.md` — 聊天过程中随时往里追加要点
 - 说"总结" → 读 buffer + 回顾对话 → 生成当天日记 → 清空 buffer
 
@@ -274,7 +276,7 @@ persistence:
 
 - `.loci/dashboard/` — Node 驱动的本地可视化控制台，展示 overview、tasks、schedule、journal、memory、people、projects、notes、fragments、decisions
 - `node .loci/dashboard/server.js` 启动，默认地址 `http://127.0.0.1:8765/`
-- `/` 和 `/clean` 是 Clean demo 体验，内置完整测试数据；`/sci` 保留旧 sci-fi dashboard
+- `/` 就是 dashboard，实时读取你大脑里的文件——全新大脑显示干净的空态
 - server 同时提供本地 API，给真实任务、日程、日志、笔记、收藏、项目 todo 流程使用
 
 ### 跨终端同步
@@ -283,7 +285,7 @@ persistence:
 - 每次对话开始时自动跑一遍
 - `/sync` 手动刷新
 
-> 深入了解: [上下文感知](context-awareness.md), [Dashboard](dashboard.md)
+> 深入了解: [上下文感知](context-awareness.md), [Dashboard](dashboard.zh-CN.md)
 
 ### 已知限制（v1.0）
 
@@ -297,7 +299,7 @@ persistence:
 
 ## 一句话总结
 
-**Loci = 三层记忆（L1/L2/L3）+ 信号驱动蒸馏 + 中心辐射式多项目路由 + 纯 Markdown，零依赖。**
+**Loci = 三层记忆（L1/L2/L3）+ 信号驱动蒸馏 + 项目自持记忆 + 纯 Markdown，零依赖。**
 
 第一天用户只会觉得"我的 AI 记住我了"。底层的复杂度随着使用深入逐步展开——永远不会一股脑全丢给你。
 
@@ -315,8 +317,8 @@ persistence:
 
 ## 延伸阅读
 
-- [架构设计](architecture.md) — 三层记忆系统详解
-- [Synapse](synapse.md) — 持久化模式、路由、隐私
-- [蒸馏机制](distillation.md) — 对话怎么变成结构化知识
-- [部门系统](departments.md) — 多项目编排
-- [隐私](privacy.md) — 数据保护与 AI 上下文控制
+- [架构设计](architecture.zh-CN.md) — 三层记忆系统详解
+- [Synapse](synapse.zh-CN.md) — 持久化模式、路由、项目自持记忆
+- [蒸馏机制](distillation.zh-CN.md) — 对话怎么变成结构化知识
+- [Dashboard](dashboard.zh-CN.md) — 本地可视化控制台
+- [隐私](privacy.zh-CN.md) — 数据保护与 AI 上下文控制

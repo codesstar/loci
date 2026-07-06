@@ -22,43 +22,28 @@ http://127.0.0.1:8765/
 PORT=8877 node .loci/dashboard/server.js
 ```
 
-## 当前主题
+## 路由
 
-当前默认入口 `/` 使用 Clean dashboard：
+| 路由 | 用途 |
+|---|---|
+| `/` | Dashboard 本体 |
+| `/clean` | `/` 的别名，兼容旧链接 |
+| `/api/data` | 完整本地 brain JSON |
 
-```text
-http://127.0.0.1:8765/
-```
+Dashboard 使用浅色、克制的主题，单一绿色强调色，带入口引导和中文 / English 语言选择。
 
-`/clean` 是同一个页面的别名：
+本地 dashboard 通过 Node server 和 API 直接读写你的真实 brain 文件——没有内置 demo 数据，你看到的就是你的大脑里存的。
 
-```text
-http://127.0.0.1:8765/clean
-```
+## 公开演示
 
-Clean dashboard 是当前对外展示的主体验：浅色、克制、单一绿色强调色，带入口引导和中文 / English 语言选择。
+如果想在不暴露（或还没建立）真实大脑的情况下体验 Loci，请用官网上的公开演示页（对应仓库里的 `site/demo`）。它是一个自包含页面，内置一套完整示例 brain 数据——连接项目、笔记、任务、日记、人脉、决策、收藏都有——页面内的改动只停留在浏览器会话里。
 
-重要区别：Clean 页面目前是安全 demo 版本，内置完整测试数据，页面内的改动只停留在浏览器会话里，不会写真实 brain 文件。这样它可以放心用于截图、公开演示、黑客松评审和 onboarding 讲解。
+公开演示适合：
 
-旧的 sci-fi dashboard 仍保留：
-
-```text
-http://127.0.0.1:8765/sci
-```
-
-`server.js` 同时保留真实本地 API，用于任务、日程、日志、笔记和项目 todo 等 live workflow。
-
-## Clean demo 数据覆盖
-
-`/clean` 的 mock 数据不是空壳，而是一套完整示例 brain：
-
-- 5 个连接项目，每个都有 repo、项目记忆摘要和项目本地 todos
-- 16 条 Notes，覆盖 Obsidian、本地 vault、飞书、Notion 和内置 Markdown 笔记
-- 30 条 Tasks，包含 open / done / stale、日期、时间、项目归属和优先级
-- 一周发布节奏的 Journal，包含日记、周总结、月主线
-- Calendar 同时展示纯日程和带时间任务的投影
-- Overview 里的 active tasks、done this week、memory mix、recent notes、project progress 都与 mock 数据对齐
-- People、Decisions、References、Fragments、Memory 都有可展示样例
+- README 截图
+- 黑客松 / 产品演示
+- 设计评审
+- 不暴露真实文件地讲解 Loci
 
 ## Dashboard 读写什么
 
@@ -89,9 +74,9 @@ Loci 现在采用任务优先模型：
 
 - Task = 要完成的事
 - Schedule = 占用时间的事
-- 没时间的任务只在任务池
-- 有具体时间的任务会投影到日程
+- 任务只在任务池——就算带了具体时间，也不会自动投影到日程；dashboard 的提醒直接读任务池里的带时间任务
 - 纯日程只在日程里，不会进入任务池
+- 把任务拉上日程是一个刻意动作，不是自动行为
 
 写入时使用本地 API 或 guarded writer，避免 AI 手改 JSON。
 
@@ -144,9 +129,9 @@ node scripts/loci-projtodo.js validate --repo <repo-path>
 
 ## 注意事项
 
-- 不要再使用旧的 `server.py`。它缺少当前任务和日程 API。
-- 不需要运行 `build.py` 生成 `data.json`。当前 server 会按请求读取文件。
-- Dashboard 是本地开发/个人使用工具，不会把数据发到云端。
+- 用 `node .loci/dashboard/server.js` 启动。server 按请求读取本地文件，没有构建步骤，也没有生成的数据文件。
+- 本地 dashboard 写的是真实 brain 文件。截图和公开演示请用官网演示页（`site/demo`）。
+- Dashboard 是本地工具，不会把数据发到云端。
 - 如果页面没有数据，优先检查本地数据文件是否为空，而不是前端是否坏了。
 
 ## 相关文档

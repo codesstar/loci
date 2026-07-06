@@ -22,10 +22,19 @@ Loci 不存原始聊天记录——那东西又长又杂，回头根本找不到
 | 个人事实 | `me/identity.md` | "我刚搬到柏林" |
 | 价值观/原则 | `me/values.md` | "我悟了，质量比速度重要" |
 | 踩坑经验 | `me/learned.md` | "千万别周五部署" |
-| 决策 | `decisions/YYYY-MM-DD-slug.md` | "选了 React 没选 Vue" |
-| 新任务 | `tasks/active.md` | "得更新 API 文档" |
-| 洞察/规律 | `.claude/memory/MEMORY.md` | "用户偏好暗色主题" |
+| 决策（你个人的、跨项目仍有意义的） | `decisions/YYYY-MM-DD-slug.md` | "以后一次只做一个项目" |
+| 项目决策 | 那个项目 repo 的 `.loci/decisions/` | "选了 React 没选 Vue" |
+| 项目状态/进展 | 那个项目 repo 的 `.loci/memory.md` | "MVP 发了，下一步做计费" |
+| 新任务 | 守卫写入器 → `tasks/tasks.json` | "得更新 API 文档" |
+| 日程（占用时间的事） | 守卫写入器 → `tasks/calendar.json` | "下午 3 点开会" |
+| 外部材料 | `references/YYYY-MM-DD-slug.md` | "收藏这篇定价文章" |
+| 洞察/规律 | `me/insights.md` | "用户偏好暗色主题" |
 | 还没想清楚的 | `inbox.md` | "要不要学 Rust？" |
+
+有两条路由规则值得单独说：
+
+- **任务从来不手写。** `tasks/tasks.json` 是任务的唯一真源，一律走守卫写入器（`node scripts/loci-task.js add ...` 或 Dashboard API）。`tasks/active.md` 只是生成出来的只读视图。任务和日程是分开的——带时间的任务留在任务池，不会镜像到日历上。
+- **项目记忆留在项目里。** 认真项目的决策和状态蒸馏进那个 repo 自己的 `.loci/`——大脑只在 `projects/index.md` 留一行索引。Loci 汇聚记忆，不占有记忆。
 
 ## 蒸馏分级
 
@@ -58,10 +67,10 @@ User: Let's go with that. Also, I realized I need to stop checking Twitter first
 **me/learned.md**（追加）:
 > Don't check Twitter first thing in the morning — it fragments focus.
 
-**tasks/active.md**（追加）:
-> - [ ] Update landing page messaging for B2B positioning
+**tasks/tasks.json**（走守卫写入器）:
+> `node scripts/loci-task.js add --title "Update landing page messaging for B2B positioning"`
 
-三个文件更新了。原始对话一个字不留。所有信息可搜索、有上下文。
+三个地方更新了。原始对话一个字不留。所有信息可搜索、有上下文。
 
 ## 成长追踪
 
@@ -76,13 +85,13 @@ User: Let's go with that. Also, I realized I need to stop checking Twitter first
 
 ### Auto 模式（默认）
 
-信号驱动：AI 每轮都在看有没有值得存的东西。检测到新任务、决策、认知、个人信息变化，马上存，给你一行通知：
+信号驱动：AI 每轮都在看有没有值得存的东西。检测到新任务、决策、认知、个人信息变化，马上存，给你一句自然的确认：
 
 ```
-[Loci] Stored: new task "Update API docs" → active.md
+记住了：新任务 "更新 API 文档"
 ```
 
-不打断你。说 "undo" 就撤。
+不打断你，也不暴露文件路径和内部术语。说 "undo" / "撤销" 就撤。
 
 ### Manual 模式
 

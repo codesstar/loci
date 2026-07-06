@@ -11,7 +11,7 @@
 - Project-owned local persistence (.loci/memory.md + .loci/decisions/)
 - Brain project index (projects/index.md) instead of memory warehousing
 - Cross-terminal awareness (hooks)
-- Dashboard (build.py)
+- Dashboard (local Node server, `node .loci/dashboard/server.js`)
 - Multi-tool compatibility (adapt.sh)
 - Growth tracking (evolution.md)
 - Extension modules on demand

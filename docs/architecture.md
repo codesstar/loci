@@ -1,7 +1,5 @@
 # Architecture — The Three-Layer Memory System
 
-> **Current project overview**: this document explains the memory-layering model, but some file examples come from earlier versions. For the latest task/calendar JSON model, project-owned memory, dashboard routes, and Claude Code + Codex sync, see [Project Overview](project-overview.zh-CN.md).
-
 ## Overview
 
 Loci organizes your AI's context into three layers, inspired by how human memory works: working memory (always active), episodic memory (recalled on demand), and long-term storage (archived for reference).
@@ -14,9 +12,9 @@ These files are read at the start of every conversation. They define who you are
 |------|---------|
 | `CLAUDE.md` | System rules, behavior protocols, directory map |
 | `plan.md` | Life direction, annual goals, current focus |
-| `tasks/daily/YYYY-MM-DD.md` | Today's schedule, priorities, energy state |
-| `inbox.md` | Quick capture, pending items |
-| `.claude/memory/MEMORY.md` | AI's persistent auto-memory |
+| `tasks/active.md` | Current-task snapshot — a read-only view generated from `tasks/tasks.json` |
+| `inbox.md` | Quick capture — only the most recent 7 items are loaded |
+| Auto-memory | The AI tool's own persistent notes about you (managed by Claude Code / Codex) |
 
 **Design principle**: Layer 1 must stay small. If a file grows beyond ~200 lines, extract details into Layer 2 and keep only an index in Layer 1.
 
@@ -26,13 +24,14 @@ These files are read when the conversation enters a specific domain.
 
 | Trigger | Files Loaded |
 |---------|-------------|
-| Discussing tasks | `tasks/active.md`, `tasks/README.md` |
+| Working with tasks or schedule | `tasks/tasks.json`, `tasks/calendar.json` (via the guarded writer), `tasks/README.md` |
 | Mentioning a person | `people/person-name.md` |
-| Planning | `tasks/daily/YYYY-MM-DD.md`, module README |
-| Financial discussion | `finance/overview.md` |
-| Content creation | `content/platforms.md` |
+| Planning / reviewing the day | `tasks/daily/YYYY-MM-DD.md`, module README |
+| Mentioning a connected project | That repo's own `.loci/memory.md` (found via `projects/index.md`) |
+| Asking about your own notes | `notes/index.md`, then the specific note or external link |
+| Recalling saved material | `references/` |
 
-**Design principle**: Module README files serve as the "index" for each domain. The AI reads the README first to understand what's available, then loads specific files as needed.
+**Design principle**: Index files serve as the "map" for each domain — module READMEs, `projects/index.md`, `notes/index.md`. The AI reads the index first to understand what's available, then loads specific files as needed. Project memory follows the same idea one level up: the brain holds only a one-line index per serious project, while the full memory lives in that project's own repo (`.loci/memory.md` + `.loci/decisions/`).
 
 ## Layer 3 — Deep Storage
 
@@ -41,7 +40,8 @@ Never auto-loaded. Only accessed when explicitly needed.
 - `archive/` — Completed tasks, expired plans, old content
 - `decisions/` — Historical decision records
 - `me/evolution.md` — Personal growth timeline
-- Detailed financial records, old journals
+- `.loci/activity/` — The activity ledger (audit layer: written after every save, read only when you ask "what did I do?")
+- Old journals
 
 **Design principle**: Layer 3 can grow indefinitely without affecting performance. It's your searchable archive.
 
@@ -58,12 +58,12 @@ Conversation
 │  auto-memory                            │
 ├─────────────────────────────────────────┤
 │  Layer 2 (On Demand)                    │
-│  me/ → tasks/ → people/                │
-│  content/ → finance/                    │
+│  me/ → tasks/ → people/ → notes/       │
+│  references/ → project .loci/memory.md  │
 ├─────────────────────────────────────────┤
 │  Layer 3 (Deep Storage)                 │
 │  archive/ → decisions/                  │
-│  me/evolution.md                        │
+│  me/evolution.md → .loci/activity/      │
 └─────────────────────────────────────────┘
 ```
 

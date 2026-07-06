@@ -105,7 +105,7 @@ Open:
 http://127.0.0.1:8765/
 ```
 
-`/` and `/clean` show the Clean demo experience. `/sci` keeps the original sci-fi dashboard available.
+`/` serves the dashboard, reading your brain's files live.
 
 ## Uninstall
 

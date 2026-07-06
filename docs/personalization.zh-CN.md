@@ -30,9 +30,9 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 
 你的北极星。写上使命、年度目标、当前季度重点。
 
-### 4. 活跃任务（`tasks/active.md`）
+### 4. 任务（`tasks/tasks.json`）
 
-日常指挥中心。P0 不超过 3 个。
+日常指挥中心。有事直接跟 AI 说就行——任务存在 `tasks/tasks.json` 里，一律走守卫写入器（`node scripts/loci-task.js` 或 Dashboard API）。`tasks/active.md` 是生成出来的只读快照，这两个文件都别手改。
 
 ## 进阶玩法
 
@@ -44,7 +44,7 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 ```markdown
 ## Personal Reminders
 - User tends to say yes to everything — always ask "does this align with your Q1 goals?"
-- If they mention a new project idea, suggest adding it to someday.md first
+- If they mention a new project idea, suggest parking it in projects/side.md first
 ```
 
 **正在创业的人：**
@@ -67,11 +67,11 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 
 ### 连接多个项目
 
-如果你手上有好几个项目要管，部门系统很好用。详见 `docs/departments.md`。
+如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/how-it-works.zh-CN.md` 的多项目章节。
 
 ### Dashboard 换皮
 
-默认是像素风，你可以自己改。详见 `docs/dashboard.md`。
+默认是 Clean 主题——安静的浅色调，单一翡翠绿点缀。详见 `docs/dashboard.zh-CN.md`。
 
 ## 几条建议
 
@@ -84,3 +84,4 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 
 - 不要改 `CLAUDE.md` 的文件名 — AI 工具靠它当入口
 - 不要删 `plan.md` 或 `inbox.md` — Layer 1 的核心文件，删了就断了
+- 不要手改 `tasks/tasks.json` 和 `tasks/calendar.json` — 永远走守卫写入器或 Dashboard API

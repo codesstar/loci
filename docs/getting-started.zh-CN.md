@@ -19,7 +19,18 @@
 
 ## 安装
 
-### 方式 A：npx 安装（推荐）
+### 方式 A：让你的 AI 帮你装（推荐）
+
+Loci 本来就是给 AI agent 用的——所以直接让它自己装。把这段话粘贴给 Claude Code 或 Codex：
+
+```text
+帮我安装 Loci：https://github.com/codesstar/loci
+克隆仓库后，按照里面的 docs/AI-INSTALL.md 操作。
+```
+
+AI 会克隆仓库（默认位置 `~/loci`）、问你的名字、跑脚本化安装、把自己接入新大脑，并验证一切正常。它具体执行的步骤见 [AI-INSTALL.md](AI-INSTALL.md)。
+
+### 方式 B：npx 安装（不需要 AI）
 
 ```bash
 npx create-loci
@@ -39,7 +50,7 @@ npx create-loci
 npx create-loci --cli
 ```
 
-### 方式 B：手动安装
+### 方式 C：手动安装
 
 ```bash
 git clone https://github.com/codesstar/loci.git ~/loci
@@ -119,7 +130,7 @@ my-brain/
 │
 ├── tasks/                 你的事儿。
 │   ├── tasks.json         所有真实任务
-│   ├── calendar.json      日程和有时间任务的投影
+│   ├── calendar.json      日程（只放占用时间的块）
 │   ├── active.md          给 AI 快速读取的任务缓存（自动生成）
 │   └── journal/           每日复盘
 │
@@ -236,9 +247,9 @@ node .loci/dashboard/server.js
 http://127.0.0.1:8765/
 ```
 
-默认 `/` 入口会打开 Clean dashboard。它带有完整测试数据、入口引导和中文 / English 语言选择，你可以放心探索产品，不会写入真实 brain 文件。
+`/` 入口打开的就是 dashboard。它直接读取你的真实 brain 文件——任务、日程、日记、记忆、笔记、人脉和连接的项目——带入口引导和中文 / English 语言选择。
 
-本地 API 仍在 `/api/data`，旧的 sci-fi dashboard 仍在 `/sci`。
+本地 API 在 `/api/data`。如果想在没有自己数据的情况下体验产品，请用官网上的公开演示页。
 
 更多细节见：[Dashboard 文档](dashboard.zh-CN.md)。
 
@@ -341,7 +352,7 @@ Loci 每次对话启动时会检测其他终端的文件变更。同时写同一
 就是个 git 仓库嘛。推到私有 GitHub/GitLab 仓库，或者直接复制文件夹，怎么方便怎么来。
 
 **Q：换电脑了怎么办？**
-把文件夹拷过去（或者从你的私有远程仓库 clone 下来），跑一遍 `bash install.sh` 就行。安装脚本会在新机器上重建全局感知。
+把文件夹拷过去（或者从你的私有远程仓库 clone 下来），然后在新机器上重新接入 AI 工具：把大脑路径写进 `~/.loci/brain-path`，并把 Loci block 重新加到 `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md`。最省事的做法是直接让 AI 来干——把拷过来的文件夹和 [AI-INSTALL.md](AI-INSTALL.md) 指给它就行。
 
 **Q：brain 会越来越大吗？**
 正常用几个月的话，大概几百个 Markdown 文件，加起来也就几 MB。Loci 会归档旧内容，保持活跃文件精简。Git 历史会大一点，但这很正常。

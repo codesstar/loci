@@ -28,40 +28,28 @@ PORT=8877 node .loci/dashboard/server.js
 
 | Route | Purpose |
 |---|---|
-| `/` | Clean dashboard, current default |
-| `/clean` | Alias for the Clean dashboard |
-| `/sci` | Original sci-fi dashboard |
-| `/api/data` | Full local brain JSON used by live dashboard workflows |
+| `/` | The dashboard |
+| `/clean` | Alias for `/`, kept for old links |
+| `/api/data` | Full local brain JSON used by dashboard workflows |
 
-The Clean dashboard is the current public-facing experience. It uses a calm light theme, a single emerald accent, first-run onboarding, and a Chinese / English language selector.
+The dashboard uses a calm light theme, a single emerald accent, first-run onboarding, and a Chinese / English language selector.
 
-Important: the Clean route is intentionally self-contained for demos. It ships with a rich mock dataset and keeps in-page edits local to the browser session, so screenshots and public demos cannot accidentally mutate a real brain.
+The local dashboard reads and writes your real brain files through the Node server and API. There is no separate demo dataset in the local dashboard — what you see is what your brain contains.
 
-The Node server and API remain the live integration layer for real task, schedule, journal, note, and project writes.
+## Public Demo
 
-## What The Clean Demo Shows
+If you want to explore Loci without exposing (or before creating) a real brain, use the hosted demo on the website (`site/demo` in this repo). It is a self-contained page with a rich sample dataset that looks like a real Loci brain — connected projects, notes, tasks, journal entries, people, decisions, and references — and keeps all in-page edits local to the browser session.
 
-The demo dataset is meant to look like a real Loci brain, not an empty template:
-
-- 5 connected projects, each with repo context, memory summary, and project-local todos
-- 16 notes across Obsidian, Feishu, Notion, and inline Markdown notes
-- 30 tasks with open / done / stale states, priorities, dates, times, and project links
-- Journal entries for a launch week, plus weekly and monthly summaries
-- Calendar events that distinguish schedule-only blocks from timed task projections
-- Overview stats for active tasks, completed work, decisions, notes, memory mix, and project progress
-- People, decisions, references, fragments, and personal memory examples
-
-This makes `/clean` useful for:
+The public demo is useful for:
 
 - README screenshots
 - hackathon / product demos
 - design review
-- validating empty-state and onboarding behavior
 - explaining Loci without requiring a user to expose their real files
 
 ## Live Data Sources
 
-When the dashboard server builds live data, it reads from the local brain:
+The dashboard server builds its data from the local brain at request time:
 
 | Area | Source |
 |---|---|
@@ -90,9 +78,9 @@ Loci uses a task-first model:
 
 - A task is something to complete.
 - A schedule item is occupied time.
-- A task with a date still belongs in the task database.
-- A task with a specific time is also projected into the calendar.
+- A task with a date — or even a specific time — still lives only in the task database. It is never auto-projected onto the calendar; the dashboard reminder reads timed tasks straight from the task pool.
 - A schedule-only event does not become a task unless the user explicitly asks for that.
+- Pulling a task onto the schedule is a deliberate action, not automatic.
 
 This keeps the user's mental model simple while still giving the dashboard a timeline view.
 
@@ -159,10 +147,9 @@ See [API docs](api.md) for endpoint details.
 
 ## Implementation Notes
 
-- Use `node .loci/dashboard/server.js`. Do not use the old `server.py`; it is missing current task and schedule endpoints.
-- `build.py` / `data.json` are legacy artifacts. The current server builds data from local files at request time.
-- The Clean dashboard is safe for demos because it uses mock data and does not write to real brain files.
+- Run the dashboard with `node .loci/dashboard/server.js`. The server builds data from local files at request time — there is no build step and no generated data file.
 - Live writes should go through the server API or guarded writer scripts.
+- The local dashboard writes to your real brain files. For screenshots and public demos, use the hosted demo (`site/demo`) instead.
 - If a page looks empty, first check whether the corresponding local data files are empty.
 
 ## Related Docs

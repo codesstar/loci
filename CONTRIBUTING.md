@@ -42,7 +42,7 @@ See [How It Works](docs/how-it-works.md) for the full system overview. Key files
 
 - `CLAUDE.md` — The AI system prompt (core logic lives here)
 - `templates/commands/` — Slash command definitions
-- `.loci/dashboard/build.py` — Dashboard data generator
+- `.loci/dashboard/server.js` — Dashboard server (run with `node .loci/dashboard/server.js`, port 8765)
 - `examples/alex/` — Demo data for new users
 
 ## License

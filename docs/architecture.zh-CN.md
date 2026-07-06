@@ -1,7 +1,5 @@
 # 架构 — 三层记忆系统
 
-> **当前项目总览**：本文解释三层上下文思想，但部分文件示例仍来自早期版本。最新目录、任务/日程 JSON 模型、项目记忆归 repo 和 Claude Code + Codex 同步，请先看 [项目总览](project-overview.zh-CN.md)。
-
 ## 概览
 
 Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机制：工作记忆（随时在线）、情景记忆（想起来就调出来）、长期存储（存着不丢就行）。
@@ -14,9 +12,9 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 |------|---------|
 | `CLAUDE.md` | 系统规则、行为协议、目录地图 |
 | `plan.md` | 人生方向、年度目标、当前重点 |
-| `tasks/daily/YYYY-MM-DD.md` | 今天的日程、优先级、精力状态 |
-| `inbox.md` | 快速记录、待处理的事 |
-| `.claude/memory/MEMORY.md` | AI 的持久化自动记忆 |
+| `tasks/active.md` | 当前任务快照——从 `tasks/tasks.json` 生成的只读视图 |
+| `inbox.md` | 快速记录——只加载最近 7 条 |
+| Auto-memory | AI 工具自己维护的持久记忆（Claude Code / Codex 各自管理） |
 
 **原则**：Layer 1 必须精简。哪个文件超过 200 行了，就该把细节挪到 Layer 2，这里只留索引。
 
@@ -26,13 +24,14 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 
 | 什么时候触发 | 加载哪些文件 |
 |---------|-------------|
-| 聊任务 | `tasks/active.md`、`tasks/README.md` |
+| 操作任务/日程 | `tasks/tasks.json`、`tasks/calendar.json`（走守卫写入器）、`tasks/README.md` |
 | 提到某个人 | `people/person-name.md` |
-| 做计划 | `tasks/daily/YYYY-MM-DD.md`、模块 README |
-| 聊钱 | `finance/overview.md` |
-| 搞内容 | `content/platforms.md` |
+| 做计划 / 复盘当天 | `tasks/daily/YYYY-MM-DD.md`、模块 README |
+| 提到某个已连接项目 | 那个项目 repo 自己的 `.loci/memory.md`（通过 `projects/index.md` 找到它） |
+| 问自己的笔记 | `notes/index.md`，再打开具体笔记或外部链接 |
+| 找收藏过的材料 | `references/` |
 
-**原则**：每个模块的 README 就是那个领域的"索引页"。AI 先读 README 看看有什么，再按需加载具体文件。
+**原则**：每个领域都有自己的"索引页"——模块 README、`projects/index.md`、`notes/index.md`。AI 先读索引看看有什么，再按需加载具体文件。项目记忆是同一思路往上抬一层：大脑里每个认真项目只留一行索引，完整记忆放在项目自己的 repo（`.loci/memory.md` + `.loci/decisions/`）。
 
 ## Layer 3 — 深度存储
 
@@ -41,7 +40,8 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 - `archive/` — 做完的任务、过期的计划、旧内容
 - `decisions/` — 历史决策记录
 - `me/evolution.md` — 个人成长时间线
-- 详细财务记录、旧日记
+- `.loci/activity/` — 操作总账（审计层：每次保存后写一行，只在你问"我做了啥"时才读）
+- 旧日记
 
 **原则**：Layer 3 随便长，不影响性能。它就是你的可搜索档案库。
 
@@ -58,12 +58,12 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 │  auto-memory                            │
 ├─────────────────────────────────────────┤
 │  Layer 2（按需调取）                     │
-│  me/ → tasks/ → people/                │
-│  content/ → finance/                    │
+│  me/ → tasks/ → people/ → notes/       │
+│  references/ → 项目 .loci/memory.md     │
 ├─────────────────────────────────────────┤
 │  Layer 3（深度存储）                     │
 │  archive/ → decisions/                  │
-│  me/evolution.md                        │
+│  me/evolution.md → .loci/activity/      │
 └─────────────────────────────────────────┘
 ```
 

@@ -16,7 +16,7 @@ Loci 里存的是你的整个人生——身份、目标、财务、人脉、决
 
 ### Git 远程仓库自动断开
 
-安装过程中（不管是跑 `install.sh` 还是对话式引导），Loci 会自动把公开模板仓库的 remote 断掉。这样你的个人数据就不会一不小心 push 到公开仓库去。
+安装过程中（不管是 `setup.sh`、`npx create-loci` 还是让 AI 自装），Loci 会自动把公开模板仓库的 remote 断掉。这样你的个人数据就不会一不小心 push 到公开仓库去。
 
 想备份的话，推到你自己的**私有仓库**就行——只有你能访问，数据是安全的。
 
@@ -24,7 +24,7 @@ Loci 里存的是你的整个人生——身份、目标、财务、人脉、决
 
 ### .gitignore
 
-已经预配置好了，会排除系统状态文件（`.loci/status.yml`、`.loci/last-consolidation.txt`、`.loci/dashboard/data.json`）和编辑器/系统生成的临时文件。你的内容文件（`me/`、`tasks/`、`decisions/`、`.loci/activity/` 等）**会被 git 跟踪**——这是故意的，这样你就能通过 `git log` 查看记忆的完整变更历史。
+已经预配置好了，会排除本地状态文件（`.loci/status.yml`、`.loci/last-consolidation.txt`）、你的个人任务池和日程（`tasks/tasks.json`、`tasks/calendar.json`、`tasks/active.md`、`tasks/daily/`），以及编辑器/系统生成的临时文件。你的其他内容文件（`me/`、`decisions/`、`.loci/activity/` 等）**会被 git 跟踪**——这是故意的，这样你就能通过 `git log` 查看记忆的完整变更历史。
 
 因为安装时已经断开了模板仓库的 remote，这些被跟踪的文件只会留在本地，除非你自己主动加了 remote。
 

@@ -19,7 +19,18 @@ Optional:
 
 ## Installation
 
-### Option A: npx installer (recommended)
+### Option A: Ask your AI to install it (recommended)
+
+Loci is built for AI agents — so let yours install it. Paste this into Claude Code or Codex:
+
+```text
+Install Loci for me: https://github.com/codesstar/loci
+Clone the repo, then follow docs/AI-INSTALL.md inside it.
+```
+
+Your AI clones the repo (default location `~/loci`), asks your name, runs the scriptable setup, connects itself to the new brain, and verifies everything works. See [AI-INSTALL.md](AI-INSTALL.md) for the exact steps it follows.
+
+### Option B: npx installer (no AI needed)
 
 ```bash
 npx create-loci
@@ -39,7 +50,7 @@ Prefer a terminal wizard?
 npx create-loci --cli
 ```
 
-### Option B: Manual setup
+### Option C: Manual setup
 
 ```bash
 git clone https://github.com/codesstar/loci.git ~/loci
@@ -119,7 +130,7 @@ my-brain/
 │
 ├── tasks/                 Your work.
 │   ├── tasks.json         Canonical task database
-│   ├── calendar.json      Schedule and timed-task projections
+│   ├── calendar.json      Schedule (occupied time blocks only)
 │   ├── active.md          Generated active task cache for fast AI loading
 │   └── journal/           Daily summaries and reflections
 │
@@ -233,9 +244,9 @@ Open:
 http://127.0.0.1:8765/
 ```
 
-The default `/` route opens the Clean dashboard. It includes polished demo data, onboarding, and a Chinese / English language selector, so you can explore the product safely without touching your real memory files.
+The `/` route opens the dashboard. It reads your real brain files directly — tasks, schedule, journal, memory, notes, people, and connected projects — with first-run onboarding and a Chinese / English language selector.
 
-The local API is still available at `/api/data`, and the original sci-fi dashboard is available at `/sci`.
+The local API is available at `/api/data`. If you want to explore the product without your own data, use the hosted demo on the website instead.
 
 More detail: [Dashboard docs](dashboard.md).
 
@@ -332,7 +343,7 @@ Loci detects file changes from other terminals at the start of each conversation
 It's a git repo. Push it to a private GitHub/GitLab repo, or just copy the folder. Standard git backup practices apply.
 
 **Q: Can I move my brain to a different computer?**
-Yes. Copy the folder (or clone from your private remote), run `bash install.sh`, and everything reconnects. The install script re-establishes global awareness on the new machine.
+Yes. Copy the folder (or clone from your private remote), then reconnect your AI tools on the new machine: register the brain path in `~/.loci/brain-path` and re-add the Loci block to `~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md`. The easiest way is to ask your AI to do it — point it at the copied folder and [AI-INSTALL.md](AI-INSTALL.md).
 
 **Q: How big does the brain get?**
 After months of daily use, expect a few hundred Markdown files totaling a few megabytes. Loci archives old content and keeps active files lean. Git history will be larger, but that's normal.

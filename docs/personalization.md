@@ -30,9 +30,9 @@ Examples of good principles:
 
 Your north star. Set your mission, annual goals, and current quarter focus.
 
-### 4. Active Tasks (`tasks/active.md`)
+### 4. Tasks (`tasks/tasks.json`)
 
-Your daily command center. Keep P0 items to 3 or fewer.
+Your daily command center. Just tell the AI what you need to do — tasks live in `tasks/tasks.json`, written through the guarded writer (`node scripts/loci-task.js` or the Dashboard API). `tasks/active.md` is a generated read-only snapshot; don't hand-edit either file.
 
 ## Advanced Customizations
 
@@ -44,7 +44,7 @@ Edit `CLAUDE.md` to add personalized behavior rules. Some examples:
 ```markdown
 ## Personal Reminders
 - User tends to say yes to everything — always ask "does this align with your Q1 goals?"
-- If they mention a new project idea, suggest adding it to someday.md first
+- If they mention a new project idea, suggest parking it in projects/side.md first
 ```
 
 **For someone building a business:**
@@ -67,11 +67,11 @@ Edit `CLAUDE.md` to add personalized behavior rules. Some examples:
 
 ### Connecting Projects
 
-If you manage multiple projects, the department system is powerful. See `docs/departments.md` for the full guide.
+If you manage multiple projects, just tell the AI to remember one ("remember this project") — or let it offer when a project gets serious. The project keeps its own memory in its repo (`.loci/memory.md` + `.loci/decisions/`), and your brain keeps only a one-line index in `projects/index.md`. See the multi-project section in `docs/how-it-works.md`.
 
 ### Dashboard Theming
 
-The pixel-art theme is the default, but you can customize it. See `docs/dashboard.md`.
+The Clean theme is the default — a calm light theme with a single emerald accent. See `docs/dashboard.md`.
 
 ## Tips
 
@@ -84,3 +84,4 @@ The pixel-art theme is the default, but you can customize it. See `docs/dashboar
 
 - Don't rename `CLAUDE.md` — it's the entry point for AI tools
 - Don't delete `plan.md` or `inbox.md` — they're Layer 1 essentials
+- Don't hand-edit `tasks/tasks.json` or `tasks/calendar.json` — always go through the guarded writer or Dashboard API

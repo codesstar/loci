@@ -11,7 +11,7 @@
 - 项目拥有自己的本地记忆（.loci/memory.md + .loci/decisions/）
 - 大脑项目索引（projects/index.md），不当项目记忆仓库
 - 跨终端感知（hooks）
-- Dashboard（build.py）
+- Dashboard（本地 Node server，`node .loci/dashboard/server.js`）
 - 多工具兼容（adapt.sh）
 - 成长轨迹追踪（evolution.md）
 - 按需扩展模块

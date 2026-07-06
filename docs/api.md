@@ -13,7 +13,7 @@ Success response: `{"ok": true, ...}`. Error response: `{"error": "message"}`.
 
 ## GET /api/data
 
-Returns the full live brain state for dashboard/API workflows. The Clean demo route uses self-contained sample data and does not need this endpoint.
+Returns the full live brain state. This is what the dashboard renders and what API workflows read.
 
 **Response keys**: `config`, `plan`, `inbox`, `me`, `tasks`, `planning`, `people`, `decisions`, `finance`, `content`, `learning`, `links`, `references`, `notes`, `projects`, `stats`, `build_time`
 
@@ -133,15 +133,20 @@ Save the full content of a daily plan file.
 
 ### POST /api/calendar/add
 
-Add a calendar event to `tasks/calendar.json`.
+Add a schedule event (a block of occupied time) to `tasks/calendar.json`.
+
+Tasks and the schedule are separate: a timed task lives only in `tasks/tasks.json` and is **never auto-projected** onto the calendar — the dashboard reminder reads timed tasks straight from the task pool. Only call this endpoint for schedule items, or when the user deliberately pulls a task onto the schedule.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `title` | string | yes | Event title |
 | `date` | string | yes | Date in `YYYY-MM-DD` format |
-| `startMin` | number | no | Start minutes from midnight |
-| `endMin` | number | no | End minutes from midnight |
-| `fromTask` | boolean | no | `true` when this event is a task projection |
+| `startMin` | number | no | Start minutes from midnight (default 540) |
+| `endMin` | number | no | End minutes from midnight (default start + 60) |
+| `allDay` | boolean | no | All-day event (with optional `startDate` / `endDate`) |
+| `location` | string | no | Location |
+| `note` | string | no | Note text |
+| `fromTask` | boolean | no | `true` only when the user deliberately pulled a task onto the schedule |
 | `taskId` | string | no | Related task id when `fromTask` is true |
 
 ---
@@ -218,6 +223,12 @@ Load personal log notes for a date.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `date` | string | yes | `YYYY-MM-DD` format |
+
+---
+
+## Other Endpoints
+
+The server also exposes endpoints for tasks (`/api/tasks/reorder`, `/api/tasks/update-detail`), inbox (`/api/inbox/remove`), references (`/api/references/add`, `/api/references/remove`), notes (`/api/notes/*` — raw, save, create, delete, import, folder management, source mount/unmount), people (`/api/people/add`, `/api/people/update`, `/api/people/avatar`), and projects (`/api/project/connect`, `/api/project/open`, `/api/project/browse`, `/api/project/disconnect`). See `.loci/dashboard/server.js` for the authoritative list.
 
 ---
 

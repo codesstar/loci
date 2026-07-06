@@ -33,18 +33,20 @@ my-brain/
 │   └── evolution.md   ← Growth timeline (old versions append here)
 │
 ├── tasks/             ← Tasks + planning (merged)
-│   ├── active.md      ← Current tasks (P0/P1/P2/P3 priorities)
-│   ├── someday.md     ← Maybe later
-│   ├── daily/         ← One md per day (schedule + what got done)
+│   ├── tasks.json     ← Task database — single source of truth (guarded writer only)
+│   ├── calendar.json  ← Schedule — occupied time blocks, kept separate from tasks
+│   ├── active.md      ← Read-only snapshot generated from tasks.json (fast AI startup read)
+│   ├── daily/         ← One md per day (day notes + review, not a task source)
 │   └── journal/       ← Daily summaries (buffer.md → end-of-day journal)
 │
 ├── decisions/         ← One file per major decision (with context + reasoning)
+├── projects/          ← index.md (one line per serious project) + side.md (embryos)
 ├── archive/           ← Expired content moves here, never deleted
+├── scripts/           ← Guarded writers (loci-task.js, loci-project.js, loci-projtodo.js)
 │
 ├── .loci/             ← System internals
 │   ├── hooks/         ← Cross-terminal sync hooks
-│   ├── links/         ← Connected external projects
-│   ├── dashboard/     ← Visual panel
+│   ├── dashboard/     ← Visual panel (node server.js)
 │   ├── config.yml     ← Brain settings (persistence mode, notifications)
 │   ├── status.yml     ← Current state (tired / energized / traveling)
 │   └── activity/       ← Activity ledger (one file per month, audit layer — "what did I do?")
@@ -63,7 +65,7 @@ This is Loci's core design — not all memories need to load every time:
 
 | Layer | When loaded | Contents | Human analogy |
 |-------|------------|----------|---------------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, auto-memory | Working memory (what you're thinking about right now) |
+| **L1** | Every conversation | CLAUDE.md, plan.md, tasks/active.md, inbox.md (latest 7 items), auto-memory | Working memory (what you're thinking about right now) |
 | **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references, notes | Short-term memory (one thought away) |
 | **L3** | Only when explicitly asked | archive, old decisions, evolution.md, old journals | Long-term memory (have to dig for it) |
 
@@ -88,9 +90,11 @@ You say something
    Yes → classify + route:
          ├── Personal fact ("I moved to Berlin")       → me/identity.md
          ├── New insight ("never deploy on Fridays")   → me/learned.md
-         ├── Decision ("going with PostgreSQL")        → decisions/2026-03-10-xxx.md
-         ├── New task ("need to update API docs")      → tasks/active.md
-         ├── External content (article, tweet, quote)  → references/inbox.md
+         ├── Your decision ("one project at a time")   → decisions/2026-03-10-xxx.md
+         ├── Project decision ("going with PostgreSQL") → that repo's .loci/decisions/
+         ├── New task ("need to update API docs")      → guarded writer → tasks/tasks.json
+         ├── Schedule item ("meeting at 3pm")          → guarded writer → tasks/calendar.json
+         ├── External content (article, tweet, quote)  → references/
          └── Vague thought ("maybe I should learn Rust") → inbox.md
 ```
 
@@ -115,9 +119,9 @@ Result: current files stay lean (fast L1 loading). evolution.md is your personal
 **What Loci stores:**
 - `decisions/2026-03-10-pivot-to-b2b.md`: Pivot to B2B, price $49/mo, leverages enterprise experience
 - `me/learned.md` (appended): Don't check Twitter first thing — it fragments focus
-- `tasks/active.md` (appended): Update landing page for B2B positioning
+- `tasks/tasks.json` (via the guarded writer): Update landing page for B2B positioning
 
-Three files updated. Zero raw transcript saved. Everything searchable and in context.
+Three places updated. Zero raw transcript saved. Everything searchable and in context.
 
 > Deep dive: [Distillation](distillation.md)
 
@@ -135,8 +139,8 @@ You chat with AI
 Every turn, AI internally evaluates: anything worth storing this turn?
     ↓
   No signal → silence, keep chatting
-  Has signal → save immediately → one-line notification:
-                [Loci] Stored: new task "Buy power cable" → active.md
+  Has signal → save immediately → one-line natural confirmation:
+                Got it — added task "Buy power cable"
     ↓
 You see the notification, don't need to respond, keep chatting
 If it saved something wrong → say "undo"
@@ -221,7 +225,7 @@ Most project memory stays inside the project repo. The brain only keeps enough i
 
 Each connected project can configure what gets summarized in the brain index via `/loci-settings`.
 
-> Deep dive: [Departments](departments.md)
+> Deep dive: [Synapse](synapse.md) — signal routing and project-owned memory
 
 ---
 
@@ -257,7 +261,7 @@ persistence:
 ## Layer 6: Supporting Mechanisms
 
 ### Daily Plans + Journal
-- `tasks/daily/YYYY-MM-DD.md` — today's schedule + what got done
+- `tasks/daily/YYYY-MM-DD.md` — day notes + review (context only; tasks stay in `tasks/tasks.json`)
 - `tasks/journal/buffer.md` — append key points during conversation
 - Say "summarize" → buffer + conversation review → generate today's journal → clear buffer
 
@@ -269,7 +273,7 @@ persistence:
 ### Dashboard
 - `.loci/dashboard/` — local Node-powered web dashboard for overview, tasks, schedule, journal, memory, people, projects, notes, fragments, and decisions
 - `node .loci/dashboard/server.js` starts the dashboard at `http://127.0.0.1:8765/`
-- `/` and `/clean` show the Clean demo experience with self-contained sample data; `/sci` keeps the original sci-fi dashboard available
+- `/` serves the dashboard, reading your brain's files live — a fresh brain shows clean empty states
 - The server also exposes local API endpoints for live task, schedule, journal, note, reference, and project-todo workflows
 
 ### Cross-Terminal Sync
@@ -310,7 +314,7 @@ Day one, the user just feels "my AI remembers me." The complexity underneath rev
 ## Further Reading
 
 - [Architecture](architecture.md) — The three-layer memory system in depth
-- [Synapse](synapse.md) — Persistence modes, routing, privacy
+- [Synapse](synapse.md) — Persistence modes, routing, project-owned memory
 - [Distillation](distillation.md) — How conversations become structured knowledge
-- [Departments](departments.md) — Multi-project orchestration
+- [Dashboard](dashboard.md) — The local visual console
 - [Privacy](privacy.md) — Data protection and AI context control

@@ -2,12 +2,13 @@
 # These files are managed by Loci and will be updated on upgrade.
 # All other files in ~/loci/ are user data — never touched by upgrades.
 
-version: "0.2.1"
+version: "0.3.0"
 loci-schema: 1
 
 managed:
   # Core AI instructions
   - CLAUDE.md
+  - AGENTS.md
   - docs/behavior.md
   - docs/how-it-works.md
 

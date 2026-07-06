@@ -145,7 +145,7 @@ Our logo is a seahorse because Loci is the hippocampus of your AI — the part t
 
 ## What Happens After Setup
 
-You don't learn Loci. You just talk to your AI, and four things start happening:
+You don't learn Loci. You just talk to your AI, and five things start happening:
 
 ### It remembers what matters
 
@@ -163,20 +163,22 @@ Next month, when you're wondering "why aren't we on Vercel?" — your AI already
 
 ### It connects your projects
 
-Link any project folder with one command. Mistakes you made in Project A become warnings in Project B.
+No command to learn. While you work inside a project, if your AI notices it's becoming real, it offers once — at the end of a conversation: "This project seems to be taking off. Want me to keep a memory for it here?"
+
+Say yes, and Loci creates the project's own `.loci/memory.md` (a living dossier) and `.loci/decisions/` (an append-only decision stream) inside that project's repo. Your brain keeps only a one-line index entry pointing to it. Project memory belongs to the project; the brain aggregates and orchestrates. **Loci aggregates memory — it does not own it.**
 
 ```
-Brain (your memory)
- ├── Main App         "Deployment took 6 hours because we forgot
- │                     to set up environment variables for the
- │                     staging environment. Checklist created."
+Brain (your memory hub)
+ ├── projects/index.md
+ │    "Main app lives at ~/work/main-app — project memory in .loci/memory.md"
  │
- ├── Side Project     "You're about to deploy this. Remember your
- │                     main app took 6 hours because of missing
- │                     env vars. Here's the checklist you made."
+ ├── me/, tasks/, decisions/
+ │    your global preferences, tasks, and cross-project decisions
  │
- └── Client Work      "New deployment here too — applying your
-                       env var checklist from the start."
+ └── project repo/.loci/
+      memory.md       the project's current state
+      decisions/      the project's own decision stream
+      todo.json       the project's development todos
 ```
 
 ### It finds patterns you miss
@@ -231,7 +233,7 @@ July:     "founder, shipped v1, first 50 users"
 |---------|-------------|----------------|
 | **Smart saving** | Extracts decisions, tasks, and insights from conversation — never saves raw chat transcripts | Your memory stays clean and searchable, not a wall of text |
 | **Layered loading** | Loads only what's relevant to the current conversation. Archives stay out of the way until needed | Fast responses, even after months of accumulated memory |
-| **Cross-project sync** | Your brain is the hub, projects are spokes. Important info flows automatically | Decisions in one project inform work in others |
+| **Cross-project memory** | Each serious project keeps its own memory in its repo (`.loci/memory.md` + `.loci/decisions/`); your brain holds only a one-line index. Loci aggregates memory, it does not own it | Lessons stay where they belong, and your AI knows where to find them from any project |
 | **Daily review** | Morning briefing summarizes yesterday, surfaces patterns, flags stale tasks | You start each day with full context in 10 seconds |
 | **Growth tracking** | When your identity or goals change, old versions are archived automatically | You can look back and see how you've evolved |
 | **Git-native** | Everything is Markdown files in a git repo. `git diff` shows what your AI learned. `git log` is your memory timeline | Full version history, works offline, you own your data |
@@ -253,15 +255,13 @@ node .loci/dashboard/server.js
 Open:
 
 ```text
-http://127.0.0.1:8765/
+http://localhost:8765
 ```
 
-The default route serves the new **Clean dashboard** (`/` and `/clean`): a polished, light-theme demo experience with self-contained sample data. It is safe for screenshots, public demos, and first-run exploration because it does not write to your real brain files.
-
-The dashboard server also exposes the local API used by Loci's live workflows. The original sci-fi dashboard is still available at `/sci`.
+The dashboard reads your brain files live on every request. On a fresh install it starts out clean and empty — it fills up as your AI saves memories. The same local server exposes the API Loci's live workflows use for tasks, schedule, journal, and project todos.
 
 - **Overview**: Current focus, task velocity, memory mix, recent notes, decisions, and project progress
-- **Tasks / Schedule**: Task-first model with dated tasks, timed task projections, and schedule-only events
+- **Tasks / Schedule**: Task pool and schedule timeline, kept strictly separate — a task is something to complete, a schedule item is a block of occupied time
 - **Journal**: Daily/weekly/monthly reflections and AI summaries
 - **Memory**: Identity, values, learned lessons, and growth history
 - **People**: Relationship cards and contact context
@@ -272,7 +272,7 @@ The dashboard is a window into your brain, not a separate cloud system. User dat
 
 > **API docs**: [docs/api.md](docs/api.md) — local REST endpoints for reading and writing your brain.
 >
-> **Dashboard docs**: [docs/dashboard.md](docs/dashboard.md) — routes, data sources, demo mode, and live API behavior.
+> **Dashboard docs**: [docs/dashboard.md](docs/dashboard.md) — pages, data sources, and API behavior.
 
 ---
 
@@ -307,6 +307,7 @@ Loci currently focuses on Claude Code and Codex. Both can share the same local b
 |---|---|
 | **[Getting Started](docs/getting-started.md)** | Setup walkthrough and first conversation |
 | **[How It Works](docs/how-it-works.md)** | Complete system overview |
+| **[Project Overview](docs/project-overview.zh-CN.md)** (中文) | Positioning, architecture, and current state in one doc — Chinese only |
 | **[User Stories](docs/user-stories.md)** | What daily use feels like |
 | **[Commands & Structure](docs/getting-started.md#understanding-your-brain)** | Directory layout, slash commands, config |
 | **[Other Editors](docs/other-editors.md)** | Cursor, Windsurf, Cline support |
