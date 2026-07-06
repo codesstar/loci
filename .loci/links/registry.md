@@ -1,12 +1,13 @@
 ---
-updated: 2026-03-05
+updated:
 ---
 
 # External Project Registry
 
 | Name | Link Name | Actual Path | Purpose |
 |------|-----------|-------------|---------|
-| TaskFlow | `client-acme` | `~/projects/taskflow` | SaaS side project — task management for design teams |
+
+<!-- One row per linked external project. -->
 
 ## Connecting a New Project
 
@@ -21,5 +22,4 @@ ln -s /actual/path .loci/links/link-name
 
 ## Notes
 
-- TaskFlow is linked as `client-acme` (placeholder name from initial setup, should rename)
 - Client project files stay in their own repos — only link if ongoing communication is needed

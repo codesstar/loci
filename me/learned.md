@@ -1,24 +1,11 @@
 ---
-created: 2026-01-10
-updated: 2026-05-30
+created:
+updated:
 tags: [learning, growth]
-status: active
+status: template
 ---
 
 # What I've Learned
 
-> 用真金白银和踩过的坑换来的经验。值得记住的才写进来。
-
-## 关于产品
-- **用户嘴上要的功能,和他们真正用的功能,常常是两回事**——看行为,别只听访谈
-- **上线第一天没人用,不代表失败;但三周后还没人回来,就是真信号**
-- **付费墙比问卷诚实一百倍**:愿意掏钱才是真需求
-
-## 关于自己
-- **我会用"重构"来逃避"发布"**——一感到要面对用户就想去清理代码,得警惕
-- **状态好的时候做难的事,状态差的时候做杂的事**,别反过来硬扛
-- **连续三天没运动,代码质量肉眼可见地下降**
-
-## 关于协作
-- **异步沟通要把上下文写够**,省下的来回比多打的字值钱
-- **"我帮你看看"通常意味着我会拖延**,不如直接约时间
+<!-- Hard-won lessons and insights get distilled here over time. -->
+<!-- For a complete example, see examples/alex/me/learned.md -->
