@@ -276,7 +276,7 @@ do_update() {
     ".loci/dashboard/index-ink.html"
     ".loci/dashboard/index-clean.html"
     ".loci/dashboard/seahorse-logo.png"
-    ".loci/dashboard/avatar-user.png"
+    ".loci/dashboard/avatar-callum.png"
   )
   local removed=0
   for f in "${OBSOLETE_ENGINE_FILES[@]}"; do

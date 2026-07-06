@@ -320,6 +320,6 @@ MIT. 详见 [LICENSE](LICENSE)。
 ---
 
 <p align="center">
-  <strong>Loci</strong> 由 <a href="https://github.com/codesstar">Sam</a> 打造。<br/>
+  <strong>Loci</strong> 由 <a href="https://github.com/codesstar">Callum</a> 打造。<br/>
   如果它让你的 AI 变得更聪明了，点个 Star 呗。
 </p>

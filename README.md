@@ -327,6 +327,6 @@ MIT. See [LICENSE](LICENSE).
 ---
 
 <p align="center">
-  <strong>Loci</strong> is built by <a href="https://github.com/codesstar">Sam</a>.<br/>
+  <strong>Loci</strong> is built by <a href="https://github.com/codesstar">Callum</a>.<br/>
   If this gives your AI a better memory, consider giving it a star.
 </p>
