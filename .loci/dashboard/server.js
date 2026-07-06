@@ -3119,10 +3119,7 @@ const server = http.createServer(async (req, res) => {
   // Static file serving
   let filePath;
   if (pathname === '/' || pathname === '/index.html' || pathname === '/clean' || pathname === '/clean.html') {
-    // Default theme is now the Clean dashboard; '/clean' kept as an alias for old links
-    filePath = path.join(SCRIPT_DIR, 'index-clean.html');
-  } else if (pathname === '/sci' || pathname === '/sci.html') {
-    // Original sci-fi theme — moved off the root, kept available under /sci
+    // The Clean dashboard is the only build; '/clean' kept as an alias for old links
     filePath = path.join(SCRIPT_DIR, 'index.html');
   } else {
     filePath = path.join(SCRIPT_DIR, pathname);
