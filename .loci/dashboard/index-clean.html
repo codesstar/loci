@@ -4553,7 +4553,7 @@
             <div class="card-body">
               <p style="color: #5b5b57; margin-bottom: 12px;">{{ error }}</p>
               <p style="font-size: 0.8rem; color: #9a9a94;">
-                Run: <code style="background: #e3e3e0; padding: 2px 8px; border-radius: 4px; color: #10b981;">python build.py</code>
+                Run: <code style="background: #e3e3e0; padding: 2px 8px; border-radius: 4px; color: #10b981;">node .loci/dashboard/server.js</code>
               </p>
             </div>
           </div>
@@ -7815,14 +7815,12 @@ function initBrain(container) {
 // ============================================================
 
 // ===== Demo mode =====
-// This build (index-clean.html / the public demo) is fully self-contained: it
-// loads a mock dataset and NEVER reads or writes the user's real brain. When
-// DEMO_MODE is true, every write/read against the local /api/* server is
-// short-circuited so the static demo works on GitHub Pages (no backend) with
-// zero console 404s. All write handlers already update the reactive state
-// optimistically and persist to localStorage, so visitors can really add /
-// drag / edit; a page refresh resets to the pristine demo state.
-const DEMO_MODE = true;
+// DEMO_MODE = false (release build): the dashboard reads the user's real brain
+// through the local server's /api/* endpoints. Set to true only for the
+// self-contained public demo (site/demo), which loads a mock dataset, never
+// touches a real brain, and short-circuits every /api/* call so the static
+// page works on GitHub Pages (no backend) with zero console 404s.
+const DEMO_MODE = false;
 
 // Drop-in replacement for fetch() on /api/* endpoints. In demo mode it resolves
 // to a benign "empty success" Response so callers that check `r.ok` / parse JSON
@@ -8788,9 +8786,16 @@ const lociApp = createApp({
       expandedLearning[id] = !expandedLearning[id];
     }
 
-    // --- Memory computed data with mock fallbacks ---
+    // --- Memory computed data ---
+    // Mock fallbacks only in the demo build; real users with empty me/ files
+    // get a gentle empty-state hint instead of a fake persona.
+    function emptyMemoryHtml(fileLabel) {
+      return lang.value === 'zh'
+        ? '<p style="color:#9a9a94;">这里还是空的 — 跟你的 AI 聊聊你自己，它会帮你填好 <code>' + fileLabel + '</code>。</p>'
+        : '<p style="color:#9a9a94;">Nothing here yet — tell your AI about yourself and it will fill in <code>' + fileLabel + '</code>.</p>';
+    }
     const memoryIdentityContent = computed(() => {
-      return data.value?.me?.identity?.content || mockMemory.identity;
+      return data.value?.me?.identity?.content || (DEMO_MODE ? mockMemory.identity : emptyMemoryHtml('me/identity.md'));
     });
     // Structured profile for the new Memory page (avatar card + rings + radar + values + insights).
     const memoryView = ref('values');   // 'values' | 'insights' — right panel toggle
@@ -8809,8 +8814,10 @@ const lociApp = createApp({
       const zh = lang.value === 'zh';
       const net = (data.value && data.value.network) || {};
       const ov = (data.value && data.value.overview && data.value.overview.kpis) || {};
-      const memories = net.memories || 164, links = net.connections || 21,
-            active = net.days_active || 16, decisions = ov.decisions || 5, projects = ov.projects || 2;
+      // Demo build pads the gauges with pleasant numbers; real users see their
+      // actual (possibly zero) counts.
+      const memories = net.memories || (DEMO_MODE ? 164 : 0), links = net.connections || (DEMO_MODE ? 21 : 0),
+            active = net.days_active || (DEMO_MODE ? 16 : 0), decisions = ov.decisions || (DEMO_MODE ? 5 : 0), projects = ov.projects || (DEMO_MODE ? 2 : 0);
       // map raw values to a 0..1 fill for the gauges (relative to a soft cap)
       const attrs = [
         { key:'mem',  label: zh?'记忆':'Memory',    en:'MEMORY',     value: memories, pct: Math.min(1, memories/180) },
@@ -8829,7 +8836,8 @@ const lociApp = createApp({
       const angles = [-90, -18, 54, 126, 198].map(d => d*Math.PI/180);
       const verts = radar.map((r,i) => ({ x: +(100 + Math.cos(angles[i])*82*(r.pct/100)).toFixed(1), y: +(100 + Math.sin(angles[i])*82*(r.pct/100)).toFixed(1) }));
       const radarPoints = verts.map(v => v.x + ',' + v.y).join(' ');
-      // values & insights — structured (mock; /clean is self-contained)
+      // values & insights — structured demo copy (demo build only; real users
+      // see their own me/values.md + me/insights.md via the content panels)
       const values = zh ? [
         { title:'先发布，再打磨', desc:'厌恶在没人用的功能上抛光。' },
         { title:'诚实地报告结果', desc:'不粉饰，如实呈现。' },
@@ -8866,9 +8874,9 @@ const lociApp = createApp({
       ];
       const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
       // decisions — real data from overview.recentDecisions (reads decisions/*.md).
-      // Falls back to demo samples only when the API hasn't loaded yet.
+      // Demo samples pad the list only in the demo build.
       const rawDec = (data.value && data.value.overview && data.value.overview.recentDecisions) || [];
-      const decisionsList = (rawDec.length ? rawDec : (zh ? [
+      const decisionsList = (rawDec.length ? rawDec : (!DEMO_MODE ? [] : zh ? [
         { title:'先发布，再打磨 —— 砍掉没人用的功能', tags:['strategy','product'],  date:'2026-06-20' },
         { title:'记忆聚合而非占有 —— 大脑只做索引',   tags:['architecture'],         date:'2026-06-08' },
         { title:'纯 markdown、零依赖',                tags:['tech','moat'],          date:'2026-05-02' },
@@ -8877,11 +8885,14 @@ const lociApp = createApp({
         { title:'Aggregate memory, don\'t own it — the brain only indexes', tags:['architecture'], date:'2026-06-08' },
         { title:'Plain markdown, zero dependencies', tags:['tech','moat'], date:'2026-05-02' },
       ])).map(d => ({ title: d.title, tags: (d.tags || []).slice(0, 2), date: d.date }));
+      // Profile card header: demo build shows the sample persona; real users get
+      // their own name from config (written by setup) with a neutral logo avatar.
+      const realName = (data.value && data.value.config && data.value.config.username) || (zh ? '我' : 'Me');
       return {
-        avatar: '/assets/people-avatars/me-cyc.jpg',
-        name: 'Sam Rivera',
-        role: zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder',
-        meta: zh ? [
+        avatar: DEMO_MODE ? '/assets/people-avatars/me-cyc.jpg' : '/assets/loci-logo2.png',
+        name: DEMO_MODE ? 'Sam Rivera' : realName,
+        role: DEMO_MODE ? (zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder') : (zh ? '我的大脑档案' : 'My brain profile'),
+        meta: !DEMO_MODE ? [] : zh ? [
           { k:'Location', v:'里斯本 · Lisbon' },
           { k:'Language', v:'中文优先' },
           { k:'Workstyle', v:'深度专注，厌恶被打断' },
@@ -8892,10 +8903,12 @@ const lociApp = createApp({
           { k:'Workstyle', v:'Deep focus, hates interruption' },
           { k:'Aesthetic', v:'Minimal, restrained' },
         ],
-        tags: zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
+        tags: !DEMO_MODE ? [] : zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
         stats: { memories, links, active, decisions, projects },
         attrs, radar, radarPoints, radarVerts: verts,
-        values, insights, decisions: decisionsList,
+        values: DEMO_MODE ? values : [],
+        insights: DEMO_MODE ? insights : [],
+        decisions: decisionsList,
         growthPct: Math.round(Math.min(1, memories/200)*100),
       };
     });
@@ -8906,7 +8919,7 @@ const lociApp = createApp({
     });
 
     const memoryValuesContent = computed(() => {
-      return data.value?.me?.values?.content || mockMemory.values;
+      return data.value?.me?.values?.content || (DEMO_MODE ? mockMemory.values : emptyMemoryHtml('me/values.md'));
     });
     const memoryValuesStats = computed(() => {
       const c = memoryValuesContent.value || '';
@@ -8915,7 +8928,7 @@ const lociApp = createApp({
     });
 
     const memoryLearnedContent = computed(() => {
-      return data.value?.me?.learned?.content || mockMemory.learned;
+      return data.value?.me?.learned?.content || (DEMO_MODE ? mockMemory.learned : emptyMemoryHtml('me/learned.md'));
     });
     const memoryLearnedStats = computed(() => {
       const c = memoryLearnedContent.value || '';
@@ -9309,11 +9322,12 @@ const lociApp = createApp({
         ? networkNodes.map(n => ({ name: n.name, status: n.status || 'idle', activity: n.activity || 0.1, desc: n.desc || '' }))
         : [
             { name: 'My Brain', status: 'active', activity: 0.9, desc: 'Personal Knowledge HQ' },
-            { name: 'Loci', status: 'active', activity: 0.8, desc: 'Memory Palace for AI' },
           ];
-      // ── DEMO: simulate 5 nodes (remove this block later) ──
-      if (projects.length < 5) {
+      // ── Demo build only: pad the orbit to 5 nodes so the visual reads well.
+      // Real users see exactly their own nodes, however few. ──
+      if (DEMO_MODE && projects.length < 5) {
         const demoExtra = [
+          { name: 'Loci', status: 'active', activity: 0.8, desc: 'Memory Palace for AI' },
           { name: 'Blog', status: 'active', activity: 0.6, desc: 'Content & Writing' },
           { name: 'Side Project', status: 'pending', activity: 0.3, desc: 'Web App Prototype' },
           { name: 'Synapse', status: 'idle', activity: 0.15, desc: 'Neural API Layer' },
@@ -9323,7 +9337,6 @@ const lociApp = createApp({
           if (!projects.some(p => p.name === d.name)) projects.push(d);
         }
       }
-      // ── END DEMO ──
 
       const maxPerRing = 5;
       const numRings = Math.max(4, Math.min(6, Math.ceil(projects.length / maxPerRing) + 1));
@@ -12314,7 +12327,7 @@ const lociApp = createApp({
     // ── ovA hero / new-overview helpers ───────────────────────────────
     const ovUserName = computed(() => {
       const u = data.value && data.value.config && data.value.config.username;
-      return (u || 'Sam Rivera').toUpperCase();
+      return (u || (DEMO_MODE ? 'Sam Rivera' : 'Me')).toUpperCase();
     });
     // Focus task: first timed task today, else first task today.
     const ovFocusTask = computed(() => {
@@ -14052,7 +14065,7 @@ const lociApp = createApp({
     }
 
     // Build nodes/edges from real peopleData + connections.
-    const ME_PHOTO = '/assets/people-avatars/me-cyc.jpg';  // brain owner's avatar ( logo)
+    const ME_PHOTO = '/assets/loci-logo2.png';  // "me" center node — neutral Loci logo
     function pgBuild() {
       const ppl = peopleData.value || [];
       pgNodes = [{ id: 'me', label: lang.value === 'zh' ? '我' : 'Me', category: 'me', photo: ME_PHOTO, x: 0, y: 0, vx: 0, vy: 0 }];
@@ -16661,8 +16674,8 @@ const lociApp = createApp({
       // returns the same shape as the mock dataset (tasks.active_tasks,
       // planning.calendar_events, projects.serious, notes…), so we can drop it
       // straight into data.value and hydrate the calendar the same way
-      // loadDemoData does. On any failure we fall back to the demo dataset so the
-      // page never renders blank.
+      // loadDemoData does. On failure we show the error screen — a real user
+      // must never silently see demo data.
       if (DEMO_MODE) {
         loadDemoData();
       } else {
@@ -16678,8 +16691,8 @@ const lociApp = createApp({
             });
           }
         } catch (e) {
-          console.error('Failed to load /api/data, falling back to demo:', e);
-          loadDemoData();
+          console.error('Failed to load /api/data:', e);
+          error.value = 'Could not reach the Loci server (' + e.message + ').';
         }
       }
       loading.value = false;
