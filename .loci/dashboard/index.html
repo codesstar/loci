@@ -92,7 +92,6 @@
        accent · Inter + JetBrains Mono · big radii · faint dashed rules.
        Derived from clean-reference.html. This REPLACES the old cockpit
        (amber-on-dark HUD) styling wholesale — same class names, new skin.
-       index.html (the original) is untouched; this is index-clean.html.
        ============================================================ */
 
     /* ---------- design tokens ---------- */
@@ -7896,7 +7895,7 @@ const lociApp = createApp({
       try { return window.localStorage?.getItem('loci-dashboard-theme'); }
       catch (_) { return null; }
     })();
-    // Clean theme: this build (index-clean.html) is the Clean theme only.
+    // Clean theme: this build is the Clean theme only.
     // dashboardTheme is pinned to 'clean'; the toggle is a no-op so the old
     // sidebar button does nothing harmful. The Clean CSS is the unscoped base,
     // so the #app theme-* class doesn't affect styling here.
@@ -16007,7 +16006,7 @@ const lociApp = createApp({
     }
 
     // --- Mock data for the Clean demo build ---
-    // This standalone build (index-clean.html) renders a self-contained demo
+    // This standalone build renders a self-contained demo
     // dataset so /clean always looks full and polished WITHOUT touching the
     // user's real tasks.json / calendar.json / brain files. Shape mirrors what
     // GET /api/data returns (see server.js buildAllData).
