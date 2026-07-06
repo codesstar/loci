@@ -843,6 +843,10 @@
       border-radius: 0 10px 10px 0;
     }
     .md-content hr { border: 0; border-top: 1px dashed var(--line-2); margin: 1em 0; }
+    .md-content table { border-collapse: collapse; margin: .8em 0; width: 100%; font-size: 13.5px; display: block; overflow-x: auto; }
+    .md-content th, .md-content td { border: 1px solid var(--line); padding: 7px 12px; text-align: left; vertical-align: top; }
+    .md-content th { background: var(--surface-2); font-weight: 650; color: var(--ink); }
+    .md-content tbody tr:nth-child(even) { background: var(--surface-2); }
 
     /* ============================================================
        Timeline
@@ -3271,6 +3275,12 @@
     .nr-doc .md-content blockquote{ font-family:'Noto Serif SC',serif; border-left:3px solid var(--nr-gold); background:var(--nr-gold-weak); border-radius:0 10px 10px 0; padding:10px 16px; margin:1em 0; color:#6d6047; font-size:15.5px; line-height:1.7; }
     .nr-doc .md-content hr{ border:0; border-top:1px solid #e7e3d9; margin:1.6em 0; }
     .nr-doc .md-content code{ font-family:var(--mono); font-size:12.5px; background:#f4f1ea; border:1px solid #e7e3d9; border-radius:6px; padding:1px 6px; color:var(--nr-gold-ink); }
+    .nr-doc .md-content pre{ background:#faf8f3; border:1px solid #e7e3d9; border-radius:12px; padding:14px 16px; overflow:auto; margin:1em 0; }
+    .nr-doc .md-content pre code{ background:none; border:0; padding:0; color:#3a362f; font-size:12.5px; line-height:1.6; display:block; white-space:pre; }
+    .nr-doc .md-content table{ border-collapse:collapse; margin:1em 0; width:100%; font-size:14.5px; display:block; overflow-x:auto; font-family:'Noto Serif SC','Fraunces',Georgia,serif; }
+    .nr-doc .md-content th, .nr-doc .md-content td{ border:1px solid #e7e3d9; padding:8px 14px; text-align:left; vertical-align:top; line-height:1.6; }
+    .nr-doc .md-content th{ background:#faf8f3; font-weight:700; color:var(--ink); }
+    .nr-doc .md-content tbody tr:nth-child(even){ background:#fbfaf6; }
     .nr-path{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
     .nr-ext{ margin:18px 0; border:1px solid var(--line); border-radius:16px; padding:32px 26px; text-align:center; background:var(--surface-2); }
     .nr-gist{ font-size:14px; color:var(--ink-2); line-height:1.6; max-width:440px; margin:0 auto 18px; }
@@ -6410,7 +6420,7 @@
                     <div class="nr-sec owned" @click="notesToggleSec('owned')">
                       <span class="caret" :class="{ open: notesSecOpen.owned }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/></svg></span>
-                      <span class="lbl">{{ lang === 'zh' ? '我的笔记' : 'My notes' }}</span>
+                      <span class="lbl">{{ lang === 'zh' ? '笔记' : 'Notes' }}</span>
                       <span class="ct">{{ notesOwned.count }}</span>
                       <span class="nr-reveal" :title="lang === 'zh' ? '在访达里打开这个文件夹(建文件夹 / 整理都在这里做)' : 'Open this folder in Finder'" @click.stop="notesReveal()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.2l2 2h7.8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/><path d="M9 12h6M12 9l3 3-3 3"/></svg>
@@ -6427,7 +6437,7 @@
                     <div class="nr-sec linked" v-if="notesLinked.length || notesLinkPointers.length" @click="notesToggleSec('linked')">
                       <span class="caret" :class="{ open: notesSecOpen.linked }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
                       <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg></span>
-                      <span class="lbl">{{ lang === 'zh' ? '外部知识库' : 'External knowledge' }}</span>
+                      <span class="lbl">{{ lang === 'zh' ? '链接知识库' : 'Linked libraries' }}</span>
                       <span class="ct">{{ notesLinked.length + notesLinkPointers.length }}</span>
                       <span class="plus" :title="lang === 'zh' ? '链接文件夹' : 'Link a folder'" @click.stop="notesMountFolder()">＋</span>
                     </div>
@@ -12720,7 +12730,7 @@ const lociApp = createApp({
         kind: 'root', x: 0, y: 0, vx: 0, vy: 0 });
       // 我的笔记 group
       const owned = notesOwned.value || { children: [], count: 0 };
-      const mineId = add({ id: 'grp-mine', label: lang.value === 'zh' ? '我的笔记' : 'My notes',
+      const mineId = add({ id: 'grp-mine', label: lang.value === 'zh' ? '笔记' : 'Notes',
         kind: 'group', gid: 'mine', x: 0, y: 0, vx: 0, vy: 0 });
       link(rootId, mineId);
       walk(owned.children, mineId, 'mine');
@@ -12728,7 +12738,7 @@ const lociApp = createApp({
       const linked = notesLinked.value || [];
       const pointers = notesLinkPointers.value || [];
       if (linked.length || pointers.length) {
-        const extId = add({ id: 'grp-ext', label: lang.value === 'zh' ? '外部知识库' : 'External knowledge',
+        const extId = add({ id: 'grp-ext', label: lang.value === 'zh' ? '链接知识库' : 'Linked libraries',
           kind: 'group', gid: 'ext', x: 0, y: 0, vx: 0, vy: 0 });
         link(rootId, extId);
         linked.forEach(src => {

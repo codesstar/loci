@@ -79,12 +79,26 @@ const MIME_TYPES = {
 
 // ─── Markdown to HTML converter ─────────────────────────────────────────────
 
+// Markdown rendering: prefer the vendored marked library (proper GFM — nested
+// lists, tables, fenced code blocks whose content is left untouched). The old
+// regex renderer stays as a fallback so the server still works without it.
+let markedLib = null;
+try { markedLib = require(path.join(__dirname, 'vendor', 'marked.min.js')).marked; } catch { /* fallback below */ }
+
 function mdToHtml(text) {
   if (!text) return '';
-  let html = text;
+  // Strip HTML comments in both paths (marked would pass them through).
+  const src = text.replace(/<!--[\s\S]*?-->/g, '');
+  if (markedLib) {
+    try { return markedLib.parse(src, { gfm: true, breaks: false, async: false }).trim(); }
+    catch { /* fall through to the legacy renderer */ }
+  }
+  return mdToHtmlLegacy(src);
+}
 
-  // Strip HTML comments
-  html = html.replace(/<!--[\s\S]*?-->/g, '');
+function mdToHtmlLegacy(text) {
+  if (!text) return '';
+  let html = text;
 
   // Fenced code blocks
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
