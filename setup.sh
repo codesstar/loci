@@ -887,6 +887,28 @@ CFGEOF
   ) &
   spin "$(t ".loci/config.yml" ".loci/config.yml")"
 
+  # --- .loci/status.yml (user state — local, gitignored) ---
+  if [ ! -f "$BRAIN_PATH/.loci/status.yml" ]; then
+    cat > "$BRAIN_PATH/.loci/status.yml" << STEOF
+# User State — Auto-updated by the AI based on conversation signals.
+# You can also set it manually by telling the AI how you feel.
+#
+# Fields:
+#   state:    fresh-start | focused | exploring | winding-down | low-energy | away
+#   energy:   low | moderate | high
+#   updated:  ISO timestamp of last update
+#   ttl:      how long this state is valid (e.g. "4h", "1d")
+#   context:  free-text description of current situation
+#   override: user-set values (highest priority, expires after ttl)
+
+state: fresh-start
+energy: null
+updated: null
+ttl: 4h
+context: "New brain — not yet personalized"
+STEOF
+  fi
+
   # --- .loci/dashboard/data.json (zero-dependency dashboard) ---
   local about_json=""
   if [ -n "$USER_ABOUT" ]; then
@@ -1059,7 +1081,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
   - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
   - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
   - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
-- Task with specific time → guarded writer also updates \`${BRAIN_PATH}/tasks/calendar.json\` with \`fromTask: true\` and \`taskId\`
+- Task with specific time → still write ONLY to \`${BRAIN_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
 - Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
 - Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
@@ -1086,6 +1108,15 @@ GEOF
     mkdir -p "$global_commands"
     cp "$BRAIN_PATH"/templates/commands/*.md "$global_commands/" 2>/dev/null
     print_check "$(t "Slash commands installed" "斜杠命令已安装")"
+  fi
+
+  # Install the global SessionStart hook script that global-settings.json points to
+  local global_hooks="$HOME/.claude/hooks"
+  if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.sh" ]; then
+    mkdir -p "$global_hooks"
+    cp "$BRAIN_PATH/.claude/hooks/loci-context.sh" "$global_hooks/loci-context.sh" 2>/dev/null
+    chmod +x "$global_hooks/loci-context.sh" 2>/dev/null
+    print_check "$(t "Global context hook installed" "全局上下文钩子已安装")"
   fi
 
   # Merge global settings.json
@@ -1162,7 +1193,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
   - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
   - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
   - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
-- Task with specific time → guarded writer also updates \`${BRAIN_PATH}/tasks/calendar.json\` with \`fromTask: true\` and \`taskId\`
+- Task with specific time → still write ONLY to \`${BRAIN_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
 - Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
 - Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`

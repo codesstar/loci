@@ -268,6 +268,35 @@ do_update() {
   done
   print_ok "Updated $updated files"
 
+  # 7a. Remove engine files that no longer exist upstream (never user data —
+  # only files retired from the managed set in newer releases)
+  local OBSOLETE_ENGINE_FILES=(
+    ".loci/dashboard/server.py"
+    ".loci/dashboard/build.py"
+    ".loci/dashboard/index-ink.html"
+    ".loci/dashboard/index-clean.html"
+    ".loci/dashboard/seahorse-logo.png"
+    ".loci/dashboard/avatar-user.png"
+  )
+  local removed=0
+  for f in "${OBSOLETE_ENGINE_FILES[@]}"; do
+    if [ -f "$BRAIN_PATH/$f" ] && [ ! -f "$tmp_dir/repo/$f" ]; then
+      mkdir -p "$backup_path/$(dirname "$f")"
+      cp "$BRAIN_PATH/$f" "$backup_path/$f" 2>/dev/null
+      rm -f "$BRAIN_PATH/$f"
+      removed=$((removed + 1))
+    fi
+  done
+  for d in ".loci/dashboard/pro" ".loci/dashboard/demos"; do
+    if [ -d "$BRAIN_PATH/$d" ] && [ ! -d "$tmp_dir/repo/$d" ]; then
+      mkdir -p "$backup_path/$d"
+      cp -R "$BRAIN_PATH/$d/." "$backup_path/$d/" 2>/dev/null
+      rm -rf "$BRAIN_PATH/$d"
+      removed=$((removed + 1))
+    fi
+  done
+  [ "$removed" -gt 0 ] && print_ok "Removed $removed retired engine files (backed up first)"
+
   # 8. Re-run global config (idempotent)
   # Update global CLAUDE.md if the loci block template changed
   local global_claude="$HOME/.claude/CLAUDE.md"

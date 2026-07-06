@@ -62,7 +62,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - **Task/Schedule routing**:
   - Task = something to complete → guarded writer stores it in `<brain-path>/tasks/tasks.json`.
   - Task with specific date → still write only to `<brain-path>/tasks/tasks.json`; do not duplicate it into daily files.
-  - Task with specific time → guarded writer also updates `<brain-path>/tasks/calendar.json` with `fromTask: true` and `taskId`.
+  - Task with specific time → still write ONLY to `<brain-path>/tasks/tasks.json` via the guarded writer; the time is just an attribute and is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool).
   - Schedule-only item (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to `<brain-path>/tasks/calendar.json`.
   - Loose idea, not a task → `<brain-path>/inbox.md`.
 - Do not hand-edit `<brain-path>/tasks/tasks.json` or `<brain-path>/tasks/calendar.json` except as an emergency fallback. If manual editing is unavoidable, immediately run `node <brain-path>/scripts/loci-task.js rebuild` and `node <brain-path>/scripts/loci-task.js validate`.
