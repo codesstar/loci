@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 Release-readiness overhaul: a fresh install now starts truly blank, and the repo ships only what users need.
 
+### Added
+- **`loci` command** — installed by setup; type `loci` in any terminal to start the dashboard server and open it in your browser (`loci stop` / `loci path` / `loci update` / `loci help`)
+
 ### Changed
 - **Dashboard reads your real brain out of the box** — the shipped dashboard no longer boots into a demo dataset. Empty brains show clean empty states with gentle hints; demo data lives only in the public online demo
 - **Tasks and schedule are fully separate** — a timed task lives only in the task pool (reminders read it from there) and is no longer auto-projected onto the calendar; putting a task on the schedule is a deliberate action
