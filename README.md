@@ -249,10 +249,10 @@ Loci includes an optional local dashboard for seeing the shape of your brain: to
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
 ```bash
-node .loci/dashboard/server.js
+loci
 ```
 
-Open:
+The `loci` command (installed by setup) starts the server and opens the dashboard in your browser. It works from any directory — `loci stop` shuts it down, `loci help` lists the rest. Prefer doing it by hand? `node .loci/dashboard/server.js` from the brain directory does the same, then open:
 
 ```text
 http://localhost:8765

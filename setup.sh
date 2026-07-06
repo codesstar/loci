@@ -1264,6 +1264,37 @@ git_safety() {
   echo ""
 }
 
+# ─── CLI Launcher ────────────────────────────────────────────────────────────
+# Install the `loci` command (~/.local/bin/loci → <brain>/bin/loci) so the user
+# can open the dashboard from anywhere. No sudo; PATH is patched for new shells.
+install_launcher() {
+  local launcher_src="$BRAIN_PATH/bin/loci"
+  [ -f "$launcher_src" ] || return 0
+  chmod +x "$launcher_src" 2>/dev/null
+  local bin_dir="$HOME/.local/bin"
+  mkdir -p "$bin_dir"
+  ln -sf "$launcher_src" "$bin_dir/loci"
+  print_check "$(t "'loci' command installed" "'loci' 命令已安装")"
+
+  case ":$PATH:" in
+    *":$bin_dir:"*) : ;;  # already on PATH
+    *)
+      local added=0 rc
+      for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
+        if [ -f "$rc" ] && ! grep -q '# loci:path' "$rc" 2>/dev/null; then
+          printf '\nexport PATH="$HOME/.local/bin:$PATH" # loci:path\n' >> "$rc"
+          added=1
+        fi
+      done
+      if [ "$added" -eq 0 ] && [ ! -f "$HOME/.zshrc" ] && [ ! -f "$HOME/.bashrc" ]; then
+        printf 'export PATH="$HOME/.local/bin:$PATH" # loci:path\n' >> "$HOME/.zshrc"
+        added=1
+      fi
+      [ "$added" -eq 1 ] && print_check "$(t "Added ~/.local/bin to PATH (takes effect in new terminals)" "已把 ~/.local/bin 加入 PATH (新开终端生效)")"
+      ;;
+  esac
+}
+
 # ─── Success Screen ──────────────────────────────────────────────────────────
 show_success() {
   local schedule_label
@@ -1307,12 +1338,13 @@ show_success() {
   elif [ "$CONNECT_CODEX" -eq 1 ]; then
     printf "    ${WHITE}codex${NC}                               $(t "# your AI already knows you" "# 你的 AI 已经认识你了")\n"
   else
-    printf "    ${WHITE}node .loci/dashboard/server.js${NC}      $(t "# open your local dashboard" "# 打开本地可视化面板")\n"
+    printf "    ${WHITE}loci${NC}                                $(t "# open your local dashboard" "# 打开本地可视化面板")\n"
   fi
   printf "\n"
   printf "  $(t "Dashboard (optional):" "可视化面板:")\n"
   printf "\n"
-  printf "    ${WHITE}node .loci/dashboard/server.js${NC}      $(t "# then open localhost:8765" "# 然后打开 localhost:8765")\n"
+  printf "    ${WHITE}loci${NC}                                $(t "# starts the server and opens the dashboard" "# 启动服务并打开面板")\n"
+  printf "    ${DIM}$(t "(new terminal, or: node .loci/dashboard/server.js)" "(新终端生效;也可 node .loci/dashboard/server.js)")${NC}\n"
   printf "\n"
 }
 
@@ -1326,6 +1358,7 @@ main() {
     generate_files
     configure_global
     git_safety
+    install_launcher
     show_success
     return
   fi
@@ -1340,6 +1373,7 @@ main() {
   generate_files
   configure_global
   git_safety
+  install_launcher
   show_success
 }
 

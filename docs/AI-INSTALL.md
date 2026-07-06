@@ -75,9 +75,12 @@ grep -q 'loci:start' ~/.claude/CLAUDE.md && echo CLAUDE_CONNECTED
 
 # 5. If Codex was connected:
 grep -q 'loci:start' ~/.codex/AGENTS.md && echo CODEX_CONNECTED
+
+# 6. The `loci` launcher is installed
+test -x ~/.local/bin/loci && echo LAUNCHER_OK
 ```
 
-Optional smoke test (needs Node.js): `node ~/loci/.loci/dashboard/server.js` then open `http://localhost:8765` — a visual dashboard of the brain.
+Optional smoke test (needs Node.js): `~/.local/bin/loci` starts the dashboard server and opens `http://localhost:8765` — a visual dashboard of the brain. (`loci stop` to shut it down.)
 
 If any check fails, fix it before reporting success. Do not tell the user it worked if it didn't.
 
@@ -88,7 +91,7 @@ Tell the user, briefly and in their language:
 1. Loci is installed at `~/loci` (or wherever they chose) and which tools got connected.
 2. **They should restart their AI session** — the global instruction file is loaded at session start, so the current session doesn't know about the brain yet.
 3. After restarting, they can just talk normally. First useful thing to say: introduce themselves or dump what they're working on — the brain fills itself from conversation. Nothing to learn, no commands to memorize.
-4. Optional: `node ~/loci/.loci/dashboard/server.js` opens the visual dashboard at `localhost:8765`.
+4. Optional: typing `loci` in a new terminal opens the visual dashboard at `localhost:8765` (starts the server automatically; `loci stop` shuts it down).
 
 ## Safety rules
 

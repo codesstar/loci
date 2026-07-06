@@ -6,7 +6,13 @@ It is not a hosted product and it does not introduce a separate database. The da
 
 ## Start
 
-Run this from the brain directory:
+From anywhere (the `loci` command is installed by setup):
+
+```bash
+loci
+```
+
+This starts the server if needed and opens the dashboard in your browser. `loci stop` shuts it down. Equivalent manual start, from the brain directory:
 
 ```bash
 node .loci/dashboard/server.js

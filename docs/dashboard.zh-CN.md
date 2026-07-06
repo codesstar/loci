@@ -4,7 +4,13 @@ Dashboard 是 Loci 的本地网页界面。它不是独立系统，也不是云�
 
 ## 启动
 
-在大脑目录运行：
+在任何目录（`loci` 命令由 setup 自动安装）：
+
+```bash
+loci
+```
+
+它会按需启动服务并自动打开浏览器；`loci stop` 停止服务。等价的手动方式，在大脑目录运行：
 
 ```bash
 node .loci/dashboard/server.js

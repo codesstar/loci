@@ -235,13 +235,13 @@ AI 已经知道今天几号、昨天你干了什么、今天有什么安排。�
 
 Dashboard 是可选的，但它是最快理解 Loci 到底在存什么的方式。
 
-在 brain 目录运行：
+在任何目录运行：
 
 ```bash
-node .loci/dashboard/server.js
+loci
 ```
 
-打开：
+`loci` 命令由 setup 自动安装（如果提示找不到，开个新终端再试）：服务自动启动、浏览器自动打开。等价的手动方式：在 brain 目录跑 `node .loci/dashboard/server.js`，然后打开：
 
 ```text
 http://127.0.0.1:8765/
@@ -333,7 +333,7 @@ http://127.0.0.1:8765/
 
 **你的 brain 就是普通文件。** 想改什么直接用编辑器改，Loci 下次对话会自动读到。没有任何锁定机制。
 
-**Dashboard 能给你一个全局视图。** 在 brain 目录跑 `node .loci/dashboard/server.js`，然后浏览器打开 `http://127.0.0.1:8765/`。
+**Dashboard 能给你一个全局视图。** 在终端输入 `loci`——服务自动启动，浏览器自动打开 `http://127.0.0.1:8765/`。
 
 ---
 

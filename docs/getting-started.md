@@ -232,13 +232,13 @@ If you say "summarize" or "journal", your AI will write a daily journal entry in
 
 The dashboard is optional, but it is the fastest way to understand what Loci is storing.
 
-From your brain directory:
+From any directory:
 
 ```bash
-node .loci/dashboard/server.js
+loci
 ```
 
-Open:
+The `loci` command (installed by setup; open a new terminal if it isn't found yet) starts the server and opens the dashboard. Manual equivalent from your brain directory: `node .loci/dashboard/server.js`, then open:
 
 ```text
 http://127.0.0.1:8765/
@@ -324,7 +324,7 @@ Later, you're in Project B:
 
 **Your brain is just files.** You can edit any file directly in your editor. Loci will pick up the changes next conversation. There's no lock-in.
 
-**The dashboard gives you a visual overview.** Run `node .loci/dashboard/server.js` from your brain directory and open `http://127.0.0.1:8765/`.
+**The dashboard gives you a visual overview.** Type `loci` in any terminal — it starts the server and opens `http://127.0.0.1:8765/` for you.
 
 ---
 

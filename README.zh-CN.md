@@ -244,10 +244,10 @@ Loci 内置一个可选的本地 Dashboard。它不是云服务，也不是另�
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
 ```bash
-node .loci/dashboard/server.js
+loci
 ```
 
-打开：
+`loci` 命令由 setup 自动安装：在任何目录输入它，服务自动启动、浏览器自动打开。`loci stop` 停止服务，`loci help` 查看其余用法。想手动跑也可以：在 brain 目录执行 `node .loci/dashboard/server.js`，然后打开：
 
 ```text
 http://localhost:8765

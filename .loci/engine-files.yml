@@ -17,6 +17,7 @@ managed:
 
   # System internals
   - scripts/**
+  - bin/**
   - .loci/hooks/**
   - .loci/dashboard/**
   - .loci/engine-files.yml

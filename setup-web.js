@@ -511,6 +511,39 @@ function runSetup(data) {
     } catch { /* directory missing — skip */ }
   }
 
+  // 10. `loci` launcher (mirror setup.sh install_launcher) — Unix only
+  if (process.platform !== 'win32') {
+    const launcherSrc = path.join(BRAIN_ROOT, 'bin', 'loci');
+    if (fs.existsSync(launcherSrc)) {
+      try {
+        fs.chmodSync(launcherSrc, 0o755);
+        const binDir = path.join(HOME, '.local', 'bin');
+        ensureDir(binDir);
+        const dest = path.join(binDir, 'loci');
+        try { fs.unlinkSync(dest); } catch { /* not there yet */ }
+        fs.symlinkSync(launcherSrc, dest);
+        results.push('~/.local/bin/loci (`loci` command)');
+        // Patch PATH for future shells if ~/.local/bin isn't already on it
+        const onPath = (process.env.PATH || '').split(':').includes(binDir);
+        if (!onPath) {
+          const line = '\nexport PATH="$HOME/.local/bin:$PATH" # loci:path\n';
+          let added = false;
+          for (const rc of [path.join(HOME, '.zshrc'), path.join(HOME, '.bashrc')]) {
+            if (fs.existsSync(rc) && !fs.readFileSync(rc, 'utf-8').includes('# loci:path')) {
+              fs.appendFileSync(rc, line);
+              added = true;
+            }
+          }
+          if (!added && !fs.existsSync(path.join(HOME, '.zshrc')) && !fs.existsSync(path.join(HOME, '.bashrc'))) {
+            fs.appendFileSync(path.join(HOME, '.zshrc'), line.trimStart());
+            added = true;
+          }
+          if (added) results.push('PATH += ~/.local/bin (new terminals)');
+        }
+      } catch { /* launcher install is best-effort */ }
+    }
+  }
+
   return results;
 }
 

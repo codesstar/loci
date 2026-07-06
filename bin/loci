@@ -1,0 +1,95 @@
+#!/bin/bash
+# loci — open your brain's dashboard from anywhere.
+#
+#   loci            start the dashboard (if needed) and open it in the browser
+#   loci stop       stop the dashboard server
+#   loci path       print where your brain lives
+#   loci update     update the Loci engine (runs update.sh in your brain)
+#   loci help       this help
+#
+# The brain location is read from ~/.loci/brain-path (written by setup).
+# PORT can be overridden: PORT=9000 loci
+
+set -u
+
+PORT="${PORT:-8765}"
+BRAIN_PATH_FILE="$HOME/.loci/brain-path"
+
+say()  { printf '%s\n' "$*"; }
+fail() { printf 'loci: %s\n' "$*" >&2; exit 1; }
+
+find_brain() {
+  if [ -f "$BRAIN_PATH_FILE" ]; then
+    local p
+    p="$(head -1 "$BRAIN_PATH_FILE" | tr -d '[:space:]')"
+    [ -n "$p" ] && [ -f "$p/plan.md" ] && { printf '%s' "$p"; return 0; }
+  fi
+  # Fallback: launcher lives at <brain>/bin/loci (also works via symlink)
+  local self_dir
+  self_dir="$(cd "$(dirname "$(readlink "$0" 2>/dev/null || echo "$0")")" 2>/dev/null && pwd)"
+  if [ -n "$self_dir" ] && [ -f "$self_dir/../plan.md" ]; then
+    (cd "$self_dir/.." && pwd)
+    return 0
+  fi
+  return 1
+}
+
+open_url() {
+  [ "${LOCI_NO_OPEN:-}" = "1" ] && return 0
+  if command -v open >/dev/null 2>&1; then open "$1"
+  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$1"
+  else say "Dashboard: $1"
+  fi
+}
+
+server_running() {
+  curl -s -o /dev/null --max-time 1 "http://localhost:$PORT/api/data" 2>/dev/null
+}
+
+cmd="${1:-dashboard}"
+case "$cmd" in
+  help|-h|--help)
+    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  path)
+    BRAIN="$(find_brain)" || fail "no brain found — run setup first (see https://github.com/codesstar/loci)"
+    say "$BRAIN"
+    exit 0
+    ;;
+  stop)
+    if pid="$(lsof -ti:"$PORT" 2>/dev/null)" && [ -n "$pid" ]; then
+      kill $pid && say "Dashboard stopped (port $PORT)."
+    else
+      say "Dashboard is not running (port $PORT)."
+    fi
+    exit 0
+    ;;
+  update)
+    BRAIN="$(find_brain)" || fail "no brain found — run setup first"
+    [ -f "$BRAIN/update.sh" ] || fail "update.sh not found in $BRAIN"
+    exec bash "$BRAIN/update.sh"
+    ;;
+  dashboard|open|start)
+    BRAIN="$(find_brain)" || fail "no brain found — run setup first (see https://github.com/codesstar/loci)"
+    command -v node >/dev/null 2>&1 || fail "the dashboard needs Node.js — install it from https://nodejs.org"
+    if server_running; then
+      say "Dashboard already running — opening http://localhost:$PORT"
+    else
+      mkdir -p "$BRAIN/.loci"
+      nohup node "$BRAIN/.loci/dashboard/server.js" >> "$BRAIN/.loci/dashboard.log" 2>&1 &
+      # Wait for the server to come up (max ~5s)
+      for _ in $(seq 1 25); do server_running && break; sleep 0.2; done
+      if server_running; then
+        say "Dashboard started — http://localhost:$PORT (log: .loci/dashboard.log)"
+      else
+        fail "dashboard did not start — check $BRAIN/.loci/dashboard.log"
+      fi
+    fi
+    open_url "http://localhost:$PORT"
+    exit 0
+    ;;
+  *)
+    fail "unknown command: $cmd (try: loci help)"
+    ;;
+esac

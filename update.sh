@@ -325,6 +325,13 @@ do_update() {
   chmod +x "$BRAIN_PATH"/.githooks/* 2>/dev/null
   chmod +x "$BRAIN_PATH"/.claude/hooks/*.sh 2>/dev/null
 
+  # Keep the `loci` launcher wired up
+  if [ -f "$BRAIN_PATH/bin/loci" ]; then
+    chmod +x "$BRAIN_PATH/bin/loci" 2>/dev/null
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$BRAIN_PATH/bin/loci" "$HOME/.local/bin/loci"
+  fi
+
   # 9. Show changelog if available
   if [ -f "$BRAIN_PATH/CHANGELOG.md" ]; then
     echo ""
