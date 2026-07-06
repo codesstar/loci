@@ -81,7 +81,18 @@ CLAUDE.md 是一张便利贴。Loci 是第二大脑。
 
 ## 安装
 
-### Claude Code + Codex（推荐）
+### 方式一：把地址发给你的 AI（推荐）
+
+Loci 本来就是给 AI 用的——所以让它自己装。把这段话粘贴给 Claude Code 或 Codex：
+
+```text
+帮我安装 Loci：https://github.com/codesstar/loci
+克隆仓库后，按照里面 docs/AI-INSTALL.md 的步骤执行。
+```
+
+你的 AI 会克隆仓库、问你的名字、跑完自动安装、把自己接上这个新大脑，最后自检确认装好。大约一分钟——你的 AI 用它新记忆做的第一件事，就是为你把记忆装好。
+
+### 方式二：安装器（不需要 AI）
 
 一行命令。Loci 让 Claude Code 和 Codex 共用同一个本地大脑：一个工具里保存的决定、任务和上下文，另一个工具也能接上。
 
@@ -103,6 +114,8 @@ clawhub install loci-brain
 git clone https://github.com/codesstar/loci.git ~/loci
 cd ~/loci && ./setup.sh
 ```
+
+想脚本化安装（或者你就是正在读这段的 AI）？`./setup.sh --non-interactive --name "Alex"` 可跳过交互向导——详见 `./setup.sh --help` 和 [docs/AI-INSTALL.md](docs/AI-INSTALL.md)。
 
 > **注意**：没有 Claude Code 或 Codex CLI 的话，Loci 只能在大脑目录内使用，不支持跨项目全局记忆。
 >

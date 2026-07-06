@@ -83,7 +83,18 @@ Loci actually *uses* CLAUDE.md — it's one of the 30+ files in the system. The 
 
 ## Quick Start
 
-### Claude Code + Codex (recommended)
+### Option 1 — Ask your AI to install it (recommended)
+
+Loci is built for AI agents — so let yours install it. Paste this into Claude Code or Codex:
+
+```text
+Install Loci for me: https://github.com/codesstar/loci
+Clone the repo, then follow docs/AI-INSTALL.md inside it.
+```
+
+Your AI clones the repo, asks your name, runs the scriptable setup, connects itself to the new brain, and verifies everything works. About a minute — and the first thing your AI ever does with its new memory is set it up for you.
+
+### Option 2 — Installer (no AI needed)
 
 One command. Loci gives Claude Code and Codex one shared local brain, so decisions and tasks saved in one tool are available to the other.
 
@@ -105,6 +116,8 @@ clawhub install loci-brain
 git clone https://github.com/codesstar/loci.git ~/loci
 cd ~/loci && ./setup.sh
 ```
+
+Scripting it (or you're an AI reading this)? `./setup.sh --non-interactive --name "Alex"` skips the wizard — see `./setup.sh --help` and [docs/AI-INSTALL.md](docs/AI-INSTALL.md).
 
 > **Note**: Without Claude Code or Codex CLI, Loci only works inside the brain directory. Global cross-project memory requires a tool that supports global instruction files.
 >

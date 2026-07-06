@@ -29,6 +29,10 @@ CONNECT_CODEX=1
 CONNECT_LABEL=""
 TOTAL_STEPS=4
 CURRENT_STEP=0
+NON_INTERACTIVE=0
+FORCE_SETUP=0
+SCHEDULE_CHOICE=""
+CONNECT_CHOICE="auto"
 
 # ─── Ctrl+C handler ─────────────────────────────────────────────────────────
 cleanup() {
@@ -266,6 +270,98 @@ today() {
   date +%Y-%m-%d
 }
 
+# ─── CLI Arguments (non-interactive mode, for AI agents & scripts) ───────────
+show_help() {
+  cat << 'HELPEOF'
+Loci setup
+
+Usage:
+  ./setup.sh                                        Interactive wizard (default)
+  ./setup.sh --non-interactive --name "Alex" [...]  Scriptable setup, no prompts
+
+Non-interactive options:
+  --non-interactive, -y   Run without any prompts. Requires --name.
+  --name <name>           Your name (required in non-interactive mode)
+  --role <text>           What you do, free text            (default: Developer)
+  --focus <text>          Most important focus right now    (default: Set up my second brain)
+  --schedule <word>       morning|daytime|evening|night|irregular  (default: daytime)
+  --about <text>          Anything else worth knowing       (optional)
+  --lang <code>           en | zh | mix                     (default: en)
+  --connect <target>      auto | both | claude | codex | none
+                          auto detects installed tools      (default: auto)
+  --force                 Re-run setup even if this brain is already set up
+  --help, -h              Show this help
+
+Example (what an AI agent typically runs):
+  ./setup.sh --non-interactive --name "Alex" --role "Developer" \
+    --focus "Ship my product" --lang en --connect auto
+HELPEOF
+}
+
+parse_args() {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --non-interactive|-y) NON_INTERACTIVE=1 ;;
+      --name)     USER_NAME="$2"; shift ;;
+      --role)     USER_ROLE="$2"; shift ;;
+      --focus)    USER_FOCUS="$2"; shift ;;
+      --schedule) SCHEDULE_CHOICE="$2"; shift ;;
+      --about)    USER_ABOUT="$2"; shift ;;
+      --lang)     LANG_CHOICE="$2"; shift ;;
+      --connect)  CONNECT_CHOICE="$2"; shift ;;
+      --force)    FORCE_SETUP=1 ;;
+      --help|-h)  show_help; exit 0 ;;
+      *) echo "Unknown option: $1 (see ./setup.sh --help)"; exit 1 ;;
+    esac
+    shift
+  done
+}
+
+apply_non_interactive_config() {
+  if [ -z "$USER_NAME" ]; then
+    echo "Error: --non-interactive requires --name. See ./setup.sh --help"
+    exit 1
+  fi
+  USER_ROLE="${USER_ROLE:-Developer}"
+  USER_FOCUS="${USER_FOCUS:-Set up my second brain}"
+
+  case "$LANG_CHOICE" in
+    en|zh|mix) ;;
+    *) echo "Error: --lang must be en, zh, or mix"; exit 1 ;;
+  esac
+
+  case "${SCHEDULE_CHOICE:-daytime}" in
+    morning)   USER_SCHEDULE=1 ;;
+    daytime)   USER_SCHEDULE=2 ;;
+    evening)   USER_SCHEDULE=3 ;;
+    night)     USER_SCHEDULE=4 ;;
+    irregular) USER_SCHEDULE=5 ;;
+    *) echo "Error: --schedule must be morning, daytime, evening, night, or irregular"; exit 1 ;;
+  esac
+
+  local has_claude=0 has_codex=0
+  if command -v claude &>/dev/null || [ -d "$HOME/.claude" ]; then has_claude=1; fi
+  if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then has_codex=1; fi
+  case "$CONNECT_CHOICE" in
+    auto)   CONNECT_CLAUDE=$has_claude; CONNECT_CODEX=$has_codex ;;
+    both)   CONNECT_CLAUDE=1; CONNECT_CODEX=1 ;;
+    claude) CONNECT_CLAUDE=1; CONNECT_CODEX=0 ;;
+    codex)  CONNECT_CLAUDE=0; CONNECT_CODEX=1 ;;
+    none)   CONNECT_CLAUDE=0; CONNECT_CODEX=0 ;;
+    *) echo "Error: --connect must be auto, both, claude, codex, or none"; exit 1 ;;
+  esac
+
+  if [ "$CONNECT_CLAUDE" -eq 1 ] && [ "$CONNECT_CODEX" -eq 1 ]; then
+    CONNECT_LABEL="Claude Code + Codex"
+  elif [ "$CONNECT_CLAUDE" -eq 1 ]; then
+    CONNECT_LABEL="Claude Code"
+  elif [ "$CONNECT_CODEX" -eq 1 ]; then
+    CONNECT_LABEL="Codex"
+  else
+    CONNECT_LABEL="Brain only"
+  fi
+}
+
 # ─── Colors for gradient ─────────────────────────────────────────────────────
 PURPLE='\033[35m'
 LIGHT_PURPLE='\033[95m'
@@ -341,14 +437,23 @@ preflight() {
     local status
     status=$(sed -n '/^---$/,/^---$/p' "$BRAIN_PATH/plan.md" | grep 'status:' | head -1 | sed 's/.*status:[[:space:]]*//')
     if [ "$status" != "template" ] && [ -n "$status" ]; then
-      echo ""
-      print_warn "This brain appears to be already set up (plan.md status: ${status})"
-      printf "  ${WHITE}Re-run setup? This will overwrite existing config.${NC} ${DIM}(y/N)${NC}: "
-      read -r confirm
-      if [[ ! "$confirm" =~ ^[yY] ]]; then
+      if [ "$NON_INTERACTIVE" -eq 1 ]; then
+        if [ "$FORCE_SETUP" -eq 0 ]; then
+          echo ""
+          print_warn "This brain is already set up (plan.md status: ${status}). Nothing changed."
+          echo -e "  ${DIM}Re-run with --force to overwrite the existing setup.${NC}"
+          exit 0
+        fi
+      else
         echo ""
-        echo -e "  ${DIM}Exiting. Your brain is untouched.${NC}"
-        exit 0
+        print_warn "This brain appears to be already set up (plan.md status: ${status})"
+        printf "  ${WHITE}Re-run setup? This will overwrite existing config.${NC} ${DIM}(y/N)${NC}: "
+        read -r confirm
+        if [[ ! "$confirm" =~ ^[yY] ]]; then
+          echo ""
+          echo -e "  ${DIM}Exiting. Your brain is untouched.${NC}"
+          exit 0
+        fi
       fi
     fi
   fi
@@ -1182,6 +1287,18 @@ show_success() {
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 main() {
+  parse_args "$@"
+
+  if [ "$NON_INTERACTIVE" -eq 1 ]; then
+    apply_non_interactive_config
+    preflight
+    generate_files
+    configure_global
+    git_safety
+    show_success
+    return
+  fi
+
   show_logo
   printf "  ${DIM}$(t "Press Enter to begin setup..." "按回车开始设置...")${NC}"
   read -rs
