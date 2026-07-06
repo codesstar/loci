@@ -15990,32 +15990,9 @@ const lociApp = createApp({
         }
       } catch (e) { /* server unavailable, UI already updated */ }
 
-      // If time is provided, also create a calendar event
-      if (taskScheduleStart.value !== null) {
-        const startMin = taskScheduleStart.value;
-        const endMin = taskScheduleEnd.value !== null ? taskScheduleEnd.value : startMin + 60;
-        if (!calendarEvents[key]) calendarEvents[key] = [];
-        calendarEvents[key].push({
-          title: taskText,
-          startKey: startMin,
-          endKey: endMin,
-          hour: Math.floor(startMin / 60),
-          fromTask: true,
-          taskId: savedTaskId || undefined,
-        });
-        calendarEvents[key] = [...calendarEvents[key]];
-        // Also persist calendar event
-        try {
-          const d = new Date();
-          d.setDate(d.getDate() + calendarDayOffset.value);
-          const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-          await demoFetch('/api/calendar/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, title: taskText, startMin, endMin, fromTask: true, taskId: savedTaskId })
-          });
-        } catch (e) {}
-      }
+      // Tasks and the schedule stay separate: a timed task lives only in the
+      // task pool (reminders read it from there) and is NOT projected onto the
+      // calendar. Blocking out time is a deliberate, separate action.
 
       newTaskText.value = '';
       taskScheduleStart.value = null;

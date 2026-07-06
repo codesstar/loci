@@ -71,11 +71,12 @@ The brain is not a warehouse — it should only hold what actually matters to th
 
 **All other times**: Say nothing extra, just answer the question. If `wellbeing.enabled` is `false`, skip all time-based behavior.
 
-**⚠️ Timed items → calendar; timed tasks → task + calendar**:
-- If it is a task, use the guarded writer: Dashboard API if running, otherwise `node scripts/loci-task.js ...`.
-- If it is a task with a specific time (e.g. "明天9点发材料"), the guarded writer must update `tasks/tasks.json` and `tasks/calendar.json` with `fromTask: true` and `taskId`.
-- If it is schedule-only (e.g. "3点开会", "15:00 gym", "10点吃饭"), use the guarded writer/API to write to `tasks/calendar.json` only.
-- `tasks/calendar.json` format: `{"title":"...", "startKey": minutes_from_midnight, "endKey": ..., "hour": ..., "fromTask": true/false}`. No end time → default 1 hour.
+**⚠️ Task vs schedule — judge which it is; they are kept separate**:
+- **A task is a thing to complete; a schedule item is a block of occupied time.** These are different. A time on a task ("明天9点发材料") is just an attribute of the task — it does NOT make it a schedule block. Judge intent: is the user telling you *when something occupies their time* (meeting, meal, class, gym, appointment, travel) → that's a schedule item; or *something they need to get done, that happens to have a time* → that's a task.
+- **Timed task** (e.g. "明天9点发材料") → write ONLY to `tasks/tasks.json` via the guarded writer (Dashboard API if running, else `node scripts/loci-task.js add --title ... --date ... --start ...`). It is NOT auto-projected onto the calendar. The dashboard reminder reads timed tasks straight from the task pool, so the user still gets reminded without it cluttering the schedule timeline.
+- **Schedule-only item** (e.g. "3点开会", "15:00 gym", "10点吃饭") → write ONLY to `tasks/calendar.json` via the guarded writer (`node scripts/loci-task.js schedule --title ... --date ... --start ...`).
+- **Pulling a task onto the schedule is deliberate, not automatic.** Only put a task on the calendar if the user actually wants that time blocked out (they say so, or it's clearly a fixed appointment). When unsure, keep it a task — the user can always pull it onto the schedule later.
+- `tasks/calendar.json` format: `{"title":"...", "startKey": minutes_from_midnight, "endKey": ..., "hour": ...}`. No end time → default 1 hour.
 - Tasks without a specific date/time stay only in `tasks/tasks.json`.
 - Do not hand-edit `tasks/tasks.json` or `tasks/calendar.json` except as an emergency fallback; if unavoidable, immediately run `node scripts/loci-task.js rebuild` and `node scripts/loci-task.js validate`.
 
@@ -219,13 +220,14 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 4. **Don't guess** — Ask the user if unsure
 5. **Use frontmatter** — YAML headers (date, tags, status) on content files
 6. **Dashboard** — Always use `node .loci/dashboard/server.js` (port 8765) to run the dashboard. **Do NOT use `server.py`** — it is legacy and missing critical API endpoints (task toggle, task add, etc.). The server reads files live on each request. If the server is NOT running, use `node scripts/loci-task.js ...` for task/schedule writes.
-7. **Task/Schedule = simple model** — Tasks are things to complete. Schedule items are occupied time. Timed tasks appear in both task and schedule. Schedule-only events do not become tasks unless explicitly requested.
+7. **Task/Schedule = two separate things** — A task is something to complete; a schedule item is a block of occupied time. They live in separate files and are NOT mirrored. A time on a task is just an attribute — it does not put the task on the schedule. Judge which one the user means. A timed task is reminded straight from the task pool (the dashboard reads it), so it doesn't need to be on the schedule. Only put a task on the schedule when the user deliberately wants that time blocked.
 8. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure
-9. **⚠️ Task/Schedule placement** — Keep the user model simple: tasks are tasks; time blocks are schedule; a timed task appears in both.
+9. **⚠️ Task/Schedule placement** — Tasks and the schedule are separate; judge which the user means, don't mirror.
    - **Task** = something to complete → write through Dashboard API or `node scripts/loci-task.js add/update`.
    - **Task with specific date** → still task only; do not duplicate it into `tasks/daily/`.
-   - **Task with specific time** → guarded writer updates both task and calendar with `fromTask: true` and `taskId`.
-   - **Schedule-only item** (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to calendar.
+   - **Task with specific time** → still task only (`node scripts/loci-task.js add --title ... --date ... --start ...`). NOT auto-projected onto the calendar; the dashboard reminder reads timed tasks directly from the task pool.
+   - **Schedule-only item** (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to calendar (`schedule` command).
+   - **Pulling a task onto the schedule** is deliberate — only when the user wants that time blocked. When unsure, keep it a task.
    - **Loose idea, not a task** → root `inbox.md`.
 10. **⚠️ Loci aggregates memory, it does not own it** — A serious project's memory belongs to the project's OWN repo (`.loci/memory.md` living dossier + `.loci/decisions/` decision stream). The brain holds only a one-line index entry in `projects/index.md`. The brain is an index + understanding layer, not a warehouse. Never copy a project's full memory into the brain — read the repo when you need detail. Connecting a project is AI-initiated and offered once at the end of a conversation, never a command the user must learn.
 

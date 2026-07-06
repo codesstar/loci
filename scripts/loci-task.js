@@ -69,23 +69,6 @@ function timeToMinutes(value) {
   return h * 60 + m;
 }
 
-function addDays(dateKey, days) {
-  const d = new Date(`${dateKey}T00:00:00`);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-function datesInRange(start, end) {
-  const out = [];
-  let current = start;
-  for (let i = 0; i < 370; i += 1) {
-    out.push(current);
-    if (current === end) return out;
-    current = addDays(current, 1);
-  }
-  throw new Error('date range is too large');
-}
-
 function makeTaskId(title, existingIds) {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   const slug = String(title || 'task')
@@ -244,56 +227,19 @@ function saveCalendar(calendar) {
   writeJson(CALENDAR_DB, cleaned);
 }
 
-function removeTaskProjections(calendar, taskIds) {
-  const ids = new Set(taskIds);
+// Tasks and the schedule are kept strictly separate: a timed task lives only in
+// tasks.json and is never projected onto the calendar (see
+// decisions/2026-06-23-task-schedule-separation). The sync step now exists only
+// to strip projections left behind by older versions.
+function removeTaskProjections(calendar) {
   for (const date of Object.keys(calendar)) {
-    calendar[date] = (calendar[date] || []).filter(event => {
-      if (!event || !event.fromTask) return true;
-      if (!event.taskId) return false;
-      return !ids.has(event.taskId);
-    });
+    calendar[date] = (calendar[date] || []).filter(event => !(event && event.fromTask));
   }
 }
 
-function addTaskProjection(calendar, task) {
-  if (task.status === 'archived') return;
-  if (!task.date) return;
-
-  if (task.startTime) {
-    const startKey = timeToMinutes(task.startTime);
-    const endKey = task.endTime ? timeToMinutes(task.endTime) : startKey + 60;
-    if (endKey <= startKey) throw new Error(`Task ${task.id} endTime must be after startTime`);
-    if (!calendar[task.date]) calendar[task.date] = [];
-    calendar[task.date].push({
-      title: task.title,
-      startKey,
-      endKey,
-      hour: Math.floor(startKey / 60),
-      fromTask: true,
-      taskId: task.id,
-    });
-    return;
-  }
-
-  if (task.endDate && task.endDate !== task.date) {
-    for (const date of datesInRange(task.date, task.endDate)) {
-      if (!calendar[date]) calendar[date] = [];
-      calendar[date].push({
-        title: task.title,
-        allDay: true,
-        startDate: task.date,
-        endDate: task.endDate,
-        fromTask: true,
-        taskId: task.id,
-      });
-    }
-  }
-}
-
-function syncCalendarForTasks(tasks) {
+function syncCalendarForTasks() {
   const calendar = readCalendar();
-  removeTaskProjections(calendar, tasks.map(task => task.id));
-  for (const task of tasks) addTaskProjection(calendar, task);
+  removeTaskProjections(calendar);
   saveCalendar(calendar);
 }
 
@@ -301,7 +247,7 @@ function saveTasks(tasks, options = {}) {
   const normalized = tasks.map(normalizeTask).filter(task => task.title);
   writeJson(TASK_DB, { tasks: normalized });
   writeActiveTaskView(normalized);
-  if (options.syncCalendar) syncCalendarForTasks(normalized);
+  if (options.syncCalendar) syncCalendarForTasks();
   return normalized;
 }
 
@@ -323,10 +269,8 @@ function validateTasks(tasks) {
   return errors;
 }
 
-function validateCalendar(calendar, tasks) {
+function validateCalendar(calendar) {
   const errors = [];
-  const taskIds = new Set(tasks.map(task => task.id));
-  const projected = new Set();
   for (const [date, events] of Object.entries(calendar)) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) errors.push(`Calendar key is not YYYY-MM-DD: ${date}`);
     if (!Array.isArray(events)) {
@@ -340,9 +284,7 @@ function validateCalendar(calendar, tasks) {
       }
       if (!event.title) errors.push(`Calendar ${date} event is missing title`);
       if (event.fromTask) {
-        if (!event.taskId) errors.push(`Calendar ${date} task projection is missing taskId`);
-        else if (!taskIds.has(event.taskId)) errors.push(`Calendar ${date} has broken taskId: ${event.taskId}`);
-        else projected.add(event.taskId);
+        errors.push(`Calendar ${date} has a legacy task projection ("${event.title || ''}"); run \`node scripts/loci-task.js rebuild\` to remove it`);
       }
       if (!event.allDay && !event.startDate) {
         if (!Number.isFinite(event.startKey) || !Number.isFinite(event.endKey)) {
@@ -353,11 +295,6 @@ function validateCalendar(calendar, tasks) {
       }
     }
   }
-  for (const task of tasks) {
-    if (task.status !== 'archived' && task.date && (task.startTime || task.endDate) && !projected.has(task.id)) {
-      errors.push(`Task ${task.id} should have a calendar projection`);
-    }
-  }
   return errors;
 }
 
@@ -366,7 +303,7 @@ function validateAll() {
   const calendar = readCalendar();
   const errors = [
     ...validateTasks(tasks),
-    ...validateCalendar(calendar, tasks),
+    ...validateCalendar(calendar),
   ];
   if (fs.existsSync(ACTIVE_VIEW) && fs.readFileSync(ACTIVE_VIEW, 'utf-8') !== renderActiveTaskView(tasks)) {
     errors.push('tasks/active.md is stale; run `node scripts/loci-task.js rebuild`');
