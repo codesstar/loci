@@ -2379,16 +2379,25 @@ function handleReferenceAdd(body) {
 function handleReferenceRemove(body) {
   const { file } = body;
   if (!file) return { error: 'Missing file' };
-  if (!isSafeSegment(file)) return { error: 'Invalid file' };
 
-  const filePath = path.join(LOCI_ROOT, 'references', file);
+  // Allow references inside subfolders (e.g. hackathon-2026/foo.md), not just the
+  // references root. Guard against path traversal by resolving and confirming the
+  // target stays inside references/. A plain isSafeSegment check rejected any file
+  // with a '/', so subfolder saves could never be deleted.
+  const refsRoot = path.join(LOCI_ROOT, 'references');
+  const filePath = path.resolve(refsRoot, file);
+  if (filePath !== refsRoot && !filePath.startsWith(refsRoot + path.sep)) {
+    return { error: 'Invalid file' };
+  }
   if (!fs.existsSync(filePath)) return { error: 'File not found: ' + file };
 
-  // Move to archive instead of deleting
+  // Move to archive instead of deleting (mirror the subfolder structure so names
+  // from different folders can't collide in the archive).
   try {
-    const archiveDir = path.join(LOCI_ROOT, 'archive', 'references');
-    if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
-    fs.renameSync(filePath, path.join(archiveDir, path.basename(file)));
+    const rel = path.relative(refsRoot, filePath);
+    const archiveTarget = path.join(LOCI_ROOT, 'archive', 'references', rel);
+    fs.mkdirSync(path.dirname(archiveTarget), { recursive: true });
+    fs.renameSync(filePath, archiveTarget);
     return { ok: true, file };
   } catch (e) { return { error: 'Could not archive file' }; }
 }

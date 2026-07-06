@@ -5537,7 +5537,7 @@
                   <span class="mc1-status"><span class="mc1-sdot"></span>{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + ' DAYS' }}</span>
                   <img :src="memoryProfile.avatar" :alt="memoryProfile.name">
                   <div class="mc1-banner-foot">
-                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta">{{ lang === 'zh' ? '里斯本 · LIS' : 'LISBON' }}</span></div>
+                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta" v-if="memoryProfile.nameMeta">{{ memoryProfile.nameMeta }}</span></div>
                     <div class="mc1-role">{{ memoryProfile.role }}</div>
                   </div>
                 </div>
@@ -8890,6 +8890,7 @@ const lociApp = createApp({
       return {
         avatar: DEMO_MODE ? '/assets/people-avatars/cc-01.jpg' : '/assets/loci-logo2.png',
         name: DEMO_MODE ? 'Sam Rivera' : realName,
+        nameMeta: DEMO_MODE ? (zh ? '里斯本 · LIS' : 'LISBON') : '',
         role: DEMO_MODE ? (zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder') : (zh ? '我的大脑档案' : 'My brain profile'),
         meta: !DEMO_MODE ? [] : zh ? [
           { k:'Location', v:'里斯本 · Lisbon' },
