@@ -5,7 +5,7 @@
  * Zero npm dependencies. Uses only built-in modules.
  * Serves the dashboard and provides read/write API endpoints.
  *
- * GET  /api/data          — returns full dashboard JSON (same as build.py output)
+ * GET  /api/data          — returns full dashboard JSON (built live from brain files)
  * POST /api/tasks/toggle  — toggle a task in tasks.json
  * POST /api/tasks/add     — add a task to tasks.json
  * POST /api/journal/save  — save journal entry

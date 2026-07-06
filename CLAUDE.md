@@ -219,7 +219,7 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
 3. **Archive, never delete** — Move expired content to `archive/`
 4. **Don't guess** — Ask the user if unsure
 5. **Use frontmatter** — YAML headers (date, tags, status) on content files
-6. **Dashboard** — Always use `node .loci/dashboard/server.js` (port 8765) to run the dashboard. **Do NOT use `server.py`** — it is legacy and missing critical API endpoints (task toggle, task add, etc.). The server reads files live on each request. If the server is NOT running, use `node scripts/loci-task.js ...` for task/schedule writes.
+6. **Dashboard** — Run it with `node .loci/dashboard/server.js` (port 8765). The server reads files live on each request. If the server is NOT running, use `node scripts/loci-task.js ...` for task/schedule writes.
 7. **Task/Schedule = two separate things** — A task is something to complete; a schedule item is a block of occupied time. They live in separate files and are NOT mirrored. A time on a task is just an attribute — it does not put the task on the schedule. Judge which one the user means. A timed task is reminded straight from the task pool (the dashboard reads it), so it doesn't need to be on the schedule. Only put a task on the schedule when the user deliberately wants that time blocked.
 8. **Speak human, not system** — Never expose internal terms to the user. Use: "待办" not "inbox", "收藏夹" not "references", "记住了" not "distilled", "整理一下" not "organize entries". The user doesn't know or need to know Loci's file structure
 9. **⚠️ Task/Schedule placement** — Tasks and the schedule are separate; judge which the user means, don't mirror.
