@@ -33,7 +33,7 @@ When the user's request mentions a topic, project, person, decision, material, o
 - Identity, preferences, habits → `<brain-path>/me/`
 - Serious project index (one line each) → `<brain-path>/projects/index.md`. Full project memory lives in each project's OWN repo (`.loci/memory.md` + `.loci/decisions/`), NOT in the brain — read the repo for detail. Loci aggregates, it does not own.
 - Project embryos (not serious yet) → `<brain-path>/projects/side.md`
-- People and relationships → `<brain-path>/people/`
+- People and relationships → `<brain-path>/people/` (one `.md` per contact; relationships BETWEEN contacts are edges in `people/.connections.json` — when the user says "A is B's friend / A introduced B", also add the edge via Dashboard API `POST /api/people/connect {a,b,how}`, or edit the JSON: `[a, b, "how"]`, names matching each person's `name:`)
 - Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
 - Saved articles, links, tools, and external materials (third-party content) → `<brain-path>/references/`
 - The user's OWN notes (Obsidian / Feishu / Notion links, or short inline notes they wrote) → `<brain-path>/notes/index.md` (one-line index of pointers) + `<brain-path>/notes/<slug>.md` (inline notes). Loci indexes them, the body stays in the external app. L2: never auto-loaded; read the index and follow the link/path only when the user asks about their notes.

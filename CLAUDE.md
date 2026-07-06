@@ -140,6 +140,7 @@ Never save raw transcripts. Distill to structured files:
 - **Serious project** → its OWN repo: `.loci/memory.md` (living dossier) + `.loci/decisions/` (decision stream). The brain keeps only a one-line index entry in `projects/index.md`. Loci aggregates, it does not own (see rule #10).
 - **Project embryo** (looks like a project but not serious yet) → `projects/side.md`. Graduates to its own repo when the user commits to it.
 - **A person** worth remembering (collaborator / client / contact) → `people/<name>.md`.
+- **A relationship between two contacts** ("kk 是 Asher 的朋友", "A introduced me to B", "they're colleagues") → don't just mention it in the person's note — ALSO record an edge in `people/.connections.json` (undirected: `[a, b]` or `[a, b, "how they know each other"]`; names must exactly match each person's `name:` field). Prefer the Dashboard API when the server is running: `POST /api/people/connect` with `{a, b, how}`; otherwise edit the JSON directly. If one side isn't a contact yet, create their `people/<name>.md` first — the relationship graph only draws edges between existing people.
 - **side vs inbox**: side = a *potential project*; inbox = a *thought / to-do*.
 
 **⚠️ A decision — project repo or brain?** The test: **does this decision still mean anything once you take the project away?**
