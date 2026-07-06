@@ -1677,7 +1677,7 @@ function buildOverview(data) {
 function readUsername() {
   try {
     const identity = fs.readFileSync(path.join(LOCI_ROOT, 'me', 'identity.md'), 'utf-8');
-    const m = identity.match(/\*\*Name\*\*[:：]\s*(.+)/);
+    const m = identity.match(/\*\*(?:Name|名字|姓名)\*\*[:：]\s*(.+)/);
     if (m && m[1].trim()) return m[1].trim();
   } catch { /* fall through to default */ }
   return CONFIG.username;
