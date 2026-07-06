@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['site/**', 'install.sh']
+  workflow_dispatch:
 
 permissions:
   contents: read
