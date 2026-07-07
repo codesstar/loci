@@ -5265,7 +5265,7 @@
                     <div v-for="(event, ei) in getEventsForDay()" :key="'ev'+ei"
                       @click.stop="onEventClick(event._ref || event, $event)" @mousedown.stop="onEventMousedown(event._ref || event, $event, ei)"
                       class="hud-event" :class="eventTypeClass(event)"
-                      :style="'top: ' + minuteToY(event.startKey) + 'px; height: ' + Math.max(minuteToY(event.endKey) - minuteToY(event.startKey), 16) + 'px; left: calc(' + (event._col || 0) + ' * (100% - 8px) / ' + (event._totalCols || 1) + ' + 4px); width: calc((100% - 8px) / ' + (event._totalCols || 1) + ' - 2px);'">
+                      :style="'top: ' + minuteToY(event.startKey) + 'px; height: ' + Math.max(minuteToY(event.endKey) - minuteToY(event.startKey), 16) + 'px; left: calc(' + (event._col || 0) + ' * (100% - 8px) / ' + (event._totalCols || 1) + ' + 4px); width: calc((100% - 8px) / ' + (event._totalCols || 1) + ' - 2px)' + evTaskStyleStr(event)">
                       <div @mousedown.stop="onResizeMousedown(event._ref || event, 'top', $event)"
                         style="position: absolute; top: -2px; left: 0; right: 0; height: 6px; cursor: n-resize; z-index: 4;"></div>
                       <div style="padding: 5px 11px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
@@ -15010,6 +15010,38 @@ const lociApp = createApp({
 
     // Classify a calendar event into a color type for the timeline:
     // task projection (amber) / meeting (blue) / rest+meal (gray) / personal (emerald default).
+    // Pulled-from-task events: each block gets its own gradient — the source
+    // task's chosen color when set, else a stable hash of the title. Three
+    // tasks dragged onto the schedule no longer wear the same indigo.
+    const EV_GRADS = {
+      red:    ['#d05a52', '#e0574f', '#ef8078', 'rgba(224,87,79,.32)'],
+      orange: ['#d98a2b', '#e89a3c', '#f0b66b', 'rgba(232,154,60,.32)'],
+      yellow: ['#c9a227', '#d9b23c', '#e6c96b', 'rgba(217,178,60,.32)'],
+      green:  ['#0ea371', '#10b981', '#23c894', 'rgba(16,185,129,.3)'],
+      blue:   ['#4a76c8', '#5b86d6', '#7ba0e2', 'rgba(91,134,214,.32)'],
+      purple: ['#7c4fe0', '#8b5cf6', '#a78bfa', 'rgba(139,92,246,.32)'],
+      pink:   ['#d1568f', '#e069a3', '#eb93bd', 'rgba(224,105,163,.32)'],
+      indigo: ['#5a5fd8', '#6366f1', '#818cf8', 'rgba(99,102,241,.32)'],
+      coral:  ['#dd6b5f', '#e8836b', '#f0a48f', 'rgba(232,131,107,.32)'],
+      teal:   ['#0b8d83', '#0ea5a4', '#3cc4c3', 'rgba(14,165,164,.32)'],
+    };
+    const EV_HASH_ORDER = ['indigo', 'blue', 'teal', 'purple', 'coral', 'orange', 'pink', 'green'];
+    function evTaskStyleStr(event) {
+      if (!event.fromTask) return '';
+      let key = null;
+      if (event.taskId) {
+        const src = allTaskPoolTasks.value.find(t => t.id === event.taskId);
+        if (src && src.color && EV_GRADS[src.color]) key = src.color;
+      }
+      if (!key) {
+        let h = 0; const t = String(event.title || '');
+        for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) >>> 0;
+        key = EV_HASH_ORDER[h % EV_HASH_ORDER.length];
+      }
+      const g = EV_GRADS[key];
+      return '; background: linear-gradient(135deg, ' + g[0] + ', ' + g[1] + ' 60%, ' + g[2] + '); box-shadow: 0 5px 14px ' + g[3] + ';';
+    }
+
     function eventTypeClass(event) {
       if (event.fromTask) return 'ev-task';
       const t = (event.title || '');
@@ -17609,6 +17641,7 @@ const lociApp = createApp({
       confirmDeleteId, askDeleteTask, deleteTaskConfirmed,
       taskColors, showTaskDetail, newTaskLocation, newTaskColor, newTaskNote, newTaskPriority,
       detailTask, editDetail, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
+      evTaskStyleStr,
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
