@@ -5034,7 +5034,7 @@
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                   <input v-model="newTaskText" @keydown.enter="$event.isComposing ? null : (newTaskText.trim() && addNewTask())" :placeholder="t('today.newMission')"
                     class="s7-add-input" style="flex: 1; min-width: 220px; font-size: 12px; padding: 7px 10px;">
-                  <button @click="openCreateDetail()" class="s7-add-btn">
+                  <button @click="openCreateDetail()" class="s7-add-btn s7-add-primary">
                     <span style="display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M4 6h16M4 12h16M4 18h10"/></svg>{{ lang === 'zh' ? '详情' : 'Detail' }}</span>
                   </button>
                   <button @click="addNewTask()" class="s7-add-btn s7-add-primary">{{ t('plan.add') }}</button>
