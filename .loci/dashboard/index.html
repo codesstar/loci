@@ -3557,7 +3557,15 @@
   background:none; border:0; cursor:pointer; transition:all .14s ease; position:relative;
   font-family:inherit;
 }
-.sbA-ic{ width:17px; text-align:center; color:var(--ink-3); font-size:14px; transition:color .14s, width .2s ease; line-height:1; flex:none; }
+.sbA-ic{
+  width:30px; height:30px; border-radius:9px; display:grid; place-items:center; flex:none;
+  color:var(--mc, var(--ink-3)); font-size:14px; line-height:1;
+  background:color-mix(in srgb, var(--mc, #9a9a94) 12%, white);
+  border:1px solid color-mix(in srgb, var(--mc, #9a9a94) 20%, white);
+  box-shadow:0 1px 2px color-mix(in srgb, var(--mc, #9a9a94) 12%, transparent);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1), background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.sbA-ic svg{ width:15px; height:15px; display:block; }
 .sbA-lbl{ white-space:nowrap; overflow:hidden; transition:opacity .16s ease, max-width .2s ease; }
 .sbA-ct{
   margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--ink-4);
@@ -3575,21 +3583,55 @@
   opacity:0; max-width:0; overflow:hidden; pointer-events:none;
 }
 
-.sbA-item:hover{ background:var(--surface-2); color:var(--ink); }
-.sbA-item:hover .sbA-ic{ color:var(--ink-2); }
+.sbA-item:hover{ background:var(--surface-2); color:var(--ink); transform:translateX(2px); }
+.sbA-item:hover .sbA-ic{ transform:rotate(-6deg) scale(1.08); }
 .sbA-item:active{ background:var(--line); }
 
-.sbA-item.active{ background:var(--accent-weak); color:var(--accent-ink); font-weight:600; }
-.sbA-item.active .sbA-ic{ color:var(--accent); }
-.sbA-item.active .sbA-ct{ color:var(--accent-ink); }
-.sbA-item.active::before{
-  content:""; position:absolute; left:-14px; top:50%; transform:translateY(-50%);
-  width:3px; height:16px; border-radius:0 3px 3px 0; background:var(--accent);
+.sbA-item.active{
+  background:linear-gradient(90deg, color-mix(in srgb, var(--mc, #10b981) 9%, white), transparent 78%);
+  color:var(--ink); font-weight:600;
 }
-.sbA-host--collapsed .sbA-item.active::before{ left:-10px; }
+.sbA-item.active .sbA-ic{
+  background:var(--mc, var(--accent)); color:#fff; border-color:transparent;
+  box-shadow:0 3px 9px color-mix(in srgb, var(--mc, #10b981) 42%, transparent);
+}
+.sbA-item.active .sbA-ct{ color:var(--ink-2); }
+.sbA-item.active::after{
+  content:""; width:5px; height:5px; border-radius:50%; flex:none;
+  background:var(--mc, var(--accent));
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--mc, #10b981) 16%, white);
+  margin-left:auto; animation:sbBreathe 2.2s ease-in-out infinite;
+}
+.sbA-item.active:has(.sbA-ct)::after{ margin-left:8px; }
+@keyframes sbBreathe{ 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+
+/* brain status card — the sidebar's bottom becomes a living mini-dashboard */
+.sbA-brainwrap{ margin-top:auto; padding:12px 2px 4px; width:100%; }
+.sbA-brain{
+  position:relative; border-radius:18px; padding:14px; color:#fff; overflow:hidden;
+  background:linear-gradient(140deg, #0ea371, #10b981 55%, #2dd4a0);
+  box-shadow:0 10px 24px rgba(16,185,129,.26);
+}
+.sbA-brain::after{
+  content:''; position:absolute; right:-30px; top:-34px; width:110px; height:110px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.28), transparent 68%);
+}
+.sbB-top{ display:flex; align-items:center; gap:10px; }
+.sbB-av{ width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.75); object-fit:cover; background:#fff; flex:none; }
+.sbB-name{ font-size:13px; font-weight:750; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
+.sbB-sub{ font-family:var(--mono); font-size:8.5px; opacity:.85; margin-top:2px; letter-spacing:.05em; }
+.sbB-stats{ display:flex; margin-top:11px; background:rgba(255,255,255,.14); border-radius:11px; padding:7px 0; }
+.sbB-st{ flex:1; text-align:center; }
+.sbB-st .n{ font-family:var(--mono); font-size:14px; font-weight:700; }
+.sbB-st .l{ font-size:8.5px; opacity:.85; margin-top:1px; letter-spacing:.05em; }
+.sbB-spark{ display:flex; align-items:flex-end; gap:3px; height:20px; margin-top:10px; padding:0 2px; }
+.sbB-spark i{ flex:1; border-radius:2px 2px 0 0; background:rgba(255,255,255,.55); transform-origin:bottom; animation:sbGrow .7s cubic-bezier(.34,1.4,.64,1) both; }
+@keyframes sbGrow{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+.sbA-host--collapsed .sbA-brainwrap{ display:none; }
 
 /* footer */
-.sbA-foot{ margin-top:auto; padding:14px 10px 2px; border-top:1px solid var(--line); width:100%; }
+.sbA-foot{ padding:12px 10px 2px; border-top:1px solid var(--line); width:100%; }
+.sbA-host--collapsed .sbA-foot{ margin-top:auto; }
 .sbA-sync{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-3); font-family:var(--mono); }
 .sbA-sync-label{ white-space:nowrap; transition:opacity .16s ease, max-width .2s ease; }
 .sbA-d{
@@ -4539,11 +4581,31 @@
               type="button"
               @click="navigateTo(item.id)"
               :class="['sbA-item', currentPage === item.id ? 'active' : '']"
+              :style="{ '--mc': item.c }"
             >
-              <span class="sbA-ic">{{ item.icon }}</span><span class="sbA-lbl">{{ item.label }}</span><span v-if="navCount(item.id)" class="sbA-ct">{{ navCount(item.id) }}</span>
+              <span class="sbA-ic" v-html="item.svg || item.icon"></span><span class="sbA-lbl">{{ item.label }}</span><span v-if="navCount(item.id)" class="sbA-ct">{{ navCount(item.id) }}</span>
             </button>
           </nav>
         </template>
+
+        <!-- Brain status card — fills the bottom space with a living dashboard -->
+        <div class="sbA-brainwrap" v-if="!sidebarCollapsed && data">
+          <div class="sbA-brain">
+            <div class="sbB-top">
+              <img class="sbB-av" src="/assets/loci-logo2.png" alt="me" />
+              <div class="sbB-who">
+                <div class="sbB-name">{{ (data.config && data.config.username) || 'Me' }}</div>
+                <div class="sbB-sub">MEMORY PALACE · DAY {{ brainDays }}</div>
+              </div>
+            </div>
+            <div class="sbB-stats">
+              <div class="sbB-st"><div class="n">{{ brainStats.memories }}</div><div class="l">{{ lang === 'zh' ? '记忆' : 'MEM' }}</div></div>
+              <div class="sbB-st"><div class="n">{{ brainStats.people }}</div><div class="l">{{ lang === 'zh' ? '人脉' : 'PPL' }}</div></div>
+              <div class="sbB-st"><div class="n">{{ brainStats.projects }}</div><div class="l">{{ lang === 'zh' ? '项目' : 'PRJ' }}</div></div>
+            </div>
+            <div class="sbB-spark"><i v-for="(h, hi) in brainSpark" :key="hi" :style="{ height: h + '%', animationDelay: (hi * 60) + 'ms' }"></i></div>
+          </div>
+        </div>
 
         <!-- Footer -->
         <div class="sbA-foot">
@@ -10689,6 +10751,22 @@ const lociApp = createApp({
       nextTick(() => { setTimeout(initMemoryCanvases, 50); });
     });
 
+    // Nav icons: Lucide-style inline SVGs (ISC) on per-module tinted card chips.
+    const NAV_SVG = {
+      overview:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 5.1a1 1 0 0 1-.5.5l-5.1 2.2 2.2-5.1a1 1 0 0 1 .5-.5z"/></svg>',
+      today:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 2 2 4-4"/><path d="m3 16 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>',
+      journal:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+      memory:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>',
+      people:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      brain:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="m19 5-2.1 2.1"/><path d="m7.1 16.9-2.1 2.1"/><path d="M22 12h-3"/><path d="M5 12H2"/><path d="m19 19-2.1-2.1"/><path d="M7.1 7.1 5 5"/></svg>',
+      roadmap:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M8 10v4"/><path d="M12 10v2"/><path d="M16 10v6"/></svg>',
+      notes:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+      fragments: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></svg>',
+    };
+    const NAV_COLOR = {
+      overview: '#10b981', today: '#5b86d6', journal: '#e0a23c', fragments: '#9b7ed0',
+      memory: '#0ea5a4', people: '#e8836b', brain: '#0ea5a4', roadmap: '#6366f1', notes: '#5f9e6e',
+    };
     const navItems = computed(() => [
       { id: 'overview',  label: t('nav.overview'), icon: '\u25CE', termIcon: '[=]' },
       { id: 'today',     label: t('nav.today'),    icon: '\u25F4', termIcon: '[>]' },
@@ -10699,7 +10777,7 @@ const lociApp = createApp({
       { id: 'roadmap',   label: t('nav.roadmap'),  icon: '\u25B1', termIcon: '[#]' },
       { id: 'notes',     label: t('nav.notes'),    icon: '\u25A4', termIcon: '[N]' },
       { id: 'fragments', label: t('nav.fragments'), icon: '\u22B9', termIcon: '[*]' },
-    ]);
+    ].map(x => ({ ...x, svg: NAV_SVG[x.id] || null, c: NAV_COLOR[x.id] || 'var(--accent)' })));
 
     // Sidebar grouping (Reference Faithful): \u603B\u89C8 on top, then Daily / Workspace.
     // Counts are sparse + real: \u4EBA\u8109 / \u9879\u76EE / \u788E\u7247 only.
@@ -10729,6 +10807,31 @@ const lociApp = createApp({
 
     const currentNavItem = computed(() => {
       return navItems.value.find(i => i.id === currentPage.value);
+    });
+
+    // Brain status card (sidebar bottom) — real counts from the live brain
+    const brainStats = computed(() => ({
+      memories: (ovMemoryMix.value && ovMemoryMix.value.total)
+        || (data.value && data.value.network && data.value.network.memories) || 0,
+      people: (peopleData.value || []).length,
+      projects: (roadmapProjects.value || []).length,
+    }));
+    // Days since the brain was born (plan.md created date), falling back to
+    // the network's active-days figure, then 1.
+    const brainDays = computed(() => {
+      const created = data.value && data.value.plan && data.value.plan.meta && data.value.plan.meta.created;
+      if (created) {
+        const d = new Date(String(created));
+        if (!isNaN(d)) return Math.max(1, Math.floor((Date.now() - d.getTime()) / 86400000) + 1);
+      }
+      return (data.value && data.value.network && data.value.network.days_active) || 1;
+    });
+    const brainSpark = computed(() => {
+      const days = (overview.value && overview.value.trend && overview.value.trend.days) || [];
+      const counts = days.slice(-7).map(d => (d && d.count) || 0);
+      while (counts.length < 7) counts.unshift(0);
+      const max = Math.max(1, ...counts);
+      return counts.map(c => Math.round(10 + (c / max) * 90));
     });
 
     const hasActiveTasks = computed(() => {
@@ -17244,6 +17347,7 @@ const lociApp = createApp({
       emptyHtml,
       lang, toggleLang, t,
       navItems, navGroups, navCount, memoryTabs, planningTabs,
+      brainStats, brainDays, brainSpark,
       currentNavItem, hasActiveTasks, todayPlan, todayJournal, pastJournals,
       journalDayOffset, journalViewDate, journalIsToday, journalDateLabel, journalWeekdayLabel,
       journalNav, journalGoToday, journalGoDate, entryDateLabel, entryPreview, journalAISummary, journalMood, journalHeadline, journalBodyHtml, journalDetailOpen, journalLogOpen,
