@@ -565,6 +565,13 @@
     .done-bar .db-pb i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), #34d399); transition: width .4s ease; }
     .done-bar .db-n { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); }
     .done-bar .db-ar { margin-left: auto; font-size: 11px; color: var(--ink-4); }
+    .tk-stats { display: inline-flex; gap: 6px; align-items: center; }
+    .tks { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-3);
+      background: color-mix(in srgb, var(--mc) 8%, white); border: 1px solid color-mix(in srgb, var(--mc) 18%, white);
+      border-radius: 8px; padding: 3px 8px; position: relative; }
+    .tks b { font-family: var(--mono); font-size: 12px; font-weight: 750; color: var(--mc); }
+    .tks.alert { background: #fdeeed; border-color: #f4cfcc; }
+    .tks.alert::after { content: ''; position: absolute; top: -2px; right: -2px; width: 5px; height: 5px; border-radius: 50%; background: #e0574f; animation: tpillPulse 1.8s infinite; }
     .s7-add-primary { color: #fff !important; border: 0 !important; background: linear-gradient(135deg, #4a76c8, #5b86d6) !important; box-shadow: 0 4px 12px rgba(91,134,214,.3); transition: .15s; }
     .s7-add-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
     .th-lead { display: flex; align-items: center; gap: 13px; }
@@ -4993,22 +5000,7 @@
 
         <!-- ========== TODAY ========== -->
         <section v-if="currentPage === 'today'">
-          <!-- Today header: module chip + title · colored stat boxes -->
-          <div class="hc-wrap">
-            <div class="th-lead">
-              <span class="th-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 2 2 4-4"/><path d="m3 16 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></span>
-              <div>
-                <div class="th-title">{{ lang === 'zh' ? '任务' : 'Tasks' }}</div>
-                <div class="th-sub">{{ todayDateLabel }} {{ todayWeekdayLabel }} · {{ lang === 'zh' ? '任务池与日程，各管各的' : 'Task pool & schedule, kept separate' }}</div>
-              </div>
-            </div>
-            <div class="hc-boxes">
-              <div class="hc-box hc-tint" style="--mc:#5b86d6"><div class="cx-num">{{ taskPoolStats.open }}</div><div class="cx-lbl">{{ lang === 'zh' ? '待推进' : 'Open' }}</div></div>
-              <div class="hc-box hc-tint" style="--mc:#e0a23c"><div class="cx-num">{{ taskPoolStats.today }}</div><div class="cx-lbl">{{ lang === 'zh' ? '今日' : 'Today' }}</div></div>
-              <div class="hc-box hc-tint" :class="{ 'hc-alert': taskPoolStats.overdue > 0 }" style="--mc:#e0574f"><div class="cx-num">{{ taskPoolStats.overdue }}</div><div class="cx-lbl">{{ lang === 'zh' ? '逾期' : 'Overdue' }}</div></div>
-              <div class="hc-box hc-tint" style="--mc:#10b981"><div class="cx-num">{{ taskPoolStats.done }}</div><div class="cx-lbl">{{ lang === 'zh' ? '已完成' : 'Done' }}</div></div>
-            </div>
-          </div>
+          <!-- (page banner removed — the task panel header carries the stats now) -->
 
           <div :class="['task-schedule-layout', taskScheduleView]"
             :style="taskScheduleView === 'split' ? { '--task-pane-width': taskSchedulePanePct + '%' } : null">
@@ -5022,7 +5014,12 @@
                 <h3 class="hud-title-glow liquid-task-title" style="margin: 0;">{{ lang === 'zh' ? '任务' : 'Tasks' }}</h3>
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="hud-mono liquid-task-count" style="font-size: 11px; color: var(--ink-3);">{{ taskPoolStats.open }} {{ lang === 'zh' ? '项待完成' : 'open' }} · {{ taskPoolStats.today }} {{ lang === 'zh' ? '今日' : 'today' }}</span>
+                <span class="tk-stats">
+                  <span class="tks" style="--mc:#5b86d6"><b>{{ taskPoolStats.open }}</b>{{ lang === 'zh' ? '待推进' : 'open' }}</span>
+                  <span class="tks" style="--mc:#e0a23c"><b>{{ taskPoolStats.today }}</b>{{ lang === 'zh' ? '今日' : 'today' }}</span>
+                  <span class="tks" :class="{ alert: taskPoolStats.overdue > 0 }" style="--mc:#e0574f"><b>{{ taskPoolStats.overdue }}</b>{{ lang === 'zh' ? '逾期' : 'late' }}</span>
+                  <span class="tks" style="--mc:#10b981"><b>{{ taskPoolStats.done }}</b>{{ lang === 'zh' ? '已完成' : 'done' }}</span>
+                </span>
                 <button class="panel-expand-btn" data-tour="panel-expand" @click="focusPanel('tasks')"
                   :title="taskScheduleFocus === 'tasks' ? (lang === 'zh' ? '回到并排' : 'Back to split') : (lang === 'zh' ? '专注此面板' : 'Focus')"
                   :aria-label="taskScheduleFocus === 'tasks' ? 'Split' : 'Focus'">{{ taskScheduleFocus === 'tasks' ? '⤡' : '⤢' }}</button>
