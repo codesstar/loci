@@ -15166,7 +15166,9 @@ const lociApp = createApp({
       const overdue = open.filter(t => taskOverdueDays(t));
       // Today = deadline is today (auto) ∪ picked for today (dragged in; the
       // deadline in `date` is untouched — plannedFor is a per-day intention).
-      const inToday = t => (t.date && taskIntersectsDate(t, todayKey)) || t.plannedFor === todayKey;
+      // in today = due today, picked for today, OR has a time block on today's
+      // schedule (pulling a task onto today's calendar is the strongest signal)
+      const inToday = t => taskIntersectsDate(t, todayKey) || t.plannedFor === todayKey;
       const today = open.filter(t => !taskOverdueDays(t) && inToday(t));
       const backlog = open.filter(t => !taskOverdueDays(t) && !inToday(t));
       return [
