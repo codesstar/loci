@@ -565,6 +565,8 @@
     .done-bar .db-pb i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), #34d399); transition: width .4s ease; }
     .done-bar .db-n { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); }
     .done-bar .db-ar { margin-left: auto; font-size: 11px; color: var(--ink-4); }
+    .today-drop { outline: 2px dashed #e0a23c; outline-offset: 3px; border-radius: 13px; background: #fdf8ee; }
+    .today-empty { padding: 10px 12px; border: 1.5px dashed var(--line-2); border-radius: 12px; font-size: 11.5px; color: var(--ink-4); text-align: center; }
     .tk-stats { display: inline-flex; gap: 6px; align-items: center; }
     .tks { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-3);
       background: color-mix(in srgb, var(--mc) 8%, white); border: 1px solid color-mix(in srgb, var(--mc) 18%, white);
@@ -5104,7 +5106,14 @@
                   <span class="tg-n">{{ group.tasks.length }}</span>
                   <span class="tg-line"></span>
                 </div>
-                <div v-show="group.id !== 'done' || doneOpen" :class="group.tone === 'late' ? 'late-wrap' : null">
+                <div v-show="group.id !== 'done' || doneOpen"
+                  :class="[group.tone === 'late' ? 'late-wrap' : '', group.id === 'today' && todayDropHover ? 'today-drop' : '']"
+                  @dragover="group.id === 'today' ? todayGroupDragOver($event) : null"
+                  @dragleave="group.id === 'today' ? (todayDropHover = false) : null"
+                  @drop="group.id === 'today' ? todayGroupDrop($event) : null">
+                <div v-if="group.id === 'today' && group.tasks.length === 0" class="today-empty">
+                  {{ lang === 'zh' ? '把待办拖到这里，就排进今天' : 'Drag a task here to do it today' }}
+                </div>
                 <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
                   draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
                   @dragover="reorderDragOver($event, group.id, i)"
@@ -15158,8 +15167,10 @@ const lociApp = createApp({
       });
     });
 
-    // Task pool groups — self-evident buckets by date situation:
-    // overdue (screams, on top) → today → has-a-date → no-date → done (collapsed).
+    // Task pool groups — three buckets that map to action, not bookkeeping:
+    // overdue (screams, on top) → today (always visible: it's also a drop
+    // target — dragging a task here dates it today) → backlog (everything
+    // else; dated ones keep their date pill) → done (collapsed).
     const doneOpen = ref(false);
     const taskPoolGroups = computed(() => {
       const zh = lang.value === 'zh';
@@ -15168,16 +15179,45 @@ const lociApp = createApp({
       const open = tasks.filter(t => !t.done);
       const overdue = open.filter(t => taskOverdueDays(t));
       const today = open.filter(t => !taskOverdueDays(t) && t.date && taskIntersectsDate(t, todayKey));
-      const dated = open.filter(t => !taskOverdueDays(t) && t.date && !taskIntersectsDate(t, todayKey));
-      const anytime = open.filter(t => !t.date);
+      const backlog = open.filter(t => !taskOverdueDays(t) && !(t.date && taskIntersectsDate(t, todayKey)));
       return [
-        { id: 'overdue', tone: 'late',  label: zh ? '逾期' : 'Overdue',    tasks: sortTasksForTaskPage(overdue) },
-        { id: 'today',   tone: 'today', label: zh ? '今天' : 'Today',      tasks: sortTasksForTaskPage(today) },
-        { id: 'dated',   tone: 'dated', label: zh ? '已排日期' : 'Scheduled', tasks: sortTasksForTaskPage(dated) },
-        { id: 'anytime', tone: 'any',   label: zh ? '未定时间' : 'Anytime',  tasks: sortTasksForTaskPage(anytime) },
-        { id: 'done',    tone: 'done',  label: zh ? '已完成' : 'Done',      tasks: sortTasksByCompletedDesc(tasks.filter(t => t.done)) },
-      ].filter(g => g.id === 'done' || g.tasks.length > 0);
+        { id: 'overdue', tone: 'late',  label: zh ? '逾期' : 'Overdue', tasks: sortTasksForTaskPage(overdue) },
+        { id: 'today',   tone: 'today', label: zh ? '今天' : 'Today',   tasks: sortTasksForTaskPage(today) },
+        { id: 'backlog', tone: 'any',   label: zh ? '待办' : 'Backlog', tasks: sortTasksForTaskPage(backlog) },
+        { id: 'done',    tone: 'done',  label: zh ? '已完成' : 'Done',  tasks: sortTasksByCompletedDesc(tasks.filter(t => t.done)) },
+      ].filter(g => g.id === 'done' || g.id === 'today' || g.tasks.length > 0);
     });
+    // Drag a task onto the Today group → its date becomes today (deliberate,
+    // guarded-writer persisted; the row then re-groups itself reactively).
+    const todayDropHover = ref(false);
+    async function moveTaskToToday(task) {
+      if (!task || task.done) return;
+      const todayKey = dateToKey(new Date());
+      if (task.date === todayKey) return;
+      const prev = { date: task.date, endDate: task.endDate };
+      task.date = todayKey; task.endDate = null;   // optimistic
+      try {
+        const res = await fetch('/api/tasks/update-detail', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: task.id, date: todayKey, endDate: null }),
+        });
+        if (!res.ok) throw new Error('update failed ' + res.status);
+      } catch (e) {
+        task.date = prev.date; task.endDate = prev.endDate;
+        console.error('Failed to move task to today:', e);
+      }
+    }
+    function todayGroupDragOver(event) {
+      if (!reorderState.task) return;
+      event.preventDefault();
+      todayDropHover.value = true;
+    }
+    async function todayGroupDrop(event) {
+      event.preventDefault();
+      todayDropHover.value = false;
+      const dragged = reorderState.task;
+      if (dragged) { reorderClear(); await moveTaskToToday(dragged); }
+    }
 
     const taskPoolStats = computed(() => {
       const tasks = allTaskPoolTasks.value;
@@ -15751,7 +15791,12 @@ const lociApp = createApp({
       const fromIdx = groupList.indexOf(dragged);
       let toIdx = index;
       if (reorderState.overPos === 'bottom') toIdx += 1;
-      if (fromIdx === -1) { reorderClear(); return; }
+      if (fromIdx === -1) {
+        // cross-group drop: landing anywhere in the Today group dates the task today
+        reorderClear();
+        if (groupId === 'today') await moveTaskToToday(dragged);
+        return;
+      }
       // remove dragged, then insert at the computed slot (account for the removal shift)
       groupList.splice(fromIdx, 1);
       if (fromIdx < toIdx) toIdx -= 1;
@@ -17520,7 +17565,7 @@ const lociApp = createApp({
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
-      doneOpen, taskImpClass, taskDatePill,
+      doneOpen, taskImpClass, taskDatePill, todayDropHover, todayGroupDragOver, todayGroupDrop,
       dayScheduledHours, dayProgressPct, weekTotalEvents, weekActiveDays, monthEventDays, monthTotalEvents, calendarScrollHeight,
       showAddTask, showTaskTime, newTaskText, addNewTask, onTimeInput, scrollToPicked,
       brainFullscreen, toggleBrainFullscreen,
