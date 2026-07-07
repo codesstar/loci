@@ -551,7 +551,7 @@
     .timp.md { background: linear-gradient(180deg, #e0a23c, #f0c987); }
     .timp.lo { background: var(--line); }
     .tpill { display: inline-block; font-family: var(--mono); font-size: 10px; border-radius: 7px; padding: 2px 8px; margin-right: 6px; white-space: nowrap; }
-    .tpill.time { color: #fff; background: #5b86d6; }
+    .tpill.time { color: #fff; background: var(--accent); }
     .tpill.date { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
     .tpill.date.due-today { color: #b07b1e; background: #fdf6e7; border-color: #f0e0bb; }
     .tpill.late { color: #fff; background: #e0574f; animation: tpillPulse 2s ease-in-out infinite; }
@@ -10788,7 +10788,7 @@ const lociApp = createApp({
       fragments: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></svg>',
     };
     const NAV_COLOR = {
-      overview: '#10b981', today: '#5b86d6', journal: '#e0a23c', fragments: '#9b7ed0',
+      overview: '#10b981', today: '#10b981', journal: '#e0a23c', fragments: '#9b7ed0',
       memory: '#0ea5a4', people: '#e8836b', brain: '#0ea5a4', roadmap: '#6366f1', notes: '#5f9e6e',
     };
     const navItems = computed(() => [
