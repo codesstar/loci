@@ -3608,6 +3608,8 @@
 /* brain status card — the sidebar's bottom becomes a living mini-dashboard */
 .sbA-brainwrap{ margin-top:auto; padding:12px 2px 4px; width:100%; }
 .sbA-collapse--txt{ font-family:var(--mono); font-size:11px; font-weight:600; }
+.sbA-brand--bare{ padding:4px 10px 12px; }
+.sbA-brand--bare .sbA-date{ margin-left:0; margin-right:auto; }
 
 /* today's focus card — sits above the brain card */
 .sbA-focus{
@@ -4580,10 +4582,8 @@
     ]">
       <div class="sbA-sidebar">
 
-        <!-- Brand + date + utilities (lang / collapse live here now — no footer) -->
-        <div class="sbA-brand">
-          <img src="/assets/loci-logo2.png" alt="Loci" class="sbA-logo2" />
-          <span class="sbA-nm">Loci</span>
+        <!-- Top row: date + utilities (logo/wordmark retired — the content is the brand) -->
+        <div class="sbA-brand sbA-brand--bare">
           <span class="sbA-date">{{ currentDateShort }} · {{ currentWeekdayShort }}</span>
           <button class="sbA-collapse sbA-collapse--txt" type="button" @click="toggleLang()" :title="lang === 'zh' ? 'Switch to English' : '切换中文'">{{ lang === 'zh' ? '文' : 'A' }}</button>
           <button class="sbA-collapse" type="button" @click="toggleSidebarCollapsed" :aria-label="lang === 'zh' ? '收起侧边栏' : 'Collapse sidebar'" :title="lang === 'zh' ? '收起侧边栏' : 'Collapse sidebar'"><span aria-hidden="true">‹</span></button>
