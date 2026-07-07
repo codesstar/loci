@@ -1295,11 +1295,14 @@
     .pmk-pop .nm{ font-size:14.5px; font-weight:700; color:var(--ink); }
     .pmk-pop .rel{ font-size:12px; color:var(--ink-2); margin-top:2px; }
     .pmk-pop .loc{ font-size:11px; color:var(--ink-3); margin-top:6px; font-family:var(--mono); }
-    .pmk-pop .acts{ display:flex; gap:8px; margin-top:10px; }
-    .pmk-pop .acts a, .pmk-pop .acts button{ font-size:12px; font-weight:650; border-radius:8px; padding:6px 11px;
-      cursor:pointer; text-decoration:none; border:0; font-family:var(--sans); }
-    .pmk-pop .acts a{ color:#fff; background:var(--accent); }
-    .pmk-pop .acts button{ color:var(--accent-ink); background:var(--accent-weak); }
+    .pmk-pop .provs-label{ font-size:10px; color:var(--ink-4); margin-top:10px; letter-spacing:.04em; }
+    .pmk-pop .provs{ display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; }
+    .pmk-pop .provs a{ font-size:11.5px; font-weight:650; border-radius:8px; padding:5px 10px; text-decoration:none;
+      color:var(--accent-ink); background:var(--accent-weak); border:1px solid rgba(16,185,129,.18); font-family:var(--sans); }
+    .pmk-pop .provs a:hover{ filter:brightness(.97); }
+    .pmk-pop .acts{ display:flex; gap:8px; margin-top:9px; }
+    .pmk-pop .acts button{ font-size:12px; font-weight:650; border-radius:8px; padding:6px 11px;
+      cursor:pointer; border:0; font-family:var(--sans); color:#fff; background:var(--accent); }
     .leaflet-container{ font-family:var(--sans); }
     .leaflet-popup-content-wrapper{ border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,.16); }
     .pg-ctl{ position:absolute; z-index:5; }
@@ -2606,8 +2609,9 @@
     .pe-more-toggle { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding: 6px 0; }
     .pe-more-toggle:hover { color: var(--accent-ink); }
     .pe-more-body { display: flex; flex-direction: column; gap: 11px; padding-top: 4px; }
-    .detail-map-link { font-size: 11px; font-weight: 650; color: var(--accent-ink); text-decoration: none; margin-left: 6px; white-space: nowrap; }
-    .detail-map-link:hover { text-decoration: underline; }
+    .detail-map-link { font-size: 11px; font-weight: 650; color: var(--accent-ink); text-decoration: none; margin-left: 6px; white-space: nowrap;
+      background: var(--accent-weak); border: 1px solid rgba(16,185,129,.18); border-radius: 6px; padding: 1px 7px; }
+    .detail-map-link:hover { filter: brightness(.97); }
     /* reminders in read-mode detail */
     .detail-rem-list { display: flex; flex-direction: column; gap: 7px; }
     .detail-rem { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; color: var(--ink-2); line-height: 1.4; background: var(--accent-weak); border-radius: 8px; padding: 8px 11px; }
@@ -7105,7 +7109,7 @@
                   <div class="detail-row" v-if="selectedPerson.metHow"><span class="detail-row-label">{{ lang === 'zh' ? '怎么认识' : 'How met' }}</span><span class="detail-row-value">{{ selectedPerson.metHow }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.metDate"><span class="detail-row-label">{{ lang === 'zh' ? '认识时间' : 'Met' }}</span><span class="detail-row-value">{{ selectedPerson.metDate }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.metPlace"><span class="detail-row-label">{{ lang === 'zh' ? '认识地点' : 'Place' }}</span><span class="detail-row-value">{{ selectedPerson.metPlace }}</span></div>
-                  <div class="detail-row" v-if="selectedPerson.location"><span class="detail-row-label">{{ lang === 'zh' ? '所在地' : 'Location' }}</span><span class="detail-row-value">{{ selectedPerson.location }} <a class="detail-map-link" :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(selectedPerson.location)" target="_blank" rel="noopener">{{ lang === 'zh' ? '地图 ↗' : 'Map ↗' }}</a></span></div>
+                  <div class="detail-row" v-if="selectedPerson.location"><span class="detail-row-label">{{ lang === 'zh' ? '所在地' : 'Location' }}</span><span class="detail-row-value">{{ selectedPerson.location }} <template v-for="(m, mi) in mapLinks(selectedPerson.location)" :key="m.k"><a class="detail-map-link" :href="m.url" target="_blank" rel="noopener">{{ m.label }}</a></template></span></div>
                   <div class="detail-row" v-if="selectedPerson.hometown"><span class="detail-row-label">{{ lang === 'zh' ? '老家' : 'Hometown' }}</span><span class="detail-row-value">{{ selectedPerson.hometown }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.lastContact"><span class="detail-row-label">{{ lang === 'zh' ? '最近联系' : 'Last contact' }}</span><span class="detail-row-value">{{ selectedPerson.lastContact }}</span></div>
                   <div class="detail-row">
@@ -14116,6 +14120,18 @@ const lociApp = createApp({
     }
 
     // ── People Map view (Leaflet + OSM/CARTO tiles; free Nominatim geocoding) ──
+    // Deep links to the user's preferred map app — all four take the raw address
+    // text, so navigation precision comes from the target app, not our pin.
+    function mapLinks(location) {
+      const q = encodeURIComponent(String(location || '').trim());
+      if (!q) return [];
+      return [
+        { k: 'google', label: 'Google', url: 'https://www.google.com/maps/search/?api=1&query=' + q },
+        { k: 'amap',   label: '高德',    url: 'https://uri.amap.com/search?keyword=' + q + '&callnative=1' },
+        { k: 'apple',  label: 'Apple',  url: 'https://maps.apple.com/?q=' + q },
+        { k: 'baidu',  label: '百度',    url: 'https://api.map.baidu.com/place/search?query=' + q + '&region=' + encodeURIComponent('全国') + '&output=html&src=webapp.loci.dashboard' },
+      ];
+    }
     const pmapEl = ref(null);
     const pmapNoLoc = computed(() =>
       (peopleData.value || []).filter(p => !(p.location || '').trim()).map(p => p.name));
@@ -14163,16 +14179,17 @@ const lociApp = createApp({
           const icon = L.divIcon({ className: '', iconSize: [44, 44], iconAnchor: [22, 22], html:
             '<div class="pmk"><div class="pmk-av" style="--ring:' + color + '"><img src="' + p.photo + '" onerror="this.remove()"></div>' +
             '<div class="pmk-name">' + p.name + '</div></div>' });
-          const gq = encodeURIComponent(p.location);
           const safeName = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const provs = mapLinks(p.location).map(m =>
+            '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('');
           const mk = L.marker([lat, lng], { icon }).addTo(pmapMap).bindPopup(
             '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
             (p.relation ? '<div class="rel">' + p.relation + '</div>' : '') +
             '<div class="loc">📍 ' + p.location + '</div>' +
-            '<div class="acts"><a href="https://www.google.com/maps/search/?api=1&query=' + gq + '" target="_blank" rel="noopener">' +
-            (zh ? '地图 ↗' : 'Map ↗') + '</a>' +
-            '<button onclick="window.__lociOpenPerson && window.__lociOpenPerson(\'' + safeName + '\')">' +
-            (zh ? '详情' : 'Details') + '</button></div></div>');
+            '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div>' +
+            '<div class="provs">' + provs + '</div>' +
+            '<div class="acts"><button onclick="window.__lociOpenPerson && window.__lociOpenPerson(\'' + safeName + '\')">' +
+            (zh ? '查看详情' : 'Details') + '</button></div></div>');
           pmapMarkers.push(mk); bounds.push([lat, lng]);
         });
       }
@@ -17321,7 +17338,7 @@ const lociApp = createApp({
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
       intDraftEdit, intDraftAdd, addInteraction, removeInteraction,
-      pmapEl, pmapNoLoc,
+      pmapEl, pmapNoLoc, mapLinks,
       peopleQuery, peopleTagFilter, peopleAllTags, peopleFilterActive,
       familyFiltered, friendFiltered, partnerFiltered, prospectFiltered, mentorFiltered,
       pplAddOpen, pplSaving, addForm, pplAddNameInput, pplOpenAdd, pplSubmitAdd,
