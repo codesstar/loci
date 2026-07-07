@@ -553,6 +553,7 @@
     .tpill { display: inline-block; font-family: var(--mono); font-size: 10px; border-radius: 7px; padding: 2px 8px; margin-right: 6px; white-space: nowrap; }
     .tpill.time { color: #fff; background: #5b86d6; }
     .tpill.date { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
+    .tpill.date.due-today { color: #b07b1e; background: #fdf6e7; border-color: #f0e0bb; }
     .tpill.late { color: #fff; background: #e0574f; animation: tpillPulse 2s ease-in-out infinite; }
     .tpill.loc { color: var(--ink-3); background: transparent; padding-left: 0; }
     @keyframes tpillPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,87,79,.3); } 50% { box-shadow: 0 0 0 4px rgba(224,87,79,0); } }
@@ -798,22 +799,22 @@
     .hud-now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--red); z-index: 5; }
     .hud-now-line::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
     .hud-event {
-      position: absolute; border-radius: 10px; overflow: hidden; cursor: pointer;
-      background: var(--accent-weak); color: var(--accent-ink);
-      box-shadow: var(--shadow-sm); display: flex; z-index: 2;
-      transition: box-shadow .14s ease;
+      position: absolute; border-radius: 11px; overflow: hidden; cursor: pointer;
+      background: linear-gradient(135deg, #0ea371, #10b981 60%, #23c894); color: #fff;
+      box-shadow: 0 5px 14px rgba(16,185,129,.3); display: flex; z-index: 2;
+      transition: box-shadow .14s ease, transform .14s ease, filter .14s ease;
     }
-    .hud-event:hover { box-shadow: var(--shadow); }
-    .hud-event::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
-    .hud-event .ev-tag { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; margin-right: 6px; }
-    /* event-type accents — default (personal / 个人事务) is emerald (set above).
-       task projection = amber, meeting = blue, rest/meal = neutral gray. */
-    .hud-event.ev-task    { background: #fef3e2; color: #b45309; }
-    .hud-event.ev-task::before    { background: var(--orange); }
-    .hud-event.ev-meeting { background: var(--blue-weak); color: var(--blue-ink); }
-    .hud-event.ev-meeting::before { background: var(--blue); }
-    .hud-event.ev-rest    { background: var(--surface-2); color: var(--ink-2); }
-    .hud-event.ev-rest::before    { background: var(--ink-4); }
+    .hud-event:hover { box-shadow: 0 8px 20px rgba(16,185,129,.38); transform: translateY(-1px); filter: brightness(1.04); }
+    .hud-event::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,.4); }
+    .hud-event .ev-tag { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin-right: 6px; }
+    /* event-type gradients — personal = emerald (above), meeting = blue,
+       rest/meal = amber, pulled-from-task = indigo. White text throughout. */
+    .hud-event.ev-task    { background: linear-gradient(135deg, #5a5fd8, #6366f1 60%, #818cf8); box-shadow: 0 5px 14px rgba(99,102,241,.32); }
+    .hud-event.ev-task:hover { box-shadow: 0 8px 20px rgba(99,102,241,.4); }
+    .hud-event.ev-meeting { background: linear-gradient(135deg, #4a76c8, #5b86d6 60%, #7ba0e2); box-shadow: 0 5px 14px rgba(91,134,214,.32); }
+    .hud-event.ev-meeting:hover { box-shadow: 0 8px 20px rgba(91,134,214,.4); }
+    .hud-event.ev-rest    { background: linear-gradient(135deg, #d99a2b, #e0a23c 60%, #ecbd6b); box-shadow: 0 5px 14px rgba(224,162,60,.32); }
+    .hud-event.ev-rest:hover { box-shadow: 0 8px 20px rgba(224,162,60,.4); }
 
     .badge-p0, .badge-p1, .badge-p2, .badge-p3 {
       font-family: var(--mono); font-size: 11px; font-weight: 600;
@@ -4530,7 +4531,7 @@
       <div class="tm-modal">
         <div class="tm-head">
           <div class="tm-title">
-            <div class="tm-eyebrow">{{ lang === 'zh' ? '任务详情' : 'Task detail' }}</div>
+            <div class="tm-eyebrow">{{ detailMode === 'create' ? (lang === 'zh' ? '新任务' : 'New task') : (lang === 'zh' ? '任务详情' : 'Task detail') }}</div>
             <input class="tm-name-input" v-model="editDetail.text" @keyup.enter="saveTaskDetail()" :placeholder="lang === 'zh' ? '任务标题' : 'Task title'">
 
           </div>
@@ -4548,8 +4549,8 @@
           <div class="tm-field">
             <label>{{ lang === 'zh' ? '紧急程度' : 'Priority' }}</label>
             <div class="tm-seg">
-              <button data-p="P0" :class="{ on: editDetail.priority === 'P0' }" @click="editDetail.priority = 'P0'">P0</button>
-              <button data-p="P1" :class="{ on: editDetail.priority === 'P1' }" @click="editDetail.priority = 'P1'">P1</button>
+              <button data-p="P0" :class="{ on: editDetail.priority === 'P0' }" @click="editDetail.priority = 'P0'">{{ lang === 'zh' ? '紧急' : 'Urgent' }}</button>
+              <button data-p="P1" :class="{ on: editDetail.priority === 'P1' }" @click="editDetail.priority = 'P1'">{{ lang === 'zh' ? '重要' : 'Important' }}</button>
               <button data-p="none" :class="{ on: !editDetail.priority }" @click="editDetail.priority = null">{{ lang === 'zh' ? '无' : 'None' }}</button>
             </div>
           </div>
@@ -4566,9 +4567,9 @@
           </div>
         </div>
         <div class="tm-foot">
-          <button class="tm-del" @click="deleteTaskConfirmed(detailTask); closeTaskDetail()">{{ lang === 'zh' ? '删除' : 'Delete' }}</button>
+          <button v-if="detailMode !== 'create'" class="tm-del" @click="deleteTaskConfirmed(detailTask); closeTaskDetail()">{{ lang === 'zh' ? '删除' : 'Delete' }}</button>
           <button class="tm-cancel" @click="closeTaskDetail()">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
-          <button class="tm-save" @click="saveTaskDetail()">{{ lang === 'zh' ? '保存' : 'Save' }}</button>
+          <button class="tm-save" @click="saveTaskDetail()">{{ detailMode === 'create' ? (lang === 'zh' ? '创建任务' : 'Create') : (lang === 'zh' ? '保存' : 'Save') }}</button>
         </div>
       </div>
     </div>
@@ -5033,62 +5034,10 @@
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                   <input v-model="newTaskText" @keydown.enter="$event.isComposing ? null : (newTaskText.trim() && addNewTask())" :placeholder="t('today.newMission')"
                     class="s7-add-input" style="flex: 1; min-width: 220px; font-size: 12px; padding: 7px 10px;">
-                  <button @click="showTaskDetail = !showTaskDetail" class="s7-add-btn" :class="{ 'detail-on': showTaskDetail }">
+                  <button @click="openCreateDetail()" class="s7-add-btn">
                     <span style="display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M4 6h16M4 12h16M4 18h10"/></svg>{{ lang === 'zh' ? '详情' : 'Detail' }}</span>
                   </button>
                   <button @click="addNewTask()" class="s7-add-btn s7-add-primary">{{ t('plan.add') }}</button>
-                </div>
-
-                <!-- new-task detail panel -->
-                <div v-if="showTaskDetail" class="tdetail" style="margin-top:10px;">
-                  <div class="tdetail-row">
-                    <div class="tdetail-field" style="position:relative;">
-                      <label>{{ lang === 'zh' ? '开始时间' : 'Start' }}</label>
-                      <input type="text" :value="taskStartLabel" @input="onTimeInput('taskStart', $event)"
-                        @focus="openTimePicker = 'taskStart'; scrollToPicked()" @click.stop
-                        :placeholder="lang === 'zh' ? '点选时间' : 'pick time'">
-                      <div v-if="openTimePicker === 'taskStart'" class="time-picker-list active" @mousedown.prevent @click.stop>
-                        <div v-for="s in timeSlots" :key="'task-start-main-'+s.key" :class="{'tp-selected': s.key === taskScheduleStart}"
-                          class="tp-item" @click="pickTime('taskStart', s.key)">{{ s.label }}</div>
-                      </div>
-                    </div>
-                    <div class="tdetail-field" style="position:relative;">
-                      <label>{{ lang === 'zh' ? '结束时间' : 'End' }}</label>
-                      <input type="text" :value="taskEndLabel" @input="onTimeInput('taskEnd', $event)"
-                        @focus="openTimePicker = 'taskEnd'; scrollToPicked()" @click.stop
-                        :placeholder="lang === 'zh' ? '可选' : 'optional'">
-                      <div v-if="openTimePicker === 'taskEnd'" class="time-picker-list active" @mousedown.prevent @click.stop>
-                        <div v-for="s in timeSlots" :key="'task-end-main-'+s.key" :class="{'tp-selected': s.key === taskScheduleEnd}"
-                          class="tp-item" @click="pickTime('taskEnd', s.key)">{{ s.label }}</div>
-                      </div>
-                    </div>
-                    <div class="tdetail-field">
-                      <label>{{ lang === 'zh' ? '地点' : 'Location' }}</label>
-                      <input v-model="newTaskLocation" :placeholder="lang === 'zh' ? '如 公司 / 咖啡馆' : 'e.g. office'">
-                    </div>
-                  </div>
-                  <div class="tdetail-row">
-                    <div class="tdetail-field">
-                      <label>{{ lang === 'zh' ? '紧急程度' : 'Priority' }}</label>
-                      <div class="tseg">
-                        <button v-for="p in ['P0','P1']" :key="p" :data-p="p"
-                          :class="{ on: newTaskPriority === p }" @click="newTaskPriority = (newTaskPriority === p ? null : p)">{{ p === 'P0' ? (lang === 'zh' ? '紧急' : 'Urgent') : (lang === 'zh' ? '重要' : 'Important') }}</button>
-                      </div>
-                    </div>
-                    <div class="tdetail-field">
-                      <label>{{ lang === 'zh' ? '颜色' : 'Color' }}</label>
-                      <div class="tsw-wrap">
-                        <span v-for="c in taskColors" :key="c" class="tsw" :data-c="c"
-                          :class="{ on: (newTaskColor || 'none') === c }" @click="newTaskColor = (c === 'none' ? null : c)"></span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="tdetail-row">
-                    <div class="tdetail-field" style="flex:1 1 100%;">
-                      <label>{{ lang === 'zh' ? '备注 / 描述' : 'Note' }}</label>
-                      <textarea v-model="newTaskNote" :placeholder="lang === 'zh' ? '细节、链接、上下文…' : 'details, links…'"></textarea>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -5134,7 +5083,7 @@
                     <div class="nm">{{ task.text }}</div>
                     <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
-                      <span v-if="task.date && !taskOverdueDays(task) && taskDatePill(task) !== (lang === 'zh' ? '今日' : 'Today')" class="tpill date">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(task) }}</span>
+                      <span v-if="task.date && !taskOverdueDays(task)" class="tpill date" :class="{ 'due-today': taskDatePill(task) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(task) }}</span>
                       <span v-if="task.startTime" class="tpill time">{{ task.startTime }}</span>
                       <span v-if="task.location" class="tpill loc">📍 {{ task.location }}</span>
                     </div>
@@ -11988,13 +11937,19 @@ const lociApp = createApp({
       });
     }
 
-    // Scroll the day-calendar timeline so the working day (from ~7:00) is in view.
+    // Scroll the day-calendar timeline into a useful position: on today,
+    // land near the current time (now-line ~1/3 from the top, so the next
+    // couple of hours are visible); on other days, start of the working day.
     function scrollTimelineToWork() {
       const el = calendarScrollRef.value;
       if (!el) return;
-      // minuteToY(7*60) — keep a little headroom above 7:00
-      const target = Math.max(0, (7 * 60 - START_HOUR * 60) * (PX_PER_HOUR / 60) - 12);
-      el.scrollTop = target;
+      let targetMin = 7 * 60;
+      if (calendarDayOffset.value === 0 && calendarView.value === 'day') {
+        const now = new Date();
+        targetMin = now.getHours() * 60 + now.getMinutes();
+      }
+      const y = (targetMin - START_HOUR * 60) * (PX_PER_HOUR / 60);
+      el.scrollTop = Math.max(0, y - (el.clientHeight || 480) / 3);
     }
 
     function getClassOffset(classes, idx) {
@@ -15783,6 +15738,10 @@ const lociApp = createApp({
     function dragTask(event, fromGroup, task) {
       draggingTask.value = task;
       draggingFrom.value = fromGroup;
+      // also register for group-level drops (Today/Backlog), so dragging the
+      // row body — not just the six-dot grip — can move a task across groups
+      reorderState.task = task;
+      reorderState.fromKey = null;
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', 'task');
     }
@@ -16388,7 +16347,9 @@ const lociApp = createApp({
     const detailTask = ref(null);     // the task object currently open in the modal
     const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null });
 
+    const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
     function openTaskDetail(task) {
+      detailMode.value = 'edit';
       detailTask.value = task;
       editDetail.text = task.text || '';
       editDetail.date = task.date || '';
@@ -16398,9 +16359,56 @@ const lociApp = createApp({
       editDetail.note = task.note || '';
       editDetail.priority = levelsToPriority(task);
     }
-    function closeTaskDetail() { detailTask.value = null; }
+    // The add-row's 详情 button opens the SAME modal in create mode, prefilled
+    // with whatever was typed in the quick-add input.
+    function openCreateDetail() {
+      detailMode.value = 'create';
+      detailTask.value = { _isNew: true };
+      editDetail.text = newTaskText.value.trim();
+      editDetail.date = '';
+      editDetail.time = '';
+      editDetail.location = '';
+      editDetail.color = null;
+      editDetail.note = '';
+      editDetail.priority = null;
+    }
+    function closeTaskDetail() { detailTask.value = null; detailMode.value = 'edit'; }
+
+    async function createTaskFromModal() {
+      const text = editDetail.text.trim();
+      if (!text) return;
+      const levels = priorityToLevels(editDetail.priority);
+      const payload = {
+        text,
+        date: editDetail.date || null,
+        startTime: editDetail.time || null,
+        location: editDetail.location || null,
+        color: editDetail.color || null,
+        note: editDetail.note || null,
+        urgency: levels.urgency,
+        importance: levels.importance,
+        source: 'dashboard',
+      };
+      // optimistic: show it in the pool immediately
+      const localTask = { text, done: false, date: payload.date, startTime: payload.startTime,
+        location: payload.location, color: payload.color, note: payload.note,
+        urgency: levels.urgency, importance: levels.importance };
+      const target = data.value?.tasks?.active_tasks;
+      if (target) { if (!target.P1) target.P1 = []; target.P1.push(localTask); }
+      newTaskText.value = '';
+      closeTaskDetail();
+      try {
+        const res = await demoFetch('/api/tasks/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) { const out = await res.json(); if (out.task?.id) localTask.id = out.task.id; }
+        else throw new Error('add failed ' + res.status);
+      } catch (e) { console.error('Failed to create task:', e); }
+    }
 
     async function saveTaskDetail() {
+      if (detailMode.value === 'create') { await createTaskFromModal(); return; }
       const task = detailTask.value;
       if (!task) return;
       const levels = priorityToLevels(editDetail.priority);
@@ -17162,6 +17170,8 @@ const lociApp = createApp({
         }
       }
       loading.value = false;
+      // land the schedule near the current time if we open on the tasks page
+      nextTick(() => { if (currentPage.value === 'today') scrollTimelineToWork(); });
 
       // Start canvas clock
       drawClock();
@@ -17598,7 +17608,7 @@ const lociApp = createApp({
       reorderState, reorderDragStart, reorderDragOver, reorderDrop, reorderDragEnd,
       confirmDeleteId, askDeleteTask, deleteTaskConfirmed,
       taskColors, showTaskDetail, newTaskLocation, newTaskColor, newTaskNote, newTaskPriority,
-      detailTask, editDetail, openTaskDetail, closeTaskDetail, saveTaskDetail,
+      detailTask, editDetail, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
