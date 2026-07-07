@@ -57,6 +57,9 @@
 
   <!-- Local frontend runtime dependencies -->
   <script src="vendor/tailwindcss.js"></script>
+  <!-- Leaflet (people map view) — vendored; map tiles still need network -->
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <script src="vendor/leaflet.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -1274,6 +1277,31 @@
       background:radial-gradient(120% 90% at 50% 38%, #ffffff 0%, #fcfcfb 55%, var(--bg) 100%);
       border:1px solid var(--line); box-shadow:0 1px 2px rgba(20,20,18,.03),0 10px 26px rgba(20,20,18,.05),0 34px 66px rgba(20,20,18,.04); }
     .pg-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; }
+
+    /* ── People Map view (Leaflet) ─────────────────────────────── */
+    .pmap-canvas{ position:absolute; inset:0; z-index:1; background:#f6f6f3; }
+    .pmap-noloc{ position:absolute; left:14px; bottom:14px; z-index:500; background:rgba(255,255,255,.92);
+      border:1px solid var(--line); border-radius:10px; padding:6px 12px; font-size:11.5px; color:var(--ink-3);
+      max-width:min(70%,560px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .pmk{ position:relative; }
+    .pmk, .pmk *{ pointer-events:none; }   /* clicks land on Leaflet's marker button, even when markers overlap */
+    .pmk-av{ width:44px; height:44px; border-radius:50%; border:3px solid #fff; outline:3px solid var(--ring,#10b981);
+      box-shadow:0 3px 10px rgba(0,0,0,.25); overflow:hidden; background:#fff; }
+    .pmk-av img{ width:100%; height:100%; object-fit:cover; }
+    .pmk-name{ position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:4px; white-space:nowrap;
+      font-size:11px; font-weight:650; color:var(--ink); background:rgba(255,255,255,.92); border:1px solid var(--line);
+      padding:1px 8px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.1); }
+    .pmk-pop{ min-width:170px; font-family:var(--sans); }
+    .pmk-pop .nm{ font-size:14.5px; font-weight:700; color:var(--ink); }
+    .pmk-pop .rel{ font-size:12px; color:var(--ink-2); margin-top:2px; }
+    .pmk-pop .loc{ font-size:11px; color:var(--ink-3); margin-top:6px; font-family:var(--mono); }
+    .pmk-pop .acts{ display:flex; gap:8px; margin-top:10px; }
+    .pmk-pop .acts a, .pmk-pop .acts button{ font-size:12px; font-weight:650; border-radius:8px; padding:6px 11px;
+      cursor:pointer; text-decoration:none; border:0; font-family:var(--sans); }
+    .pmk-pop .acts a{ color:#fff; background:var(--accent); }
+    .pmk-pop .acts button{ color:var(--accent-ink); background:var(--accent-weak); }
+    .leaflet-container{ font-family:var(--sans); }
+    .leaflet-popup-content-wrapper{ border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,.16); }
     .pg-ctl{ position:absolute; z-index:5; }
     .pg-search{ top:18px; left:18px; display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 14px; width:240px; box-shadow:0 1px 3px rgba(20,20,18,.05); }
     .pg-search svg{ width:14px; height:14px; color:var(--ink-3); flex:none; }
@@ -6649,6 +6677,7 @@
                 <button :class="{ active: viewMode === 'grid' }" @click="setViewMode('grid')">{{ lang === 'zh' ? '网格' : 'Grid' }}</button>
                 <button :class="{ active: viewMode === 'coverflow' }" @click="setViewMode('coverflow')">{{ lang === 'zh' ? '封面流' : 'Cover Flow' }}</button>
                 <button :class="{ active: viewMode === 'graph' }" @click="setViewMode('graph')">{{ lang === 'zh' ? '关系图' : 'Graph' }}</button>
+                <button :class="{ active: viewMode === 'map' }" @click="setViewMode('map')">{{ lang === 'zh' ? '地图' : 'Map' }}</button>
               </div>
               <div class="pc-layout-toggle" v-if="viewMode === 'grid'">
                 <button :class="{ active: cardLayout === 'framed' }" @click="cardLayout = 'framed'">{{ lang === 'zh' ? '卡框' : 'Framed' }}</button>
@@ -6934,6 +6963,12 @@
               <span class="seg"><span class="ln" style="height:1px"></span>{{ lang === 'zh' ? '久未联系' : 'Distant' }}</span>
             </div>
             <div class="pg-ctl pg-hint">{{ pgConnectMode ? (lang === 'zh' ? '点两个人 → 连成关系' : 'Click two people to link') : (lang === 'zh' ? '点节点聚焦 · 拖拽 · 滚轮缩放' : 'Click to focus · drag · scroll to zoom') }}</div>
+          </div>
+
+          <!-- People Map view (viewMode === 'map') — Leaflet over OSM/CARTO tiles -->
+          <div v-else-if="viewMode === 'map'" class="pg-stage pmap-stage">
+            <div ref="pmapEl" class="pmap-canvas"></div>
+            <div v-if="pmapNoLoc.length" class="pmap-noloc">{{ lang === 'zh' ? '未填位置' : 'No location' }} ({{ pmapNoLoc.length }})：{{ pmapNoLoc.join('、') }}</div>
           </div>
 
           <!-- hidden file input for avatar upload -->
@@ -14077,7 +14112,77 @@ const lociApp = createApp({
       }
       if (m === 'graph') nextTick(() => pgStart());
       else pgStop();
+      if (m === 'map') nextTick(() => pmapStart());
     }
+
+    // ── People Map view (Leaflet + OSM/CARTO tiles; free Nominatim geocoding) ──
+    const pmapEl = ref(null);
+    const pmapNoLoc = computed(() =>
+      (peopleData.value || []).filter(p => !(p.location || '').trim()).map(p => p.name));
+    let pmapMap = null, pmapMarkers = [];
+    const PMAP_CAT = { family: '#e8836b', friend: '#10b981', partner: '#5b86d6', prospect: '#e0a23c', mentor: '#9b7ed0' };
+    // Place name → coordinates. Free Nominatim API; picks the highest-importance
+    // candidate (so "Sydney" resolves to Sydney AU, not the small Canadian one)
+    // and caches results in localStorage — each place is looked up once, ever.
+    async function pmapGeocode(q) {
+      const key = 'loci.geo.v2.' + q.toLowerCase();
+      try { const c = localStorage.getItem(key); if (c) return JSON.parse(c); } catch {}
+      try {
+        const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&q=' + encodeURIComponent(q),
+          { headers: { 'Accept-Language': 'zh,en' } });
+        const j = await r.json();
+        if (!j || !j.length) return null;
+        const best = j.reduce((a, b) => ((+b.importance || 0) > (+a.importance || 0) ? b : a));
+        const out = { lat: +best.lat, lng: +best.lon };
+        try { localStorage.setItem(key, JSON.stringify(out)); } catch {}
+        return out;
+      } catch { return null; }   // offline → no pin, page still works
+    }
+    async function pmapStart() {
+      if (typeof L === 'undefined' || !pmapEl.value) return;
+      if (!pmapMap) {
+        pmapMap = L.map(pmapEl.value, { zoomControl: true }).setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19,
+        }).addTo(pmapMap);
+      }
+      pmapMap.invalidateSize();
+      pmapMarkers.forEach(mk => mk.remove()); pmapMarkers = [];
+      const zh = lang.value === 'zh';
+      const withLoc = (peopleData.value || []).filter(p => (p.location || '').trim());
+      const byLoc = {};
+      withLoc.forEach(p => { const k = p.location.trim(); (byLoc[k] = byLoc[k] || []).push(p); });
+      const bounds = [];
+      for (const [loc, ppl] of Object.entries(byLoc)) {
+        const c = await pmapGeocode(loc); if (!c) continue;
+        ppl.forEach((p, i) => {
+          // same-place people fan out ~2km so they don't stack (indicative, not exact)
+          const n = ppl.length, spread = n > 1 ? 0.02 : 0, ang = (2 * Math.PI * i) / Math.max(n, 1);
+          const lat = c.lat + spread * Math.sin(ang), lng = c.lng + spread * Math.cos(ang) * 1.4;
+          const color = PMAP_CAT[p.category] || PMAP_CAT.friend;
+          const icon = L.divIcon({ className: '', iconSize: [44, 44], iconAnchor: [22, 22], html:
+            '<div class="pmk"><div class="pmk-av" style="--ring:' + color + '"><img src="' + p.photo + '" onerror="this.remove()"></div>' +
+            '<div class="pmk-name">' + p.name + '</div></div>' });
+          const gq = encodeURIComponent(p.location);
+          const safeName = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const mk = L.marker([lat, lng], { icon }).addTo(pmapMap).bindPopup(
+            '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
+            (p.relation ? '<div class="rel">' + p.relation + '</div>' : '') +
+            '<div class="loc">📍 ' + p.location + '</div>' +
+            '<div class="acts"><a href="https://www.google.com/maps/search/?api=1&query=' + gq + '" target="_blank" rel="noopener">' +
+            (zh ? '地图 ↗' : 'Map ↗') + '</a>' +
+            '<button onclick="window.__lociOpenPerson && window.__lociOpenPerson(\'' + safeName + '\')">' +
+            (zh ? '详情' : 'Details') + '</button></div></div>');
+          pmapMarkers.push(mk); bounds.push([lat, lng]);
+        });
+      }
+      if (bounds.length) pmapMap.fitBounds(bounds, { padding: [70, 70], maxZoom: 11 });
+    }
+    // popup "详情" button → open the regular person detail overlay
+    window.__lociOpenPerson = (name) => {
+      const p = (peopleData.value || []).find(x => x.name === name);
+      if (p) openPersonDetail(p);
+    };
 
     // ── People Relationship Graph (force-directed canvas) ──────────────────
     const pgCanvas = ref(null);
@@ -17216,6 +17321,7 @@ const lociApp = createApp({
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
       intDraftEdit, intDraftAdd, addInteraction, removeInteraction,
+      pmapEl, pmapNoLoc,
       peopleQuery, peopleTagFilter, peopleAllTags, peopleFilterActive,
       familyFiltered, friendFiltered, partnerFiltered, prospectFiltered, mentorFiltered,
       pplAddOpen, pplSaving, addForm, pplAddNameInput, pplOpenAdd, pplSubmitAdd,
