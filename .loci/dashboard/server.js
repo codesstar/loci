@@ -347,6 +347,8 @@ function normalizeTask(task) {
     project: task.project || null,
     urgency: clampLevel(task.urgency),
     importance: clampLevel(task.importance),
+    // "do it TODAY" pick — independent of the deadline in `date`
+    plannedFor: task.plannedFor || null,
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,
@@ -2129,7 +2131,7 @@ function handleTaskAdd(body) {
 // importance / date / time). Only provided fields are changed; the rest stay.
 function handleTaskUpdateDetail(body) {
   const { id, title, location, color, note, urgency, importance,
-          date, endDate, startTime, endTime } = body;
+          date, endDate, startTime, endTime, plannedFor } = body;
   if (!id) return { error: 'Missing task id' };
   const tasks = loadTaskRecords();
   const target = tasks.find(t => t.id === id);
@@ -2146,6 +2148,7 @@ function handleTaskUpdateDetail(body) {
   if (endDate !== undefined)   target.endDate   = endDate || null;
   if (startTime !== undefined) target.startTime = startTime || null;
   if (endTime !== undefined)   target.endTime   = endTime || null;
+  if (plannedFor !== undefined) target.plannedFor = plannedFor || null;
   target.updatedAt = isoNow();
   saveTaskRecords(tasks);
   return { ok: true, task: target };

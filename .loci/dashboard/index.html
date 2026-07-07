@@ -566,6 +566,7 @@
     .done-bar .db-n { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); }
     .done-bar .db-ar { margin-left: auto; font-size: 11px; color: var(--ink-4); }
     .today-drop { outline: 2px dashed #e0a23c; outline-offset: 3px; border-radius: 13px; background: #fdf8ee; }
+    .backlog-drop { outline: 2px dashed var(--line-2); outline-offset: 3px; border-radius: 13px; background: var(--surface-2); }
     .today-empty { padding: 10px 12px; border: 1.5px dashed var(--line-2); border-radius: 12px; font-size: 11.5px; color: var(--ink-4); text-align: center; }
     .tk-stats { display: inline-flex; gap: 6px; align-items: center; }
     .tks { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink-3);
@@ -5107,12 +5108,12 @@
                   <span class="tg-line"></span>
                 </div>
                 <div v-show="group.id !== 'done' || doneOpen"
-                  :class="[group.tone === 'late' ? 'late-wrap' : '', group.id === 'today' && todayDropHover ? 'today-drop' : '']"
-                  @dragover="group.id === 'today' ? todayGroupDragOver($event) : null"
-                  @dragleave="group.id === 'today' ? (todayDropHover = false) : null"
-                  @drop="group.id === 'today' ? todayGroupDrop($event) : null">
+                  :class="[group.tone === 'late' ? 'late-wrap' : '', group.id === 'today' && todayDropHover ? 'today-drop' : '', group.id === 'backlog' && backlogDropHover ? 'backlog-drop' : '']"
+                  @dragover="group.id === 'today' ? todayGroupDragOver($event) : (group.id === 'backlog' ? backlogGroupDragOver($event) : null)"
+                  @dragleave="group.id === 'today' ? (todayDropHover = false) : (group.id === 'backlog' ? (backlogDropHover = false) : null)"
+                  @drop="group.id === 'today' ? todayGroupDrop($event) : (group.id === 'backlog' ? backlogGroupDrop($event) : null)">
                 <div v-if="group.id === 'today' && group.tasks.length === 0" class="today-empty">
-                  {{ lang === 'zh' ? '把待办拖到这里，就排进今天' : 'Drag a task here to do it today' }}
+                  {{ lang === 'zh' ? '把待办拖到这里 = 今天做（不改截止日期）' : 'Drag a task here to do it today (deadline untouched)' }}
                 </div>
                 <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
                   draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
@@ -5133,7 +5134,7 @@
                     <div class="nm">{{ task.text }}</div>
                     <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
-                      <span v-if="task.date && !taskOverdueDays(task) && group.id !== 'today'" class="tpill date">{{ taskDatePill(task) }}</span>
+                      <span v-if="task.date && !taskOverdueDays(task) && taskDatePill(task) !== (lang === 'zh' ? '今日' : 'Today')" class="tpill date">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(task) }}</span>
                       <span v-if="task.startTime" class="tpill time">{{ task.startTime }}</span>
                       <span v-if="task.location" class="tpill loc">📍 {{ task.location }}</span>
                     </div>
@@ -15178,8 +15179,11 @@ const lociApp = createApp({
       const todayKey = dateToKey(new Date());
       const open = tasks.filter(t => !t.done);
       const overdue = open.filter(t => taskOverdueDays(t));
-      const today = open.filter(t => !taskOverdueDays(t) && t.date && taskIntersectsDate(t, todayKey));
-      const backlog = open.filter(t => !taskOverdueDays(t) && !(t.date && taskIntersectsDate(t, todayKey)));
+      // Today = deadline is today (auto) ∪ picked for today (dragged in; the
+      // deadline in `date` is untouched — plannedFor is a per-day intention).
+      const inToday = t => (t.date && taskIntersectsDate(t, todayKey)) || t.plannedFor === todayKey;
+      const today = open.filter(t => !taskOverdueDays(t) && inToday(t));
+      const backlog = open.filter(t => !taskOverdueDays(t) && !inToday(t));
       return [
         { id: 'overdue', tone: 'late',  label: zh ? '逾期' : 'Overdue', tasks: sortTasksForTaskPage(overdue) },
         { id: 'today',   tone: 'today', label: zh ? '今天' : 'Today',   tasks: sortTasksForTaskPage(today) },
@@ -15187,25 +15191,38 @@ const lociApp = createApp({
         { id: 'done',    tone: 'done',  label: zh ? '已完成' : 'Done',  tasks: sortTasksByCompletedDesc(tasks.filter(t => t.done)) },
       ].filter(g => g.id === 'done' || g.id === 'today' || g.tasks.length > 0);
     });
-    // Drag a task onto the Today group → its date becomes today (deliberate,
-    // guarded-writer persisted; the row then re-groups itself reactively).
+    // Drag onto Today = "I want to do this today": sets plannedFor, NEVER the
+    // deadline. Drag a picked task back to Backlog = un-pick (plannedFor
+    // cleared; the deadline stays exactly as it was). Deadline-today tasks
+    // can't be dragged out — today is simply their day.
     const todayDropHover = ref(false);
-    async function moveTaskToToday(task) {
-      if (!task || task.done) return;
-      const todayKey = dateToKey(new Date());
-      if (task.date === todayKey) return;
-      const prev = { date: task.date, endDate: task.endDate };
-      task.date = todayKey; task.endDate = null;   // optimistic
+    const backlogDropHover = ref(false);
+    async function setTaskPlannedFor(task, value) {
+      const prev = task.plannedFor || null;
+      if (prev === value) return;
+      task.plannedFor = value;   // optimistic
       try {
         const res = await fetch('/api/tasks/update-detail', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: task.id, date: todayKey, endDate: null }),
+          body: JSON.stringify({ id: task.id, plannedFor: value }),
         });
         if (!res.ok) throw new Error('update failed ' + res.status);
       } catch (e) {
-        task.date = prev.date; task.endDate = prev.endDate;
-        console.error('Failed to move task to today:', e);
+        task.plannedFor = prev;
+        console.error('Failed to update plannedFor:', e);
       }
+    }
+    async function moveTaskToToday(task) {
+      if (!task || task.done) return;
+      const todayKey = dateToKey(new Date());
+      if (task.date && taskIntersectsDate(task, todayKey)) return;   // already due today
+      await setTaskPlannedFor(task, todayKey);
+    }
+    async function unplanTask(task) {
+      if (!task || task.done) return;
+      const todayKey = dateToKey(new Date());
+      if (task.date && taskIntersectsDate(task, todayKey)) return;   // due today → belongs in today
+      if (task.plannedFor) await setTaskPlannedFor(task, null);
     }
     function todayGroupDragOver(event) {
       if (!reorderState.task) return;
@@ -15218,6 +15235,23 @@ const lociApp = createApp({
       const dragged = reorderState.task;
       if (dragged) { reorderClear(); await moveTaskToToday(dragged); }
     }
+    function backlogGroupDragOver(event) {
+      if (!reorderState.task) return;
+      event.preventDefault();
+      backlogDropHover.value = true;
+    }
+    async function backlogGroupDrop(event) {
+      event.preventDefault();
+      backlogDropHover.value = false;
+      const dragged = reorderState.task;
+      if (!dragged) return;
+      // only meaningful for a picked task coming back out of Today; a plain
+      // in-group drop is handled by the row-level reorder handlers
+      const grp = taskPoolGroups.value.find(g => g.id === 'backlog');
+      if (grp && grp.tasks.includes(dragged)) return;
+      reorderClear();
+      await unplanTask(dragged);
+    }
 
     const taskPoolStats = computed(() => {
       const tasks = allTaskPoolTasks.value;
@@ -15226,7 +15260,8 @@ const lociApp = createApp({
         open: tasks.filter(t => !t.done).length,
         done: tasks.filter(t => t.done).length,
         scheduled: tasks.filter(t => taskHasCalendarTime(t)).length,
-        today: tasks.filter(t => !t.done && taskIntersectsDate(t, dateToKey(new Date()))).length,
+        today: tasks.filter(t => !t.done && !taskOverdueDays(t) &&
+          (taskIntersectsDate(t, dateToKey(new Date())) || t.plannedFor === dateToKey(new Date()))).length,
         overdue: tasks.filter(t => taskOverdueDays(t)).length,
       };
     });
@@ -15792,9 +15827,10 @@ const lociApp = createApp({
       let toIdx = index;
       if (reorderState.overPos === 'bottom') toIdx += 1;
       if (fromIdx === -1) {
-        // cross-group drop: landing anywhere in the Today group dates the task today
+        // cross-group drop on a row: Today = pick for today, Backlog = un-pick
         reorderClear();
         if (groupId === 'today') await moveTaskToToday(dragged);
+        else if (groupId === 'backlog') await unplanTask(dragged);
         return;
       }
       // remove dragged, then insert at the computed slot (account for the removal shift)
@@ -17567,6 +17603,7 @@ const lociApp = createApp({
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
       doneOpen, taskImpClass, taskDatePill, todayDropHover, todayGroupDragOver, todayGroupDrop,
+      backlogDropHover, backlogGroupDragOver, backlogGroupDrop,
       dayScheduledHours, dayProgressPct, weekTotalEvents, weekActiveDays, monthEventDays, monthTotalEvents, calendarScrollHeight,
       showAddTask, showTaskTime, newTaskText, addNewTask, onTimeInput, scrollToPicked,
       brainFullscreen, toggleBrainFullscreen,

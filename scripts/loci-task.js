@@ -137,6 +137,9 @@ function normalizeTask(task, existingIds) {
     project: task.project || null,
     urgency: clampLevel(task.urgency),
     importance: clampLevel(task.importance),
+    // "I want to do this TODAY" — a per-day pick, independent of the deadline
+    // (`date` stays the due date). Stale picks from past days simply expire.
+    plannedFor: assertDate(task.plannedFor || null, 'plannedFor'),
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,
@@ -228,20 +231,11 @@ function saveCalendar(calendar) {
 }
 
 // Tasks and the schedule are kept strictly separate: a timed task lives only in
-// tasks.json and is never projected onto the calendar (see
-// decisions/2026-06-23-task-schedule-separation). The sync step now exists only
-// to strip projections left behind by older versions.
-function removeTaskProjections(calendar) {
-  for (const date of Object.keys(calendar)) {
-    calendar[date] = (calendar[date] || []).filter(event => !(event && event.fromTask));
-  }
-}
-
-function syncCalendarForTasks() {
-  const calendar = readCalendar();
-  removeTaskProjections(calendar);
-  saveCalendar(calendar);
-}
+// tasks.json and is never AUTO-projected onto the calendar (see
+// decisions/2026-06-23-task-schedule-separation). Calendar events are entirely
+// user-owned — including deliberate pull-to-schedule events, which carry
+// `fromTask: true` purely as provenance. Nothing here creates or removes them.
+function syncCalendarForTasks() { /* no-op: the calendar belongs to the user */ }
 
 function saveTasks(tasks, options = {}) {
   const normalized = tasks.map(normalizeTask).filter(task => task.title);
@@ -283,9 +277,6 @@ function validateCalendar(calendar) {
         continue;
       }
       if (!event.title) errors.push(`Calendar ${date} event is missing title`);
-      if (event.fromTask) {
-        errors.push(`Calendar ${date} has a legacy task projection ("${event.title || ''}"); run \`node scripts/loci-task.js rebuild\` to remove it`);
-      }
       if (!event.allDay && !event.startDate) {
         if (!Number.isFinite(event.startKey) || !Number.isFinite(event.endKey)) {
           errors.push(`Calendar ${date} timed event "${event.title || ''}" needs numeric startKey/endKey`);
