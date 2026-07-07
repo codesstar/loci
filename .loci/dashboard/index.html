@@ -531,8 +531,53 @@
     /* ============================================================
        Task rows (clean-reference .task-row) + priority dots
        ============================================================ */
-    .task-row { display: flex; align-items: center; gap: 13px; padding: 12px 10px; margin: 0 -10px; border-radius: 10px; cursor: grab; transition: background .14s ease; }
+    .task-row { display: flex; align-items: center; gap: 11px; padding: 12px 10px; margin: 0 -10px; border-radius: 12px; cursor: grab; transition: background .14s ease, transform .16s ease; }
     .task-row + .task-row { border-top: 1px dashed var(--line-2); }
+    .task-row:hover { transform: translateX(3px); }
+
+    /* new task-page language: group heads / overdue wrap / importance stripe / meta pills / done bar */
+    .tg-head { display: flex; align-items: center; gap: 8px; margin: 2px 2px 6px; }
+    .tg-head .tg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); }
+    .tg-head .tg-t { font-size: 11.5px; font-weight: 750; letter-spacing: .02em; color: var(--ink-2); }
+    .tg-head .tg-n { font-family: var(--mono); font-size: 10px; color: var(--ink-4); }
+    .tg-head .tg-line { flex: 1; height: 1px; background: var(--line); }
+    .tg-late .tg-dot { background: #e0574f; } .tg-late .tg-t { color: #e0574f; }
+    .tg-today .tg-dot { background: #e0a23c; } .tg-today .tg-t { color: #b07b1e; }
+    .tg-dated .tg-dot { background: #5b86d6; } .tg-dated .tg-t { color: #3f66b0; }
+    .late-wrap { background: linear-gradient(135deg, #fdf1f0, #fff 65%); border: 1px solid #f4d5d2; border-radius: 15px; padding: 2px 12px; margin: 0 -4px; }
+    .late-wrap .task-row + .task-row { border-top-color: #f4dbd8; }
+    .timp { width: 4px; align-self: stretch; border-radius: 3px; flex: none; min-height: 26px; }
+    .timp.hi { background: linear-gradient(180deg, #e0574f, #f08a84); }
+    .timp.md { background: linear-gradient(180deg, #e0a23c, #f0c987); }
+    .timp.lo { background: var(--line); }
+    .tpill { display: inline-block; font-family: var(--mono); font-size: 10px; border-radius: 7px; padding: 2px 8px; margin-right: 6px; white-space: nowrap; }
+    .tpill.time { color: #fff; background: #5b86d6; }
+    .tpill.date { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
+    .tpill.late { color: #fff; background: #e0574f; animation: tpillPulse 2s ease-in-out infinite; }
+    .tpill.loc { color: var(--ink-3); background: transparent; padding-left: 0; }
+    @keyframes tpillPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,87,79,.3); } 50% { box-shadow: 0 0 0 4px rgba(224,87,79,0); } }
+    .done-bar { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 13px; background: var(--surface-2); border: 1px dashed var(--line-2); cursor: pointer; transition: .15s; }
+    .done-bar:hover { background: var(--accent-weak); border-color: #bfe8d8; }
+    .done-bar .db-ck { width: 18px; height: 18px; border-radius: 7px; background: var(--accent); color: #fff; display: grid; place-items: center; flex: none; }
+    .done-bar .db-ck svg { width: 11px; height: 11px; }
+    .done-bar .db-t { font-size: 12.5px; font-weight: 650; color: var(--ink-2); }
+    .done-bar .db-pb { flex: 1; max-width: 130px; height: 5px; border-radius: 3px; background: #e3f2ec; overflow: hidden; }
+    .done-bar .db-pb i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), #34d399); transition: width .4s ease; }
+    .done-bar .db-n { font-family: var(--mono); font-size: 10.5px; color: var(--accent-ink); }
+    .done-bar .db-ar { margin-left: auto; font-size: 11px; color: var(--ink-4); }
+    .s7-add-primary { color: #fff !important; border: 0 !important; background: linear-gradient(135deg, #4a76c8, #5b86d6) !important; box-shadow: 0 4px 12px rgba(91,134,214,.3); transition: .15s; }
+    .s7-add-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .th-lead { display: flex; align-items: center; gap: 13px; }
+    .th-chip { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none;
+      color: #5b86d6; background: #eef3fc; border: 1px solid #dbe6f8; box-shadow: 0 1px 2px rgba(91,134,214,.14); }
+    .th-chip svg { width: 18px; height: 18px; }
+    .th-title { font-size: 18px; font-weight: 800; letter-spacing: -.015em; color: var(--ink); }
+    .th-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+    .hc-tint { position: relative; overflow: hidden; }
+    .hc-tint::after { content: ''; position: absolute; inset: auto 0 0 0; height: 2.5px; background: var(--mc); }
+    .hc-alert { background: #fdeeed !important; border-color: #f4cfcc !important; }
+    .hc-alert .cx-num { color: #e0574f !important; }
+    .hc-alert::before { content: ''; position: absolute; top: 7px; right: 7px; width: 5px; height: 5px; border-radius: 50%; background: #e0574f; animation: tpillPulse 1.8s infinite; }
     .task-row:hover { background: var(--surface-2); }
     .task-row .body { flex: 1; min-width: 0; }
     .task-row .nm { font-size: 14px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -4948,14 +4993,20 @@
 
         <!-- ========== TODAY ========== -->
         <section v-if="currentPage === 'today'">
-          <!-- Today header: date · standalone progress ring · stat boxes -->
+          <!-- Today header: module chip + title · colored stat boxes -->
           <div class="hc-wrap">
-            <div class="th-date"><span class="td-d">{{ todayDateLabel }}</span><span class="td-wd">{{ todayWeekdayLabel }}</span></div>
+            <div class="th-lead">
+              <span class="th-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 2 2 4-4"/><path d="m3 16 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></span>
+              <div>
+                <div class="th-title">{{ lang === 'zh' ? '任务' : 'Tasks' }}</div>
+                <div class="th-sub">{{ todayDateLabel }} {{ todayWeekdayLabel }} · {{ lang === 'zh' ? '任务池与日程，各管各的' : 'Task pool & schedule, kept separate' }}</div>
+              </div>
+            </div>
             <div class="hc-boxes">
-              <div class="hc-box"><div class="cx-num">{{ taskPoolStats.open }}</div><div class="cx-lbl">{{ lang === 'zh' ? '待办' : 'Open' }}</div></div>
-              <div class="hc-box accent"><div class="cx-num">{{ taskPoolStats.today }}</div><div class="cx-lbl">{{ lang === 'zh' ? '今日' : 'Today' }}</div></div>
-              <div class="hc-box" :class="{ danger: taskPoolStats.overdue > 0 }"><div class="cx-num">{{ taskPoolStats.overdue }}</div><div class="cx-lbl">{{ lang === 'zh' ? '逾期' : 'Overdue' }}</div></div>
-              <div class="hc-box"><div class="cx-num">{{ taskPoolStats.done }}</div><div class="cx-lbl">{{ lang === 'zh' ? '完成' : 'Done' }}</div></div>
+              <div class="hc-box hc-tint" style="--mc:#5b86d6"><div class="cx-num">{{ taskPoolStats.open }}</div><div class="cx-lbl">{{ lang === 'zh' ? '待推进' : 'Open' }}</div></div>
+              <div class="hc-box hc-tint" style="--mc:#e0a23c"><div class="cx-num">{{ taskPoolStats.today }}</div><div class="cx-lbl">{{ lang === 'zh' ? '今日' : 'Today' }}</div></div>
+              <div class="hc-box hc-tint" :class="{ 'hc-alert': taskPoolStats.overdue > 0 }" style="--mc:#e0574f"><div class="cx-num">{{ taskPoolStats.overdue }}</div><div class="cx-lbl">{{ lang === 'zh' ? '逾期' : 'Overdue' }}</div></div>
+              <div class="hc-box hc-tint" style="--mc:#10b981"><div class="cx-num">{{ taskPoolStats.done }}</div><div class="cx-lbl">{{ lang === 'zh' ? '已完成' : 'Done' }}</div></div>
             </div>
           </div>
 
@@ -4985,7 +5036,7 @@
                   <button @click="showTaskDetail = !showTaskDetail" class="s7-add-btn" :class="{ 'detail-on': showTaskDetail }">
                     <span style="display:inline-flex;align-items:center;gap:5px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M4 6h16M4 12h16M4 18h10"/></svg>{{ lang === 'zh' ? '详情' : 'Detail' }}</span>
                   </button>
-                  <button @click="addNewTask()" class="s7-add-btn">{{ t('plan.add') }}</button>
+                  <button @click="addNewTask()" class="s7-add-btn s7-add-primary">{{ t('plan.add') }}</button>
                 </div>
 
                 <!-- new-task detail panel -->
@@ -5021,7 +5072,7 @@
                       <label>{{ lang === 'zh' ? '紧急程度' : 'Priority' }}</label>
                       <div class="tseg">
                         <button v-for="p in ['P0','P1']" :key="p" :data-p="p"
-                          :class="{ on: newTaskPriority === p }" @click="newTaskPriority = (newTaskPriority === p ? null : p)">{{ p }}</button>
+                          :class="{ on: newTaskPriority === p }" @click="newTaskPriority = (newTaskPriority === p ? null : p)">{{ p === 'P0' ? (lang === 'zh' ? '紧急' : 'Urgent') : (lang === 'zh' ? '重要' : 'Important') }}</button>
                       </div>
                     </div>
                     <div class="tdetail-field">
@@ -5041,12 +5092,22 @@
                 </div>
               </div>
 
-              <div v-for="group in taskPoolGroups" :key="group.id" style="margin-top: 22px;">
-                <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px 8px; border-bottom: 1px solid var(--line);">
-                  <span class="colhead">{{ group.label }}</span>
-                  <span style="margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-4);">{{ group.tasks.length }}</span>
+              <div v-for="group in taskPoolGroups" :key="group.id" :style="group.id === 'done' ? 'margin-top: 18px;' : 'margin-top: 16px;'">
+                <!-- done: one collapsed progress bar; click to expand -->
+                <div v-if="group.id === 'done'" class="done-bar" @click="doneOpen = !doneOpen">
+                  <span class="db-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>
+                  <span class="db-t">{{ group.label }}</span>
+                  <span class="db-pb"><i :style="{ width: (taskPoolStats.total ? Math.round(taskPoolStats.done / taskPoolStats.total * 100) : 0) + '%' }"></i></span>
+                  <span class="db-n">{{ taskPoolStats.done }} / {{ taskPoolStats.total }}</span>
+                  <span class="db-ar">{{ doneOpen ? '▾' : (lang === 'zh' ? '展开 ▸' : 'Show ▸') }}</span>
                 </div>
-                <div v-if="group.tasks.length === 0" style="padding: 12px 6px; color: var(--ink-3); font-size: 12.5px;">{{ t('taskSchedule.noTasks') }}</div>
+                <div v-else class="tg-head" :class="'tg-' + group.tone">
+                  <span class="tg-dot"></span>
+                  <span class="tg-t">{{ group.label }}</span>
+                  <span class="tg-n">{{ group.tasks.length }}</span>
+                  <span class="tg-line"></span>
+                </div>
+                <div v-show="group.id !== 'done' || doneOpen" :class="group.tone === 'late' ? 'late-wrap' : null">
                 <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
                   draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
                   @dragover="reorderDragOver($event, group.id, i)"
@@ -5058,20 +5119,20 @@
                   <span v-if="!task.done" class="task-drag" draggable="true" @dragstart="reorderDragStart($event, group.id, i, task)" title="拖动排序">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
                   </span>
+                  <span v-if="!task.done" class="timp" :class="taskImpClass(task)"></span>
                   <span class="check" :class="{ on: task.done }" @click="toggleMissionTask(task)" style="cursor: pointer;">
                     <svg v-if="task.done" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                   </span>
                   <div class="body">
                     <div class="nm">{{ task.text }}</div>
-                    <div class="mt" v-if="taskMetaLine(task) || task.location">
-                      <span v-if="taskMetaLine(task)" :class="{ overdue: taskOverdueDays(task) }">{{ taskMetaLine(task) }}</span>
-                      <span v-if="task.location" class="loc">📍 {{ task.location }}</span>
+                    <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
+                      <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
+                      <span v-if="task.date && !taskOverdueDays(task) && group.id !== 'today'" class="tpill date">{{ taskDatePill(task) }}</span>
+                      <span v-if="task.startTime" class="tpill time">{{ task.startTime }}</span>
+                      <span v-if="task.location" class="tpill loc">📍 {{ task.location }}</span>
                     </div>
                   </div>
                   <span v-if="task.project" class="tag">{{ task.project }}</span>
-                  <span v-if="!task.done && task._sourcePriority" class="prio" :class="task._sourcePriority.toLowerCase()">
-                    <span class="d"></span>{{ task._sourcePriority }}
-                  </span>
                   <!-- hover edit icon → opens the detail modal -->
                   <span v-if="!task.done" class="task-edit" :title="lang === 'zh' ? '详情' : 'Detail'" @click.stop="openTaskDetail(task)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -5085,6 +5146,7 @@
                       {{ lang === 'zh' ? '确认删除' : 'Delete?' }}
                     </button>
                   </span>
+                </div>
                 </div>
               </div>
             </div>
@@ -5199,6 +5261,7 @@
                 <div style="display: flex; gap: 22px; align-items: baseline; margin-bottom: 12px;">
                   <div style="display: flex; align-items: baseline; gap: 6px;"><span style="font-family: var(--mono); color: var(--ink); font-size: 20px; font-weight: 600;">{{ getEventsForDay().length }}</span><span class="colhead">{{ t('today.events') }}</span></div>
                   <div style="display: flex; align-items: baseline; gap: 6px;"><span style="font-family: var(--mono); color: var(--ink); font-size: 20px; font-weight: 600;">{{ dayScheduledHours }}h</span><span class="colhead">{{ t('today.scheduled') }}</span></div>
+                  <span v-if="!getEventsForDay().length && !getAllDayItemsForDay().length" style="font-size: 11px; color: var(--ink-4);">{{ lang === 'zh' ? '点时间轴任意时段可添加，或跟 AI 说一句「下午 3 点开会」' : 'Click any slot to add, or just tell your AI' }}</span>
                 </div>
                 <div style="height: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; margin-bottom: 16px; position: relative; overflow: hidden;">
                   <div :style="'width: ' + dayProgressPct + '%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #34d6a4, #10b981);'"></div>
@@ -15068,6 +15131,25 @@ const lociApp = createApp({
       if ((task.importance || 0) >= 1) return 'P1';   // 重要
       return null;                                    // 没提 → 不显示
     }
+    // Row-level importance stripe: red = urgent / deadline near / overdue,
+    // amber = important, gray = normal. Replaces the old P0/P1 badges.
+    function taskImpClass(task) {
+      if ((task.urgency || 0) >= 1 || taskOverdueDays(task) || taskDeadlineNear(task)) return 'hi';
+      if ((task.importance || 0) >= 1) return 'md';
+      return 'lo';
+    }
+    // Compact date pill text: 今日 / 明日 / M月D日.
+    function taskDatePill(task) {
+      if (!task.date) return '';
+      const zh = lang.value === 'zh';
+      const todayKey = dateToKey(new Date());
+      const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+      if (task.date === todayKey) return zh ? '今日' : 'Today';
+      if (task.date === dateToKey(tmr)) return zh ? '明日' : 'Tomorrow';
+      const d = new Date(task.date + 'T00:00:00');
+      return zh ? `${d.getMonth() + 1}月${d.getDate()}日` : `${d.getMonth() + 1}/${d.getDate()}`;
+    }
+
     const allTaskPoolTasks = computed(() => {
       const at = data.value?.tasks?.active_tasks || {};
       return Object.entries(at).flatMap(([source, tasks]) => {
@@ -15079,15 +15161,25 @@ const lociApp = createApp({
       });
     });
 
-    // Feishu-aligned task pool: only incomplete vs completed.
+    // Task pool groups — self-evident buckets by date situation:
+    // overdue (screams, on top) → today → has-a-date → no-date → done (collapsed).
+    const doneOpen = ref(false);
     const taskPoolGroups = computed(() => {
+      const zh = lang.value === 'zh';
       const tasks = allTaskPoolTasks.value;
-      // Stale tasks now live inside the Active group with a small inline tag —
-      // no separate "Stale" section, to keep the mental model simple.
+      const todayKey = dateToKey(new Date());
+      const open = tasks.filter(t => !t.done);
+      const overdue = open.filter(t => taskOverdueDays(t));
+      const today = open.filter(t => !taskOverdueDays(t) && t.date && taskIntersectsDate(t, todayKey));
+      const dated = open.filter(t => !taskOverdueDays(t) && t.date && !taskIntersectsDate(t, todayKey));
+      const anytime = open.filter(t => !t.date);
       return [
-        { id: 'open', icon: '○', label: t('task.open'), tasks: sortTasksForTaskPage(tasks.filter(t => !t.done)) },
-        { id: 'done', icon: '✓', label: t('task.done'), tasks: sortTasksByCompletedDesc(tasks.filter(t => t.done)) },
-      ];
+        { id: 'overdue', tone: 'late',  label: zh ? '逾期' : 'Overdue',    tasks: sortTasksForTaskPage(overdue) },
+        { id: 'today',   tone: 'today', label: zh ? '今天' : 'Today',      tasks: sortTasksForTaskPage(today) },
+        { id: 'dated',   tone: 'dated', label: zh ? '已排日期' : 'Scheduled', tasks: sortTasksForTaskPage(dated) },
+        { id: 'anytime', tone: 'any',   label: zh ? '未定时间' : 'Anytime',  tasks: sortTasksForTaskPage(anytime) },
+        { id: 'done',    tone: 'done',  label: zh ? '已完成' : 'Done',      tasks: sortTasksByCompletedDesc(tasks.filter(t => t.done)) },
+      ].filter(g => g.id === 'done' || g.tasks.length > 0);
     });
 
     const taskPoolStats = computed(() => {
@@ -15653,21 +15745,24 @@ const lociApp = createApp({
       event.stopPropagation();
       const dragged = reorderState.task;
 
-      // Work against the CURRENT open-group order shown on screen.
-      const openGroup = taskPoolGroups.value.find(g => g.id === 'open');
-      if (!openGroup) { reorderClear(); return; }
-      const list = [...openGroup.tasks];
-      const fromIdx = list.indexOf(dragged);
+      // Reorder happens WITHIN the group the row was dropped in; manualOrder is
+      // then stamped globally across all open groups in display order.
+      const openGroups = taskPoolGroups.value.filter(g => g.id !== 'done');
+      const grp = openGroups.find(g => g.id === groupId);
+      if (!grp) { reorderClear(); return; }
+      const groupList = [...grp.tasks];
+      const fromIdx = groupList.indexOf(dragged);
       let toIdx = index;
       if (reorderState.overPos === 'bottom') toIdx += 1;
       if (fromIdx === -1) { reorderClear(); return; }
       // remove dragged, then insert at the computed slot (account for the removal shift)
-      list.splice(fromIdx, 1);
+      groupList.splice(fromIdx, 1);
       if (fromIdx < toIdx) toIdx -= 1;
-      toIdx = Math.max(0, Math.min(toIdx, list.length));
-      list.splice(toIdx, 0, dragged);
+      toIdx = Math.max(0, Math.min(toIdx, groupList.length));
+      groupList.splice(toIdx, 0, dragged);
 
-      // Optimistic UI: stamp manualOrder on every open task in the new order.
+      // Optimistic UI: stamp manualOrder across every open task in the new order.
+      const list = openGroups.flatMap(g => (g.id === groupId ? groupList : g.tasks));
       list.forEach((t, i) => { t.manualOrder = i; });
 
       // Persist via the guarded server API (never writes tasks.json by hand).
@@ -17428,6 +17523,7 @@ const lociApp = createApp({
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
+      doneOpen, taskImpClass, taskDatePill,
       dayScheduledHours, dayProgressPct, weekTotalEvents, weekActiveDays, monthEventDays, monthTotalEvents, calendarScrollHeight,
       showAddTask, showTaskTime, newTaskText, addNewTask, onTimeInput, scrollToPicked,
       brainFullscreen, toggleBrainFullscreen,
