@@ -2012,6 +2012,8 @@ function personToMd(p) {
   if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
   const reminders = Array.isArray(p.reminders) ? p.reminders.map(r => String(r).trim()).filter(Boolean) : [];
   if (reminders.length) lines.push('reminders: [' + reminders.map(r => JSON.stringify(r)).join(', ') + ']');
+  const interactions = Array.isArray(p.interactions) ? p.interactions.map(r => String(r).trim()).filter(Boolean) : [];
+  if (interactions.length) lines.push('interactions: [' + interactions.map(r => JSON.stringify(r)).join(', ') + ']');
   lines.push('---', '');
   lines.push((p.note ? String(p.note).trim() : '') + '\n');
   return lines.join('\n');
@@ -2035,6 +2037,7 @@ function handlePersonAdd(body) {
   for (const k of PERSON_FIELDS) { if (k !== 'name' && body[k] != null && body[k] !== '') p[k] = String(body[k]).trim(); }
   if (Array.isArray(body.tags)) p.tags = body.tags;
   if (Array.isArray(body.reminders)) p.reminders = body.reminders;
+  if (Array.isArray(body.interactions)) p.interactions = body.interactions;
   if (body.note) p.note = body.note;
   if (!p.last_contact) p.last_contact = isoNow().slice(0, 10);
   try {
@@ -2058,6 +2061,7 @@ function handlePersonUpdate(body) {
   for (const k of PERSON_FIELDS) { const v = target.meta && target.meta[k]; if (v != null && v !== '') p[k] = v; }
   if (target.meta && Array.isArray(target.meta.tags)) p.tags = target.meta.tags;
   if (target.meta && Array.isArray(target.meta.reminders)) p.reminders = target.meta.reminders;
+  if (target.meta && Array.isArray(target.meta.interactions)) p.interactions = target.meta.interactions;
   // preserve the existing body text (note) by reading the raw file
   try {
     const raw = fs.readFileSync(path.join(peopleDir, target.filename), 'utf-8');
@@ -2067,6 +2071,7 @@ function handlePersonUpdate(body) {
   for (const k of PERSON_FIELDS) { if (body[k] !== undefined) p[k] = body[k] === null ? '' : String(body[k]).trim(); }
   if (body.tags !== undefined) p.tags = Array.isArray(body.tags) ? body.tags : [];
   if (body.reminders !== undefined) p.reminders = Array.isArray(body.reminders) ? body.reminders : [];
+  if (body.interactions !== undefined) p.interactions = Array.isArray(body.interactions) ? body.interactions : [];
   if (body.note !== undefined) p.note = body.note;
   p.name = p.name || orig;
   const file = path.join(peopleDir, target.filename);

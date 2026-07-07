@@ -2578,6 +2578,8 @@
     .pe-more-toggle { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding: 6px 0; }
     .pe-more-toggle:hover { color: var(--accent-ink); }
     .pe-more-body { display: flex; flex-direction: column; gap: 11px; padding-top: 4px; }
+    .detail-map-link { font-size: 11px; font-weight: 650; color: var(--accent-ink); text-decoration: none; margin-left: 6px; white-space: nowrap; }
+    .detail-map-link:hover { text-decoration: underline; }
     /* reminders in read-mode detail */
     .detail-rem-list { display: flex; flex-direction: column; gap: 7px; }
     .detail-rem { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; color: var(--ink-2); line-height: 1.4; background: var(--accent-weak); border-radius: 8px; padding: 8px 11px; }
@@ -6997,6 +6999,16 @@
                     <input class="pe-rem-input" v-model="remDraftEdit" :placeholder="lang==='zh'?'加一条提醒，回车（如：生日记得发祝福）':'add a reminder…'" @keydown.enter.prevent="addReminder(editForm, 'edit')" />
                   </div>
                 </div>
+                <!-- 往来记录 / interaction history -->
+                <div class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '往来记录' : 'History' }}</span>
+                  <div class="pe-reminders">
+                    <div v-for="(it, ii) in editForm.interactions" :key="ii" class="pe-rem">
+                      <span class="pe-rem-dot"></span><span class="pe-rem-text">{{ it }}</span>
+                      <button class="pe-rem-del" @click="removeInteraction(editForm, ii)">✕</button>
+                    </div>
+                    <input class="pe-rem-input" v-model="intDraftEdit" :placeholder="lang==='zh'?'加一条交集，回车（如：6/28 黑客松一起参赛）':'add an interaction…'" @keydown.enter.prevent="addInteraction(editForm, 'edit')" />
+                  </div>
+                </div>
                 <label class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '印象' : 'Note' }}</span><textarea v-model="editForm.note" rows="3"></textarea></label>
                 <!-- 更多资料 — cold fields, collapsed -->
                 <div class="pe-more">
@@ -7058,7 +7070,7 @@
                   <div class="detail-row" v-if="selectedPerson.metHow"><span class="detail-row-label">{{ lang === 'zh' ? '怎么认识' : 'How met' }}</span><span class="detail-row-value">{{ selectedPerson.metHow }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.metDate"><span class="detail-row-label">{{ lang === 'zh' ? '认识时间' : 'Met' }}</span><span class="detail-row-value">{{ selectedPerson.metDate }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.metPlace"><span class="detail-row-label">{{ lang === 'zh' ? '认识地点' : 'Place' }}</span><span class="detail-row-value">{{ selectedPerson.metPlace }}</span></div>
-                  <div class="detail-row" v-if="selectedPerson.location"><span class="detail-row-label">{{ lang === 'zh' ? '所在地' : 'Location' }}</span><span class="detail-row-value">{{ selectedPerson.location }}</span></div>
+                  <div class="detail-row" v-if="selectedPerson.location"><span class="detail-row-label">{{ lang === 'zh' ? '所在地' : 'Location' }}</span><span class="detail-row-value">{{ selectedPerson.location }} <a class="detail-map-link" :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(selectedPerson.location)" target="_blank" rel="noopener">{{ lang === 'zh' ? '地图 ↗' : 'Map ↗' }}</a></span></div>
                   <div class="detail-row" v-if="selectedPerson.hometown"><span class="detail-row-label">{{ lang === 'zh' ? '老家' : 'Hometown' }}</span><span class="detail-row-value">{{ selectedPerson.hometown }}</span></div>
                   <div class="detail-row" v-if="selectedPerson.lastContact"><span class="detail-row-label">{{ lang === 'zh' ? '最近联系' : 'Last contact' }}</span><span class="detail-row-value">{{ selectedPerson.lastContact }}</span></div>
                   <div class="detail-row">
@@ -7071,6 +7083,15 @@
                     </span>
                   </div>
                 </div>
+
+                <!-- ②b 往来记录 — past touchpoints with this person -->
+                <template v-if="selectedPerson.interactions && selectedPerson.interactions.length">
+                  <div class="detail-divider"></div>
+                  <div class="detail-section">
+                    <div class="detail-section-title">{{ lang === 'zh' ? '往来记录' : 'History' }}</div>
+                    <div v-for="(it, ii) in selectedPerson.interactions" :key="ii" class="detail-rem"><span class="detail-rem-dot"></span>{{ it }}</div>
+                  </div>
+                </template>
 
                 <!-- ③ 职业 / 学业 — only if any present -->
                 <template v-if="selectedPerson.title || selectedPerson.org || selectedPerson.industry || selectedPerson.school || selectedPerson.major">
@@ -7182,6 +7203,16 @@
                       <button class="pe-rem-del" @click="removeReminder(addForm, ri)">✕</button>
                     </div>
                     <input class="pe-rem-input" v-model="remDraftAdd" :placeholder="lang==='zh'?'加一条提醒，回车':'add a reminder…'" @keydown.enter.prevent="addReminder(addForm, 'add')" />
+                  </div>
+                </div>
+                <!-- 往来记录 / interaction history -->
+                <div class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '往来记录' : 'History' }}</span>
+                  <div class="pe-reminders">
+                    <div v-for="(it, ii) in addForm.interactions" :key="ii" class="pe-rem">
+                      <span class="pe-rem-dot"></span><span class="pe-rem-text">{{ it }}</span>
+                      <button class="pe-rem-del" @click="removeInteraction(addForm, ii)">✕</button>
+                    </div>
+                    <input class="pe-rem-input" v-model="intDraftAdd" :placeholder="lang==='zh'?'加一条交集，回车':'add an interaction…'" @keydown.enter.prevent="addInteraction(addForm, 'add')" />
                   </div>
                 </div>
                 <label class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '印象' : 'Note' }}</span><textarea v-model="addForm.note" rows="3"></textarea></label>
@@ -11940,6 +11971,7 @@ const lociApp = createApp({
         relation: m.relation || '',
         metDate: m.met_date || m.metDate || '',
         metPlace: m.met_place || m.metPlace || '',
+        metHow: m.met_how || m.metHow || '',
         strength: m.strength != null ? Number(m.strength) : 50,
         lastContact: m.last_contact || m.lastContact || '',
         frequency: m.frequency || 'Medium',
@@ -11953,6 +11985,7 @@ const lociApp = createApp({
         linkedin: m.linkedin || '',
         tags: tags,
         reminders: Array.isArray(m.reminders) ? m.reminders : (m.reminders ? [m.reminders] : []),
+        interactions: Array.isArray(m.interactions) ? m.interactions : (m.interactions ? [m.interactions] : []),
         notes: m.notes || cleanPersonNote(contact.content),
         cardType: category,
         category: category,
@@ -13748,7 +13781,7 @@ const lociApp = createApp({
     const detailEditing = ref(false);      // detail panel in edit mode?
     const peSaving = ref(false);
     const editForm = reactive({ name: '', relation: '', gender: '', photo: '', title: '', org: '', location: '', phone: '', email: '', wechat: '', met_how: '', tagsStr: '', note: '',
-      school: '', major: '', hometown: '', hobby: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [] });
+      school: '', major: '', hometown: '', hobby: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [] });
     const editMoreOpen = ref(false);   // edit form's "更多资料" cold-field section
     function startEditPerson() {
       const p = selectedPerson.value; if (!p) return;
@@ -13762,6 +13795,7 @@ const lociApp = createApp({
       editForm.birthday = p.birthday || ''; editForm.zodiac = p.zodiac || ''; editForm.mbti = p.mbti || ''; editForm.blood = p.blood || '';
       editForm.nickname = p.nickname || ''; editForm.twitter = p.twitter || ''; editForm.linkedin = p.linkedin || '';
       editForm.reminders = Array.isArray(p.reminders) ? p.reminders.slice() : [];
+      editForm.interactions = Array.isArray(p.interactions) ? p.interactions.slice() : [];
       editMoreOpen.value = !!(editForm.school || editForm.major || editForm.hometown || editForm.hobby || editForm.birthday || editForm.zodiac || editForm.mbti || editForm.blood || editForm.nickname || editForm.twitter || editForm.linkedin);
       detailEditing.value = true;
     }
@@ -13770,6 +13804,7 @@ const lociApp = createApp({
       const p = selectedPerson.value; if (!p || !editForm.name.trim()) return;
       peSaving.value = true;
       const reminders = (editForm.reminders || []).map(r => String(r).trim()).filter(Boolean);
+      const interactions = (editForm.interactions || []).map(r => String(r).trim()).filter(Boolean);
       const payload = {
         origName: p.name, name: editForm.name.trim(), relation: editForm.relation.trim(),
         gender: editForm.gender, title: editForm.title.trim(), org: editForm.org.trim(),
@@ -13778,7 +13813,7 @@ const lociApp = createApp({
         tags: editForm.tagsStr.split(',').map(t => t.trim()).filter(Boolean), note: editForm.note.trim(),
         school: editForm.school.trim(), major: editForm.major.trim(), hometown: editForm.hometown.trim(), hobby: editForm.hobby.trim(),
         birthday: editForm.birthday.trim(), zodiac: editForm.zodiac.trim(), mbti: editForm.mbti.trim(), blood: editForm.blood.trim(),
-        nickname: editForm.nickname.trim(), twitter: editForm.twitter.trim(), linkedin: editForm.linkedin.trim(), reminders,
+        nickname: editForm.nickname.trim(), twitter: editForm.twitter.trim(), linkedin: editForm.linkedin.trim(), reminders, interactions,
       };
       // optimistic: update the in-memory person so the panel reflects edits at once
       Object.assign(p, { name: payload.name, relation: payload.relation, gender: payload.gender,
@@ -13786,7 +13821,7 @@ const lociApp = createApp({
         email: payload.email, wechat: payload.wechat, metHow: payload.met_how, tags: payload.tags, notes: payload.note,
         school: payload.school, major: payload.major, hometown: payload.hometown, hobby: payload.hobby,
         birthday: payload.birthday, zodiac: payload.zodiac, mbti: payload.mbti, blood: payload.blood,
-        nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders: payload.reminders });
+        nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders: payload.reminders, interactions: payload.interactions });
       if (payload.photo) { p.photo = payload.photo; p.hasPhoto = true; }
       try {
         const res = await demoFetch('/api/people/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -13823,7 +13858,9 @@ const lociApp = createApp({
       if (peopleTagFilter.value && !(p.tags || []).map(String).includes(peopleTagFilter.value)) return false;
       const q = peopleQuery.value.trim().toLowerCase();
       if (!q) return true;
-      const hay = [p.name, p.relation, p.title, p.org, p.notes, ...(p.tags || [])].filter(Boolean).join(' ').toLowerCase();
+      const hay = [p.name, p.relation, p.title, p.org, p.notes, p.location, p.school, p.major,
+        p.industry, p.hometown, p.metHow, p.nickname, p.hobby,
+        ...(p.tags || []), ...(p.interactions || [])].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(q);
     }
     const familyFiltered = computed(() => familyPeople.value.filter(pplMatch));
@@ -13861,6 +13898,20 @@ const lociApp = createApp({
     }
     function removeReminder(form, idx) {
       if (Array.isArray(form.reminders)) form.reminders.splice(idx, 1);
+    }
+
+    // ── interaction history (past touchpoints with this person), backed by each form's interactions[] ──
+    const intDraftEdit = ref('');
+    const intDraftAdd = ref('');
+    function addInteraction(form, which) {
+      const draft = which === 'add' ? intDraftAdd : intDraftEdit;
+      const v = draft.value.trim(); if (!v) return;
+      if (!Array.isArray(form.interactions)) form.interactions = [];
+      form.interactions.push(v);
+      draft.value = '';
+    }
+    function removeInteraction(form, idx) {
+      if (Array.isArray(form.interactions)) form.interactions.splice(idx, 1);
     }
 
     // ── avatar picker (upload / preset / url), shared by edit + add forms ──
@@ -13910,11 +13961,11 @@ const lociApp = createApp({
     const pplSaving = ref(false);
     const pplAddNameInput = ref(null);
     const addForm = reactive({ name: '', relation: '', gender: '', photo: '', title: '', org: '', location: '', phone: '', email: '', wechat: '', met_how: '', tagsStr: '', note: '',
-      school: '', major: '', hometown: '', hobby: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [] });
+      school: '', major: '', hometown: '', hobby: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [] });
     const addMoreOpen = ref(false);    // add form's "更多资料" cold-field section
     function pplOpenAdd() {
-      Object.keys(addForm).forEach(k => { addForm[k] = (k === 'reminders') ? [] : ''; });
-      remDraftAdd.value = ''; addMoreOpen.value = false;
+      Object.keys(addForm).forEach(k => { addForm[k] = (k === 'reminders' || k === 'interactions') ? [] : ''; });
+      remDraftAdd.value = ''; intDraftAdd.value = ''; addMoreOpen.value = false;
       pplAddOpen.value = true;
       nextTick(() => pplAddNameInput.value && pplAddNameInput.value.focus());
     }
@@ -13923,12 +13974,13 @@ const lociApp = createApp({
       pplSaving.value = true;
       const tags = addForm.tagsStr.split(',').map(t => t.trim()).filter(Boolean);
       const reminders = (addForm.reminders || []).map(r => String(r).trim()).filter(Boolean);
+      const interactions = (addForm.interactions || []).map(r => String(r).trim()).filter(Boolean);
       const payload = { name, relation: addForm.relation.trim(), gender: addForm.gender, title: addForm.title.trim(),
         org: addForm.org.trim(), location: addForm.location.trim(), phone: addForm.phone.trim(), email: addForm.email.trim(),
         wechat: addForm.wechat.trim(), met_how: addForm.met_how.trim(),
         school: addForm.school.trim(), major: addForm.major.trim(), hometown: addForm.hometown.trim(), hobby: addForm.hobby.trim(),
         birthday: addForm.birthday.trim(), zodiac: addForm.zodiac.trim(), mbti: addForm.mbti.trim(), blood: addForm.blood.trim(),
-        nickname: addForm.nickname.trim(), twitter: addForm.twitter.trim(), linkedin: addForm.linkedin.trim(), reminders,
+        nickname: addForm.nickname.trim(), twitter: addForm.twitter.trim(), linkedin: addForm.linkedin.trim(), reminders, interactions,
         photo: addForm.photo.trim(), tags, note: addForm.note.trim() };
       // optimistic: add to the in-memory contacts so the grid shows it immediately
       const contacts = data.value?.people?.contacts;
@@ -13937,7 +13989,7 @@ const lociApp = createApp({
           org: payload.org, location: payload.location, phone: payload.phone, email: payload.email, photo: payload.photo || undefined, tags,
           school: payload.school, major: payload.major, hometown: payload.hometown, hobby: payload.hobby,
           birthday: payload.birthday, zodiac: payload.zodiac, mbti: payload.mbti, blood: payload.blood,
-          nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders,
+          nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders, interactions,
           last_contact: new Date().toISOString().slice(0, 10) }, content: payload.note ? '<p>' + payload.note + '</p>' : '', filename: name + '.md' });
       }
       pplAddOpen.value = false;
@@ -17163,6 +17215,7 @@ const lociApp = createApp({
       peopleData, selectedPerson, detailMoreOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
+      intDraftEdit, intDraftAdd, addInteraction, removeInteraction,
       peopleQuery, peopleTagFilter, peopleAllTags, peopleFilterActive,
       familyFiltered, friendFiltered, partnerFiltered, prospectFiltered, mentorFiltered,
       pplAddOpen, pplSaving, addForm, pplAddNameInput, pplOpenAdd, pplSubmitAdd,
