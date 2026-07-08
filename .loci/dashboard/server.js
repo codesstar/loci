@@ -1389,6 +1389,10 @@ function readProjectTodos(repoPath) {
         status: ['todo', 'doing', 'done'].includes(t.status) ? t.status : 'todo',
         category: (t.category && String(t.category).trim()) || 'Backlog',
         order: Number.isFinite(t.order) ? t.order : 0,
+        // optional assignee ("owner") — used by the projects page to show who a
+        // todo belongs to and to aggregate the team-load panel. Absent = unassigned.
+        owner: (t.owner && String(t.owner).trim()) || null,
+        updatedAt: t.updatedAt || null,
       }))
       .sort((a, b) => a.order - b.order);
   } catch {
@@ -1396,7 +1400,7 @@ function readProjectTodos(repoPath) {
   }
 }
 
-// Read a connected project's own .loci/memory.md (its living dossier) for the
+// Read a connected project's own .loci/memory.md (short restart context) for the
 // detail panel. Never throws — a project with no/unreadable memory just shows
 // nothing rather than breaking the page. Returns rendered html + meta.
 function readProjectMemory(repoPath) {
@@ -1413,7 +1417,7 @@ function readProjectMemory(repoPath) {
 // The decision files are named YYYY-MM-DD-slug.md and start with "# Title".
 // Fully fault-tolerant: no dir / unreadable → []. Returns newest-first
 // [{ title, date }], capped at `limit`.
-function readProjectDecisions(repoPath, limit = 5) {
+function readProjectDecisions(repoPath, limit = 10) {
   try {
     const decDir = path.join(repoPath, '.loci', 'decisions');
     if (!fs.existsSync(decDir)) return [];
@@ -1425,13 +1429,30 @@ function readProjectDecisions(repoPath, limit = 5) {
     return files.map(f => {
       const dateMatch = f.match(/(\d{4})-(\d{2})-(\d{2})/);
       const date = dateMatch ? `${dateMatch[2]}-${dateMatch[3]}` : '';
+      const dateFull = dateMatch ? dateMatch[0] : null;
       let title = f.replace(/\.md$/, '');
+      let excerpt = '';
       try {
-        const head = fs.readFileSync(path.join(decDir, f), 'utf-8').split('\n');
-        const h1 = head.find(l => /^#\s+/.test(l));
+        const raw = fs.readFileSync(path.join(decDir, f), 'utf-8');
+        const lines = raw.split('\n');
+        const h1 = lines.find(l => /^#\s+/.test(l));
         if (h1) title = h1.replace(/^#\s+/, '').trim();
+        // readable excerpt for the story's expanded row: prefer the "Decision"
+        // section body, else the first real paragraph. Plain text, capped.
+        const noFm = raw.replace(/^---[\s\S]*?---\n/, '');
+        const decSec = noFm.split(/^##\s+(?:Decision|决策|决定)\s*$/mi)[1];
+        const src = decSec ? decSec.split(/^##\s+/m)[0] : noFm;
+        excerpt = src
+          .replace(/<!--[\s\S]*?-->/g, '')
+          .split('\n')
+          .filter(l => l.trim() && !/^#/.test(l.trim()))
+          .join(' ')
+          .replace(/[*_`>]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 280);
       } catch {}
-      return { title, date };
+      return { title, date, dateFull, excerpt };
     });
   } catch {
     return [];
@@ -1441,22 +1462,257 @@ function readProjectDecisions(repoPath, limit = 5) {
 // Read a connected project's recent git commits via `git log`. Fully
 // fault-tolerant: not a git repo / git missing / timeout → []. Returns
 // [{ sha, msg, rel }] newest-first, capped at `limit`.
-function readProjectGitLog(repoPath, limit = 4) {
+function readProjectGitLog(repoPath, limit = 150) {
   try {
     const { execFileSync } = require('child_process');
-    const SEP = '|::|';   // unlikely to appear in a commit subject
+    const SEP = '|::|';   // field separator — unlikely inside a subject
+    const REC = '|;;|';   // record separator — commit bodies contain newlines
     const out = execFileSync(
       'git',
-      ['-C', repoPath, 'log', `-${limit}`, '--no-merges', `--pretty=format:%h${SEP}%s${SEP}%cr`],
+      ['-C', repoPath, 'log', `-${limit}`, '--no-merges', `--pretty=format:%h${SEP}%s${SEP}%cr${SEP}%cI${SEP}%b${REC}`],
       { encoding: 'utf-8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore'] }
     );
-    return out.split('\n').filter(Boolean).map(line => {
-      const [sha, msg, rel] = line.split(SEP);
-      return { sha: sha || '', msg: msg || '', rel: rel || '' };
+    return out.split(REC).map(r => r.trim()).filter(Boolean).map(rec => {
+      const [sha, msg, rel, iso, body] = rec.split(SEP);
+      // strip trailer lines (Co-Authored-By / Signed-off-by / 🤖 footers) — noise, not description
+      const cleanBody = (body || '')
+        .split('\n')
+        .filter(l => !/^\s*(co-authored-by|signed-off-by|🤖)/i.test(l))
+        .join('\n')
+        .trim()
+        .slice(0, 600);
+      return { sha: sha || '', msg: msg || '', rel: rel || '', iso: iso || null, body: cleanBody };
     });
   } catch {
     return [];
   }
+}
+
+// Parse structured project profile sections into data the projects page renders
+// directly. New projects keep stable attributes in `.loci/profile.md`; the
+// memory.md parser remains as a fallback for older projects. All parsing is
+// tolerant by design: a malformed line is silently skipped — bad data may hide
+// one row, it must never break the page. Rows use "·" separators with a plain
+// "-" fallback.
+//   ## Milestones   → - YYYY-MM[-DD] · title · done|next|planned
+//   ## Files        → - name · path-or-url
+//   ## Key People   → - name · role · 60%
+function parseProjectAttributeSections(raw) {
+  const empty = { milestones: [], files: [], keyPeople: [] };
+  const sections = {};
+  let cur = null;
+  for (const line of String(raw || '').split('\n')) {
+    const h = line.match(/^##\s+(.+?)\s*$/);
+    if (h) { cur = h[1].toLowerCase(); sections[cur] = []; continue; }
+    if (cur) sections[cur].push(line);
+  }
+  const body = (name) => ((sections[name] || []).join('\n')).replace(/<!--[\s\S]*?-->/g, '');
+  const rows = (name) => body(name).split('\n').filter(l => /^\s*[-*]\s+/.test(l));
+  const splitRow = (line) => {
+    const s = line.replace(/^\s*[-*]\s+/, '').trim();
+    if (!s) return [];
+    let parts = s.split(/\s*·\s*/);
+    if (parts.length < 2) parts = s.split(/\s+-\s+/);
+    return parts.map(p => p.trim()).filter(Boolean);
+  };
+
+  const milestones = [];
+  for (const line of rows('milestones')) {
+    const parts = splitRow(line);
+    if (parts.length < 2 || !/^\d{4}-\d{2}(-\d{2})?$/.test(parts[0])) continue;
+    const st = (parts[2] || '').toLowerCase();
+    milestones.push({
+      date: parts[0],
+      title: parts[1],
+      status: ['done', 'next', 'planned'].includes(st) ? st : 'planned',
+    });
+  }
+  const mKey = (d) => (d.length === 7 ? d + '-99' : d);
+  milestones.sort((a, b) => mKey(a.date).localeCompare(mKey(b.date)));
+
+  const files = [];
+  for (const line of rows('files')) {
+    const parts = splitRow(line);
+    if (parts.length < 2) continue;
+    const target = parts[parts.length - 1];
+    files.push({
+      name: parts.slice(0, -1).join(' · '),
+      target,
+      kind: /^https?:\/\//i.test(target) ? 'web' : (path.isAbsolute(target) ? 'local' : 'repo'),
+    });
+  }
+
+  const keyPeople = [];
+  for (const line of rows('key people')) {
+    const parts = splitRow(line);
+    if (!parts.length) continue;
+    const name = parts[0].replace(/\[\[|\]\]/g, '').trim();
+    if (!name) continue;
+    const pctPart = parts.find(p => /^\d{1,3}\s*%$/.test(p));
+    const pct = pctPart ? parseInt(pctPart, 10) : null;
+    keyPeople.push({
+      name,
+      role: parts.slice(1).filter(p => p !== pctPart).join(' · '),
+      pct: Number.isFinite(pct) ? pct : null,
+    });
+  }
+
+  return { ...empty, milestones, files, keyPeople };
+}
+
+function readLegacyMemoryProgressLog(repoPath, limit = 40) {
+  try {
+    const memFile = path.join(repoPath, '.loci', 'memory.md');
+    if (!fs.existsSync(memFile)) return [];
+    const raw = fs.readFileSync(memFile, 'utf-8');
+    const after = raw.split(/^##\s+Progress Log\s*$/m)[1];
+    if (!after) return [];
+    const progressLog = [];
+    for (const line of after.split(/^##\s+/m)[0].split('\n')) {
+      const m = line.trim().match(/^\[([^\]]+)\]\s*(.+)$/);
+      if (!m) continue;
+      const t = Date.parse(m[1]);
+      if (isNaN(t)) continue;
+      progressLog.push({ ts: new Date(t).toISOString(), text: m[2].trim() });
+    }
+    progressLog.sort((a, b) => b.ts.localeCompare(a.ts));
+    return progressLog.slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+function readProjectProgressLog(repoPath, limit = 40) {
+  const progressLog = [];
+  try {
+    const progressDir = path.join(repoPath, '.loci', 'progress');
+    if (fs.existsSync(progressDir)) {
+      const files = fs.readdirSync(progressDir)
+        .filter(f => /^\d{4}-\d{2}\.md$/.test(f))
+        .sort()
+        .reverse();
+      for (const f of files) {
+        let day = '';
+        const raw = fs.readFileSync(path.join(progressDir, f), 'utf-8');
+        for (const line of raw.split('\n')) {
+          const h = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\b/);
+          if (h) { day = h[1]; continue; }
+          const m = line.trim().match(/^[-*]\s+(\d{2}:\d{2})\s*·\s*(.+)$/);
+          if (!day || !m) continue;
+          const t = Date.parse(`${day}T${m[1]}:00`);
+          if (isNaN(t)) continue;
+          progressLog.push({ ts: new Date(t).toISOString(), text: m[2].trim() });
+        }
+      }
+    }
+  } catch {}
+
+  progressLog.push(...readLegacyMemoryProgressLog(repoPath, limit));
+  const seen = new Set();
+  return progressLog
+    .filter(e => {
+      const key = `${e.ts}|${e.text}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => b.ts.localeCompare(a.ts))
+    .slice(0, limit);
+}
+
+// The project's knowledge folder: <repo>/.loci/knowledge/ — files the user
+// moved or symlinked in ("链接文件" on the projects page). Flat listing, one
+// level; symlinks are flagged so the UI can badge them (body lives elsewhere,
+// e.g. an Obsidian vault — Loci aggregates, it does not own).
+function readProjectKnowledge(repoPath) {
+  try {
+    const kbDir = path.join(repoPath, '.loci', 'knowledge');
+    if (!fs.existsSync(kbDir)) return [];
+    const out = [];
+    for (const e of fs.readdirSync(kbDir, { withFileTypes: true })) {
+      if (e.name.startsWith('.')) continue;
+      const full = path.join(kbDir, e.name);
+      let link = false;
+      try { link = fs.lstatSync(full).isSymbolicLink(); } catch {}
+      // broken symlink → skip quietly (original moved/deleted)
+      try { fs.statSync(full); } catch { continue; }
+      out.push({ name: e.name.replace(/\.md$/i, ''), file: e.name, link });
+    }
+    return out.sort((a, b) => a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
+// Frontmatter `created:` from memory.md (profile.md fallback) → the project's
+// birth date, shown as "DAY N" on the dossier card.
+function readProjectCreatedAt(repoPath) {
+  try {
+    for (const f of ['memory.md', 'profile.md']) {
+      const p = path.join(repoPath, '.loci', f);
+      if (!fs.existsSync(p)) continue;
+      const m = fs.readFileSync(p, 'utf-8').match(/^created:\s*(.+)$/m);
+      if (m && !isNaN(Date.parse(m[1].trim()))) return new Date(m[1].trim()).toISOString();
+    }
+  } catch {}
+  return null;
+}
+
+function countProjectDecisions(repoPath) {
+  try {
+    const decDir = path.join(repoPath, '.loci', 'decisions');
+    if (!fs.existsSync(decDir)) return 0;
+    return fs.readdirSync(decDir).filter(f => f.endsWith('.md')).length;
+  } catch {
+    return 0;
+  }
+}
+
+function readProjectMemorySections(repoPath) {
+  const empty = { milestones: [], files: [], keyPeople: [], progressLog: [] };
+  try {
+    const profileFile = path.join(repoPath, '.loci', 'profile.md');
+    const memFile = path.join(repoPath, '.loci', 'memory.md');
+    const attrRaw = fs.existsSync(profileFile)
+      ? fs.readFileSync(profileFile, 'utf-8')
+      : (fs.existsSync(memFile) ? fs.readFileSync(memFile, 'utf-8') : '');
+    const attrs = parseProjectAttributeSections(attrRaw);
+    return { ...empty, ...attrs, progressLog: readProjectProgressLog(repoPath, 120) };
+  } catch {
+    return empty;
+  }
+}
+
+// Health pulse: merge every timestamp the project already emits (progress log,
+// decisions, git commits, todo updates) into one activity signal. Nothing is
+// stored — recomputed on each request. Returns:
+//   lastTs   ISO of the most recent signal (null if none)
+//   lastKind which stream it came from ('log'|'decision'|'commit'|'todo')
+//   days     7 ints, oldest→today, activity count per day
+//   level    'hot' (≤24h) | 'warm' (≤4d) | 'cold'
+function computeProjectPulse({ progressLog = [], decisions = [], commits = [], todos = [] }) {
+  const signals = [];
+  for (const e of progressLog) signals.push({ t: Date.parse(e.ts), kind: 'log' });
+  for (const d of decisions) if (d.dateFull) signals.push({ t: Date.parse(d.dateFull), kind: 'decision' });
+  for (const c of commits) if (c.iso) signals.push({ t: Date.parse(c.iso), kind: 'commit' });
+  for (const td of todos) if (td.updatedAt) signals.push({ t: Date.parse(td.updatedAt), kind: 'todo' });
+
+  const now = Date.now();
+  const days = Array(7).fill(0);
+  let last = null;
+  for (const s of signals) {
+    if (isNaN(s.t) || s.t > now + 86400000) continue;
+    if (!last || s.t > last.t) last = s;
+    const diff = Math.floor((now - s.t) / 86400000);
+    if (diff >= 0 && diff < 7) days[6 - diff]++;
+  }
+  const ageH = last ? (now - last.t) / 3600000 : Infinity;
+  return {
+    lastTs: last ? new Date(last.t).toISOString() : null,
+    lastKind: last ? last.kind : null,
+    days,
+    level: ageH <= 24 ? 'hot' : ageH <= 96 ? 'warm' : 'cold',
+  };
 }
 
 // projects/index.md = light index of serious projects (one `## name` block each).
@@ -1489,20 +1745,32 @@ function buildProjects() {
       // human description only, strip the machine path trailer.
       const firstLine = bodyText.split('\n')[0] || '';
       const cleanSummary = firstLine.replace(/\.?\s*repo:.*$/i, '').trim();
+      // The project's full dossier lives in its OWN repo (.loci/memory.md). The
+      // brain only indexes — so read it on demand here. All readers are fault-
+      // tolerant; absent data → empty arrays, never breaks the page.
+      const todos = repoPath ? readProjectTodos(repoPath) : [];
+      const decisions = repoPath ? readProjectDecisions(repoPath) : [];
+      const commits = repoPath ? readProjectGitLog(repoPath) : [];
+      const sections = repoPath ? readProjectMemorySections(repoPath) : { milestones: [], files: [], keyPeople: [], progressLog: [] };
       serious.push({
         name,
         status: statusMatch ? statusMatch[1].toLowerCase() : 'active',
         summary: cleanSummary || firstLine,
         detail: bodyText,
         repo: repoPath,
-        // The project's full dossier lives in its OWN repo (.loci/memory.md). The
-        // brain only indexes — so read it on demand here for the detail panel.
         memory: repoPath ? readProjectMemory(repoPath) : null,
-        todos: repoPath ? readProjectTodos(repoPath) : [],
-        // The project's own decision stream + recent git commits (both fault-
-        // tolerant; absent → empty arrays, never breaks the page).
-        decisions: repoPath ? readProjectDecisions(repoPath) : [],
-        commits: repoPath ? readProjectGitLog(repoPath) : [],
+        todos,
+        decisions,
+        commits,
+        // structured profile/progress sections + merged activity pulse (projects page)
+        milestones: sections.milestones,
+        files: sections.files,
+        keyPeople: sections.keyPeople,
+        progressLog: sections.progressLog,
+        knowledge: repoPath ? readProjectKnowledge(repoPath) : [],
+        createdAt: repoPath ? readProjectCreatedAt(repoPath) : null,
+        decisionsTotal: repoPath ? countProjectDecisions(repoPath) : 0,
+        pulse: computeProjectPulse({ progressLog: sections.progressLog, decisions, commits, todos }),
       });
     }
   }
@@ -1528,6 +1796,330 @@ function buildProjects() {
   return {
     serious,
     side: { incubating, archived },
+  };
+}
+
+// ─── Today / Daily Trace (GET /api/today?date=YYYY-MM-DD) ───────────────────
+// Aggregates one day's footprint across every layer: the activity ledger is
+// the index, project memory/decisions are the detail, tasks/calendar are the
+// execution record, sources/ is external input, and the journal is the
+// optional human recap. Every reader is fault-tolerant — a missing file,
+// directory, or project repo yields an empty array, never an error.
+
+function isDayKeyStr(s) { return /^\d{4}-\d{2}-\d{2}$/.test(String(s || '')); }
+
+// Any date-ish value (ISO timestamp, YYYY-MM-DD, Date) → local-day key, or ''.
+function toDayKey(v) {
+  if (!v) return '';
+  const s = String(v);
+  if (isDayKeyStr(s)) return s;
+  const d = new Date(s);
+  return isNaN(d) ? '' : dayKey(d);
+}
+
+// Entries under `## <date>` in `.loci/activity/YYYY-MM.md`.
+// Canonical line shape: `- HH:MM · category · text`.
+function readActivityDay(dateStr) {
+  try {
+    const file = path.join(LOCI_ROOT, '.loci', 'activity', dateStr.slice(0, 7) + '.md');
+    if (!fs.existsSync(file)) return [];
+    const out = [];
+    let inDay = false;
+    for (const raw of fs.readFileSync(file, 'utf-8').split('\n')) {
+      const line = raw.trim();
+      const h = line.match(/^##\s+(\d{4}-\d{2}-\d{2})/);
+      if (h) { inDay = h[1] === dateStr; continue; }
+      if (!inDay || !line.startsWith('- ')) continue;
+      const parts = line.slice(2).split('·').map(s => s.trim());
+      if (parts.length >= 3) out.push({ time: parts[0], category: parts[1], text: parts.slice(2).join(' · ') });
+      else if (parts.length === 2) out.push({ time: parts[0], category: '', text: parts[1] });
+      else out.push({ time: '', category: '', text: line.slice(2) });
+    }
+    return out.sort((a, b) => ((a.time || '99:99') < (b.time || '99:99') ? -1 : 1));
+  } catch { return []; }
+}
+
+function buildTodayTasks(dateStr) {
+  const records = loadTaskRecords().filter(t => t.status !== 'archived');
+  const brief = t => ({
+    id: t.id, title: t.title, status: t.status,
+    date: t.date, startTime: t.startTime, project: t.project,
+  });
+  const added = records.filter(t => toDayKey(t.createdAt) === dateStr);
+  const done = records.filter(t => t.status === 'done' && toDayKey(t.completedAt || t.updatedAt) === dateStr);
+  const seen = new Set([...added, ...done].map(t => t.id));
+  const updated = records.filter(t => !seen.has(t.id) && toDayKey(t.updatedAt) === dateStr);
+  const due = records.filter(t => t.status !== 'done' && (t.date === dateStr || t.plannedFor === dateStr));
+  return { added: added.map(brief), done: done.map(brief), updated: updated.map(brief), due: due.map(brief) };
+}
+
+function buildTodaySchedule(dateStr) {
+  try {
+    const file = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
+    if (!fs.existsSync(file)) return [];
+    const cal = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const items = Array.isArray(cal[dateStr]) ? cal[dateStr] : [];
+    const fmt = k => (Number.isFinite(k)
+      ? String(Math.floor(k / 60)).padStart(2, '0') + ':' + String(k % 60).padStart(2, '0')
+      : '');
+    return items
+      .map(e => ({ title: e.title || '', start: fmt(e.startKey), end: fmt(e.endKey), fromTask: !!e.fromTask }))
+      .sort((a, b) => (a.start < b.start ? -1 : 1));
+  } catch { return []; }
+}
+
+// Light {name, repo} list from projects/index.md — same block shape
+// buildProjects() parses, without the heavy per-project detail reads.
+function listProjectRepos() {
+  const indexRaw = readRawBody(path.join(LOCI_ROOT, 'projects', 'index.md'));
+  if (!indexRaw) return [];
+  const withoutComments = indexRaw.replace(/<!--(?!\s*status:)[\s\S]*?-->/g, '');
+  const out = [];
+  for (const block of withoutComments.split(/^## +/m).slice(1)) {
+    const lines = block.split('\n');
+    const name = (lines.shift() || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+    if (!name) continue;
+    const bodyText = lines.join('\n').replace(/<!--[\s\S]*?-->/g, '').trim();
+    const repoMatch = bodyText.match(/repo:\s*(.+?)(?:\.\s*memory:|\.?\s*$)/m);
+    if (repoMatch) out.push({ name, repo: repoMatch[1].trim() });
+  }
+  return out;
+}
+
+// One day's project progress lines. New projects use `.loci/progress/YYYY-MM.md`;
+// old projects can still expose legacy `[ISO-timestamp]` lines in memory.md.
+function readProjectProgressDay(repoPath, dateStr) {
+  try {
+    const out = [];
+    const monthFile = path.join(repoPath, '.loci', 'progress', `${dateStr.slice(0, 7)}.md`);
+    if (fs.existsSync(monthFile)) {
+      let inDay = false;
+      for (const line of fs.readFileSync(monthFile, 'utf-8').split('\n')) {
+        const h = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\b/);
+        if (h) { inDay = h[1] === dateStr; continue; }
+        if (!inDay) continue;
+        const m = line.trim().match(/^[-*]\s+(\d{2}:\d{2})\s*·\s*(.+)$/);
+        if (m) out.push({ time: m[1], text: m[2] });
+      }
+    }
+    if (out.length) return out;
+    for (const e of readLegacyMemoryProgressLog(repoPath, 1000)) {
+      if (toDayKey(e.ts) !== dateStr) continue;
+      const timeMatch = e.ts.match(/T(\d{2}:\d{2})/);
+      out.push({ time: timeMatch ? timeMatch[1] : '', text: e.text });
+    }
+    return out;
+  } catch { return []; }
+}
+
+// The earliest project progress timestamp is the day the project's memory was
+// born — i.e. the day it was connected to the brain.
+function projectConnectedDay(repoPath) {
+  try {
+    let earliest = '';
+    for (const e of readProjectProgressLog(repoPath, 1000)) {
+      const day = toDayKey(e.ts);
+      if (day && (!earliest || day < earliest)) earliest = day;
+    }
+    return earliest;
+  } catch { return ''; }
+}
+
+// Decisions in a directory that belong to one day: frontmatter date/created
+// first, then the YYYY-MM-DD in the filename. Includes rendered html so the
+// page can expand a decision in place.
+function readDecisionsForDay(dirPath, dateStr) {
+  try {
+    if (!fs.existsSync(dirPath)) return [];
+    const out = [];
+    for (const f of fs.readdirSync(dirPath).sort()) {
+      if (!f.endsWith('.md') || f === 'README.md') continue;
+      const parsed = readMdFile(path.join(dirPath, f));
+      if (!parsed) continue;
+      const fileMatch = f.match(/\d{4}-\d{2}-\d{2}/);
+      const day = toDayKey(parsed.meta.date || parsed.meta.created) || (fileMatch ? fileMatch[0] : '');
+      if (day !== dateStr) continue;
+      const h1 = (parsed.raw.match(/^#\s+(.+)$/m) || [])[1];
+      out.push({
+        title: String(parsed.meta.title || h1 || f.replace(/\.md$/, '')).trim(),
+        file: f,
+        status: parsed.meta.status || '',
+        summary: stripHtml(parsed.content).slice(0, 180),
+        html: parsed.content,
+      });
+    }
+    return out;
+  } catch { return []; }
+}
+
+// A file's birth day (creation), used to split "new today" from "touched
+// today". APFS/macOS reports real birthtime; filesystems without it fall back
+// to mtime, which degrades gracefully to "new" only when created == modified.
+function fileBornDay(fullPath) {
+  try {
+    const st = fs.statSync(fullPath);
+    const bt = st.birthtime && st.birthtime.getTime() > 0 ? st.birthtime : st.mtime;
+    return dayKey(bt);
+  } catch { return ''; }
+}
+
+function readPeopleForDay(dateStr) {
+  try {
+    const dir = path.join(LOCI_ROOT, 'people');
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const f of fs.readdirSync(dir).sort()) {
+      if (!f.endsWith('.md') || f === 'README.md' || f.startsWith('.')) continue;
+      const full = path.join(dir, f);
+      const parsed = readMdFile(full);
+      if (!parsed) continue;
+      const meta = parsed.meta || {};
+      const metaDays = [meta.created, meta.updated, meta.met_date, meta.last_contact].map(toDayKey);
+      let via = metaDays.includes(dateStr) ? 'meta' : '';
+      if (!via) {
+        try { if (dayKey(fs.statSync(full).mtime) === dateStr) via = 'mtime'; } catch {}
+      }
+      if (!via) continue;
+      const kind = (toDayKey(meta.created) === dateStr || fileBornDay(full) === dateStr) ? 'new' : 'updated';
+      out.push({ name: meta.name || f.replace(/\.md$/, ''), relation: meta.relation || '', via, kind });
+    }
+    return out;
+  } catch { return []; }
+}
+
+function readNotesForDay(dateStr) {
+  try {
+    const dir = path.join(LOCI_ROOT, 'notes');
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const f of fs.readdirSync(dir).sort()) {
+      if (!f.endsWith('.md') || f === 'README.md' || f === 'index.md') continue;
+      const full = path.join(dir, f);
+      const parsed = readMdFile(full);
+      if (!parsed) continue;
+      let day = toDayKey(parsed.meta.updated || parsed.meta.created);
+      if (!day) { try { day = dayKey(fs.statSync(full).mtime); } catch {} }
+      if (day !== dateStr) continue;
+      const kind = (toDayKey(parsed.meta.created) === dateStr || fileBornDay(full) === dateStr) ? 'new' : 'updated';
+      out.push({ title: parsed.meta.title || f.replace(/\.md$/, ''), file: f, tags: parsed.meta.tags || [], kind });
+    }
+    return out;
+  } catch { return []; }
+}
+
+function readReferencesForDay(dateStr) {
+  try {
+    const out = [];
+    for (const parsed of scanMdFilesRecursive(path.join(LOCI_ROOT, 'references'))) {
+      const fileMatch = parsed.filename.match(/\d{4}-\d{2}-\d{2}/);
+      const day = toDayKey(parsed.meta.date || parsed.meta.created) || (fileMatch ? fileMatch[0] : '');
+      if (day !== dateStr) continue;
+      out.push({
+        title: parsed.meta.title || parsed.filename.replace(/\.md$/, ''),
+        url: parsed.meta.url || '',
+        path: parsed.path,
+        research: parsed.path.split(path.sep).includes('research'),
+        // References are matched by their save date (filename / frontmatter),
+        // so a hit here is always a bookmark saved that day.
+        kind: 'new',
+      });
+    }
+    return out;
+  } catch { return []; }
+}
+
+// External-source digests: sources/<source>/YYYY-MM-DD.md (reserved layout).
+function readSourcesForDay(dateStr) {
+  try {
+    const dir = path.join(LOCI_ROOT, 'sources');
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const entry of fs.readdirSync(dir).sort()) {
+      const sub = path.join(dir, entry);
+      try { if (!fs.statSync(sub).isDirectory()) continue; } catch { continue; }
+      const file = path.join(sub, dateStr + '.md');
+      if (!fs.existsSync(file)) continue;
+      const parsed = readMdFileSimple(file);
+      if (parsed) out.push({ source: entry, meta: parsed.meta, html: parsed.content });
+    }
+    return out;
+  } catch { return []; }
+}
+
+function buildToday(dateStr) {
+  const date = isDayKeyStr(dateStr) ? dateStr : dayKey(new Date());
+  const activity = readActivityDay(date);
+  const tasks = buildTodayTasks(date);
+  const schedule = buildTodaySchedule(date);
+
+  const progress = [];
+  const projectDecisions = [];
+  const projectsConnected = [];
+  for (const p of listProjectRepos()) {
+    for (const line of readProjectProgressDay(p.repo, date)) progress.push({ project: p.name, ...line });
+    for (const d of readDecisionsForDay(path.join(p.repo, '.loci', 'decisions'), date)) {
+      projectDecisions.push({ project: p.name, ...d });
+    }
+    if (projectConnectedDay(p.repo) === date) projectsConnected.push({ name: p.name });
+  }
+  progress.sort((a, b) => ((a.time || '') < (b.time || '') ? -1 : 1));
+
+  const decisions = readDecisionsForDay(path.join(LOCI_ROOT, 'decisions'), date);
+  const people = readPeopleForDay(date);
+  const notes = readNotesForDay(date);
+  const references = readReferencesForDay(date);
+  const sources = readSourcesForDay(date);
+
+  const journalParsed = readMdFileSimple(path.join(LOCI_ROOT, 'tasks', 'journal', date + '.md'));
+  const journal = journalParsed
+    ? { exists: true, meta: journalParsed.meta, html: journalParsed.content }
+    : { exists: false, meta: {}, html: '' };
+
+  // Rule-based summary (no AI): dominant activity category = the day's main
+  // line; the project with the most progress entries = the day's key project.
+  const catCount = {};
+  for (const a of activity) if (a.category) catCount[a.category] = (catCount[a.category] || 0) + 1;
+  const mainCategory = Object.keys(catCount).sort((a, b) => catCount[b] - catCount[a])[0] || '';
+  const projCount = {};
+  for (const p of progress) projCount[p.project] = (projCount[p.project] || 0) + 1;
+  const topProject = Object.keys(projCount).sort((a, b) => projCount[b] - projCount[a])[0] || '';
+  const decisionsCount = decisions.length + projectDecisions.length;
+  const total = activity.length + tasks.added.length + tasks.done.length + tasks.updated.length +
+    schedule.length + progress.length + decisionsCount + people.length + notes.length +
+    references.length + sources.length + projectsConnected.length + (journal.exists ? 1 : 0);
+
+  return {
+    date,
+    summary: {
+      mainCategory,
+      topProject,
+      keyDecisions: [...projectDecisions, ...decisions].slice(0, 3).map(d => d.title),
+      counts: {
+        total,
+        activity: activity.length,
+        tasksAdded: tasks.added.length,
+        tasksDone: tasks.done.length,
+        tasksUpdated: tasks.updated.length,
+        schedule: schedule.length,
+        projectUpdates: progress.length,
+        decisions: decisionsCount,
+        people: people.length,
+        notes: notes.length,
+        references: references.length,
+        externalSources: sources.length,
+        projectsConnected: projectsConnected.length,
+      },
+    },
+    activity,
+    tasks,
+    schedule,
+    projects: { progress, decisions: projectDecisions, connected: projectsConnected },
+    decisions,
+    people,
+    notes,
+    references,
+    sources,
+    journal,
   };
 }
 
@@ -1804,7 +2396,7 @@ function handleProjectTodo(action, body) {
 }
 
 // Connect a project for real: invoke scripts/loci-project.js connect, which
-// creates <repo>/.loci/ (memory.md + todo.json + decisions/), injects the Loci
+// creates <repo>/.loci/ (memory.md + profile.md + progress/ + todo.json + decisions/), injects the Loci
 // block into the repo's CLAUDE.md + AGENTS.md, adds .loci/ to .gitignore, and
 // writes the one-line entry into the brain's projects/index.md. Guarded/idempotent:
 // an existing memory.md is left untouched. From then on the dashboard reads/writes
@@ -1871,20 +2463,46 @@ function handleTaskMove(body) {
 // that is actually a connected project's repo (verified against projects/index.md)
 // — never an arbitrary path from the request. Never throws to the client.
 function handleProjectOpen(body) {
-  const { repo } = body || {};
+  const { repo, mode, file } = body || {};
   if (!repo || typeof repo !== 'string') return { error: 'Missing repo path' };
   // verify this repo belongs to a connected project
-  const known = buildProjects().serious.some(p => p.repo && p.repo === repo);
-  if (!known) return { error: 'Unknown project repo' };
+  const project = buildProjects().serious.find(p => p.repo && p.repo === repo);
+  if (!project) return { error: 'Unknown project repo' };
   if (!fs.existsSync(repo)) return { error: 'Folder not found on disk' };
+
+  // Optional pinned-file target. Only paths this project's profile.md actually
+  // pins (## Files) or repo-relative paths that resolve INSIDE the repo are
+  // allowed — the endpoint never opens an arbitrary caller-supplied path.
+  let target = repo;
+  if (file && typeof file === 'string') {
+    const pinned = (project.files || []).some(f => f.target === file);
+    const resolved = path.isAbsolute(file) ? file : path.resolve(repo, file);
+    const insideRepo = resolved.startsWith(repo + path.sep);
+    if (!pinned && !insideRepo) return { error: 'File is not pinned by this project' };
+    if (!fs.existsSync(resolved)) return { error: 'File not found on disk' };
+    target = resolved;
+  }
+
   try {
     const { execFileSync } = require('child_process');
-    const opener = process.platform === 'darwin' ? 'open'
-      : process.platform === 'win32' ? 'explorer' : 'xdg-open';
-    execFileSync(opener, [repo], { timeout: 3000, stdio: 'ignore' });
-    return { ok: true, opened: repo };
+    if (process.platform === 'darwin') {
+      if (mode === 'vscode') {
+        execFileSync('open', ['-a', 'Visual Studio Code', target], { timeout: 3000, stdio: 'ignore' });
+      } else if (mode === 'terminal') {
+        execFileSync('open', ['-a', 'Terminal', repo], { timeout: 3000, stdio: 'ignore' });
+      } else if (target !== repo) {
+        // reveal a pinned file in Finder rather than launching its default app
+        execFileSync('open', ['-R', target], { timeout: 3000, stdio: 'ignore' });
+      } else {
+        execFileSync('open', [target], { timeout: 3000, stdio: 'ignore' });
+      }
+    } else {
+      const opener = process.platform === 'win32' ? 'explorer' : 'xdg-open';
+      execFileSync(opener, [target], { timeout: 3000, stdio: 'ignore' });
+    }
+    return { ok: true, opened: target };
   } catch (e) {
-    return { error: 'Could not open folder' };
+    return { error: 'Could not open' };
   }
 }
 
@@ -1906,6 +2524,34 @@ function handleProjectBrowse() {
     // strip trailing slash for a clean repo path
     const picked = out.replace(/\/+$/, '');
     return { ok: true, path: picked };
+  } catch (e) {
+    // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
+    return { error: 'cancelled' };
+  }
+}
+
+// "链接文件": pop a native file picker, then symlink the chosen file into the
+// project's .loci/knowledge/. Symlink (not copy) — the original stays where it
+// lives (e.g. an Obsidian vault); the project just gains an entry point.
+// macOS only, local machine only.
+function handleProjectKnowledgeAdd(body) {
+  const { repo } = body || {};
+  if (!repo || typeof repo !== 'string') return { error: 'Missing repo path' };
+  const known = buildProjects().serious.some(p => p.repo && p.repo === repo);
+  if (!known) return { error: 'Unknown project repo' };
+  if (process.platform !== 'darwin') return { error: 'File picker only supported on macOS' };
+  try {
+    const { execFileSync } = require('child_process');
+    const script = 'POSIX path of (choose file with prompt "选择要放进项目知识库的文件")';
+    const out = execFileSync('osascript', ['-e', script], { timeout: 120000, encoding: 'utf-8' }).trim();
+    if (!out) return { error: 'cancelled' };
+    const src = out.replace(/\/+$/, '');
+    const kbDir = path.join(repo, '.loci', 'knowledge');
+    fs.mkdirSync(kbDir, { recursive: true });
+    const dest = path.join(kbDir, path.basename(src));
+    if (fs.existsSync(dest)) return { error: 'exists' };
+    fs.symlinkSync(src, dest);
+    return { ok: true, added: path.basename(src) };
   } catch (e) {
     // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
     return { error: 'cancelled' };
@@ -2649,6 +3295,16 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Today / Daily Trace: one day's footprint aggregated across every layer.
+  if (pathname === '/api/today' && req.method === 'GET') {
+    try {
+      sendJson(res, buildToday(parsed.searchParams.get('date') || ''));
+    } catch (e) {
+      sendError(res, 'Build error: ' + e.message, 500);
+    }
+    return;
+  }
+
   // Project todos: toggle / add / move / update — write back via loci-projtodo.js.
   {
     const m = pathname.match(/^\/api\/project-todos\/(toggle|add|move|update|done|remove)$/);
@@ -2730,6 +3386,19 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleProjectOpen(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  // "链接文件": file picker → symlink into <repo>/.loci/knowledge/ (macOS, local only).
+  if (pathname === '/api/project/knowledge/add' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProjectKnowledgeAdd(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) {

@@ -20,7 +20,9 @@ The brain is an index and understanding layer. A project's full memory belongs t
 | Personal preference/fact | `me/` |
 | External material | `references/` |
 | Project-shaped idea, not serious yet | `projects/side.md` |
-| Serious project state | Project repo `.loci/memory.md` |
+| Serious project restart context | Project repo `.loci/memory.md` |
+| Serious project stable details | Project repo `.loci/profile.md` |
+| Serious project progress | Project repo `.loci/progress/YYYY-MM.md` |
 | Serious project decision | Project repo `.loci/decisions/` |
 | Cross-project insight/milestone | Brain `projects/index.md` one-line index |
 
@@ -35,6 +37,10 @@ project-repo/
 ├── CLAUDE.md
 └── .loci/
     ├── memory.md
+    ├── profile.md
+    ├── progress/
+    │   └── YYYY-MM.md
+    ├── todo.json
     └── decisions/
 ```
 

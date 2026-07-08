@@ -286,8 +286,9 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 
 ### Cross-Project Memory
-- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`<brain-path>/projects/index.md\`.
-- In connected project repos: read \`.loci/memory.md\` for project context. Write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; update \`.loci/memory.md\` for goal/current-state/next-step/progress changes.
+- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/profile.md\` + \`.loci/progress/\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`<brain-path>/projects/index.md\`.
+- In connected project repos: read \`.loci/memory.md\` first for restart context. Read \`.loci/profile.md\` for stable project details, \`.loci/progress/YYYY-MM.md\` for project progress, and \`.loci/decisions/\` for rationale only when relevant.
+- In connected project repos: write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; write project progress to \`.loci/progress/YYYY-MM.md\`; update \`.loci/memory.md\` only for current state / Now-Next / active decisions / risks; update \`.loci/profile.md\` for milestones, key people, files, scope, and conventions.
 - Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
 - Connect projects through the guarded writer when available: \`node <brain-path>/scripts/loci-project.js connect --repo <repo-path> --brain <brain-path> --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 

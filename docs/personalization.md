@@ -67,7 +67,7 @@ Edit `CLAUDE.md` to add personalized behavior rules. Some examples:
 
 ### Connecting Projects
 
-If you manage multiple projects, just tell the AI to remember one ("remember this project") — or let it offer when a project gets serious. The project keeps its own memory in its repo (`.loci/memory.md` + `.loci/decisions/`), and your brain keeps only a one-line index in `projects/index.md`. See the multi-project section in `docs/how-it-works.md`.
+If you manage multiple projects, just tell the AI to remember one ("remember this project") — or let it offer when a project gets serious. The project keeps its own memory in its repo (`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`), and your brain keeps only a one-line index in `projects/index.md`. See the multi-project section in `docs/how-it-works.md`.
 
 ### Dashboard Theming
 
@@ -83,5 +83,5 @@ The Clean theme is the default — a calm light theme with a single emerald acce
 ## What NOT to Customize
 
 - Don't rename `CLAUDE.md` — it's the entry point for AI tools
-- Don't delete `plan.md` or `inbox.md` — they're Layer 1 essentials
+- Don't delete `plan.md` or `tasks/active.md` — they're Layer 1 essentials. `inbox.md` is still important, but it is Layer 2 fragment storage and is opened on demand.
 - Don't hand-edit `tasks/tasks.json` or `tasks/calendar.json` — always go through the guarded writer or Dashboard API

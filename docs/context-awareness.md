@@ -224,7 +224,7 @@ date +%s > "$LAST_CHECK"
 
 | Mechanism | Purpose | Scope |
 |-----------|---------|-------|
-| `.loci/memory.md` / `.loci/decisions/` | Project-owned memory and decisions | Project repo |
+| `.loci/memory.md` / `.loci/profile.md` / `.loci/progress/` / `.loci/decisions/` | Project-owned memory, progress, and decisions | Project repo |
 | `changelog.log` | File change awareness (who modified what) | All terminals |
 
 They complement each other. Project memory is for durable project knowledge; the changelog is for ambient awareness.

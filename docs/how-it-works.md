@@ -23,7 +23,7 @@ Your brain is a folder. Inside are markdown files organized into four core modul
 my-brain/
 ├── CLAUDE.md          ← AI's operating system (reads this first)
 ├── plan.md            ← Your life direction and goals (loaded every conversation)
-├── inbox.md           ← Quick capture box (loaded every conversation)
+├── inbox.md           ← Quick capture box (L2, read when fragments/quick thoughts are relevant)
 │
 ├── me/                ← Who you are
 │   ├── identity.md    ← Basics (name, job, city)
@@ -55,7 +55,7 @@ my-brain/
     ├── finance/       ← Budget, assets, financial tracking
     ├── people/        ← Contacts, meeting notes, relationships
     ├── content/       ← Writing, content creation, publishing
-    ├── references/    ← External knowledge base (articles, books, quotes — third-party)
+    ├── references/    ← External knowledge base (articles, books, quotes — third-party; research in research/)
     └── notes/         ← Your OWN notes — index of Obsidian/Feishu/Notion links + short inline notes
 ```
 
@@ -65,11 +65,11 @@ This is Loci's core design — not all memories need to load every time:
 
 | Layer | When loaded | Contents | Human analogy |
 |-------|------------|----------|---------------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, tasks/active.md, inbox.md (latest 7 items), auto-memory | Working memory (what you're thinking about right now) |
-| **L2** | When the topic comes up | Module READMEs, specific people/task/plan files, references, notes | Short-term memory (one thought away) |
+| **L1** | Every conversation | CLAUDE.md, plan.md, tasks/active.md, projects/index.md, status.yml, auto-memory | Working memory (rules, indexes, current action summary, important personal context) |
+| **L2** | When the topic comes up | inbox.md, module READMEs, specific people/task/plan files, references, research evidence, notes | Episodic memory (one thought away) |
 | **L3** | Only when explicitly asked | archive, old decisions, evolution.md, old journals | Long-term memory (have to dig for it) |
 
-**Why three layers?** AI context windows are finite. Loading everything every time wastes tokens and dilutes attention. L1 stays lean (a few hundred lines), L2 loads on demand, L3 grows forever without affecting performance.
+**Why three layers?** AI context windows are finite. Loading everything every time wastes tokens and dilutes attention. L1 stays lean and carries only the frame needed for judgment and action; fragment pools such as `inbox.md` live in L2 and are read when fragments/quick thoughts/idea triage are relevant; L3 grows forever without affecting performance.
 
 > Deep dive: [Architecture](architecture.md)
 
@@ -90,13 +90,16 @@ You say something
    Yes → classify + route:
          ├── Personal fact ("I moved to Berlin")       → me/identity.md
          ├── New insight ("never deploy on Fridays")   → me/learned.md
-         ├── Your decision ("one project at a time")   → decisions/2026-03-10-xxx.md
-         ├── Project decision ("going with PostgreSQL") → that repo's .loci/decisions/
+         ├── Your decision ("one project at a time")   → decisions/2026-03-10-xxx.md + L1 promotion check
+         ├── Project decision ("going with PostgreSQL") → that repo's .loci/decisions/ + project memory check
          ├── New task ("need to update API docs")      → guarded writer → tasks/tasks.json
          ├── Schedule item ("meeting at 3pm")          → guarded writer → tasks/calendar.json
          ├── External content (article, tweet, quote)  → references/
+         ├── Research evidence (raw docs, market scan) → references/research/
          └── Vague thought ("maybe I should learn Rust") → inbox.md
 ```
+
+Decision records are choices and rationale. Research is evidence; it lives in `references/research/` and can be cited from decisions.
 
 ### Distillation Levels
 
@@ -177,11 +180,12 @@ There is no command the user has to learn. When AI notices a project is getting 
 > "This project seems real now. Want me to leave memory here?"
 
 If the user says yes:
-1. Creates `.loci/memory.md` in the project repo (living dossier)
-2. Creates `.loci/decisions/` in the project repo (decision stream)
-3. Injects a Loci project block into the repo's `CLAUDE.md` and `AGENTS.md`
-4. Adds `.loci/` to the repo's `.gitignore`
-5. Adds one index line to the brain's `projects/index.md`
+1. Creates `.loci/memory.md` in the project repo (short restart context)
+2. Creates `.loci/profile.md` for stable project details
+3. Creates `.loci/progress/` and `.loci/decisions/`
+4. Injects a Loci project block into the repo's `CLAUDE.md` and `AGENTS.md`
+5. Adds `.loci/` to the repo's `.gitignore`
+6. Adds one index line to the brain's `projects/index.md`
 
 AI tools should use `scripts/loci-project.js connect` for this multi-file write whenever possible.
 
@@ -202,8 +206,12 @@ Brain index (projects/index.md): one line per serious project
 Project decisions (.loci/decisions/): durable project choices
   "Chose PostgreSQL over SQLite because..."
 
-Project dossier (.loci/memory.md): living project state
-  Facts, decisions, and lessons that stay within this project
+Project restart context (.loci/memory.md): where to resume
+  Current state, next actions, active decisions, risks
+
+Project profile/progress:
+  Stable details live in .loci/profile.md
+  Project progress lives in .loci/progress/YYYY-MM.md
 ```
 
 ### What Reaches the Brain

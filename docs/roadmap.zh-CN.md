@@ -8,7 +8,7 @@
 - 信号驱动的自动持久化（自动/手动两种模式）
 - 对话蒸馏
 - AI 主动提示的项目记忆设置
-- 项目拥有自己的本地记忆（.loci/memory.md + .loci/decisions/）
+- 项目拥有自己的本地记忆（.loci/memory.md + .loci/profile.md + .loci/progress/ + .loci/decisions/）
 - 大脑项目索引（projects/index.md），不当项目记忆仓库
 - 跨终端感知（hooks）
 - Dashboard（本地 Node server，`node .loci/dashboard/server.js`）
@@ -29,7 +29,7 @@
 ## v2.0.0 — 能力升级 + 规模化
 
 - Brain 全文搜索（全文 grep + 模糊匹配）
-- memory.md 自动压缩（超过 200 行触发）
+- 项目记忆维护：处理过大的 `progress/` 和已完成项目待办
 - 多种路由模式（open、manual、silent）
 - 隐私边界配置（blocked_tags、自定义规则）
 - 蒸馏粒度预设（verbose / balanced / minimal）

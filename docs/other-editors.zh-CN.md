@@ -32,7 +32,7 @@ Loci 是给 Claude Code 做的，但记忆层全是 Markdown 纯文本——随�
 ## 没有 slash command 怎么办
 
 - **替代 `/loci-sync`**：直接跟 AI 说 "保存这个决策" 或 "加个任务"——它能直接编辑 Markdown 文件
-- **项目记忆**：项目真的做起来时，直接跟 AI 说"在这个 repo 里留个项目记忆"。它应该创建 `.loci/memory.md`、`.loci/decisions/`，并在 `CLAUDE.md` 里注入 Loci project block。
+- **项目记忆**：项目真的做起来时，直接跟 AI 说"在这个 repo 里留个项目记忆"。它应该创建 `.loci/memory.md`、`.loci/profile.md`、`.loci/progress/`、`.loci/decisions/`、`.loci/todo.json`，并在 `CLAUDE.md` 和 `AGENTS.md` 里注入 Loci project block。
 - **替代自动 consolidation**：隔一阵让 AI "回顾一下我最近的决策和任务，看看有什么规律"
 
 ## 混合工作流

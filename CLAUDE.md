@@ -57,7 +57,7 @@ The brain is not a warehouse — it should only hold what actually matters to th
 - Either trigger leads to the same steps below. If neither has fired, default to NOT creating project memory.
 - **On yes** — prefer the guarded project writer instead of hand-editing multiple files. From the brain folder, run:
   `node scripts/loci-project.js connect --repo <repo-path> --brain . --name "<project>" --description "<one-line>"`
-  Include `--goal`, `--state`, `--next`, and `--decision` when you already know them. The writer creates `.loci/memory.md`, `.loci/decisions/`, injects the project block into both `CLAUDE.md` and `AGENTS.md`, adds `.loci/` to `.gitignore`, and updates `projects/index.md`.
+  Include `--goal`, `--state`, `--next`, and `--decision` when you already know them. The writer creates `.loci/memory.md`, `.loci/profile.md`, `.loci/progress/`, `.loci/decisions/`, injects the project block into both `CLAUDE.md` and `AGENTS.md`, adds `.loci/` to `.gitignore`, and updates `projects/index.md`.
   If the writer is unavailable, do those same steps manually, stamping everything with an ISO 8601 timestamp and replacing existing project blocks in place.
 - **Not serious yet** (a project-shaped idea, but the user hasn't committed) → put it in `projects/side.md`, don't touch any repo.
 
@@ -89,7 +89,7 @@ At the start of every conversation:
 6. Run `.loci/hooks/check-updates.sh` for cross-terminal changes
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
 8. **Inbox management** (three-layer mechanism):
-   - **L1 display**: Only load the **most recent 7 items** from `inbox.md` into context. Older items stay in the file but don't consume attention. If user asks to see full inbox, read the whole file on demand.
+   - **L2 on demand**: Do **not** auto-load `inbox.md` into L1 working memory. It is a contextual fragment pool, not a startup source. Read it only when the user asks about fragments/quick thoughts/saved ideas, wants to organize them, or the current task clearly needs those loose ideas.
    - **Sort nudge**: After 10+ new items since last sort, mention it **at the end of a conversation** (never at the start, never interrupt work). Say "你的待办里积了不少东西，要整理一下吗？" — never use internal terms like "inbox" or "sort". Offer to sort: actionable tasks → `tasks/tasks.json`, decisions → `decisions/`, loose ideas → keep in `inbox.md`, resolved → archive/delete. Also integrate inbox review into the journal flow.
    - **Auto-decay**: When inbox exceeds 20 items, archive entries older than 14 days unless they contain dates/deadlines. Log the move in journal so user stays informed.
 
@@ -109,9 +109,11 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 
 | Layer | Loaded | Contents |
 |-------|--------|----------|
-| **L1** | Every conversation | CLAUDE.md, plan.md, inbox.md, auto-memory |
-| **L2** | On demand | Module READMEs, specific files, references/, notes/ |
+| **L1** | Every conversation | CLAUDE.md, plan.md, tasks/active.md, projects/index.md, .loci/status.yml, auto-memory |
+| **L2** | On demand | Module READMEs, specific files, inbox.md, references/, notes/ |
 | **L3** | Never auto-loaded | archive/, decisions/, old journals |
+
+L1 working memory is for rules, indexes, current action summaries, and genuinely important personal context. `inbox.md` is a fragment pool; it belongs to L2 and should be opened only when fragments are relevant.
 
 ### Session Cache & Refresh
 
@@ -125,6 +127,7 @@ Extension modules (created on demand): `finance/` · `people/` · `content/` · 
 Never save raw transcripts. Distill to structured files:
 - Personal info → `me/` · Decisions → `decisions/` · Tasks → guarded task writer (`tasks/tasks.json` as source of truth)
 - Insights → auto-memory · External content → `references/`
+- Research material is evidence, not a decision. Competitive research, raw docs, study guides, market scans, and case studies go to `references/research/` (or the relevant project repo), then a separate decision record may cite them.
 
 **⚠️ Fragments routing** — two distinct buckets, auto-save + one-line confirm:
 - **随手记 → `inbox.md`**: fleeting thoughts, sparks, vague ideas not yet actionable. Triggers: "突然想到...", "有个想法...", "记一下...", "别忘了...", "回头看看...", or any loose thought that isn't a task, decision, or reference.
@@ -137,7 +140,7 @@ Never save raw transcripts. Distill to structured files:
 - If it's a **conclusion or principle** → it's a decision or insight, not a fragment.
 
 **⚠️ Project / People routing** — where project memory and people go:
-- **Serious project** → its OWN repo: `.loci/memory.md` (living dossier) + `.loci/decisions/` (decision stream). The brain keeps only a one-line index entry in `projects/index.md`. Loci aggregates, it does not own (see rule #10).
+- **Serious project** → its OWN repo: `.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/` decision stream. The brain keeps only a one-line index entry in `projects/index.md`. Loci aggregates, it does not own (see rule #10).
 - **Project embryo** (looks like a project but not serious yet) → `projects/side.md`. Graduates to its own repo when the user commits to it.
 - **A person** worth remembering (collaborator / client / contact) → `people/<name>.md`.
 - **A relationship between two contacts** ("kk 是 Asher 的朋友", "A introduced me to B", "they're colleagues") → don't just mention it in the person's note — ALSO record an edge in `people/.connections.json` (undirected: `[a, b]` or `[a, b, "how they know each other"]`; names must exactly match each person's `name:` field). Prefer the Dashboard API when the server is running: `POST /api/people/connect` with `{a, b, how}`; otherwise edit the JSON directly. If one side isn't a contact yet, create their `people/<name>.md` first — the relationship graph only draws edges between existing people.
@@ -149,6 +152,7 @@ Never save raw transcripts. Distill to structured files:
 - **Yes, it's a choice you made as a person** (direction, strategy, methodology, whether to do/drop something — it affects you or other projects) → the brain's `decisions/`.
 - **When unsure, default to the project repo** — don't ask, and lean toward NOT putting it in the brain. Most project decisions never reach the brain.
 - A project decision with cross-project value can be tagged `[insight]` / `[milestone]`: this only adds a one-line summary to the project's entry in `projects/index.md` (pointing back to the repo). The decision's full text stays in the project repo — never copy a decision into the brain (rule #10).
+- **L1 promotion check after every decision**: after writing a decision, ask "does this change what should guide current behavior?" If yes, update the smallest L1 surface: `plan.md` for life strategy/principles, `tasks/active.md` through the guarded task writer for changed action priorities, `projects/index.md` for a one-line project milestone/insight, or the project's `.loci/memory.md` for project-local current state. If no, leave the full decision in L3 only.
 
 **Levels**: Factual info → auto-save + one-line confirm. Subjective/strategic → ask before writing.
 
@@ -231,7 +235,7 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
    - **Schedule-only item** (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to calendar (`schedule` command).
    - **Pulling a task onto the schedule** is deliberate — only when the user wants that time blocked. When unsure, keep it a task.
    - **Loose idea, not a task** → root `inbox.md`.
-10. **⚠️ Loci aggregates memory, it does not own it** — A serious project's memory belongs to the project's OWN repo (`.loci/memory.md` living dossier + `.loci/decisions/` decision stream). The brain holds only a one-line index entry in `projects/index.md`. The brain is an index + understanding layer, not a warehouse. Never copy a project's full memory into the brain — read the repo when you need detail. Connecting a project is AI-initiated and offered once at the end of a conversation, never a command the user must learn.
+10. **⚠️ Loci aggregates memory, it does not own it** — A serious project's memory belongs to the project's OWN repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/` decision stream). The brain holds only a one-line index entry in `projects/index.md`. The brain is an index + understanding layer, not a warehouse. Never copy a project's full memory into the brain — read the repo when you need detail. Connecting a project is AI-initiated and offered once at the end of a conversation, never a command the user must learn.
 
 <!-- loci:project:start v1 -->
 ## Loci Project Memory
@@ -243,8 +247,10 @@ HERE, in this repo. The brain only keeps a one-line index entry. Never expect th
 to store this project's full memory.
 
 ### On session start
-- Read `.loci/memory.md` for this project's goal, current state, next step, and people.
+- Read `.loci/memory.md` for this project's current state, Now / Next, recent progress, active decisions, and risks.
+- Read `.loci/profile.md` only when stable project details are needed: scope, milestones, key people, files, conventions.
 - Read `.loci/decisions/` only when a past decision is relevant (don't auto-load all).
+- Read `.loci/progress/YYYY-MM.md` only when the user asks what happened on a date or recent project detail is needed.
 
 ### What to record, and where
 - **A decision** (a real trade-off, "chose X not Y") → write `.loci/decisions/<YYYY-MM-DD>-<slug>.md`
@@ -254,18 +260,27 @@ to store this project's full memory.
   personal direction / strategy / methodology (meaningful even without this project) belongs
   in the brain's `~/loci/decisions/` instead.
 - **Status / progress change** (goal, current state, next step, a milestone) → update
-  `.loci/memory.md` in place; add a stamped line under `## Progress Log`.
+  `.loci/memory.md` in place only for current restart context; append the full stamped event to
+  `.loci/progress/YYYY-MM.md` under `## YYYY-MM-DD` as `- HH:MM · what changed`.
+- **Stable project attributes** (milestones, key people, important files, scope, conventions) →
+  update `.loci/profile.md`, not `.loci/memory.md`.
 - **A development to-do for THIS project** (something to build/fix/ship) → `.loci/todo.json`,
   NOT the brain's personal task pool. Write it through the guarded writer, never by hand:
   `node <brain>/scripts/loci-projtodo.js add --repo <this-repo> --text "..." [--category "..."]`
   (also `toggle` / `done` / `move` / `remove` / `list` / `validate`). Each todo gets a permanent
   `id` so the dashboard can toggle / reorder it. The dashboard reads this file to show project todos.
+- **A project document** (design doc, research write-up, spec, material you produce FOR this
+  project) → write it into `.loci/knowledge/` by default, unless the user names another place.
+  A document that lives elsewhere (e.g. an Obsidian vault) gets a symlink here instead — the
+  original stays put. The dashboard's projects page lists this folder ("文件与知识库"), so
+  anything landing here is immediately visible to the user.
 - **An insight or milestone worth the brain knowing** (`[insight]` / `[milestone]`) →
   also update the project's index entry in the brain's `~/loci/projects/index.md`.
 - Keep `[local]` / `[debug]` / `[wip]` notes here only; do not push them to the brain.
 
 ### Always
 - Stamp every record with an ISO 8601 timestamp (e.g. `2026-05-30T14:30:00+10:00`).
-- `.loci/memory.md` = living dossier (updated in place). `.loci/decisions/` = stream (append-only).
+- `.loci/memory.md` = restart context, kept short. `.loci/profile.md` = stable project details.
+- `.loci/progress/` = project progress stream. `.loci/decisions/` = decision stream.
 - Speak to the user in plain language; don't expose file paths or internal terms.
 <!-- loci:project:end -->

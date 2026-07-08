@@ -32,7 +32,7 @@ Loci is built for Claude Code, but its memory is plain Markdown — any AI codin
 ## Tips for partial-support editors
 
 - **Instead of `/loci-sync`**: Tell the AI "save this decision" or "add this task" — it can edit the Markdown files directly
-- **Project memory**: When a project gets serious, ask your AI to "leave memory in this repo." It should create `.loci/memory.md`, `.loci/decisions/`, and a Loci project block in `CLAUDE.md`.
+- **Project memory**: When a project gets serious, ask your AI to "leave memory in this repo." It should create `.loci/memory.md`, `.loci/profile.md`, `.loci/progress/`, `.loci/decisions/`, `.loci/todo.json`, and Loci project blocks in `CLAUDE.md` and `AGENTS.md`.
 - **Instead of auto-consolidation**: Periodically ask the AI "review my recent decisions and tasks, find patterns"
 
 ## Hybrid workflow

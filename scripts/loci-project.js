@@ -13,7 +13,7 @@ function usage() {
 Options:
   --goal "Goal text"             Fill memory.md Goal
   --state "Current state"        Fill memory.md Current State
-  --next "Next step"             Fill memory.md Next Step
+  --next "Next step"             Fill memory.md Now / Next
   --decision "Decision text"     Create an initial project decision file
   --decision-title "Title"       Title for the initial decision
   --force                        Replace an existing .loci/memory.md
@@ -107,11 +107,32 @@ function renderMemory(args) {
     .replace(/<ISO8601>/g, now)
     .replace(/<Project Name>/g, args.name)
     .replace(/<this-repo-path>/g, args.repo)
-    .replace('<!-- What this project is for. Updated in place when it changes. -->', args.goal || '<!-- What this project is for. Updated in place when it changes. -->')
-    .replace('<!-- Where it is right now. Updated in place. -->', args.state || '<!-- Where it is right now. Updated in place. -->')
-    .replace("<!-- What's next. Updated in place. -->", args.next || "<!-- What's next. Updated in place. -->")
-    .replace(/<!-- Append-only, newest at bottom\. Each entry stamped:\n\[[^\]]+\] what happened \(milestone \/ change \/ decision pointer\) -->/,
-      `[${now}] Project memory initialized by Loci.`);
+    .replace('<!-- What this project is for, only if it helps restart work quickly. Keep short. -->', args.goal || '<!-- What this project is for, only if it helps restart work quickly. Keep short. -->')
+    .replace('<!-- Where the project is right now. This is the main restart context. -->', args.state || '<!-- Where the project is right now. This is the main restart context. -->')
+    .replace('<!-- The next 1-3 actions or the immediate handoff state. Updated in place. -->', args.next || '<!-- The next 1-3 actions or the immediate handoff state. Updated in place. -->');
+}
+
+function renderProfile(args) {
+  const template = readFile(path.join(LOCI_ROOT, 'templates', 'project-profile.md'));
+  if (!template) throw new Error('Missing templates/project-profile.md');
+  const now = isoNow();
+  return template
+    .replace(/<name>/g, args.name)
+    .replace(/<one-line>/g, args.description)
+    .replace(/<one-line description>/g, args.description)
+    .replace(/<ISO8601>/g, now)
+    .replace(/<Project Name>/g, args.name);
+}
+
+function renderProgress(args) {
+  const now = isoNow();
+  const day = now.slice(0, 10);
+  const time = now.slice(11, 16);
+  return `# Project Progress · ${day.slice(0, 7)}
+
+## ${day}
+- ${time} · Project memory initialized by Loci.
+`;
 }
 
 // The project to-do list is a structured todo.json (guarded by loci-projtodo.js),
@@ -200,11 +221,23 @@ function connectProject(rawArgs) {
 
   const lociDir = path.join(repo, '.loci');
   const decisionsDir = path.join(lociDir, 'decisions');
+  const progressDir = path.join(lociDir, 'progress');
   fs.mkdirSync(decisionsDir, { recursive: true });
+  fs.mkdirSync(progressDir, { recursive: true });
 
   const memoryPath = path.join(lociDir, 'memory.md');
   if (!fs.existsSync(memoryPath) || rawArgs.force) {
     writeFile(memoryPath, renderMemory(args));
+  }
+
+  const profilePath = path.join(lociDir, 'profile.md');
+  if (!fs.existsSync(profilePath) || rawArgs.force) {
+    writeFile(profilePath, renderProfile(args));
+  }
+
+  const progressPath = path.join(progressDir, `${isoDate().slice(0, 7)}.md`);
+  if (!fs.existsSync(progressPath) || rawArgs.force) {
+    writeFile(progressPath, renderProgress(args));
   }
 
   const todoPath = path.join(lociDir, 'todo.json');
@@ -225,6 +258,8 @@ function connectProject(rawArgs) {
     brain,
     files: {
       memory: memoryPath,
+      profile: profilePath,
+      progress: progressDir,
       todo: todoPath,
       decisions: decisionsDir,
       initialDecision: decisionPath,

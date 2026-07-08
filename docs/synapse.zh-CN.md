@@ -20,7 +20,9 @@ Synapse 是 Loci 的信号驱动记忆机制：AI 在对话里判断哪些信息
 | 个人偏好/事实 | `me/` |
 | 外部资料 | `references/` |
 | 还不成熟的项目雏形 | `projects/side.md` |
-| 严肃项目状态 | 项目 repo `.loci/memory.md` |
+| 严肃项目重启上下文 | 项目 repo `.loci/memory.md` |
+| 严肃项目稳定详情 | 项目 repo `.loci/profile.md` |
+| 严肃项目进展 | 项目 repo `.loci/progress/YYYY-MM.md` |
 | 严肃项目决策 | 项目 repo `.loci/decisions/` |
 | 跨项目 insight / milestone | 大脑 `projects/index.md` 一行索引 |
 
@@ -35,6 +37,10 @@ project-repo/
 ├── CLAUDE.md
 └── .loci/
     ├── memory.md
+    ├── profile.md
+    ├── progress/
+    │   └── YYYY-MM.md
+    ├── todo.json
     └── decisions/
 ```
 

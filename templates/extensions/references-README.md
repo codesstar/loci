@@ -15,8 +15,9 @@ references/
 ├── inbox.md            # Quick dump — just throw it here
 ├── entries/            # Organized individual entries
 │   └── YYYY-MM-DD-slug.md
-└── collections/        # Curated topic groups (optional)
-    └── topic-name.md
+├── collections/        # Curated topic groups (optional)
+│   └── topic-name.md
+└── research/           # Evidence packs: raw docs, market scans, competitor notes
 ```
 
 No sub-folders by type. Use frontmatter tags instead — easier to search, no "where does this go?" friction.
@@ -24,9 +25,12 @@ No sub-folders by type. Use frontmatter tags instead — easier to search, no "w
 ## What goes here vs root inbox.md
 
 - **External content** (someone else's ideas) → `references/inbox.md`
+- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `references/research/`
 - **Your own tasks/thoughts/reminders** → root `inbox.md`
 
 **Rule of thumb**: If it came from outside you, it goes here. If it came from inside you, it goes in `inbox.md`, `me/`, or `decisions/`.
+
+Research is evidence, not a decision. If it leads to a real trade-off and chosen direction, write a separate decision record and cite the research from there.
 
 ## How to use
 

@@ -55,7 +55,10 @@ Steps:
    a. Review the current conversation for new information
    b. Apply local distillation based on the project block in `CLAUDE.md`
    c. If `--dry-run`: list what would be stored/pushed, then stop
-   d. **Update** `.loci/memory.md` as the living dossier: Goal / Current State / Next Step are updated in place; Progress Log is append-only.
+   d. **Update the project-local files by role**:
+      - `.loci/memory.md` for restart context: Current State, Now / Next, Recent Progress, Active Decisions, Risks
+      - `.loci/progress/YYYY-MM.md` for append-only project progress under `## YYYY-MM-DD` as `- HH:MM · what changed`
+      - `.loci/profile.md` for stable attributes: scope, milestones, key people, files, conventions
       Available tags:
       - `[decision]` — architectural or strategic decisions made
       - `[architecture]` — structural choices, patterns, tech stack changes
@@ -77,7 +80,7 @@ Steps:
    ```
    Sync complete.
 
-   Stored locally: X items → .loci/memory.md / .loci/decisions/
+   Stored locally: X items → .loci/memory.md / .loci/progress/ / .loci/profile.md / .loci/decisions/
    Indexed in brain: Y summaries → projects/index.md
    Refreshed from brain: Z indexes
 
@@ -93,7 +96,7 @@ Steps:
 When persistence mode is `auto` (default), the AI performs signal-driven sync automatically during conversation:
 
 1. **Every turn**, AI evaluates whether the current exchange contains storable information (new task, decision, insight, personal info change, etc.)
-2. **If yes**: silently distill and write to `.loci/memory.md` / `.loci/decisions/` in connected projects, or the appropriate brain file when inside the brain. For project `[insight]` / `[milestone]` summaries, update the brain's `projects/index.md` one-line index. Output a one-line notification:
+2. **If yes**: silently distill and write to `.loci/memory.md` / `.loci/progress/` / `.loci/profile.md` / `.loci/decisions/` in connected projects, or the appropriate brain file when inside the brain. For project `[insight]` / `[milestone]` summaries, update the brain's `projects/index.md` one-line index. Output a one-line notification:
    ```
    Got it — noted the pricing decision in this project
    ```
@@ -108,6 +111,6 @@ When persistence mode is `auto` (default), the AI performs signal-driven sync au
    ```
 3. **If no**: do nothing, no notification
 4. User can say "undo" / "撤销" to reverse the last auto-save
-5. **memory.md grows over time.** Keep the living sections lean and let Progress Log be append-only. Clean manually if needed, or wait for v2.0 auto-compression.
+5. **memory.md stays short.** It is the restart context, not the archive. Full progress grows in `.loci/progress/YYYY-MM.md`; stable attributes live in `.loci/profile.md`. Do not add archive until there is real bulk to move.
 
 This is signal-driven, not interval-based. 5 turns of chitchat = nothing stored. 1 turn with a major decision = stored immediately.

@@ -11,17 +11,27 @@ updated: <ISO8601>
 > <one-line description> · repo: <this-repo-path>
 
 ## Goal
-<!-- What this project is for. Updated in place when it changes. -->
+<!-- What this project is for, only if it helps restart work quickly. Keep short. -->
 
 ## Current State
-<!-- Where it is right now. Updated in place. -->
+<!-- Where the project is right now. This is the main restart context. -->
 
-## Next Step
-<!-- What's next. Updated in place. -->
+## Now / Next
+<!-- The next 1-3 actions or the immediate handoff state. Updated in place. -->
 
-## Key People
-<!-- People involved — reference brain's people/ by name, e.g. [[person-name]] -->
+## Recent Progress
+<!-- Keep only the latest 3-7 meaningful entries. Full project stream lives in `.loci/progress/YYYY-MM.md`.
+- YYYY-MM-DD HH:MM · Short result-oriented update
+-->
 
-## Progress Log
-<!-- Append-only, newest at bottom. Each entry stamped:
-[<ISO8601>] what happened (milestone / change / decision pointer) -->
+## Active Decisions
+<!-- Only decisions still affecting current work. Link to `.loci/decisions/<file>.md`; full history stays there. -->
+
+## Risks / Open Questions
+<!-- Current blockers, risks, or context the next session must not miss. -->
+
+## Pointers
+- Project profile: `.loci/profile.md`
+- Project progress: `.loci/progress/`
+- Project decisions: `.loci/decisions/`
+- Project todos: `.loci/todo.json`

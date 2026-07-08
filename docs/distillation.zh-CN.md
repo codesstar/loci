@@ -24,7 +24,9 @@ Loci 不存原始聊天记录——那东西又长又杂，回头根本找不到
 | 踩坑经验 | `me/learned.md` | "千万别周五部署" |
 | 决策（你个人的、跨项目仍有意义的） | `decisions/YYYY-MM-DD-slug.md` | "以后一次只做一个项目" |
 | 项目决策 | 那个项目 repo 的 `.loci/decisions/` | "选了 React 没选 Vue" |
-| 项目状态/进展 | 那个项目 repo 的 `.loci/memory.md` | "MVP 发了，下一步做计费" |
+| 项目重启上下文 | 那个项目 repo 的 `.loci/memory.md` | "MVP 发了，下一步做计费" |
+| 项目进展 | 那个项目 repo 的 `.loci/progress/YYYY-MM.md` | "今天接好了计费 API" |
+| 项目稳定详情 | 那个项目 repo 的 `.loci/profile.md` | "关键文件、里程碑、相关人" |
 | 新任务 | 守卫写入器 → `tasks/tasks.json` | "得更新 API 文档" |
 | 日程（占用时间的事） | 守卫写入器 → `tasks/calendar.json` | "下午 3 点开会" |
 | 外部材料 | `references/YYYY-MM-DD-slug.md` | "收藏这篇定价文章" |

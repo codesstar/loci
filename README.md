@@ -165,7 +165,7 @@ Next month, when you're wondering "why aren't we on Vercel?" — your AI already
 
 No command to learn. While you work inside a project, if your AI notices it's becoming real, it offers once — at the end of a conversation: "This project seems to be taking off. Want me to keep a memory for it here?"
 
-Say yes, and Loci creates the project's own `.loci/memory.md` (a living dossier) and `.loci/decisions/` (an append-only decision stream) inside that project's repo. Your brain keeps only a one-line index entry pointing to it. Project memory belongs to the project; the brain aggregates and orchestrates. **Loci aggregates memory — it does not own it.**
+Say yes, and Loci creates the project's own `.loci/` memory inside that repo. Your brain keeps only a one-line index entry pointing to it. Project memory belongs to the project; the brain aggregates and orchestrates. **Loci aggregates memory — it does not own it.**
 
 ```
 Brain (your memory hub)
@@ -176,7 +176,9 @@ Brain (your memory hub)
  │    your global preferences, tasks, and cross-project decisions
  │
  └── project repo/.loci/
-      memory.md       the project's current state
+      memory.md       short restart context
+      profile.md      stable project details
+      progress/       project progress, one file per month
       decisions/      the project's own decision stream
       todo.json       the project's development todos
 ```
@@ -233,7 +235,7 @@ July:     "founder, shipped v1, first 50 users"
 |---------|-------------|----------------|
 | **Smart saving** | Extracts decisions, tasks, and insights from conversation — never saves raw chat transcripts | Your memory stays clean and searchable, not a wall of text |
 | **Layered loading** | Loads only what's relevant to the current conversation. Archives stay out of the way until needed | Fast responses, even after months of accumulated memory |
-| **Cross-project memory** | Each serious project keeps its own memory in its repo (`.loci/memory.md` + `.loci/decisions/`); your brain holds only a one-line index. Loci aggregates memory, it does not own it | Lessons stay where they belong, and your AI knows where to find them from any project |
+| **Cross-project memory** | Each serious project keeps its own memory in its repo (`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`); your brain holds only a one-line index. Loci aggregates memory, it does not own it | Lessons stay where they belong, and your AI knows where to find them from any project |
 | **Daily review** | Morning briefing summarizes yesterday, surfaces patterns, flags stale tasks | You start each day with full context in 10 seconds |
 | **Growth tracking** | When your identity or goals change, old versions are archived automatically | You can look back and see how you've evolved |
 | **Git-native** | Everything is Markdown files in a git repo. `git diff` shows what your AI learned. `git log` is your memory timeline | Full version history, works offline, you own your data |

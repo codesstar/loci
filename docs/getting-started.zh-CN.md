@@ -269,10 +269,13 @@ http://127.0.0.1:8765/
 
 你点头后，AI 会：
 1. 在项目 repo 里创建 `.loci/memory.md`
-2. 创建 `.loci/decisions/` 存项目决策
-3. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
-4. 把 `.loci/` 加到项目 `.gitignore`
-5. 在大脑的 `projects/index.md` 里加一行索引
+2. 创建 `.loci/profile.md` 存稳定项目详情
+3. 创建 `.loci/progress/` 存项目进展
+4. 创建 `.loci/decisions/` 存项目决策
+5. 创建 `.loci/todo.json` 存项目开发待办
+6. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
+7. 把 `.loci/` 加到项目 `.gitignore`
+8. 在大脑的 `projects/index.md` 里加一行索引
 
 内部实现上，AI 应优先用 `scripts/loci-project.js connect` 来做这件事，这样多文件写入不会漏步骤。
 
@@ -285,7 +288,9 @@ http://127.0.0.1:8765/
 不是啥都同步，那样太吵。默认规则：
 
 - **项目内部决策**留在项目 repo 的 `.loci/decisions/`
-- **项目当前状态**更新项目 repo 的 `.loci/memory.md`
+- **项目当前状态 / 下次接着做什么**更新项目 repo 的 `.loci/memory.md`
+- **项目稳定详情**更新项目 repo 的 `.loci/profile.md`
+- **项目进展**追加到项目 repo 的 `.loci/progress/YYYY-MM.md`
 - **项目开发待办**写进项目 repo 的 `.loci/todo.json`
 - **里程碑**可以在大脑 `projects/index.md` 里留一行摘要
 - **跨项目经验教训**可以作为 `[insight]` 提升到大脑项目索引

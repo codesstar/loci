@@ -38,8 +38,10 @@ An optional extension module for external content — articles, tweets, videos, 
 
 ### 1. Routing
 - **External content** (someone else's ideas) → `references/inbox.md`
+- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `references/research/`
 - **Your own tasks/thoughts/reminders** → root `inbox.md`
 - Rule of thumb: came from outside you → references. Came from inside you → inbox/me/decisions.
+- Research is evidence, not a decision. If it supports a choice, cite it from a separate decision record instead of storing it under `decisions/`.
 
 ### 2. Zero-Friction Capture
 User says "save this" + content → append to `references/inbox.md` immediately. No classification, no confirmation.
@@ -97,39 +99,52 @@ references/
 ├── inbox.md            # Quick dump — zero friction
 ├── entries/            # Organized individual entries
 │   └── YYYY-MM-DD-slug.md
-└── collections/        # Curated topic groups
-    └── topic-name.md
+├── collections/        # Curated topic groups
+│   └── topic-name.md
+└── research/           # Evidence packs: raw docs, market scans, competitor notes
 ```
+
+### 10. Research Evidence
+- `references/research/` is for evidence and source material gathered while thinking.
+- A decision record goes in `decisions/` only after there is a real trade-off and a chosen direction.
+- Decision records may cite files in `references/research/`, but research files themselves are never decision records.
 
 ## Project Memory Protocol
 
 Loci aggregates memory, it does not own it. A serious project's memory belongs in that project's own repo:
-- `.loci/memory.md` — living dossier: goal, current state, next step, key people, progress log
+- `.loci/memory.md` — restart context: current state, Now / Next, recent progress, active decisions, risks, pointers
+- `.loci/profile.md` — stable project details: scope, milestones, key people, important files, conventions
+- `.loci/progress/YYYY-MM.md` — project progress stream, grouped by day
 - `.loci/decisions/` — durable project decision stream
+- `.loci/todo.json` — structured project development todos
 - `CLAUDE.md` + `AGENTS.md` project blocks — tell future Claude Code and Codex sessions how to read/write the repo memory
 - Brain `projects/index.md` — one-line index only; never a warehouse for full project memory
 
 The user does not run a command to connect a project. AI notices "this is getting real" signals and offers once at the end of the conversation.
 
-## Project Persistence (memory.md v1)
+## Project Persistence (Project .loci v2)
 
-When working inside a project that has a `.loci/` directory, the AI maintains a local project memory via `.loci/memory.md`.
+When working inside a project that has a `.loci/` directory, the AI maintains local project memory through a small set of files with separate responsibilities.
 
-**Core principle**: CLAUDE.md = instructions ("how to behave"), memory.md = knowledge ("what I know"). They are complementary.
+**Core principle**: `CLAUDE.md` / `AGENTS.md` = instructions ("how to behave"); `.loci/memory.md` = restart context ("where to resume"); `.loci/profile.md` / `.loci/progress/` / `.loci/decisions/` / `.loci/todo.json` hold details.
 
 ### .loci/ Directory Structure
 
 ```
 project-root/
 ├── .loci/
-│   ├── memory.md          # Project memory (core file)
+│   ├── memory.md          # Short restart context
+│   ├── profile.md         # Stable project details
+│   ├── progress/          # Project progress stream, one file per month
+│   │   └── YYYY-MM.md
 │   ├── decisions/         # Project decision stream
-│   └── config.json        # Optional project memory settings
+│   ├── todo.json          # Project development todos
+│   └── config.yml         # Optional project memory settings
 ├── CLAUDE.md              # Includes the Loci project block for Claude Code
 ├── AGENTS.md              # Includes the same Loci project block for Codex
 ```
 
-Keep this minimal. Do not create profile, link, to-hq, or from-hq files.
+Keep this minimal. Do not add archive in the first version; add it only when progress or completed todos become genuinely too large.
 
 When connecting a serious project, prefer the guarded writer:
 
@@ -137,61 +152,72 @@ When connecting a serious project, prefer the guarded writer:
 node scripts/loci-project.js connect --repo /path/to/project --brain /path/to/brain --name "Project" --description "One line"
 ```
 
-The writer creates `.loci/memory.md`, `.loci/decisions/`, injects both instruction files, updates `.gitignore`, and writes the brain `projects/index.md` entry. Manual file edits are only the fallback when the writer is unavailable.
+The writer creates `.loci/memory.md`, `.loci/profile.md`, `.loci/progress/`, `.loci/decisions/`, `.loci/todo.json`, injects both instruction files, updates `.gitignore`, and writes the brain `projects/index.md` entry. Manual file edits are only the fallback when the writer is unavailable.
 
 ### memory.md Format
 
 ```markdown
 ---
-loci-schema: 1
 project: <project-name>
-type: <code|content|research|personal|other>
-linked: <YYYY-MM-DD>
-last_consolidation: <YYYY-MM-DD>
+description: <one-line>
+brain: <brain-path>
+status: active
+created: <ISO8601>
+updated: <ISO8601>
 ---
 
-# Project Memory
+# Project
 
-## Story
-<!-- 2-3 sentences, auto-updated by AI during consolidation -->
+## Goal
+<!-- Short goal only if it helps resume. -->
 
 ## Current State
-<!-- Active/recent info. Entries carry timestamps: <!-- @2026-03-20 --> -->
+<!-- Where the project is right now. -->
 
-## Established
-<!-- Long-term knowledge: architecture, conventions, key decisions with reasoning. -->
+## Now / Next
+<!-- The next 1-3 actions or the immediate handoff state. -->
 
-## Patterns
-<!-- Recurring themes: frequently-hit issues, learned preferences, workflow quirks. AI auto-generated. -->
+## Recent Progress
+<!-- Latest 3-7 meaningful entries; full stream lives in progress/YYYY-MM.md. -->
+
+## Active Decisions
+<!-- Only decisions still affecting current work. -->
+
+## Risks / Open Questions
+<!-- Current blockers or things the next session must not miss. -->
+
+## Pointers
+<!-- Links to profile, progress, decisions, todo. -->
 ```
 
-### Section Rules
+### File Rules
 
-| Section | Line limit | Notes |
-|---------|-----------|-------|
-| Story | 5 lines | Rewritten (not appended) each consolidation |
-| Current State | 30 lines | Entries carry implicit timestamps for reference |
-| Established | 80 lines | Compress oldest when over limit |
-| Patterns | 20 lines | AI auto-generated during consolidation |
-| **Total** | **≤ 150 lines** | Configurable via `.loci/config.json` |
+| File | Rule |
+|---------|-------|
+| `memory.md` | Keep short, usually under 150 lines. It is the restart surface, not the whole project history. |
+| `profile.md` | Stable attributes: scope, milestones, key people, files, conventions. Read only when needed. |
+| `progress/YYYY-MM.md` | Append project progress under `## YYYY-MM-DD` as `- HH:MM · what changed`. |
+| `decisions/` | One durable decision per file, append-only. |
+| `todo.json` | Structured project todos, written through the guarded project todo writer. |
 
-- memory.md is **write-by-AI, read-by-AI**. Users normally view project state through the dashboard, repo, or future integrations; they never need to manually edit it.
-- **No automatic decay.** Entries stay until manually consolidated via `/loci-consolidate`. AI may suggest consolidation when file exceeds 120 lines.
-- Story is rewritten each consolidation. Before rewriting, the old version is backed up to `.loci/backups/`.
+- `memory.md` is **write-by-AI, read-by-AI**, optimized for a fresh session to resume without chat history.
+- Process noise and long history do not belong in `memory.md`; results, rationale, next actions, and risks do.
+- No archive in v2. Add archive only when there is real bulk to move.
 
 ### Cross-Project Knowledge Flow
 
 **Project → Brain index**:
 1. AI detects decision/milestone/insight signal while working in a project
 2. Normal project decisions stay in `.loci/decisions/`
-3. Project state/progress updates stay in `.loci/memory.md`
-4. Only `[insight]` / `[milestone]` summaries that matter outside the repo update the brain's `projects/index.md` one-line index
-5. Never copy the full project memory into the brain
+3. Project progress goes to `.loci/progress/YYYY-MM.md`
+4. Current handoff context updates `.loci/memory.md`; stable attributes update `.loci/profile.md`
+5. Only `[insight]` / `[milestone]` summaries that matter outside the repo update the brain's `projects/index.md` one-line index
+6. Never copy the full project memory into the brain
 
 **Brain → Project**:
 1. AI detects a related topic while working in a project
 2. AI reads brain `projects/index.md` to find where relevant project memory lives
-3. If related, AI opens that project's `.loci/memory.md` or `.loci/decisions/`
+3. If related, AI opens that project's `.loci/memory.md` first, then `.loci/profile.md`, `.loci/progress/`, or `.loci/decisions/` only as needed
 4. No trace files are needed; the repo remains the source of truth
 
 ### Consolidation
@@ -199,12 +225,11 @@ last_consolidation: <YYYY-MM-DD>
 **Trigger**: `/loci-consolidate` (manual), or AI suggests when memory.md exceeds 120 lines. No automatic daily decay.
 
 **Steps**:
-1. Back up current memory.md to `.loci/backups/memory-YYYY-MM-DD.md`
-2. Review Current State: move resolved/outdated entries to Established (if durable) or remove (if obsolete)
-3. Scan Established + Current State for recurring themes → write to Patterns
-4. Rewrite Story (2-3 sentences reflecting current state)
-5. Update frontmatter `last_consolidation`
-6. If still > 150 lines → compress oldest Established entries (git preserves history)
+1. Rewrite `.loci/memory.md` down to the current handoff state.
+2. Keep full historical progress in `.loci/progress/YYYY-MM.md`.
+3. Move stable attributes discovered during work to `.loci/profile.md`.
+4. Keep durable choices in `.loci/decisions/`.
+5. If `todo.json` has too many old done items, defer archive until a real archive feature is added.
 
 ### Tag Categories
 
@@ -234,10 +259,11 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 ### What It Does
 
-1. Scan recent changes: `decisions/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity/<current month>.md`, `inbox.md`, and relevant project entries from `projects/index.md`
+1. Scan recent changes: `decisions/`, `references/research/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity/<current month>.md`, `inbox.md`, and relevant project entries from `projects/index.md`
 2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
-3. If insights found → append to `me/insights.md` with source citations
-4. Report in one conversational sentence, or stay silent if nothing notable
+3. For every new decision, run the L1 promotion check: if it changes current behavior, update the smallest current surface (`plan.md`, `tasks/active.md` via guarded writer, `projects/index.md`, or project `.loci/memory.md`)
+4. If insights found → append to `me/insights.md` with source citations
+5. Report in one conversational sentence, or stay silent if nothing notable
 
 ### Manual Trigger
 
@@ -308,6 +334,6 @@ When the user asks to create a new module (e.g., "help me manage finances", "I w
 ## Extension Rules
 
 - **New module**: `mkdir name` → Create README.md → Update directory map
-- **Connect external project**: AI offers once when the project gets serious; on yes, use `scripts/loci-project.js connect` to create `.loci/memory.md`, `.loci/decisions/`, inject the project block into repo `CLAUDE.md` and `AGENTS.md`, add `.loci/` to `.gitignore`, and add one index line to `projects/index.md`
+- **Connect external project**: AI offers once when the project gets serious; on yes, use `scripts/loci-project.js connect` to create `.loci/memory.md`, `.loci/profile.md`, `.loci/progress/`, `.loci/decisions/`, `.loci/todo.json`, inject the project block into repo `CLAUDE.md` and `AGENTS.md`, add `.loci/` to `.gitignore`, and add one index line to `projects/index.md`
 - **New template**: Place in `templates/`
 - Loci is the index + understanding layer; external projects own their own memory

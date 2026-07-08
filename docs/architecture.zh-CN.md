@@ -13,10 +13,11 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 | `CLAUDE.md` | 系统规则、行为协议、目录地图 |
 | `plan.md` | 人生方向、年度目标、当前重点 |
 | `tasks/active.md` | 当前任务快照——从 `tasks/tasks.json` 生成的只读视图 |
-| `inbox.md` | 快速记录——只加载最近 7 条 |
+| `projects/index.md` | 认真项目索引——每个项目一行，不展开详情 |
+| `.loci/status.yml` | 当前状态——精力、情境、临时状态 |
 | Auto-memory | AI 工具自己维护的持久记忆（Claude Code / Codex 各自管理） |
 
-**原则**：Layer 1 必须精简。哪个文件超过 200 行了，就该把细节挪到 Layer 2，这里只留索引。
+**原则**：Layer 1 必须精简，只放规则、索引、当前行动摘要和非常重要的个人上下文。`inbox.md` 这种碎片池不进 L1；它属于 Layer 2，只有聊到碎片/随手记/整理想法时才打开。
 
 ## Layer 2 — 按需加载
 
@@ -27,18 +28,20 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 | 操作任务/日程 | `tasks/tasks.json`、`tasks/calendar.json`（走守卫写入器）、`tasks/README.md` |
 | 提到某个人 | `people/person-name.md` |
 | 做计划 / 复盘当天 | `tasks/daily/YYYY-MM-DD.md`、模块 README |
-| 提到某个已连接项目 | 那个项目 repo 自己的 `.loci/memory.md`（通过 `projects/index.md` 找到它） |
+| 提到某个已连接项目 | 先读那个项目 repo 自己的 `.loci/memory.md`；只有需要详情时再读 `.loci/profile.md`、`.loci/progress/` 或 `.loci/decisions/` |
+| 提到碎片/随手记/旧想法 | `inbox.md` |
 | 问自己的笔记 | `notes/index.md`，再打开具体笔记或外部链接 |
 | 找收藏过的材料 | `references/` |
+| 用到研究证据 | `references/research/` |
 
-**原则**：每个领域都有自己的"索引页"——模块 README、`projects/index.md`、`notes/index.md`。AI 先读索引看看有什么，再按需加载具体文件。项目记忆是同一思路往上抬一层：大脑里每个认真项目只留一行索引，完整记忆放在项目自己的 repo（`.loci/memory.md` + `.loci/decisions/`）。
+**原则**：每个领域都有自己的"索引页"——模块 README、`projects/index.md`、`notes/index.md`。AI 先读索引看看有什么，再按需加载具体文件。项目记忆是同一思路往上抬一层：大脑里每个认真项目只留一行索引，完整记忆放在项目自己的 repo（`.loci/memory.md` 重启上下文 + `.loci/profile.md` 稳定详情 + `.loci/progress/` 项目进展 + `.loci/decisions/`）。
 
 ## Layer 3 — 深度存储
 
 不会自动加载，只有明确需要的时候才去翻。
 
 - `archive/` — 做完的任务、过期的计划、旧内容
-- `decisions/` — 历史决策记录
+- `decisions/` — 历史决策记录（取舍和理由，不放研究材料）
 - `me/evolution.md` — 个人成长时间线
 - `.loci/activity/` — 操作总账（审计层：每次保存后写一行，只在你问"我做了啥"时才读）
 - 旧日记
@@ -54,12 +57,13 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
     ↓
 ┌─────────────────────────────────────────┐
 │  Layer 1（始终在线）                     │
-│  CLAUDE.md → plan.md → inbox.md         │
+│  CLAUDE.md → plan.md → tasks/active.md  │
+│  projects/index.md → status.yml         │
 │  auto-memory                            │
 ├─────────────────────────────────────────┤
 │  Layer 2（按需调取）                     │
-│  me/ → tasks/ → people/ → notes/       │
-│  references/ → 项目 .loci/memory.md     │
+│  inbox.md → me/ → tasks/ → people/     │
+│  notes/ → references/ → 项目记忆        │
 ├─────────────────────────────────────────┤
 │  Layer 3（深度存储）                     │
 │  archive/ → decisions/                  │
@@ -90,6 +94,8 @@ AI 的 context window 是有限的。每次把所有东西一股脑塞进去，�
 | 长期记忆 | 无限 | Layer 3 — 归档，可搜索 |
 
 人脑里的海马体就是调度员——它决定哪些记忆拉到前台，哪些整合进长期存储。**Loci 给 AI 干的就是这个活。**
+
+对决策来说，调度有一条硬规则：完整决策记录留在 L3，但任何会改变当前行为的结论，都必须上浮到最小的 L1 表面（`plan.md`、`tasks/active.md`、`projects/index.md` 或项目 `.loci/memory.md`）。
 
 这也是竞品没做好的地方：
 - **ChatGPT Memory**：一个扁平列表，不分层，不调度——相当于所有记忆同时以最大音量播放

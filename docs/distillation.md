@@ -22,7 +22,9 @@ At the end of a conversation (or when triggered), the AI:
 | Lessons learned | `me/learned.md` | "Never deploy on Fridays" |
 | Decisions (yours, cross-project) | `decisions/YYYY-MM-DD-slug.md` | "One project at a time from now on" |
 | Project decisions | That repo's `.loci/decisions/` | "Chose React over Vue" |
-| Project state/progress | That repo's `.loci/memory.md` | "MVP shipped, next up: billing" |
+| Project restart context | That repo's `.loci/memory.md` | "MVP shipped, next up: billing" |
+| Project progress | That repo's `.loci/progress/YYYY-MM.md` | "Billing API wired today" |
+| Project stable details | That repo's `.loci/profile.md` | "Main files, milestones, key people" |
 | New tasks | Guarded task writer → `tasks/tasks.json` | "Need to update the API docs" |
 | Schedule items (occupied time) | Guarded task writer → `tasks/calendar.json` | "Meeting at 3pm" |
 | External material | `references/YYYY-MM-DD-slug.md` | "Save this pricing article" |

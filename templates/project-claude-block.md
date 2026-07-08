@@ -8,8 +8,10 @@ HERE, in this repo. The brain only keeps a one-line index entry. Never expect th
 to store this project's full memory.
 
 ### On session start
-- Read `.loci/memory.md` for this project's goal, current state, next step, and people.
+- Read `.loci/memory.md` for this project's current state, Now / Next, recent progress, active decisions, and risks.
+- Read `.loci/profile.md` only when stable project details are needed: scope, milestones, key people, files, conventions.
 - Read `.loci/decisions/` only when a past decision is relevant (don't auto-load all).
+- Read `.loci/progress/YYYY-MM.md` only when the user asks what happened on a date or recent project detail is needed.
 
 ### What to record, and where
 - **A decision** (a real trade-off, "chose X not Y") → write `.loci/decisions/<YYYY-MM-DD>-<slug>.md`
@@ -19,7 +21,10 @@ to store this project's full memory.
   personal direction / strategy / methodology (meaningful even without this project) belongs
   in the brain's `<brain-path>/decisions/` instead.
 - **Status / progress change** (goal, current state, next step, a milestone) → update
-  `.loci/memory.md` in place; add a stamped line under `## Progress Log`.
+  `.loci/memory.md` in place only for current restart context; append the full stamped event to
+  `.loci/progress/YYYY-MM.md` under `## YYYY-MM-DD` as `- HH:MM · what changed`.
+- **Stable project attributes** (milestones, key people, important files, scope, conventions) →
+  update `.loci/profile.md`, not `.loci/memory.md`.
 - **A development to-do for THIS project** (something to build/fix/ship) → `.loci/todo.json`,
   NOT the brain's personal task pool. Write it through the guarded writer, never by hand:
   `node <brain-path>/scripts/loci-projtodo.js add --repo <this-repo> --text "..." [--category "..."]`
@@ -31,6 +36,7 @@ to store this project's full memory.
 
 ### Always
 - Stamp every record with an ISO 8601 timestamp (e.g. `2026-05-30T14:30:00+10:00`).
-- `.loci/memory.md` = living dossier (updated in place). `.loci/decisions/` = stream (append-only).
+- `.loci/memory.md` = restart context, kept short. `.loci/profile.md` = stable project details.
+- `.loci/progress/` = project progress stream. `.loci/decisions/` = decision stream.
 - Speak to the user in plain language; don't expose file paths or internal terms.
 <!-- loci:project:end -->

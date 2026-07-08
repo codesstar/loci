@@ -23,7 +23,7 @@
 my-brain/
 ├── CLAUDE.md          ← AI 的操作系统（每次最先读）
 ├── plan.md            ← 你的人生方向和目标（每次对话加载）
-├── inbox.md           ← 快速收集箱（每次对话加载）
+├── inbox.md           ← 快速收集箱（L2，提到碎片/随手记时读取）
 │
 ├── me/                ← 关于你
 │   ├── identity.md    ← 基本信息（名字、职业、城市）
@@ -55,7 +55,7 @@ my-brain/
     ├── finance/       ← 预算、资产、财务追踪
     ├── people/        ← 联系人、会议记录、人际关系
     ├── content/       ← 写作、内容创作、发布
-    ├── references/    ← 外部知识库（文章、书籍、引用 — 别人的内容）
+    ├── references/    ← 外部知识库（文章、书籍、引用 — 别人的内容；研究材料放 research/）
     └── notes/         ← 你自己的笔记 — Obsidian/飞书/Notion 链接的索引 + 简短内联笔记
 ```
 
@@ -65,11 +65,11 @@ my-brain/
 
 | 层级 | 什么时候加载 | 装什么 | 打个比方 |
 |-------|------------|----------|---------------|
-| **L1** | 每次对话 | CLAUDE.md, plan.md, tasks/active.md, inbox.md（最近 7 条）, auto-memory | 工作记忆（你脑子里正在转的东西） |
-| **L2** | 聊到相关话题时 | 模块 README、具体的人/任务/计划文件、参考资料、笔记 | 短期记忆（一个念头就能想起来） |
+| **L1** | 每次对话 | CLAUDE.md, plan.md, tasks/active.md, projects/index.md, status.yml, auto-memory | 工作记忆（规则、索引、当前行动摘要、重要个人上下文） |
+| **L2** | 聊到相关话题时 | inbox.md、模块 README、具体的人/任务/计划文件、参考资料、研究证据、笔记 | 情景记忆（一个念头就能想起来） |
 | **L3** | 明确要求时才加载 | archive、旧决策、evolution.md、旧日记 | 长期记忆（得翻一翻才能想起来） |
 
-**为什么要分层？** AI 的上下文窗口是有限的。每次都加载所有内容，既浪费 token 又分散注意力。L1 保持精简（几百行），L2 按需加载，L3 无限增长也不影响性能。
+**为什么要分层？** AI 的上下文窗口是有限的。每次都加载所有内容，既浪费 token 又分散注意力。L1 保持精简，只放判断和行动所需的骨架；`inbox.md` 这类碎片池放 L2，提到碎片/随手记/整理想法时再读；L3 无限增长也不影响性能。
 
 > 深入了解: [架构设计](architecture.zh-CN.md)
 
@@ -90,13 +90,16 @@ my-brain/
    有   → 分类 + 路由:
          ├── 个人事实（"我搬到柏林了"）             → me/identity.md
          ├── 新认知（"周五千万别部署"）               → me/learned.md
-         ├── 你个人的决策（"以后一次只做一个项目"）    → decisions/2026-03-10-xxx.md
-         ├── 项目决策（"数据库用 PostgreSQL"）        → 那个项目 repo 的 .loci/decisions/
+         ├── 你个人的决策（"以后一次只做一个项目"）    → decisions/2026-03-10-xxx.md + L1 上浮检查
+         ├── 项目决策（"数据库用 PostgreSQL"）        → 那个项目 repo 的 .loci/decisions/ + 项目记忆检查
          ├── 新任务（"API 文档得更新一下"）           → 守卫写入器 → tasks/tasks.json
          ├── 日程（"下午 3 点开会"）                 → 守卫写入器 → tasks/calendar.json
          ├── 外部内容（文章、推文、引用）              → references/
+         ├── 研究证据（原始文档、市场扫描）            → references/research/
          └── 模糊想法（"要不要学学 Rust"）           → inbox.md
 ```
+
+决策记录只放取舍和理由。研究材料是证据，放 `references/research/`，需要时由决策文件引用。
 
 ### 蒸馏分级
 
@@ -177,11 +180,12 @@ my-brain/
 > "这个项目好像做起来了，要不要我帮你在这里留个记忆？"
 
 用户点头后：
-1. 在项目 repo 里创建 `.loci/memory.md`（活档案）
-2. 在项目 repo 里创建 `.loci/decisions/`（决策流水）
-3. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
-4. 把 `.loci/` 加到项目 `.gitignore`
-5. 只在大脑的 `projects/index.md` 里加一行索引
+1. 在项目 repo 里创建 `.loci/memory.md`（短的重启上下文）
+2. 创建 `.loci/profile.md`（稳定项目详情）
+3. 创建 `.loci/progress/` 和 `.loci/decisions/`
+4. 往项目的 `CLAUDE.md` 和 `AGENTS.md` 注入 Loci project block
+5. 把 `.loci/` 加到项目 `.gitignore`
+6. 只在大脑的 `projects/index.md` 里加一行索引
 
 内部实现上，AI 应优先用 `scripts/loci-project.js connect` 来做这个多文件写入。
 
@@ -202,8 +206,12 @@ Loci 汇聚记忆，但不占有记忆。项目记忆归项目 repo 自己。
 项目决策 (.loci/decisions/): 项目自己的持久决策
   "选择 PostgreSQL 而不是 SQLite，因为..."
 
-项目活档案 (.loci/memory.md): 项目当前状态
-  只在本项目里保留的事实、决策和经验
+项目重启上下文 (.loci/memory.md): 下次从哪里接着做
+  当前状态、下一步、当前仍影响行动的决策和风险
+
+项目详情/进展:
+  稳定详情放 .loci/profile.md
+  项目进展放 .loci/progress/YYYY-MM.md
 ```
 
 ### 什么会进入大脑

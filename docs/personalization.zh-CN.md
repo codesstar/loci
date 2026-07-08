@@ -67,7 +67,7 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 
 ### 连接多个项目
 
-如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/how-it-works.zh-CN.md` 的多项目章节。
+如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/how-it-works.zh-CN.md` 的多项目章节。
 
 ### Dashboard 换皮
 
@@ -83,5 +83,5 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 ## 别动这些
 
 - 不要改 `CLAUDE.md` 的文件名 — AI 工具靠它当入口
-- 不要删 `plan.md` 或 `inbox.md` — Layer 1 的核心文件，删了就断了
+- 不要删 `plan.md` 或 `tasks/active.md` — 它们是 Layer 1 的核心文件。`inbox.md` 仍然重要，但它是 Layer 2 的碎片池，按需打开。
 - 不要手改 `tasks/tasks.json` 和 `tasks/calendar.json` — 永远走守卫写入器或 Dashboard API

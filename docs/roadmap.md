@@ -8,7 +8,7 @@
 - Signal-driven auto-persistence (auto/manual)
 - Conversation distillation
 - AI-initiated project memory setup
-- Project-owned local persistence (.loci/memory.md + .loci/decisions/)
+- Project-owned local persistence (.loci/memory.md + .loci/profile.md + .loci/progress/ + .loci/decisions/)
 - Brain project index (projects/index.md) instead of memory warehousing
 - Cross-terminal awareness (hooks)
 - Dashboard (local Node server, `node .loci/dashboard/server.js`)
@@ -28,7 +28,7 @@
 
 ## v2.0.0 — Power & Scale
 - Search across brain (full-text grep + fuzzy match)
-- Auto-compression for memory.md (200 line threshold)
+- Project memory maintenance for large `progress/` and completed project todos
 - Multiple routing modes (open, manual, silent)
 - Privacy boundary configuration (blocked_tags, custom rules)
 - Distillation level presets (verbose/balanced/minimal)

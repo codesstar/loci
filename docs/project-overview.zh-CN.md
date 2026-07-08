@@ -33,18 +33,20 @@ Loci 不是一个单纯的 `CLAUDE.md` 模板，也不是普通 todo app。它�
 个人大脑
 ├── me/                  个人身份、偏好、经验、成长
 ├── tasks/               个人任务、日程、每日复盘
-├── decisions/           跨项目也有意义的决策
+├── decisions/           跨项目也有意义的决策（取舍和理由）
 ├── projects/index.md    严肃项目索引，只保存指针
 ├── projects/side.md     项目雏形
 ├── people/              人脉和关系
 ├── notes/               用户自己的笔记索引和短笔记
-├── references/          第三方材料和收藏
+├── references/          第三方材料、收藏和研究证据
 ├── inbox.md             随手想法和未整理碎片
 └── .loci/activity/      操作总账
 
 项目 repo
 └── .loci/
-    ├── memory.md        项目活档案
+    ├── memory.md        短的重启上下文
+    ├── profile.md       稳定项目详情
+    ├── progress/        按月项目进展
     ├── decisions/       项目决策流水
     └── todo.json        项目开发待办
 ```
@@ -88,11 +90,11 @@ L0 Map
 
 L1 Active Context
   每个新 session 加载少量活跃上下文:
-  plan.md、tasks/active.md、inbox.md 最新少量内容。
+  plan.md、tasks/active.md、projects/index.md、.loci/status.yml。
 
 L2 On Demand
   用户提到相关主题时再读:
-  me/、people/、notes/、references/、decisions/、项目 .loci/memory.md。
+  inbox.md、me/、people/、notes/、references/、references/research/、decisions/、项目 .loci/memory.md / profile.md / progress/。
 
 L3 Archive / Audit
   archive、旧 journal、activity ledger 等只在用户明确问时读取。
@@ -200,6 +202,7 @@ Fragments 不是一个单独的数据库，而是一组轻量入口，用来处�
 |---|---|---|
 | 随手记 | `inbox.md` | “突然想到一个宣传句” |
 | 收藏夹 | `references/YYYY-MM-DD-slug.md` | 第三方文章、链接、工具、视频 |
+| 研究证据 | `references/research/<slug>.md` | 原始文档、竞品笔记、市场扫描、案例 |
 | 用户自己的笔记指针 | `notes/index.md` | Obsidian / 飞书 / Notion 文档链接 |
 | 用户自己的短笔记 | `notes/<slug>.md` | 临时写下来的短文、脚本、想法 |
 
@@ -298,11 +301,13 @@ node scripts/loci-project.js connect --repo <repo-path> --brain <brain-path> --n
 连接后会自动:
 
 1. 创建 `<repo>/.loci/memory.md`
-2. 创建 `<repo>/.loci/decisions/`
-3. 创建 `<repo>/.loci/todo.json`
-4. 注入项目级 `CLAUDE.md` 和 `AGENTS.md`
-5. 把 `.loci/` 加进项目 `.gitignore`
-6. 在 Brain 的 `projects/index.md` 加索引
+2. 创建 `<repo>/.loci/profile.md`
+3. 创建 `<repo>/.loci/progress/`
+4. 创建 `<repo>/.loci/decisions/`
+5. 创建 `<repo>/.loci/todo.json`
+6. 注入项目级 `CLAUDE.md` 和 `AGENTS.md`
+7. 把 `.loci/` 加进项目 `.gitignore`
+8. 在 Brain 的 `projects/index.md` 加索引
 
 ### Project Memory: 项目自己的记忆
 
@@ -310,7 +315,9 @@ node scripts/loci-project.js connect --repo <repo-path> --brain <brain-path> --n
 
 | 文件 | 作用 |
 |---|---|
-| `.loci/memory.md` | 项目活档案: 目标、现状、下一步、关键人、进展 |
+| `.loci/memory.md` | 短的重启上下文: 当前状态、下一步、近期进展、当前决策、风险 |
+| `.loci/profile.md` | 稳定项目详情: 范围、里程碑、关键人、文件、约定 |
+| `.loci/progress/YYYY-MM.md` | 项目进展流水，按天记录 |
 | `.loci/decisions/` | 项目内部决策流水 |
 | `.loci/todo.json` | 项目开发待办 |
 
@@ -340,6 +347,10 @@ node scripts/loci-projtodo.js validate --repo <repo-path>
 > 把这个项目拿走后，这个决策还重要吗？
 
 如果不重要，默认留在项目 repo。项目内部决策不复制进 Brain。只有 `[insight]` 或 `[milestone]` 这种跨项目有价值的摘要，才更新 Brain 的项目索引。
+
+决策文件只放取舍和理由。研究材料是证据，放 `references/research/` 或项目自己的研究目录；决策可以引用研究，但研究本身不放进 `decisions/`。
+
+每次写完决策都要做 L1 上浮检查: 如果它改变当前行为，就更新最小的当前表面，例如 `plan.md`、通过守卫写入器更新后的 `tasks/active.md`、`projects/index.md` 或项目 `.loci/memory.md`。如果不改变当前行为，就只作为 L3 历史保留。
 
 ### Activity Ledger: 操作总账
 
@@ -375,12 +386,13 @@ Activity ledger 是审计层，用来回答:
 | “今天总结一下” | 每日复盘 | `tasks/journal/YYYY-MM-DD.md` | AI 蒸馏后写入 |
 | “突然想到一个宣传句” | 随手记 | `inbox.md` | Markdown 追加 |
 | “收藏这个链接” | 外部材料 | `references/YYYY-MM-DD-slug.md` | Markdown + frontmatter |
+| “调研一下 Mem0 / 市场情况” | 研究证据 | `references/research/` | evidence markdown |
 | “这是我自己的笔记” | 用户笔记 | `notes/index.md` 或 `notes/<slug>.md` | 指针或短笔记 |
 | “我喜欢回答短一点” | 偏好 | `me/values.md` 或 `me/identity.md` | Markdown 更新 |
 | “我学到不要每次都手改 JSON” | 经验 | `me/learned.md` | Markdown 追加 |
 | “这个人是投资人，下次叫他 X” | 人脉 | `people/<name>.md` | Markdown 创建/更新 |
-| “我们决定先支持 Claude Code 和 Codex” | 跨项目决策 | `decisions/` | decision 模板 |
-| “这个项目数据库选 PostgreSQL” | 项目决策 | `<repo>/.loci/decisions/` | project decision 模板 |
+| “我们决定先支持 Claude Code 和 Codex” | 跨项目决策 | `decisions/` + L1 上浮检查 | decision 模板 |
+| “这个项目数据库选 PostgreSQL” | 项目决策 | `<repo>/.loci/decisions/` + 项目记忆检查 | project decision 模板 |
 | “给 Loci dashboard 加设置页” | 项目开发待办 | `<repo>/.loci/todo.json` | `loci-projtodo.js add` |
 | “帮我记住这个项目” | 连接项目 | Brain `projects/index.md` + repo `.loci/` | `loci-project.js connect` |
 
