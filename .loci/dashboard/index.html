@@ -2690,22 +2690,36 @@
 .fgE-dt-sec{margin-bottom:18px;}
 .fgE-dt-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);margin-bottom:7px;}
 .fgE-dt-body{font-size:13px;line-height:1.7;color:var(--ink-2);}
-.fgE-dt-full{padding-top:2px;border-top:1px solid var(--line);}
-.fgE-dt-full-body{font-size:13px;line-height:1.75;color:var(--ink-2);}
-.fgE-dt-full-body h1,.fgE-dt-full-body h2,.fgE-dt-full-body h3{font-family:'Noto Serif SC',serif;color:var(--ink);line-height:1.35;margin:12px 0 8px;}
-.fgE-dt-full-body h1{font-size:16px;}
-.fgE-dt-full-body h2{font-size:14.5px;}
-.fgE-dt-full-body h3{font-size:13.5px;}
-.fgE-dt-full-body p{margin:8px 0;}
-.fgE-dt-full-body ul,.fgE-dt-full-body ol{margin:8px 0 8px 18px;padding:0;}
-.fgE-dt-full-body li{margin:4px 0;}
-.fgE-dt-full-body a{color:var(--accent-ink);word-break:break-all;}
-.fgE-dt-full-body code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 4px;}
+.fgE-dt-read{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line-2);background:var(--surface);color:var(--accent-ink);border-radius:11px;padding:10px 12px;font-size:12.5px;font-weight:650;cursor:pointer;transition:.15s;}
+.fgE-dt-read:hover{background:var(--accent-weak);border-color:color-mix(in srgb,var(--accent) 28%,var(--line));}
 .fgE-dt-empty{font-size:12px;line-height:1.6;color:var(--ink-4);background:var(--surface-2);border:1px dashed var(--line-2);border-radius:10px;padding:10px 12px;}
 .fgE-dt-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--accent-ink);text-decoration:none;word-break:break-all;}
 .fgE-dt-link:hover{text-decoration:underline;}
 .fgE-dt-del{width:100%;margin-top:8px;padding:11px;background:none;border:1px solid var(--line-2);border-radius:11px;font-size:12.5px;color:var(--ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;}
 .fgE-dt-del:hover{color:#c0503a;border-color:#e0b0a5;background:#fbeeeb;}
+.fgReader-overlay{position:fixed;inset:0;z-index:1500;background:rgba(20,20,18,.38);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:28px;}
+.fgReader{width:min(860px,96vw);max-height:min(860px,92vh);background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 70px rgba(20,20,18,.22);display:flex;flex-direction:column;overflow:hidden;}
+.fgReader-h{display:flex;align-items:flex-start;gap:16px;padding:22px 26px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--surface-2));}
+.fgReader-k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px;}
+.fgReader-title{font-family:'Noto Serif SC',serif;font-size:23px;line-height:1.3;color:var(--ink);font-weight:650;}
+.fgReader-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--ink-3);}
+.fgReader-tag{padding:2px 8px;border-radius:999px;background:var(--surface-3);}
+.fgReader-close{margin-left:auto;width:32px;height:32px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink-3);cursor:pointer;}
+.fgReader-close:hover{color:var(--ink);background:var(--surface-2);}
+.fgReader-body{padding:24px 30px 34px;overflow:auto;font-size:15px;line-height:1.85;color:var(--ink-2);}
+.fgReader-body h1,.fgReader-body h2,.fgReader-body h3{font-family:'Noto Serif SC',serif;color:var(--ink);line-height:1.35;margin:18px 0 10px;}
+.fgReader-body h1{font-size:24px;}
+.fgReader-body h2{font-size:20px;}
+.fgReader-body h3{font-size:17px;}
+.fgReader-body p{margin:10px 0;}
+.fgReader-body ul,.fgReader-body ol{margin:10px 0 10px 22px;padding:0;}
+.fgReader-body li{margin:5px 0;}
+.fgReader-body table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+.fgReader-body th,.fgReader-body td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;}
+.fgReader-body th{background:var(--surface-2);color:var(--ink);}
+.fgReader-body blockquote{margin:14px 0;padding:10px 14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:0 10px 10px 0;}
+.fgReader-body a{color:var(--accent-ink);word-break:break-all;}
+.fgReader-body code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 4px;}
     /* capture bar: tabs + input, saves flow into the shelf */
 .fgE-cap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,18,.04);}
 .fgE-cap-tabs{display:flex;gap:5px;margin-bottom:12px;}
@@ -5471,6 +5485,25 @@
 <body>
   <div id="app" v-cloak :class="'theme-' + dashboardTheme">
 
+    <!-- Full article reader for saved references -->
+    <div v-if="fragReaderCol" class="fgReader-overlay" @click.self="closeFragReader">
+      <article class="fgReader">
+        <header class="fgReader-h">
+          <div>
+            <div class="fgReader-k">{{ lang === 'zh' ? '完整内容' : 'Full article' }}</div>
+            <div class="fgReader-title">{{ fragReaderCol.title || fragReaderCol.name }}</div>
+            <div class="fgReader-meta">
+              <span v-if="fragReaderCol.date">{{ fragReaderCol.date }}</span>
+              <span v-if="fragHost(fragReaderCol.url)">{{ fragHost(fragReaderCol.url) }}</span>
+              <span v-for="tg in (fragReaderCol.tags || [])" :key="tg" class="fgReader-tag">#{{ tg }}</span>
+            </div>
+          </div>
+          <button class="fgReader-close" @click="closeFragReader">✕</button>
+        </header>
+        <div class="fgReader-body" v-html="fragDetailFullHtml(fragReaderCol)"></div>
+      </article>
+    </div>
+
     <!-- ========== WELCOME OVERLAY ========== -->
     <div v-if="showWelcome" class="welcome-overlay" @click.self="dismissWelcome">
       <div class="welcome-inner">
@@ -7544,9 +7577,10 @@
                   <div class="fgE-dt-label">{{ lang === 'zh' ? '摘要' : 'Summary' }}</div>
                   <div class="fgE-dt-body">{{ fragDetailSummary(fragSelectedCol) }}</div>
                 </div>
-                <div class="fgE-dt-sec fgE-dt-full">
-                  <div class="fgE-dt-label">{{ lang === 'zh' ? '完整内容' : 'Full content' }}</div>
-                  <div v-if="fragDetailFullHtml(fragSelectedCol)" class="fgE-dt-full-body" v-html="fragDetailFullHtml(fragSelectedCol)"></div>
+                <div class="fgE-dt-sec">
+                  <button v-if="fragDetailFullHtml(fragSelectedCol)" class="fgE-dt-read" @click="openFragReader(fragSelectedCol)">
+                    {{ lang === 'zh' ? '阅读全文' : 'Read full article' }} ↗
+                  </button>
                   <div v-else class="fgE-dt-empty">{{ lang === 'zh' ? '这个收藏只有标题/链接，还没有正文内容。' : 'This save only has a title/link; no body yet.' }}</div>
                 </div>
                 <button class="fgE-dt-del" @click="fragDeleteSelected">
@@ -15595,6 +15629,7 @@ const lociApp = createApp({
     // ── Bookshelf (情报书架) state ──
     const fragCapTab = ref('note');          // capture bar: note | link | image | file
     const fragSelectedCol = ref(null);       // the book whose detail is shown on the right
+    const fragReaderCol = ref(null);
     function fragSelectCol(col) {
       // toggle: click the open book again to close the detail pane
       fragSelectedCol.value = (fragSelectedCol.value && fragSelectedCol.value.file === col.file) ? null : col;
@@ -15626,6 +15661,8 @@ const lociApp = createApp({
       const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
       return text ? html : '';
     }
+    function openFragReader(col) { if (fragDetailFullHtml(col)) fragReaderCol.value = col; }
+    function closeFragReader() { fragReaderCol.value = null; }
     // capture-bar link tab: reuse the collection add (url doubles as title if no title)
     function fragCapSaveLink() {
       const v = (newCollectionUrl.value || '').trim();
@@ -19966,7 +20003,7 @@ const lociApp = createApp({
       fgSaveOpen, fgOpenSave, fgCloseSave, fgTitleInput,
       fgTagList, fgTagDraft, fgUrlInput, fgAddTag, fgRemoveTag, fgTagKeydown, fgFocusUrl,
       addFragmentNote, dismissFragment, addFragmentCollection, archiveCollection,
-      fragCapTab, fragSelectedCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragDetailFullHtml, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
+      fragCapTab, fragSelectedCol, fragReaderCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragDetailFullHtml, openFragReader, closeFragReader, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
       peopleData, selectedPerson, detailMoreOpen, detailMapOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
