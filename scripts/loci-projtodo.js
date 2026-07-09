@@ -13,7 +13,7 @@
  *   node scripts/loci-projtodo.js list     --repo <repo>
  *   node scripts/loci-projtodo.js validate --repo <repo>
  *   node scripts/loci-projtodo.js add      --repo <repo> --text "..." [--category "..."] [--status todo|doing|done]
- *   node scripts/loci-projtodo.js update   --repo <repo> --id <id> [--text "..."] [--category "..."] [--status ...]
+ *   node scripts/loci-projtodo.js update   --repo <repo> --id <id> [--text "..."] [--category "..."] [--status ...] [--date ...] [--startTime ...] [--urgency N] [--importance N] [--color ...] [--note ...]
  *   node scripts/loci-projtodo.js toggle   --repo <repo> --id <id>            # cycles todo → doing → done → todo
  *   node scripts/loci-projtodo.js done     --repo <repo> --id <id>
  *   node scripts/loci-projtodo.js move     --repo <repo> --id <id> --order <n>
@@ -105,19 +105,50 @@ function assertStatus(value) {
   return value;
 }
 
+function clampLevel(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(2, Math.round(n)));
+}
+
+function blankToNull(value) {
+  if (value == null || value === true) return null;
+  const text = String(value).trim();
+  return text ? text : null;
+}
+
 function normalizeTodo(todo, index, existingIds) {
   const now = isoNow();
   const text = String(todo.text || todo.title || '').trim();
   const status = assertStatus(todo.status || (todo.done ? 'done' : 'todo'));
+  const doneAt = todo.doneAt || todo.completedAt || (status === 'done' ? now : null);
+  const archivedAt = todo.archivedAt || null;
   return {
     id: todo.id || makeTodoId(text, existingIds),
+    title: text,
     text,
     status,
+    done: status === 'done',
+    date: blankToNull(todo.date),
+    endDate: blankToNull(todo.endDate),
+    startTime: blankToNull(todo.startTime || todo.start || todo.time),
+    endTime: blankToNull(todo.endTime || todo.end),
+    project: blankToNull(todo.project),
+    urgency: clampLevel(todo.urgency),
+    importance: clampLevel(todo.importance),
+    plannedFor: blankToNull(todo.plannedFor),
     category: (todo.category && String(todo.category).trim()) || 'Backlog',
     order: Number.isFinite(todo.order) ? todo.order : (index + 1) * 10,
+    owner: blankToNull(todo.owner),
+    location: blankToNull(todo.location),
+    color: blankToNull(todo.color),
+    note: blankToNull(todo.note),
+    source: todo.source || 'project',
     createdAt: todo.createdAt || now,
     updatedAt: todo.updatedAt || todo.createdAt || now,
-    doneAt: todo.doneAt || (status === 'done' ? now : null),
+    completedAt: doneAt,
+    doneAt,
+    archivedAt,
   };
 }
 
@@ -166,6 +197,19 @@ function cmdAdd(repo, args) {
     text,
     category: args.category,
     status: args.status,
+    date: args.date,
+    endDate: args.endDate || args['end-date'],
+    startTime: args.startTime || args.start,
+    endTime: args.endTime || args.end,
+    project: args.project,
+    urgency: args.urgency,
+    importance: args.importance,
+    plannedFor: args.plannedFor || args['planned-for'],
+    owner: args.owner,
+    location: args.location,
+    color: args.color,
+    note: args.note,
+    source: args.source || 'project',
     order: maxOrder + 10,
   }, todos.length, existingIds);
   todos.push(todo);
@@ -183,10 +227,36 @@ function cmdUpdate(repo, args) {
   if (!args.id) throw new Error('update requires --id');
   const todos = readTodos(repo);
   const todo = findTodo(todos, args.id);
-  if (args.text != null && args.text !== true) todo.text = String(args.text).trim();
+  if (args.text != null && args.text !== true) {
+    todo.text = String(args.text).trim();
+    todo.title = todo.text;
+  }
+  if (args.title != null && args.title !== true) {
+    todo.title = String(args.title).trim();
+    todo.text = todo.title;
+  }
   if (args.category != null && args.category !== true) todo.category = String(args.category).trim();
   if (args.status != null && args.status !== true) todo.status = assertStatus(String(args.status));
-  todo.doneAt = todo.status === 'done' ? (todo.doneAt || isoNow()) : null;
+  if (args.date != null && args.date !== true) todo.date = blankToNull(args.date);
+  if (args.endDate != null && args.endDate !== true) todo.endDate = blankToNull(args.endDate);
+  if (args['end-date'] != null && args['end-date'] !== true) todo.endDate = blankToNull(args['end-date']);
+  if (args.startTime != null && args.startTime !== true) todo.startTime = blankToNull(args.startTime);
+  if (args.start != null && args.start !== true) todo.startTime = blankToNull(args.start);
+  if (args.endTime != null && args.endTime !== true) todo.endTime = blankToNull(args.endTime);
+  if (args.end != null && args.end !== true) todo.endTime = blankToNull(args.end);
+  if (args.project != null && args.project !== true) todo.project = blankToNull(args.project);
+  if (args.urgency != null && args.urgency !== true) todo.urgency = clampLevel(args.urgency);
+  if (args.importance != null && args.importance !== true) todo.importance = clampLevel(args.importance);
+  if (args.plannedFor != null && args.plannedFor !== true) todo.plannedFor = blankToNull(args.plannedFor);
+  if (args['planned-for'] != null && args['planned-for'] !== true) todo.plannedFor = blankToNull(args['planned-for']);
+  if (args.owner != null && args.owner !== true) todo.owner = blankToNull(args.owner);
+  if (args.location != null && args.location !== true) todo.location = blankToNull(args.location);
+  if (args.color != null && args.color !== true) todo.color = blankToNull(args.color);
+  if (args.note != null && args.note !== true) todo.note = blankToNull(args.note);
+  if (args.source != null && args.source !== true) todo.source = String(args.source).trim() || 'project';
+  todo.done = todo.status === 'done';
+  todo.completedAt = todo.status === 'done' ? (todo.completedAt || todo.doneAt || isoNow()) : null;
+  todo.doneAt = todo.completedAt;
   todo.updatedAt = isoNow();
   saveTodos(repo, todos);
   console.log(JSON.stringify({ ok: true, updated: todo }, null, 2));

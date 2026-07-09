@@ -140,6 +140,9 @@ function normalizeTask(task, existingIds) {
     // "I want to do this TODAY" — a per-day pick, independent of the deadline
     // (`date` stays the due date). Stale picks from past days simply expire.
     plannedFor: assertDate(task.plannedFor || null, 'plannedFor'),
+    // User explicitly pushed this out of the Today bucket. This never changes
+    // the due date; it only affects the task-page grouping.
+    deferToday: task.deferToday === true,
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,

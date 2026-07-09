@@ -556,6 +556,7 @@
     .tpill.date.due-today { color: #b07b1e; background: #fdf6e7; border-color: #f0e0bb; }
     .tpill.late { color: #fff; background: #e0574f; animation: tpillPulse 2s ease-in-out infinite; }
     .tpill.loc { color: var(--ink-3); background: transparent; padding-left: 0; }
+    .tpill.cat { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
     @keyframes tpillPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,87,79,.3); } 50% { box-shadow: 0 0 0 4px rgba(224,87,79,0); } }
     .done-bar { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 13px; background: var(--surface-2); border: 1px dashed var(--line-2); cursor: pointer; transition: .15s; }
     .done-bar:hover { background: var(--accent-weak); border-color: #bfe8d8; }
@@ -576,6 +577,11 @@
     .tks b { font-family: var(--mono); font-size: 12px; font-weight: 750; color: var(--mc); }
     .tks.alert { background: #fdeeed; border-color: #f4cfcc; }
     .tks.alert::after { content: ''; position: absolute; top: -2px; right: -2px; width: 5px; height: 5px; border-radius: 50%; background: #e0574f; animation: tpillPulse 1.8s infinite; }
+    .tks-sep{ width:1px; height:18px; background:var(--line-2); flex:none; }
+    .tks-proj-btn{ display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:600; color:var(--ink-3); padding:4px 9px; border-radius:8px; border:1px solid var(--line-2); background:var(--surface); cursor:pointer; }
+    .tks-proj-btn:hover{ color:var(--ink-2); border-color:var(--line); background:var(--surface-2); }
+    .tks-proj-btn.on{ color:var(--accent-ink, #10b981); border-color:var(--accent-weak, #c8ecdc); background:var(--accent-weak, #eafaf3); }
+    .tks-proj-n{ font-family:var(--mono); font-size:9px; font-weight:700; color:inherit; }
     .s7-add-primary { color: #fff !important; border: 0 !important; background: linear-gradient(135deg, #4a76c8, #5b86d6) !important; box-shadow: 0 4px 12px rgba(91,134,214,.3); transition: .15s; }
     .s7-add-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
     .th-lead { display: flex; align-items: center; gap: 13px; }
@@ -1122,6 +1128,194 @@
     .mc1-stat:first-child .mc1-stat-n{ color:var(--accent-ink); }
     .mc1-u{ font-size:10px; color:var(--ink-3); margin-left:1px; }
     .mc1-stat-k{ margin-top:6px; font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+
+    /* ============================================================
+       NEW Memory page (.mem2) — 「档案·翡翠玻璃」
+       左侧翡翠玻璃身份卡 + 右上分段切换 + 左右等高对齐 + 卡内滚动阅读进度条;
+       整体单一翡翠绿。所有选择器收在 .mem2/m2-* 下,不与其它页样式冲突。
+       ============================================================ */
+    .mem2{ max-width:1120px; margin:0 auto; }
+    .mem2 .m2-statusbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+    .mem2 .m2-sb-left{ display:flex; align-items:center; gap:13px; }
+    .mem2 .m2-brand{ display:flex; align-items:center; gap:10px; }
+    .mem2 .m2-dot{ width:9px;height:9px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-weak); animation:m2-pulse 2.6s ease-in-out infinite; }
+    @keyframes m2-pulse{0%,100%{box-shadow:0 0 0 4px var(--accent-weak)}50%{box-shadow:0 0 0 7px rgba(217,245,233,.5)}}
+    .mem2 .m2-sys{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--ink-3); font-weight:600; }
+    .mem2 .m2-sys b{ color:var(--ink); }
+    .mem2 .m2-div{ width:1px; height:16px; background:var(--line-2); }
+    .mem2 .m2-sub{ font-size:13px; color:var(--ink-2); font-weight:500; }
+    .mem2 .m2-right{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .mem2 .m2-mem{ font-family:var(--mono); font-size:11px; color:var(--ink-3); }
+    .mem2 .m2-mem b{ color:var(--ink-2); font-weight:600; }
+    .mem2 .m2-active{ display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.1em; color:var(--accent-ink); background:var(--accent-weak); padding:6px 12px; border-radius:999px; }
+    .mem2 .m2-active::before{ content:""; width:6px;height:6px;border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); }
+
+    .mem2 .m2-dossier{ display:grid; grid-template-columns:320px 1fr; gap:20px; align-items:start; }
+    .mem2 .m2-rail{ display:flex; flex-direction:column; }
+
+    /* ---- emerald-glass identity card (material from dashboard .sbA-brain) ---- */
+    .mem2 .m2-idcard{ position:relative; overflow:hidden; border-radius:20px; padding:24px 22px 20px; color:#fff;
+      display:flex; flex-direction:column; flex:1 1 auto;
+      border:1px solid rgba(16,185,129,.35); background:linear-gradient(150deg,#0ea371 0%,#10b981 52%,#2dd4a0 100%);
+      box-shadow:0 1px 2px rgba(4,80,60,.2),0 18px 42px -20px rgba(16,185,129,.55); }
+    .mem2 .m2-foot{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; justify-content:flex-end; margin-top:0; padding-top:12px; }
+    .mem2 .m2-spark{ flex:1 1 auto; display:flex; align-items:flex-end; gap:6px; min-height:64px; margin-bottom:11px; padding:0 2px; }
+    .mem2 .m2-spark i{ flex:1; min-height:3px; border-radius:4px 4px 2px 2px; background:rgba(255,255,255,.42); transform-origin:bottom; animation:m2-grow .7s cubic-bezier(.34,1.4,.64,1) both; }
+    .mem2 .m2-spark i.pk{ background:rgba(255,255,255,.95); box-shadow:0 4px 14px -4px rgba(255,255,255,.55); }
+    @keyframes m2-grow{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+    .mem2 .m2-idcard::before{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0; background:radial-gradient(135% 80% at 16% -10%, rgba(255,255,255,.34), transparent 56%); }
+    .mem2 .m2-idcard::after{ content:""; position:absolute; right:-44px; top:-50px; width:158px;height:158px;border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.30), transparent 68%); pointer-events:none; z-index:0; }
+    .mem2 .m2-idcard > *{ position:relative; z-index:1; }
+    .mem2 .m2-corner{ position:absolute; top:14px; right:16px; font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; color:rgba(255,255,255,.6); text-transform:uppercase; }
+    .mem2 .m2-avatar{ position:relative; width:118px; height:118px; margin:2px auto 0; flex:none; }
+    .mem2 .m2-ring{ position:absolute; inset:0; transform:rotate(-90deg); }
+    .mem2 .m2-ring-t{ fill:none; stroke:rgba(255,255,255,.28); stroke-width:5; }
+    .mem2 .m2-ring-p{ fill:none; stroke:url(#m2ring); stroke-width:5; stroke-linecap:round; stroke-dasharray:355; stroke-dashoffset:104; }
+    .mem2 .m2-disc{ position:absolute; inset:13px; border-radius:50%; display:grid; place-items:center; overflow:hidden;
+      background:linear-gradient(150deg, rgba(255,255,255,.34), rgba(255,255,255,.08) 72%);
+      box-shadow:inset 0 2px 9px rgba(255,255,255,.55), inset 0 -12px 24px rgba(4,120,87,.4), 0 10px 24px -12px rgba(4,80,60,.5); }
+    .mem2 .m2-disc::after{ content:""; position:absolute; inset:0; background:radial-gradient(60% 42% at 30% 22%, rgba(255,255,255,.6), transparent 62%); }
+    .mem2 .m2-disc span{ position:relative; font-weight:800; font-size:30px; color:#fff; letter-spacing:.01em; text-shadow:0 2px 12px rgba(4,80,60,.55); }
+    .mem2 .m2-badge{ position:absolute; bottom:-2px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,.94); color:var(--accent-ink); font-family:var(--mono); font-size:8.5px; font-weight:600; letter-spacing:.04em; padding:3px 10px; border-radius:999px; white-space:nowrap; box-shadow:0 6px 16px -6px rgba(4,80,60,.5); }
+    .mem2 .m2-name{ text-align:center; margin-top:16px; flex:none; }
+    .mem2 .m2-name h1{ font-size:21px; font-weight:800; letter-spacing:-.4px; color:#fff; }
+    .mem2 .m2-role{ margin-top:7px; display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:600; color:#fff; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); padding:4px 11px; border-radius:999px; }
+    .mem2 .m2-meta{ margin-top:20px; border-top:1px dashed rgba(255,255,255,.24); padding-top:16px; display:flex; flex-direction:column; gap:12px; }
+    .mem2 .m2-mrow{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
+    .mem2 .m2-mrow .k{ font-family:var(--mono); font-size:9.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.72); flex:none; }
+    .mem2 .m2-mrow .v{ font-size:13px; font-weight:500; color:#fff; text-align:right; }
+    .mem2 .m2-tags{ margin-top:16px; border-top:1px dashed rgba(255,255,255,.24); padding-top:16px; display:flex; flex-wrap:wrap; gap:7px; }
+    .mem2 .m2-tag{ font-size:11.5px; font-weight:500; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.26); padding:5px 10px; border-radius:8px; }
+    .mem2 .m2-stats{ margin-top:0; padding-top:13px; border-top:1px dashed rgba(255,255,255,.24); display:grid; grid-template-columns:repeat(3,1fr); gap:13px 8px; }
+    .mem2 .m2-stat{ text-align:center; }
+    .mem2 .m2-stat b{ display:block; font-family:var(--mono); font-size:18px; font-weight:700; color:#fff; line-height:1; }
+    .mem2 .m2-stat span{ display:block; margin-top:4px; font-family:var(--mono); font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.7); }
+
+    /* ---- right host card: single card, equal height, internal scroll ---- */
+    .mem2 .m2-host{ position:relative; background:var(--surface); border:1px solid var(--line); border-radius:20px; box-shadow:0 1px 2px rgba(28,28,26,.04),0 12px 30px -18px rgba(28,28,26,.14); overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+    .mem2 .m2-host::before{ content:""; position:absolute; left:0;right:0;top:0; height:3px; z-index:4; background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 24%,transparent)); }
+    .mem2 .m2-seg{ position:absolute; top:18px; right:22px; z-index:6; display:inline-flex; flex-wrap:wrap; justify-content:flex-end; gap:2px; padding:3px; background:var(--surface-2); border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow-sm); max-width:76%; }
+    .mem2 .m2-seg button{ font-family:var(--sans); font-size:11.5px; font-weight:600; color:var(--ink-3); border:0; background:none; border-radius:8px; padding:6px 9px; white-space:nowrap; cursor:pointer; transition:.16s cubic-bezier(.22,1,.36,1); }
+    .mem2 .m2-seg button:hover{ color:var(--ink-2); }
+    .mem2 .m2-seg button.on{ color:#fff; background:var(--accent); box-shadow:0 2px 6px rgba(16,185,129,.3); }
+    .mem2 .m2-scroller{ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:color-mix(in srgb, var(--accent) 32%, var(--line-2)) transparent; }
+    .mem2 .m2-scroller::-webkit-scrollbar{ width:7px; }
+    .mem2 .m2-scroller::-webkit-scrollbar-thumb{ background:color-mix(in srgb, var(--accent) 30%, var(--line-2)); border-radius:99px; }
+    .mem2 .m2-scroller::-webkit-scrollbar-thumb:hover{ background:color-mix(in srgb, var(--accent) 48%, var(--line-2)); }
+    .mem2 .m2-scroller::-webkit-scrollbar-track{ background:transparent; }
+    .mem2 .m2-inner{ padding:26px 30px 14px; }
+    .mem2 .m2-phead{ display:flex; align-items:center; gap:14px; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid var(--line); }
+    .mem2 .m2-pic{ width:36px;height:36px;border-radius:11px; display:grid;place-items:center; background:var(--accent-weak); color:var(--accent-ink); flex:none; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 14%,transparent); }
+    .mem2 .m2-pic svg{ width:19px;height:19px; }
+    .mem2 .m2-pt{ min-width:0; max-width:58%; }
+    .mem2 .m2-pt h2{ font-size:17px; font-weight:700; letter-spacing:-.2px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .mem2 .m2-pt h2 .en{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); background:var(--accent-weak); padding:3px 8px; border-radius:6px; }
+    .mem2 .m2-pt .pd{ font-size:12.5px; color:var(--ink-3); margin-top:4px; }
+    .mem2 .m2-prog{ flex:none; height:3px; margin:0 20px 16px; border-radius:999px; background:var(--line-2); position:relative; overflow:hidden; }
+    .mem2 .m2-prog i{ position:absolute; inset:0; transform-origin:left center; border-radius:999px; background:linear-gradient(90deg,var(--accent-ink),var(--accent-mid)); transition:transform .18s cubic-bezier(.22,1,.36,1); }
+
+    /* editable profile — pencil, avatar upload, inline name/tagline editor */
+    .mem2 .m2-editbtn{ position:absolute; top:12px; left:14px; z-index:2; width:28px; height:28px; display:grid; place-items:center; border-radius:9px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); color:#fff; cursor:pointer; opacity:.75; transition:.18s cubic-bezier(.22,1,.36,1); }
+    .mem2 .m2-editbtn:hover{ opacity:1; background:rgba(255,255,255,.26); transform:translateY(-1px); }
+    .mem2 .m2-editbtn svg{ width:14px; height:14px; }
+    .mem2 button.m2-disc{ border:0; padding:0; font:inherit; cursor:pointer; }
+    .mem2 .m2-disc:focus-visible{ outline:2px solid rgba(255,255,255,.75); outline-offset:3px; }
+    .mem2 .m2-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:50%; z-index:1; }
+    .mem2 .m2-cam{ position:absolute; inset:0; border-radius:50%; display:grid; place-items:center; background:rgba(4,80,60,.46); color:#fff; opacity:0; transition:opacity .2s ease; z-index:2; }
+    .mem2 .m2-disc:hover .m2-cam, .mem2 .m2-disc:focus-visible .m2-cam{ opacity:1; }
+    .mem2 .m2-cam svg{ width:24px; height:24px; }
+    .mem2 .m2-editform{ margin-top:20px; display:flex; flex-direction:column; gap:10px; }
+    .mem2 .m2-el{ display:flex; flex-direction:column; gap:5px; font-family:var(--mono); font-size:9.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.72); }
+    .mem2 .m2-el input{ font-family:var(--sans); font-size:13.5px; font-weight:600; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.32); border-radius:10px; padding:8px 11px; outline:none; transition:.16s; }
+    .mem2 .m2-el input::placeholder{ color:rgba(255,255,255,.45); font-weight:500; }
+    .mem2 .m2-el input:focus{ border-color:rgba(255,255,255,.65); background:rgba(255,255,255,.2); }
+    .mem2 .m2-ebtns{ display:flex; gap:8px; margin-top:2px; }
+    .mem2 .m2-esave{ flex:1; font-size:12.5px; font-weight:700; color:var(--accent-ink); background:rgba(255,255,255,.94); border:0; border-radius:10px; padding:8px 0; cursor:pointer; transition:.18s; }
+    .mem2 .m2-esave:hover{ transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(4,80,60,.6); }
+    .mem2 .m2-esave:disabled{ opacity:.55; cursor:default; transform:none; box-shadow:none; }
+    .mem2 .m2-ecancel{ font-size:12.5px; font-weight:600; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); border-radius:10px; padding:8px 14px; cursor:pointer; }
+    /* identity-card middle: memory mix + recent decisions (real data) */
+    .mem2 .m2-mid{ flex:none; margin-top:14px; display:flex; flex-direction:column; gap:14px; }
+    .mem2 .m2-sec{ border-top:1px dashed rgba(255,255,255,.24); padding-top:12px; flex:none; }
+    .mem2 .m2-sec-t{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.72); margin-bottom:10px; }
+    .mem2 .m2-mixbar{ display:flex; gap:3px; height:10px; border-radius:99px; overflow:hidden; }
+    .mem2 .m2-mixbar i{ min-width:6px; border-radius:99px; }
+    .mem2 .mx-a{ background:rgba(255,255,255,.92); }
+    .mem2 .mx-b{ background:rgba(255,255,255,.55); }
+    .mem2 .mx-c{ background:rgba(255,255,255,.26); }
+    .mem2 .m2-mixleg{ display:flex; flex-wrap:wrap; gap:5px 13px; margin-top:9px; }
+    .mem2 .m2-mixitem{ display:inline-flex; align-items:center; gap:6px; font-size:10.5px; color:rgba(255,255,255,.85); }
+    .mem2 .m2-mixitem i{ width:8px; height:8px; border-radius:3px; }
+    .mem2 .m2-mixitem b{ font-family:var(--mono); font-weight:700; color:#fff; }
+    .mem2 .m2-motto{ position:relative; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:14px; padding:13px 15px 12px 17px; }
+    .mem2 .m2-motto::before{ content:""; position:absolute; left:0; top:10px; bottom:10px; width:4px; border-radius:3px; background:linear-gradient(180deg,#fff,#a7f3d0); }
+    .mem2 .m2-motto .q{ position:absolute; right:12px; top:5px; font-size:32px; font-weight:800; color:rgba(255,255,255,.22); line-height:1; font-family:Georgia,serif; }
+    .mem2 .m2-motto .m1{ font-size:15px; font-weight:800; letter-spacing:-.01em; color:#fff; }
+    .mem2 .m2-motto .m2x{ margin-top:4px; font-size:11.5px; color:rgba(255,255,255,.82); line-height:1.55; }
+    .mem2 .m2-chips2{ display:flex; flex-wrap:wrap; gap:7px; }
+    .mem2 .m2-chip2{ font-size:11.5px; font-weight:600; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.26); padding:5px 11px; border-radius:999px; }
+    .mem2 .m2-chip2.hi{ background:rgba(255,255,255,.9); color:var(--accent-ink); border-color:transparent; }
+    /* reading affordance — soft fade above the progress bar while unread */
+    .mem2 .m2-fade{ position:absolute; left:1px; right:1px; bottom:19px; height:56px; background:linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--surface) 90%); pointer-events:none; opacity:0; transition:opacity .25s ease; z-index:3; }
+    .mem2 .m2-fade.show{ opacity:1; }
+
+    /* values — green numbered list */
+    .mem2 .m2-vrow{ display:flex; align-items:flex-start; gap:15px; padding:16px 4px; border-top:1px solid var(--line); }
+    .mem2 .m2-vrow:first-child{ border-top:none; }
+    .mem2 .m2-vnum{ flex:none; font-family:var(--mono); font-size:14px; font-weight:600; color:var(--accent-ink); width:34px;height:34px;border-radius:10px; background:var(--accent-weak); display:grid;place-items:center; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 14%,transparent); transition:.24s cubic-bezier(.22,1,.36,1); }
+    .mem2 .m2-vrow:hover .m2-vnum{ background:var(--accent); color:#fff; transform:translateY(-2px); box-shadow:0 8px 18px -6px var(--accent); }
+    .mem2 .m2-vt{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-.01em; line-height:1.4; }
+    .mem2 .m2-vd{ margin-top:5px; font-size:13px; color:var(--ink-2); line-height:1.6; }
+
+    /* evolution — timeline */
+    .mem2 .m2-spine{ position:relative; padding-left:6px; }
+    .mem2 .m2-spine::before{ content:""; position:absolute; left:15px; top:8px; bottom:10px; width:2px; border-radius:2px; background:linear-gradient(180deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 40%,var(--line)) 55%,transparent 100%); }
+    .mem2 .m2-enode{ position:relative; padding:0 4px 20px 46px; }
+    .mem2 .m2-enode:last-child{ padding-bottom:2px; }
+    .mem2 .m2-edot{ position:absolute; left:7px; top:3px; width:18px;height:18px;border-radius:50%; background:var(--surface); border:2px solid var(--accent); display:grid;place-items:center; z-index:2; box-shadow:0 0 0 5px var(--surface); }
+    .mem2 .m2-edot::after{ content:""; width:7px;height:7px;border-radius:50%; background:var(--accent); }
+    .mem2 .m2-enode:first-child .m2-edot{ box-shadow:0 0 0 5px var(--surface),0 0 0 8px var(--accent-weak); }
+    .mem2 .m2-ecard{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px 15px; transition:.25s cubic-bezier(.22,1,.36,1); position:relative; }
+    .mem2 .m2-ecard::before{ content:""; position:absolute; left:-16px; top:16px; width:14px;height:1px; background:var(--line-2); }
+    .mem2 .m2-enode:hover .m2-ecard{ transform:translateX(3px); border-color:color-mix(in srgb,var(--accent) 38%,var(--line)); box-shadow:0 12px 28px -20px rgba(16,185,129,.5); }
+    .mem2 .m2-ecard-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+    .mem2 .m2-edate{ font-family:var(--mono); font-size:10px; font-weight:600; color:var(--accent-ink); background:var(--accent-weak); padding:4px 9px; border-radius:8px; }
+    .mem2 .m2-etype{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+    .mem2 .m2-edesc{ font-size:12.5px; line-height:1.65; color:var(--ink-2); }
+    .mem2 .m2-edesc :is(p,ul,ol){ margin:0 0 8px; } .mem2 .m2-edesc :last-child{ margin-bottom:0; }
+    .mem2 .m2-edesc ul,.mem2 .m2-edesc ol{ padding-left:18px; }
+    .mem2 .m2-edesc strong{ color:var(--ink); font-weight:650; }
+
+    /* prose (identity / wellbeing / insights / learned) */
+    .mem2 .m2-prose{ font-size:13.5px; line-height:1.7; color:var(--ink-2); }
+    .mem2 .m2-prose > :first-child{ margin-top:0; }
+    .mem2 .m2-prose h1,.mem2 .m2-prose h2,.mem2 .m2-prose h3,.mem2 .m2-prose h4{ color:var(--ink); font-weight:700; letter-spacing:-.01em; margin:22px 0 10px; }
+    .mem2 .m2-prose h1{ font-size:17px; } .mem2 .m2-prose h2{ font-size:15px; } .mem2 .m2-prose h3{ font-size:13.5px; } .mem2 .m2-prose h4{ font-size:12.5px; color:var(--ink-2); }
+    .mem2 .m2-prose h2::before{ content:""; display:inline-block; width:7px;height:7px;border-radius:2px; background:var(--accent); margin-right:9px; vertical-align:middle; }
+    .mem2 .m2-prose p{ margin:0 0 11px; }
+    .mem2 .m2-prose ul,.mem2 .m2-prose ol{ margin:0 0 12px; padding-left:20px; }
+    .mem2 .m2-prose li{ margin:5px 0; }
+    .mem2 .m2-prose li::marker{ color:var(--accent); }
+    .mem2 .m2-prose strong,.mem2 .m2-prose b{ color:var(--ink); font-weight:650; }
+    .mem2 .m2-prose em{ color:var(--accent-ink); font-style:normal; font-weight:600; }
+    .mem2 .m2-prose blockquote{ margin:12px 0; padding:11px 15px; border-left:3px solid var(--accent); background:var(--accent-weak); border-radius:0 10px 10px 0; color:var(--accent-ink); font-size:13px; }
+    .mem2 .m2-prose blockquote p{ margin:0; }
+    .mem2 .m2-prose code{ font-family:var(--mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 5px; }
+    .mem2 .m2-prose hr{ border:0; border-top:1px dashed var(--line-2); margin:18px 0; }
+    .mem2 .m2-empty{ padding:44px 10px; text-align:center; color:var(--ink-3); font-size:13px; }
+
+    @media(max-width:900px){
+      .mem2 .m2-dossier{ grid-template-columns:1fr; }
+      .mem2 .m2-host{ height:auto !important; }
+      .mem2 .m2-scroller{ overflow:visible; }
+      .mem2 .m2-prog{ display:none; }
+      .mem2 .m2-fade{ display:none; }
+    }
+    @media(max-width:600px){
+      .mem2 .m2-seg{ position:static; max-width:none; justify-content:flex-start; margin-bottom:14px; }
+      .mem2 .m2-pt{ max-width:none; }
+    }
+    @media (prefers-reduced-motion:reduce){ .mem2 .m2-dot{ animation:none; } }
 
     /* ----- mem-crystal (journal AI summary + memory tabs) → Clean card ----- */
     .mem-parallax-wrap { perspective: none !important; }
@@ -2496,6 +2690,18 @@
 .fgE-dt-sec{margin-bottom:18px;}
 .fgE-dt-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);margin-bottom:7px;}
 .fgE-dt-body{font-size:13px;line-height:1.7;color:var(--ink-2);}
+.fgE-dt-full{padding-top:2px;border-top:1px solid var(--line);}
+.fgE-dt-full-body{font-size:13px;line-height:1.75;color:var(--ink-2);}
+.fgE-dt-full-body h1,.fgE-dt-full-body h2,.fgE-dt-full-body h3{font-family:'Noto Serif SC',serif;color:var(--ink);line-height:1.35;margin:12px 0 8px;}
+.fgE-dt-full-body h1{font-size:16px;}
+.fgE-dt-full-body h2{font-size:14.5px;}
+.fgE-dt-full-body h3{font-size:13.5px;}
+.fgE-dt-full-body p{margin:8px 0;}
+.fgE-dt-full-body ul,.fgE-dt-full-body ol{margin:8px 0 8px 18px;padding:0;}
+.fgE-dt-full-body li{margin:4px 0;}
+.fgE-dt-full-body a{color:var(--accent-ink);word-break:break-all;}
+.fgE-dt-full-body code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 4px;}
+.fgE-dt-empty{font-size:12px;line-height:1.6;color:var(--ink-4);background:var(--surface-2);border:1px dashed var(--line-2);border-radius:10px;padding:10px 12px;}
 .fgE-dt-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--accent-ink);text-decoration:none;word-break:break-all;}
 .fgE-dt-link:hover{text-decoration:underline;}
 .fgE-dt-del{width:100%;margin-top:8px;padding:11px;background:none;border:1px solid var(--line-2);border-radius:11px;font-size:12.5px;color:var(--ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;}
@@ -4279,11 +4485,19 @@
       font-size:9.5px; font-weight:700; color:#fff; border:1.5px solid #fff;
       box-shadow:0 1px 3px rgba(20,20,18,.18); }
     .pjOwn.lg{ width:26px; height:26px; font-size:10.5px; }
-    .pjRow .act, .pjRow .del{ width:22px; height:22px; border-radius:7px; display:grid; place-items:center;
-      font-size:10px; color:var(--ink-4); opacity:0; transition:opacity .14s ease, background .14s ease, color .14s ease; flex:none; }
-    .pjRow:hover .act, .pjRow:hover .del{ opacity:.7; }
-    .pjRow .act:hover{ opacity:1; color:var(--accent-ink); background:var(--accent-weak); }
-    .pjRow .del:hover{ opacity:1; color:#e0574f; background:#fdeaea; }
+    .pjRowTime{ flex:none; font-family:var(--mono); font-size:10.5px; color:var(--accent-ink);
+      background:var(--accent-weak); border:1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+      border-radius:7px; padding:3px 7px; white-space:nowrap; }
+    .pj-act-btn, .pj-del-btn{ width:24px; height:24px; border-radius:8px; display:grid; place-items:center;
+      font-size:10px; color:var(--ink-4); opacity:0; transition:opacity .14s ease, background .14s ease, color .14s ease; flex:none; cursor:pointer; background:none; border:0; }
+    .task-row:hover .pj-act-btn, .task-row:hover .pj-del-btn{ opacity:.7; }
+    .pj-act-btn:hover{ opacity:1; color:var(--accent-ink); background:var(--accent-weak); }
+    .pj-del-btn:hover{ opacity:1; color:#e0574f; background:#fdeaea; }
+    /* "today" (doing) task-rows — bold accent */
+    .task-row.pj-doing{ background:linear-gradient(135deg, color-mix(in srgb, var(--proj) 8%, white), transparent 70%); border-left:3px solid var(--proj); padding-left:7px; border-radius:10px; margin-bottom:2px; }
+    .task-row.pj-doing + .task-row.pj-doing{ border-top:1px solid color-mix(in srgb, var(--proj) 16%, transparent); }
+    .task-row.pj-doing .nm{ font-weight:600; }
+    .task-row.pj-doing .check{ border-color:var(--proj); box-shadow:0 0 0 3px color-mix(in srgb, var(--proj) 14%, transparent); }
     .pjAdd{ display:flex; align-items:center; gap:8px; margin-top:12px; padding:8px 12px;
       border-radius:11px; border:1.5px dashed var(--line-2); color:var(--ink-4); }
     .pjAdd:focus-within{ border-color:color-mix(in srgb, var(--proj) 35%, white); }
@@ -5311,6 +5525,10 @@
                 :class="{ on: (editDetail.color || 'none') === c }" @click="editDetail.color = (c === 'none' ? null : c)"></span>
             </div>
           </div>
+          <div v-if="detailTask && detailTask._projectTodo" class="tm-field">
+            <label>{{ lang === 'zh' ? '标签 / 分类' : 'Tag / Category' }}</label>
+            <input v-model="editDetail.category" :placeholder="lang === 'zh' ? '如 Backlog / UI / 发布' : 'e.g. Backlog / UI / Release'">
+          </div>
           <div class="tm-field">
             <label>{{ lang === 'zh' ? '备注 / 描述' : 'Note' }}</label>
             <textarea v-model="editDetail.note" :placeholder="lang === 'zh' ? '细节、链接、上下文…' : 'details, links…'"></textarea>
@@ -5421,7 +5639,7 @@
           </div>
           <div class="sbA-brain">
             <div class="sbB-top">
-              <img class="sbB-av" src="/assets/loci-logo2.png" alt="me" />
+              <img class="sbB-av" :src="(data && data.config && data.config.avatar) || '/assets/loci-logo2.png'" alt="me" />
               <div class="sbB-who">
                 <div class="sbB-name">{{ (data.config && data.config.username) || 'Me' }}</div>
                 <div class="sbB-sub">MEMORY PALACE · DAY {{ brainDays }}</div>
@@ -5774,6 +5992,13 @@
                   <span class="tks" :class="{ alert: taskPoolStats.overdue > 0 }" style="--mc:#e0574f"><b>{{ taskPoolStats.overdue }}</b>{{ lang === 'zh' ? '逾期' : 'late' }}</span>
                   <span class="tks" style="--mc:#10b981"><b>{{ taskPoolStats.done }}</b>{{ lang === 'zh' ? '已完成' : 'done' }}</span>
                 </span>
+                <span class="tks-sep"></span>
+                <button class="tks-proj-btn" :class="{ on: showProjectTodos }" @click="toggleProjectTodos()"
+                  :title="lang === 'zh' ? '显示/隐藏项目任务' : 'Show/hide project tasks'">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  {{ lang === 'zh' ? '项目' : 'Projects' }}
+                  <span v-if="projectTodoCount" class="tks-proj-n">{{ projectTodoCount }}</span>
+                </button>
                 <button class="panel-expand-btn" data-tour="panel-expand" @click="focusPanel('tasks')"
                   :title="taskScheduleFocus === 'tasks' ? (lang === 'zh' ? '回到并排' : 'Back to split') : (lang === 'zh' ? '专注此面板' : 'Focus')"
                   :aria-label="taskScheduleFocus === 'tasks' ? 'Split' : 'Focus'">{{ taskScheduleFocus === 'tasks' ? '⤡' : '⤢' }}</button>
@@ -5815,14 +6040,14 @@
                   {{ lang === 'zh' ? '把待办拖到这里 = 今天做（不改截止日期）' : 'Drag a task here to do it today (deadline untouched)' }}
                 </div>
                 <div v-for="(task, i) in group.tasks" :key="group.id + '-' + i"
-                  draggable="true" @dragstart="dragTask($event, task._sourcePriority || 'P1', task)"
+                  :draggable="!task._projectTodo" @dragstart="!task._projectTodo && dragTask($event, task._sourcePriority || 'P1', task)"
                   @dragover="reorderDragOver($event, group.id, i)"
                   @drop="reorderDrop($event, group.id, i)"
                   @dragend="reorderDragEnd"
                   class="task-row"
                   :data-c="task.color || null"
                   :class="{ done: task.done, 'reorder-dragging': reorderState.task === task, 'reorder-over-top': reorderState.overKey === group.id+'-'+i && reorderState.overPos==='top', 'reorder-over-bottom': reorderState.overKey === group.id+'-'+i && reorderState.overPos==='bottom' }">
-                  <span v-if="!task.done" class="task-drag" draggable="true" @dragstart="reorderDragStart($event, group.id, i, task)" title="拖动排序">
+                  <span v-if="!task.done && !task._projectTodo" class="task-drag" draggable="true" @dragstart="reorderDragStart($event, group.id, i, task)" title="拖动排序">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
                   </span>
                   <span v-if="!task.done" class="timp" :class="taskImpClass(task)"></span>
@@ -6429,142 +6654,158 @@
         </section>
 
         <!-- ========== MEMORY ========== -->
-        <section v-if="currentPage === 'memory'">
-          <div class="mp-wrap">
-            <!-- status bar -->
-            <div class="mp-statusbar">
-              <div class="mp-brand"><span class="mp-logo-dot"></span><span class="mp-sysline">LOCI <b>· MEMORY</b></span></div>
-              <div class="mp-sysline">{{ lang === 'zh' ? '个人档案' : 'PERSONAL PROFILE' }}</div>
-              <span class="mp-online">{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + 'D' }}</span>
+        <section v-if="currentPage === 'memory'" class="mem2">
+          <div class="m2-statusbar">
+            <div class="m2-sb-left">
+              <div class="m2-brand"><span class="m2-dot"></span><span class="m2-sys"><b>LOCI</b> · MEMORY</span></div>
+              <span class="m2-div"></span>
+              <span class="m2-sub">{{ lang === 'zh' ? '个人档案' : 'Personal profile' }}</span>
             </div>
+            <div class="m2-right">
+              <span class="m2-mem"><b>{{ brainStats.memories }}</b> {{ lang === 'zh' ? '记忆' : 'mem' }} · <b>{{ brainStats.people }}</b> {{ lang === 'zh' ? '人脉' : 'ppl' }}</span>
+              <span class="m2-active">{{ lang === 'zh' ? '活跃 · ' + brainDays + ' 天' : 'ACTIVE · ' + brainDays + 'D' }}</span>
+            </div>
+          </div>
 
-            <div class="mp-sheet">
-              <!-- LEFT : profile card -->
-              <aside v-if="memoryCardStyle === 'classic'" class="mp-card mp-hero">
-                <button class="mp-cardtoggle" type="button" :title="lang === 'zh' ? '换名片样式' : 'Switch card style'" @click="memoryCardStyle = 'cover'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+          <div class="m2-dossier">
+            <!-- LEFT: emerald-glass identity card -->
+            <aside class="m2-rail">
+              <section class="m2-idcard">
+                <span class="m2-corner">PROFILE</span>
+                <button class="m2-editbtn" type="button" :title="lang === 'zh' ? (profileEditing ? '收起编辑' : '编辑资料') : (profileEditing ? 'Close editor' : 'Edit profile')" @click="profileEditing ? cancelProfileEdit() : startProfileEdit()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                 </button>
-                <div class="mp-avatar-stage">
-                  <svg class="mp-ring-svg" viewBox="0 0 148 148" width="148" height="148">
-                    <defs><linearGradient id="mpgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#047857"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs>
-                    <circle class="mp-track" cx="74" cy="74" r="69"/>
-                    <circle class="mp-prog" cx="74" cy="74" r="69"/>
+                <div class="m2-avatar">
+                  <svg class="m2-ring" viewBox="0 0 118 118" width="118" height="118" aria-hidden="true">
+                    <defs><linearGradient id="m2ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#6ee7b7"/></linearGradient></defs>
+                    <circle class="m2-ring-t" cx="59" cy="59" r="56.5"/>
+                    <circle class="m2-ring-p" cx="59" cy="59" r="56.5"/>
                   </svg>
-                  <div class="mp-avatar"><img :src="memoryProfile.avatar" alt="avatar" /></div>
-                  <div class="mp-badge">{{ lang === 'zh' ? '记忆 ' + memoryProfile.stats.memories + ' · 活跃 ' + memoryProfile.stats.active + ' 天' : memoryProfile.stats.memories + ' memories · ' + memoryProfile.stats.active + 'd' }}</div>
+                  <button class="m2-disc" type="button" :title="lang === 'zh' ? '点击更换头像' : 'Click to change avatar'" @click="pickMeAvatar">
+                    <img v-if="meAvatar" class="m2-photo" :src="meAvatar" alt="me">
+                    <span v-else>{{ memoryInitials }}</span>
+                    <span class="m2-cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7.9 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.9Z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+                  </button>
+                  <input ref="meAvatarInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" @change="onMeAvatarChosen">
+                  <span class="m2-badge">{{ lang === 'zh' ? '记忆宫殿 · 第 ' + brainDays + ' 天' : 'MEMORY PALACE · DAY ' + brainDays }}</span>
                 </div>
-                <div class="mp-name">
+                <div class="m2-name" v-if="!profileEditing">
                   <h1>{{ memoryProfile.name }}</h1>
-                  <div class="mp-role">{{ memoryProfile.role }}</div>
+                  <div class="m2-role">{{ memoryProfile.role }}</div>
                 </div>
-                <div class="mp-meta">
-                  <div class="mp-meta-row" v-for="m in memoryProfile.meta" :key="m.k"><span class="k">{{ m.k }}</span><span class="v">{{ m.v }}</span></div>
+                <div class="m2-editform" v-else>
+                  <label class="m2-el">{{ lang === 'zh' ? '名字' : 'Name' }}<input v-model="profileDraft.name" maxlength="60" :placeholder="lang === 'zh' ? '怎么称呼你' : 'Your name'" @keyup.enter="saveProfileEdit"></label>
+                  <label class="m2-el">{{ lang === 'zh' ? '简介' : 'Tagline' }}<input v-model="profileDraft.tagline" maxlength="80" :placeholder="lang === 'zh' ? '一句话介绍，可留空' : 'One line about you'" @keyup.enter="saveProfileEdit"></label>
+                  <div class="m2-ebtns">
+                    <button class="m2-esave" type="button" :disabled="profileSaving || !profileDraft.name.trim()" @click="saveProfileEdit">{{ profileSaving ? (lang === 'zh' ? '保存中…' : 'Saving…') : (lang === 'zh' ? '保存' : 'Save') }}</button>
+                    <button class="m2-ecancel" type="button" @click="cancelProfileEdit">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                  </div>
                 </div>
-                <div class="mp-tags">
-                  <span class="mp-eyebrow">{{ lang === 'zh' ? '标签' : 'Tags' }}</span>
-                  <div class="mp-chips"><span class="mp-chip" v-for="tg in memoryProfile.tags" :key="tg">{{ tg }}</span></div>
+                <div class="m2-meta" v-if="memoryProfile.meta && memoryProfile.meta.length">
+                  <div class="m2-mrow" v-for="m in memoryProfile.meta" :key="m.k"><span class="k">{{ m.k }}</span><span class="v">{{ m.v }}</span></div>
                 </div>
-                <div class="mp-note"><span class="mp-note-bar"></span><p class="mp-note-text">{{ lang === 'zh' ? '深度专注，厌恶被打断。偏好极简、克制的设计 — 能不加的就不加。' : 'Deep focus, hates interruption. Prefers minimal, restrained design.' }}</p></div>
-              </aside>
+                <div class="m2-tags" v-if="memoryProfile.tags && memoryProfile.tags.length">
+                  <span class="m2-tag" v-for="t in memoryProfile.tags" :key="t">{{ t }}</span>
+                </div>
+                <div class="m2-mid">
+                  <div class="m2-sec" v-if="ovMemoryMix && ovMemoryMix.total > 0">
+                    <div class="m2-sec-t">{{ lang === 'zh' ? '记忆构成' : 'MEMORY MIX' }}</div>
+                    <div class="m2-mixbar"><i v-for="s in ovMemoryMix.segments" :key="s.key" :class="'mx-' + s.key" :style="{ flexGrow: (s.value || 0.001) }"></i></div>
+                    <div class="m2-mixleg">
+                      <span v-for="s in ovMemoryMix.segments" :key="s.key" class="m2-mixitem"><i :class="'mx-' + s.key"></i>{{ s.label }} <b>{{ s.value }}</b></span>
+                    </div>
+                  </div>
+                  <div class="m2-sec">
+                    <div class="m2-sec-t">{{ lang === 'zh' ? '身份信号' : 'SIGNALS' }}</div>
+                    <div class="m2-chips2">
+                      <span class="m2-chip2 hi">AI 内容创作者</span>
+                      <span class="m2-chip2">Data Science</span>
+                      <span class="m2-chip2">ENFJ · 宝剑哥</span>
+                      <span class="m2-chip2">悉尼 ⇄ 国内</span>
+                      <span class="m2-chip2">早睡派</span>
+                    </div>
+                  </div>
+                  <div class="m2-sec">
+                    <div class="m2-sec-t">{{ lang === 'zh' ? '座右铭' : 'MOTTO' }}</div>
+                    <div class="m2-motto">
+                      <span class="q">”</span>
+                      <div class="m1">状态 &gt; 产出</div>
+                      <div class="m2x">早睡早起是一切的前提 —— 先把人调好，再谈产出。</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="m2-foot">
+                  <div class="m2-spark" aria-hidden="true"><i v-for="(h, i) in brainSpark" :key="i" :class="{ pk: h === memSparkPeak }" :style="{ height: h + '%', animationDelay: (i * 55) + 'ms' }"></i></div>
+                  <div class="m2-stats">
+                    <div class="m2-stat"><b>{{ brainStats.memories }}</b><span>{{ lang === 'zh' ? '记忆' : 'MEM' }}</span></div>
+                    <div class="m2-stat"><b>{{ brainStats.people }}</b><span>{{ lang === 'zh' ? '人脉' : 'PPL' }}</span></div>
+                    <div class="m2-stat"><b>{{ brainDays }}</b><span>{{ lang === 'zh' ? '活跃' : 'ACT' }}</span></div>
+                    <div class="m2-stat"><b>{{ memoryProfile.stats.decisions }}</b><span>{{ lang === 'zh' ? '决策' : 'DEC' }}</span></div>
+                    <div class="m2-stat"><b>{{ memoryProfile.stats.projects }}</b><span>{{ lang === 'zh' ? '项目' : 'PRJ' }}</span></div>
+                    <div class="m2-stat"><b>6</b><span>{{ lang === 'zh' ? '记忆块' : 'BLOCKS' }}</span></div>
+                  </div>
+                </div>
+              </section>
+            </aside>
 
-              <!-- cover-style card (toggle) -->
-              <aside v-else class="mc1-card">
-                <button class="mc1-toggle" type="button" :title="lang === 'zh' ? '换名片样式' : 'Switch card style'" @click="memoryCardStyle = 'classic'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-                </button>
-                <div class="mc1-banner">
-                  <span class="mc1-status"><span class="mc1-sdot"></span>{{ lang === 'zh' ? '活跃 · ' + memoryProfile.stats.active + ' 天' : 'ACTIVE · ' + memoryProfile.stats.active + ' DAYS' }}</span>
-                  <img :src="memoryProfile.avatar" :alt="memoryProfile.name">
-                  <div class="mc1-banner-foot">
-                    <div class="mc1-name-row"><span class="mc1-name">{{ memoryProfile.name }}</span><span class="mc1-name-meta" v-if="memoryProfile.nameMeta">{{ memoryProfile.nameMeta }}</span></div>
-                    <div class="mc1-role">{{ memoryProfile.role }}</div>
-                  </div>
-                </div>
-                <div class="mc1-body">
-                  <div class="mc1-meta">
-                    <div class="mc1-meta-item" v-for="m in memoryProfile.meta.slice(0,3)" :key="m.k"><span class="mc1-meta-k">{{ m.k }}</span><span class="mc1-meta-v">{{ m.v }}</span></div>
-                  </div>
-                  <div class="mc1-section-label">{{ lang === 'zh' ? '标签' : 'Tags' }}</div>
-                  <div class="mc1-tags"><span class="mc1-tag" v-for="tg in memoryProfile.tags" :key="tg">{{ tg }}</span></div>
-                  <div class="mc1-note"><span class="mc1-bar"></span><p class="mc1-note-text">{{ lang === 'zh' ? '深度专注，厌恶被打断。偏好极简、克制的设计 — 能不加的就不加。' : 'Deep focus, hates interruption. Prefers minimal, restrained design.' }}</p></div>
-                  <div class="mc1-stats">
-                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.memories }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '记忆' : 'MEM' }}</div></div>
-                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.links }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '连接' : 'LINK' }}</div></div>
-                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.active }}<span class="mc1-u">d</span></div><div class="mc1-stat-k">{{ lang === 'zh' ? '活跃' : 'ACT' }}</div></div>
-                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.decisions }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '决策' : 'DEC' }}</div></div>
-                    <div class="mc1-stat"><div class="mc1-stat-n">{{ memoryProfile.stats.projects }}</div><div class="mc1-stat-k">{{ lang === 'zh' ? '项目' : 'PRJ' }}</div></div>
-                  </div>
-                </div>
-              </aside>
+            <!-- RIGHT: single host card, equal height, top-right switcher, internal scroll + progress -->
+            <main class="m2-host">
+              <div class="m2-seg" role="tablist" aria-label="记忆块切换">
+                <button v-for="b in memoryBlocks" :key="b.key" :class="{ on: memoryBlock === b.key }" @click="setMemoryBlock(b.key)">{{ lang === 'zh' ? b.zh : b.en }}</button>
+              </div>
 
-              <!-- RIGHT -->
-              <div class="mp-right">
-                <section class="mp-card mp-panel">
-                  <div class="mp-panel-head">
-                    <span class="mp-ic">
-                      <svg v-if="memoryView === 'values'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
-                      <svg v-else-if="memoryView === 'decisions'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
-                      <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
-                    </span>
-                    <h2>{{ memoryView === 'values' ? (lang === 'zh' ? '价值观' : 'Values') : memoryView === 'decisions' ? (lang === 'zh' ? '决策' : 'Decisions') : (lang === 'zh' ? '洞察' : 'Insights') }}</h2>
-                    <div class="mp-seg">
-                      <button :class="{ on: memoryView === 'values' }" @click="memoryView = 'values'">{{ lang === 'zh' ? '价值观' : 'Values' }}</button>
-                      <button :class="{ on: memoryView === 'decisions' }" @click="memoryView = 'decisions'">{{ lang === 'zh' ? '决策' : 'Decisions' }}</button>
-                      <button :class="{ on: memoryView === 'insights' }" @click="memoryView = 'insights'">{{ lang === 'zh' ? '洞察' : 'Insights' }}</button>
+              <div class="m2-scroller" ref="memScroller" @scroll="onMemScroll">
+                <div class="m2-inner">
+                  <div class="m2-phead">
+                    <span class="m2-pic" v-html="memoryCurrent.icon"></span>
+                    <div class="m2-pt">
+                      <h2>{{ lang === 'zh' ? memoryCurrent.zh : memoryCurrent.en }} <span class="en" v-if="lang === 'zh'">{{ memoryCurrent.en }}</span></h2>
+                      <div class="pd">{{ lang === 'zh' ? memoryCurrent.descZh : memoryCurrent.descEn }}</div>
                     </div>
                   </div>
 
-                  <!-- VALUES -->
-                  <div v-if="memoryView === 'values'" class="mp-vlist">
-                    <div class="mp-vrow" v-for="(v, vi) in memoryProfile.values" :key="vi">
-                      <span class="mp-vnum">{{ vi + 1 }}</span>
-                      <div class="mp-vbody"><span class="mp-vt">{{ v.title }}</span><span class="mp-vd" v-if="v.desc">{{ v.desc }}</span></div>
-                    </div>
+                  <!-- 身份 -->
+                  <div v-if="memoryBlock === 'identity'" class="m2-prose" v-html="stripLeadH1(memoryIdentityContent)"></div>
+
+                  <!-- 价值观 -->
+                  <div v-else-if="memoryBlock === 'values'">
+                    <template v-if="memoryProfile.values && memoryProfile.values.length">
+                      <div class="m2-vrow" v-for="(v, i) in memoryProfile.values" :key="i">
+                        <span class="m2-vnum">{{ i + 1 }}</span>
+                        <div><div class="m2-vt">{{ v.title }}</div><div class="m2-vd" v-if="v.desc">{{ v.desc }}</div></div>
+                      </div>
+                    </template>
+                    <div v-else class="m2-prose" v-html="stripLeadH1(memoryValuesContent)"></div>
                   </div>
 
-                  <!-- DECISIONS · real trade-offs from decisions/*.md -->
-                  <div v-else-if="memoryView === 'decisions'">
-                    <p class="mp-tl-sub">{{ lang === 'zh' ? '真做过的取舍 —— 每条都追溯到一次对话、一个决定。' : 'Real trade-offs made — each traces back to a conversation, a decision.' }}</p>
-                    <div class="mp-dlist">
-                      <div class="mp-drow" v-for="(d, di) in memoryProfile.decisions" :key="di">
-                        <span class="mp-ddate">{{ ovMonthDay(d.date) }}</span>
-                        <div class="mp-dbody">
-                          <span class="mp-dt">{{ d.title }}</span>
-                          <span class="mp-dtags"><span class="mp-dtag" v-for="tg in d.tags" :key="tg">{{ tg }}</span></span>
+                  <!-- 状态 -->
+                  <div v-else-if="memoryBlock === 'wellbeing'" class="m2-prose" v-html="stripLeadH1(memoryWellbeingContent)"></div>
+
+                  <!-- 洞察 -->
+                  <div v-else-if="memoryBlock === 'insights'" class="m2-prose" v-html="stripLeadH1(memoryInsightsContent)"></div>
+
+                  <!-- 经验 -->
+                  <div v-else-if="memoryBlock === 'learned'" class="m2-prose" v-html="stripLeadH1(memoryLearnedContent)"></div>
+
+                  <!-- 成长演变 -->
+                  <div v-else-if="memoryBlock === 'evolution'">
+                    <div v-if="memoryEvolutionEntries.length" class="m2-spine">
+                      <div class="m2-enode" v-for="(e, i) in memoryEvolutionEntries" :key="i">
+                        <span class="m2-edot"></span>
+                        <div class="m2-ecard">
+                          <div class="m2-ecard-top"><span class="m2-edate">{{ e.date }}</span><span class="m2-etype" v-if="e.type">{{ e.type }}</span></div>
+                          <div class="m2-edesc" v-html="e.content"></div>
                         </div>
                       </div>
                     </div>
+                    <div v-else class="m2-empty">{{ lang === 'zh' ? '暂无成长记录' : 'No evolution entries yet' }}</div>
                   </div>
-
-                  <!-- INSIGHTS · timeline -->
-                  <div v-else>
-                    <p class="mp-tl-sub">{{ lang === 'zh' ? '从工作中沉淀下来的结论 —— 按领域着色，串成一条思考的线。' : 'Conclusions distilled from the work — colored by domain, strung along one line.' }}</p>
-                    <div class="mp-legend" aria-hidden="true">
-                      <span class="mp-leg" v-for="c in memoryInsightCats" :key="c.key"><span class="mp-sw" :style="{ background: c.color }"></span>{{ c.label }}</span>
-                    </div>
-                    <div class="mp-tl">
-                      <article class="mp-node" v-for="(ins, ii) in memoryProfile.insights" :key="ii"
-                        :style="{ '--hue': ins.color, '--hue-weak': ins.weak, '--hue-ink': ins.ink }">
-                        <span class="mp-tl-dot"><span class="mp-halo"></span></span>
-                        <div class="mp-ncard">
-                          <div class="mp-ncard-top">
-                            <span class="mp-ntag"><span class="mp-tsw"></span>{{ ins.tag }}</span>
-                            <span class="mp-nindex">{{ String(ii + 1).padStart(2, '0') }}</span>
-                          </div>
-                          <p class="mp-ntext">{{ ins.text }}</p>
-                        </div>
-                      </article>
-                    </div>
-                  </div>
-                </section>
-
-                <div class="mp-foot">
-                  <span class="mp-fl">{{ lang === 'zh' ? '记忆持续增长' : 'Memory growing' }}</span>
-                  <span class="mp-xp"><i :style="{ '--w': memoryProfile.growthPct + '%' }"></i></span>
-                  <span class="mp-fl">{{ memoryProfile.stats.memories }} {{ lang === 'zh' ? '条' : 'items' }}</span>
                 </div>
               </div>
-            </div>
+
+              <div class="m2-fade" :class="{ show: memProgress < 0.985 }" aria-hidden="true"></div>
+              <div class="m2-prog" aria-hidden="true"><i :style="{ transform: 'scaleX(' + memProgress + ')' }"></i></div>
+            </main>
           </div>
         </section>
 
@@ -6904,37 +7145,70 @@
 
                     <!-- EXEC: doing / todo as flat lists, done collapsed. Same
                          guarded-writer CRUD as the old kanban (toggle/move/add/
-                         remove + drag between lanes) in a calmer shape. -->
+                         remove + drag between lanes), now in rich task-row format
+                         matching the main task pool. -->
                     <section class="pjExec">
                       <div class="pjExec-h">
                         <h3>{{ lang === 'zh' ? '执行' : 'Execution' }}</h3>
-                        <span class="pjExec-wip" :class="{ over: roadmapTodosByStatus(roadmapFocusProject, 'doing').length > 3 }">{{ lang === 'zh' ? '在做' : 'WIP' }} {{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length }} / ≤3 {{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length > 3 ? '⚠' : '✓' }}</span>
+                        <span class="pjExec-wip" :class="{ over: roadmapTodosByStatus(roadmapFocusProject, 'doing').length > 3 }">{{ lang === 'zh' ? '今日焦点' : 'Today' }} {{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length }} / ≤3 {{ roadmapTodosByStatus(roadmapFocusProject, 'doing').length > 3 ? '⚠' : '✓' }}</span>
                       </div>
 
+                      <!-- Doing -->
                       <div class="pjExec-sec" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'doing')">
-                        <div class="sk">{{ lang === 'zh' ? '在做' : 'Doing' }}<span class="ln"></span></div>
+                        <div class="sk">{{ lang === 'zh' ? '正在做' : 'Doing' }}<span class="ln"></span></div>
                         <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'doing')" :key="todo.id"
-                          class="pjRow doing" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
-                          <span class="bx" role="button" :title="lang === 'zh' ? '完成' : 'done'" @click="roadmapToggle(roadmapFocusProject, todo)"></span>
-                          <span class="tx">{{ todo.text }}</span>
-                          <span v-if="todo.category && todo.category !== 'Backlog'" class="cat">{{ todo.category }}</span>
+                          class="task-row pj-doing" :data-c="todo.color || null" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
+                          <span class="timp" :class="taskImpClass(todo)"></span>
+                          <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
+                            <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                          </span>
+                          <div class="body">
+                            <div class="nm">{{ todo.text }}</div>
+                            <div v-if="todo.status !== 'done'" class="mt">
+                              <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
+                              <span v-if="todo.date && !taskOverdueDays(todo)" class="tpill date" :class="{ 'due-today': taskDatePill(todo) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(todo) }}</span>
+                              <span v-if="taskTimePill(todo)" class="tpill time">{{ taskTimePill(todo) }}</span>
+                              <span v-if="todo.location" class="tpill loc">📍 {{ todo.location }}</span>
+                              <span v-if="todo.category && todo.category !== 'Backlog'" class="tpill cat">{{ todo.category }}</span>
+                            </div>
+                          </div>
+                          <span v-if="taskTimePill(todo)" class="pjRowTime">{{ taskTimePill(todo) }}</span>
                           <span v-if="todo.owner" class="pjOwn" :style="{ background: pjOwnerColor(todo.owner) }" :title="todo.owner">{{ todo.owner.slice(0, 1) }}</span>
-                          <button class="act" :title="lang === 'zh' ? '放回待办' : 'back to todo'" @click="roadmapMoveTo(roadmapFocusProject, todo, 'todo')">⏸</button>
-                          <button class="del" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
+                          <button class="pj-act-btn" :title="todo.status === 'doing' ? (lang === 'zh' ? '放回待办' : 'back to todo') : (lang === 'zh' ? '开始做' : 'start')" @click="todo.status === 'doing' ? roadmapMoveTo(roadmapFocusProject, todo, 'todo') : roadmapMoveTo(roadmapFocusProject, todo, 'doing')">{{ todo.status === 'doing' ? '⏸' : '▶' }}</button>
+                          <span class="task-edit" :title="lang === 'zh' ? '详情' : 'Detail'" @click.stop="openProjectTodoDetail(roadmapFocusProject, todo)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                          </span>
+                          <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
                         </div>
                         <div v-if="!roadmapTodosByStatus(roadmapFocusProject, 'doing').length" class="pjExec-empty">{{ lang === 'zh' ? '还没开工的事 — 从待办点 ▶ 开始做' : 'Nothing in progress — press ▶ on a todo' }}</div>
                       </div>
 
+                      <!-- Todo -->
                       <div class="pjExec-sec" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'todo')">
                         <div class="sk">{{ lang === 'zh' ? '待办' : 'To do' }}<span class="ln"></span></div>
                         <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'todo')" :key="todo.id"
-                          class="pjRow" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
-                          <span class="bx" role="button" :title="lang === 'zh' ? '完成' : 'done'" @click="roadmapToggle(roadmapFocusProject, todo)"></span>
-                          <span class="tx">{{ todo.text }}</span>
-                          <span v-if="todo.category && todo.category !== 'Backlog'" class="cat">{{ todo.category }}</span>
+                          class="task-row" :data-c="todo.color || null" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
+                          <span class="timp" :class="taskImpClass(todo)"></span>
+                          <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
+                            <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                          </span>
+                          <div class="body">
+                            <div class="nm">{{ todo.text }}</div>
+                            <div v-if="todo.status !== 'done'" class="mt">
+                              <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
+                              <span v-if="todo.date && !taskOverdueDays(todo)" class="tpill date" :class="{ 'due-today': taskDatePill(todo) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(todo) }}</span>
+                              <span v-if="taskTimePill(todo)" class="tpill time">{{ taskTimePill(todo) }}</span>
+                              <span v-if="todo.location" class="tpill loc">📍 {{ todo.location }}</span>
+                              <span v-if="todo.category && todo.category !== 'Backlog'" class="tpill cat">{{ todo.category }}</span>
+                            </div>
+                          </div>
+                          <span v-if="taskTimePill(todo)" class="pjRowTime">{{ taskTimePill(todo) }}</span>
                           <span v-if="todo.owner" class="pjOwn" :style="{ background: pjOwnerColor(todo.owner) }" :title="todo.owner">{{ todo.owner.slice(0, 1) }}</span>
-                          <button class="act" :title="lang === 'zh' ? '开始做' : 'start'" @click="roadmapMoveTo(roadmapFocusProject, todo, 'doing')">▶</button>
-                          <button class="del" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
+                          <button class="pj-act-btn" :title="lang === 'zh' ? '开始做' : 'start'" @click="roadmapMoveTo(roadmapFocusProject, todo, 'doing')">▶</button>
+                          <span class="task-edit" :title="lang === 'zh' ? '详情' : 'Detail'" @click.stop="openProjectTodoDetail(roadmapFocusProject, todo)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                          </span>
+                          <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
                         </div>
                       </div>
 
@@ -6951,10 +7225,15 @@
                         <span class="ar">{{ pjDoneOpen ? '▴' : '▾' }}</span>
                       </button>
                       <div v-if="pjDoneOpen" class="pjDoneList">
-                        <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'done')" :key="todo.id" class="pjRow done">
-                          <span class="bx on" role="button" :title="lang === 'zh' ? '恢复' : 'reopen'" @click="roadmapToggle(roadmapFocusProject, todo)">✓</span>
-                          <span class="tx">{{ todo.text }}</span>
-                          <button class="del" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
+                        <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'done')" :key="todo.id"
+                          class="task-row done" :data-c="todo.color || null" style="padding-left:45px;">
+                          <span class="check on" role="button" :title="lang === 'zh' ? '恢复' : 'reopen'" @click="roadmapToggle(roadmapFocusProject, todo)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                          </span>
+                          <div class="body" style="flex:1">
+                            <div class="nm doing" style="color:var(--ink-3);text-decoration:line-through;">{{ todo.text }}</div>
+                          </div>
+                          <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
                         </div>
                         <div v-if="!roadmapTodosByStatus(roadmapFocusProject, 'done').length" class="pjExec-empty">{{ lang === 'zh' ? '完成的待办会归到这里' : 'Completed todos land here' }}</div>
                       </div>
@@ -7264,6 +7543,11 @@
                 <div v-if="fragDetailSummary(fragSelectedCol)" class="fgE-dt-sec">
                   <div class="fgE-dt-label">{{ lang === 'zh' ? '摘要' : 'Summary' }}</div>
                   <div class="fgE-dt-body">{{ fragDetailSummary(fragSelectedCol) }}</div>
+                </div>
+                <div class="fgE-dt-sec fgE-dt-full">
+                  <div class="fgE-dt-label">{{ lang === 'zh' ? '完整内容' : 'Full content' }}</div>
+                  <div v-if="fragDetailFullHtml(fragSelectedCol)" class="fgE-dt-full-body" v-html="fragDetailFullHtml(fragSelectedCol)"></div>
+                  <div v-else class="fgE-dt-empty">{{ lang === 'zh' ? '这个收藏只有标题/链接，还没有正文内容。' : 'This save only has a title/link; no body yet.' }}</div>
                 </div>
                 <button class="fgE-dt-del" @click="fragDeleteSelected">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
@@ -7906,7 +8190,7 @@
           </div>
 
           <!-- ===== GRAPH MODE: force-directed relationship graph ===== -->
-          <div v-else-if="viewMode === 'graph'" class="pg-stage">
+          <div v-else-if="viewMode === 'graph'" key="pg-graph" class="pg-stage">
             <div class="pg-ctl pg-search">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
               <input v-model="pgQuery" :placeholder="lang === 'zh' ? '搜索联系人…' : 'Search…'" autocomplete="off" />
@@ -7960,7 +8244,7 @@
           </div>
 
           <!-- People Map view (viewMode === 'map') — Leaflet over OSM/CARTO tiles -->
-          <div v-else-if="viewMode === 'map'" class="pg-stage pmap-stage">
+          <div v-else-if="viewMode === 'map'" key="pg-map" class="pg-stage pmap-stage">
             <div ref="pmapEl" class="pmap-canvas"></div>
             <div v-if="pmapNoLoc.length" class="pmap-noloc">{{ lang === 'zh' ? '未填位置' : 'No location' }} ({{ pmapNoLoc.length }})：{{ pmapNoLoc.join('、') }}</div>
           </div>
@@ -8930,6 +9214,18 @@ const lociApp = createApp({
     // top-right expand button focuses THAT panel full-width (the other hides);
     // clicking again returns to split. taskScheduleFocus = null | 'tasks' | 'schedule'.
     const taskScheduleFocus = ref(null);
+    const showProjectTodos = ref(false);
+    function toggleProjectTodos() {
+      showProjectTodos.value = !showProjectTodos.value;
+    }
+    const projectTodoCount = computed(() => {
+      if (!data.value?.projects?.serious) return 0;
+      let n = 0;
+      for (const p of data.value.projects.serious) {
+        if (Array.isArray(p.todos)) n += p.todos.filter(t => t.status !== 'done' && t.status !== 'archived').length;
+      }
+      return n;
+    });
     const taskScheduleView = computed(() => taskScheduleFocus.value ? 'focus' : 'split');
     // Toggle focus for a given panel: focus it, or if already focused, back to split.
     function focusPanel(panel) {
@@ -9997,7 +10293,7 @@ const lociApp = createApp({
         avatar: DEMO_MODE ? '/assets/people-avatars/cc-01.jpg' : '/assets/loci-logo2.png',
         name: DEMO_MODE ? 'Sam Rivera' : realName,
         nameMeta: DEMO_MODE ? (zh ? '里斯本 · LIS' : 'LISBON') : '',
-        role: DEMO_MODE ? (zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder') : (zh ? '我的大脑档案' : 'My brain profile'),
+        role: DEMO_MODE ? (zh ? '独立开发者 · Loci 创始人' : 'Indie developer · Loci founder') : ((data.value && data.value.config && data.value.config.tagline) || (zh ? '我的大脑档案' : 'My brain profile')),
         meta: !DEMO_MODE ? [] : zh ? [
           { k:'Location', v:'里斯本 · Lisbon' },
           { k:'Language', v:'中文优先' },
@@ -10054,8 +10350,145 @@ const lociApp = createApp({
     });
 
     const memoryEvolutionEntries = computed(() => {
-      return data.value?.me?.evolution_entries || [];
+      // The file appends chronologically; the page promises "newest first".
+      const list = (data.value?.me?.evolution_entries || []).slice();
+      return list.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
     });
+
+    // ===== NEW Memory page (.mem2): emerald-glass card + top-right switcher =====
+    const memoryWellbeingContent = computed(() => data.value?.me?.wellbeing?.content || emptyMemoryHtml('me/wellbeing.md'));
+    const memoryInsightsContent = computed(() => data.value?.me?.insights?.content || emptyMemoryHtml('me/insights.md'));
+    const memoryBlock = ref('values');
+    const memProgress = ref(1);
+    const memScroller = ref(null);
+    const M2_ICON = {
+      identity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',
+      values: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 11 14 10 22 20 9 13 9 13 2"/></svg>',
+      wellbeing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 3-10 2 5h4"/></svg>',
+      insights: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>',
+      learned: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>',
+      evolution: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 8.5v7"/><path d="M6 12h6a4 4 0 0 0 4-4"/></svg>',
+    };
+    const memoryBlocks = computed(() => [
+      { key:'identity',  zh:'身份', en:'Identity',  descZh:'谁在使用这套系统 · 背景、当下、工作方式', descEn:'Who runs this system · background, now, workstyle', icon:M2_ICON.identity },
+      { key:'values',    zh:'价值观', en:'Values',   descZh:'稳定的信念与决策原则 · 遇到取舍时的准绳',   descEn:'Stable beliefs & decision principles',            icon:M2_ICON.values },
+      { key:'wellbeing', zh:'状态', en:'Wellbeing', descZh:'身体、睡眠、精力、心理、自信 · 状态先于效率', descEn:'Body, sleep, energy, mind · state before output',  icon:M2_ICON.wellbeing },
+      { key:'insights',  zh:'洞察', en:'Insights',  descZh:'今天想通了什么、被什么触动 · 正在形成的理解', descEn:'What clicked today · understanding forming',       icon:M2_ICON.insights },
+      { key:'learned',   zh:'经验', en:'Learned',   descZh:'可复用的教训与实践 · 指导未来的行动',        descEn:'Reusable lessons & practices',                    icon:M2_ICON.learned },
+      { key:'evolution', zh:'成长', en:'Evolution', descZh:'身份与价值观的迁移史 · 回顾时才翻开 · 最新在上', descEn:'How identity & values shifted · newest first',   icon:M2_ICON.evolution },
+    ]);
+    const memoryCurrent = computed(() => memoryBlocks.value.find(b => b.key === memoryBlock.value) || memoryBlocks.value[0]);
+    const memoryInitials = computed(() => {
+      let n = (memoryProfile.value.name || '').replace(/[（(].*$/, '').trim();
+      if (!n) return '·';
+      if (/[一-鿿]/.test(n)) { const cj = n.match(/[一-鿿]/g); return cj.slice(0, 2).join(''); }
+      const p = n.split(/\s+/).filter(Boolean);
+      if (p.length >= 2) return (p[0][0] + p[1][0]).toUpperCase();
+      return n.slice(0, 2).toUpperCase();
+    });
+    // Peak bar of the activity spark — highlight the real max (dynamic, from brainSpark).
+    const memSparkPeak = computed(() => {
+      const sp = brainSpark.value || [];
+      const mx = Math.max(0, ...sp), mn = Math.min(100, ...sp);
+      return mx > mn ? mx : -1;
+    });
+    // Drop the document's own leading <h1> — the panel header already names it.
+    const stripLeadH1 = (html) => String(html || '').replace(/^\s*<h1[^>]*>[\s\S]*?<\/h1>\s*/, '');
+    function syncMemHeight() {
+      const rail = document.querySelector('.mem2 .m2-rail');
+      const host = document.querySelector('.mem2 .m2-host');
+      const dossier = document.querySelector('.mem2 .m2-dossier');
+      if (!rail || !host || !dossier) return;
+      if (window.innerWidth <= 900) { rail.style.height = ''; host.style.height = ''; return; }
+      // Fill the viewport from the dossier's top down — but never squash the
+      // card below its natural content height (measured with height cleared).
+      rail.style.height = '';
+      const natural = rail.offsetHeight;
+      const top = dossier.getBoundingClientRect().top;
+      const H = Math.max(Math.round(window.innerHeight - top - 24), 460, natural);
+      rail.style.height = H + 'px';
+      host.style.height = H + 'px';
+    }
+    function recalcMemProgress() {
+      const el = memScroller.value;
+      if (!el) { memProgress.value = 1; return; }
+      const max = el.scrollHeight - el.clientHeight;
+      memProgress.value = max > 2 ? el.scrollTop / max : 1;
+    }
+    const onMemScroll = (e) => {
+      const el = e.target;
+      const max = el.scrollHeight - el.clientHeight;
+      memProgress.value = max > 2 ? el.scrollTop / max : 1;
+    };
+    const setMemoryBlock = (k) => {
+      memoryBlock.value = k;
+      nextTick(() => {
+        if (memScroller.value) memScroller.value.scrollTop = 0;
+        syncMemHeight();
+        recalcMemProgress();
+      });
+    };
+    watch(() => currentPage.value, (p) => {
+      if (p === 'memory') nextTick(() => { syncMemHeight(); recalcMemProgress(); });
+    });
+    // Content arrives async — re-measure once the data payload lands/refreshes.
+    watch(() => data.value, () => {
+      if (currentPage.value === 'memory') nextTick(() => { syncMemHeight(); recalcMemProgress(); });
+    });
+    onMounted(() => {
+      window.addEventListener('resize', () => { syncMemHeight(); recalcMemProgress(); });
+      nextTick(syncMemHeight);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(() => { syncMemHeight(); recalcMemProgress(); }, 30));
+    });
+
+    // ── editable profile (avatar / name / tagline) on the identity card ──
+    const meAvatar = computed(() => (data.value && data.value.config && data.value.config.avatar) || '');
+    const profileEditing = ref(false);
+    const profileSaving = ref(false);
+    const profileDraft = reactive({ name: '', tagline: '' });
+    const meAvatarInput = ref(null);
+    function startProfileEdit() {
+      profileDraft.name = (data.value && data.value.config && data.value.config.username) || '';
+      profileDraft.tagline = (data.value && data.value.config && data.value.config.tagline) || '';
+      profileEditing.value = true;
+      nextTick(syncMemHeight);
+    }
+    function cancelProfileEdit() { profileEditing.value = false; nextTick(syncMemHeight); }
+    async function reloadBrainData() {
+      try { const rd = await fetch('/api/data'); if (rd.ok) data.value = await rd.json(); } catch { /* keep old data */ }
+    }
+    async function saveProfileEdit() {
+      const name = (profileDraft.name || '').trim();
+      if (profileSaving.value || !name) return;
+      profileSaving.value = true;
+      try {
+        const r = await demoFetch('/api/profile/update', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, tagline: (profileDraft.tagline || '').trim() }),
+        });
+        if (r.ok) { await reloadBrainData(); profileEditing.value = false; }
+      } catch { /* leave the editor open so nothing is lost */ }
+      profileSaving.value = false;
+      nextTick(syncMemHeight);
+    }
+    function pickMeAvatar() { if (meAvatarInput.value) meAvatarInput.value.click(); }
+    function onMeAvatarChosen(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      if (file.size > 3 * 1024 * 1024) { alert(lang.value === 'zh' ? '图片太大（最大 3MB）' : 'Image too large (max 3MB)'); return; }
+      const fr = new FileReader();
+      fr.onload = async () => {
+        try {
+          const r = await demoFetch('/api/profile/avatar', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: fr.result }),
+          });
+          if (r.ok) await reloadBrainData();
+        } catch { /* ignore */ }
+      };
+      fr.readAsDataURL(file);
+    }
 
     // Parse plan.md HTML content into structured data for the template
     function parsePlanHtml(html) {
@@ -14985,9 +15418,9 @@ const lociApp = createApp({
       const prev = t.status;
       t.status = t.status === 'done' ? 'todo' : 'done';   // optimistic done ↔ open
       try {
-        const res = await demoFetch('/api/project-todos/toggle', {
+        const res = await demoFetch('/api/project-todos/update', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo: lp.repo, id: todo.id })
+          body: JSON.stringify({ repo: lp.repo, id: todo.id, status: t.status })
         });
         if (!res.ok) throw new Error('toggle failed: ' + res.status);
       } catch (e) {
@@ -15187,6 +15620,12 @@ const lociApp = createApp({
       const raw = col.gist || (col.content ? String(col.content).replace(/<[^>]+>/g, ' ') : '');
       return raw.replace(/\s+/g, ' ').trim().slice(0, 160);
     }
+    function fragDetailFullHtml(col) {
+      if (!col || !col.content) return '';
+      const html = String(col.content).trim();
+      const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      return text ? html : '';
+    }
     // capture-bar link tab: reuse the collection add (url doubles as title if no title)
     function fragCapSaveLink() {
       const v = (newCollectionUrl.value || '').trim();
@@ -15203,19 +15642,33 @@ const lociApp = createApp({
 
     // Clean demo build: fragments writes stay purely local on data.value — /clean
     // uses self-contained mock data and must NEVER hit the real inbox.md / references.
-    function addFragmentNote() {
+    async function addFragmentNote() {
       const text = newFragmentNote.value.trim();
       if (!text) return;
       if (!data.value.inbox) data.value.inbox = { content: '', meta: {}, items: [] };
       if (!Array.isArray(data.value.inbox.items)) data.value.inbox.items = [];
       const today = new Date().toISOString().slice(0, 10);
-      data.value.inbox.items.unshift({ text, created: today });   // optimistic
+      const localNote = { text, created: today };
+      data.value.inbox.items.unshift(localNote);   // optimistic
       newFragmentNote.value = '';
-      // persist to inbox.md
-      demoFetch('/api/inbox/add', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      }).catch(() => {});
+      try {
+        const res = await demoFetch('/api/inbox/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        if (!res.ok) throw new Error('inbox add failed: ' + res.status);
+        await fragReloadData();
+        showFragToast(lang.value === 'zh' ? '已保存' : 'Saved');
+      } catch (e) {
+        const items = data.value && data.value.inbox && data.value.inbox.items;
+        if (Array.isArray(items)) {
+          const i = items.indexOf(localNote);
+          if (i !== -1) items.splice(i, 1);
+        }
+        newFragmentNote.value = text;
+        showFragToast(lang.value === 'zh' ? '保存失败' : 'Save failed');
+        console.error('Failed to save fragment note:', e);
+      }
     }
 
     function dismissFragment(idx) {
@@ -15233,7 +15686,7 @@ const lociApp = createApp({
       }).catch(() => { /* view already updated; a failed write just reappears on reload */ });
     }
 
-    function addFragmentCollection() {
+    async function addFragmentCollection() {
       // Two fields now: a title and an optional link. Title is required; if only a
       // link is given, fall back to its host as the title. Normalize a bare host to
       // https://. Type stays the default '文章'.
@@ -15256,17 +15709,31 @@ const lociApp = createApp({
       const today = new Date().toISOString().slice(0, 10);
       // optimistic entry so it shows instantly; then persist and re-pull /api/data so
       // the entry carries the REAL server-assigned filename (needed for later archive).
-      refs.files.unshift({ name: '', file: '', filename: '', meta: { title, url, date: today, type: '文章', tags }, content: '', path: '' });
+      const localRef = { name: '', file: '', filename: '', meta: { title, url, date: today, type: '文章', tags }, content: '', path: '' };
+      refs.files.unshift(localRef);
       refs.total = refs.files.length;
       newCollectionTitle.value = '';
       newCollectionUrl.value = '';
       fgTagList.value = [];
       fgTagDraft.value = '';
       fgSaveOpen.value = false;   // collapse back to the "+ new save" button
-      demoFetch('/api/references/add', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, url, type: '文章', tags })
-      }).then(() => fragReloadData()).catch(() => {});
+      try {
+        const res = await demoFetch('/api/references/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, url, type: '文章', tags })
+        });
+        if (!res.ok) throw new Error('reference add failed: ' + res.status);
+        await fragReloadData();
+        showFragToast(lang.value === 'zh' ? '已保存' : 'Saved');
+      } catch (e) {
+        refs.files = refs.files.filter(f => f !== localRef);
+        refs.total = refs.files.length;
+        newCollectionTitle.value = title;
+        newCollectionUrl.value = rawUrl;
+        fgTagList.value = tags.slice();
+        showFragToast(lang.value === 'zh' ? '保存失败' : 'Save failed');
+        console.error('Failed to save fragment collection:', e);
+      }
     }
     // Re-pull /api/data so the fragments view reflects what's actually on disk
     // (avoids optimistic-entry drift for saves that get server-assigned filenames).
@@ -15849,6 +16316,7 @@ const lociApp = createApp({
       if (m === 'graph') nextTick(() => pgStart());
       else pgStop();
       if (m === 'map') nextTick(() => pmapStart());
+      else pmapStop();
     }
 
     // ── People Map view (Leaflet + OSM/CARTO tiles; free Nominatim geocoding) ──
@@ -15889,11 +16357,16 @@ const lociApp = createApp({
         return out;
       } catch { return null; }   // offline → no pin, page still works
     }
+    // Leaving the map view destroys its container. Tear the Leaflet instance
+    // down here (mirrors pgStop for the graph) so re-entry always builds a fresh
+    // map on the new node instead of staying bound to a dead one → blank map.
+    function pmapStop() {
+      if (pmapMap) { pmapMap.remove(); pmapMap = null; pmapMarkers = []; }
+    }
     async function pmapStart() {
       if (typeof L === 'undefined' || !pmapEl.value) return;
-      // View toggles destroy & recreate the map container. If our instance is
-      // still bound to the old (removed) node, tear it down so it rebinds to the
-      // fresh one — otherwise the new container stays blank.
+      // Defense in depth: if a stale instance survived (bound to a removed node),
+      // rebuild it on the current container.
       if (pmapMap && pmapMap.getContainer() !== pmapEl.value) {
         pmapMap.remove(); pmapMap = null; pmapMarkers = [];
       }
@@ -15904,6 +16377,9 @@ const lociApp = createApp({
         }).addTo(pmapMap);
       }
       pmapMap.invalidateSize();
+      // The freshly-mounted container can report 0×0 for a frame; recompute once
+      // more after paint so CARTO tiles fill the pane instead of rendering blank.
+      requestAnimationFrame(() => { if (pmapMap) pmapMap.invalidateSize(); });
       pmapMarkers.forEach(mk => mk.remove()); pmapMarkers = [];
       const zh = lang.value === 'zh';
       const withLoc = (peopleData.value || []).filter(p => (p.location || '').trim());
@@ -16656,6 +17132,30 @@ const lociApp = createApp({
       return ''; // personal / default → emerald
     }
 
+    function projectForTaskTodo(task) {
+      if (!task || !task._projectTodo) return null;
+      const serious = (data.value && data.value.projects && data.value.projects.serious) || [];
+      return serious.find(p => (task._projectRepo && p.repo === task._projectRepo) || p.name === task.project || p.name === task._projectName) || null;
+    }
+
+    function liveProjectTodo(task) {
+      const project = projectForTaskTodo(task);
+      if (!project || !Array.isArray(project.todos)) return { project: null, todo: null, index: -1 };
+      const index = project.todos.findIndex(t => t.id === task.id);
+      return { project, todo: index >= 0 ? project.todos[index] : null, index };
+    }
+    function openProjectTodoDetail(project, todo) {
+      if (!project || !todo) return;
+      Object.assign(todo, {
+        _projectTodo: true,
+        _projectRepo: project.repo,
+        _projectStatus: todo.status,
+        _projectName: project.name,
+        project: project.name,
+      });
+      openTaskDetail(todo);
+    }
+
     // Build a human meta line for a task row (Clean theme).
     // Days a task's date is in the past (positive = overdue), or null if no date / not past.
     function taskOverdueDays(task) {
@@ -16686,6 +17186,30 @@ const lociApp = createApp({
 
     // Toggle any task — Clean demo build keeps it purely local (no server write).
     async function toggleMissionTask(task) {
+      if (task._projectTodo) {
+        const { project, todo } = liveProjectTodo(task);
+        if (!project || !project.repo || !todo) return;
+        const prevStatus = todo.status;
+        todo.status = 'done';
+        task.done = true;
+        task.status = 'done';
+        task.completedAt = new Date().toISOString();
+        try {
+          const res = await demoFetch('/api/project-todos/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repo: project.repo, id: task.id, status: 'done' })
+          });
+          if (!res.ok) throw new Error('project todo done failed: ' + res.status);
+        } catch (e) {
+          todo.status = prevStatus;
+          task.done = false;
+          task.status = 'open';
+          task.completedAt = null;
+          console.error('Failed to complete project todo:', e);
+        }
+        return;
+      }
       const newDone = !task.done;
       const prevCompletedAt = task.completedAt;
       // optimistic UI update — stamp completedAt locally so the just-checked task
@@ -16749,16 +17273,65 @@ const lociApp = createApp({
       const d = new Date(task.date + 'T00:00:00');
       return zh ? `${d.getMonth() + 1}月${d.getDate()}日` : `${d.getMonth() + 1}/${d.getDate()}`;
     }
+    function taskTimePill(task) {
+      const start = task?.startTime || task?.start || task?.time || '';
+      const end = task?.endTime || task?.end || '';
+      if (!start) return '';
+      return end && end !== start ? `${start}-${end}` : start;
+    }
 
     const allTaskPoolTasks = computed(() => {
       const at = data.value?.tasks?.active_tasks || {};
-      return Object.entries(at).flatMap(([source, tasks]) => {
+      const tasks = Object.entries(at).flatMap(([source, tasks]) => {
         if (!Array.isArray(tasks)) return [];
         return tasks.map(task => {
           task._sourcePriority = taskPriority(task);
           return task;
         });
       });
+      // Append project todos when the toggle is on
+      if (showProjectTodos.value && data.value?.projects?.serious) {
+        const todayKey = dateToKey(new Date());
+        for (const p of data.value.projects.serious) {
+          if (!Array.isArray(p.todos)) continue;
+          for (const pt of p.todos) {
+            if (pt.status === 'done' || pt.status === 'archived') continue;
+            // skip if already in the pool by id
+            if (tasks.some(t => t.id === pt.id && t.project === p.name)) continue;
+            tasks.push({
+              id: pt.id,
+              title: pt.title || pt.text,
+              text: pt.text || pt.title,
+              done: false,
+              status: 'open',
+              date: pt.date || null,
+              endDate: pt.endDate || null,
+              startTime: pt.startTime || null,
+              endTime: pt.endTime || null,
+              urgency: pt.urgency || 0,
+              importance: pt.importance || 0,
+              plannedFor: pt.status === 'doing' ? todayKey : (pt.plannedFor || null),
+              deferToday: pt.status !== 'doing',
+              location: pt.location || null,
+              color: pt.color || null,
+              note: pt.note || null,
+              project: p.name,
+              owner: pt.owner || null,
+              category: pt.category || null,
+              source: pt.source || 'project',
+              createdAt: pt.createdAt || null,
+              updatedAt: pt.updatedAt || null,
+              completedAt: pt.completedAt || pt.doneAt || null,
+              _sourcePriority: taskPriority({ ...pt, plannedFor: pt.status === 'doing' ? todayKey : (pt.plannedFor || null) }),
+              _projectTodo: true,
+              _projectRepo: p.repo,
+              _projectStatus: pt.status,
+              _projectName: p.name,
+            });
+          }
+        }
+      }
+      return tasks;
     });
 
     // Task pool groups — three buckets that map to action, not bookkeeping:
@@ -16776,7 +17349,7 @@ const lociApp = createApp({
       // deadline in `date` is untouched — plannedFor is a per-day intention).
       // in today = due today, picked for today, OR has a time block on today's
       // schedule (pulling a task onto today's calendar is the strongest signal)
-      const inToday = t => taskIntersectsDate(t, todayKey) || t.plannedFor === todayKey;
+      const inToday = t => !t.deferToday && (taskIntersectsDate(t, todayKey) || t.plannedFor === todayKey);
       const today = open.filter(t => !taskOverdueDays(t) && inToday(t));
       const backlog = open.filter(t => !taskOverdueDays(t) && !inToday(t));
       return [
@@ -16793,31 +17366,56 @@ const lociApp = createApp({
     const todayDropHover = ref(false);
     const backlogDropHover = ref(false);
     async function setTaskPlannedFor(task, value) {
+      if (task && task._projectTodo) {
+        const { project, todo } = liveProjectTodo(task);
+        if (!project || !project.repo || !todo) return;
+        const prev = todo.status;
+        const prevDefer = task.deferToday === true;
+        const next = value ? 'doing' : 'todo';
+        todo.status = next;
+        task._projectStatus = next;
+        task.plannedFor = value || null;
+        task.deferToday = !value;
+        try {
+          const res = await demoFetch('/api/project-todos/update', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repo: project.repo, id: task.id, status: next })
+          });
+          if (!res.ok) throw new Error('project todo status failed: ' + res.status);
+        } catch (e) {
+          todo.status = prev;
+          task._projectStatus = prev;
+          task.plannedFor = prev === 'doing' ? dateToKey(new Date()) : null;
+          task.deferToday = prevDefer;
+          console.error('Failed to update project todo status:', e);
+        }
+        return;
+      }
       const prev = task.plannedFor || null;
-      if (prev === value) return;
+      const prevDefer = task.deferToday === true;
+      if (prev === value && task.deferToday === !value) return;
       task.plannedFor = value;   // optimistic
+      task.deferToday = !value;
       try {
         const res = await fetch('/api/tasks/update-detail', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: task.id, plannedFor: value }),
+          body: JSON.stringify({ id: task.id, plannedFor: value, deferToday: !value }),
         });
         if (!res.ok) throw new Error('update failed ' + res.status);
       } catch (e) {
         task.plannedFor = prev;
+        task.deferToday = prevDefer;
         console.error('Failed to update plannedFor:', e);
       }
     }
     async function moveTaskToToday(task) {
       if (!task || task.done) return;
       const todayKey = dateToKey(new Date());
-      if (task.date && taskIntersectsDate(task, todayKey)) return;   // already due today
       await setTaskPlannedFor(task, todayKey);
     }
     async function unplanTask(task) {
       if (!task || task.done) return;
-      const todayKey = dateToKey(new Date());
-      if (task.date && taskIntersectsDate(task, todayKey)) return;   // due today → belongs in today
-      if (task.plannedFor) await setTaskPlannedFor(task, null);
+      await setTaskPlannedFor(task, null);
     }
     function todayGroupDragOver(event) {
       if (!reorderState.task) return;
@@ -16856,7 +17454,7 @@ const lociApp = createApp({
         done: tasks.filter(t => t.done).length,
         scheduled: tasks.filter(t => taskHasCalendarTime(t)).length,
         today: tasks.filter(t => !t.done && !taskOverdueDays(t) &&
-          (taskIntersectsDate(t, dateToKey(new Date())) || t.plannedFor === dateToKey(new Date()))).length,
+          (!t.deferToday && (taskIntersectsDate(t, dateToKey(new Date())) || t.plannedFor === dateToKey(new Date())))).length,
         overdue: tasks.filter(t => taskOverdueDays(t)).length,
       };
     });
@@ -16865,7 +17463,7 @@ const lociApp = createApp({
     const todayProgress = computed(() => {
       const tasks = allTaskPoolTasks.value;
       const todayKey = dateToKey(new Date());
-      const openToday = tasks.filter(t => !t.done && taskIntersectsDate(t, todayKey)).length;
+      const openToday = tasks.filter(t => !t.done && !t.deferToday && (taskIntersectsDate(t, todayKey) || t.plannedFor === todayKey)).length;
       const doneToday = tasks.filter(t => t.done && t.date === todayKey).length;
       const total = openToday + doneToday;
       return { done: doneToday, total, pct: total ? Math.round(doneToday / total * 100) : 0 };
@@ -17464,6 +18062,7 @@ const lociApp = createApp({
       reorderState.overKey = null;
       reorderState.overPos = null;
       todayDropHover.value = false;   // always kill the today-group drop highlight
+      backlogDropHover.value = false;
     }
 
     // ===== delete a completed task (two-tap confirm) =====
@@ -17480,6 +18079,24 @@ const lociApp = createApp({
     }
 
     async function deleteTaskConfirmed(task) {
+      if (task._projectTodo) {
+        const { project, index } = liveProjectTodo(task);
+        if (!project || !project.repo || index < 0) return;
+        const removed = project.todos[index];
+        project.todos.splice(index, 1);
+        try {
+          const res = await demoFetch('/api/project-todos/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repo: project.repo, id: task.id })
+          });
+          if (!res.ok) throw new Error('project todo remove failed: ' + res.status);
+        } catch (e) {
+          project.todos.splice(index, 0, removed);
+          console.error('Failed to remove project todo:', e);
+        }
+        return;
+      }
       if (confirmDeleteTimer) { clearTimeout(confirmDeleteTimer); confirmDeleteTimer = null; }
       confirmDeleteId.value = null;
       const rawText = String(task.text || task.title || '').replace(/<[^>]*>/g, '').trim();
@@ -17985,7 +18602,7 @@ const lociApp = createApp({
 
     // ===== task detail modal (centered popup, opened by the hover ✎ icon) =====
     const detailTask = ref(null);     // the task object currently open in the modal
-    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null });
+    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '' });
 
     const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
     function openTaskDetail(task) {
@@ -17998,6 +18615,7 @@ const lociApp = createApp({
       editDetail.color = task.color || null;
       editDetail.note = task.note || '';
       editDetail.priority = levelsToPriority(task);
+      editDetail.category = task.category || '';
     }
     // The add-row's 详情 button opens the SAME modal in create mode, prefilled
     // with whatever was typed in the quick-add input.
@@ -18011,6 +18629,7 @@ const lociApp = createApp({
       editDetail.color = null;
       editDetail.note = '';
       editDetail.priority = null;
+      editDetail.category = '';
     }
     function closeTaskDetail() { detailTask.value = null; detailMode.value = 'edit'; }
 
@@ -18057,8 +18676,9 @@ const lociApp = createApp({
       // title: keep the old one if the field was cleared (never blank a task)
       const newText = editDetail.text.trim() || task.text;
       // optimistic update on the live task object
-      const prev = { text: task.text, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance };
+      const prev = { text: task.text, title: task.title, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance, category: task.category };
       task.text = newText;
+      task.title = newText;
       task.date = newDate;
       task.startTime = newTime;
       task.location = editDetail.location || null;
@@ -18066,8 +18686,34 @@ const lociApp = createApp({
       task.note = editDetail.note || null;
       task.urgency = levels.urgency;
       task.importance = levels.importance;
+      task.category = task._projectTodo ? (editDetail.category.trim() || 'Backlog') : (editDetail.category.trim() || null);
       closeTaskDetail();
       try {
+        // Project todo: save via the project-todos API
+        if (task._projectTodo) {
+          const lp = projectForTaskTodo(task);
+          if (lp && lp.repo) {
+            const live = (lp.todos || []).find(t => t.id === task.id);
+            if (live) Object.assign(live, {
+              title: newText, text: newText, date: newDate, startTime: newTime,
+              location: task.location, color: task.color, note: task.note,
+              urgency: levels.urgency, importance: levels.importance,
+              category: task.category,
+            });
+            const res = await demoFetch('/api/project-todos/update', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                repo: lp.repo, id: task.id, text: newText,
+                date: newDate, startTime: newTime,
+                urgency: levels.urgency, importance: levels.importance,
+                location: task.location, color: task.color, note: task.note,
+                category: task.category,
+              })
+            });
+            if (!res.ok) throw new Error('project-todo update failed: ' + res.status);
+          }
+          return;
+        }
         const res = await demoFetch('/api/tasks/update-detail', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: task.id, title: newText, date: newDate, startTime: newTime, location: task.location, color: task.color, note: task.note, urgency: levels.urgency, importance: levels.importance })
@@ -19245,6 +19891,11 @@ const lociApp = createApp({
       memoryValuesContent, memoryValuesStats,
       memoryLearnedContent, memoryLearnedStats,
       memoryLearningLog, memoryEvolutionEntries,
+      memoryWellbeingContent, memoryInsightsContent,
+      memoryBlock, memoryBlocks, memoryCurrent, memoryInitials,
+      memProgress, memScroller, onMemScroll, setMemoryBlock,
+      recalcMemProgress, stripLeadH1, meAvatar, memSparkPeak, profileEditing, profileSaving, profileDraft, meAvatarInput,
+      startProfileEdit, cancelProfileEdit, saveProfileEdit, pickMeAvatar, onMeAvatarChosen, reloadBrainData,
       calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
       notifyEnabled, notifyLead, notifyPermission, notifyMenuOpen, notifyLeadOptions, toggleNotify, setNotifyLead,
       greeting, currentHour, dayHours,
@@ -19269,7 +19920,8 @@ const lociApp = createApp({
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
       taskPoolGroups, taskPoolStats, todayProgress, taskHasCalendarTime, taskIntersectsDate, getAllDayItemsForDay,
-      doneOpen, taskImpClass, taskDatePill, todayDropHover, todayGroupDragOver, todayGroupDrop,
+      showProjectTodos, toggleProjectTodos, projectTodoCount,
+      doneOpen, taskImpClass, taskDatePill, taskTimePill, todayDropHover, todayGroupDragOver, todayGroupDrop,
       backlogDropHover, backlogGroupDragOver, backlogGroupDrop,
       dayScheduledHours, dayProgressPct, weekTotalEvents, weekActiveDays, monthEventDays, monthTotalEvents, calendarScrollHeight,
       showAddTask, showTaskTime, newTaskText, addNewTask, onTimeInput, scrollToPicked,
@@ -19278,6 +19930,7 @@ const lociApp = createApp({
       roadmapNewText, roadmapProjects,
       roadmapTodosByStatus, roadmapDoneCount, roadmapToggle, roadmapMoveTo,
       roadmapAdd, roadmapRemove, roadmapDragStart, roadmapDrop,
+      openProjectTodoDetail,
       roadmapDossierOpen, roadmapToggleDossier,
       roadmapFocusName, roadmapFocusProject, rmArcDash, rmTagClass, rmSparkBars, rmDossierCells,
       rmProjColor, rmProjInitial, rmProjPct,
@@ -19313,7 +19966,7 @@ const lociApp = createApp({
       fgSaveOpen, fgOpenSave, fgCloseSave, fgTitleInput,
       fgTagList, fgTagDraft, fgUrlInput, fgAddTag, fgRemoveTag, fgTagKeydown, fgFocusUrl,
       addFragmentNote, dismissFragment, addFragmentCollection, archiveCollection,
-      fragCapTab, fragSelectedCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
+      fragCapTab, fragSelectedCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragDetailFullHtml, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
       peopleData, selectedPerson, detailMoreOpen, detailMapOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,

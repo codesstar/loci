@@ -349,6 +349,9 @@ function normalizeTask(task) {
     importance: clampLevel(task.importance),
     // "do it TODAY" pick — independent of the deadline in `date`
     plannedFor: task.plannedFor || null,
+    // Manual override for the task-page Today bucket: deadline/date stays intact,
+    // but the user can push it back to Backlog for today's execution plan.
+    deferToday: task.deferToday === true,
     source: task.source || 'conversation',
     createdAt: task.createdAt || now,
     updatedAt: task.updatedAt || task.createdAt || now,
@@ -540,6 +543,8 @@ function buildTasks() {
     project: task.project,
     urgency: task.urgency || 0,
     importance: task.importance || 0,
+    plannedFor: task.plannedFor || null,
+    deferToday: task.deferToday === true,
     manualOrder: task.manualOrder,
     location: task.location || null,
     color: task.color || null,
@@ -1386,17 +1391,37 @@ function readProjectTodos(repoPath) {
     if (!Array.isArray(todos)) return [];
     return todos
       .filter(t => t && (t.text || t.title))
-      .map(t => ({
-        id: t.id || null,
-        text: String(t.text || t.title || '').trim(),
-        status: ['todo', 'doing', 'done'].includes(t.status) ? t.status : 'todo',
-        category: (t.category && String(t.category).trim()) || 'Backlog',
-        order: Number.isFinite(t.order) ? t.order : 0,
-        // optional assignee ("owner") — used by the projects page to show who a
-        // todo belongs to and to aggregate the team-load panel. Absent = unassigned.
-        owner: (t.owner && String(t.owner).trim()) || null,
-        updatedAt: t.updatedAt || null,
-      }))
+      .map(t => {
+        const title = String(t.title || t.text || '').trim();
+        const status = ['todo', 'doing', 'done'].includes(t.status) ? t.status : (t.done ? 'done' : 'todo');
+        return {
+          id: t.id || null,
+          title,
+          text: title,
+          done: status === 'done',
+          status,
+          date: t.date || null,
+          endDate: t.endDate || null,
+          startTime: t.startTime || t.start || t.time || null,
+          endTime: t.endTime || t.end || null,
+          project: t.project || null,
+          urgency: clampLevel(t.urgency),
+          importance: clampLevel(t.importance),
+          plannedFor: t.plannedFor || null,
+          category: (t.category && String(t.category).trim()) || 'Backlog',
+          order: Number.isFinite(t.order) ? t.order : 0,
+          owner: (t.owner && String(t.owner).trim()) || null,
+          location: t.location || null,
+          color: t.color || null,
+          note: t.note || null,
+          source: t.source || 'project',
+          createdAt: t.createdAt || null,
+          updatedAt: t.updatedAt || null,
+          completedAt: t.completedAt || t.doneAt || null,
+          doneAt: t.doneAt || t.completedAt || null,
+          archivedAt: t.archivedAt || null,
+        };
+      })
       .sort((a, b) => a.order - b.order);
   } catch {
     return [];
@@ -2294,8 +2319,31 @@ function readUsername() {
   return CONFIG.username;
 }
 
+// The tagline (pill under the name on the Memory page) lives next to it.
+function readTagline() {
+  try {
+    const identity = fs.readFileSync(path.join(LOCI_ROOT, 'me', 'identity.md'), 'utf-8');
+    const m = identity.match(/\*\*(?:Tagline|简介|签名)\*\*[:：]\s*(.+)/);
+    if (m && m[1].trim()) return m[1].trim();
+  } catch { /* no tagline yet */ }
+  return '';
+}
+
+// The user's own avatar, uploaded from the Memory page → me/avatar.<ext>.
+// Returns its web path (mtime-busted) or '' when none has been uploaded.
+function meAvatarUrl() {
+  for (const ext of ['png', 'jpg', 'webp', 'gif']) {
+    const p = path.join(LOCI_ROOT, 'me', 'avatar.' + ext);
+    try {
+      const st = fs.statSync(p);
+      return '/me-avatar-user/avatar.' + ext + '?v=' + Math.floor(st.mtimeMs);
+    } catch { /* try next ext */ }
+  }
+  return '';
+}
+
 function buildAllData() {
-  const data = { config: { ...CONFIG, username: readUsername() } };
+  const data = { config: { ...CONFIG, username: readUsername(), tagline: readTagline(), avatar: meAvatarUrl() } };
 
   const sections = [
     ['plan', buildPlan],
@@ -2363,25 +2411,59 @@ function projTodoScript() {
 }
 
 function handleProjectTodo(action, body) {
-  const { repo, id, text, category, status, order } = body;
+  const { repo, id, text, title, category, status, order, date, endDate, startTime, endTime,
+          urgency, importance, plannedFor, owner, location, color, note, source, project } = body;
   if (!repo) return { error: 'Missing repo path' };
   const script = projTodoScript();
   if (!script) return { error: 'loci-projtodo.js not found in this brain' };
 
   const { execFileSync } = require('child_process');
   const args = [script, action, '--repo', repo];
+  const pushOpt = (name, value) => {
+    if (value === undefined) return;
+    if (value == null || value === '') args.push(`--${name}=`);
+    else args.push(`--${name}`, String(value));
+  };
   if (action === 'add') {
-    if (!text || !String(text).trim()) return { error: 'Missing todo text' };
-    args.push('--text', String(text).trim());
-    if (category) args.push('--category', String(category));
-    if (status) args.push('--status', String(status));
+    const taskText = String(text || title || '').trim();
+    if (!taskText) return { error: 'Missing todo text' };
+    args.push('--text', taskText);
+    pushOpt('category', category);
+    pushOpt('status', status);
+    pushOpt('date', date);
+    pushOpt('endDate', endDate);
+    pushOpt('startTime', startTime);
+    pushOpt('endTime', endTime);
+    pushOpt('urgency', urgency);
+    pushOpt('importance', importance);
+    pushOpt('plannedFor', plannedFor);
+    pushOpt('owner', owner);
+    pushOpt('location', location);
+    pushOpt('color', color);
+    pushOpt('note', note);
+    pushOpt('source', source);
+    pushOpt('project', project);
   } else {
     if (!id) return { error: 'Missing todo id' };
     args.push('--id', String(id));
     if (action === 'update') {
-      if (text != null) args.push('--text', String(text));
-      if (category != null) args.push('--category', String(category));
-      if (status != null) args.push('--status', String(status));
+      pushOpt('text', text);
+      pushOpt('title', title);
+      pushOpt('category', category);
+      pushOpt('status', status);
+      pushOpt('date', date);
+      pushOpt('endDate', endDate);
+      pushOpt('startTime', startTime);
+      pushOpt('endTime', endTime);
+      pushOpt('urgency', urgency);
+      pushOpt('importance', importance);
+      pushOpt('plannedFor', plannedFor);
+      pushOpt('owner', owner);
+      pushOpt('location', location);
+      pushOpt('color', color);
+      pushOpt('note', note);
+      pushOpt('source', source);
+      pushOpt('project', project);
     }
     if (action === 'move') {
       if (order == null) return { error: 'Missing order' };
@@ -2650,6 +2732,67 @@ function handleAvatarUpload(body) {
   } catch (e) { return { error: 'Could not save image' }; }
 }
 
+// Update the user's own profile: the Name / Tagline lines in me/identity.md.
+// Only those two lines are touched — the rest of the file stays as written.
+function handleProfileUpdate(body) {
+  const clean = (v, max) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim().slice(0, max);
+  const name = clean(body && body.name, 60);
+  const hasTagline = !!(body && Object.prototype.hasOwnProperty.call(body, 'tagline'));
+  const tagline = clean(body && body.tagline, 80);
+  if (!name && !hasTagline) return { error: 'Nothing to update' };
+  const file = path.join(LOCI_ROOT, 'me', 'identity.md');
+  let text;
+  try { text = fs.readFileSync(file, 'utf-8'); }
+  catch { text = '---\ntags: [identity]\n---\n\n# Who I Am\n'; }
+  // Replace the value on an existing "**Label**: …" line, or insert one after
+  // the first heading when the file has no such line yet.
+  const setLine = (src, labels, value, insertLabel) => {
+    const re = new RegExp('((?:[-*]\\s*)?\\*\\*(?:' + labels + ')\\*\\*[:：]\\s*)(.*)');
+    if (re.test(src)) return src.replace(re, (mm, head) => head + value);
+    const line = '- **' + insertLabel + '**: ' + value;
+    const h = src.match(/^#{1,2}\s+.*$/m);
+    if (h) {
+      const i = src.indexOf(h[0]) + h[0].length;
+      return src.slice(0, i) + '\n\n' + line + src.slice(i);
+    }
+    return src + '\n' + line + '\n';
+  };
+  if (name) text = setLine(text, 'Name|名字|姓名', name, 'Name');
+  if (hasTagline) {
+    if (tagline) {
+      // CJK taglines get a Chinese label so the identity doc reads naturally.
+      const label = /[\u4e00-\u9fff]/.test(tagline) ? '简介' : 'Tagline';
+      text = setLine(text, 'Tagline|简介|签名', tagline, label);
+    } else {
+      // Empty tagline = remove the line entirely (never leave a bare label).
+      text = text.replace(/^[ \t]*(?:[-*][ \t]*)?\*\*(?:Tagline|简介|签名)\*\*[:：][^\n]*\n?/m, '');
+    }
+  }
+  try { fs.writeFileSync(file, text); }
+  catch (e) { return { error: 'Could not write identity.md' }; }
+  return { ok: true, username: readUsername(), tagline: readTagline() };
+}
+
+// Save the user's own avatar (base64 data URL) → me/avatar.<ext>. Any previous
+// avatar with a different extension is removed so exactly one file exists.
+function handleMeAvatarUpload(body) {
+  const dataUrl = body && body.data ? String(body.data) : '';
+  const m = dataUrl.match(/^data:image\/(png|jpe?g|webp|gif);base64,(.+)$/i);
+  if (!m) return { error: 'Unsupported image data' };
+  const ext = m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase();
+  const buf = Buffer.from(m[2], 'base64');
+  if (buf.length > 3 * 1024 * 1024) return { error: 'Image too large (max 3MB)' };
+  const dir = path.join(LOCI_ROOT, 'me');
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    for (const e of ['png', 'jpg', 'webp', 'gif']) {
+      if (e !== ext) { try { fs.unlinkSync(path.join(dir, 'avatar.' + e)); } catch { /* absent */ } }
+    }
+    fs.writeFileSync(path.join(dir, 'avatar.' + ext), buf);
+    return { ok: true, avatar: meAvatarUrl() };
+  } catch (e) { return { error: 'Could not save image' }; }
+}
+
 // Build a YAML frontmatter + body markdown string from a person object.
 function personToMd(p) {
   const lines = ['---'];
@@ -2780,7 +2923,7 @@ function handleTaskAdd(body) {
 // importance / date / time). Only provided fields are changed; the rest stay.
 function handleTaskUpdateDetail(body) {
   const { id, title, location, color, note, urgency, importance,
-          date, endDate, startTime, endTime, plannedFor } = body;
+          date, endDate, startTime, endTime, plannedFor, deferToday } = body;
   if (!id) return { error: 'Missing task id' };
   const tasks = loadTaskRecords();
   const target = tasks.find(t => t.id === id);
@@ -2798,6 +2941,7 @@ function handleTaskUpdateDetail(body) {
   if (startTime !== undefined) target.startTime = startTime || null;
   if (endTime !== undefined)   target.endTime   = endTime || null;
   if (plannedFor !== undefined) target.plannedFor = plannedFor || null;
+  if (deferToday !== undefined) target.deferToday = deferToday === true;
   target.updatedAt = isoNow();
   saveTaskRecords(tasks);
   return { ok: true, task: target };
@@ -2908,11 +3052,12 @@ function handleInboxAdd(body) {
     content = '---\nupdated:\n---\n\n# Inbox\n\n## Unprocessed\n';
   }
 
-  // Find ## Unprocessed section and append after it
+  // Find the active capture section and append after it. Older brains used
+  // "Unprocessed"; the current Chinese template uses "未处理".
   const lines = content.split('\n');
   let insertIdx = -1;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(/^##\s+Unprocessed/i)) {
+    if (lines[i].match(/^##\s+(Unprocessed|未处理)\s*$/i)) {
       // Skip any comment lines and empty lines right after header
       let j = i + 1;
       while (j < lines.length) {
@@ -2940,7 +3085,13 @@ function handleInboxAdd(body) {
     lines.splice(insertIdx, 0, `- ${text}`);
   }
 
-  // Update the frontmatter 'updated' field
+  const today = new Date().toISOString().slice(0, 10);
+  for (let i = 0; i < Math.min(lines.length, 20); i++) {
+    if (/^updated\s*:/.test(lines[i])) {
+      lines[i] = `updated: ${today}`;
+      break;
+    }
+  }
   const finalContent = lines.join('\n');
   fs.writeFileSync(filePath, finalContent, 'utf-8');
   return { ok: true, text };
@@ -3365,6 +3516,28 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleAvatarUpload(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Update the user's own profile (Name / Tagline lines in me/identity.md).
+  if (pathname === '/api/profile/update' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProfileUpdate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Upload the user's own avatar (base64) → me/avatar.<ext>.
+  if (pathname === '/api/profile/avatar' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleMeAvatarUpload(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) { sendError(res, e.message, 500); }
@@ -3824,6 +3997,16 @@ const server = http.createServer(async (req, res) => {
     const fname = path.basename(decodeURIComponent(pathname.slice('/people-avatars-user/'.length)));
     const avPath = path.join(LOCI_ROOT, 'people', 'avatars', fname);
     if (path.resolve(avPath).startsWith(path.resolve(path.join(LOCI_ROOT, 'people', 'avatars'))) && fs.existsSync(avPath)) {
+      serveStaticFile(res, avPath);
+    } else { sendError(res, 'Not found', 404); }
+    return;
+  }
+
+  // Serve the user's own avatar from me/ (outside SCRIPT_DIR).
+  if (pathname.startsWith('/me-avatar-user/')) {
+    const fname = path.basename(decodeURIComponent(pathname.slice('/me-avatar-user/'.length)));
+    const avPath = path.join(LOCI_ROOT, 'me', fname);
+    if (/^avatar\.(png|jpg|webp|gif)$/.test(fname) && fs.existsSync(avPath)) {
       serveStaticFile(res, avPath);
     } else { sendError(res, 'Not found', 404); }
     return;
