@@ -125,8 +125,10 @@ my-brain/
 ├── me/                    Everything about you.
 │   ├── identity.md        Basics: name, job, city, current season
 │   ├── values.md          What matters to you (created when relevant)
-│   ├── learned.md         Lessons and insights (grows over time)
-│   └── evolution.md       Old versions of identity/values (growth log)
+│   ├── wellbeing.md       Body, mind, energy, sleep, confidence
+│   ├── insights.md        Fresh personal reflections
+│   ├── learned.md         Reusable lessons and practices
+│   └── evolution.md       Old versions of identity/values/wellbeing (growth log)
 │
 ├── tasks/                 Your work.
 │   ├── tasks.json         Canonical task database

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- **`me/` personal-memory layer restructured** into six explicit files — `identity`, `values`, `wellbeing` (new), `insights` (repurposed for fresh personal reflections rather than only consolidation output), `learned`, and `evolution`. Goals now live in root `plan.md` instead of `me/goals.md`. Docs, templates, the dashboard, `examples/alex`, and both installers were updated to the new model.
+
 ## [1.1.0] — 2026-07-06
 
 Release-readiness overhaul: a fresh install now starts truly blank, and the repo ships only what users need.

@@ -81,22 +81,24 @@ Rendered HTML from `plan.md`. Used in the Plan page.
 
 ### me
 
-Personal identity, values, learning, and growth history.
+Personal identity, values, wellbeing, insights, learning, and growth history.
 
 ```json
 {
   "identity": { "meta": {}, "content": "...", "filename": "identity.md", "path": "me/identity.md" },
-  "goals": { "meta": {}, "content": "...", "filename": "goals.md", "path": "me/goals.md" },
   "values": { "meta": {}, "content": "...", "filename": "values.md", "path": "me/values.md" },
+  "wellbeing": { "meta": {}, "content": "...", "filename": "wellbeing.md", "path": "me/wellbeing.md" },
+  "insights": { "meta": {}, "content": "...", "filename": "insights.md", "path": "me/insights.md" },
   "learned": { "meta": {}, "content": "...", "filename": "learned.md", "path": "me/learned.md" },
   "evolution": { "meta": {}, "content": "...", "filename": "evolution.md", "path": "me/evolution.md" },
+  "goals": { "meta": {}, "content": "", "retired": true, "replacement": "plan.md" },
   "evolution_entries": [
     { "date": "2026-01-15", "type": "Identity shift", "content": "<p>...</p>" }
   ]
 }
 ```
 
-Each sub-field (identity, goals, values, learned, evolution) follows the standard file object format:
+Each sub-field (identity, values, wellbeing, insights, learned, evolution) follows the standard file object format. `goals` is retired — an empty tombstone with `retired: true` and `replacement: "plan.md"` (goals now live in root `plan.md`):
 
 | Field | Type | Description |
 |-------|------|-------------|

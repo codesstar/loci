@@ -240,16 +240,18 @@ Notes 默认属于 L2。AI 不在启动时自动加载全部笔记，只在用�
 | 文件 | 作用 |
 |---|---|
 | `me/identity.md` | 用户是谁、角色、当前阶段 |
-| `me/values.md` | 稳定价值观和偏好 |
-| `me/learned.md` | 踩过的坑、经验、可复用教训 |
-| `me/goals.md` | 更细的目标拆解 |
-| `me/insights.md` | 周期性整合出的洞察 |
-| `me/evolution.md` | 身份、价值观、目标变化的历史轨迹 |
+| `me/values.md` | 稳定价值观和决策原则 |
+| `me/wellbeing.md` | 身体、心理、精力、睡眠、自信和状态管理 |
+| `me/insights.md` | 今天思考、发现、想通的新鲜个人洞察 |
+| `me/learned.md` | 踩过的坑、经验、可复用行动方法 |
+| `me/evolution.md` | 身份、价值观、身心状态和行为变化的历史轨迹 |
 
 原则:
 
 - 当前文件保持精简，适合按需读取。
+- 新鲜洞察不要太快升成价值观，先放 `insights.md` 观察。
 - 变化历史追加到 `evolution.md`。
+- 当前目标在根目录 `plan.md`，不再放 `me/goals.md`。
 - 稳定事实可以自动保存。
 - 情绪、敏感信息、重大人生方向变化需要先确认。
 
@@ -389,6 +391,7 @@ Activity ledger 是审计层，用来回答:
 | “调研一下 Mem0 / 市场情况” | 研究证据 | `references/research/` | evidence markdown |
 | “这是我自己的笔记” | 用户笔记 | `notes/index.md` 或 `notes/<slug>.md` | 指针或短笔记 |
 | “我喜欢回答短一点” | 偏好 | `me/values.md` 或 `me/identity.md` | Markdown 更新 |
+| “今天想通了：人脉是价值之后的体现” | 个人洞察 | `me/insights.md` | 背景 + 洞察 + 影响 |
 | “我学到不要每次都手改 JSON” | 经验 | `me/learned.md` | Markdown 追加 |
 | “这个人是投资人，下次叫他 X” | 人脉 | `people/<name>.md` | Markdown 创建/更新 |
 | “我们决定先支持 Claude Code 和 Codex” | 跨项目决策 | `decisions/` + L1 上浮检查 | decision 模板 |

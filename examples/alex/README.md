@@ -7,14 +7,15 @@ Browse these files to see how a personal AI memory grows from a blank slate into
 ## What's Here
 
 ### `plan.md` — The North Star
-Alex's life direction: build developer tools, launch CloudMetrics, learn in public. Everything else in the brain traces back to this file. Notice how the goals have concrete key results and honest progress tracking — not aspirational fluff.
+Alex's life direction: build developer tools, launch CloudMetrics, learn in public. Everything else in the brain traces back to this file. Notice how the goals have concrete key results and honest progress tracking — not aspirational fluff — plus the explicit anti-goals ("not raising VC", "not chasing followers"), which matter as much as the goals.
 
 ### `me/` — Identity, Values, and Growth
 - **`identity.md`** — Started sparse in December (just name and job title). By March it reflects a real shift: "developer who writes code for clients" became "developer who builds products." The file grew as Alex's self-concept evolved.
 - **`values.md`** — Five principles that actually guide decisions (you'll see "Ship > Perfect" echoed in the tech stack decision).
-- **`learned.md`** — Hard-won insights collected over 3 months. The pricing lessons directly connect to the rate raise decision. The "I overthink when I'm anxious" pattern is the kind of self-knowledge that makes AI assistants genuinely helpful.
+- **`wellbeing.md`** — How Alex actually runs: mornings for deep work, sleep treated as a work input, and the "I overthink when I'm anxious" pattern that surfaces before every launch.
+- **`insights.md`** — Fresh reflections in the moment (background · insight · why it matters · impact · status). Some harden into values or lessons; some expire. This is where a realization lands before it's promoted.
+- **`learned.md`** — Hard-won insights collected over 3 months. The pricing lessons directly connect to the rate raise decision.
 - **`evolution.md`** — A timeline of identity shifts. This is the most interesting file — it shows Alex going from "developer-for-hire" to "builder," and from undercharging out of insecurity to raising rates with confidence.
-- **`goals.md`** — Long-term vision plus explicit anti-goals ("not raising VC", "not chasing followers"). The anti-goals are just as important as the goals.
 
 ### `tasks/` — What's Happening Now
 - **`active.md`** — Current task board with priority levels. Some tasks are checked off, others are waiting. A living document, not a to-do graveyard.

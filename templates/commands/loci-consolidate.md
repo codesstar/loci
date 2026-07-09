@@ -29,15 +29,23 @@ Consolidate recent memories: review distilled knowledge from the past N days, fi
    - **Time allocation** — estimate time distribution across projects from `.loci/activity/<current month>.md` and `tasks/calendar.json`. Flag mismatches with stated goals.
    - **Stale tasks** — scan `tasks/tasks.json` for completed tasks older than 7 days or open tasks untouched for 30+ days. Suggest archiving completed ones and reviewing stale ones.
 
-4. **Generate insight entry** — Write to `me/insights.md`:
+4. **Generate insight entry** — Write to `me/insights.md` as a personal reflection, not as a permanent value:
    ```markdown
-   ## YYYY-MM-DD Consolidation
+   ## YYYY-MM-DD
 
-   - [pattern] 观察到的模式描述
-   - [momentum] 势头信号
-   - [tension] 矛盾或需要注意的点
+   ### Short title
+
+   **背景**：What recent evidence produced this thought.
+
+   **洞察**：The compressed insight.
+
+   **为什么重要**：Why this matters for the user.
+
+   **暂定影响**：How it may affect future choices or behavior.
+
+   **状态**：observing
    ```
-   If an insight reflects identity/value evolution, also append to `me/evolution.md`.
+   If an insight has become durable, promote it to `me/values.md` or `me/learned.md`. If it reflects identity/value/behavior evolution, update the current file first and append old/new/reason to `me/evolution.md`.
 
 5. **Update checkpoint**: Write today's date to `.loci/last-consolidation.txt`
 

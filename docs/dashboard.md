@@ -63,7 +63,7 @@ The dashboard server builds its data from the local brain at request time:
 | Schedule | `tasks/calendar.json` |
 | Active task cache | `tasks/active.md` |
 | Journal | `tasks/journal/` |
-| Memory | `me/identity.md`, `me/values.md`, `me/learned.md`, `me/evolution.md`, `plan.md` |
+| Memory | `me/identity.md`, `me/values.md`, `me/wellbeing.md`, `me/insights.md`, `me/learned.md`, `me/evolution.md`, `plan.md` |
 | People | `people/` |
 | Projects | `projects/index.md` and each project repo's `.loci/memory.md` |
 | Project todos | Each project repo's `.loci/todo.json` |
@@ -96,7 +96,7 @@ Journal is the narrative layer: what happened today, what was learned, what was 
 
 ### Memory
 
-Renders identity, values, learned lessons, current direction, and growth history from the `me/` files and `plan.md`.
+Renders identity, values, wellbeing, insights, learned lessons, current direction, and growth history from the `me/` files and `plan.md`.
 
 ### People
 

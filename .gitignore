@@ -38,3 +38,51 @@ tasks/daily/
 
 # Internal dev/test artifacts — not for the public repo
 docs/reports/
+
+# ─── Release-repo hygiene (maintainer working copy) ───────────────────────
+# This clean release repo shares a working directory with dev/design scratch and,
+# during dashboard development, real personal content. None of it belongs in the
+# public repo. These rules make an accidental `git add -A` safe.
+
+# Browser-automation captures & local scratch
+.playwright-mcp/
+.impeccable.md
+.codex/
+
+# Root-level working files (no images / scratch HTML ship from the repo root)
+/*.jpeg
+/*.jpg
+/*.png
+/*.html
+
+# Dashboard: only index.html ships — everything else here is design scratch
+.loci/dashboard/*.html
+!.loci/dashboard/index.html
+.loci/dashboard/assets/*.html
+.loci/dashboard/loci-seahorse*.png
+.loci/dashboard/loci-logo-line.png
+.loci/dashboard/demo-assets/
+.loci/dashboard/assets/previews/
+.loci/dashboard/assets/avatar-*.jpg
+.loci/dashboard/assets/illus-*.jpg
+.loci/dashboard/assets/journal-cover-*.jpg
+.loci/dashboard/assets/person-*.png
+.loci/dashboard/assets/seahorse-*
+.loci/dashboard/assets/ref-*.jpg
+
+# Scratch HTML mirrors of docs (only .md docs ship)
+docs/*.html
+
+# This repo's own Loci project-memory (aggregated in the brain, not shipped)
+.loci/memory.md
+.loci/profile.md
+.loci/progress/
+.loci/decisions/
+.loci/knowledge/
+
+# Personal working content — belongs in your private brain, not the release
+notes/*
+!notes/README.md
+tasks/journal/*.md
+!tasks/journal/README.md
+!tasks/journal/buffer.md

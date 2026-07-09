@@ -125,8 +125,10 @@ my-brain/
 ├── me/                    关于你的一切。
 │   ├── identity.md        基本信息：名字、职业、城市、当前阶段
 │   ├── values.md          你看重什么（聊到相关话题时创建）
-│   ├── learned.md         踩过的坑、总结的经验（持续增长）
-│   └── evolution.md       identity/values 的旧版本（成长档案）
+│   ├── wellbeing.md       身体、心理、精力、睡眠、自信
+│   ├── insights.md        新鲜的个人洞察
+│   ├── learned.md         可复用的经验和方法（持续增长）
+│   └── evolution.md       identity/values/wellbeing 的旧版本（成长档案）
 │
 ├── tasks/                 你的事儿。
 │   ├── tasks.json         所有真实任务

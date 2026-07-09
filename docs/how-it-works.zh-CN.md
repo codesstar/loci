@@ -28,8 +28,9 @@ my-brain/
 ├── me/                ← 关于你
 │   ├── identity.md    ← 基本信息（名字、职业、城市）
 │   ├── values.md      ← 你的价值观
-│   ├── learned.md     ← 踩过的坑、总结的经验
-│   ├── goals.md       ← 详细的目标拆解
+│   ├── wellbeing.md   ← 身体、心理、精力、睡眠、自信
+│   ├── insights.md    ← 新鲜个人洞察
+│   ├── learned.md     ← 可复用经验和方法
 │   └── evolution.md   ← 成长时间线（旧版本追加到这里）
 │
 ├── tasks/             ← 任务 + 规划（合在一起）
@@ -89,7 +90,9 @@ my-brain/
    没有 → 啥都不干
    有   → 分类 + 路由:
          ├── 个人事实（"我搬到柏林了"）             → me/identity.md
-         ├── 新认知（"周五千万别部署"）               → me/learned.md
+         ├── 新鲜洞察（"人脉是价值之后的体现"）       → me/insights.md
+         ├── 可复用经验（"周五千万别部署"）           → me/learned.md
+         ├── 身心状态（"睡好才有自信和产出"）         → me/wellbeing.md
          ├── 你个人的决策（"以后一次只做一个项目"）    → decisions/2026-03-10-xxx.md + L1 上浮检查
          ├── 项目决策（"数据库用 PostgreSQL"）        → 那个项目 repo 的 .loci/decisions/ + 项目记忆检查
          ├── 新任务（"API 文档得更新一下"）           → 守卫写入器 → tasks/tasks.json
@@ -108,9 +111,9 @@ my-brain/
 
 ### 成长追踪
 
-价值观发生变化时，Loci 不是覆盖旧的——而是做演进：
-1. 当前文件（比如 values.md）更新成最新版
-2. 旧版本追加到 `evolution.md`
+身份、价值观、身心状态或稳定行为发生变化时，Loci 不是覆盖旧的——而是做演进：
+1. 当前文件（比如 values.md 或 wellbeing.md）更新成最新版
+2. 旧/新/原因追加到 `evolution.md`
 
 效果：当前文件始终精简（L1 快速加载），evolution.md 是你的个人成长时间线（L3，想回顾的时候再翻）。
 
@@ -121,6 +124,7 @@ my-brain/
 
 **Loci 存下来的：**
 - `decisions/2026-03-10-pivot-to-b2b.md`：转 B2B，定价 $49/月，利用企业服务经验
+- `me/insights.md`（追加）：发现早上的注意力会影响一天的主体感
 - `me/learned.md`（追加）：早上别先刷推特——会打碎专注力
 - `tasks/tasks.json`（走守卫写入器）：更新落地页为 B2B 定位
 

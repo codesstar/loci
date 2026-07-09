@@ -28,8 +28,9 @@ my-brain/
 ├── me/                ← Who you are
 │   ├── identity.md    ← Basics (name, job, city)
 │   ├── values.md      ← What you believe in
-│   ├── learned.md     ← Lessons you've picked up
-│   ├── goals.md       ← Detailed goal breakdown
+│   ├── wellbeing.md   ← Body, mind, energy, sleep, confidence
+│   ├── insights.md    ← Fresh personal reflections
+│   ├── learned.md     ← Reusable lessons and practices
 │   └── evolution.md   ← Growth timeline (old versions append here)
 │
 ├── tasks/             ← Tasks + planning (merged)
@@ -89,7 +90,9 @@ You say something
    No  → do nothing
    Yes → classify + route:
          ├── Personal fact ("I moved to Berlin")       → me/identity.md
-         ├── New insight ("never deploy on Fridays")   → me/learned.md
+         ├── Fresh reflection ("relationships follow value") → me/insights.md
+         ├── Reusable lesson ("never deploy on Fridays") → me/learned.md
+         ├── Wellbeing/state ("sleep drives confidence") → me/wellbeing.md
          ├── Your decision ("one project at a time")   → decisions/2026-03-10-xxx.md + L1 promotion check
          ├── Project decision ("going with PostgreSQL") → that repo's .loci/decisions/ + project memory check
          ├── New task ("need to update API docs")      → guarded writer → tasks/tasks.json
@@ -108,9 +111,9 @@ Decision records are choices and rationale. Research is evidence; it lives in `r
 
 ### Growth Tracking
 
-When values change, Loci doesn't overwrite — it evolves:
-1. Current file (e.g. values.md) updates to the latest state
-2. Old version appends to `evolution.md`
+When identity, values, wellbeing, or durable behavior changes, Loci doesn't overwrite — it evolves:
+1. Current file (e.g. values.md or wellbeing.md) updates to the latest state
+2. Old/new/reason appends to `evolution.md`
 
 Result: current files stay lean (fast L1 loading). evolution.md is your personal growth timeline (L3, read it when you want to reflect).
 
@@ -121,6 +124,7 @@ Result: current files stay lean (fast L1 loading). evolution.md is your personal
 
 **What Loci stores:**
 - `decisions/2026-03-10-pivot-to-b2b.md`: Pivot to B2B, price $49/mo, leverages enterprise experience
+- `me/insights.md` (appended): Noticed that morning attention shapes the whole day's sense of agency
 - `me/learned.md` (appended): Don't check Twitter first thing — it fragments focus
 - `tasks/tasks.json` (via the guarded writer): Update landing page for B2B positioning
 

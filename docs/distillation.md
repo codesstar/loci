@@ -18,8 +18,11 @@ At the end of a conversation (or when triggered), the AI:
 | Information Type | Destination | Example |
 |-----------------|------------|---------|
 | Personal facts | `me/identity.md` | "I just moved to Berlin" |
-| New values/principles | `me/values.md` | "I realized quality > speed" |
+| Stable values/principles | `me/values.md` | "Quality matters more than speed" |
+| Wellbeing/state principles | `me/wellbeing.md` | "Sleep is the foundation for confidence and output" |
+| Fresh personal reflections | `me/insights.md` | "I realized valuable relationships come after creating value" |
 | Lessons learned | `me/learned.md` | "Never deploy on Fridays" |
+| Personal evolution | `me/evolution.md` | "Old: audience first → New: product first" |
 | Decisions (yours, cross-project) | `decisions/YYYY-MM-DD-slug.md` | "One project at a time from now on" |
 | Project decisions | That repo's `.loci/decisions/` | "Chose React over Vue" |
 | Project restart context | That repo's `.loci/memory.md` | "MVP shipped, next up: billing" |
@@ -28,13 +31,13 @@ At the end of a conversation (or when triggered), the AI:
 | New tasks | Guarded task writer → `tasks/tasks.json` | "Need to update the API docs" |
 | Schedule items (occupied time) | Guarded task writer → `tasks/calendar.json` | "Meeting at 3pm" |
 | External material | `references/YYYY-MM-DD-slug.md` | "Save this pricing article" |
-| Insights/patterns | `me/insights.md` | "User prefers dark mode themes" |
 | Unprocessed thoughts | `inbox.md` | "Maybe I should learn Rust" |
 
 Two routing rules worth calling out:
 
 - **Tasks are never written by hand.** `tasks/tasks.json` is the single source of truth, written through the guarded writer (`node scripts/loci-task.js add ...` or the Dashboard API). `tasks/active.md` is just a generated read-only view. Tasks and schedule are kept separate — a timed task stays in the task pool and is not mirrored onto the calendar.
 - **Project memory stays in the project.** A serious project's decisions and state are distilled into that repo's own `.loci/` — the brain keeps only a one-line index in `projects/index.md`. Loci aggregates memory; it does not own it.
+- **Personal insights start in `me/insights.md`.** Do not promote a fresh realization directly into `values.md`. Keep brief context, the insight, why it matters, tentative impact, and status. Promote later only if it becomes durable.
 
 ## Distillation Levels
 
@@ -67,6 +70,9 @@ User: Let's go with that. Also, I realized I need to stop checking Twitter first
 **me/learned.md** (appended):
 > Don't check Twitter first thing in the morning — it fragments focus.
 
+**me/insights.md** (appended):
+> I noticed I use morning attention as identity fuel; when it gets fragmented, the whole day feels less mine.
+
 **tasks/tasks.json** (via the guarded writer):
 > `node scripts/loci-task.js add --title "Update landing page messaging for B2B positioning"`
 
@@ -74,7 +80,7 @@ Three places updated. Zero raw transcript saved. Everything searchable and in co
 
 ## Growth Tracking
 
-When identity or values change, Loci doesn't just overwrite — it evolves:
+When identity, values, wellbeing, or durable behavior changes, Loci doesn't just overwrite — it evolves:
 
 1. Current file (e.g., `values.md`) is updated to the new state
 2. The old version is appended to `me/evolution.md` with a timestamp

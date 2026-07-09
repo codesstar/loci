@@ -23,7 +23,15 @@ Steps:
    a. Review the current conversation for new information worth storing
    b. Apply Distillation settings (verbose/balanced/minimal) to compress
    c. If `--dry-run`: list what would be stored, then stop
-   d. Write distilled info to the appropriate brain files (decisions → `decisions/`, tasks → guarded task writer, insights → `me/learned.md`, etc.)
+   d. Write distilled info to the appropriate brain files:
+      - tasks → guarded task writer
+      - decisions → `decisions/`
+      - fresh personal reflections → `me/insights.md`
+      - stable values/principles → `me/values.md`
+      - reusable lessons/practices → `me/learned.md`
+      - wellbeing/state changes → `me/wellbeing.md`
+      - actual identity/value/behavior evolution → update the current file and append old/new/reason to `me/evolution.md`
+      - external material → `references/`
 
 4. **Index update** (skip if `--local`):
    a. If the stored item is a project-level `[insight]` or `[milestone]`, update the relevant one-line entry in `projects/index.md`

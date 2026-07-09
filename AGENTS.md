@@ -126,7 +126,7 @@ L1 working memory is for rules, indexes, current action summaries, and genuinely
 
 Never save raw transcripts. Distill to structured files:
 - Personal info → `me/` · Decisions → `decisions/` · Tasks → guarded task writer (`tasks/tasks.json` as source of truth)
-- Insights → auto-memory · External content → `references/`
+- Personal reflections / insights → `me/insights.md` · External content → `references/`
 - Research material is evidence, not a decision. Competitive research, raw docs, study guides, market scans, and case studies go to `references/research/` (or the relevant project repo), then a separate decision record may cite them.
 
 **⚠️ Fragments routing** — two distinct buckets, auto-save + one-line confirm:
@@ -138,6 +138,15 @@ Never save raw transcripts. Distill to structured files:
   - **Read (on demand only)**: when the user asks "我关于 X 写过啥笔记 / 我那篇 …笔记 / what did I note about Y" → read `notes/index.md`, match by title/tag, then open the local file (or hand back the external link). Never auto-load notes into context — like references, it's L2.
 - If it's **actionable with a timeframe** → it's a task, not a fragment (see rule #9).
 - If it's a **conclusion or principle** → it's a decision or insight, not a fragment.
+
+**⚠️ Personal memory routing** — keep `me/` readable and dashboard-friendly:
+- **Identity** (`me/identity.md`) → stable facts about who the user is, communication preferences, personality, durable self-description.
+- **Values** (`me/values.md`) → stable values and decision principles. Do not promote a fresh thought here too quickly.
+- **Wellbeing** (`me/wellbeing.md`) → body health, mental health, sleep, energy, confidence, and state-management principles.
+- **Insights** (`me/insights.md`) → fresh personal reflections: what the user thought, noticed, realized, or felt was important today. Include brief background + insight + why it matters + tentative impact + status (`observing`, `promoted-to-values`, `promoted-to-learned`, `expired`).
+- **Learned** (`me/learned.md`) → reusable lessons, mistakes, and practices that should guide future action.
+- **Evolution** (`me/evolution.md`) → append-only history when identity, values, wellbeing, or learned behavior materially changes. Update the current file first, then append old/new/reason here.
+- Goals live in root `plan.md`, not `me/goals.md`. Serious project details live in each repo's `.loci/`, not `me/projects.md`.
 
 **⚠️ Project / People routing** — where project memory and people go:
 - **Serious project** → its OWN repo: `.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/` decision stream. The brain keeps only a one-line index entry in `projects/index.md`. Loci aggregates, it does not own (see rule #10).
@@ -156,7 +165,7 @@ Never save raw transcripts. Distill to structured files:
 
 **Levels**: Factual info → auto-save + one-line confirm. Subjective/strategic → ask before writing.
 
-**Growth tracking**: Update current file + append old version to `me/evolution.md`. Current stays lean, history grows.
+**Growth tracking**: Update the current `me/` file + append old/new/reason to `me/evolution.md`. Current stays lean, history grows.
 
 **Source citations**: When distilling, annotate the source with timestamp: `<!-- source: conversation @2026-03-11T14:32 -->`. This makes all knowledge traceable and temporally precise.
 

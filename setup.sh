@@ -945,8 +945,9 @@ STEOF
       "filename": "identity.md",
       "path": "me/identity.md"
     },
-    "goals": { "meta": { "created": "${today_date}", "tags": ["goals"], "status": "template" }, "content": "<h1>Long-term Goals</h1>", "filename": "goals.md", "path": "me/goals.md" },
     "values": { "meta": { "created": "${today_date}", "tags": ["values"], "status": "template" }, "content": "<h1>Values &amp; Principles</h1>", "filename": "values.md", "path": "me/values.md" },
+    "wellbeing": { "meta": { "created": "${today_date}", "tags": ["wellbeing"], "status": "template" }, "content": "<h1>Wellbeing</h1>", "filename": "wellbeing.md", "path": "me/wellbeing.md" },
+    "insights": { "meta": { "created": "${today_date}", "tags": ["insights"], "status": "template" }, "content": "<h1>Insights</h1>", "filename": "insights.md", "path": "me/insights.md" },
     "learned": { "meta": { "created": "${today_date}", "tags": ["learning"], "status": "template" }, "content": "<h1>What I've Learned</h1>", "filename": "learned.md", "path": "me/learned.md" },
     "evolution": { "meta": { "created": "${today_date}", "tags": ["evolution"] }, "content": "<h1>Evolution Timeline</h1>", "filename": "evolution.md", "path": "me/evolution.md" },
     "evolution_entries": []
@@ -988,7 +989,7 @@ STEOF
   "links": [],
   "references": { "files": [], "total": 0 },
   "network": { "nodes": [], "memories": 0, "connections": 0, "days_active": 0 },
-  "stats": { "total_files": 5, "total_tasks": 1, "done_tasks": 0, "total_people": 0, "total_decisions": 0, "total_daily_plans": 0, "total_monthly_plans": 0, "total_quarterly_plans": 0 },
+  "stats": { "total_files": 6, "total_tasks": 1, "done_tasks": 0, "total_people": 0, "total_decisions": 0, "total_daily_plans": 0, "total_monthly_plans": 0, "total_quarterly_plans": 0 },
   "build_time": "${today_date} $(date '+%H:%M:%S')"
 }
 DJEOF
@@ -1085,7 +1086,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
 - Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
-- Personal info → \`${BRAIN_PATH}/me/\`
+- Personal memory → \`${BRAIN_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
 - Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
@@ -1198,7 +1199,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 - Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
 - Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
 - Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
-- Personal info → \`${BRAIN_PATH}/me/\`
+- Personal memory → \`${BRAIN_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
 - Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 - **Dashboard**: if \`server.js\` is running (\`node ${BRAIN_PATH}/.loci/dashboard/server.js\`), use its API. Otherwise use \`node ${BRAIN_PATH}/scripts/loci-task.js ...\` for task/schedule writes.

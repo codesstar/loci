@@ -271,6 +271,33 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 Full spec → `templates/commands/loci-consolidate.md`
 
+## Personal Memory Routing
+
+`me/` is the user's current personal profile, not a warehouse. Keep it small enough for a dashboard and precise enough for future agents.
+
+| File | Purpose | When to write |
+|------|---------|---------------|
+| `me/identity.md` | Stable self-description, communication preferences, personality | "I am...", "I prefer...", durable identity facts |
+| `me/values.md` | Stable values and decision principles | A principle has become durable and should guide decisions |
+| `me/wellbeing.md` | Body, mental health, energy, sleep, confidence, state | Health/state patterns that affect life or work |
+| `me/insights.md` | Fresh personal reflections | "I realized...", "I thought about...", "this moved me..." |
+| `me/learned.md` | Reusable lessons and practices | "Next time I should...", mistakes, durable methods |
+| `me/evolution.md` | Append-only personal change history | Identity, values, wellbeing, or behavior materially changed |
+
+`me/insights.md` entries should keep a little context:
+
+```markdown
+### Short title
+
+**背景**：What triggered the thought.
+**洞察**：The compressed realization.
+**为什么重要**：Why it matters.
+**暂定影响**：How it may affect future behavior.
+**状态**：observing | promoted-to-values | promoted-to-learned | expired
+```
+
+Do not promote a fresh reflection directly into `values.md`. Let it sit in `insights.md` first unless the user clearly says it is now a durable principle. Goals live in root `plan.md`; serious project details live in each repo's `.loci/`.
+
 ## Source Citations
 
 When distilling information into brain files, annotate the source with an HTML comment including timestamp:

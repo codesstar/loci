@@ -26,6 +26,7 @@ NEVER_TOUCH=(
   "inbox.md"
   "me/identity.md"
   "me/values.md"
+  "me/wellbeing.md"
   "me/learned.md"
   "me/goals.md"
   "me/evolution.md"

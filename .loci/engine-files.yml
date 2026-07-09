@@ -41,7 +41,7 @@ managed:
 
 # User data (NEVER touched by upgrades):
 # - plan.md, inbox.md
-# - me/identity.md, me/learned.md, me/values.md, me/evolution.md, me/goals.md, me/insights.md
+# - me/identity.md, me/values.md, me/wellbeing.md, me/insights.md, me/learned.md, me/evolution.md (me/goals.md kept for legacy brains)
 # - projects/index.md, projects/side.md, projects/* (all project memory)
 # - tasks/tasks.json, tasks/active.md, tasks/daily/*, tasks/calendar.json
 # - decisions/*.md (except README.md)

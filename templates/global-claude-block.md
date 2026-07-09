@@ -30,7 +30,7 @@ When the user's request mentions a topic, project, person, decision, material, o
 - Open task cache → `<brain-path>/tasks/active.md`; full task database → `<brain-path>/tasks/tasks.json`
 - Day notes/reviews → `<brain-path>/tasks/daily/YYYY-MM-DD.md`; scheduled time blocks → `<brain-path>/tasks/calendar.json`
 - Durable decisions and rationale → `<brain-path>/decisions/`
-- Identity, preferences, habits → `<brain-path>/me/`
+- Identity, values, wellbeing, lessons, and personal insights → `<brain-path>/me/` (read `me/README.md` first)
 - Serious project index (one line each) → `<brain-path>/projects/index.md`. Full project memory lives in each project's OWN repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/`), NOT in the brain — read the repo for detail. Loci aggregates, it does not own.
 - Project embryos (not serious yet) → `<brain-path>/projects/side.md`
 - People and relationships → `<brain-path>/people/` (one `.md` per contact; relationships BETWEEN contacts are edges in `people/.connections.json` — when the user says "A is B's friend / A introduced B", also add the edge via Dashboard API `POST /api/people/connect {a,b,how}`, or edit the JSON: `[a, b, "how"]`, names matching each person's `name:`)
@@ -54,7 +54,13 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
   - Fallback: run `node <brain-path>/scripts/loci-task.js ...`.
   - Validate with `node <brain-path>/scripts/loci-task.js validate`.
 - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
-- Personal info → `<brain-path>/me/`
+- Personal memory → `<brain-path>/me/`:
+  - `identity.md` for stable self-description and communication preferences
+  - `values.md` for durable values and decision principles
+  - `wellbeing.md` for body, mental health, energy, sleep, confidence, and state
+  - `insights.md` for fresh personal reflections; include background, insight, why it matters, tentative impact, and status
+  - `learned.md` for reusable lessons and practices
+  - `evolution.md` for append-only personal change history
 - Quick thoughts → `<brain-path>/inbox.md`
 - The user's own notes → `<brain-path>/notes/`: an external note (Obsidian/Feishu/Notion) gets ONE line in `notes/index.md` — `- <title> · <link or path> · <gist> · #tags` — never copy the body; a short inline note becomes `notes/<slug>.md` plus its index line. This is the user's writing (vs. references = third-party content).
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.

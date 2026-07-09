@@ -61,7 +61,7 @@ Dashboard server 的真实数据层直接读写本地大脑文件：
 | Schedule | `tasks/calendar.json` |
 | Active task cache | `tasks/active.md` |
 | Journal | `tasks/journal/` |
-| Memory | `me/identity.md`, `me/values.md`, `me/learned.md`, `me/evolution.md`, `plan.md` |
+| Memory | `me/identity.md`, `me/values.md`, `me/wellbeing.md`, `me/insights.md`, `me/learned.md`, `me/evolution.md`, `plan.md` |
 | People | `people/` |
 | Roadmap | 已连接项目的 `.loci/todo.json` |
 | Notes | `notes/index.md` 和 `notes/*.md` |

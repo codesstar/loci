@@ -12,6 +12,15 @@ status: active
 
 Build developer tools that respect engineers' time. Ship fast, write about it, build in public.
 
+## 3-Year Vision (by end of 2028)
+
+- CloudMetrics generating $15K+ MRR and growing — enough to make freelancing optional
+- Small team: me + 1 backend eng + 1 frontend/design (contract or part-time)
+- Known in the dev-tools community as someone who ships quality, opinionated products
+- Ran 2 half-marathons and kept a consistent running habit
+- 80+ blog posts, a modest but engaged developer audience
+- 12 months of runway saved, no debt
+
 ## 2026 Goals
 
 ### Goal 1: Launch CloudMetrics publicly
@@ -40,3 +49,11 @@ Build developer tools that respect engineers' time. Ship fast, write about it, b
 2. Land 3rd freelance client to build runway
 3. Publish 6 blog posts (bi-weekly cadence)
 4. Rust: finish The Rust Book through chapter 12
+
+## Anti-Goals (Things I'm Explicitly NOT Doing)
+
+- Not raising VC money for CloudMetrics — bootstrapping only
+- Not growing a team beyond 2-3 people — stay small and nimble
+- Not chasing follower counts — writing is for learning, audience is a side effect
+- Not doing agency work — staying independent, no partners or co-founders for now
+- Not building another metrics dashboard — CloudMetrics is about alerting and insights, not pretty graphs
