@@ -485,8 +485,9 @@ function buildInbox() {
 function buildMe() {
   const meDir = path.join(LOCI_ROOT, 'me');
   const identity = readMdFileSimple(path.join(meDir, 'identity.md'));
-  const goals = readMdFileSimple(path.join(meDir, 'goals.md'));
   const values = readMdFileSimple(path.join(meDir, 'values.md'));
+  const wellbeing = readMdFileSimple(path.join(meDir, 'wellbeing.md'));
+  const insights = readMdFileSimple(path.join(meDir, 'insights.md'));
   const learned = readMdFileSimple(path.join(meDir, 'learned.md'));
   const evolution = readMdFileSimple(path.join(meDir, 'evolution.md'));
 
@@ -511,8 +512,10 @@ function buildMe() {
 
   return {
     identity: identity || { content: '', meta: {} },
-    goals: goals || { content: '', meta: {} },
+    goals: { content: '', meta: {}, retired: true, replacement: 'plan.md' },
     values: values || { content: '', meta: {} },
+    wellbeing: wellbeing || { content: '', meta: {} },
+    insights: insights || { content: '', meta: {} },
     learned: learned || { content: '', meta: {} },
     evolution: evolution || { content: '', meta: {} },
     evolution_entries: evolutionEntries,
@@ -1835,7 +1838,7 @@ function readActivityDay(dateStr) {
       else if (parts.length === 2) out.push({ time: parts[0], category: '', text: parts[1] });
       else out.push({ time: '', category: '', text: line.slice(2) });
     }
-    return out.sort((a, b) => ((a.time || '99:99') < (b.time || '99:99') ? -1 : 1));
+    return out.sort((a, b) => ((a.time || '99:99') > (b.time || '99:99') ? -1 : 1));
   } catch { return []; }
 }
 
@@ -2062,7 +2065,7 @@ function buildToday(dateStr) {
     }
     if (projectConnectedDay(p.repo) === date) projectsConnected.push({ name: p.name });
   }
-  progress.sort((a, b) => ((a.time || '') < (b.time || '') ? -1 : 1));
+  progress.sort((a, b) => ((a.time || '') > (b.time || '') ? -1 : 1));
 
   const decisions = readDecisionsForDay(path.join(LOCI_ROOT, 'decisions'), date);
   const people = readPeopleForDay(date);

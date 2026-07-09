@@ -4427,6 +4427,28 @@
     .pjDb-sec .v p{ margin:0; }
     .pjDb-sec .v code{ font-size:10.5px; }
 
+    /* story archive — full-width dossier card under "项目档案" filter */
+    .pjArc{ padding:4px 2px; }
+    .pjArc-head{ display:flex; align-items:center; gap:14px; padding:16px 18px;
+      border-radius:16px; background:linear-gradient(135deg,var(--proj),color-mix(in srgb,var(--proj) 78%,#000));
+      color:#fff; margin-bottom:14px; position:relative; overflow:hidden; }
+    .pjArc-head::after{ content:''; position:absolute; top:-40%; right:-10%; width:120px; height:120px;
+      border-radius:50%; background:rgba(255,255,255,.06); }
+    .pjArc-mk{ width:40px; height:40px; border-radius:12px; flex:none; display:grid; place-items:center;
+      font-size:18px; font-weight:800; background:rgba(255,255,255,.18); color:#fff; }
+    .pjArc-name{ font-size:16px; font-weight:750; letter-spacing:-.01em; }
+    .pjArc-day{ font-family:var(--mono); font-size:9px; opacity:.7; margin-top:3px; letter-spacing:.08em; }
+    .pjArc-stats{ display:flex; gap:6px; margin-bottom:16px; }
+    .pjArc-st{ flex:1; text-align:center; padding:10px 0; border-radius:12px;
+      background:var(--surface-2); border:1px solid var(--line); }
+    .pjArc-st .n{ display:block; font-family:var(--mono); font-size:18px; font-weight:700; color:var(--ink); line-height:1.2; }
+    .pjArc-st .l{ display:block; font-size:8.5px; color:var(--ink-3); margin-top:2px; letter-spacing:.05em; }
+    .pjArc-sec{ padding:14px 16px; border-radius:14px; border:1px solid var(--line); background:var(--surface); margin-bottom:10px; }
+    .pjArc-k{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); margin-bottom:5px; }
+    .pjArc-v{ font-size:13px; line-height:1.65; color:var(--ink-2); }
+    .pjArc-v p{ margin:0; }
+    .pjArc-v code{ font-size:11px; }
+
     /* files & knowledge */
     .pjKb-sec{ font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
       color:var(--ink-4); display:flex; align-items:center; gap:7px; margin-top:12px; }
@@ -6864,7 +6886,7 @@
                     </div>
                     <div class="pjTrack">
                       <span class="fill" :style="{ width: pjMsFill(roadmapFocusProject) + '%' }"></span>
-                      <div v-for="(m, i) in roadmapFocusProject.milestones" :key="i"
+                      <div v-for="(m, i) in (roadmapFocusProject.milestones || []).slice(-6)" :key="i"
                         class="pjMs" :class="{ done: m.status === 'done', now: m.status === 'next' }">
                         <i>{{ m.status === 'done' ? '✓' : '' }}</i>
                         <div class="t" :title="m.title">{{ m.title }}</div>
@@ -6877,62 +6899,7 @@
                 <!-- ===== BODY: story (past) | exec + team + files (now) ===== -->
                 <div class="pjBody">
 
-                  <!-- STORY: progress + decisions + commits merged, day-grouped.
-                       Rows collapse to one line (disclosure triangle to expand);
-                       days older than the recent window fold to a single row —
-                       page height stays constant no matter how old the project. -->
-                  <section class="pjStoryP">
-                    <div class="pjStory-h">
-                      <h3>{{ lang === 'zh' ? '项目故事' : 'Story' }}</h3>
-                      <span class="src">progress/ · decisions · git</span>
-                    </div>
-                    <div class="pjStory-filters">
-                      <button v-for="f in pjStoryTabs" :key="f.id"
-                        class="pjStory-f" :class="{ on: pjStoryFilter === f.id }"
-                        @click="pjStoryFilter = f.id">{{ f.label }}</button>
-                    </div>
-                    <div v-if="!pjStory.length" class="pjEmpty">
-                      {{ lang === 'zh' ? '还没有故事。进展、决策和提交会自动汇到这里。' : 'No story yet — progress, decisions and commits land here automatically.' }}
-                    </div>
-
-                    <template v-for="day in pjStoryVisible" :key="day.key">
-                      <!-- closed day: one row — date, type mix, count, first-entry teaser.
-                           Every day can close; recent days just start open. -->
-                      <button v-if="!pjIsDayOpen(day)" class="pjDayFold" @click="pjDayOpen[day.key] = true">
-                        <span class="pjEv-tri">▶</span>
-                        <span class="d">{{ day.label }}</span>
-                        <span class="mix"><i v-for="k in day.kinds" :key="k" :class="'mx-' + k"></i></span>
-                        <span class="n">{{ day.events.length }} {{ lang === 'zh' ? '条' : '' }} · {{ day.teaser }}…</span>
-                      </button>
-                      <!-- open day: clickable header folds it back + one-line rows, each expandable -->
-                      <div v-else class="pjDay">
-                        <button class="pjDay-d foldable" @click="pjDayOpen[day.key] = false"
-                          :title="lang === 'zh' ? '收起这一天' : 'Fold this day'">
-                          {{ day.label }} <span class="n">· {{ day.events.length }} {{ lang === 'zh' ? '条' : '' }}</span><span class="fold">▾</span>
-                        </button>
-                        <div v-for="(ev, i) in day.events" :key="i" class="pjEv" :class="{ open: pjEvOpen[day.key + '-' + i] }">
-                          <button class="pjEv-row" @click="pjEvOpen[day.key + '-' + i] = !pjEvOpen[day.key + '-' + i]">
-                            <span class="pjEv-tri">▶</span>
-                            <span class="pjEvic" :class="'pjEvic--' + ev.kind">{{ ev.kind === 'log' ? '✦' : (ev.kind === 'dec' ? '⚖' : '⌘') }}</span>
-                            <span class="pjEv-t">{{ ev.text }}</span>
-                            <span class="pjEv-time">{{ ev.time }}</span>
-                          </button>
-                          <!-- expanded: the row itself unfolds to full text (no duplicate);
-                               decisions add their excerpt, commits their body -->
-                          <div v-if="pjEvOpen[day.key + '-' + i]" class="pjEv-full">
-                            <div v-if="ev.excerpt || ev.body" class="body">{{ ev.excerpt || ev.body }}</div>
-                            <div class="meta">{{ ev.meta }}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-
-                    <button v-if="pjStoryHasMore" class="pjMore" @click="pjStoryCap += 15">
-                      {{ lang === 'zh' ? '加载更早 →' : 'Load earlier →' }}
-                    </button>
-                  </section>
-
-                  <!-- SIDE column -->
+<!-- SIDE column -->
                   <div class="pjSide">
 
                     <!-- EXEC: doing / todo as flat lists, done collapsed. Same
@@ -7006,29 +6973,6 @@
                       </div>
                     </section>
 
-                    <!-- DOSSIER: gradient card in the project's color — the project's
-                         "growth panel": DAY N + live stats + goal/current state -->
-                    <section class="pjDossier">
-                      <div class="pjDb-top">
-                        <div class="pjDb-mk">{{ rmProjInitial(roadmapFocusProject) }}</div>
-                        <div>
-                          <div class="pjDb-name">{{ roadmapFocusProject.name }} · {{ lang === 'zh' ? '项目档案' : 'Dossier' }}</div>
-                          <div class="pjDb-sub">PROJECT{{ pjProjectDay(roadmapFocusProject) ? ' · DAY ' + pjProjectDay(roadmapFocusProject) : '' }}</div>
-                        </div>
-                        <span class="pjDb-src">memory + profile</span>
-                      </div>
-                      <div class="pjDb-stats">
-                        <div class="pjDb-st"><div class="n">{{ (roadmapFocusProject.progressLog || []).length }}</div><div class="l">{{ lang === 'zh' ? '进展' : 'progress' }}</div></div>
-                        <div class="pjDb-st"><div class="n">{{ roadmapFocusProject.decisionsTotal || 0 }}</div><div class="l">{{ lang === 'zh' ? '决策' : 'decisions' }}</div></div>
-                        <div class="pjDb-st"><div class="n">{{ roadmapDoneCount(roadmapFocusProject) }}</div><div class="l">{{ lang === 'zh' ? '完成' : 'done' }}</div></div>
-                        <div class="pjDb-st"><div class="n">{{ (roadmapFocusProject.milestones || []).length }}</div><div class="l">{{ lang === 'zh' ? '里程碑' : 'milestones' }}</div></div>
-                      </div>
-                      <div v-for="cell in pjDossier" :key="cell.key" class="pjDb-sec">
-                        <div class="k">{{ cell.label }}</div>
-                        <div class="v md-content" v-html="cell.body"></div>
-                      </div>
-                    </section>
-
                     <!-- FILES + KNOWLEDGE: .loci/knowledge/ (moved/symlinked in) +
                          profile.md pins + open-in dropdown + link-file picker -->
                     <section class="pjPanel">
@@ -7066,7 +7010,87 @@
                     </section>
 
                   </div><!-- /pjSide -->
-                </div><!-- /pjBody -->
+
+
+                  <!-- STORY: progress + decisions + commits merged, day-grouped.
+                       Rows collapse to one line (disclosure triangle to expand);
+                       days older than the recent window fold to a single row —
+                       page height stays constant no matter how old the project. -->
+                  <section class="pjStoryP">
+                    <div class="pjStory-h">
+                      <h3>{{ lang === 'zh' ? '项目故事' : 'Story' }}</h3>
+                      <span class="src">progress/ · decisions · git</span>
+                    </div>
+                    <div class="pjStory-filters">
+                      <button v-for="f in pjStoryTabs" :key="f.id"
+                        class="pjStory-f" :class="{ on: pjStoryFilter === f.id }"
+                        @click="pjStoryFilter = f.id">{{ f.label }}</button>
+                    </div>
+                    <!-- ARCHIVE VIEW — 项目档案 as a beautiful dossier card -->
+                    <template v-if="pjStoryFilter === 'archive'">
+                      <div v-if="!archiveDossier || !archiveDossier.cells.length" class="pjEmpty">
+                        {{ lang === 'zh' ? '该项目还没有档案信息。写入 memory.md 会在这里显示。' : 'No archive for this project yet. Write memory.md to populate.' }}
+                      </div>
+                      <div v-else class="pjArc">
+                        <div class="pjArc-head" :style="{ '--proj': archiveDossier.color }">
+                          <div class="pjArc-mk">{{ rmProjInitial(roadmapFocusProject) }}</div>
+                          <div>
+                            <div class="pjArc-name">{{ roadmapFocusProject.name }}</div>
+                            <div class="pjArc-day">PROJECT{{ archiveDossier.day ? ' · DAY ' + archiveDossier.day : '' }}</div>
+                          </div>
+                        </div>
+                        <div class="pjArc-stats">
+                          <div class="pjArc-st"><span class="n">{{ archiveDossier.progressCount }}</span><span class="l">{{ lang === 'zh' ? '进展' : 'progress' }}</span></div>
+                          <div class="pjArc-st"><span class="n">{{ archiveDossier.decisionsCount }}</span><span class="l">{{ lang === 'zh' ? '决策' : 'decisions' }}</span></div>
+                          <div class="pjArc-st"><span class="n">{{ archiveDossier.doneCount }}</span><span class="l">{{ lang === 'zh' ? '完成' : 'done' }}</span></div>
+                          <div class="pjArc-st"><span class="n">{{ archiveDossier.milestonesCount }}</span><span class="l">{{ lang === 'zh' ? '里程碑' : 'milestones' }}</span></div>
+                        </div>
+                        <div v-for="cell in archiveDossier.cells" :key="cell.key" class="pjArc-sec">
+                          <div class="pjArc-k">{{ cell.label }}</div>
+                          <div class="pjArc-v md-content" v-html="cell.body"></div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- TIMELINE VIEW — all other filters -->
+                    <template v-else>
+                      <div v-if="!pjStory.length" class="pjEmpty">
+                        {{ lang === 'zh' ? '还没有故事。进展、决策和提交会自动汇到这里。' : 'No story yet — progress, decisions and commits land here automatically.' }}
+                      </div>
+
+                      <template v-for="day in pjStoryVisible" :key="day.key">
+                        <button v-if="!pjIsDayOpen(day)" class="pjDayFold" @click="pjDayOpen[day.key] = true">
+                          <span class="pjEv-tri">▶</span>
+                          <span class="d">{{ day.label }}</span>
+                          <span class="mix"><i v-for="k in day.kinds" :key="k" :class="'mx-' + k"></i></span>
+                          <span class="n">{{ day.events.length }} {{ lang === 'zh' ? '条' : '' }} · {{ day.teaser }}…</span>
+                        </button>
+                        <div v-else class="pjDay">
+                          <button class="pjDay-d foldable" @click="pjDayOpen[day.key] = false"
+                            :title="lang === 'zh' ? '收起这一天' : 'Fold this day'">
+                            {{ day.label }} <span class="n">· {{ day.events.length }} {{ lang === 'zh' ? '条' : '' }}</span><span class="fold">▾</span>
+                          </button>
+                          <div v-for="(ev, i) in day.events" :key="i" class="pjEv" :class="{ open: pjEvOpen[day.key + '-' + i] }">
+                            <button class="pjEv-row" @click="pjEvOpen[day.key + '-' + i] = !pjEvOpen[day.key + '-' + i]">
+                              <span class="pjEv-tri">▶</span>
+                              <span class="pjEvic" :class="'pjEvic--' + ev.kind">{{ ev.kind === 'log' ? '✦' : (ev.kind === 'dec' ? '⚖' : '⌘') }}</span>
+                              <span class="pjEv-t">{{ ev.text }}</span>
+                              <span class="pjEv-time">{{ ev.time }}</span>
+                            </button>
+                            <div v-if="pjEvOpen[day.key + '-' + i]" class="pjEv-full">
+                              <div v-if="ev.excerpt || ev.body" class="body">{{ ev.excerpt || ev.body }}</div>
+                              <div class="meta">{{ ev.meta }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <button v-if="pjStoryHasMore" class="pjMore" @click="pjStoryCap += 15">
+                        {{ lang === 'zh' ? '加载更早 →' : 'Load earlier →' }}
+                      </button>
+                    </template>
+                  </section>
+                                </div><!-- /pjBody -->
               </main>
             </div>
 
@@ -7598,7 +7622,9 @@
                 </div>
               </section>
             </div>
-          </div>
+
+
+                </div>
         </section>
 
         <!-- ========== PEOPLE ========== -->
@@ -9920,6 +9946,38 @@ const lociApp = createApp({
         { text:'An evening recap makes the next day start faster.', tag:'Ritual' },
       ];
       const insights = rawInsights.map((x, i) => ({ ...x, ...CAT[i % CAT.length] }));
+      const textFromHtml = (html) => {
+        if (!html) return '';
+        const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+        return doc.body.textContent.trim();
+      };
+      const parseValues = (html) => {
+        if (!html) return [];
+        const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+        return Array.from(doc.querySelectorAll('li')).slice(0, 8).map(li => {
+          const title = (li.querySelector('strong')?.textContent || li.textContent || '').trim().replace(/[:：]$/, '');
+          const full = (li.textContent || '').trim();
+          const desc = full.replace(title, '').replace(/^[:：\s-]+/, '').trim();
+          return { title, desc };
+        }).filter(v => v.title);
+      };
+      const parseInsights = (html) => {
+        if (!html) return [];
+        const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+        return Array.from(doc.querySelectorAll('h3')).slice(0, 8).map((h, i) => {
+          let node = h.nextElementSibling;
+          const chunks = [];
+          while (node && node.tagName !== 'H3' && node.tagName !== 'H2') {
+            const txt = (node.textContent || '').trim();
+            if (txt) chunks.push(txt);
+            node = node.nextElementSibling;
+          }
+          const body = chunks.find(t => /洞察|Insight/i.test(t)) || chunks[0] || h.textContent;
+          return { text: body.replace(/^洞察[:：]\s*/, '').slice(0, 140), tag: zh ? '洞察' : 'Insight', ...CAT[i % CAT.length] };
+        }).filter(x => x.text);
+      };
+      const realValues = parseValues(data.value?.me?.values?.content);
+      const realInsights = parseInsights(data.value?.me?.insights?.content);
       // decisions — real data from overview.recentDecisions (reads decisions/*.md).
       // Demo samples pad the list only in the demo build.
       const rawDec = (data.value && data.value.overview && data.value.overview.recentDecisions) || [];
@@ -9954,8 +10012,8 @@ const lociApp = createApp({
         tags: !DEMO_MODE ? [] : zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
         stats: { memories, links, active, decisions, projects },
         attrs, radar, radarPoints, radarVerts: verts,
-        values: DEMO_MODE ? values : [],
-        insights: DEMO_MODE ? insights : [],
+        values: DEMO_MODE ? values : realValues,
+        insights: DEMO_MODE ? insights : realInsights,
         decisions: decisionsList,
         growthPct: Math.round(Math.min(1, memories/200)*100),
       };
@@ -14529,6 +14587,7 @@ const lociApp = createApp({
       { id: 'log', label: lang.value === 'zh' ? '进展' : 'Progress' },
       { id: 'dec', label: lang.value === 'zh' ? '决策' : 'Decisions' },
       { id: 'git', label: lang.value === 'zh' ? '提交' : 'Commits' },
+      { id: 'archive', label: lang.value === 'zh' ? '项目档案' : 'Archive' },
     ]);
 
     function pjAgo(ts) {
@@ -14722,10 +14781,19 @@ const lociApp = createApp({
       const cell = rmDossierCells(p).find(c => c.key === 'next');
       return cell ? cell.body : '';
     });
-    const pjDossier = computed(() => {
+    const archiveDossier = computed(() => {
       const p = roadmapFocusProject.value;
-      if (!p) return [];
-      return rmDossierCells(p).filter(c => c.key !== 'next');
+      if (!p) return null;
+      const cells = rmDossierCells(p);
+      return {
+        cells,
+        progressCount: (p.progressLog || []).length,
+        decisionsCount: p.decisionsTotal || 0,
+        doneCount: roadmapDoneCount(p),
+        milestonesCount: (p.milestones || []).length,
+        day: pjProjectDay(p),
+        color: rmProjColor(p),
+      };
     });
 
     // ── team: profile.md Key People merged with todo owners ──
@@ -15823,6 +15891,12 @@ const lociApp = createApp({
     }
     async function pmapStart() {
       if (typeof L === 'undefined' || !pmapEl.value) return;
+      // View toggles destroy & recreate the map container. If our instance is
+      // still bound to the old (removed) node, tear it down so it rebinds to the
+      // fresh one — otherwise the new container stays blank.
+      if (pmapMap && pmapMap.getContainer() !== pmapEl.value) {
+        pmapMap.remove(); pmapMap = null; pmapMarkers = [];
+      }
       if (!pmapMap) {
         pmapMap = L.map(pmapEl.value, { zoomControl: true }).setView([20, 0], 2);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -18383,8 +18457,10 @@ const lociApp = createApp({
         },
         me: {
           identity: mk('<ul><li>姓名：Sam Rivera</li><li>角色：独立开发者 / Loci 创始人</li><li>语言：中文优先</li><li>工作风格：深度专注，厌恶被打断</li><li>偏好：极简、克制的设计</li><li>所在地：里斯本</li></ul>', { updated: '2026-03-11' }, 'identity.md'),
-          goals: mk('', {}, 'goals.md'),
+          goals: mk('', { retired: true, replacement: 'plan.md' }, 'plan.md'),
           values: mk('<ul><li>先发布，再打磨 —— 厌恶在没人用的功能上抛光</li><li>诚实地报告结果，不粉饰</li><li>聚合而非占有：记忆属于它所在的地方</li><li>状态优先于产出</li><li>克制：能不加的就不加</li></ul>', { updated: '2026-03-11' }, 'values.md'),
+          wellbeing: mk('<h2>状态原则</h2><ul><li>睡眠是自信和产出的地基</li><li>高状态的一小时胜过低状态的一整天</li><li>身体差会连锁影响心情、专注和行动</li></ul>', { updated: '2026-03-11' }, 'wellbeing.md'),
+          insights: mk('<h2>2026-03-11</h2><h3>人脉是价值之后的体现</h3><p><strong>洞察</strong>：先创造价值，再谈链接和资源。</p><h3>大胆做有意义的事</h3><p><strong>洞察</strong>：真诚和能力可以同时存在，值得靠近。</p>', { updated: '2026-03-11' }, 'insights.md'),
           learned: mk('<ul><li>记忆系统的价值在于"能找回"，不在于"存了多少"</li><li>分层加载比一次性塞满上下文更可用</li><li>真实用户拉代码即用，胜过华丽的演示</li><li>单一强调色让界面更专业</li><li>傍晚做当日小结，第二天启动更快</li></ul>', { updated: '2026-03-11' }, 'learned.md'),
           evolution: mk('', {}, 'evolution.md'),
           evolution_entries: [
@@ -19206,7 +19282,7 @@ const lociApp = createApp({
       roadmapFocusName, roadmapFocusProject, rmArcDash, rmTagClass, rmSparkBars, rmDossierCells,
       rmProjColor, rmProjInitial, rmProjPct,
       roadmapConnectOpen, roadmapConnectForm, roadmapConnectSubmit, roadmapBrowseRepo, roadmapBrowsing,
-      pjStoryFilter, pjStoryTabs, pjStory, pjDoneOpen, pjNextCell, pjDossier, pjTeam,
+      pjStoryFilter, pjStoryTabs, pjStory, pjDoneOpen, pjNextCell, archiveDossier, pjTeam,
       pjStoryVisible, pjStoryHasMore, pjStoryCap, pjEvOpen, pjDayOpen, pjIsDayOpen,
       pjFirstSentence, pjProjectDay, pjLinkFile, pjLinking, pjOpenPop, pjDropOpen,
       pjPulseBars, pjLastActivity, pjNextMs, pjMsDate, pjCountdown, pjMsFill,
