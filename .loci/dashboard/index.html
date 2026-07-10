@@ -733,6 +733,13 @@
       .tm-field--wide { grid-column:auto; }
       .tm-foot { padding:12px 18px; }
     }
+    .task-peek-overlay { position:fixed; inset:0; z-index:118; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(28,28,26,.18); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
+    .task-peek { width:min(520px, calc(100vw - 36px)); background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 20px 46px rgba(20,20,18,.14); padding:18px 20px 20px; animation:tmIn .18s cubic-bezier(.32,.72,0,1); }
+    .task-peek-h { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:10px; }
+    .task-peek-k { font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); }
+    .task-peek-close { flex:none; width:28px; height:28px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink-3); cursor:pointer; display:grid; place-items:center; }
+    .task-peek-close:hover { color:var(--ink); background:var(--surface-2); }
+    .task-peek-title { font-size:17px; line-height:1.65; font-weight:640; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
 
     /* calendar / schedule header (clean-reference .cal-head) */
     .cal-head { display: flex; align-items: center; gap: 14px; }
@@ -5584,6 +5591,17 @@
       </div>
     </div>
 
+    <!-- Quick full-title peek for long task rows -->
+    <div v-if="taskTitlePeek" class="task-peek-overlay" @click.self="closeTaskTitlePeek()">
+      <div class="task-peek">
+        <div class="task-peek-h">
+          <span class="task-peek-k">{{ lang === 'zh' ? '完整任务' : 'Full task' }}</span>
+          <button class="task-peek-close" @click="closeTaskTitlePeek()">✕</button>
+        </div>
+        <div class="task-peek-title">{{ taskTitlePeek.text || taskTitlePeek.title || '' }}</div>
+      </div>
+    </div>
+
     <!-- Guide picker (module overview — 2-column grid) -->
     <div v-if="showGuide" class="guide-overlay" @click.self="showGuide = false">
       <div class="guide-panel">
@@ -6096,7 +6114,7 @@
                   <span class="check" :class="{ on: task.done }" @click="toggleMissionTask(task)" style="cursor: pointer;">
                     <svg v-if="task.done" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                   </span>
-                  <div class="body">
+                  <div class="body" @click.stop="openTaskTitlePeek(task)">
                     <div class="nm">{{ task.text }}</div>
                     <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
@@ -7204,7 +7222,7 @@
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body">
+                          <div class="body" @click.stop="openTaskTitlePeek(todo)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
@@ -7234,7 +7252,7 @@
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body">
+                          <div class="body" @click.stop="openTaskTitlePeek(todo)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
@@ -7272,7 +7290,7 @@
                           <span class="check on" role="button" :title="lang === 'zh' ? '恢复' : 'reopen'" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" style="flex:1">
+                          <div class="body" style="flex:1" @click.stop="openTaskTitlePeek(todo)">
                             <div class="nm doing" style="color:var(--ink-3);text-decoration:line-through;">{{ todo.text }}</div>
                           </div>
                           <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
@@ -18648,9 +18666,12 @@ const lociApp = createApp({
 
     // ===== task detail modal (centered popup, opened by the hover ✎ icon) =====
     const detailTask = ref(null);     // the task object currently open in the modal
+    const taskTitlePeek = ref(null);
     const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '' });
 
     const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
+    function openTaskTitlePeek(task) { taskTitlePeek.value = task || null; }
+    function closeTaskTitlePeek() { taskTitlePeek.value = null; }
     function openTaskDetail(task) {
       detailMode.value = 'edit';
       detailTask.value = task;
@@ -19961,7 +19982,7 @@ const lociApp = createApp({
       reorderState, reorderDragStart, reorderDragOver, reorderDrop, reorderDragEnd,
       confirmDeleteId, askDeleteTask, deleteTaskConfirmed,
       taskColors, showTaskDetail, newTaskLocation, newTaskColor, newTaskNote, newTaskPriority,
-      detailTask, editDetail, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
+      detailTask, taskTitlePeek, editDetail, openTaskTitlePeek, closeTaskTitlePeek, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
       evTaskStyleStr,
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
