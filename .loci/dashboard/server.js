@@ -2251,13 +2251,18 @@ function buildOverview(data) {
   }
   const trendMax = Math.max(1, ...days.map(d => d.count));
 
-  // Today's tasks: dated today, or open & undated (always-relevant pool)
+  // Today's tasks — mirror the tasks page's「今天」rule exactly (index.html
+  // inToday): not deferred, and (date range covers today OR picked for today
+  // via plannedFor, which is what dragging a task onto「今天」sets).
   const intersectsToday = t => {
-    if (t.date && t.date <= todayKey && (!t.endDate || t.endDate >= todayKey)) return true;
+    if (t.deferToday === true) return false;
+    if (t.plannedFor === todayKey) return true;
+    if (t.date) return t.date <= todayKey && todayKey <= (t.endDate || t.date);
     return false;
   };
   const todayTasks = open
     .filter(t => intersectsToday(t))
+    .sort((a, b) => String(a.startTime || '99:99').localeCompare(String(b.startTime || '99:99')))
     .map(t => ({ id: t.id, text: t.title, date: t.date, startTime: t.startTime, project: t.project, status: t.status }));
 
   const recentDone = [...done]

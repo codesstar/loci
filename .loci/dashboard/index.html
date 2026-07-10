@@ -552,11 +552,16 @@
     .timp.lo { background: var(--line); }
     .tpill { display: inline-block; font-family: var(--mono); font-size: 10px; border-radius: 7px; padding: 2px 8px; margin-right: 6px; white-space: nowrap; }
     .tpill.time { color: #fff; background: var(--accent); }
-    .tpill.date { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
-    .tpill.date.due-today { color: #b07b1e; background: #fdf6e7; border-color: #f0e0bb; }
+    .tpill.date { display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+    .tpill.date::before { content: ''; width: 11px; height: 11px; flex: none; opacity: .65; background-color: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='17' rx='2.5'/%3E%3Cpath d='M16 2.5v4M8 2.5v4M3 9.5h18'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='17' rx='2.5'/%3E%3Cpath d='M16 2.5v4M8 2.5v4M3 9.5h18'/%3E%3C/svg%3E") center/contain no-repeat; }
+    .tpill.date.due-today { color: var(--accent-ink); background: var(--accent-weak); border-color: transparent; }
+    .tpill.date.due-today::before { opacity: 1; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5l3 2'/%3E%3C/svg%3E") center/contain no-repeat; }
     .tpill.late { color: #fff; background: #e0574f; animation: tpillPulse 2s ease-in-out infinite; }
     .tpill.loc { color: var(--ink-3); background: transparent; padding-left: 0; }
     .tpill.cat { color: var(--ink-3); background: var(--surface-2); border: 1px solid var(--line); }
+    /* task category tag — icon-led (variant C) */
+    .tag { display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; }
+    .tag::before { content: ''; width: 11px; height: 11px; flex: none; opacity: .55; background-color: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V4a1 1 0 0 1 1-1h8a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6Z'/%3E%3Ccircle cx='7.5' cy='7.5' r='1.5'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V4a1 1 0 0 1 1-1h8a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6Z'/%3E%3Ccircle cx='7.5' cy='7.5' r='1.5'/%3E%3C/svg%3E") center/contain no-repeat; }
     @keyframes tpillPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,87,79,.3); } 50% { box-shadow: 0 0 0 4px rgba(224,87,79,0); } }
     .done-bar { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 13px; background: var(--surface-2); border: 1px dashed var(--line-2); cursor: pointer; transition: .15s; }
     .done-bar:hover { background: var(--accent-weak); border-color: #bfe8d8; }
@@ -733,13 +738,15 @@
       .tm-field--wide { grid-column:auto; }
       .tm-foot { padding:12px 18px; }
     }
-    .task-peek-overlay { position:fixed; inset:0; z-index:118; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(28,28,26,.18); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
-    .task-peek { width:min(520px, calc(100vw - 36px)); background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 20px 46px rgba(20,20,18,.14); padding:18px 20px 20px; animation:tmIn .18s cubic-bezier(.32,.72,0,1); }
-    .task-peek-h { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:10px; }
-    .task-peek-k { font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); }
-    .task-peek-close { flex:none; width:28px; height:28px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink-3); cursor:pointer; display:grid; place-items:center; }
-    .task-peek-close:hover { color:var(--ink); background:var(--surface-2); }
-    .task-peek-title { font-size:17px; line-height:1.65; font-weight:640; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
+    .task-peek-overlay { position:fixed; inset:0; z-index:118; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(28,28,26,.09); -webkit-backdrop-filter:blur(1.5px); backdrop-filter:blur(1.5px); }
+    .task-peek { width:auto; min-width:288px; max-width:min(480px, calc(100vw - 36px)); background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 24px 60px rgba(20,20,18,.18); padding:16px 18px 18px; animation:tmIn .2s cubic-bezier(.32,.72,0,1); }
+    .task-peek-h { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:11px; }
+    .task-peek-k { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); }
+    .task-peek-k::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none; }
+    .task-peek-close { flex:none; width:28px; height:28px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink-3); cursor:pointer; display:grid; place-items:center; transition:.14s; }
+    .task-peek-close:hover { color:var(--accent-ink); background:var(--accent-weak); border-color:transparent; }
+    .task-peek-close svg { width:14px; height:14px; }
+    .task-peek-title { font-size:16px; line-height:1.55; font-weight:640; letter-spacing:-.01em; color:var(--ink); white-space:normal; overflow-wrap:anywhere; }
 
     /* calendar / schedule header (clean-reference .cal-head) */
     .cal-head { display: flex; align-items: center; gap: 14px; }
@@ -4496,6 +4503,9 @@
     .pjExec-sec .sk{ font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase;
       color:var(--ink-4); display:flex; align-items:center; gap:7px; }
     .pjExec-sec .sk .ln{ flex:1; height:1px; background:var(--line); }
+    .pjExec-sec .sk .dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-4); flex:none; }
+    .pjExec-sec .sk--doing{ color:#b07b1e; }
+    .pjExec-sec .sk--doing .dot{ background:#e0a23c; }
     .pjExec-empty{ padding:10px 4px; font-size:11.5px; color:var(--ink-4); }
     .pjRow{ display:flex; align-items:center; gap:9px; padding:9px 4px; border-radius:10px; position:relative; }
     .pjRow + .pjRow{ border-top:1px dashed var(--line); }
@@ -4524,10 +4534,8 @@
     .pj-act-btn:hover{ opacity:1; color:var(--accent-ink); background:var(--accent-weak); }
     .pj-del-btn:hover{ opacity:1; color:#e0574f; background:#fdeaea; }
     /* "today" (doing) task-rows — bold accent */
-    .task-row.pj-doing{ background:linear-gradient(135deg, color-mix(in srgb, var(--proj) 8%, white), transparent 70%); border-left:3px solid var(--proj); padding-left:7px; border-radius:10px; margin-bottom:2px; }
-    .task-row.pj-doing + .task-row.pj-doing{ border-top:1px solid color-mix(in srgb, var(--proj) 16%, transparent); }
+    .task-row.pj-doing{ border-radius:10px; margin-bottom:2px; }
     .task-row.pj-doing .nm{ font-weight:600; }
-    .task-row.pj-doing .check{ border-color:var(--proj); box-shadow:0 0 0 3px color-mix(in srgb, var(--proj) 14%, transparent); }
     .pjAdd{ display:flex; align-items:center; gap:8px; margin-top:12px; padding:8px 12px;
       border-radius:11px; border:1.5px dashed var(--line-2); color:var(--ink-4); }
     .pjAdd:focus-within{ border-color:color-mix(in srgb, var(--proj) 35%, white); }
@@ -5351,6 +5359,33 @@
   line-height:1.5;
   color:var(--ink-2,#5b5b57);
 }
+/* ── 今日节奏 · 手动四档(仪表盘形骨架不变,颜色跟档位走) ── */
+.pace-card{ position:relative; overflow:hidden; }
+.pace-card::before{ content:""; position:absolute; right:-80px; top:-90px; width:230px; height:230px; border-radius:50%;
+  background:radial-gradient(circle, var(--pc-weak,#d9f5e9), transparent 68%); opacity:.85; transition:background .35s ease; pointer-events:none; }
+.pace-card > *{ position:relative; }
+.pace-pill{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono,monospace); font-size:9.5px; font-weight:700; white-space:nowrap;
+  letter-spacing:.1em; color:var(--pc-ink,#047857); background:var(--pc-weak,#d9f5e9); padding:4px 11px; border-radius:999px; transition:.35s ease; flex:none; }
+.pace-pill i{ width:6px; height:6px; border-radius:50%; background:var(--pc,#10b981); transition:.35s ease; }
+.pace-card[data-state="3"] .pace-pill i{ animation:pace-ember 1.1s ease-in-out infinite; }
+@keyframes pace-ember{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+.pace-gauge{ margin-top:6px; display:flex; justify-content:center; outline:none; border-radius:12px; cursor:pointer; touch-action:none; }
+.pace-gauge:focus-visible{ box-shadow:0 0 0 2px var(--surface,#fff), 0 0 0 4px var(--pc,#10b981); }
+.pace-tickline{ transition:stroke .28s ease; }
+.pace-needle{ transition:transform .45s cubic-bezier(.34,1.25,.5,1); transform-origin:160px 170px; }
+.pace-needle .nd-core{ transition:fill .35s ease; }
+.pace-needle .nd-ring{ transition:stroke .35s ease; }
+.pace-card[data-state="3"] .pace-needle .nd-ring{ animation:pace-ndpulse 1.5s ease-in-out infinite; }
+@keyframes pace-ndpulse{ 0%,100%{ opacity:.4; } 50%{ opacity:.9; } }
+.pace-name{ font-family:var(--sans,sans-serif); font-size:27px; font-weight:800; letter-spacing:-.4px; transition:fill .35s ease; }
+.pace-desc{ font-family:var(--sans,sans-serif); font-size:11.5px; fill:var(--ink-3,#9a9a94); }
+.pace-labels{ display:flex; justify-content:space-between; max-width:320px; margin:2px auto 0; padding:0 2px; }
+.pace-lab{ font-family:var(--mono,monospace); font-size:10px; font-weight:600; letter-spacing:.04em; color:var(--ink-4,#c4c4be);
+  padding:4px 7px; border-radius:7px; transition:.25s ease; position:relative; border:0; background:none; cursor:pointer; }
+.pace-lab::before{ content:""; position:absolute; left:50%; top:-4px; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:transparent; transition:.25s ease; }
+.pace-lab:hover{ color:var(--ink-2,#5b5b57); background:var(--surface-2,#fafafa); }
+.pace-lab.on{ color:var(--pc-ink,#047857); font-weight:700; }
+.pace-lab.on::before{ background:var(--pc,#10b981); }
 .cgau-caption b{
   color:var(--accent-ink,#047857);
   font-weight:600;
@@ -5593,10 +5628,10 @@
 
     <!-- Quick full-title peek for long task rows -->
     <div v-if="taskTitlePeek" class="task-peek-overlay" @click.self="closeTaskTitlePeek()">
-      <div class="task-peek">
+      <div class="task-peek" :style="taskPeekPos ? { position: 'fixed', top: taskPeekPos.top + 'px', left: taskPeekPos.left + 'px', margin: '0' } : null">
         <div class="task-peek-h">
           <span class="task-peek-k">{{ lang === 'zh' ? '完整任务' : 'Full task' }}</span>
-          <button class="task-peek-close" @click="closeTaskTitlePeek()">✕</button>
+          <button class="task-peek-close" @click="closeTaskTitlePeek()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div class="task-peek-title">{{ taskTitlePeek.text || taskTitlePeek.title || '' }}</div>
       </div>
@@ -5872,7 +5907,7 @@
                     </header>
                     <div class="ckpi-figure">
                       <span class="ckpi-num">{{ c.value }}</span>
-                      <span class="ckpi-delta" :class="[ c.deltaDir === 'up' ? 'ckpi-up' : c.deltaDir === 'down' ? 'ckpi-down' : 'ckpi-flat', { 'ckpi-on-hero': c.hero } ]">
+                      <span v-if="c.delta" class="ckpi-delta" :class="[ c.deltaDir === 'up' ? 'ckpi-up' : c.deltaDir === 'down' ? 'ckpi-down' : 'ckpi-flat', { 'ckpi-on-hero': c.hero } ]">
                         <svg v-if="c.deltaDir === 'up'" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M6 9.5V2.5M6 2.5 3 5.5M6 2.5 9 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <svg v-else-if="c.deltaDir === 'down'" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M6 2.5v7M6 9.5 3 6.5M6 9.5 9 6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <svg v-else viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M3 6h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -5885,7 +5920,7 @@
                       </span>
                       <span v-else class="ckpi-trend" :class="{ 'ckpi-trend-mute': c.viz === 'trend-mute' }" aria-hidden="true">
                         <svg viewBox="0 0 96 26" width="96" height="26" preserveAspectRatio="none">
-                          <polyline :points="c.viz === 'trend-mute' ? '0,6 16,9 32,7 48,12 64,11 80,15 96,17' : '0,20 16,16 32,18 48,11 64,13 80,6 96,4'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          <polyline :points="c.points" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </span>
                       <span class="ckpi-prev">{{ c.prev }}</span>
@@ -5898,36 +5933,40 @@
               <!-- RIGHT column: gauge + donut + decisions -->
               <div class="ovA-col">
 
-                <!-- 今日完成度 · 半圆仪表盘 -->
-                <div class="cgau-card">
+                <!-- 今日节奏 · 手动四档(保留半圆仪表盘形状,不读数据) -->
+                <div class="cgau-card pace-card" :data-state="ovPace"
+                  :style="{ '--pc': ovPaceState.c, '--pc-weak': ovPaceState.w, '--pc-ink': ovPaceState.k }">
                   <header class="cgau-head">
                     <div class="cgau-titles">
                       <h3 class="cgau-title">{{ lang === 'zh' ? '今日节奏' : "Today's Pace" }}</h3>
-                      <p class="cgau-sub">{{ currentDateShort }} · {{ lang === 'zh' ? '已排程占比' : 'scheduled share' }}</p>
+                      <p class="cgau-sub">{{ currentDateShort }} · {{ lang === 'zh' ? '手动档位' : 'set by you' }}</p>
                     </div>
-                    <span class="cgau-pill"><span class="cgau-pill-dot"></span>{{ ovRing.pct >= 60 ? (lang === 'zh' ? '良好' : 'Good') : (lang === 'zh' ? '宽松' : 'Light') }}</span>
+                    <span class="pace-pill"><i></i>{{ ovPaceState.tag }}</span>
                   </header>
-                  <div class="cgau-gauge">
-                    <svg class="cgau-svg" viewBox="0 0 320 196" role="img" :aria-label="(lang==='zh'?'今日完成度 ':'Today ') + ovRing.pct + '%'">
+                  <div class="pace-gauge" tabindex="0" role="slider"
+                    :aria-label="lang === 'zh' ? '今日节奏' : 'Today pace'"
+                    aria-valuemin="0" aria-valuemax="3" :aria-valuenow="ovPace" :aria-valuetext="ovPaceState.name"
+                    @pointerdown="ovPaceDown($event)" @pointermove="ovPaceMove($event)"
+                    @pointerup="ovPaceUp" @pointercancel="ovPaceUp" @keydown="ovPaceKey($event)">
+                    <svg class="cgau-svg" viewBox="0 0 320 196">
                       <g class="cgau-ticks">
-                        <line v-for="tk in ovGauge.ticks" :key="tk.i" x1="20" y1="170" x2="32" y2="170"
+                        <line v-for="tk in ovPaceTicks" :key="tk.i" class="pace-tickline" x1="20" y1="170" x2="32" y2="170"
                           :stroke="tk.color" :stroke-width="tk.w" stroke-linecap="round"
                           :transform="'rotate(' + tk.deg + ' 160 170)'"></line>
                       </g>
-                      <g class="cgau-needle" :transform="'rotate(' + ovGauge.angle + ' 160 170)'">
-                        <circle cx="13" cy="170" r="4.4" fill="#047857"></circle>
-                        <circle cx="13" cy="170" r="8" fill="none" stroke="#10b981" stroke-width="1.4" opacity="0.4"></circle>
+                      <g class="pace-needle" :style="{ transform: 'rotate(' + ovPaceAngle + 'deg)' }">
+                        <circle class="nd-core" cx="13" cy="170" r="4.4" :fill="ovPaceState.k"></circle>
+                        <circle class="nd-ring" cx="13" cy="170" r="8" fill="none" :stroke="ovPaceState.c" stroke-width="1.4" opacity="0.4"></circle>
                       </g>
-                      <text x="14" y="190" class="cgau-scale">0</text>
-                      <text x="306" y="190" class="cgau-scale" text-anchor="end">100</text>
-                      <text x="160" y="150" class="cgau-value" text-anchor="middle">{{ ovRing.pct }}<tspan class="cgau-unit" dx="2">%</tspan></text>
-                      <text x="160" y="174" class="cgau-readlabel" text-anchor="middle">{{ ovRing.done }} / {{ ovRing.total }} {{ lang === 'zh' ? '项已排程' : 'scheduled' }}</text>
+                      <text class="pace-name" x="160" y="148" text-anchor="middle" :fill="ovPaceState.k">{{ ovPaceState.name }}</text>
+                      <text class="pace-desc" x="160" y="172" text-anchor="middle">{{ ovPaceState.desc }}</text>
                     </svg>
                   </div>
-                  <p class="cgau-caption">
-                    <template v-if="ovRing.total - ovRing.done > 0">{{ lang === 'zh' ? '还有 ' : 'Still ' }}<b>{{ ovRing.total - ovRing.done }}</b>{{ lang === 'zh' ? ' 项灵活任务待定时' : ' flexible task(s) without a time' }}</template>
-                    <template v-else>{{ lang === 'zh' ? '今天的任务都已排好时间' : 'Every task today has a time' }}</template>
-                  </p>
+                  <div class="pace-labels">
+                    <button v-for="(s, si) in ovPaceStates" :key="s.key" type="button"
+                      class="pace-lab" :class="{ on: si === ovPace }" @click="ovPaceSet(si)">{{ s.name }}</button>
+                  </div>
+                  <p class="cgau-caption">{{ ovPaceState.foot }}</p>
                 </div>
 
                 <!-- 记忆构成 · 甜甜圈 -->
@@ -6114,7 +6153,7 @@
                   <span class="check" :class="{ on: task.done }" @click="toggleMissionTask(task)" style="cursor: pointer;">
                     <svg v-if="task.done" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                   </span>
-                  <div class="body" @click.stop="openTaskTitlePeek(task)">
+                  <div class="body" @click.stop="openTaskTitlePeek(task, $event)">
                     <div class="nm">{{ task.text }}</div>
                     <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
@@ -7035,15 +7074,15 @@
               <!-- Bottom-left: stats row -->
               <div style="position: absolute; bottom: 20px; left: 24px; pointer-events: none; display: flex; gap: 36px; align-items: flex-end;">
                 <div>
-                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ data?.network?.memories || 0 }}</div>
+                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ netStats.memories }}</div>
                   <div style="font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 3px; color: #9a9a94; text-transform: uppercase; margin-top: 2px;">{{ t('brain.memories') }}</div>
                 </div>
                 <div>
-                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ data?.network?.connections || 0 }}</div>
+                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ netStats.connections }}</div>
                   <div style="font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 3px; color: #9a9a94; text-transform: uppercase; margin-top: 2px;">{{ t('brain.connections') }}</div>
                 </div>
                 <div>
-                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ data?.network?.days_active || 0 }}</div>
+                  <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 400; color: #047857; font-variant-numeric: tabular-nums;">{{ netStats.daysActive }}</div>
                   <div style="font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 3px; color: #9a9a94; text-transform: uppercase; margin-top: 2px;">Days Active</div>
                 </div>
               </div>
@@ -7215,14 +7254,14 @@
 
                       <!-- Doing -->
                       <div class="pjExec-sec" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'doing')">
-                        <div class="sk">{{ lang === 'zh' ? '正在做' : 'Doing' }}<span class="ln"></span></div>
+                        <div class="sk sk--doing"><span class="dot"></span>{{ lang === 'zh' ? '正在做' : 'Doing' }}<span class="ln"></span></div>
                         <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'doing')" :key="todo.id"
                           class="task-row pj-doing" :data-c="todo.color || null" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
                           <span class="timp" :class="taskImpClass(todo)"></span>
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" @click.stop="openTaskTitlePeek(todo)">
+                          <div class="body" @click.stop="openTaskTitlePeek(todo, $event)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
@@ -7245,14 +7284,14 @@
 
                       <!-- Todo -->
                       <div class="pjExec-sec" @dragover.prevent @drop="roadmapDrop(roadmapFocusProject, 'todo')">
-                        <div class="sk">{{ lang === 'zh' ? '待办' : 'To do' }}<span class="ln"></span></div>
+                        <div class="sk"><span class="dot"></span>{{ lang === 'zh' ? '待办' : 'To do' }}<span class="ln"></span></div>
                         <div v-for="todo in roadmapTodosByStatus(roadmapFocusProject, 'todo')" :key="todo.id"
                           class="task-row" :data-c="todo.color || null" draggable="true" @dragstart="roadmapDragStart(roadmapFocusProject, todo)">
                           <span class="timp" :class="taskImpClass(todo)"></span>
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" @click.stop="openTaskTitlePeek(todo)">
+                          <div class="body" @click.stop="openTaskTitlePeek(todo, $event)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
@@ -7290,7 +7329,7 @@
                           <span class="check on" role="button" :title="lang === 'zh' ? '恢复' : 'reopen'" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" style="flex:1" @click.stop="openTaskTitlePeek(todo)">
+                          <div class="body" style="flex:1" @click.stop="openTaskTitlePeek(todo, $event)">
                             <div class="nm doing" style="color:var(--ink-3);text-decoration:line-through;">{{ todo.text }}</div>
                           </div>
                           <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
@@ -10244,22 +10283,25 @@ const lociApp = createApp({
       const zh = lang.value === 'zh';
       const net = (data.value && data.value.network) || {};
       const ov = (data.value && data.value.overview && data.value.overview.kpis) || {};
-      // Demo build pads the gauges with pleasant numbers; real users see their
-      // actual (possibly zero) counts.
-      const memories = net.memories || (DEMO_MODE ? 164 : 0), links = net.connections || (DEMO_MODE ? 21 : 0),
-            active = net.days_active || (DEMO_MODE ? 16 : 0), decisions = ov.decisions || (DEMO_MODE ? 5 : 0), projects = ov.projects || (DEMO_MODE ? 2 : 0);
+      // Real vitals via netStats (memory-mix total / people edges / brain age);
+      // the demo build keeps its pleasant showcase numbers.
+      const ns = netStats.value;
+      const memories = DEMO_MODE ? (net.memories || 164) : ns.memories,
+            links = DEMO_MODE ? (net.connections || 21) : ns.connections,
+            active = DEMO_MODE ? (net.days_active || 16) : ns.daysActive,
+            decisions = ov.decisions || (DEMO_MODE ? 5 : 0), projects = ov.projects || (DEMO_MODE ? 2 : 0);
       // map raw values to a 0..1 fill for the gauges (relative to a soft cap)
       const attrs = [
         { key:'mem',  label: zh?'记忆':'Memory',    en:'MEMORY',     value: memories, pct: Math.min(1, memories/180) },
         { key:'link', label: zh?'连接':'Links',     en:'LINKS',      value: links,    pct: Math.min(1, links/30) },
-        { key:'act',  label: zh?'活跃':'Active',    en:'STREAK · D', value: active,   pct: Math.min(1, active/20), alt:true },
+        { key:'act',  label: zh?'活跃':'Active',    en:'STREAK · D', value: active,   pct: Math.min(1, active/365), alt:true },
         { key:'dec',  label: zh?'决策':'Decisions', en:'DECISIONS',  value: decisions,pct: Math.min(1, decisions/10) },
       ];
       // radar (5 axes) — pentagon geometry centered at 100,100, max radius 82
       const radar = [
         { nm: zh?'记忆':'Memory',    vl: String(memories),     pct: Math.round(Math.min(1, memories/180)*100) },
         { nm: zh?'连接':'Links',     vl: String(links),        pct: Math.round(Math.min(1, links/30)*100) },
-        { nm: zh?'活跃':'Active',    vl: active + 'd',         pct: Math.round(Math.min(1, active/20)*100) },
+        { nm: zh?'活跃':'Active',    vl: active + 'd',         pct: Math.round(Math.min(1, active/365)*100) },
         { nm: zh?'决策':'Decisions', vl: String(decisions),    pct: Math.round(Math.min(1, decisions/10)*100) },
         { nm: zh?'项目':'Projects',  vl: String(projects),     pct: Math.round(Math.min(1, projects/3)*100) },
       ];
@@ -11432,8 +11474,8 @@ const lociApp = createApp({
         const panelA = ha * 0.92;
 
         const nodeCount = data.value?.network?.nodes?.length || projects.length;
-        const memCount = data.value?.network?.memories || 164;
-        const connCount = data.value?.network?.connections || 21;
+        const memCount = netStats.value.memories;
+        const connCount = netStats.value.connections;
         const activeCount = projects.filter(p => p.status === 'active').length;
 
         drawPremiumPanel(ctx, panelX, panelY, pw, ph, panelA, onRight, {
@@ -11885,7 +11927,7 @@ const lociApp = createApp({
             impactBoost = Math.max(impactBoost, fade * 0.4);
           }
           // Growth: brain starts at 30% base visibility, fully lit at ~1 year
-          const daysActive = (typeof data !== 'undefined' && data.value?.network?.days_active) || 16;
+          const daysActive = netStats.value.daysActive || 1;
           const growth = 0.3 + Math.min(0.7, daysActive / 365) * 0.7; // 0.3 → 1.0
           const growthFade = growth;
           // Hover boost: brain lights up when scanned
@@ -11909,7 +11951,7 @@ const lociApp = createApp({
         }
 
         // Draw dots
-        const daysForDots = (typeof data !== 'undefined' && data.value?.network?.days_active) || 16;
+        const daysForDots = netStats.value.daysActive || 1;
         const dotGrowth = 0.3 + Math.min(0.7, daysForDots / 365) * 0.7;
         for (const dot of brainDots) {
           const dotFade = dotGrowth;
@@ -12065,9 +12107,9 @@ const lociApp = createApp({
           const panelA = ha * 0.9;
 
           // ─── Premium panel renderer ───
-          const memCount = data.value?.network?.memories || 164;
-          const daysAct = data.value?.network?.days_active || 16;
-          const connCount = data.value?.network?.connections || 21;
+          const memCount = netStats.value.memories;
+          const daysAct = netStats.value.daysActive || 1;
+          const connCount = netStats.value.connections;
           const growthPct = Math.min(100, Math.round(30 + Math.min(70, daysAct / 365 * 70)));
 
           drawPremiumPanel(ctx, panelX, panelY, pw, ph, panelA, onRight, {
@@ -12242,8 +12284,8 @@ const lociApp = createApp({
     const navById = (id) => navItems.value.find(i => i.id === id);
     const navGroups = computed(() => [
       { label: null,                    items: ['overview'] },
-      { label: t('nav.sec.daily'),      items: ['today', 'journal', 'fragments'] },
-      { label: t('nav.sec.workspace'),  items: ['memory', 'people', 'roadmap', 'notes'] }, // 'brain' hidden (page kept, removed from sidebar)
+      { label: t('nav.sec.daily'),      items: ['today', 'journal', 'memory'] },
+      { label: t('nav.sec.workspace'),  items: ['fragments', 'people', 'roadmap', 'notes'] }, // 'brain' hidden (page kept, removed from sidebar)
     ].map(g => ({ label: g.label, items: g.items.map(navById).filter(Boolean) })));
 
     const memoryTabs = computed(() => [
@@ -12288,14 +12330,21 @@ const lociApp = createApp({
     // Today's focus card (sidebar) — the next undone timed task, else the first
     // undone one; hidden when today has no tasks at all.
     const sbFocus = computed(() => {
-      const ts = (overview.value && overview.value.todayTasks) || [];
-      if (!ts.length) return null;
-      const pick = ts.find(x => !x.done && x.startTime) || ts.find(x => !x.done) || ts[0];
-      const done = ts.filter(x => x.done).length;
+      // Live: mirror the Tasks page "今天" group — headline = the task on top of Today.
+      const todayKey = dateToKey(new Date());
+      const tg = (taskPoolGroups.value || []).find(g => g.id === 'today');
+      const openToday = (tg && tg.tasks) || [];
+      // also count today-tasks finished today, so the bar fills as you check off
+      const doneToday = (allTaskPoolTasks.value || []).filter(t => t.done && t.completedAt
+        && dateToKey(new Date(t.completedAt)) === todayKey
+        && (taskIntersectsDate(t, todayKey) || t.plannedFor === todayKey));
+      const total = openToday.length + doneToday.length;
+      if (!total) return null;
+      const pick = openToday[0] || null;   // top of Today, exactly as shown on the Tasks page
       return {
-        text: pick.text || pick.title || '',
-        done, total: ts.length,
-        pct: Math.round((done / Math.max(1, ts.length)) * 100),
+        text: pick ? (pick.text || pick.title || '') : (lang.value === 'zh' ? '今天的都完成了 🎉' : 'All done today 🎉'),
+        done: doneToday.length, total,
+        pct: Math.round((doneToday.length / Math.max(1, total)) * 100),
       };
     });
 
@@ -14216,26 +14265,95 @@ const lociApp = createApp({
                trend: { days: [], max: 1 }, todayTasks: [], recentDone: [],
                recentDecisions: [], recentNotes: [], projects: [] };
     });
+    // Real comparison metrics — every delta traces back to a file. Reconstructed
+    // client-side from raw task records (createdAt/completedAt) and decision
+    // dates in the payload. Returns null when raw records are absent (demo build).
+    const ovCompare = computed(() => {
+      const recs = (data.value && data.value.tasks && data.value.tasks.records) || [];
+      const decs = (data.value && data.value.decisions) || [];
+      if (!recs.length && !decs.length) return null;
+      const MS = 86400000;
+      const parseTs = s => { if (!s) return null; const x = new Date(s).getTime(); return isNaN(x) ? null : x; };
+      const dayKeyOf = ms => { const d = new Date(ms); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+      const end = new Date(); end.setHours(23, 59, 59, 999);
+      const T = end.getTime();
+      // how many tasks were open at instant x, from creation/completion stamps
+      const activeAt = x => recs.filter(r => {
+        const c = parseTs(r.createdAt);
+        if (c && c > x) return false;
+        if (r.status === 'open') return true;
+        const d = parseTs(r.completedAt);
+        return !!(d && d > x);
+      }).length;
+      const activeSeries = [];
+      for (let i = 6; i >= 0; i--) activeSeries.push(activeAt(T - i * MS));
+      const activeLastWeek = activeAt(T - 7 * MS);
+      // completions bucketed by calendar day, same rule as the server-side trend
+      const doneKeys = recs
+        .filter(r => r.status === 'done' && r.completedAt)
+        .map(r => dayKeyOf(parseTs(r.completedAt)));
+      const lastWeekKeys = new Set();
+      for (let i = 13; i >= 7; i--) lastWeekKeys.add(dayKeyOf(T - i * MS));
+      const doneLastWeek = doneKeys.filter(k => lastWeekKeys.has(k)).length;
+      // decisions added per month (meta.date); cumulative series for the mini line
+      const now = new Date();
+      const ymOf = (y, m) => y + '-' + String(m + 1).padStart(2, '0');
+      const thisYM = ymOf(now.getFullYear(), now.getMonth());
+      const lastMDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastYM = ymOf(lastMDate.getFullYear(), lastMDate.getMonth());
+      const decMonths = decs.map(d => String((d.meta && d.meta.date) || '').slice(0, 7)).filter(Boolean);
+      const decThisMonth = decMonths.filter(m => m === thisYM).length;
+      const decLastMonth = decMonths.filter(m => m === lastYM).length;
+      const decSeries = [];
+      for (let i = 6; i >= 0; i--) {
+        const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const ym = ymOf(m.getFullYear(), m.getMonth());
+        decSeries.push(decMonths.filter(x => x <= ym).length);
+      }
+      return { activeSeries, activeLastWeek, doneLastWeek, decThisMonth, decLastMonth, decSeries };
+    });
+    // map a numeric series onto the 96×26 KPI-footer polyline
+    function ckpiPoints(series) {
+      const s = Array.isArray(series) ? series : [];
+      if (s.length < 2) return '0,13 96,13';
+      const mn = Math.min(...s), mx = Math.max(...s), span = (mx - mn) || 1;
+      const step = 96 / (s.length - 1);
+      return s.map((v, i) => Math.round(i * step) + ',' + (22 - Math.round(((v - mn) / span) * 18))).join(' ');
+    }
     const ovKpiCards = computed(() => {
       const k = overview.value.kpis;
       const zh = lang.value === 'zh';
       const wk = zh ? '上周' : 'Last wk';
       const mo = zh ? '上月' : 'Last mo';
-      // value = real mock KPI; delta/prev = mock display metadata (delta vs prev period),
-      // consistent with /clean being a self-contained mock. viz drives the footer micro-chart.
+      const cmp = ovCompare.value;
+      const dirOf = n => n > 0 ? 'up' : n < 0 ? 'down' : 'flat';
+      const fmt = n => n > 0 ? '+' + n : n < 0 ? String(n) : '±0';
+      // deltas/series come from ovCompare (real records). Without raw records the
+      // demo build keeps its static showcase metadata; a real build hides deltas.
+      const act = cmp
+        ? { deltaDir: dirOf(k.activeTasks - cmp.activeLastWeek), delta: fmt(k.activeTasks - cmp.activeLastWeek),
+            prev: wk + ' ' + cmp.activeLastWeek, points: ckpiPoints(cmp.activeSeries) }
+        : { deltaDir: 'up', delta: DEMO_MODE ? '+2' : '', prev: DEMO_MODE ? wk + ' 4' : '',
+            points: '0,20 16,16 32,18 48,11 64,13 80,6 96,4' };
+      const dn = cmp
+        ? { deltaDir: dirOf(k.doneThisWeek - cmp.doneLastWeek), delta: fmt(k.doneThisWeek - cmp.doneLastWeek),
+            prev: wk + ' ' + cmp.doneLastWeek }
+        : { deltaDir: 'up', delta: DEMO_MODE ? '+1' : '', prev: DEMO_MODE ? wk + ' 2' : '' };
+      const dec = cmp
+        ? { deltaDir: dirOf(cmp.decThisMonth - cmp.decLastMonth), delta: fmt(cmp.decThisMonth - cmp.decLastMonth),
+            prev: mo + ' ' + cmp.decLastMonth, points: ckpiPoints(cmp.decSeries) }
+        : { deltaDir: 'down', delta: DEMO_MODE ? '-1' : '', prev: DEMO_MODE ? mo + ' 6' : '',
+            points: '0,6 16,9 32,7 48,12 64,11 80,15 96,17' };
       return [
         { key: 'activeTasks',  label: t('ov.kpi.activeTasks'),  value: k.activeTasks,
-          hero: true,  deltaDir: 'up',   delta: '+2', prev: wk + ' 4', viz: 'trend',
-          ico: 'clock' },
+          hero: true, viz: 'trend', ico: 'clock', ...act },
         { key: 'doneThisWeek', label: t('ov.kpi.doneThisWeek'), value: k.doneThisWeek,
-          orbGreen: true, deltaDir: 'up', delta: '+1', prev: wk + ' 2', viz: 'bars',
-          ico: 'check' },
+          orbGreen: true, viz: 'bars', ico: 'check', ...dn },
         { key: 'projects',     label: t('ov.kpi.projects'),     value: k.projects,
-          deltaDir: 'flat', delta: '±0', prev: wk + ' 2', viz: 'dots',
+          deltaDir: 'flat', delta: '', prev: '', points: '', viz: 'dots',
           ico: 'board' },
         { key: 'decisions',    label: t('ov.kpi.decisions'),    value: k.decisions,
-          deltaDir: 'down', delta: '-1', prev: mo + ' 6', viz: 'trend-mute',
-          ico: 'diamond' },
+          viz: 'trend-mute', ico: 'diamond', ...dec },
       ];
     });
     // Subset shown in the left-column gap (项目进度 already covers "projects", so omit it).
@@ -14273,9 +14391,11 @@ const lociApp = createApp({
     });
     // Focus task: first timed task today, else first task today.
     const ovFocusTask = computed(() => {
-      const ts = overview.value.todayTasks;
-      if (!ts || !ts.length) return null;
-      return ts.find(x => x.startTime) || ts[0];
+      // Live: same source as the sidebar 今日焦点 — the top task of the Today group.
+      const tg = (taskPoolGroups.value || []).find(g => g.id === 'today');
+      const top = ((tg && tg.tasks) || [])[0];
+      if (!top) return null;
+      return { text: top.text || top.title || '', startTime: top.startTime || null };
     });
     const ovTrendTotal = computed(() =>
       overview.value.trend.days.reduce((s, d) => s + (d.count || 0), 0)
@@ -14316,38 +14436,85 @@ const lociApp = createApp({
       for (let i = 0; i < pts.length; i++) { if (pts[i].count >= max) { peakIndex = i; break; } }
       return { points, area, peak: pts[peakIndex], peakIndex };
     });
-    // Today completion ring — honest metric: scheduled (timed) vs total today.
-    const ovRing = computed(() => {
-      const ts = overview.value.todayTasks || [];
-      const total = ts.length;
-      const done = ts.filter(x => x.startTime).length;
-      const r = 18, circ = 2 * Math.PI * r;
-      const ratio = total ? done / total : 0;
-      const offset = circ * (1 - ratio);
-      return { done, total, pct: Math.round(ratio * 100),
-               circ: circ.toFixed(2), offset: offset.toFixed(2) };
-    });
-
-    // Semicircle gauge ticks + needle, driven by ovRing.pct (today scheduled share).
-    const ovGauge = computed(() => {
-      const pct = Math.max(0, Math.min(100, ovRing.value.pct));
-      const angle = +(pct / 100 * 180).toFixed(1);
-      const ticks = [];
-      const fillStart = [0x0e, 0x9f, 0x70], fillEnd = [0x4f, 0xde, 0xae];
+    // 今日节奏 · manual 4-gear pace, gauge-shaped. No data source — the user
+    // sets it (click arc / drag needle / labels / arrow keys). Persisted per-day
+    // in localStorage: "YYYY-MM-DD|gear"; a new day resets to 平稳 (1).
+    const OV_PACE_META = [
+      { key: 'chill',  tag: 'CHILL',  c: '#34d399', w: '#e7f9f1', k: '#0f9d6d', rgb: [52, 211, 153],
+        zh: { name: '休闲',     desc: '慢慢来,今天不赶',       foot: '留白也是安排 — 今天别催自己。' },
+        en: { name: 'Chill',    desc: 'Take it slow today',    foot: 'Unhurried is also a plan.' } },
+      { key: 'steady', tag: 'STEADY', c: '#10b981', w: '#d9f5e9', k: '#047857', rgb: [16, 185, 129],
+        zh: { name: '平稳',     desc: '按自己的节奏,稳稳推进', foot: '一步一步来,别断就好。' },
+        en: { name: 'Steady',   desc: 'Move at your own pace', foot: 'Step by step — just keep going.' } },
+      { key: 'focus',  tag: 'FOCUS',  c: '#e0a23c', w: '#faf0dc', k: '#a86f14', rgb: [224, 162, 60],
+        zh: { name: '专注',     desc: '收起干扰,主线优先',     foot: '只做重要的事,其余明天再说。' },
+        en: { name: 'Focus',    desc: 'Cut the noise, mainline first', foot: 'Only what matters; the rest can wait.' } },
+      { key: 'full',   tag: 'MAX',    c: '#e0574f', w: '#fbe7e5', k: '#b03a33', rgb: [224, 87, 79],
+        zh: { name: '火力全开', desc: '冲刺模式,全力输出',     foot: '今天就是干 — 记得喝水。' },
+        en: { name: 'Full throttle', desc: 'Sprint mode, all in', foot: 'Go hard — and drink water.' } },
+    ];
+    const OV_PACE_ANGLES = [22.5, 67.5, 112.5, 157.5];
+    const ovPaceDayKey = () => {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    };
+    const ovPace = ref((() => {
+      try {
+        const m = String(localStorage.getItem('loci-pace') || '').match(/^(\d{4}-\d{2}-\d{2})\|([0-3])$/);
+        if (m && m[1] === ovPaceDayKey()) return +m[2];
+      } catch { /* default below */ }
+      return 1;
+    })());
+    function ovPaceSet(i) {
+      ovPace.value = Math.min(3, Math.max(0, Number(i) || 0));
+      try { localStorage.setItem('loci-pace', ovPaceDayKey() + '|' + ovPace.value); } catch { /* private mode */ }
+    }
+    const ovPaceStates = computed(() =>
+      OV_PACE_META.map(m => ({ key: m.key, tag: m.tag, c: m.c, w: m.w, k: m.k,
+        ...(lang.value === 'zh' ? m.zh : m.en) }))
+    );
+    const ovPaceState = computed(() => ovPaceStates.value[ovPace.value]);
+    const ovPaceAngle = computed(() => OV_PACE_ANGLES[ovPace.value]);
+    // arc fill: mint → gear color up to the needle, warm neutral beyond
+    const ovPaceTicks = computed(() => {
+      const MINT = [52, 211, 153], IDLE = '#e9e8e3';
+      const to = OV_PACE_META[ovPace.value].rgb;
+      const angle = OV_PACE_ANGLES[ovPace.value];
       const lerp = (a, b, t) => Math.round(a + (b - a) * t);
-      const hex = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
+      const ticks = [];
       for (let i = 0, deg = 0; deg <= 180; deg += 3, i++) {
-        const filled = deg <= angle;
-        let color, w;
-        if (filled) {
+        if (deg <= angle) {
           const t = angle > 0 ? deg / angle : 0;
-          color = hex([lerp(fillStart[0], fillEnd[0], t), lerp(fillStart[1], fillEnd[1], t), lerp(fillStart[2], fillEnd[2], t)]);
-          w = 3.4;
-        } else { color = '#e8f2ed'; w = 3.2; }
-        ticks.push({ i, deg, color, w });
+          const color = '#' + [0, 1, 2].map(ci => lerp(MINT[ci], to[ci], t).toString(16).padStart(2, '0')).join('');
+          ticks.push({ i, deg, color, w: 3.4 });
+        } else ticks.push({ i, deg, color: IDLE, w: 3.2 });
       }
-      return { angle, ticks };
+      return ticks;
     });
+    let ovPaceDragging = false;
+    function ovPaceIdxFromEvent(e) {
+      const svg = e.currentTarget.querySelector('svg');
+      if (!svg) return ovPace.value;
+      const r = svg.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width * 320;
+      const y = (e.clientY - r.top) / r.height * 196;
+      let deg = 180 - (Math.atan2(170 - y, x - 160) * 180 / Math.PI);   // 左端0° → 右端180°
+      deg = Math.max(0, Math.min(180, deg));
+      return Math.min(3, Math.floor(deg / 45));
+    }
+    function ovPaceDown(e) {
+      ovPaceDragging = true;
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* not critical */ }
+      ovPaceSet(ovPaceIdxFromEvent(e));
+    }
+    function ovPaceMove(e) { if (ovPaceDragging) ovPaceSet(ovPaceIdxFromEvent(e)); }
+    function ovPaceUp() { ovPaceDragging = false; }
+    function ovPaceKey(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { ovPaceSet(ovPace.value + 1); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { ovPaceSet(ovPace.value - 1); e.preventDefault(); }
+      else if (e.key === 'Home') { ovPaceSet(0); e.preventDefault(); }
+      else if (e.key === 'End') { ovPaceSet(3); e.preventDefault(); }
+    }
 
     // Memory composition donut — REAL counts: 笔记 / 决策 / 碎片. r=64, C=2πr.
     const ovMemoryMix = computed(() => {
@@ -14375,6 +14542,22 @@ const lociApp = createApp({
       const foot = total === 0 ? (zh ? '还没有记忆' : 'No memories yet')
         : (zh ? top.label + '是你最厚的一层记忆' : top.label + ' is your thickest layer');
       return { total, segments, foot };
+    });
+
+    // Brain vitals (memories / connections / active days) — one real source.
+    // data.network never existed in the release server, so every consumer used
+    // to render its fallback (0, or a hardcoded showcase number). Prefer an
+    // explicit data.network when a build provides one; otherwise: memories =
+    // memory-mix total, connections = people edges, active days = brain age.
+    const netStats = computed(() => {
+      const net = (data.value && data.value.network) || {};
+      const memories = (net.memories != null) ? net.memories
+        : ((ovMemoryMix.value && ovMemoryMix.value.total) || 0);
+      const connections = (net.connections != null) ? net.connections
+        : (((data.value && data.value.people && data.value.people.connections) || []).length);
+      const daysActive = (net.days_active != null) ? net.days_active
+        : (brainDays.value || 0);
+      return { memories, connections, daysActive };
     });
 
     // ── Notes: source identity (label/glyph/accent per source) ──
@@ -16534,8 +16717,9 @@ const lociApp = createApp({
     const ME_PHOTO = '/assets/loci-logo2.png';  // "me" center node — neutral Loci logo
     function pgBuild() {
       const ppl = peopleData.value || [];
-      pgNodes = [{ id: 'me', label: lang.value === 'zh' ? '我' : 'Me', category: 'me', photo: ME_PHOTO, x: 0, y: 0, vx: 0, vy: 0 }];
-      if (ME_PHOTO && !pgImgs['me']) { const im = new Image(); im.src = ME_PHOTO; pgImgs['me'] = im; }
+      const mePhoto = meAvatar.value || ME_PHOTO;  // my own avatar (from the Memory page) if set, else the Loci seahorse
+      pgNodes = [{ id: 'me', label: lang.value === 'zh' ? '我' : 'Me', category: 'me', photo: mePhoto, x: 0, y: 0, vx: 0, vy: 0 }];
+      if (mePhoto && (!pgImgs['me'] || (pgImgs['me'].src || '').indexOf(mePhoto) === -1)) { const im = new Image(); im.src = mePhoto; pgImgs['me'] = im; }
       const nameToId = {};
       ppl.forEach((p, i) => {
         const id = 'p' + i;
@@ -18667,11 +18851,29 @@ const lociApp = createApp({
     // ===== task detail modal (centered popup, opened by the hover ✎ icon) =====
     const detailTask = ref(null);     // the task object currently open in the modal
     const taskTitlePeek = ref(null);
+    const taskPeekPos = ref(null);   // {top,left} px when anchored to a task, else null → centered
     const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '' });
 
     const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
-    function openTaskTitlePeek(task) { taskTitlePeek.value = task || null; }
-    function closeTaskTitlePeek() { taskTitlePeek.value = null; }
+    function openTaskTitlePeek(task, ev) {
+      taskTitlePeek.value = task || null;
+      const anchor = ev && ev.currentTarget;
+      if (!anchor || !anchor.getBoundingClientRect) { taskPeekPos.value = null; return; }
+      const r = anchor.getBoundingClientRect();
+      taskPeekPos.value = { top: r.bottom + 8, left: Math.max(12, r.left - 2) };
+      nextTick(() => {
+        const el = document.querySelector('.task-peek');
+        if (!el) return;
+        const m = 12, w = el.offsetWidth, h = el.offsetHeight;
+        let left = r.left - 2, top = r.bottom + 8;
+        if (left + w > window.innerWidth - m) left = window.innerWidth - w - m;
+        if (left < m) left = m;
+        if (top + h > window.innerHeight - m) top = r.top - h - 8;   // flip above the row
+        if (top < m) top = m;
+        taskPeekPos.value = { top, left };
+      });
+    }
+    function closeTaskTitlePeek() { taskTitlePeek.value = null; taskPeekPos.value = null; }
     function openTaskDetail(task) {
       detailMode.value = 'edit';
       detailTask.value = task;
@@ -19982,7 +20184,7 @@ const lociApp = createApp({
       reorderState, reorderDragStart, reorderDragOver, reorderDrop, reorderDragEnd,
       confirmDeleteId, askDeleteTask, deleteTaskConfirmed,
       taskColors, showTaskDetail, newTaskLocation, newTaskColor, newTaskNote, newTaskPriority,
-      detailTask, taskTitlePeek, editDetail, openTaskTitlePeek, closeTaskTitlePeek, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
+      detailTask, taskTitlePeek, taskPeekPos, editDetail, openTaskTitlePeek, closeTaskTitlePeek, openTaskDetail, closeTaskDetail, saveTaskDetail, detailMode, openCreateDetail,
       evTaskStyleStr,
       timelineDragOver, onTimelineDragover, onTimelineDragleave, onTimelineDrop,
       getEventsForHour, weekDays, monthLabel, monthCells, goalsList, setGoalProgress, goalColor, getDayTasks, getDayItems, dateToKey,
@@ -20021,9 +20223,11 @@ const lociApp = createApp({
       notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesLinkPointers, notesTotal, notesSearchHits, notesMkdir, notesReveal, fragCleanText,
       noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
-      overview, ovKpiCards, ovKpiGapCards, ovBubbles, ovTrendHasData, ovRelDate,
-      ovUserName, ovFocusTask, ovTrendTotal, ovDayShort, ovMonthDay, ovSpark, ovRing,
-      ovGauge, ovMemoryMix,
+      overview, ovKpiCards, ovKpiGapCards, netStats, ovBubbles, ovTrendHasData, ovRelDate,
+      ovUserName, ovFocusTask, ovTrendTotal, ovDayShort, ovMonthDay, ovSpark,
+      ovPace, ovPaceStates, ovPaceState, ovPaceAngle, ovPaceTicks,
+      ovPaceSet, ovPaceDown, ovPaceMove, ovPaceUp, ovPaceKey,
+      ovMemoryMix,
       fragMode, fragExpand, fragBack, fragNotesSorted, fragCollectionsSorted, fragTypeMeta, fragHost, fragOpen,
       fragNotesNew, fragNotesSeen, fragTriageCount, fragDismissNote,
       fragStreamGroups, fragGutterTime, fragNoteIsNew,
