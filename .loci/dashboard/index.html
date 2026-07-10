@@ -689,32 +689,33 @@
     .task-edit svg { width:15px; height:15px; }
 
     /* ── centered task-detail modal ── */
-    .tm-overlay { position:fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center;
-      background:rgba(28,28,26,.28); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); padding:20px; }
-    .tm-modal { width:440px; max-width:94%; background:var(--surface); border:1px solid var(--line); border-radius:18px;
-      box-shadow:0 24px 56px rgba(20,20,18,.16); font-family:var(--sans); display:flex; flex-direction:column; max-height:88vh;
+    .tm-overlay { position:fixed; inset:0; z-index:120; display:flex; align-items:flex-start; justify-content:center;
+      background:rgba(28,28,26,.28); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); padding:clamp(18px,4vh,42px) 20px; overflow-y:auto; }
+    .tm-modal { width:min(760px, calc(100vw - 40px)); background:var(--surface); border:1px solid var(--line); border-radius:18px;
+      box-shadow:0 24px 56px rgba(20,20,18,.16); font-family:var(--sans); display:flex; flex-direction:column;
       animation:tmIn .2s cubic-bezier(.32,.72,0,1); }
     @keyframes tmIn { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
     .tm-head { display:flex; align-items:flex-start; gap:12px; padding:20px 22px 14px; border-bottom:1px solid var(--line); }
     .tm-head .tm-title { flex:1; min-width:0; }
     .tm-eyebrow { font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px; }
-    .tm-name { font-size:16px; font-weight:650; line-height:1.4; letter-spacing:-.01em; color:var(--ink); }
+    .tm-name { font-size:18px; font-weight:650; line-height:1.4; letter-spacing:-.01em; color:var(--ink); }
     /* editable title — looks like the heading, reveals a frame on focus */
-    .tm-name-input { width:100%; font-size:16px; font-weight:650; line-height:1.4; letter-spacing:-.01em; color:var(--ink);
+    .tm-name-input { width:100%; font-size:18px; font-weight:650; line-height:1.4; letter-spacing:-.01em; color:var(--ink);
       font-family:var(--sans); border:1px solid transparent; border-radius:8px; background:transparent; padding:4px 8px; margin:-4px -8px; outline:none; transition:border-color .14s, background .14s; }
     .tm-name-input:hover { background:var(--surface-2); }
     .tm-name-input:focus { border-color:var(--accent); background:var(--surface); }
     .tm-close { flex:none; width:28px; height:28px; border:1px solid var(--line); border-radius:8px; background:var(--surface);
       color:var(--ink-3); cursor:pointer; display:grid; place-items:center; font-size:13px; }
     .tm-close:hover { color:var(--ink); background:var(--surface-2); }
-    .tm-body { flex:1; overflow-y:auto; padding:18px 22px; }
-    .tm-field { margin-bottom:16px; }
+    .tm-body { padding:18px 24px 12px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 16px; overflow:visible; }
+    .tm-field { margin-bottom:0; min-width:0; }
+    .tm-field--wide { grid-column:1 / -1; }
     .tm-field label { display:block; font-size:10px; font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:7px; }
     .tm-field input, .tm-field textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:14px; font-family:var(--sans); color:var(--ink); outline:none; background:var(--surface-2); transition:border-color .14s, background .14s; }
     .tm-field input:focus, .tm-field textarea:focus { border-color:var(--accent); background:var(--surface); }
-    .tm-field textarea { resize:vertical; min-height:70px; }
+    .tm-field textarea { resize:vertical; min-height:74px; max-height:180px; }
     .tm-field input[type="date"], .tm-field input[type="time"] { font-family:var(--mono); color:var(--ink-2); accent-color:var(--accent); }
-    .tm-row { display:flex; gap:12px; } .tm-row .tm-field { flex:1; }
+    .tm-row { display:contents; } .tm-row .tm-field { flex:1; }
     .tm-seg { display:flex; gap:6px; }
     .tm-seg button { flex:1; padding:9px 0; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); font-family:var(--mono); font-size:12.5px; font-weight:600; cursor:pointer; color:var(--ink-3); transition:.12s; }
     .tm-seg button.on[data-p="P0"]{ background:#fdf4f4; border-color:#f4a8a8; color:#c2410c; }
@@ -724,6 +725,14 @@
     .tm-del { margin-right:auto; padding:9px 14px; border:1px solid #f4a8a8; background:#fdf4f4; color:#c2410c; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; }
     .tm-cancel { padding:9px 18px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2); border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; }
     .tm-save { padding:9px 22px; border:0; background:var(--ink); color:#fff; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; }
+    @media (max-width: 640px) {
+      .tm-overlay { align-items:flex-start; padding:12px; }
+      .tm-modal { width:100%; }
+      .tm-head { padding:18px 18px 12px; }
+      .tm-body { grid-template-columns:1fr; padding:16px 18px 10px; }
+      .tm-field--wide { grid-column:auto; }
+      .tm-foot { padding:12px 18px; }
+    }
 
     /* calendar / schedule header (clean-reference .cal-head) */
     .cal-head { display: flex; align-items: center; gap: 14px; }
@@ -5562,7 +5571,7 @@
             <label>{{ lang === 'zh' ? '标签 / 分类' : 'Tag / Category' }}</label>
             <input v-model="editDetail.category" :placeholder="lang === 'zh' ? '如 Backlog / UI / 发布' : 'e.g. Backlog / UI / Release'">
           </div>
-          <div class="tm-field">
+          <div class="tm-field tm-field--wide">
             <label>{{ lang === 'zh' ? '备注 / 描述' : 'Note' }}</label>
             <textarea v-model="editDetail.note" :placeholder="lang === 'zh' ? '细节、链接、上下文…' : 'details, links…'"></textarea>
           </div>
