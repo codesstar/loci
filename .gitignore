@@ -20,6 +20,10 @@ __pycache__/
 # Dashboard build output
 .loci/dashboard/data.json
 
+# Dashboard instance data (per-machine, never shipped)
+.loci/dashboard/.token
+.loci/.write-lock/
+
 # ─── Personal data (stays local after onboarding) ───
 # install.sh auto-disconnects from the template remote,
 # so your data never gets pushed to the public repo.

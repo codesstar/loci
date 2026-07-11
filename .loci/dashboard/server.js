@@ -19,6 +19,13 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
+// Foundation modules (auth / SSE / atomic writes). New API features plug in
+// as lib/routes/*.js modules instead of growing this file — see the route
+// loader just above the server definition.
+const auth = require(path.join(__dirname, 'lib', 'auth.js'));
+const sse = require(path.join(__dirname, 'lib', 'sse.js'));
+const store = require(path.join(__dirname, 'lib', 'store.js'));
+
 // ─── Configuration ──────────────────────────────────────────────────────────
 
 const PORT = parseInt(process.env.PORT, 10) || 8765;
@@ -391,12 +398,19 @@ function loadTaskRecords() {
   }
 }
 
+// Cross-process write lock shared with scripts/loci-task.js — serializes
+// writers (dashboard, CLI, spawned agents) on the same brain.
+function writeLockDir() {
+  return path.join(LOCI_ROOT, '.loci', '.write-lock');
+}
+
 function saveTaskRecords(tasks) {
   const normalized = tasks.map(normalizeTask).filter(t => t.title);
   const filePath = taskDbPath();
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify({ tasks: normalized }, null, 2) + '\n', 'utf-8');
-  writeActiveTaskView(normalized);
+  store.withLock(writeLockDir(), () => {
+    store.atomicWriteSync(filePath, JSON.stringify({ tasks: normalized }, null, 2) + '\n', 'utf-8');
+    writeActiveTaskView(normalized);
+  });
   return normalized;
 }
 
@@ -455,7 +469,7 @@ function writeActiveTaskView(tasks) {
     ...(done.length ? done.map(taskLine) : ['<!-- No recently completed tasks. -->']),
   ];
 
-  fs.writeFileSync(activeTaskViewPath(), lines.join('\n') + '\n', 'utf-8');
+  store.atomicWriteSync(activeTaskViewPath(), lines.join('\n') + '\n', 'utf-8');
 }
 
 // ─── Data builders ──────────────────────────────────────────────────────────
@@ -782,7 +796,7 @@ function readFolderSources() {
 
 function writeFolderSources(list) {
   fs.mkdirSync(path.join(LOCI_ROOT, 'notes'), { recursive: true });
-  fs.writeFileSync(sourcesFile(), JSON.stringify(list, null, 2), 'utf-8');
+  store.atomicWriteSync(sourcesFile(), JSON.stringify(list, null, 2), 'utf-8');
 }
 
 // Scan one mounted folder for .md files and return them shaped like note files,
@@ -1063,7 +1077,7 @@ function handleNoteSave(body) {
   if (r.error) return { error: r.error };
   if (!fs.existsSync(r.file)) return { error: 'Note not found' };
   try {
-    fs.writeFileSync(r.file, md, 'utf-8');
+    store.atomicWriteSync(r.file, md, 'utf-8');
     return { ok: true, filename: r.id };
   } catch (e) {
     return { error: 'Could not save note' };
@@ -1110,7 +1124,7 @@ function handleNoteProps(body) {
     const next = { ...props };
     next.updated = new Date().toISOString().slice(0, 10);   // stamp edits
     const front = propsToFrontmatter(next);
-    fs.writeFileSync(r.file, front + '\n\n' + (mdBody || '') + '\n', 'utf-8');
+    store.atomicWriteSync(r.file, front + '\n\n' + (mdBody || '') + '\n', 'utf-8');
     return { ok: true, filename: r.id };
   } catch (e) {
     return { error: 'Could not save properties' };
@@ -1135,7 +1149,7 @@ function handleNoteCreate(body) {
   const today = new Date().toISOString().slice(0, 10);
   const md = `---\ntitle: ${title}\ntags: []\ncreated: ${today}\nupdated: ${today}\n---\n\n# ${title}\n\n`;
   try {
-    fs.writeFileSync(path.join(notesDir, filename), md, 'utf-8');
+    store.atomicWriteSync(path.join(notesDir, filename), md, 'utf-8');
     return { ok: true, filename, md, title };
   } catch (e) {
     return { error: 'Could not create note' };
@@ -1256,7 +1270,7 @@ function handleNoteImport(body) {
     } else {
       content = content.replace(/\s*$/, '') + `\n\n${heading}\n\n${line}\n`;
     }
-    fs.writeFileSync(indexFile, content, 'utf-8');
+    store.atomicWriteSync(indexFile, content, 'utf-8');
     return { ok: true, title, link: src, gist, tags };
   } catch (e) {
     return { error: '写入索引失败' };
@@ -1277,7 +1291,7 @@ function handleNoteUnlink(body) {
     // a pointer line contains the link between " · " separators
     const kept = lines.filter(l => !(l.trim().startsWith('- ') && l.includes('· ' + link + ' ·')));
     if (kept.length === lines.length) return { error: '没找到这个链接' };
-    fs.writeFileSync(indexFile, kept.join('\n'), 'utf-8');
+    store.atomicWriteSync(indexFile, kept.join('\n'), 'utf-8');
     return { ok: true, link };
   } catch (e) {
     return { error: '移除失败' };
@@ -2866,7 +2880,7 @@ function handleProjectDisconnect(body) {
       if (!skipping) out.push(line);
     }
     if (!removed) return { error: 'Project not found in index' };
-    fs.writeFileSync(indexFile, out.join('\n'));
+    store.atomicWriteSync(indexFile, out.join('\n'));
     return { ok: true, disconnected: name };
   } catch (e) {
     return { error: 'Could not update index: ' + e.message };
@@ -2897,7 +2911,7 @@ function handlePeopleEdge(op, body) {
   }
   try {
     if (!data._comment) data._comment = '人物关系边（无向）。dashboard 关系图读写这个文件。';
-    fs.writeFileSync(f, JSON.stringify(data, null, 2) + '\n');
+    store.atomicWriteSync(f, JSON.stringify(data, null, 2) + '\n');
   } catch (e) { return { error: 'Could not write connections' }; }
   return { ok: true, op, a, b, count: data.edges.length };
 }
@@ -2925,7 +2939,7 @@ function handleAvatarUpload(body) {
   try {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const file = path.join(dir, slug + '.' + ext);
-    fs.writeFileSync(file, buf);
+    store.atomicWriteSync(file, buf);
     return { ok: true, photo: '/people-avatars-user/' + slug + '.' + ext };
   } catch (e) { return { error: 'Could not save image' }; }
 }
@@ -2966,7 +2980,7 @@ function handleProfileUpdate(body) {
       text = text.replace(/^[ \t]*(?:[-*][ \t]*)?\*\*(?:Tagline|简介|签名)\*\*[:：][^\n]*\n?/m, '');
     }
   }
-  try { fs.writeFileSync(file, text); }
+  try { store.atomicWriteSync(file, text); }
   catch (e) { return { error: 'Could not write identity.md' }; }
   return { ok: true, username: readUsername(), tagline: readTagline() };
 }
@@ -2996,7 +3010,7 @@ function handleProfileSignals(body) {
     if (clean.length) head += '\n' + line;
     text = head + text.slice(fmEnd);
   }
-  try { fs.writeFileSync(file, text); }
+  try { store.atomicWriteSync(file, text); }
   catch (e) { return { error: 'Could not write identity.md' }; }
   return { ok: true, signals: clean };
 }
@@ -3016,7 +3030,7 @@ function handleMeAvatarUpload(body) {
     for (const e of ['png', 'jpg', 'webp', 'gif']) {
       if (e !== ext) { try { fs.unlinkSync(path.join(dir, 'avatar.' + e)); } catch { /* absent */ } }
     }
-    fs.writeFileSync(path.join(dir, 'avatar.' + ext), buf);
+    store.atomicWriteSync(path.join(dir, 'avatar.' + ext), buf);
     return { ok: true, avatar: meAvatarUrl() };
   } catch (e) { return { error: 'Could not save image' }; }
 }
@@ -3064,7 +3078,7 @@ function handlePersonAdd(body) {
   if (!p.last_contact) p.last_contact = isoNow().slice(0, 10);
   try {
     if (!fs.existsSync(peopleDir)) fs.mkdirSync(peopleDir, { recursive: true });
-    fs.writeFileSync(file, personToMd(p));
+    store.atomicWriteSync(file, personToMd(p));
   } catch (e) { return { error: 'Could not create person file' }; }
   return { ok: true, name, file: path.basename(file) };
 }
@@ -3097,7 +3111,7 @@ function handlePersonUpdate(body) {
   if (body.note !== undefined) p.note = body.note;
   p.name = p.name || orig;
   const file = path.join(peopleDir, target.filename);
-  try { fs.writeFileSync(file, personToMd(p)); }
+  try { store.atomicWriteSync(file, personToMd(p)); }
   catch (e) { return { error: 'Could not save person' }; }
   return { ok: true, name: p.name, file: target.filename };
 }
@@ -3153,7 +3167,7 @@ function handlePlaceAdd(body) {
   if (!p.type) p.type = 'other';
   try {
     if (!fs.existsSync(placesDir)) fs.mkdirSync(placesDir, { recursive: true });
-    fs.writeFileSync(file, placeToMd(p));
+    store.atomicWriteSync(file, placeToMd(p));
   } catch (e) { return { error: 'Could not create place file' }; }
   return { ok: true, name, file: path.basename(file) };
 }
@@ -3176,7 +3190,7 @@ function handlePlaceUpdate(body) {
   } catch {}
   cleanPlaceFields(body, p);
   p.name = (body.name !== undefined ? String(body.name).trim() : '') || orig;
-  try { fs.writeFileSync(path.join(placesDir, target.filename), placeToMd(p)); }
+  try { store.atomicWriteSync(path.join(placesDir, target.filename), placeToMd(p)); }
   catch (e) { return { error: 'Could not save place' }; }
   return { ok: true, name: p.name, file: target.filename };
 }
@@ -3303,7 +3317,7 @@ function handleJournalSave(body) {
     fileContent = buildMdWithFrontmatter(meta, content);
   }
 
-  fs.writeFileSync(filePath, fileContent, 'utf-8');
+  store.atomicWriteSync(filePath, fileContent, 'utf-8');
   return { ok: true, date, path: filePath };
 }
 
@@ -3316,7 +3330,7 @@ function handleJournalNotesSave(body) {
   if (!fs.existsSync(notesDir)) fs.mkdirSync(notesDir, { recursive: true });
 
   const filePath = path.join(notesDir, `${date}.json`);
-  fs.writeFileSync(filePath, JSON.stringify(notes, null, 2), 'utf-8');
+  store.atomicWriteSync(filePath, JSON.stringify(notes, null, 2), 'utf-8');
   return { ok: true, date };
 }
 
@@ -3345,7 +3359,7 @@ function handlePlanSave(body) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   const filePath = path.join(dir, `${key}.json`);
-  fs.writeFileSync(filePath, JSON.stringify(items, null, 2), 'utf-8');
+  store.atomicWriteSync(filePath, JSON.stringify(items, null, 2), 'utf-8');
   return { ok: true, type, key };
 }
 
@@ -3420,7 +3434,7 @@ function handleInboxAdd(body) {
     }
   }
   const finalContent = lines.join('\n');
-  fs.writeFileSync(filePath, finalContent, 'utf-8');
+  store.atomicWriteSync(filePath, finalContent, 'utf-8');
   return { ok: true, text };
 }
 
@@ -3461,7 +3475,7 @@ function handleInboxRemove(body) {
   }
 
   if (!found) return { error: 'Item not found: ' + text };
-  fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  store.atomicWriteSync(filePath, lines.join('\n'), 'utf-8');
   return { ok: true, text };
 }
 
@@ -3484,7 +3498,7 @@ function handleNotesAddCategory(body) {
   } catch (e) { /* start fresh on malformed file */ }
 
   if (!cats.includes(name)) cats.push(name);
-  fs.writeFileSync(catFile, JSON.stringify(cats, null, 2), 'utf-8');
+  store.atomicWriteSync(catFile, JSON.stringify(cats, null, 2), 'utf-8');
   return { ok: true, categories: cats };
 }
 
@@ -3521,7 +3535,7 @@ function handleReferenceAdd(body) {
   if (url) content += `- **Link:** ${url}\n`;
   if (note) content += `\n${note}\n`;
 
-  fs.writeFileSync(filePath, content, 'utf-8');
+  store.atomicWriteSync(filePath, content, 'utf-8');
   return { ok: true, file: fileName };
 }
 
@@ -3557,6 +3571,7 @@ function handleCalendarAdd(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format (YYYY-MM-DD)' };
 
   const calPath = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
+  return store.withLock(writeLockDir(), () => {
   let cal = {};
   if (fs.existsSync(calPath)) {
     try { cal = JSON.parse(fs.readFileSync(calPath, 'utf-8')); } catch {}
@@ -3579,9 +3594,9 @@ function handleCalendarAdd(body) {
   if (taskId) ev.taskId = taskId;
   cal[date].push(ev);
 
-  fs.mkdirSync(path.dirname(calPath), { recursive: true });
-  fs.writeFileSync(calPath, JSON.stringify(cal, null, 2), 'utf-8');
+  store.atomicWriteSync(calPath, JSON.stringify(cal, null, 2), 'utf-8');
   return { ok: true, date, event: ev };
+  });
 }
 
 function handleDailyPlanSave(body) {
@@ -3603,7 +3618,7 @@ function handleDailyPlanSave(body) {
     fileContent = buildMdWithFrontmatter({ date, updated: date }, content);
   }
 
-  fs.writeFileSync(filePath, fileContent, 'utf-8');
+  store.atomicWriteSync(filePath, fileContent, 'utf-8');
   return { ok: true, date, path: filePath };
 }
 
@@ -3632,7 +3647,7 @@ function handleDailyPlanToggle(body) {
     }
   }
 
-  fs.writeFileSync(filePath, content, 'utf-8');
+  store.atomicWriteSync(filePath, content, 'utf-8');
   return { ok: true, date, taskText, done };
 }
 
@@ -3657,7 +3672,7 @@ function handleDailyPlanAddTask(body) {
     content = `---\ndate: ${date}\nstatus: planned\n---\n\n# ${date} ${days[d.getDay()]}\n\n## 日程\n\n- [ ] ${task}\n`;
   }
 
-  fs.writeFileSync(filePath, content, 'utf-8');
+  store.atomicWriteSync(filePath, content, 'utf-8');
   return { ok: true, date, task };
 }
 
@@ -3675,7 +3690,7 @@ function handleDailyPlanRemoveTask(body) {
   const re = new RegExp(`^- \\[[x ]\\] ${escapedTask}\\n?`, 'm');
   if (re.test(content)) {
     content = content.replace(re, '');
-    fs.writeFileSync(filePath, content, 'utf-8');
+    store.atomicWriteSync(filePath, content, 'utf-8');
     return { ok: true, date, task };
   }
   return { error: 'Task not found in file' };
@@ -3715,12 +3730,8 @@ function parseJsonBody(req) {
 
 function sendJson(res, data, statusCode = 200) {
   const json = JSON.stringify(data, null, 2);
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  });
+  // Same-origin app: no CORS headers issued — cross-origin reads are refused.
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(json);
 }
 
@@ -3734,16 +3745,12 @@ function serveStaticFile(res, filePath) {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404, {
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin': '*',
-      });
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not Found');
       return;
     }
     res.writeHead(200, {
       'Content-Type': mime,
-      'Access-Control-Allow-Origin': '*',
       'Cache-Control': 'no-cache',
     });
     res.end(data);
@@ -3941,19 +3948,63 @@ function handleSkillReveal(body) {
   }
 }
 
+// ─── Pluggable API route modules ────────────────────────────────────────────
+// Each lib/routes/*.js exports { handle(req, res, parsed, ctx) → bool }.
+// Feature tracks (chat, push, …) add a file there; server.js stays untouched.
+const routeModules = [];
+try {
+  const routesDir = path.join(__dirname, 'lib', 'routes');
+  for (const f of fs.readdirSync(routesDir).sort()) {
+    if (f.endsWith('.js')) routeModules.push(require(path.join(routesDir, f)));
+  }
+} catch { /* no routes dir — fine */ }
+
+function sendUnauthorized(req, res) {
+  const wantsHtml = req.method === 'GET' && String(req.headers.accept || '').includes('text/html');
+  if (!wantsHtml) {
+    sendJson(res, { error: 'unauthorized' }, 401);
+    return;
+  }
+  // Minimal token gate for browsers (e.g. first open on a phone): saving the
+  // token here lands it in localStorage via the ?token= bootstrap in index.html.
+  res.writeHead(401, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loci · 访问验证</title></head>
+<body style="font-family:-apple-system,'PingFang SC',sans-serif;display:flex;min-height:90vh;align-items:center;justify-content:center;background:#111;color:#eee">
+<form style="text-align:center" onsubmit="location.href='/?token='+encodeURIComponent(document.getElementById('t').value.trim());return false">
+<h3 style="margin-bottom:4px">输入访问令牌</h3>
+<p style="color:#999;font-size:14px">在电脑上运行 <code>loci token</code> 获取</p>
+<input id="t" autofocus autocomplete="off" style="padding:10px;font-size:16px;border-radius:8px;border:1px solid #444;background:#222;color:#eee">
+<button style="padding:10px 18px;font-size:15px;border-radius:8px;border:0;background:#4a7dff;color:#fff;margin-left:6px">进入</button>
+</form></body></html>`);
+}
+
 const server = http.createServer(async (req, res) => {
   const parsed = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = parsed.pathname;
 
-  // CORS preflight
+  // Gate everything: sensitive paths are never served; non-loopback clients
+  // (LAN bind, reverse proxy) must present the bearer token.
+  if (auth.isForbiddenPath(pathname)) {
+    sendError(res, 'Forbidden', 403);
+    return;
+  }
+  if (!auth.authorize(req, parsed)) {
+    sendUnauthorized(req, res);
+    return;
+  }
+
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    });
+    res.writeHead(204);
     res.end();
     return;
+  }
+
+  // Pluggable API routes (lib/routes/*.js).
+  const routeCtx = { LOCI_ROOT, SCRIPT_DIR, auth, sse, store, sendJson, sendError, parseJsonBody };
+  for (const m of routeModules) {
+    if (await m.handle(req, res, parsed, routeCtx)) return;
   }
 
   // API routes
@@ -4667,10 +4718,14 @@ function killPortHolder(port) {
 }
 
 function startServer(retried) {
-  server.listen(PORT, () => {
+  // Loopback by default — remote access goes through an authenticated proxy
+  // (e.g. `tailscale serve`), never a bare all-interfaces bind. LOCI_HOST
+  // overrides for advanced setups; non-loopback clients then need the token.
+  const HOST = process.env.LOCI_HOST || '127.0.0.1';
+  server.listen(PORT, HOST, () => {
     console.log(`Loci Dashboard`);
     console.log(`  Brain root: ${LOCI_ROOT}`);
-    console.log(`  Server:     http://localhost:${PORT}`);
+    console.log(`  Server:     http://localhost:${PORT} (bound to ${HOST})`);
     console.log(`  API:        http://localhost:${PORT}/api/data`);
     console.log(`  Press Ctrl+C to stop`);
   });

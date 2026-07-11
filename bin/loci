@@ -4,6 +4,7 @@
 #   loci            start the dashboard (if needed) and open it in the browser
 #   loci stop       stop the dashboard server
 #   loci path       print where your brain lives
+#   loci token      print the dashboard access token (for phone/remote access)
 #   loci update     update the Loci engine (runs update.sh in your brain)
 #   loci help       this help
 #
@@ -57,6 +58,13 @@ case "$cmd" in
     say "$BRAIN"
     exit 0
     ;;
+  token)
+    BRAIN="$(find_brain)" || fail "no brain found — run setup first"
+    TOKEN_FILE="$BRAIN/.loci/dashboard/.token"
+    [ -f "$TOKEN_FILE" ] || fail "no token yet — start the dashboard once with: loci"
+    head -1 "$TOKEN_FILE" | tr -d '[:space:]'; echo
+    exit 0
+    ;;
   stop)
     if pid="$(lsof -ti:"$PORT" 2>/dev/null)" && [ -n "$pid" ]; then
       kill $pid && say "Dashboard stopped (port $PORT)."
@@ -86,7 +94,14 @@ case "$cmd" in
         fail "dashboard did not start — check $BRAIN/.loci/dashboard.log"
       fi
     fi
-    open_url "http://localhost:$PORT"
+    # Pass the access token along so it lands in localStorage — the same
+    # browser profile then works via non-loopback URLs (e.g. tailscale) too.
+    URL="http://localhost:$PORT"
+    TOKEN_FILE="$BRAIN/.loci/dashboard/.token"
+    if [ -f "$TOKEN_FILE" ]; then
+      URL="$URL/?token=$(head -1 "$TOKEN_FILE" | tr -d '[:space:]')"
+    fi
+    open_url "$URL"
     exit 0
     ;;
   *)

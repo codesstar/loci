@@ -48,6 +48,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loci · Dashboard</title>
+  <!-- Access-token bootstrap: a first visit via /?token=xxx persists the token
+       (localStorage) and strips it from the URL; every same-origin fetch then
+       carries it. Loopback visits never need it — this is inert locally. -->
+  <script>
+  (function () {
+    try {
+      var q = new URLSearchParams(location.search);
+      var fromUrl = q.get('token');
+      if (fromUrl) {
+        localStorage.setItem('loci.token', fromUrl);
+        q.delete('token');
+        history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash);
+      }
+      var token = localStorage.getItem('loci.token') || '';
+      window.__lociToken = token;
+      // lociUrl(path): appends ?token= for transports that can't set headers (EventSource).
+      window.lociUrl = function (p) {
+        if (!token) return p;
+        return p + (p.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(token);
+      };
+      if (token && window.fetch) {
+        var origFetch = window.fetch.bind(window);
+        window.fetch = function (input, init) {
+          var url = typeof input === 'string' ? input : ((input && input.url) || '');
+          if (url.charAt(0) === '/' || url.indexOf(location.origin) === 0) {
+            init = init || {};
+            var h = new Headers(init.headers || (typeof input === 'object' && input && input.headers) || undefined);
+            h.set('X-Loci-Token', token);
+            init.headers = h;
+          }
+          return origFetch(input, init);
+        };
+      }
+    } catch (e) { /* never block the app on token bootstrap */ }
+  })();
+  </script>
+  <!-- @pwa-head -->
+  <!-- @mobile-css -->
   <link rel="icon" type="image/png" href="/assets/loci-logo2.png">
 
   <!-- Google Fonts: Clean theme — Inter (UI) + JetBrains Mono (data/labels) only -->
@@ -21440,5 +21478,6 @@ lociApp.component('note-tree-node', {
 lociApp.mount('#app');
 
 </script>
+<!-- @chat-mount -->
 </body>
 </html>
