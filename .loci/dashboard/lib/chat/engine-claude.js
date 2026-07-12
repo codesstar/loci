@@ -83,20 +83,43 @@ function resolveBin() {
   return cachedBin;
 }
 
+// Async on purpose: the server is single-threaded — a synchronous version
+// check here would freeze every dashboard request for seconds. The result is
+// cached once ok; init() warms it in the background at server start.
 let cachedHealth = null;
 function health() {
-  if (cachedHealth && cachedHealth.ok) return cachedHealth;
+  if (cachedHealth && cachedHealth.ok) return Promise.resolve(cachedHealth);
   const bin = resolveBin();
   if (!bin) {
-    return { ok: false, engine: 'claude', reason: '找不到 claude 命令 — 请先安装 Claude Code（https://claude.com/claude-code）' };
+    return Promise.resolve({ ok: false, engine: 'claude', reason: '找不到 claude 命令 — 请先安装 Claude Code（https://claude.com/claude-code）' });
   }
-  try {
-    const version = execFileSync(bin, ['--version'], { encoding: 'utf-8', timeout: 15000 }).trim();
-    cachedHealth = { ok: true, engine: 'claude', bin, version };
-  } catch (e) {
-    cachedHealth = { ok: false, engine: 'claude', bin, reason: 'claude --version 执行失败：' + e.message };
-  }
-  return cachedHealth;
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (result) => { if (!done) { done = true; resolve(result); } };
+    let child;
+    try {
+      child = spawn(bin, ['--version'], { env: process.env });
+    } catch (e) {
+      return finish({ ok: false, engine: 'claude', bin, reason: 'claude 启动失败：' + e.message });
+    }
+    let out = '';
+    const timer = setTimeout(() => {
+      try { child.kill(); } catch { /* gone */ }
+      finish({ ok: false, engine: 'claude', bin, reason: 'claude --version 超时' });
+    }, 15000);
+    if (timer.unref) timer.unref();
+    child.stdout.on('data', (c) => { out += c; });
+    child.on('error', (e) => { clearTimeout(timer); finish({ ok: false, engine: 'claude', bin, reason: e.message }); });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      if (code === 0) {
+        cachedHealth = { ok: true, engine: 'claude', bin, version: out.trim() };
+        finish(cachedHealth);
+      } else {
+        finish({ ok: false, engine: 'claude', bin, reason: 'claude --version 退出码 ' + code });
+      }
+    });
+  });
 }
 
 function preview(v, max = 200) {
@@ -215,7 +238,8 @@ function startTurn(opts) {
   });
   child.stderr.on('data', (c) => { stderrTail = (stderrTail + c).slice(-2000); });
 
-  const timeout = setTimeout(() => kill('turn timeout'), TURN_TIMEOUT_MS);
+  let timedOut = false;
+  const timeout = setTimeout(() => { timedOut = true; kill(); }, TURN_TIMEOUT_MS);
   if (timeout.unref) timeout.unref();
 
   function kill() {
@@ -228,11 +252,11 @@ function startTurn(opts) {
 
   child.on('close', (code) => {
     clearTimeout(timeout);
-    opts.onExit({ code, killed, sessionId, stderr: code !== 0 && !killed ? stderrTail : '' });
+    opts.onExit({ code, killed, timedOut, sessionId, stderr: code !== 0 && !killed ? stderrTail : '' });
   });
   child.on('error', (e) => {
     clearTimeout(timeout);
-    opts.onExit({ code: -1, killed, sessionId, error: e.message });
+    opts.onExit({ code: -1, killed, timedOut, sessionId, error: e.message });
   });
 
   return { kill, pid: child.pid };

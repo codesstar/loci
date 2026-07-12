@@ -133,7 +133,12 @@ function subscribe(ctx, id, stream) {
 function health(ctx, engine) {
   init(ctx);
   const eng = engines[engine || 'claude'];
-  return eng ? eng.health() : { ok: false, reason: 'unknown engine' };
+  return eng ? eng.health() : Promise.resolve({ ok: false, reason: 'unknown engine' });
+}
+
+// Warm the engine health cache in the background at server start.
+function warm() {
+  engines.claude.health().catch(() => { /* surfaces via /api/chat/health */ });
 }
 
 function stop(ctx, id) {
@@ -224,10 +229,18 @@ function send(ctx, id, message) {
       if (res.sessionId) s.engineSessionId = res.sessionId;
       st.turns.delete(id);
       persistSoon();
-      if (res.killed) {
+      if (res.killed && res.timedOut) {
+        const msg = '这轮处理超过 10 分钟，已自动中止';
+        s.transcript.push({ role: 'system', text: msg, ts: new Date().toISOString() });
+        broadcast(id, 'error', { message: msg });
+        broadcast(id, 'turn_done', { ok: false });
+      } else if (res.killed) {
         broadcast(id, 'turn_done', { ok: false, stopped: true });
       } else if (res.code !== 0) {
-        const reason = res.error || res.stderr || `exit code ${res.code}`;
+        // keep the bubble humane — full stderr goes to the server log
+        const raw = res.error || res.stderr || `exit code ${res.code}`;
+        if (res.stderr) console.error(`chat: turn failed (session ${id}):`, res.stderr);
+        const reason = String(raw).replace(/\s+/g, ' ').slice(0, 200);
         s.transcript.push({ role: 'system', text: '出错了：' + reason, ts: new Date().toISOString() });
         broadcast(id, 'error', { message: reason });
         broadcast(id, 'turn_done', { ok: false });
@@ -240,4 +253,4 @@ function send(ctx, id, message) {
   return { ok: true, accepted: true };
 }
 
-module.exports = { list, create, remove, history, subscribe, send, stop, health };
+module.exports = { list, create, remove, history, subscribe, send, stop, health, warm };

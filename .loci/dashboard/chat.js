@@ -22,6 +22,9 @@
     '  background:var(--accent,#10b981);color:#fff;font-size:22px;box-shadow:var(--shadow-lg,0 8px 24px rgba(0,0,0,.15));',
     '  display:flex;align-items:center;justify-content:center;transition:transform .15s}',
     '.lc-fab:hover{transform:scale(1.06)}',
+    '.lc-fab{position:fixed}',
+    '.lc-fabdot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--orange,#f59e0b);border:2px solid #fff;animation:lc-pulse 1.2s ease-in-out infinite}',
+    '@keyframes lc-pulse{0%,100%{opacity:1}50%{opacity:.4}}',
     '.lc-panel{position:fixed;right:22px;bottom:86px;z-index:901;width:min(420px,calc(100vw - 32px));height:min(600px,calc(100vh - 120px));',
     '  background:var(--surface,#fff);border:1px solid var(--line,#ececea);border-radius:var(--radius,18px);',
     '  box-shadow:var(--shadow-lg,0 24px 56px rgba(0,0,0,.12));display:flex;flex-direction:column;overflow:hidden}',
@@ -94,7 +97,7 @@
 
   var App = {
     template: [
-      '<button class="lc-fab" @click="toggle" :title="open ? \'收起\' : \'AI 助手\'">{{ open ? \'×\' : \'✦\' }}</button>',
+      '<button class="lc-fab" @click="toggle" :title="open ? \'收起\' : \'AI 助手\'">{{ open ? \'×\' : \'✦\' }}<span v-if="running && !open" class="lc-fabdot" title="AI 正在处理"></span></button>',
       '<div class="lc-panel" v-if="open">',
       '  <div class="lc-head">',
       '    <button class="lc-iconbtn" @click="showSessions = !showSessions" title="会话列表">☰</button>',
@@ -105,7 +108,7 @@
       '    <div v-for="s in sessions" :key="s.id" class="lc-sessrow" :class="{active: s.id === activeId}" @click="openSession(s.id)">',
       '      <span class="t">{{ s.title }}</span>',
       '      <span style="color:var(--ink-4);font-size:11px">{{ s.messages }}</span>',
-      '      <span class="x" @click.stop="removeSession(s.id)" title="删除">×</span>',
+      '      <span class="x" @click.stop="confirmRemove(s.id)" :title="confirmId === s.id ? \'再点一次确认删除\' : \'删除\'">{{ confirmId === s.id ? "确认?" : "×" }}</span>',
       '    </div>',
       '    <div v-if="!sessions.length" style="padding:10px;color:var(--ink-3);font-size:12.5px;text-align:center">还没有对话</div>',
       '  </div>',
@@ -133,8 +136,12 @@
     ].join('\n'),
 
     data: function () {
+      var savedOpen = false;
+      try { savedOpen = localStorage.getItem('loci.chat.open') === '1'; } catch (e) {}
       return {
-        open: false,
+        open: savedOpen,
+        confirmId: null,
+        confirmTimer: null,
         showSessions: false,
         sessions: [],
         activeId: null,
@@ -174,15 +181,32 @@
 
       toggle: function () {
         this.open = !this.open;
+        try { localStorage.setItem('loci.chat.open', this.open ? '1' : '0'); } catch (e) {}
         if (this.open) this.boot();
       },
       boot: function () {
         var self = this;
         fetch(lociUrl('/api/chat/health')).then(function (r) { return r.json(); }).then(function (h) { self.health = h; });
         this.loadSessions().then(function () {
-          if (!self.activeId && self.sessions.length) self.openSession(self.sessions[0].id);
+          if (self.activeId) return;
+          var saved = null;
+          try { saved = localStorage.getItem('loci.chat.session'); } catch (e) {}
+          var target = self.sessions.find(function (s) { return s.id === saved; }) || self.sessions[0];
+          if (target) self.openSession(target.id);
         });
         this.$nextTick(function () { if (self.$refs.box) self.$refs.box.focus(); });
+      },
+      confirmRemove: function (id) {
+        var self = this;
+        if (this.confirmId === id) {
+          this.confirmId = null;
+          clearTimeout(this.confirmTimer);
+          this.removeSession(id);
+          return;
+        }
+        this.confirmId = id;
+        clearTimeout(this.confirmTimer);
+        this.confirmTimer = setTimeout(function () { self.confirmId = null; }, 2500);
       },
       loadSessions: function () {
         var self = this;
@@ -209,6 +233,7 @@
         var self = this;
         this.showSessions = false;
         this.activeId = id;
+        try { localStorage.setItem('loci.chat.session', id); } catch (e) {}
         this.items = [];
         this.streaming = false; this.streamText = ''; this.running = false;
         this.refreshHistory(id).then(function () { self.connectStream(id); });
@@ -354,6 +379,8 @@
         });
       },
     },
+
+    mounted: function () { if (this.open) this.boot(); },
 
     beforeUnmount: function () { this.closeStream(); clearInterval(this.thinkTimer); },
   };

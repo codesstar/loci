@@ -16,12 +16,16 @@
 const manager = require('../chat/manager.js');
 
 module.exports = {
+  init() {
+    manager.warm(); // engine health cache, off the request path
+  },
+
   async handle(req, res, parsed, ctx) {
     const p = parsed.pathname;
     if (!p.startsWith('/api/chat/')) return false;
 
     if (p === '/api/chat/health' && req.method === 'GET') {
-      ctx.sendJson(res, manager.health(ctx, parsed.searchParams.get('engine')));
+      ctx.sendJson(res, await manager.health(ctx, parsed.searchParams.get('engine')));
       return true;
     }
 
