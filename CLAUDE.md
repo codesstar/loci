@@ -255,6 +255,7 @@ Full distill + sync. Flags: `--local` (no cross-project sync), `--dry-run` (prev
    - **Schedule-only item** (meeting, meal, class, appointment, travel, time block) → guarded writer/API writes only to calendar (`schedule` command).
    - **Pulling a task onto the schedule** is deliberate — only when the user wants that time blocked. When unsure, keep it a task.
    - **Loose idea, not a task** → root `inbox.md`.
+   - **Running inside the dashboard chat** (you were spawned by the dashboard's AI panel): the same rule applies with zero exceptions — write tasks/schedule ONLY via `node scripts/loci-task.js`; NEVER edit `tasks/tasks.json` or `tasks/calendar.json` directly. Other writers may be active at the same time; the guarded writer holds the shared write lock.
 10. **⚠️ Loci aggregates memory, it does not own it** — A serious project's memory belongs to the project's OWN repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/` decision stream). The brain holds only a one-line index entry in `projects/index.md`. The brain is an index + understanding layer, not a warehouse. Never copy a project's full memory into the brain — read the repo when you need detail. Connecting a project is AI-initiated and offered once at the end of a conversation, never a command the user must learn.
 
 <!-- loci:project:start v1 -->

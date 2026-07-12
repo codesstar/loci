@@ -101,6 +101,18 @@ function writeJson(filePath, value) {
   fs.renameSync(tmp, filePath);
 }
 
+// Cross-process write lock shared with the dashboard server (its lib/store.js).
+// Optional — on brains without the module, writes stay atomic-only.
+let sharedStore = null;
+try {
+  sharedStore = require(path.join(LOCI_ROOT, '.loci', 'dashboard', 'lib', 'store.js'));
+} catch { /* older brain layout — no lock available */ }
+
+function withWriteLock(fn) {
+  if (!sharedStore) return fn();
+  return sharedStore.withLock(path.join(LOCI_ROOT, '.loci', '.write-lock'), fn);
+}
+
 // urgency / importance: 0 = normal (default), 1 = high, 2 = highest.
 // The AI sets these only when the user signals a task is urgent / important;
 // most tasks stay 0. They drive task ordering (urgency → importance → time).
@@ -242,7 +254,7 @@ function saveCalendar(calendar) {
     const events = Array.isArray(calendar[date]) ? calendar[date].filter(Boolean) : [];
     if (events.length) cleaned[date] = events;
   }
-  writeJson(CALENDAR_DB, cleaned);
+  withWriteLock(() => writeJson(CALENDAR_DB, cleaned));
 }
 
 // Tasks and the schedule are kept strictly separate: a timed task lives only in
@@ -254,8 +266,10 @@ function syncCalendarForTasks() { /* no-op: the calendar belongs to the user */ 
 
 function saveTasks(tasks, options = {}) {
   const normalized = tasks.map(normalizeTask).filter(task => task.title);
-  writeJson(TASK_DB, { tasks: normalized });
-  writeActiveTaskView(normalized);
+  withWriteLock(() => {
+    writeJson(TASK_DB, { tasks: normalized });
+    writeActiveTaskView(normalized);
+  });
   if (options.syncCalendar) syncCalendarForTasks();
   return normalized;
 }
