@@ -18,7 +18,7 @@ function usage() {
   node scripts/loci-task.js done --id task_x
   node scripts/loci-task.js open --id task_x
   node scripts/loci-task.js archive --id task_x
-  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM]`);
+  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."]`);
 }
 
 function parseArgs(argv) {
@@ -418,9 +418,14 @@ function addSchedule(args) {
   if (endKey <= startKey) throw new Error('schedule --end must be after --start');
   const calendar = readCalendar();
   if (!calendar[date]) calendar[date] = [];
-  calendar[date].push({ title, startKey, endKey, hour: Math.floor(startKey / 60) });
+  const ev = { title, startKey, endKey, hour: Math.floor(startKey / 60) };
+  // Optional extras — the dashboard's calendar API supports these, so the CLI
+  // keeps parity (note shows on the event card, location links a saved place).
+  if (args.note && args.note !== true) ev.note = String(args.note);
+  if (args.location && args.location !== true) ev.location = String(args.location);
+  calendar[date].push(ev);
   saveCalendar(calendar);
-  console.log(JSON.stringify({ ok: true, date, event: calendar[date][calendar[date].length - 1] }, null, 2));
+  console.log(JSON.stringify({ ok: true, date, event: ev }, null, 2));
 }
 
 function main() {

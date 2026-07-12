@@ -164,6 +164,12 @@ function send(ctx, id, message) {
   persistSoon();
   broadcast(id, 'user', { text, ts: now });
 
+  // Streaming deltas double as a safety net: if the engine never emits the
+  // complete assistant message (seen in the wild), the accumulated delta text
+  // is persisted at turn end so the reply survives a page reload.
+  let deltaBuf = '';
+  let persistedThisTurn = false;
+
   const turn = engine.startTurn({
     cwd: st.root,
     prompt: text,
@@ -176,14 +182,18 @@ function send(ctx, id, message) {
           broadcast(id, 'turn_start', { ts });
           break;
         case 'assistant_delta':
+          deltaBuf += ev.text || '';
           broadcast(id, 'assistant_delta', { text: ev.text });
           break;
         case 'assistant_text':
+          deltaBuf = '';
+          persistedThisTurn = true;
           s.transcript.push({ role: 'assistant', text: ev.text, ts });
           persistSoon();
           broadcast(id, 'assistant_text', { text: ev.text, ts });
           break;
         case 'tool_use':
+          deltaBuf = ''; // deltas before a tool call were interim thinking-out-loud
           s.transcript.push({ role: 'tool', name: ev.name, preview: ev.inputPreview, ts });
           persistSoon();
           broadcast(id, 'tool_use', { name: ev.name, preview: ev.inputPreview, ts });
@@ -193,6 +203,18 @@ function send(ctx, id, message) {
           break;
         case 'result':
           if (ev.sessionId) s.engineSessionId = ev.sessionId;
+          // Safety net: text that streamed but never arrived as a complete
+          // message (deltaBuf survives only until the next assistant_text /
+          // tool_use, so anything left here was lost) — or a whole turn whose
+          // only trace is the result summary.
+          if (deltaBuf.trim() || (!persistedThisTurn && ev.ok && String(ev.text || '').trim())) {
+            const recovered = deltaBuf.trim() || String(ev.text).trim();
+            persistedThisTurn = true;
+            deltaBuf = '';
+            s.transcript.push({ role: 'assistant', text: recovered, ts });
+            persistSoon();
+            broadcast(id, 'assistant_text', { text: recovered, ts });
+          }
           break;
       }
     },

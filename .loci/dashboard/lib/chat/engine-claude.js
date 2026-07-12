@@ -21,14 +21,43 @@ const path = require('path');
 
 // Headless runs can't pop a permission prompt — anything not allowed here is
 // refused. The list covers day-to-day brain management (read/write brain
-// files, the guarded CLI writers, read-only git) and nothing destructive.
-// Deliberately NOT --dangerously-skip-permissions, and no bare Bash.
-const ALLOWED_TOOLS = [
-  'Read', 'Edit', 'Write', 'Glob', 'Grep',
-  'Bash(node scripts/*)',
-  'Bash(date)', 'Bash(date:*)',
-  'Bash(git status:*)', 'Bash(git log:*)', 'Bash(git diff:*)',
-].join(' ');
+// files, the guarded CLI writers, read-only shell staples, read-only git)
+// and nothing destructive. Models reach for `grep/cat/ls` before the Grep
+// tool — refusing those degrades the assistant into asking the USER to look
+// things up, so the common read-only commands are explicitly allowed. The
+// guarded writers are allowed by relative AND absolute path (models often
+// expand cwd). Deliberately NOT --dangerously-skip-permissions, no bare Bash.
+function allowedTools(cwd) {
+  return [
+    'Read', 'Edit', 'Write', 'Glob', 'Grep',
+    'Bash(node scripts/*)',
+    `Bash(node ${cwd}/scripts/*)`,
+    'Bash(date)', 'Bash(date:*)',
+    'Bash(grep:*)', 'Bash(rg:*)', 'Bash(cat:*)', 'Bash(ls:*)',
+    'Bash(head:*)', 'Bash(tail:*)', 'Bash(wc:*)', 'Bash(find:*)',
+    'Bash(sed -n:*)', 'Bash(echo:*)', 'Bash(pwd)',
+    'Bash(git status:*)', 'Bash(git log:*)', 'Bash(git diff:*)',
+  ].join(' ');
+}
+
+// The embedded chat is NOT a terminal session with a developer: the user is
+// non-technical and physically cannot send files/images through the panel.
+// Without this the model behaves like CLI Claude Code — asking the user to
+// paste code or screenshots instead of using its own tools. The command
+// cheatsheet saves it from exploring --help on every turn.
+const SYSTEM_PROMPT = [
+  '你正嵌在 Loci dashboard 网页的聊天窗口里，替用户打理他们的大脑（= 当前工作目录）。',
+  '铁律：',
+  '1. 用户只能给你发文字。他们看不到你的终端，也无法给你发图片、截图或文件。绝不要请用户去看代码、',
+  '   截图、粘贴文件内容或确认技术细节——需要了解任何文件或数据，直接用你自己的 Read/Grep/Glob/Bash 工具去查。',
+  '2. 用户是非技术用户：不展示代码，不谈实现细节，不暴露文件路径和内部术语。直接把事办好，用一两句话说结果。',
+  '3. 改任务/日程一律用下面的守卫命令（在当前目录、用相对路径执行），绝不直接编辑 tasks/tasks.json 或 tasks/calendar.json：',
+  '   加任务:   node scripts/loci-task.js add --title "..." [--date YYYY-MM-DD] [--start HH:MM] [--note "..."]',
+  '   加日程:   node scripts/loci-task.js schedule --title "..." --date YYYY-MM-DD --start HH:MM [--end HH:MM] [--note "..."] [--location "..."]',
+  '   完成任务: node scripts/loci-task.js done --id <task-id>    列出: node scripts/loci-task.js list',
+  '   任务=要完成的事（有时间也只是属性）；日程=占用时间块（开会/吃饭/看房/预约）。别两边重复写。',
+  '4. 回复简短、口语化，遵守大脑 CLAUDE.md 里的所有记忆与偏好规则。拿不准用户意图时，一次问清，别反复追问。',
+].join('\n');
 
 const TURN_TIMEOUT_MS = 10 * 60 * 1000;
 
@@ -95,7 +124,8 @@ function startTurn(opts) {
     '--include-partial-messages',
     '--verbose',
     '--permission-mode', 'acceptEdits',
-    '--allowedTools', ALLOWED_TOOLS,
+    '--allowedTools', allowedTools(opts.cwd),
+    '--append-system-prompt', SYSTEM_PROMPT,
   ];
   if (opts.resumeSessionId) args.push('--resume', opts.resumeSessionId);
 
@@ -193,4 +223,4 @@ function startTurn(opts) {
   return { kill, pid: child.pid };
 }
 
-module.exports = { startTurn, health, ALLOWED_TOOLS };
+module.exports = { startTurn, health, allowedTools };
