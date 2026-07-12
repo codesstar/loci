@@ -20,6 +20,7 @@ NC='\033[0m'
 BRAIN_PATH="$(cd "$(dirname "$0")" && pwd)"
 LANG_CHOICE="en"
 USER_NAME=""
+USER_NICKNAME=""
 USER_ROLE=""
 USER_FOCUS=""
 USER_SCHEDULE=""
@@ -282,6 +283,7 @@ Usage:
 Non-interactive options:
   --non-interactive, -y   Run without any prompts. Requires --name.
   --name <name>           Your name (required in non-interactive mode)
+  --nickname <text>       How the AI should address you     (default: your name)
   --role <text>           What you do, free text            (default: Developer)
   --focus <text>          Most important focus right now    (default: Set up my second brain)
   --schedule <word>       morning|daytime|evening|night|irregular  (default: daytime)
@@ -303,6 +305,7 @@ parse_args() {
     case "$1" in
       --non-interactive|-y) NON_INTERACTIVE=1 ;;
       --name)     USER_NAME="$2"; shift ;;
+      --nickname) USER_NICKNAME="$2"; shift ;;
       --role)     USER_ROLE="$2"; shift ;;
       --focus)    USER_FOCUS="$2"; shift ;;
       --schedule) SCHEDULE_CHOICE="$2"; shift ;;
@@ -519,6 +522,14 @@ collect_info() {
           continue
         else
           USER_NAME="$INPUT_RESULT"
+          printf "\n"
+          printf "  ${WHITE}$(t "What should your AI call you?" "想让 AI 怎么称呼你？")${NC}\n"
+          printf "  ${DIM}$(t "A nickname, a title, anything — press Enter to just use your name" "昵称、称号都行——按回车直接用名字")${NC}\n"
+          read_text
+          if [ "$INPUT_RESULT" = "__BACK__" ]; then
+            step=1; continue
+          fi
+          USER_NICKNAME="$INPUT_RESULT"
           step=2
         fi
         ;;
@@ -660,6 +671,7 @@ collect_info() {
   printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Language" "语言")${NC}  ${WHITE}${LANG_LABEL}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Name" "名字")${NC}      ${WHITE}${USER_NAME}${NC}\n"
+  [ -n "$USER_NICKNAME" ] && printf "  ${GREEN}✓${NC} ${DIM}$(t "Call you" "称呼")${NC}  ${WHITE}${USER_NICKNAME}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Role" "角色")${NC}      ${WHITE}${USER_ROLE}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Focus" "重点")${NC}     ${WHITE}${USER_FOCUS}${NC}\n"
   printf "  ${GREEN}✓${NC} ${DIM}$(t "Schedule" "作息")${NC}  ${WHITE}${SCHEDULE_LABEL}${NC}\n"
@@ -769,6 +781,48 @@ $([ -n "${USER_ABOUT}" ] && printf "\n## About Me\n${USER_ABOUT}")
 IDEOF
   ) &
   spin "$(t "me/identity.md" "me/identity.md")"
+
+  # --- me/preferences.md ---
+  local pref_call="${USER_NICKNAME:-$USER_NAME}"
+  local pref_lang
+  case "$LANG_CHOICE" in
+    zh)  pref_lang="中文" ;;
+    mix) pref_lang="中文为主，中英混用" ;;
+    *)   pref_lang="English" ;;
+  esac
+  (
+    cat > "$BRAIN_PATH/me/preferences.md" << PREFEOF
+---
+created: ${today_date}
+updated: ${today_date}
+tags: [preferences, core]
+status: active
+---
+
+# How to Work With Me
+
+## Address Me As
+
+- **Call me**: ${pref_call}
+
+## Language & Tone
+
+- **Language**: ${pref_lang}
+
+## Reply Style
+
+<!-- e.g. "short answers first" / "no emoji" — tell your AI and it lands here -->
+
+## Work
+
+<!-- work defaults, e.g. "docs start with a TL;DR" / "外发内容先给我看草稿" -->
+
+## Do / Don't
+
+<!-- standing rules for your AI, e.g. "Don't schedule anything before 10am" -->
+PREFEOF
+  ) &
+  spin "$(t "me/preferences.md" "me/preferences.md")"
 
   # --- plan.md ---
   (

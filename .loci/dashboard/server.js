@@ -362,6 +362,9 @@ function normalizeTask(task) {
     location: task.location || null,
     color: task.color || null,
     note: task.note || null,
+    // linked contacts (exact people/<name>.md names) — the dashboard renders
+    // them as avatar chips on the task card. Optional, absent when unused.
+    ...(Array.isArray(task.people) && task.people.length ? { people: task.people.map(String) } : {}),
     // manual drag-to-reorder position; only present once the user has dragged.
     // Kept optional so untouched tasks stay clean and fall back to auto-sort.
     ...(typeof task.manualOrder === 'number' ? { manualOrder: task.manualOrder } : {}),
@@ -488,6 +491,7 @@ function buildInbox() {
 function buildMe() {
   const meDir = path.join(LOCI_ROOT, 'me');
   const identity = readMdFileSimple(path.join(meDir, 'identity.md'));
+  const preferences = readMdFileSimple(path.join(meDir, 'preferences.md'));
   const values = readMdFileSimple(path.join(meDir, 'values.md'));
   const wellbeing = readMdFileSimple(path.join(meDir, 'wellbeing.md'));
   const insights = readMdFileSimple(path.join(meDir, 'insights.md'));
@@ -515,6 +519,7 @@ function buildMe() {
 
   return {
     identity: identity || { content: '', meta: {} },
+    preferences: preferences || { content: '', meta: {} },
     goals: { content: '', meta: {}, retired: true, replacement: 'plan.md' },
     values: values || { content: '', meta: {} },
     wellbeing: wellbeing || { content: '', meta: {} },
@@ -549,6 +554,7 @@ function buildTasks() {
     location: task.location || null,
     color: task.color || null,
     note: task.note || null,
+    people: task.people || [],
     source: task.source,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
@@ -626,6 +632,13 @@ function buildPeople() {
     meetings: scanMdFiles(path.join(peopleDir, 'meetings')),
     connections: edges,
   };
+}
+
+// Places — user-curated locations (home / work / study / spots / clients).
+// One places/<slug>.md per place; the map view renders them next to contacts.
+function buildPlaces() {
+  const places = scanMdFiles(path.join(LOCI_ROOT, 'places'));
+  return places.filter(p => p.meta && p.meta.name);
 }
 
 function buildDecisions() {
@@ -2074,6 +2087,175 @@ function readSourcesForDay(dateStr) {
   } catch { return []; }
 }
 
+// ── Terminal sessions (Daily Trace, free metadata layer) ────────────────────
+// Reads ONLY the two conversation-transcript folders — never the user's project
+// source files. First layer: timestamps, cwd, turn counts, first user line, tool.
+// No AI, no token cost. Distillation (reading transcript bodies) is a later step.
+function localHM(d) {
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+function sessionUserText(content) {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    for (const it of content) {
+      if (it && typeof it === 'object' && (it.type === 'text' || it.type === 'input_text')) return it.text || '';
+    }
+  }
+  return '';
+}
+function cleanSessionLine(t) {
+  if (!t) return '';
+  t = String(t).replace(/\s+/g, ' ').trim();
+  if (/^(<|Caveat:|\[Request interrupted|# AGENTS|# CLAUDE)/.test(t)) return '';
+  if (t.slice(0, 60).includes('AGENTS.md instructions') || t.slice(0, 60).includes('environment_context')) return '';
+  return t.slice(0, 100);
+}
+function readSessionsForDay(dateStr) {
+  const home = require('os').homedir();
+  const nowMs = Date.now();
+  const dayStartMs = new Date(dateStr + 'T00:00:00').getTime();
+  if (isNaN(dayStartMs)) return { list: [], count: 0, dirs: 0, turns: 0, live: 0, claude: 0, codex: 0 };
+  const files = [];
+  // Claude Code — flat per-project folders, one file per session (uuid.jsonl)
+  const cRoot = path.join(home, '.claude', 'projects');
+  try {
+    for (const proj of fs.readdirSync(cRoot)) {
+      const pdir = path.join(cRoot, proj);
+      let stat; try { stat = fs.statSync(pdir); } catch { continue; }
+      if (!stat.isDirectory()) continue;
+      for (const f of fs.readdirSync(pdir)) {
+        if (!/^[0-9a-f-]{36}\.jsonl$/.test(f)) continue;
+        const fp = path.join(pdir, f);
+        let st; try { st = fs.statSync(fp); } catch { continue; }
+        if (st.mtimeMs < dayStartMs) continue; // a message on `date` ⇒ mtime ≥ day start
+        files.push({ fp, kind: 'claude', mtimeMs: st.mtimeMs });
+      }
+    }
+  } catch { /* no claude dir */ }
+  // Codex — foldered by date; scan the day plus neighbors for cross-midnight spill
+  for (const off of [-1, 0, 1]) {
+    const d = new Date(dayStartMs + off * 86400000);
+    const dir = path.join(home, '.codex', 'sessions',
+      String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0'));
+    let entries; try { entries = fs.readdirSync(dir); } catch { continue; }
+    for (const f of entries) {
+      if (!f.endsWith('.jsonl')) continue;
+      const fp = path.join(dir, f);
+      let st; try { st = fs.statSync(fp); } catch { continue; }
+      files.push({ fp, kind: 'codex', mtimeMs: st.mtimeMs });
+    }
+  }
+  // newest first, hard cap so an unusually busy history can't stall the request
+  files.sort((a, b) => b.mtimeMs - a.mtimeMs);
+  const capped = files.slice(0, 160);
+  const out = [];
+  for (const { fp, kind, mtimeMs } of capped) {
+    let raw; try { raw = fs.readFileSync(fp, 'utf-8'); } catch { continue; }
+    const lines = raw.split('\n');
+    let cwd = '', summary = '', firstUser = '', turns = 0, startMs = 0, endMs = 0, compacted = false;
+    for (const ln of lines) {
+      if (!ln) continue;
+      let j; try { j = JSON.parse(ln); } catch { continue; }
+      let ts = null, isUser = false, userTxt = '';
+      if (kind === 'claude') {
+        // Claude Code auto-titles a session as `type: 'ai-title'` (regenerated as
+        // it evolves — keep the latest). This is precomputed & free; prefer it
+        // over the raw first message. A `summary` line (compaction) also counts.
+        if (j.type === 'ai-title' && j.aiTitle) summary = String(j.aiTitle);
+        else if (j.type === 'summary' && j.summary) summary = String(j.summary);
+        if (j.isCompactSummary) compacted = true;  // a compaction summary exists inside
+        if (!cwd && j.cwd) cwd = j.cwd;
+        if (j.timestamp) ts = new Date(j.timestamp);
+        if (j.type === 'user' && !j.isSidechain && j.message && typeof j.message === 'object') {
+          isUser = true; userTxt = sessionUserText(j.message.content);
+        }
+      } else {
+        if (j.timestamp) ts = new Date(j.timestamp);
+        const p = j.payload;
+        if (p && typeof p === 'object') {
+          if (!cwd && p.cwd) cwd = p.cwd;
+          if (p.type === 'message' && p.role === 'user') { isUser = true; userTxt = sessionUserText(p.content); }
+        }
+      }
+      if (!ts || isNaN(ts.getTime()) || dayKey(ts) !== dateStr) continue;
+      const ms = ts.getTime();
+      if (!startMs || ms < startMs) startMs = ms;
+      if (ms > endMs) endMs = ms;
+      if (isUser) {
+        const c = cleanSessionLine(userTxt);
+        if (c) { turns++; if (!firstUser) firstUser = c; }
+      }
+    }
+    if (!startMs) continue;                 // no message on this day
+    if (turns === 0 && !summary) continue;  // nothing meaningful
+    const proj = (cwd || path.basename(path.dirname(fp))).replace(home, '~');
+    out.push({
+      tool: kind, proj,
+      title: summary || firstUser || '(untitled session)',
+      first: firstUser,
+      start: localHM(new Date(startMs)), end: localHM(new Date(endMs)),
+      turns, live: (nowMs - mtimeMs) < 900000,
+      compacted, file: fp,
+    });
+  }
+  out.sort((a, b) => (a.start < b.start ? -1 : 1));
+  return {
+    list: out,
+    count: out.length,
+    dirs: new Set(out.map(s => s.proj)).size,
+    turns: out.reduce((n, s) => n + s.turns, 0),
+    live: out.filter(s => s.live).length,
+    claude: out.filter(s => s.tool === 'claude').length,
+    codex: out.filter(s => s.tool === 'codex').length,
+  };
+}
+
+// Guard: a session file path must resolve inside the two transcript roots and be
+// a .jsonl — never anything from the user's project directories.
+function sessionPathOk(fp) {
+  if (!fp || !String(fp).endsWith('.jsonl')) return null;
+  let resolved; try { resolved = fs.realpathSync(String(fp)); } catch { return null; }
+  const home = require('os').homedir();
+  const roots = [path.join(home, '.claude', 'projects'), path.join(home, '.codex', 'sessions')];
+  return roots.some(r => resolved === r || resolved.startsWith(r + path.sep)) ? resolved : null;
+}
+
+// Detail for one session (click-to-expand). Free: pulls the already-written
+// ai-title and, if the session was compacted, the latest compact summary body.
+function readSessionDetail(fp) {
+  const resolved = sessionPathOk(fp);
+  if (!resolved) return { error: '路径不允许' };
+  let raw; try { raw = fs.readFileSync(resolved, 'utf-8'); } catch { return { error: '读不到会话文件' }; }
+  let aiTitle = '', compactSummary = '', firstUser = '';
+  for (const ln of raw.split('\n')) {
+    if (!ln) continue;
+    let j; try { j = JSON.parse(ln); } catch { continue; }
+    if (j.type === 'ai-title' && j.aiTitle) aiTitle = String(j.aiTitle);
+    if (j.isCompactSummary && j.message) {
+      const c = sessionUserText(j.message.content);
+      if (c) compactSummary = c;   // keep the latest compaction summary
+    }
+    if (!firstUser && j.type === 'user' && !j.isSidechain && j.message && !j.isCompactSummary) {
+      const c = cleanSessionLine(sessionUserText(j.message.content));
+      if (c) firstUser = c;
+    }
+  }
+  return { ok: true, aiTitle, compactSummary, firstUser, path: resolved };
+}
+
+// Reveal a session's raw transcript file in Finder (macOS `open -R`).
+function revealSessionFile(fp) {
+  const resolved = sessionPathOk(fp);
+  if (!resolved) return { error: '路径不允许' };
+  try {
+    const { execFile } = require('child_process');
+    if (process.platform === 'darwin') execFile('open', ['-R', resolved], () => {});
+    else if (process.platform === 'win32') execFile('explorer', ['/select,', resolved], () => {});
+    else execFile('xdg-open', [path.dirname(resolved)], () => {});
+    return { ok: true, path: resolved };
+  } catch { return { error: '打不开文件' }; }
+}
+
 function buildToday(dateStr) {
   const date = isDayKeyStr(dateStr) ? dateStr : dayKey(new Date());
   const activity = readActivityDay(date);
@@ -2102,6 +2284,11 @@ function buildToday(dateStr) {
   const journal = journalParsed
     ? { exists: true, meta: journalParsed.meta, html: journalParsed.content }
     : { exists: false, meta: {}, html: '' };
+
+  // Terminal sessions — free metadata only (no transcript bodies, no AI).
+  let sessions;
+  try { sessions = readSessionsForDay(date); }
+  catch { sessions = { list: [], count: 0, dirs: 0, turns: 0, live: 0, claude: 0, codex: 0 }; }
 
   // Rule-based summary (no AI): dominant activity category = the day's main
   // line; the project with the most progress entries = the day's key project.
@@ -2136,6 +2323,7 @@ function buildToday(dateStr) {
         references: references.length,
         externalSources: sources.length,
         projectsConnected: projectsConnected.length,
+        sessions: sessions.count,
       },
     },
     activity,
@@ -2148,6 +2336,7 @@ function buildToday(dateStr) {
     references,
     sources,
     journal,
+    sessions,
   };
 }
 
@@ -2357,6 +2546,7 @@ function buildAllData() {
     ['tasks', buildTasks],
     ['planning', buildPlanning],
     ['people', buildPeople],
+    ['places', buildPlaces],
     ['decisions', buildDecisions],
     ['finance', buildFinance],
     ['content', buildContent],
@@ -2417,7 +2607,8 @@ function projTodoScript() {
 
 function handleProjectTodo(action, body) {
   const { repo, id, text, title, category, status, order, date, endDate, startTime, endTime,
-          urgency, importance, plannedFor, owner, location, color, note, source, project } = body;
+          urgency, importance, plannedFor, owner, location, color, note, source, project, people } = body;
+  const peopleArg = people === undefined ? undefined : (Array.isArray(people) ? people.join('、') : String(people));
   if (!repo) return { error: 'Missing repo path' };
   const script = projTodoScript();
   if (!script) return { error: 'loci-projtodo.js not found in this brain' };
@@ -2446,6 +2637,7 @@ function handleProjectTodo(action, body) {
     pushOpt('location', location);
     pushOpt('color', color);
     pushOpt('note', note);
+    pushOpt('people', peopleArg);
     pushOpt('source', source);
     pushOpt('project', project);
   } else {
@@ -2467,6 +2659,7 @@ function handleProjectTodo(action, body) {
       pushOpt('location', location);
       pushOpt('color', color);
       pushOpt('note', note);
+      pushOpt('people', peopleArg);
       pushOpt('source', source);
       pushOpt('project', project);
     }
@@ -2778,6 +2971,36 @@ function handleProfileUpdate(body) {
   return { ok: true, username: readUsername(), tagline: readTagline() };
 }
 
+// Update the user's identity-signal chips → `signals: [...]` in me/identity.md
+// frontmatter. A saved list overrides the parsed-from-fields fallback in the UI;
+// an empty list removes the line (falls back to parsing again).
+function handleProfileSignals(body) {
+  const raw = body && Array.isArray(body.signals) ? body.signals : null;
+  if (!raw) return { error: 'signals must be an array' };
+  // Commas/brackets/quotes would break the one-line frontmatter array format.
+  const clean = raw
+    .map(s => String(s == null ? '' : s).replace(/[\r\n,\[\]"']+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 20))
+    .filter(Boolean)
+    .filter((s, i, a) => a.indexOf(s) === i)
+    .slice(0, 8);
+  const file = path.join(LOCI_ROOT, 'me', 'identity.md');
+  let text;
+  try { text = fs.readFileSync(file, 'utf-8'); }
+  catch { text = '---\ntags: [identity]\n---\n\n# Who I Am\n'; }
+  const line = 'signals: [' + clean.map(s => '"' + s + '"').join(', ') + ']';
+  const fmEnd = text.startsWith('---') ? text.indexOf('\n---', 3) : -1;
+  if (fmEnd === -1) {
+    text = '---\n' + (clean.length ? line + '\n' : '') + '---\n\n' + text;
+  } else {
+    let head = text.slice(0, fmEnd).replace(/\n[ \t]*signals:[^\n]*/g, '');
+    if (clean.length) head += '\n' + line;
+    text = head + text.slice(fmEnd);
+  }
+  try { fs.writeFileSync(file, text); }
+  catch (e) { return { error: 'Could not write identity.md' }; }
+  return { ok: true, signals: clean };
+}
+
 // Save the user's own avatar (base64 data URL) → me/avatar.<ext>. Any previous
 // avatar with a different extension is removed so exactly one file exists.
 function handleMeAvatarUpload(body) {
@@ -2879,6 +3102,103 @@ function handlePersonUpdate(body) {
   return { ok: true, name: p.name, file: target.filename };
 }
 
+// ── Places write-back ────────────────────────────────────────────────────
+const PLACE_FIELDS = ['name', 'type', 'address', 'city', 'lat', 'lng', 'frequency'];
+const PLACE_TYPES = ['home', 'work', 'study', 'spot', 'client', 'other'];
+
+function placeToMd(p) {
+  const lines = ['---'];
+  for (const k of PLACE_FIELDS) {
+    const v = p[k];
+    if (v === undefined || v === null || v === '') continue;
+    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
+  }
+  const people = Array.isArray(p.people) ? p.people.map(t => String(t).trim()).filter(Boolean) : [];
+  if (people.length) lines.push('people: [' + people.map(t => JSON.stringify(t)).join(', ') + ']');
+  const tags = Array.isArray(p.tags) ? p.tags.map(t => String(t).trim()).filter(Boolean) : [];
+  if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
+  lines.push('---', '');
+  lines.push((p.note ? String(p.note).trim() : '') + '\n');
+  return lines.join('\n');
+}
+
+function cleanPlaceFields(body, p) {
+  for (const k of PLACE_FIELDS) {
+    if (body[k] === undefined) continue;
+    let v = body[k] === null ? '' : String(body[k]).trim();
+    if ((k === 'lat' || k === 'lng') && v !== '' && isNaN(parseFloat(v))) v = '';
+    if (k === 'type' && v && !PLACE_TYPES.includes(v)) v = 'other';
+    p[k] = v;
+  }
+  if (body.people !== undefined) p.people = Array.isArray(body.people) ? body.people : [];
+  if (body.tags !== undefined) p.tags = Array.isArray(body.tags) ? body.tags : [];
+  if (body.note !== undefined) p.note = body.note;
+  return p;
+}
+
+// Create a new place: writes places/<slug>.md. Name required, rest optional.
+function handlePlaceAdd(body) {
+  const name = body && body.name ? String(body.name).trim() : '';
+  if (!name) return { error: 'Need a name' };
+  const placesDir = path.join(LOCI_ROOT, 'places');
+  const existing = scanMdFiles(placesDir).map(c => c.meta && c.meta.name).filter(Boolean).map(String);
+  if (existing.includes(name)) return { error: 'Place already exists' };
+  let slug = name.toLowerCase().replace(/[^a-z0-9一-鿿]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!slug) slug = 'place-' + Date.now();
+  let file = path.join(placesDir, slug + '.md');
+  let n = 2;
+  while (fs.existsSync(file)) { file = path.join(placesDir, slug + '-' + n + '.md'); n++; }
+  const p = cleanPlaceFields(body, { name });
+  p.name = name;
+  if (!p.type) p.type = 'other';
+  try {
+    if (!fs.existsSync(placesDir)) fs.mkdirSync(placesDir, { recursive: true });
+    fs.writeFileSync(file, placeToMd(p));
+  } catch (e) { return { error: 'Could not create place file' }; }
+  return { ok: true, name, file: path.basename(file) };
+}
+
+// Update an existing place: merge given fields into its frontmatter, keep body note.
+function handlePlaceUpdate(body) {
+  const orig = body && body.origName ? String(body.origName).trim() : (body && body.name ? String(body.name).trim() : '');
+  if (!orig) return { error: 'Need the place to update' };
+  const placesDir = path.join(LOCI_ROOT, 'places');
+  const target = scanMdFiles(placesDir).find(c => c.meta && String(c.meta.name) === orig);
+  if (!target) return { error: 'Place not found' };
+  const p = {};
+  for (const k of PLACE_FIELDS) { const v = target.meta && target.meta[k]; if (v != null && v !== '') p[k] = v; }
+  if (target.meta && Array.isArray(target.meta.people)) p.people = target.meta.people;
+  if (target.meta && Array.isArray(target.meta.tags)) p.tags = target.meta.tags;
+  try {
+    const raw = fs.readFileSync(path.join(placesDir, target.filename), 'utf-8');
+    const m = raw.match(/^---[\s\S]*?---\s*([\s\S]*)$/);
+    if (m && m[1].trim()) p.note = m[1].trim();
+  } catch {}
+  cleanPlaceFields(body, p);
+  p.name = (body.name !== undefined ? String(body.name).trim() : '') || orig;
+  try { fs.writeFileSync(path.join(placesDir, target.filename), placeToMd(p)); }
+  catch (e) { return { error: 'Could not save place' }; }
+  return { ok: true, name: p.name, file: target.filename };
+}
+
+// Remove a place: archive-first (moved under archive/places/), never hard-delete.
+function handlePlaceRemove(body) {
+  const name = body && body.name ? String(body.name).trim() : '';
+  if (!name) return { error: 'Need the place to remove' };
+  const placesDir = path.join(LOCI_ROOT, 'places');
+  const target = scanMdFiles(placesDir).find(c => c.meta && String(c.meta.name) === name);
+  if (!target) return { error: 'Place not found' };
+  const archiveDir = path.join(LOCI_ROOT, 'archive', 'places');
+  try {
+    if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
+    let dest = path.join(archiveDir, target.filename);
+    let n = 2;
+    while (fs.existsSync(dest)) { dest = path.join(archiveDir, target.filename.replace(/\.md$/, '') + '-' + n + '.md'); n++; }
+    fs.renameSync(path.join(placesDir, target.filename), dest);
+  } catch (e) { return { error: 'Could not archive place' }; }
+  return { ok: true, name };
+}
+
 // Persist a manual task order. `order` is an array of task ids in the desired
 // top-to-bottom sequence; each listed task gets manualOrder = its index. Tasks
 // not in the list keep whatever they had (e.g. the done group is untouched).
@@ -2899,7 +3219,7 @@ function handleTaskReorder(body) {
 
 function handleTaskAdd(body) {
   const { text, title, date, endDate, startTime, endTime, project, source,
-          location, color, note, urgency, importance } = body;
+          location, color, note, urgency, importance, people } = body;
   const taskTitle = (title || text || '').trim();
   if (!taskTitle) return { error: 'Missing task text' };
 
@@ -2916,6 +3236,7 @@ function handleTaskAdd(body) {
     location: location || null,
     color: color || null,
     note: note || null,
+    people: Array.isArray(people) ? people : undefined,
     urgency: urgency,
     importance: importance,
   });
@@ -2928,7 +3249,7 @@ function handleTaskAdd(body) {
 // importance / date / time). Only provided fields are changed; the rest stay.
 function handleTaskUpdateDetail(body) {
   const { id, title, location, color, note, urgency, importance,
-          date, endDate, startTime, endTime, plannedFor, deferToday } = body;
+          date, endDate, startTime, endTime, plannedFor, deferToday, people } = body;
   if (!id) return { error: 'Missing task id' };
   const tasks = loadTaskRecords();
   const target = tasks.find(t => t.id === id);
@@ -2947,6 +3268,7 @@ function handleTaskUpdateDetail(body) {
   if (endTime !== undefined)   target.endTime   = endTime || null;
   if (plannedFor !== undefined) target.plannedFor = plannedFor || null;
   if (deferToday !== undefined) target.deferToday = deferToday === true;
+  if (people !== undefined) target.people = Array.isArray(people) && people.length ? people.map(String) : null;
   target.updatedAt = isoNow();
   saveTaskRecords(tasks);
   return { ok: true, task: target };
@@ -3428,6 +3750,197 @@ function serveStaticFile(res, filePath) {
   });
 }
 
+// ─── Skills scanner ─────────────────────────────────────────────────────────
+// Reads the user's Claude Code skills (name + description) so the dashboard can
+// show a "Skills" panel. Two sources:
+//   personal → ~/.claude/skills/<name>/SKILL.md
+//   plugin   → ~/.claude/plugins/cache/**/SKILL.md
+// SKILL.md frontmatter descriptions are often multi-line, so this uses its own
+// lightweight extractor instead of the single-line parseFrontmatter above.
+function extractSkillMeta(content) {
+  if (!content || !content.startsWith('---')) return null;
+  const end = content.indexOf('\n---', 3);
+  if (end === -1) return null;
+  const block = content.substring(3, end).split('\n');
+  const isKey = (l) => /^[A-Za-z_][A-Za-z0-9_-]*\s*:/.test(l);
+  const meta = {};
+  for (let i = 0; i < block.length; i++) {
+    const line = block[i];
+    const m = line.match(/^([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    let val = m[2];
+    // Fold continuation lines (indented, or bare text that isn't a new key).
+    let j = i + 1;
+    while (j < block.length && block[j].trim() !== '' && !isKey(block[j].trimStart()) && !isKey(block[j])) {
+      val += ' ' + block[j].trim();
+      j++;
+    }
+    i = j - 1;
+    meta[key] = val.replace(/^['"]|['"]$/g, '').trim();
+  }
+  return meta;
+}
+
+function familyOf(name) {
+  const s = String(name || '');
+  const dash = s.indexOf('-');
+  if (dash > 0) return s.slice(0, dash).toLowerCase();
+  return 'core';
+}
+
+function findSkillMdFiles(root, depth, out) {
+  if (depth < 0) return;
+  let entries;
+  try { entries = fs.readdirSync(root, { withFileTypes: true }); } catch { return; }
+  for (const ent of entries) {
+    if (ent.name.startsWith('.')) continue;
+    const full = path.join(root, ent.name);
+    if (ent.isDirectory() || ent.isSymbolicLink()) {
+      // Symlinked dirs are common; the depth cap bounds any symlink cycles.
+      let isDir = ent.isDirectory();
+      if (ent.isSymbolicLink()) { try { isDir = fs.statSync(full).isDirectory(); } catch { isDir = false; } }
+      if (isDir) findSkillMdFiles(full, depth - 1, out);
+    } else if (ent.name === 'SKILL.md') {
+      out.push(full);
+    }
+  }
+}
+
+function buildSkills() {
+  const home = process.env.HOME || process.env.USERPROFILE || '';
+  const skills = [];
+  const seen = new Set();
+
+  const push = (skillMdPath, source, plugin, origin) => {
+    let raw;
+    try { raw = fs.readFileSync(skillMdPath, 'utf-8'); } catch { return; }
+    const meta = extractSkillMeta(raw) || {};
+    const dir = path.dirname(skillMdPath);
+    const name = meta.name || path.basename(dir);
+    const key = source + ':' + name;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const has = (sub) => { try { return fs.statSync(path.join(dir, sub)).isDirectory(); } catch { return false; } };
+    skills.push({
+      name,
+      description: meta.description || '',
+      source,                       // 'personal' | 'plugin'
+      origin: origin || (source === 'plugin' ? 'plugin' : 'self'),
+      plugin: plugin || null,
+      family: familyOf(name),
+      dir,                          // absolute resolved dir (local API; detail lookup + display)
+      path: home && dir.startsWith(home) ? '~' + dir.slice(home.length) : dir,
+      hasScripts: has('scripts'),
+      hasReferences: has('references'),
+      hasTemplates: has('templates'),
+    });
+  };
+
+  // Personal skills: ~/.claude/skills/<name>/SKILL.md
+  // NOTE: many skills are symlinks into a shared source (e.g. ~/.agents/skills),
+  // so accept symlinked entries too — a Dirent for a symlink reports
+  // isDirectory() === false. Resolving the link tells us where the skill truly
+  // lives, which classifies its origin:
+  //   self    → real dir inside ~/.claude/skills (built by the user)
+  //   package → symlink into ~/.agents/skills (installed by a skill manager)
+  //   project → symlink into some project repo
+  const personalRoot = path.join(home, '.claude', 'skills');
+  const agentsPrefix = path.join(home, '.agents') + path.sep;
+  try {
+    for (const ent of fs.readdirSync(personalRoot, { withFileTypes: true })) {
+      if (ent.name.startsWith('.')) continue;
+      if (!ent.isDirectory() && !ent.isSymbolicLink()) continue;
+      const entry = path.join(personalRoot, ent.name);
+      if (!fs.existsSync(path.join(entry, 'SKILL.md'))) continue;
+      let dir = entry, origin = 'self';
+      if (ent.isSymbolicLink()) {
+        try { dir = fs.realpathSync(entry); } catch { continue; }
+        origin = dir.startsWith(agentsPrefix) ? 'package' : 'project';
+      }
+      push(path.join(dir, 'SKILL.md'), 'personal', null, origin);
+    }
+  } catch { /* no personal skills dir */ }
+
+  // Plugin skills: ~/.claude/plugins/cache/**/SKILL.md
+  const pluginRoot = path.join(home, '.claude', 'plugins', 'cache');
+  try {
+    for (const ent of fs.readdirSync(pluginRoot, { withFileTypes: true })) {
+      if (!ent.isDirectory() || ent.name.startsWith('.')) continue;
+      const found = [];
+      findSkillMdFiles(path.join(pluginRoot, ent.name), 6, found);
+      for (const p of found) push(p, 'plugin', ent.name);
+    }
+  } catch { /* no plugins */ }
+
+  skills.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Group by family (prefix before first '-'), families sorted by size desc.
+  const byFamily = {};
+  for (const s of skills) (byFamily[s.family] = byFamily[s.family] || []).push(s);
+  const groups = Object.keys(byFamily)
+    .map(k => ({ key: k, count: byFamily[k].length }))
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
+
+  const counts = { self: 0, package: 0, project: 0, plugin: 0 };
+  for (const s of skills) counts[s.origin] = (counts[s.origin] || 0) + 1;
+
+  return {
+    total: skills.length,
+    personal: skills.filter(s => s.source === 'personal').length,
+    plugin: skills.filter(s => s.source === 'plugin').length,
+    counts,
+    groups,
+    skills,
+  };
+}
+
+// One skill's full detail: rendered SKILL.md body + top-level file listing.
+function buildSkillDetail(name, source) {
+  const all = buildSkills().skills;
+  const sk = all.find(s => s.name === name && (!source || s.source === source))
+    || all.find(s => s.name === name);
+  if (!sk) return { error: 'Skill not found: ' + name };
+  let raw;
+  try { raw = fs.readFileSync(path.join(sk.dir, 'SKILL.md'), 'utf-8'); } catch (e) {
+    return { error: 'Could not read SKILL.md: ' + e.message };
+  }
+  let body = raw;
+  if (raw.startsWith('---')) {
+    const end = raw.indexOf('\n---', 3);
+    if (end !== -1) body = raw.substring(end + 4);
+  }
+  let files = [];
+  try {
+    files = fs.readdirSync(sk.dir, { withFileTypes: true })
+      .filter(e => !e.name.startsWith('.'))
+      .map(e => ({ name: e.name, dir: e.isDirectory() }))
+      .sort((a, b) => ((b.dir ? 1 : 0) - (a.dir ? 1 : 0)) || a.name.localeCompare(b.name));
+  } catch { /* unreadable dir */ }
+  const { dir, ...pub } = sk;
+  return { ...pub, files, html: mdToHtml(body.trim()) };
+}
+
+// Reveal a skill's folder in the OS file manager (same pattern as handleNoteReveal).
+function handleSkillReveal(body) {
+  const name = (body && body.name ? String(body.name) : '').trim();
+  const source = (body && body.source ? String(body.source) : '').trim();
+  if (!name) return { error: 'name required' };
+  const all = buildSkills().skills;
+  const sk = all.find(s => s.name === name && (!source || s.source === source))
+    || all.find(s => s.name === name);
+  if (!sk || !fs.existsSync(sk.dir)) return { error: 'Skill not found: ' + name };
+  try {
+    const { execFile } = require('child_process');
+    const cmd = process.platform === 'darwin' ? 'open'
+      : (process.platform === 'win32' ? 'explorer' : 'xdg-open');
+    execFile(cmd, [sk.dir], () => {});   // fire-and-forget
+    return { ok: true, path: sk.path };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const parsed = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = parsed.pathname;
@@ -3460,6 +3973,62 @@ const server = http.createServer(async (req, res) => {
       sendJson(res, buildToday(parsed.searchParams.get('date') || ''));
     } catch (e) {
       sendError(res, 'Build error: ' + e.message, 500);
+    }
+    return;
+  }
+
+  // One terminal session's detail — ai-title + compact summary (all precomputed, free).
+  if (pathname === '/api/sessions/detail' && req.method === 'GET') {
+    try {
+      sendJson(res, readSessionDetail(parsed.searchParams.get('file') || ''));
+    } catch (e) { sendError(res, 'Detail error: ' + e.message, 500); }
+    return;
+  }
+  // Reveal a session's raw transcript file in Finder.
+  if (pathname === '/api/sessions/reveal' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = revealSessionFile(body && body.file);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Skills: the user's Claude Code skills (personal + plugin), name + description.
+  if (pathname === '/api/skills' && req.method === 'GET') {
+    try {
+      sendJson(res, buildSkills());
+    } catch (e) {
+      sendError(res, 'Build error: ' + e.message, 500);
+    }
+    return;
+  }
+
+  // One skill's detail: rendered SKILL.md + file listing.
+  if (pathname === '/api/skills/detail' && req.method === 'GET') {
+    try {
+      const result = buildSkillDetail(
+        parsed.searchParams.get('name') || '',
+        parsed.searchParams.get('source') || ''
+      );
+      if (result.error) sendError(res, result.error, 404);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, 'Build error: ' + e.message, 500);
+    }
+    return;
+  }
+
+  // Open a skill's folder in the OS file manager.
+  if (pathname === '/api/skills/reveal' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleSkillReveal(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
     }
     return;
   }
@@ -3516,6 +4085,35 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Places: add / update / remove (places/<slug>.md).
+  if (pathname === '/api/places/add' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePlaceAdd(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/places/update' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePlaceUpdate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/places/remove' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handlePlaceRemove(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
   // Upload an avatar image (base64) → saves to people/avatars/, returns its path.
   if (pathname === '/api/people/avatar' && req.method === 'POST') {
     try {
@@ -3532,6 +4130,17 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await parseJsonBody(req);
       const result = handleProfileUpdate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+
+  // Update the user's identity-signal chips (signals list in me/identity.md frontmatter).
+  if (pathname === '/api/profile/signals' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProfileSignals(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) { sendError(res, e.message, 500); }

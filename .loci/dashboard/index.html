@@ -709,6 +709,8 @@
       font-family:var(--sans); border:1px solid transparent; border-radius:8px; background:transparent; padding:4px 8px; margin:-4px -8px; outline:none; transition:border-color .14s, background .14s; }
     .tm-name-input:hover { background:var(--surface-2); }
     .tm-name-input:focus { border-color:var(--accent); background:var(--surface); }
+    /* title is a textarea so long tasks read in full — grows with content, no scrollbar dance */
+    textarea.tm-name-input { resize:none; field-sizing:content; min-height:calc(2.8em + 8px); max-height:38vh; overflow:auto; display:block; }
     .tm-close { flex:none; width:28px; height:28px; border:1px solid var(--line); border-radius:8px; background:var(--surface);
       color:var(--ink-3); cursor:pointer; display:grid; place-items:center; font-size:13px; }
     .tm-close:hover { color:var(--ink); background:var(--surface-2); }
@@ -1270,14 +1272,58 @@
     .mem2 .m2-mixitem{ display:inline-flex; align-items:center; gap:6px; font-size:10.5px; color:rgba(255,255,255,.85); }
     .mem2 .m2-mixitem i{ width:8px; height:8px; border-radius:3px; }
     .mem2 .m2-mixitem b{ font-family:var(--mono); font-weight:700; color:#fff; }
-    .mem2 .m2-motto{ position:relative; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); border-radius:14px; padding:13px 15px 12px 17px; }
-    .mem2 .m2-motto::before{ content:""; position:absolute; left:0; top:10px; bottom:10px; width:4px; border-radius:3px; background:linear-gradient(180deg,#fff,#a7f3d0); }
-    .mem2 .m2-motto .q{ position:absolute; right:12px; top:5px; font-size:32px; font-weight:800; color:rgba(255,255,255,.22); line-height:1; font-family:Georgia,serif; }
-    .mem2 .m2-motto .m1{ font-size:15px; font-weight:800; letter-spacing:-.01em; color:#fff; }
-    .mem2 .m2-motto .m2x{ margin-top:4px; font-size:11.5px; color:rgba(255,255,255,.82); line-height:1.55; }
+    .mem2 .m2-vals{ display:flex; flex-direction:column; gap:6px; }
+    .mem2 .m2-val{ display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.22); border-radius:10px; padding:7px 11px; }
+    .mem2 .m2-val .n{ width:16px; height:16px; border-radius:5px; background:rgba(255,255,255,.88); color:var(--accent-ink); font-size:10px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; flex:none; }
+    .mem2 .m2-val .t{ font-size:12px; font-weight:650; color:#fff; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .mem2 .m2-chips2{ display:flex; flex-wrap:wrap; gap:7px; }
     .mem2 .m2-chip2{ font-size:11.5px; font-weight:600; color:#fff; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.26); padding:5px 11px; border-radius:999px; }
     .mem2 .m2-chip2.hi{ background:rgba(255,255,255,.9); color:var(--accent-ink); border-color:transparent; }
+    .mem2 .m2-chip2.ghost{ cursor:pointer; background:transparent; border-style:dashed; color:rgba(255,255,255,.75); }
+    .mem2 .m2-chip2.ghost:hover{ background:rgba(255,255,255,.14); color:#fff; }
+    .mem2 .m2-chip2.edit{ cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .mem2 .m2-chip2.edit .x{ font-weight:700; font-size:13px; line-height:1; opacity:.7; cursor:pointer; }
+    .mem2 .m2-chip2.edit .x:hover{ opacity:1; }
+    .mem2 .m2-sig-pen{ float:right; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:7px; color:#fff; cursor:pointer; }
+    .mem2 .m2-sig-pen:hover{ background:rgba(255,255,255,.24); }
+    .mem2 .m2-sig-pen svg{ width:11px; height:11px; }
+    .mem2 .m2-sig-row{ display:flex; gap:6px; margin-top:9px; }
+    .mem2 .m2-sig-row input{ flex:1; min-width:0; font:inherit; font-size:12px; color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:6px 10px; outline:none; }
+    .mem2 .m2-sig-row input::placeholder{ color:rgba(255,255,255,.55); }
+    .mem2 .m2-sig-row input:focus{ border-color:rgba(255,255,255,.6); }
+    .mem2 .m2-sig-row button{ font:inherit; font-size:12px; font-weight:650; border-radius:8px; padding:6px 11px; cursor:pointer; border:1px solid transparent; }
+    .mem2 .m2-sig-row .ok{ background:rgba(255,255,255,.92); color:var(--accent-ink); }
+    .mem2 .m2-sig-row .ok:disabled{ opacity:.6; cursor:default; }
+    .mem2 .m2-sig-row .no{ background:transparent; border-color:rgba(255,255,255,.35); color:#fff; }
+    /* ── task ↔ people/places link chips ─────────────────────────────────── */
+    .tpill.tp-person{ display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid var(--line); box-shadow:0 1px 3px rgba(0,0,0,.05); cursor:pointer; padding-left:3px; }
+    .tpill.tp-person img{ width:16px; height:16px; border-radius:99px; object-fit:cover; }
+    .tpill.tp-person:hover{ border-color:var(--accent); color:var(--accent-ink); }
+    .tpill.tp-person.off{ cursor:default; box-shadow:none; background:transparent; border-style:dashed; }
+    .tpill.tp-place{ display:inline-flex; align-items:center; gap:5px; cursor:pointer; padding-left:3px;
+      background:color-mix(in srgb, var(--pc,#10b981) 9%, #fff); border:1px solid color-mix(in srgb, var(--pc,#10b981) 30%, #fff); color:color-mix(in srgb, var(--pc,#10b981) 72%, #000); }
+    .tpill.tp-place .pin{ width:14px; height:14px; border-radius:5px; background:var(--pc,#10b981); display:inline-flex; align-items:center; justify-content:center; }
+    .tpill.tp-place .pin svg{ width:8.5px; height:8.5px; color:#fff; }
+    .tpill.tp-place:hover{ box-shadow:0 1px 5px rgba(0,0,0,.1); }
+    .tpill.loc.raw{ border-style:dashed; background:transparent; color:var(--ink-3); }
+    .tm-links{ display:flex; flex-wrap:wrap; gap:6px; }
+    .tm-links .tpill{ font-size:11.5px; padding-top:4px; padding-bottom:4px; }
+    .tm-map{ height:158px; border:1px solid var(--line); border-radius:12px; margin-top:9px; overflow:hidden; }
+    .tm-loc-sel{ width:100%; font:inherit; font-size:13px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; outline:none; }
+    .tm-loc-sel:focus{ border-color:var(--accent); background:#fff; }
+    .tm-ppl{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; min-height:37px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:5px 8px; cursor:pointer; }
+    .tm-ppl .tpill{ margin-right:0; cursor:default; }
+    .tm-ppl .tpill .x{ font-weight:800; margin-left:3px; cursor:pointer; opacity:.55; }
+    .tm-ppl .tpill .x:hover{ opacity:1; color:#c0504d; }
+    .tm-ppl-add{ width:24px; height:24px; border-radius:8px; border:1px dashed var(--line-2); background:#fff; color:var(--ink-3); cursor:pointer; font-size:14px; line-height:1; }
+    .tm-ppl-add:hover{ border-color:var(--accent); color:var(--accent-ink); }
+    .tm-ppl-panel{ margin-top:6px; max-height:176px; overflow:auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:5px; display:flex; flex-direction:column; gap:1px; box-shadow:0 10px 26px rgba(0,0,0,.1); }
+    .tm-ppl-opt{ display:flex; align-items:center; gap:8px; font:inherit; font-size:12.5px; color:var(--ink-2); background:transparent; border:0; border-radius:8px; padding:6px 8px; cursor:pointer; text-align:left; }
+    .tm-ppl-opt:hover{ background:var(--surface-2); }
+    .tm-ppl-opt.on{ background:var(--accent-weak); color:var(--accent-ink); font-weight:650; }
+    .tm-ppl-opt img{ width:20px; height:20px; border-radius:99px; object-fit:cover; }
+    .tm-ppl-opt i{ margin-left:auto; font-style:normal; font-weight:800; }
+    .tm-ppl-none{ padding:10px; font-size:12px; color:var(--ink-3); text-align:center; }
     /* reading affordance — soft fade above the progress bar while unread */
     .mem2 .m2-fade{ position:absolute; left:1px; right:1px; bottom:19px; height:56px; background:linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--surface) 90%); pointer-events:none; opacity:0; transition:opacity .25s ease; z-index:3; }
     .mem2 .m2-fade.show{ opacity:1; }
@@ -1326,6 +1372,12 @@
     .mem2 .m2-prose code{ font-family:var(--mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 5px; }
     .mem2 .m2-prose hr{ border:0; border-top:1px dashed var(--line-2); margin:18px 0; }
     .mem2 .m2-empty{ padding:44px 10px; text-align:center; color:var(--ink-3); font-size:13px; }
+    .mem2 .m2-mergenote{ margin:0 0 20px; padding:11px 15px; background:var(--accent-weak); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; color:var(--accent-ink); font-size:12.5px; line-height:1.65; }
+    .mem2 .m2-subh{ display:flex; align-items:baseline; gap:9px; margin:26px 0 12px; padding-top:18px; border-top:1px dashed var(--line-2); }
+    .mem2 .m2-mergenote + .m2-subh{ margin-top:0; padding-top:0; border-top:0; }
+    .mem2 .m2-subh b{ font-size:14.5px; color:var(--ink); font-weight:700; letter-spacing:-.01em; }
+    .mem2 .m2-subh b::before{ content:""; display:inline-block; width:7px;height:7px;border-radius:2px; background:var(--accent); margin-right:9px; vertical-align:middle; }
+    .mem2 .m2-subh span{ font-size:12px; color:var(--ink-3); }
 
     @media(max-width:900px){
       .mem2 .m2-dossier{ grid-template-columns:1fr; }
@@ -1473,6 +1525,38 @@
     .dt-tl-cat { font-family: var(--mono); font-size: 9.5px; font-weight: 600; letter-spacing: .04em;
       color: var(--c, var(--ink-3)); background: var(--cw, var(--surface-2)); padding: 2px 8px; border-radius: 999px; flex: none; }
     .dt-tl-text { font-size: 13px; color: var(--ink-2); line-height: 1.5; min-width: 0; }
+    /* terminal sessions — free metadata layer (emerald sole accent, codex = warm ink) */
+    .sx-meta { display: flex; align-items: flex-end; gap: 18px; padding: 4px 2px 13px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+    .sx-stat b { font-family: 'Playfair Display', 'Times New Roman', serif; font-size: 25px; font-weight: 800; line-height: 1; color: var(--ink); }
+    .sx-stat span { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+    .sx-split { margin-left: auto; width: 148px; }
+    .sx-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--surface-2); gap: 1.5px; }
+    .sx-bar i { height: 100%; min-width: 3px; }
+    .sx-leg { display: flex; gap: 12px; margin-top: 7px; font-size: 10.5px; color: var(--ink-2); justify-content: flex-end; }
+    .sx-leg i { width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; display: inline-block; }
+    .sx-item.sx-cc { --c: var(--accent); --cw: var(--accent-weak); }
+    .sx-item.sx-cx { --c: #8a8780; --cw: #efeeea; }
+    .sx-tl-tool { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: .05em; padding: 1px 6px; border-radius: 5px; flex: none; color: var(--c, var(--ink-3)); background: var(--cw, var(--surface-2)); }
+    .sx-proj { font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-left: 8px; }
+    .sx-live { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: auto; box-shadow: 0 0 0 3px var(--accent-weak); }
+    .sx-hidden { font-size: 11.5px; color: var(--ink-4); padding: 8px 2px 2px; }
+    .sx-foot { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line-2); font-family: var(--mono); font-size: 9.5px; letter-spacing: .02em; color: var(--ink-3); line-height: 1.5; }
+    /* expandable session detail */
+    .sx-click { cursor: pointer; }
+    .sx-badge { flex: none; font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent-weak); padding: 1px 6px; border-radius: 5px; }
+    .sx-caret { flex: none; margin-left: 4px; font-size: 9px; color: var(--ink-4); transition: transform .18s ease; }
+    .sx-caret.on { transform: rotate(180deg); color: var(--accent-ink); }
+    .sx-item.open > .dt-tl-card { background: var(--surface-2); }
+    .sx-detail { margin: 2px 0 8px 10px; padding: 11px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
+    .sx-d-load, .sx-d-err { font-size: 12px; color: var(--ink-3); }
+    .sx-d-title { font-size: 13px; font-weight: 650; color: var(--ink); margin-bottom: 7px; }
+    .sx-d-sum { font-size: 12.5px; line-height: 1.65; color: var(--ink-2); max-height: 260px; overflow-y: auto; white-space: pre-wrap; padding-right: 4px; }
+    .sx-d-sum::-webkit-scrollbar { width: 6px; } .sx-d-sum::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+    .sx-d-first { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+    .sx-d-first .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-right: 8px; }
+    .sx-d-note { font-size: 11px; color: var(--ink-4); margin-top: 5px; }
+    .sx-d-reveal { margin-top: 11px; font-family: var(--sans); font-size: 11.5px; font-weight: 600; color: var(--accent-ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: border-color .14s, background .14s; }
+    .sx-d-reveal:hover { border-color: var(--accent-mid); background: var(--accent-weak); }
     /* project progress */
     .dt-pg-row { padding: 9px 2px; cursor: pointer; }
     .dt-pg-row + .dt-pg-row { border-top: 1px dashed var(--line-2); }
@@ -5531,6 +5615,148 @@
     /* fit into ovA-col (full width, single card chrome) */
     .ovA-col .cgau-card, .ovA-col .cdon-card{ max-width:none; width:100%; }
 
+    /* ── Places board (people page) ─────────────────────────────────────── */
+    .phb-board{ display:flex; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:3px; }
+    .phb-board button{ font:inherit; font-size:13px; font-weight:650; border:0; background:transparent; color:var(--ink-3); padding:7px 15px; border-radius:9px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; }
+    .phb-board button.on{ background:#fff; color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .phb-board button .c{ font-size:11px; font-weight:700; background:#efefec; color:var(--ink-3); border-radius:999px; padding:1px 7px; }
+    .phb-board button.on .c{ background:var(--accent-weak); color:var(--accent-ink); }
+    .pl-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+    .pl-card{ background:#fff; border:1px solid var(--line); border-radius:18px; overflow:hidden; cursor:pointer; transition:transform .15s, box-shadow .15s; }
+    .pl-card:hover{ transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,.09); }
+    .pl-hd{ position:relative; height:104px; display:flex; align-items:center; justify-content:center; }
+    .pl-hd::before{ content:""; position:absolute; inset:0; opacity:.5;
+      background-image:linear-gradient(rgba(255,255,255,.55) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.55) 1px, transparent 1px);
+      background-size:26px 26px; }
+    .pl-hd .ic{ position:relative; width:48px; height:48px; border-radius:15px; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+    .pl-hd .ic svg{ width:24px; height:24px; }
+    .plt-home{ background:linear-gradient(135deg,#fbd786,#f7b733); }  .plt-home .ic svg{ color:#f59e0b; }
+    .plt-work{ background:linear-gradient(135deg,#93c5fd,#3b82f6); }  .plt-work .ic svg{ color:#3b82f6; }
+    .plt-study{ background:linear-gradient(135deg,#c4b5fd,#8b5cf6); } .plt-study .ic svg{ color:#8b5cf6; }
+    .plt-spot{ background:linear-gradient(135deg,#6ee7b7,#10b981); }  .plt-spot .ic svg{ color:#10b981; }
+    .plt-client{ background:linear-gradient(135deg,#7dd3d0,#0ea5a4); }.plt-client .ic svg{ color:#0ea5a4; }
+    .plt-other{ background:linear-gradient(135deg,#d6d6d2,#a8a8a2); } .plt-other .ic svg{ color:#8a8a84; }
+    .pl-bd{ padding:13px 15px 14px; }
+    .pl-nm{ font-size:15px; font-weight:750; letter-spacing:-.01em; display:flex; align-items:center; gap:8px; }
+    .pl-tchip{ font-size:10.5px; font-weight:700; border-radius:6px; padding:2px 7px; background:var(--surface-2); border:1px solid var(--line); }
+    .pl-addr{ margin-top:5px; font-size:12px; color:var(--ink-2); line-height:1.5; display:flex; gap:5px; align-items:flex-start; }
+    .pl-addr svg{ width:12px; height:12px; flex:none; margin-top:2px; color:var(--ink-3); }
+    .pl-note{ margin-top:6px; font-size:11.5px; color:var(--ink-3); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .pl-ppl{ display:flex; align-items:center; margin-top:10px; }
+    .pl-ppl img{ width:22px; height:22px; border-radius:99px; border:2px solid #fff; box-shadow:0 0 0 1px var(--line); object-fit:cover; margin-right:-8px; }
+    .pl-ppl .t{ font-size:11px; color:var(--ink-3); margin-left:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .pl-ft{ display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--surface-2); margin-top:11px; padding-top:10px; }
+    .pl-freq{ font-size:11.5px; color:var(--ink-3); }
+    .pl-add{ font:inherit; border:1.5px dashed var(--line-2); border-radius:18px; min-height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--ink-3); cursor:pointer; background:transparent; }
+    .pl-add:hover{ border-color:var(--accent); color:var(--accent-ink); background:var(--accent-weak); }
+    .pl-add .plus{ width:36px; height:36px; border-radius:12px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:19px; }
+    .pl-add b{ font-size:13px; font-weight:700; }
+    .pl-add span:last-child{ font-size:11.5px; }
+    /* place marker on the people map */
+    .pmk-pl{ width:32px; height:32px; border-radius:10px; background:var(--bg,#10b981); display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 3px 10px rgba(0,0,0,.22); }
+    .pmk-pl svg{ width:16px; height:16px; }
+    /* place add/edit modal */
+    .pl-modal{ width:min(520px, calc(100vw - 40px)); background:#fff; border-radius:20px; padding:20px 22px 16px; box-shadow:0 24px 70px rgba(0,0,0,.25); max-height:calc(100vh - 60px); overflow:auto; }
+    .pl-m-h{ display:flex; align-items:center; gap:10px; font-size:16px; font-weight:800; letter-spacing:-.01em; margin-bottom:15px; }
+    .pl-m-h .ic{ width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; }
+    .pl-m-h .ic svg{ width:15px; height:15px; }
+    .pl-m-h .x{ margin-left:auto; font:inherit; border:0; background:var(--surface-2); color:var(--ink-3); width:28px; height:28px; border-radius:9px; cursor:pointer; }
+    .pl-m-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+    .pl-m-grid label{ display:flex; flex-direction:column; gap:5px; font-size:11.5px; font-weight:650; color:var(--ink-3); }
+    .pl-m-grid label.full{ grid-column:1 / -1; }
+    .pl-m-grid input, .pl-m-grid select, .pl-m-grid textarea{ font:inherit; font-size:13px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:8px 11px; outline:none; resize:vertical; }
+    .pl-m-grid input:focus, .pl-m-grid select:focus, .pl-m-grid textarea:focus{ border-color:var(--accent); background:#fff; }
+    .pl-m-acts{ display:flex; align-items:center; gap:8px; margin-top:16px; }
+    .pl-m-acts .sp{ flex:1; }
+    .pl-m-acts button{ font:inherit; font-size:13px; font-weight:700; border-radius:10px; padding:9px 16px; cursor:pointer; border:1px solid transparent; }
+    .pl-m-acts .ok{ background:var(--accent); color:#fff; }
+    .pl-m-acts .ok:disabled{ opacity:.5; cursor:default; }
+    .pl-m-acts .no{ background:var(--surface-2); border-color:var(--line); color:var(--ink-2); }
+    .pl-m-acts .del{ background:transparent; border-color:#f3d1d1; color:#c0504d; }
+    .pl-m-acts .del:hover{ background:#fdf0f0; }
+    .pl-m-tip{ margin-top:10px; font-size:11px; color:var(--ink-3); }
+
+    /* ===== Skills page ===== */
+    .skA{ max-width:1180px; margin:0 auto; }
+    .skA-hero{ display:flex; align-items:flex-end; justify-content:space-between; gap:18px; flex-wrap:wrap; margin-bottom:20px; }
+    .skA-eyebrow{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+    .skA-title{ font-size:26px; font-weight:800; letter-spacing:-.02em; color:var(--ink); display:flex; align-items:center; gap:10px; }
+    .skA-title .n{ font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:#fff; background:var(--accent); border-radius:999px; padding:3px 12px; }
+    .skA-sub{ margin-top:6px; font-size:13px; color:var(--ink-3); }
+    .skA-stats{ display:flex; gap:10px; flex-wrap:wrap; }
+    .skA-stat{ font:inherit; min-width:82px; text-align:center; border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:11px 14px 9px; position:relative; overflow:hidden; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease; }
+    .skA-stat::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--oc,var(--accent)); }
+    .skA-stat:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.06); border-color:var(--oc,var(--accent)); }
+    .skA-stat.on{ border-color:var(--oc,var(--accent)); background:color-mix(in srgb, var(--oc,var(--accent)) 8%, var(--surface)); }
+    .skA-stat .v{ font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:800; color:var(--ink); line-height:1.1; }
+    .skA-stat .k{ display:flex; align-items:center; justify-content:center; gap:5px; font-size:11px; color:var(--ink-3); margin-top:3px; }
+    .skA-stat .k i{ width:6px; height:6px; border-radius:50%; background:var(--oc,var(--accent)); }
+    .skA-bar{ display:flex; gap:2px; height:6px; border-radius:999px; overflow:hidden; margin-top:14px; max-width:420px; }
+    .skA-bar i{ display:block; min-width:4px; border-radius:2px; }
+    .skA-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+    .skA-search{ position:relative; flex:1; min-width:200px; max-width:340px; }
+    .skA-search input{ width:100%; font:inherit; font-size:13px; padding:9px 12px 9px 32px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); }
+    .skA-search input:focus{ outline:none; border-color:var(--accent); }
+    .skA-search svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-3); }
+    .skA-filters{ display:flex; gap:6px; flex-wrap:wrap; }
+    .skA-chip{ font:inherit; font-size:12px; font-weight:600; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .skA-chip .dot{ width:7px; height:7px; border-radius:50%; background:var(--oc,var(--accent)); }
+    .skA-chip .c{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink-3); }
+    .skA-chip.on{ background:var(--oc,var(--ink)); border-color:var(--oc,var(--ink)); color:#fff; }
+    .skA-chip.on .dot{ background:#fff; }
+    .skA-chip.on .c{ color:rgba(255,255,255,.75); }
+    .skA-grp{ margin-bottom:28px; }
+    .skA-grp-h{ display:flex; align-items:center; gap:9px; margin:0 0 12px; }
+    .skA-grp-dot{ width:8px; height:8px; border-radius:3px; background:var(--gc,var(--accent)); }
+    .skA-grp-name{ font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-2); }
+    .skA-grp-n{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-3); }
+    .skA-grp-line{ flex:1; height:1px; background:var(--line); }
+    .skA-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+    .skA-card{ position:relative; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:15px 16px 13px; display:flex; flex-direction:column; gap:8px; cursor:pointer; transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+    .skA-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--fc,var(--accent)); opacity:0; transition:opacity .15s ease; }
+    .skA-card:hover{ border-color:var(--fc,var(--accent)); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.07); }
+    .skA-card:hover::before{ opacity:1; }
+    .skA-c-top{ display:flex; align-items:center; gap:8px; }
+    .skA-c-name{ font-family:'JetBrains Mono',monospace; font-size:13.5px; font-weight:700; color:var(--ink); word-break:break-word; flex:1; }
+    .skA-c-org{ display:flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:.03em; color:var(--oc,var(--ink-3)); white-space:nowrap; }
+    .skA-c-org i{ width:6px; height:6px; border-radius:50%; background:var(--oc,var(--ink-3)); }
+    .skA-c-desc{ font-size:12.5px; line-height:1.55; color:var(--ink-2); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:38px; }
+    .skA-c-foot{ display:flex; align-items:center; gap:6px; margin-top:auto; padding-top:4px; }
+    .skA-c-tag{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink-3); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:1px 7px; }
+    .skA-c-bits{ margin-left:auto; display:flex; gap:5px; }
+    .skA-c-bit{ font-size:10px; color:var(--ink-3); border:1px solid var(--line); border-radius:5px; padding:1px 6px; }
+    .skA-empty{ text-align:center; color:var(--ink-3); font-size:13px; padding:60px 0; }
+    /* skill detail modal */
+    .skM-ov{ position:fixed; inset:0; z-index:120; background:rgba(20,20,18,.45); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:24px; }
+    .skM{ position:relative; width:min(760px,100%); max-height:84vh; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.25); overflow:hidden; }
+    .skM-x{ position:absolute; top:14px; right:16px; width:30px; height:30px; border-radius:9px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); font-size:16px; line-height:1; cursor:pointer; }
+    .skM-x:hover{ color:var(--ink); border-color:var(--ink-3); }
+    .skM-head{ padding:20px 24px 0; }
+    .skM-name{ font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:800; color:var(--ink); padding-right:40px; word-break:break-word; }
+    .skM-meta{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .skM-badge{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; color:var(--oc,var(--ink-2)); background:color-mix(in srgb, var(--oc,var(--ink-3)) 12%, transparent); }
+    .skM-badge i{ width:6px; height:6px; border-radius:50%; background:var(--oc,var(--ink-3)); }
+    .skM-path{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-3); }
+    .skM-path--link{ display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line); background:var(--surface-2); border-radius:6px; padding:2px 8px; cursor:pointer; transition:color .15s ease, border-color .15s ease; }
+    .skM-path--link:hover{ color:var(--accent); border-color:color-mix(in srgb, var(--accent) 40%, var(--line)); }
+    .skM-path--link .a{ font-size:10px; opacity:.7; }
+    .skM-desc{ margin:12px 24px 0; padding:10px 14px; font-size:13px; line-height:1.6; color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; }
+    .skM-files{ display:flex; flex-wrap:wrap; gap:6px; margin:12px 24px 0; }
+    .skM-file{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-3); border:1px solid var(--line); border-radius:6px; padding:2px 8px; background:var(--surface); }
+    .skM-file.d{ color:var(--accent); border-color:color-mix(in srgb, var(--accent) 35%, var(--line)); }
+    .skM-body{ flex:1; overflow-y:auto; padding:14px 24px 22px; margin-top:8px; border-top:1px solid var(--line); }
+    .skM-loading{ text-align:center; color:var(--ink-3); font-size:13px; padding:30px 0; }
+    .skM-md{ font-size:13.5px; line-height:1.7; color:var(--ink-2); }
+    .skM-md h1,.skM-md h2,.skM-md h3{ color:var(--ink); font-weight:700; margin:18px 0 8px; line-height:1.35; }
+    .skM-md h1{ font-size:17px; } .skM-md h2{ font-size:15px; } .skM-md h3{ font-size:13.5px; }
+    .skM-md p{ margin:8px 0; }
+    .skM-md ul,.skM-md ol{ margin:8px 0 8px 20px; } .skM-md li{ margin:3px 0; }
+    .skM-md code{ font-family:'JetBrains Mono',monospace; font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 5px; }
+    .skM-md pre{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; overflow-x:auto; margin:10px 0; }
+    .skM-md pre code{ background:none; border:none; padding:0; }
+    .skM-md table{ border-collapse:collapse; margin:10px 0; width:100%; font-size:12.5px; }
+    .skM-md th,.skM-md td{ border:1px solid var(--line); padding:5px 9px; text-align:left; }
+    .skM-md blockquote{ border-left:3px solid var(--line); margin:10px 0; padding:2px 14px; color:var(--ink-3); }
   </style>
 </head>
 <body>
@@ -5580,7 +5806,7 @@
         <div class="tm-head">
           <div class="tm-title">
             <div class="tm-eyebrow">{{ detailMode === 'create' ? (lang === 'zh' ? '新任务' : 'New task') : (lang === 'zh' ? '任务详情' : 'Task detail') }}</div>
-            <input class="tm-name-input" v-model="editDetail.text" @keyup.enter="saveTaskDetail()" :placeholder="lang === 'zh' ? '任务标题' : 'Task title'">
+            <textarea class="tm-name-input" v-model="editDetail.text" rows="2" @keydown.enter="$event.isComposing || ($event.preventDefault(), saveTaskDetail())" :placeholder="lang === 'zh' ? '任务标题' : 'Task title'"></textarea>
 
           </div>
           <button class="tm-close" @click="closeTaskDetail()">✕</button>
@@ -5590,9 +5816,39 @@
             <div class="tm-field"><label>{{ lang === 'zh' ? '日期' : 'Date' }}</label><input type="date" v-model="editDetail.date"></div>
             <div class="tm-field"><label>{{ lang === 'zh' ? '时间' : 'Time' }}</label><input type="time" v-model="editDetail.time"></div>
           </div>
-          <div class="tm-field">
-            <label>{{ lang === 'zh' ? '地点' : 'Location' }}</label>
-            <input v-model="editDetail.location" :placeholder="lang === 'zh' ? '如 公司 / 咖啡馆' : 'e.g. office'">
+          <div class="tm-row">
+            <div class="tm-field">
+              <label>{{ lang === 'zh' ? '地点' : 'Location' }}</label>
+              <select class="tm-loc-sel" :value="tmLocSelect" @change="onTmLocSelect($event.target.value)">
+                <option value="">{{ lang === 'zh' ? '不填' : 'None' }}</option>
+                <option v-for="p in placesData" :key="p.name" :value="p.name">{{ p.name }}{{ p.address ? ' · ' + p.address : (p.city ? ' · ' + p.city : '') }}</option>
+                <option value="__custom__">{{ lang === 'zh' ? '其他地点（手动输入）…' : 'Somewhere else…' }}</option>
+              </select>
+              <input v-if="tmLocSelect === '__custom__'" v-model="editDetail.location" style="margin-top:6px;" :placeholder="lang === 'zh' ? '一次性地点，只属于这条任务' : 'One-off location for this task'">
+            </div>
+            <div class="tm-field">
+              <label>{{ lang === 'zh' ? '关联的人' : 'People' }}</label>
+              <div class="tm-ppl" @click.self="tmPplOpen = !tmPplOpen">
+                <span v-for="pp in tmLinkedPeople" :key="pp.name" class="tpill tp-person" :class="{ off: pp.off }">
+                  <img v-if="pp.photo" :src="pp.photo">{{ pp.name }}<b class="x" :title="lang === 'zh' ? '移除' : 'Remove'" @click.stop="tmRemovePerson(pp.name)">×</b>
+                </span>
+                <button type="button" class="tm-ppl-add" :title="lang === 'zh' ? '选择联系人' : 'Pick contacts'" @click="tmPplOpen = !tmPplOpen">＋</button>
+              </div>
+              <div v-if="tmPplOpen" class="tm-ppl-panel">
+                <button type="button" v-for="c in peopleData" :key="c.name" class="tm-ppl-opt" :class="{ on: tmHasPerson(c.name) }" @click="tmTogglePerson(c.name)">
+                  <img v-if="c.photo" :src="c.photo"><span>{{ c.name }}</span><i v-if="tmHasPerson(c.name)">✓</i>
+                </button>
+                <div v-if="!peopleData.length" class="tm-ppl-none">{{ lang === 'zh' ? '人脉里还没有联系人' : 'No contacts yet' }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="tm-field tm-field--wide" v-if="tmLinkedPlace || tmLinkedPeople.length">
+            <label>{{ lang === 'zh' ? '关联' : 'Linked' }}</label>
+            <div class="tm-links">
+              <span v-for="pp in tmLinkedPeople" :key="pp.name" class="tpill tp-person" :class="{ off: pp.off }" :title="pp.off ? (lang === 'zh' ? '不在人脉里' : 'Not a saved contact') : (lang === 'zh' ? '查看人脉卡' : 'Open contact')" @click="!pp.off && (closeTaskDetail(), gotoTaskPerson(pp.name))"><img v-if="pp.photo" :src="pp.photo">{{ pp.name }}</span>
+              <span v-if="tmLinkedPlace" class="tpill tp-place" :style="{ '--pc': plTypeMeta(tmLinkedPlace.type).color }" :title="lang === 'zh' ? '查看位置' : 'Open place'" @click="closeTaskDetail(); currentPage = 'people'; pplBoard = 'places'; plOpenEdit(tmLinkedPlace)"><span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(tmLinkedPlace.type)"></svg></span>{{ tmLinkedPlace.name }}<template v-if="tmLinkedPlace.address"> · {{ tmLinkedPlace.address }}</template></span>
+            </div>
+            <div v-if="tmLinkedPlace" ref="tmMapEl" class="tm-map"></div>
           </div>
           <div class="tm-field">
             <label>{{ lang === 'zh' ? '紧急程度' : 'Priority' }}</label>
@@ -6153,13 +6409,15 @@
                   <span class="check" :class="{ on: task.done }" @click="toggleMissionTask(task)" style="cursor: pointer;">
                     <svg v-if="task.done" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                   </span>
-                  <div class="body" @click.stop="openTaskTitlePeek(task, $event)">
+                  <div class="body" @click.stop="openTaskDetail(task)">
                     <div class="nm">{{ task.text }}</div>
-                    <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location)">
+                    <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location || (task.people && task.people.length))">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
                       <span v-if="task.date && !taskOverdueDays(task)" class="tpill date" :class="{ 'due-today': taskDatePill(task) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(task) }}</span>
                       <span v-if="task.startTime" class="tpill time">{{ task.startTime }}</span>
-                      <span v-if="task.location" class="tpill loc">📍 {{ task.location }}</span>
+                      <span v-for="pp in taskPeopleList(task)" :key="pp.name" class="tpill tp-person" :class="{ off: !pp.found }" :title="pp.found ? (lang === 'zh' ? '查看人脉卡' : 'Open contact') : ''" @click.stop="pp.found && gotoTaskPerson(pp.name)"><img v-if="pp.photo" :src="pp.photo">{{ pp.name }}</span>
+                      <span v-if="task.location && taskPlace(task)" class="tpill tp-place" :style="{ '--pc': plTypeMeta(taskPlace(task).type).color }" :title="lang === 'zh' ? '查看位置' : 'Open place'" @click.stop="gotoTaskPlace(task)"><span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(taskPlace(task).type)"></svg></span>{{ task.location }}</span>
+                      <span v-else-if="task.location" class="tpill loc raw">📍 {{ task.location }}</span>
                     </div>
                   </div>
                   <span v-if="task.project" class="tag">{{ task.project }}</span>
@@ -6672,6 +6930,47 @@
                   <div class="md-content" v-html="s.html"></div>
                 </div>
               </div>
+              <!-- 终端会话 — free metadata layer, scanned from local session transcripts -->
+              <div v-else-if="key === 'sessions'" class="dt-mod">
+                <div class="dt-head"><span class="dt-eyebrow">Sessions</span><span class="dt-t">{{ lang === 'zh' ? '终端会话' : 'Terminal sessions' }}</span><span class="dt-count">{{ trace.sessions.count }}</span></div>
+                <div class="sx-meta">
+                  <div class="sx-stat"><b>{{ trace.sessions.dirs }}</b><span>{{ lang === 'zh' ? '工作目录' : 'dirs' }}</span></div>
+                  <div class="sx-stat"><b>{{ trace.sessions.turns }}</b><span>{{ lang === 'zh' ? '轮对话' : 'turns' }}</span></div>
+                  <div class="sx-stat" v-if="trace.sessions.live"><b>{{ trace.sessions.live }}</b><span>{{ lang === 'zh' ? '还开着' : 'live' }}</span></div>
+                  <div class="sx-split">
+                    <div class="sx-bar"><i v-if="trace.sessions.claude" :style="{ flexGrow: trace.sessions.claude, background: 'var(--accent)' }"></i><i v-if="trace.sessions.codex" :style="{ flexGrow: trace.sessions.codex, background: '#8a8780' }"></i></div>
+                    <div class="sx-leg"><span v-if="trace.sessions.claude"><i style="background:var(--accent)"></i>Claude {{ trace.sessions.claude }}</span><span v-if="trace.sessions.codex"><i style="background:#8a8780"></i>Codex {{ trace.sessions.codex }}</span></div>
+                  </div>
+                </div>
+                <div class="dt-tl">
+                  <div v-for="(s, si) in dtSessions" :key="si" class="dt-tl-item sx-item" :class="[s.tool === 'codex' ? 'sx-cx' : 'sx-cc', { open: sxOpenFile === s.file }]">
+                    <span class="dt-tl-node"></span>
+                    <div class="dt-tl-card sx-click" @click="sxToggle(s)">
+                      <span class="dt-tl-time">{{ s.start }}</span>
+                      <span class="sx-tl-tool">{{ dtSessTool(s.tool) }}</span>
+                      <span class="dt-tl-text">{{ s.title }}<span class="sx-proj">{{ dtSessProj(s.proj) }}</span></span>
+                      <span v-if="s.compacted" class="sx-badge" :title="lang === 'zh' ? '有完整摘要' : 'has full summary'">摘要</span>
+                      <span v-if="s.live" class="sx-live" :title="lang === 'zh' ? '还开着' : 'live'"></span>
+                      <span class="sx-caret" :class="{ on: sxOpenFile === s.file }">▾</span>
+                    </div>
+                    <div v-if="sxOpenFile === s.file" class="sx-detail">
+                      <div v-if="sxDetail[s.file] && sxDetail[s.file].loading" class="sx-d-load">{{ lang === 'zh' ? '读取中…' : 'loading…' }}</div>
+                      <div v-else-if="sxDetail[s.file] && sxDetail[s.file].err" class="sx-d-err">{{ lang === 'zh' ? '读不到这个会话' : 'could not read session' }}</div>
+                      <template v-else-if="sxDetail[s.file]">
+                        <div v-if="sxDetail[s.file].aiTitle" class="sx-d-title">{{ sxDetail[s.file].aiTitle }}</div>
+                        <div v-if="sxDetail[s.file].compactSummary" class="sx-d-sum">{{ sxCleanSummary(sxDetail[s.file].compactSummary) }}</div>
+                        <div v-else class="sx-d-first"><span class="k">{{ lang === 'zh' ? '开场' : 'Opener' }}</span>{{ sxDetail[s.file].firstUser || s.first }}<div class="sx-d-note">{{ lang === 'zh' ? '这个会话没被压缩，暂无完整摘要 — 展示开场。' : 'Not compacted — no full summary yet.' }}</div></div>
+                        <button class="sx-d-reveal" @click.stop="sxReveal(s)">{{ lang === 'zh' ? '在 Finder 中打开原文件' : 'Reveal in Finder' }}</button>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+                <button v-if="dtSessMeaningful.length > 8" class="dt-more" @click="dtSessOpen = !dtSessOpen">
+                  {{ dtSessOpen ? (lang === 'zh' ? '收起 ▴' : 'Collapse ▴') : (lang === 'zh' ? '展开全部 ' + dtSessMeaningful.length + ' 个 ▾' : 'Show all ' + dtSessMeaningful.length + ' ▾') }}
+                </button>
+                <div v-if="dtSessHidden" class="sx-hidden">{{ lang === 'zh' ? '另有 ' + dtSessHidden + ' 个打招呼 / 测试会话已折叠' : dtSessHidden + ' greeting/test sessions hidden' }}</div>
+                <div class="sx-foot">{{ lang === 'zh' ? '只读会话记录的时间戳与开场，零 token · 不读你的项目文件' : 'Timestamps & openers only · zero tokens · never reads your project files' }}</div>
+              </div>
               </template>
             </div>
           </div>
@@ -6815,21 +7114,35 @@
                     </div>
                   </div>
                   <div class="m2-sec">
-                    <div class="m2-sec-t">{{ lang === 'zh' ? '身份信号' : 'SIGNALS' }}</div>
-                    <div class="m2-chips2">
-                      <span class="m2-chip2 hi">AI 内容创作者</span>
-                      <span class="m2-chip2">Data Science</span>
-                      <span class="m2-chip2">ENFJ · 宝剑哥</span>
-                      <span class="m2-chip2">悉尼 ⇄ 国内</span>
-                      <span class="m2-chip2">早睡派</span>
+                    <div class="m2-sec-t">{{ lang === 'zh' ? '身份信号' : 'SIGNALS' }}
+                      <button class="m2-sig-pen" type="button" :title="sigEditing ? (lang === 'zh' ? '收起' : 'Close') : (lang === 'zh' ? '编辑标签' : 'Edit tags')" @click="sigEditing ? cancelSigEdit() : startSigEdit()">
+                        <svg v-if="!sigEditing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                      </button>
+                    </div>
+                    <div class="m2-chips2" v-if="!sigEditing">
+                      <template v-if="memoryProfile.signals && memoryProfile.signals.length">
+                        <span class="m2-chip2" :class="{ hi: i === 0 }" v-for="(s, i) in memoryProfile.signals" :key="s">{{ s }}</span>
+                      </template>
+                      <span v-else class="m2-chip2 ghost" role="button" @click="startSigEdit()">+ {{ lang === 'zh' ? '添加标签' : 'Add tags' }}</span>
+                    </div>
+                    <div v-else>
+                      <div class="m2-chips2" v-if="sigDraft.length">
+                        <span class="m2-chip2 edit" v-for="(s, i) in sigDraft" :key="s + i" :title="lang === 'zh' ? '点击修改' : 'Click to edit'" @click="editSig(i)">{{ s }}<b class="x" :title="lang === 'zh' ? '删除' : 'Remove'" @click.stop="removeSig(i)">×</b></span>
+                      </div>
+                      <div class="m2-sig-row">
+                        <input v-model="sigInput" maxlength="20" :placeholder="lang === 'zh' ? '输入标签，回车添加' : 'Type a tag, Enter to add'" @keyup.enter="addSig">
+                        <button class="ok" type="button" :disabled="sigSaving" @click="saveSigEdit">{{ sigSaving ? '…' : (lang === 'zh' ? '保存' : 'Save') }}</button>
+                        <button class="no" type="button" @click="cancelSigEdit">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                      </div>
                     </div>
                   </div>
-                  <div class="m2-sec">
-                    <div class="m2-sec-t">{{ lang === 'zh' ? '座右铭' : 'MOTTO' }}</div>
-                    <div class="m2-motto">
-                      <span class="q">”</span>
-                      <div class="m1">状态 &gt; 产出</div>
-                      <div class="m2x">早睡早起是一切的前提 —— 先把人调好，再谈产出。</div>
+                  <div class="m2-sec" v-if="memoryProfile.values && memoryProfile.values.length">
+                    <div class="m2-sec-t">{{ lang === 'zh' ? '价值观' : 'VALUES' }}</div>
+                    <div class="m2-vals">
+                      <div class="m2-val" v-for="(v, i) in memoryProfile.values.slice(0, 3)" :key="i" :title="v.desc || ''">
+                        <span class="n">{{ i + 1 }}</span><span class="t">{{ v.title }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -6841,7 +7154,7 @@
                     <div class="m2-stat"><b>{{ brainDays }}</b><span>{{ lang === 'zh' ? '活跃' : 'ACT' }}</span></div>
                     <div class="m2-stat"><b>{{ memoryProfile.stats.decisions }}</b><span>{{ lang === 'zh' ? '决策' : 'DEC' }}</span></div>
                     <div class="m2-stat"><b>{{ memoryProfile.stats.projects }}</b><span>{{ lang === 'zh' ? '项目' : 'PRJ' }}</span></div>
-                    <div class="m2-stat"><b>6</b><span>{{ lang === 'zh' ? '记忆块' : 'BLOCKS' }}</span></div>
+                    <div class="m2-stat"><b>{{ memoryBlocks.length }}</b><span>{{ lang === 'zh' ? '记忆块' : 'BLOCKS' }}</span></div>
                   </div>
                 </div>
               </section>
@@ -6866,6 +7179,9 @@
                   <!-- 身份 -->
                   <div v-if="memoryBlock === 'identity'" class="m2-prose" v-html="stripLeadH1(memoryIdentityContent)"></div>
 
+                  <!-- 偏好 -->
+                  <div v-else-if="memoryBlock === 'preferences'" class="m2-prose" v-html="stripLeadH1(memoryPreferencesContent)"></div>
+
                   <!-- 价值观 -->
                   <div v-else-if="memoryBlock === 'values'">
                     <template v-if="memoryProfile.values && memoryProfile.values.length">
@@ -6880,11 +7196,14 @@
                   <!-- 状态 -->
                   <div v-else-if="memoryBlock === 'wellbeing'" class="m2-prose" v-html="stripLeadH1(memoryWellbeingContent)"></div>
 
-                  <!-- 洞察 -->
-                  <div v-else-if="memoryBlock === 'insights'" class="m2-prose" v-html="stripLeadH1(memoryInsightsContent)"></div>
-
-                  <!-- 经验 -->
-                  <div v-else-if="memoryBlock === 'learned'" class="m2-prose" v-html="stripLeadH1(memoryLearnedContent)"></div>
+                  <!-- 洞察·经验（合并展示；文件层仍是 insights.md / learned.md 两个，路由不变） -->
+                  <div v-else-if="memoryBlock === 'insights'">
+                    <div class="m2-mergenote">{{ lang === 'zh' ? '洞察是还没定型的新想法，观察一段时间、被验证后沉淀为「经验」（或价值观）；每一次沉淀与改变，都记在「成长」里。' : 'An insight is a fresh, unsettled thought. Once it proves out, it graduates into a lesson (or a value) — and every graduation is logged under Evolution.' }}</div>
+                    <div class="m2-subh"><b>{{ lang === 'zh' ? '洞察' : 'Insights' }}</b><span>{{ lang === 'zh' ? '还没定型的新想法 · 会过期、会升级' : 'fresh & unsettled · may expire or graduate' }}</span></div>
+                    <div class="m2-prose" v-html="stripLeadH1(memoryInsightsContent)"></div>
+                    <div class="m2-subh"><b>{{ lang === 'zh' ? '经验' : 'Lessons' }}</b><span>{{ lang === 'zh' ? '已验证的做法 · 直接照着用' : 'proven practices · apply as-is' }}</span></div>
+                    <div class="m2-prose" v-html="stripLeadH1(memoryLearnedContent)"></div>
+                  </div>
 
                   <!-- 成长演变 -->
                   <div v-else-if="memoryBlock === 'evolution'">
@@ -7261,13 +7580,15 @@
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" @click.stop="openTaskTitlePeek(todo, $event)">
+                          <div class="body" @click.stop="openProjectTodoDetail(roadmapFocusProject, todo)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
                               <span v-if="todo.date && !taskOverdueDays(todo)" class="tpill date" :class="{ 'due-today': taskDatePill(todo) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(todo) }}</span>
                               <span v-if="taskTimePill(todo)" class="tpill time">{{ taskTimePill(todo) }}</span>
-                              <span v-if="todo.location" class="tpill loc">📍 {{ todo.location }}</span>
+                              <span v-for="pp in taskPeopleList(todo)" :key="pp.name" class="tpill tp-person" :class="{ off: !pp.found }" @click.stop="pp.found && gotoTaskPerson(pp.name)"><img v-if="pp.photo" :src="pp.photo">{{ pp.name }}</span>
+                              <span v-if="todo.location && taskPlace(todo)" class="tpill tp-place" :style="{ '--pc': plTypeMeta(taskPlace(todo).type).color }" @click.stop="gotoTaskPlace(todo)"><span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(taskPlace(todo).type)"></svg></span>{{ todo.location }}</span>
+                              <span v-else-if="todo.location" class="tpill loc raw">📍 {{ todo.location }}</span>
                               <span v-if="todo.category && todo.category !== 'Backlog'" class="tpill cat">{{ todo.category }}</span>
                             </div>
                           </div>
@@ -7291,13 +7612,15 @@
                           <span class="check" :class="{ on: todo.status === 'done' }" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg v-if="todo.status === 'done'" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" @click.stop="openTaskTitlePeek(todo, $event)">
+                          <div class="body" @click.stop="openProjectTodoDetail(roadmapFocusProject, todo)">
                             <div class="nm">{{ todo.text }}</div>
                             <div v-if="todo.status !== 'done'" class="mt">
                               <span v-if="todo.date && taskOverdueDays(todo)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(todo) + ' 天' : taskOverdueDays(todo) + 'd overdue' }}</span>
                               <span v-if="todo.date && !taskOverdueDays(todo)" class="tpill date" :class="{ 'due-today': taskDatePill(todo) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(todo) }}</span>
                               <span v-if="taskTimePill(todo)" class="tpill time">{{ taskTimePill(todo) }}</span>
-                              <span v-if="todo.location" class="tpill loc">📍 {{ todo.location }}</span>
+                              <span v-for="pp in taskPeopleList(todo)" :key="pp.name" class="tpill tp-person" :class="{ off: !pp.found }" @click.stop="pp.found && gotoTaskPerson(pp.name)"><img v-if="pp.photo" :src="pp.photo">{{ pp.name }}</span>
+                              <span v-if="todo.location && taskPlace(todo)" class="tpill tp-place" :style="{ '--pc': plTypeMeta(taskPlace(todo).type).color }" @click.stop="gotoTaskPlace(todo)"><span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(taskPlace(todo).type)"></svg></span>{{ todo.location }}</span>
+                              <span v-else-if="todo.location" class="tpill loc raw">📍 {{ todo.location }}</span>
                               <span v-if="todo.category && todo.category !== 'Backlog'" class="tpill cat">{{ todo.category }}</span>
                             </div>
                           </div>
@@ -7329,7 +7652,7 @@
                           <span class="check on" role="button" :title="lang === 'zh' ? '恢复' : 'reopen'" @click="roadmapToggle(roadmapFocusProject, todo)">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
                           </span>
-                          <div class="body" style="flex:1" @click.stop="openTaskTitlePeek(todo, $event)">
+                          <div class="body" style="flex:1" @click.stop="openProjectTodoDetail(roadmapFocusProject, todo)">
                             <div class="nm doing" style="color:var(--ink-3);text-decoration:line-through;">{{ todo.text }}</div>
                           </div>
                           <button class="pj-del-btn" :title="lang === 'zh' ? '删除' : 'remove'" @click="roadmapRemove(roadmapFocusProject, todo)">✕</button>
@@ -8029,30 +8352,37 @@
           <div class="phb" data-tour="people-stats" v-if="viewMode === 'grid'">
             <div class="phb-top">
               <div class="phb-tot">
-                <div class="phb-label">Network</div>
-                <div class="phb-count">
+                <div class="phb-label">{{ pplBoard === 'places' ? 'PLACES' : 'Network' }}</div>
+                <div class="phb-count" v-if="pplBoard === 'people'">
                   <span class="n">{{ peopleData.length }}</span><span class="u">{{ lang === 'zh' ? '位' : '' }}</span>
                   <span v-if="peopleNewThisMonth" class="phb-delta" :title="lang === 'zh' ? '本月新认识 ' + peopleNewThisMonth + ' 位' : peopleNewThisMonth + ' met this month'">↑ {{ lang === 'zh' ? '本月' : 'mo' }} +{{ peopleNewThisMonth }}</span>
                 </div>
+                <div class="phb-count" v-else>
+                  <span class="n">{{ placesData.length }}</span><span class="u">{{ lang === 'zh' ? '处' : '' }}</span>
+                </div>
               </div>
-              <div class="phb-avstack" v-if="phbAvatars.length">
+              <div class="phb-board" role="tablist" :aria-label="lang === 'zh' ? '联系人/位置切换' : 'Contacts / Places'">
+                <button :class="{ on: pplBoard === 'people' }" @click="pplBoard = 'people'">{{ lang === 'zh' ? '联系人' : 'Contacts' }}<span class="c">{{ peopleData.length }}</span></button>
+                <button :class="{ on: pplBoard === 'places' }" @click="pplBoard = 'places'">{{ lang === 'zh' ? '位置' : 'Places' }}<span class="c">{{ placesData.length }}</span></button>
+              </div>
+              <div class="phb-avstack" v-if="pplBoard === 'people' && phbAvatars.length">
                 <img v-for="p in phbAvatars" :key="p.name" :src="p.photo" :alt="p.name" :title="p.name" @click="openPersonDetail(p)">
                 <span v-if="peopleData.length > phbAvatars.length" class="more">+{{ peopleData.length - phbAvatars.length }}</span>
               </div>
               <div class="phb-views">
                 <div class="pc-layout-toggle">
                   <button :class="{ active: viewMode === 'grid' }" @click="setViewMode('grid')">{{ lang === 'zh' ? '网格' : 'Grid' }}</button>
-                  <button :class="{ active: viewMode === 'coverflow' }" @click="setViewMode('coverflow')">{{ lang === 'zh' ? '封面流' : 'Cover Flow' }}</button>
-                  <button :class="{ active: viewMode === 'graph' }" @click="setViewMode('graph')">{{ lang === 'zh' ? '关系图' : 'Graph' }}</button>
+                  <button v-if="pplBoard === 'people'" :class="{ active: viewMode === 'coverflow' }" @click="setViewMode('coverflow')">{{ lang === 'zh' ? '封面流' : 'Cover Flow' }}</button>
+                  <button v-if="pplBoard === 'people'" :class="{ active: viewMode === 'graph' }" @click="setViewMode('graph')">{{ lang === 'zh' ? '关系图' : 'Graph' }}</button>
                   <button :class="{ active: viewMode === 'map' }" @click="setViewMode('map')">{{ lang === 'zh' ? '地图' : 'Map' }}</button>
                 </div>
-                <div class="phb-flip" role="group" :aria-label="lang === 'zh' ? '卡片布局' : 'Card layout'">
+                <div class="phb-flip" v-if="pplBoard === 'people'" role="group" :aria-label="lang === 'zh' ? '卡片布局' : 'Card layout'">
                   <span class="thumb" :class="{ r: cardLayout === 'bleed' }" aria-hidden="true"></span>
                   <button :class="{ on: cardLayout === 'framed' }" @click="cardLayout = 'framed'">{{ lang === 'zh' ? '卡框' : 'Framed' }}</button>
                   <button :class="{ on: cardLayout === 'bleed' }" @click="cardLayout = 'bleed'">{{ lang === 'zh' ? '满图' : 'Bleed' }}</button>
                 </div>
               </div>
-              <div class="phb-tools">
+              <div class="phb-tools" v-if="pplBoard === 'people'">
                 <div class="ppl-search">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
                   <input v-model="peopleQuery" :placeholder="lang === 'zh' ? '搜索名字、标签…' : 'Search name, tag…'" />
@@ -8060,15 +8390,23 @@
                 </div>
                 <button class="ppl-add-btn" @click="pplOpenAdd">＋ {{ lang === 'zh' ? '添加' : 'Add' }}</button>
               </div>
+              <div class="phb-tools" v-else>
+                <div class="ppl-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                  <input v-model="plQuery" :placeholder="lang === 'zh' ? '搜索名称、地址、标签…' : 'Search name, address, tag…'" />
+                  <button v-if="plQuery || plTypeFilter" class="ppl-clear" @click="plQuery=''; plTypeFilter=''">✕</button>
+                </div>
+                <button class="ppl-add-btn" @click="plOpenAdd">＋ {{ lang === 'zh' ? '添加位置' : 'Add place' }}</button>
+              </div>
             </div>
-            <div class="phb-bar" v-if="peopleData.length" role="img" :aria-label="(lang==='zh'?'家人':'Family') + ' ' + familyPeople.length + '、' + (lang==='zh'?'朋友':'Friends') + ' ' + friendPeople.length + '、' + (lang==='zh'?'合作':'Partners') + ' ' + partnerPeople.length + '、' + (lang==='zh'?'潜在合作':'Prospects') + ' ' + prospectPeople.length + '、' + (lang==='zh'?'导师':'Mentors') + ' ' + mentorPeople.length">
+            <div class="phb-bar" v-if="pplBoard === 'people' && peopleData.length" role="img" :aria-label="(lang==='zh'?'家人':'Family') + ' ' + familyPeople.length + '、' + (lang==='zh'?'朋友':'Friends') + ' ' + friendPeople.length + '、' + (lang==='zh'?'合作':'Partners') + ' ' + partnerPeople.length + '、' + (lang==='zh'?'潜在合作':'Prospects') + ' ' + prospectPeople.length + '、' + (lang==='zh'?'导师':'Mentors') + ' ' + mentorPeople.length">
               <div class="phb-seg phb-cat-family"   v-if="familyPeople.length"   :style="{ flex: familyPeople.length }"   :data-tip="(lang==='zh'?'家人 · ':'Family · ') + familyPeople.length + (lang==='zh'?' 位':'')"></div>
               <div class="phb-seg phb-cat-friend"   v-if="friendPeople.length"   :style="{ flex: friendPeople.length }"   :data-tip="(lang==='zh'?'朋友 · ':'Friends · ') + friendPeople.length + (lang==='zh'?' 位':'')"></div>
               <div class="phb-seg phb-cat-partner"  v-if="partnerPeople.length"  :style="{ flex: partnerPeople.length }"  :data-tip="(lang==='zh'?'合作/客户 · ':'Partners · ') + partnerPeople.length + (lang==='zh'?' 位':'')"></div>
               <div class="phb-seg phb-cat-prospect" v-if="prospectPeople.length" :style="{ flex: prospectPeople.length }" :data-tip="(lang==='zh'?'潜在合作 · ':'Prospects · ') + prospectPeople.length + (lang==='zh'?' 位':'')"></div>
               <div class="phb-seg phb-cat-mentor"   v-if="mentorPeople.length"   :style="{ flex: mentorPeople.length }"   :data-tip="(lang==='zh'?'导师/贵人 · ':'Mentors · ') + mentorPeople.length + (lang==='zh'?' 位':'')"></div>
             </div>
-            <div class="phb-cats">
+            <div class="phb-cats" v-if="pplBoard === 'people'">
               <button class="phb-chip phb-cat-family"   :class="{ on: pplCatFilter === 'family',   zero: !familyPeople.length }"   :disabled="!familyPeople.length"   @click="pplToggleCat('family')"><span class="d"></span>{{ lang === 'zh' ? '家人' : 'Family' }}<span class="c">{{ familyPeople.length }}</span></button>
               <button class="phb-chip phb-cat-friend"   :class="{ on: pplCatFilter === 'friend',   zero: !friendPeople.length }"   :disabled="!friendPeople.length"   @click="pplToggleCat('friend')"><span class="d"></span>{{ lang === 'zh' ? '朋友' : 'Friends' }}<span class="c">{{ friendPeople.length }}</span></button>
               <button class="phb-chip phb-cat-partner"  :class="{ on: pplCatFilter === 'partner',  zero: !partnerPeople.length }"  :disabled="!partnerPeople.length"  @click="pplToggleCat('partner')"><span class="d"></span>{{ lang === 'zh' ? '合作/客户' : 'Partners' }}<span class="c">{{ partnerPeople.length }}</span></button>
@@ -8079,10 +8417,16 @@
                 <button v-for="tag in phbTags" :key="tag" class="phb-chip phb-tag" :class="{ on: peopleTagFilter === tag }" @click="peopleTagFilter = peopleTagFilter === tag ? '' : tag">#{{ tag }}</button>
               </template>
             </div>
+            <div class="phb-bar" v-if="pplBoard === 'places' && placesData.length" role="img" :aria-label="lang === 'zh' ? '位置类型占比' : 'Place types'">
+              <div v-for="t in plTypeOrder" v-show="plTypeCounts[t]" :key="'bar-' + t" class="phb-seg" :style="{ flex: plTypeCounts[t] || 0, background: plTypeMeta(t).color }" :data-tip="plTypeLabel(t) + ' · ' + (plTypeCounts[t] || 0)"></div>
+            </div>
+            <div class="phb-cats" v-if="pplBoard === 'places'">
+              <button v-for="t in plTypeOrder" v-show="t !== 'other' || plTypeCounts.other" :key="'chip-' + t" class="phb-chip" :class="{ on: plTypeFilter === t, zero: !plTypeCounts[t] }" :disabled="!plTypeCounts[t]" @click="plToggleType(t)"><span class="d" :style="{ background: plTypeMeta(t).color }"></span>{{ plTypeLabel(t) }}<span class="c">{{ plTypeCounts[t] || 0 }}</span></button>
+            </div>
           </div>
 
           <!-- People empty state -->
-          <div v-if="peopleData.length === 0" class="loci-empty-state" style="margin-bottom: 24px;">
+          <div v-if="pplBoard === 'people' && peopleData.length === 0" class="loci-empty-state" style="margin-bottom: 24px;">
             <div class="loci-empty-icon">&#9671;</div>
             <div class="loci-empty-title">{{ t('empty.peopleTitle') }}</div>
             <div class="loci-empty-desc" style="white-space: pre-line;">{{ t('empty.peopleDesc') }}</div>
@@ -8090,6 +8434,84 @@
           </div>
           <!-- ===== GRID MODE: 5 relationship sections (家人/朋友/合作客户/潜在合作/导师贵人) ===== -->
           <template v-if="viewMode === 'grid'">
+          <!-- ===== PLACES BOARD (pplBoard === 'places') ===== -->
+          <template v-if="pplBoard === 'places'">
+            <div v-if="placesData.length === 0" class="loci-empty-state" style="margin-bottom: 24px;">
+              <div class="loci-empty-icon">&#9672;</div>
+              <div class="loci-empty-title">{{ lang === 'zh' ? '还没有位置' : 'No places yet' }}</div>
+              <div class="loci-empty-desc" style="white-space: pre-line;">{{ lang === 'zh' ? '把常去的地方、公司地址、客户位置存进来，\n它们会和联系人一起出现在地图上。' : 'Save the places that matter —\nthey show up on the map next to your contacts.' }}</div>
+              <div class="loci-empty-hint">{{ lang === 'zh' ? '跟 AI 说"记一下 XX 的地址在 YY"，或点右上角「＋ 添加位置」' : 'Tell your AI "remember the address of X", or click "+ Add place"' }}</div>
+            </div>
+
+            <div v-if="plLife.length" class="people-category">
+              <div class="people-cat-header">
+                <span class="people-cat-label">{{ lang === 'zh' ? '生活' : 'Life' }}</span>
+                <span class="people-cat-sub">{{ lang === 'zh' ? '家 · 常去的地方' : 'Home · Spots' }}</span>
+                <span class="people-cat-count">{{ plLife.length }} {{ lang === 'zh' ? '个位置' : 'places' }}</span>
+              </div>
+              <div class="pl-grid">
+                <div v-for="p in plLife" :key="p.name" class="pl-card" @click="plOpenEdit(p)">
+                  <div class="pl-hd" :class="'plt-' + p.type">
+                    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(p.type)"></svg></span>
+                  </div>
+                  <div class="pl-bd">
+                    <div class="pl-nm">{{ p.name }} <span class="pl-tchip" :style="{ color: plTypeMeta(p.type).color }">{{ plTypeLabel(p.type) }}</span></div>
+                    <div class="pl-addr" v-if="p.address || p.city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>{{ p.address || p.city }}</div>
+                    <div class="pl-note" v-if="p.note">{{ p.note }}</div>
+                    <div class="pl-ppl" v-if="p.people.length">
+                      <template v-for="nm in p.people.slice(0, 4)" :key="nm">
+                        <img v-if="plPersonPhoto(nm)" :src="plPersonPhoto(nm)" :title="nm">
+                      </template>
+                      <span class="t">{{ (lang === 'zh' ? '关联：' : 'With: ') + p.people.join('、') }}</span>
+                    </div>
+                    <div class="pl-ft">
+                      <span class="pl-freq">{{ p.frequency || (p.people.length ? (lang === 'zh' ? '关联 ' + p.people.length + ' 位' : p.people.length + ' linked') : (p.city || '')) }}</span>
+                      <button class="pc-view-btn" @click.stop="plOpenEdit(p)">{{ lang === 'zh' ? '编辑' : 'Edit' }}<span class="pc-plus">→</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="plWork.length" class="people-category">
+              <div class="people-cat-header">
+                <span class="people-cat-label">{{ lang === 'zh' ? '工作 · 学习' : 'Work · Study' }}</span>
+                <span class="people-cat-sub">{{ lang === 'zh' ? '办公 · 校园 · 客户' : 'Office · Campus · Clients' }}</span>
+                <span class="people-cat-count">{{ plWork.length }} {{ lang === 'zh' ? '个位置' : 'places' }}</span>
+              </div>
+              <div class="pl-grid">
+                <div v-for="p in plWork" :key="p.name" class="pl-card" @click="plOpenEdit(p)">
+                  <div class="pl-hd" :class="'plt-' + p.type">
+                    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(p.type)"></svg></span>
+                  </div>
+                  <div class="pl-bd">
+                    <div class="pl-nm">{{ p.name }} <span class="pl-tchip" :style="{ color: plTypeMeta(p.type).color }">{{ plTypeLabel(p.type) }}</span></div>
+                    <div class="pl-addr" v-if="p.address || p.city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>{{ p.address || p.city }}</div>
+                    <div class="pl-note" v-if="p.note">{{ p.note }}</div>
+                    <div class="pl-ppl" v-if="p.people.length">
+                      <template v-for="nm in p.people.slice(0, 4)" :key="nm">
+                        <img v-if="plPersonPhoto(nm)" :src="plPersonPhoto(nm)" :title="nm">
+                      </template>
+                      <span class="t">{{ (lang === 'zh' ? '关联：' : 'With: ') + p.people.join('、') }}</span>
+                    </div>
+                    <div class="pl-ft">
+                      <span class="pl-freq">{{ p.frequency || (p.people.length ? (lang === 'zh' ? '关联 ' + p.people.length + ' 位' : p.people.length + ' linked') : (p.city || '')) }}</span>
+                      <button class="pc-view-btn" @click.stop="plOpenEdit(p)">{{ lang === 'zh' ? '编辑' : 'Edit' }}<span class="pc-plus">→</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pl-grid" v-if="placesData.length" style="margin-top: 4px;">
+              <button class="pl-add" @click="plOpenAdd">
+                <span class="plus">＋</span>
+                <b>{{ lang === 'zh' ? '添加位置' : 'Add place' }}</b>
+                <span>{{ lang === 'zh' ? '或跟 AI 说"记一下 XX 的地址在 YY"' : 'or tell your AI to remember it' }}</span>
+              </button>
+            </div>
+          </template>
+          <template v-else>
           <!-- FAMILY 家人 -->
           <div v-if="familyFiltered.length" class="people-category" data-tour="people-cards">
             <div class="people-cat-header">
@@ -8239,6 +8661,7 @@
             {{ lang === 'zh' ? '没有匹配的联系人' : 'No matching contacts' }}
           </div>
           </template>
+          </template>
 
           <!-- ===== COVER FLOW MODE: 3D carousel of all people ===== -->
           <div v-else-if="viewMode === 'coverflow'" class="cf-stage" :class="{ entering: cfEntering }">
@@ -8347,6 +8770,37 @@
           <div v-else-if="viewMode === 'map'" key="pg-map" class="pg-stage pmap-stage">
             <div ref="pmapEl" class="pmap-canvas"></div>
             <div v-if="pmapNoLoc.length" class="pmap-noloc">{{ lang === 'zh' ? '未填位置' : 'No location' }} ({{ pmapNoLoc.length }})：{{ pmapNoLoc.join('、') }}</div>
+          </div>
+
+          <!-- Place add / edit modal -->
+          <div v-if="plModal" class="people-overlay" @click.self="plModal = false">
+            <div class="pl-modal">
+              <div class="pl-m-h">
+                <span class="ic" :style="{ background: plTypeMeta(plForm.type).color }"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(plForm.type)"></svg></span>
+                {{ plForm.origName ? (lang === 'zh' ? '编辑位置' : 'Edit place') : (lang === 'zh' ? '添加位置' : 'Add place') }}
+                <button class="x" @click="plModal = false">✕</button>
+              </div>
+              <div class="pl-m-grid">
+                <label>{{ lang === 'zh' ? '名称' : 'Name' }}<input v-model="plForm.name" maxlength="40" :placeholder="lang === 'zh' ? '如 悉尼大学' : 'e.g. My office'"></label>
+                <label>{{ lang === 'zh' ? '类型' : 'Type' }}
+                  <select v-model="plForm.type"><option v-for="t in plTypeOrder" :key="t" :value="t">{{ plTypeLabel(t) }}</option></select>
+                </label>
+                <label class="full">{{ lang === 'zh' ? '地址' : 'Address' }}<input v-model="plForm.address" maxlength="120" :placeholder="lang === 'zh' ? '街道地址，地图据此定位' : 'Street address'"></label>
+                <label>{{ lang === 'zh' ? '城市' : 'City' }}<input v-model="plForm.city" maxlength="40" placeholder="Sydney"></label>
+                <label>{{ lang === 'zh' ? '频率' : 'Frequency' }}<input v-model="plForm.frequency" maxlength="20" :placeholder="lang === 'zh' ? '如 每周 2 次' : 'e.g. weekly'"></label>
+                <label>{{ lang === 'zh' ? '纬度' : 'Lat' }}<input v-model="plForm.lat" placeholder="-33.89"></label>
+                <label>{{ lang === 'zh' ? '经度' : 'Lng' }}<input v-model="plForm.lng" placeholder="151.19"></label>
+                <label class="full">{{ lang === 'zh' ? '关联的人' : 'People' }}<input v-model="plForm.peopleText" :placeholder="lang === 'zh' ? '多个用、分隔，与联系人名字一致' : 'Comma-separated contact names'"></label>
+                <label class="full">{{ lang === 'zh' ? '备注' : 'Note' }}<textarea v-model="plForm.note" rows="2" :placeholder="lang === 'zh' ? '这里发生过什么、要记住什么' : 'What happens here'"></textarea></label>
+              </div>
+              <div class="pl-m-acts">
+                <button v-if="plForm.origName" class="del" :disabled="plSaving" @click="plRemove">{{ lang === 'zh' ? '归档' : 'Archive' }}</button>
+                <span class="sp"></span>
+                <button class="no" @click="plModal = false">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                <button class="ok" :disabled="plSaving || !plForm.name.trim()" @click="plSave">{{ plSaving ? '…' : (lang === 'zh' ? '保存' : 'Save') }}</button>
+              </div>
+              <div class="pl-m-tip">{{ lang === 'zh' ? '没填经纬度时，地图会按地址/城市定位（城市级示意）。' : 'Without lat/lng, the map locates by address/city (approximate).' }}</div>
+            </div>
           </div>
 
           <!-- hidden file input for avatar upload -->
@@ -8655,6 +9109,111 @@
             </div>
           </div>
 
+        </section>
+
+        <!-- ========== SKILLS (技能) ========== -->
+        <section v-if="currentPage === 'skills'" style="padding: 20px;">
+          <div class="skA">
+            <div class="skA-hero">
+              <div>
+                <div class="skA-eyebrow">{{ t('skills.tag') }}</div>
+                <div class="skA-title">
+                  {{ t('skills.title') }}
+                  <span v-if="skillsRaw" class="n">{{ skillsCounts.all }}</span>
+                </div>
+                <div class="skA-sub">{{ t('skills.sub') }}</div>
+                <div class="skA-bar" v-if="skillsRaw && skillsCounts.all">
+                  <i v-for="o in skOriginChips.slice(1)" :key="'bar-'+o"
+                     :style="{ width: Math.max(2, skillsCounts[o] / skillsCounts.all * 100) + '%', background: skOriginColor(o) }"
+                     :title="skOriginLabel(o) + ' ' + skillsCounts[o]"></i>
+                </div>
+              </div>
+              <div class="skA-stats" v-if="skillsRaw">
+                <button v-for="o in skOriginChips.slice(1)" :key="'st-'+o" type="button" class="skA-stat"
+                  :class="{ on: skillsOrigin === o }" :style="{ '--oc': skOriginColor(o) }"
+                  @click="skillsOrigin = skillsOrigin === o ? 'all' : o">
+                  <div class="v">{{ skillsCounts[o] || 0 }}</div>
+                  <div class="k"><i></i>{{ skOriginLabel(o) }}</div>
+                </button>
+              </div>
+            </div>
+
+            <div v-if="skillsLoading" class="skA-empty">{{ t('skills.loading') }}</div>
+            <div v-else-if="skillsError" class="skA-empty">{{ t('skills.err') }}</div>
+
+            <template v-else-if="skillsRaw">
+              <div class="skA-tools">
+                <label class="skA-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" v-model="skillsQuery" :placeholder="t('skills.search')">
+                </label>
+                <div class="skA-filters">
+                  <button v-for="o in skOriginChips" :key="'ch-'+o" type="button" class="skA-chip"
+                    :class="{ on: skillsOrigin === o }" :style="o === 'all' ? {} : { '--oc': skOriginColor(o) }"
+                    @click="skillsOrigin = o">
+                    <span v-if="o !== 'all'" class="dot"></span>{{ o === 'all' ? t('skills.all') : skOriginLabel(o) }}<span class="c">{{ o === 'all' ? skillsCounts.all : (skillsCounts[o] || 0) }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="!skillsFiltered.length" class="skA-empty">{{ t('skills.empty') }}</div>
+
+              <div v-for="grp in skillsGroups" :key="grp.key" class="skA-grp">
+                <div class="skA-grp-h" :style="{ '--gc': skFamilyColor(grp.key) }">
+                  <span class="skA-grp-dot"></span>
+                  <span class="skA-grp-name">{{ skFamilyLabel(grp.key) }}</span>
+                  <span class="skA-grp-n">{{ grp.items.length }}</span>
+                  <span class="skA-grp-line"></span>
+                </div>
+                <div class="skA-grid">
+                  <div v-for="sk in grp.items" :key="sk.source + ':' + sk.name" class="skA-card"
+                    :style="{ '--fc': skFamilyColor(sk.family), '--oc': skOriginColor(sk.origin) }"
+                    @click="openSkillDetail(sk)">
+                    <div class="skA-c-top">
+                      <span class="skA-c-name">{{ sk.name }}</span>
+                      <span class="skA-c-org"><i></i>{{ skOriginLabel(sk.origin) }}</span>
+                    </div>
+                    <div class="skA-c-desc">{{ sk.description || '—' }}</div>
+                    <div class="skA-c-foot">
+                      <span class="skA-c-tag" :style="{ color: skFamilyColor(sk.family) }">{{ skFamilyLabel(sk.family) }}</span>
+                      <span v-if="sk.plugin" class="skA-c-tag">{{ sk.plugin }}</span>
+                      <span class="skA-c-bits">
+                        <span v-if="sk.hasScripts" class="skA-c-bit" title="scripts">⚙</span>
+                        <span v-if="sk.hasReferences" class="skA-c-bit" title="references">▤</span>
+                        <span v-if="sk.hasTemplates" class="skA-c-bit" title="templates">▦</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- skill detail modal -->
+          <div v-if="skillDetail" class="skM-ov" @click.self="closeSkillDetail()">
+            <div class="skM">
+              <button class="skM-x" type="button" @click="closeSkillDetail()">×</button>
+              <div class="skM-head">
+                <div class="skM-name">{{ skillDetail.name }}</div>
+                <div class="skM-meta">
+                  <span class="skM-badge" :style="{ '--oc': skOriginColor(skillDetail.origin) }"><i></i>{{ skOriginLabel(skillDetail.origin) }}</span>
+                  <span v-if="skillDetail.plugin" class="skM-badge">{{ skillDetail.plugin }}</span>
+                  <button v-if="skillDetail.path" class="skM-path skM-path--link" type="button"
+                    :title="lang === 'zh' ? '在访达中打开' : 'Reveal in file manager'"
+                    @click="revealSkill(skillDetail)">{{ skillDetail.path }}<span class="a">↗</span></button>
+                </div>
+              </div>
+              <div v-if="skillDetail.description" class="skM-desc">{{ skillDetail.description }}</div>
+              <div v-if="skillDetail.files && skillDetail.files.length" class="skM-files">
+                <span v-for="f in skillDetail.files" :key="f.name" class="skM-file" :class="{ d: f.dir }">{{ f.dir ? f.name + '/' : f.name }}</span>
+              </div>
+              <div class="skM-body">
+                <div v-if="skillDetailLoading" class="skM-loading">{{ t('skills.detail.loading') }}</div>
+                <div v-else-if="skillDetailErr" class="skM-loading">{{ skillDetailErr }}</div>
+                <div v-else class="skM-md" v-html="skillDetail.html"></div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- ========== DECISIONS ========== -->
@@ -9581,8 +10140,24 @@ const lociApp = createApp({
         'nav.fragments': '碎片',
         'nav.roadmap': '项目',
         'nav.notes': '知识库',
+        'nav.skills': '技能',
         'nav.sec.daily': '日常',
         'nav.sec.workspace': '工作台',
+        'skills.title': '技能',
+        'skills.tag': '能力面板',
+        'skills.sub': '你的 AI 会做的所有事 — 点开任意技能看详情',
+        'skills.origin.self': '自建',
+        'skills.origin.package': '安装',
+        'skills.origin.project': '项目',
+        'skills.origin.plugin': '插件',
+        'skills.detail.loading': '加载中…',
+        'skills.search': '搜索技能…',
+        'skills.all': '全部',
+        'skills.personal': '个人',
+        'skills.plugin': '插件',
+        'skills.empty': '没有匹配的技能。',
+        'skills.loading': '正在读取技能…',
+        'skills.err': '读取技能失败 — 确认 Claude Code 已安装且 ~/.claude/skills 存在。',
         // Overview
         'nav.overview': '总览',
         'ov.tag': '当前状态一览',
@@ -9905,8 +10480,24 @@ const lociApp = createApp({
         'nav.fragments': 'Fragments',
         'nav.roadmap': 'Projects',
         'nav.notes': 'Knowledge',
+        'nav.skills': 'Skills',
         'nav.sec.daily': 'Daily',
         'nav.sec.workspace': 'Workspace',
+        'skills.title': 'Skills',
+        'skills.tag': 'Capabilities',
+        'skills.sub': 'Everything your AI can do — click any skill for details',
+        'skills.origin.self': 'Mine',
+        'skills.origin.package': 'Installed',
+        'skills.origin.project': 'Project',
+        'skills.origin.plugin': 'Plugin',
+        'skills.detail.loading': 'Loading…',
+        'skills.search': 'Search skills…',
+        'skills.all': 'All',
+        'skills.personal': 'Personal',
+        'skills.plugin': 'Plugin',
+        'skills.empty': 'No skills match.',
+        'skills.loading': 'Loading skills…',
+        'skills.err': 'Could not read skills — make sure Claude Code is installed and ~/.claude/skills exists.',
         // Overview
         'nav.overview': 'Overview',
         'ov.tag': '当前状态一览',
@@ -10266,6 +10857,9 @@ const lociApp = createApp({
     const memoryIdentityContent = computed(() => {
       return data.value?.me?.identity?.content || (DEMO_MODE ? mockMemory.identity : emptyMemoryHtml('me/identity.md'));
     });
+    const memoryPreferencesContent = computed(() => {
+      return data.value?.me?.preferences?.content || emptyMemoryHtml('me/preferences.md');
+    });
     // Structured profile for the new Memory page (avatar card + rings + radar + values + insights).
     const memoryView = ref('values');   // 'values' | 'insights' — right panel toggle
     const memoryCardStyle = ref('classic');  // 'classic' | 'cover' — left card style toggle
@@ -10353,10 +10947,13 @@ const lociApp = createApp({
       const parseValues = (html) => {
         if (!html) return [];
         const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
-        return Array.from(doc.querySelectorAll('li')).slice(0, 8).map(li => {
-          const title = (li.querySelector('strong')?.textContent || li.textContent || '').trim().replace(/[:：]$/, '');
-          const full = (li.textContent || '').trim();
-          const desc = full.replace(title, '').replace(/^[:：\s-]+/, '').trim();
+        // Top-level items only — nested bullets are details of a value, not values.
+        return Array.from(doc.querySelectorAll('li')).filter(li => !li.parentElement.closest('li')).slice(0, 8).map(li => {
+          const own = li.cloneNode(true);
+          own.querySelectorAll('ul,ol').forEach(u => u.remove());
+          const title = (own.querySelector('strong')?.textContent || own.textContent || '').trim().replace(/[:：]$/, '');
+          const full = (own.textContent || '').trim();
+          const desc = full.replace(title, '').replace(/^[\s:：—–-]+/, '').trim();
           return { title, desc };
         }).filter(v => v.title);
       };
@@ -10377,6 +10974,31 @@ const lociApp = createApp({
       };
       const realValues = parseValues(data.value?.me?.values?.content);
       const realInsights = parseInsights(data.value?.me?.insights?.content);
+      // Identity signals — parsed from the user's OWN identity.md; never hardcoded.
+      // Picks short values of whitelisted "**Key**: value" fields, max 5 chips.
+      const SIG_KEYS = ['核心方向','职业','角色','Role','Occupation','MBTI','城市','Location','专业','Major','语言','Language','作息'];
+      const parseSignals = (html) => {
+        if (!html) return [];
+        const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+        const out = [];
+        for (const li of doc.querySelectorAll('li')) {
+          const keyEl = li.querySelector('strong');
+          if (!keyEl) continue;
+          const k = (keyEl.textContent || '').replace(/[:：]\s*$/, '').trim();
+          if (!SIG_KEYS.some(s => k === s || k.includes(s))) continue;
+          let v = (li.textContent || '').replace(keyEl.textContent || '', '').replace(/^[:：\s]+/, '').trim();
+          v = v.split(/[（(,，;；]/)[0].trim();
+          if (v && v.length <= 16 && !v.startsWith('（待') && !out.includes(v)) out.push(v);
+          if (out.length >= 5) break;
+        }
+        return out;
+      };
+      // A user-curated list saved from the dashboard (identity.md frontmatter)
+      // wins over the parsed-from-fields fallback.
+      const customSignals = (data.value?.me?.identity?.meta?.signals || []).filter(Boolean);
+      const signals = DEMO_MODE
+        ? (zh ? ['独立开发者', 'TypeScript', '里斯本', '极简主义', '晨型人'] : ['Indie dev', 'TypeScript', 'Lisbon', 'Minimalist', 'Early bird'])
+        : (customSignals.length ? customSignals.slice(0, 8) : parseSignals(data.value?.me?.identity?.content));
       // decisions — real data from overview.recentDecisions (reads decisions/*.md).
       // Demo samples pad the list only in the demo build.
       const rawDec = (data.value && data.value.overview && data.value.overview.recentDecisions) || [];
@@ -10409,6 +11031,7 @@ const lociApp = createApp({
           { k:'Aesthetic', v:'Minimal, restrained' },
         ],
         tags: !DEMO_MODE ? [] : zh ? ['Builder','深度专注','极简主义','中文优先'] : ['Builder','Deep focus','Minimalist','Chinese-first'],
+        signals,
         stats: { memories, links, active, decisions, projects },
         attrs, radar, radarPoints, radarVerts: verts,
         values: DEMO_MODE ? values : realValues,
@@ -10466,6 +11089,7 @@ const lociApp = createApp({
     const memScroller = ref(null);
     const M2_ICON = {
       identity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',
+      preferences: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
       values: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 11 14 10 22 20 9 13 9 13 2"/></svg>',
       wellbeing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 5 3-10 2 5h4"/></svg>',
       insights: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>',
@@ -10474,11 +11098,11 @@ const lociApp = createApp({
     };
     const memoryBlocks = computed(() => [
       { key:'identity',  zh:'身份', en:'Identity',  descZh:'谁在使用这套系统 · 背景、当下、工作方式', descEn:'Who runs this system · background, now, workstyle', icon:M2_ICON.identity },
+      { key:'preferences', zh:'偏好', en:'Preferences', descZh:'怎么称呼我 · 语气与回复 · 工作习惯 · 每次对话都生效', descEn:'What to call me · tone & replies · work defaults · every chat', icon:M2_ICON.preferences },
       { key:'values',    zh:'价值观', en:'Values',   descZh:'稳定的信念与决策原则 · 遇到取舍时的准绳',   descEn:'Stable beliefs & decision principles',            icon:M2_ICON.values },
       { key:'wellbeing', zh:'状态', en:'Wellbeing', descZh:'身体、睡眠、精力、心理、自信 · 状态先于效率', descEn:'Body, sleep, energy, mind · state before output',  icon:M2_ICON.wellbeing },
-      { key:'insights',  zh:'洞察', en:'Insights',  descZh:'今天想通了什么、被什么触动 · 正在形成的理解', descEn:'What clicked today · understanding forming',       icon:M2_ICON.insights },
-      { key:'learned',   zh:'经验', en:'Learned',   descZh:'可复用的教训与实践 · 指导未来的行动',        descEn:'Reusable lessons & practices',                    icon:M2_ICON.learned },
-      { key:'evolution', zh:'成长', en:'Evolution', descZh:'身份与价值观的迁移史 · 回顾时才翻开 · 最新在上', descEn:'How identity & values shifted · newest first',   icon:M2_ICON.evolution },
+      { key:'insights',  zh:'洞察·经验', en:'Insights', descZh:'洞察 = 还没定型的新想法 · 经验 = 已验证的做法', descEn:'Insights = fresh & unsettled · Lessons = proven practices', icon:M2_ICON.insights },
+      { key:'evolution', zh:'成长', en:'Evolution', descZh:'不放新内容 · 只记身份/价值观/经验怎么变 · 最新在上', descEn:'Changelog of the other blocks · newest first',   icon:M2_ICON.evolution },
     ]);
     const memoryCurrent = computed(() => memoryBlocks.value.find(b => b.key === memoryBlock.value) || memoryBlocks.value[0]);
     const memoryInitials = computed(() => {
@@ -10591,6 +11215,41 @@ const lociApp = createApp({
         } catch { /* ignore */ }
       };
       fr.readAsDataURL(file);
+    }
+
+    // ── editable identity-signal chips (memory page left card) ──
+    const sigEditing = ref(false);
+    const sigSaving = ref(false);
+    const sigDraft = ref([]);
+    const sigInput = ref('');
+    function startSigEdit() {
+      sigDraft.value = [...(memoryProfile.value.signals || [])];
+      sigInput.value = '';
+      sigEditing.value = true;
+      nextTick(syncMemHeight);
+    }
+    function cancelSigEdit() { sigEditing.value = false; sigInput.value = ''; nextTick(syncMemHeight); }
+    function addSig() {
+      const v = sigInput.value.replace(/[,\[\]"']+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 20);
+      sigInput.value = '';
+      if (!v || sigDraft.value.includes(v) || sigDraft.value.length >= 8) return;
+      sigDraft.value.push(v);
+    }
+    function editSig(i) { sigInput.value = sigDraft.value[i]; sigDraft.value.splice(i, 1); }
+    function removeSig(i) { sigDraft.value.splice(i, 1); }
+    async function saveSigEdit() {
+      if (sigSaving.value) return;
+      if (sigInput.value.trim()) addSig();
+      sigSaving.value = true;
+      try {
+        const r = await demoFetch('/api/profile/signals', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signals: sigDraft.value }),
+        });
+        if (r.ok) { await reloadBrainData(); sigEditing.value = false; }
+      } catch { /* leave the editor open so nothing is lost */ }
+      sigSaving.value = false;
+      nextTick(syncMemHeight);
     }
 
     // Parse plan.md HTML content into structured data for the template
@@ -12256,10 +12915,12 @@ const lociApp = createApp({
       roadmap:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M8 10v4"/><path d="M12 10v2"/><path d="M16 10v6"/></svg>',
       notes:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
       fragments: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></svg>',
+      skills:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
     };
     const NAV_COLOR = {
       overview: '#10b981', today: '#10b981', journal: '#e0a23c', fragments: '#9b7ed0',
       memory: '#0ea5a4', people: '#e8836b', brain: '#0ea5a4', roadmap: '#6366f1', notes: '#5f9e6e',
+      skills: '#c2803a',
     };
     const navItems = computed(() => [
       { id: 'overview',  label: t('nav.overview'), icon: '\u25CE', termIcon: '[=]' },
@@ -12271,6 +12932,7 @@ const lociApp = createApp({
       { id: 'roadmap',   label: t('nav.roadmap'),  icon: '\u25B1', termIcon: '[#]' },
       { id: 'notes',     label: t('nav.notes'),    icon: '\u25A4', termIcon: '[N]' },
       { id: 'fragments', label: t('nav.fragments'), icon: '\u22B9', termIcon: '[*]' },
+      { id: 'skills',    label: t('nav.skills'),    icon: '\u2605', termIcon: '[S]' },
     ].map(x => ({ ...x, svg: NAV_SVG[x.id] || null, c: NAV_COLOR[x.id] || 'var(--accent)' })));
 
     // Sidebar grouping (Reference Faithful): \u603B\u89C8 on top, then Daily / Workspace.
@@ -12285,7 +12947,7 @@ const lociApp = createApp({
     const navGroups = computed(() => [
       { label: null,                    items: ['overview'] },
       { label: t('nav.sec.daily'),      items: ['today', 'journal', 'memory'] },
-      { label: t('nav.sec.workspace'),  items: ['fragments', 'people', 'roadmap', 'notes'] }, // 'brain' hidden (page kept, removed from sidebar)
+      { label: t('nav.sec.workspace'),  items: ['fragments', 'people', 'roadmap', 'notes', 'skills'] }, // 'brain' hidden (page kept, removed from sidebar)
     ].map(g => ({ label: g.label, items: g.items.map(navById).filter(Boolean) })));
 
     const memoryTabs = computed(() => [
@@ -12423,11 +13085,21 @@ const lociApp = createApp({
     const dtDecOpen = ref({});         // per-row decision full text
     const dtDraft = ref('');           // composed review draft awaiting save
     const dtSaving = ref(false);
+    let traceRequestSeq = 0;
     async function fetchTrace() {
+      const seq = ++traceRequestSeq;
+      const requestedDate = journalViewDate.value;
       try {
-        const r = await fetch('/api/today?date=' + journalViewDate.value);
-        trace.value = await r.json();
-      } catch { trace.value = null; }
+        const r = await fetch('/api/today?date=' + requestedDate);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const nextTrace = await r.json();
+        if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
+        trace.value = nextTrace;
+      } catch {
+        if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
+        trace.value = null;
+      }
+      if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
       dtActOpen.value = false; dtPgOpen.value = false; dtUpdatedOpen.value = false;
       dtPgRowOpen.value = {}; dtDecOpen.value = {}; dtDraft.value = '';
     }
@@ -12501,6 +13173,49 @@ const lociApp = createApp({
       if (dtPgOpen.value || d.projects.progress.length <= 8) return d.projects.progress;
       return d.projects.progress.slice(0, 6);
     });
+    // Terminal sessions (free metadata layer). Hide the low-signal ones (a single
+    // greeting/test turn with no project context) behind a collapse.
+    const dtSessOpen = ref(false);
+    const dtSessMeaningful = computed(() => {
+      const d = trace.value; const list = (d && d.sessions && d.sessions.list) || [];
+      return list.filter(s => s.turns >= 2 || (s.title && s.title.length > 6));
+    });
+    const dtSessHidden = computed(() => {
+      const d = trace.value; const total = (d && d.sessions && d.sessions.list.length) || 0;
+      return total - dtSessMeaningful.value.length;
+    });
+    const dtSessions = computed(() => {
+      const rows = dtSessMeaningful.value;
+      if (dtSessOpen.value || rows.length <= 8) return rows;
+      return rows.slice(0, 7);
+    });
+    function dtSessTool(t) { return t === 'codex' ? 'Cdx' : 'CC'; }
+    function dtSessProj(p) { return String(p || '').replace(/^~\/Desktop\//, '').replace(/^~\/Documents\//, '').replace(/^~\//, '') || '~'; }
+    // click-to-expand: show the session's precomputed auto-summary (compact
+    // summary if it was compacted, else its ai-title) + a Finder reveal. All free.
+    const sxOpenFile = ref('');          // which session (by file) is expanded
+    const sxDetail = reactive({});       // file → { loading, aiTitle, compactSummary, firstUser, err }
+    function sxToggle(s) {
+      if (!s || !s.file) return;
+      if (sxOpenFile.value === s.file) { sxOpenFile.value = ''; return; }
+      sxOpenFile.value = s.file;
+      if (!sxDetail[s.file]) {
+        sxDetail[s.file] = { loading: true };
+        demoFetch('/api/sessions/detail?file=' + encodeURIComponent(s.file))
+          .then(r => r.json())
+          .then(d => { sxDetail[s.file] = d.error ? { err: d.error } : { ...d, loading: false }; })
+          .catch(() => { sxDetail[s.file] = { err: 'network' }; });
+      }
+    }
+    // compact summaries lead with a boilerplate line — trim it so the real
+    // "Primary Request and Intent" shows first.
+    function sxCleanSummary(t) {
+      return String(t || '').replace(/^This session is being continued[^]*?Summary:\s*/i, '').trim();
+    }
+    async function sxReveal(s) {
+      if (!s || !s.file) return;
+      try { await demoFetch('/api/sessions/reveal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file: s.file }) }); } catch { /* ignore */ }
+    }
     // A Progress Log line is a dense one-liner. Two shapes appear:
     //   "引子:①…;②…;③…"   (circled numbers)  → number each point
     //   "引子:子句;子句;子句"  (just semicolons)  → bullet each clause
@@ -12612,9 +13327,11 @@ const lociApp = createApp({
         tasks: HEAD + Math.max(taskRows, 1) * 29 + taskLabels * 27,
         collected: HEAD + Math.max(dtCollected.value.length, 1) * 64,
         sources: HEAD + d.sources.length * 100,
+        sessions: HEAD + 66 + Math.max(dtSessions.value.length, 1) * 32 + (dtSessHidden.value ? 24 : 0),
       };
       const order = ['trace', 'projects', 'decisions', 'schedule', 'tasks', 'collected'];
       if (d.sources.length) order.push('sources');
+      if (d.sessions && d.sessions.count) order.push('sessions');
       const cols = [[], []]; const h = [0, 0];
       for (const k of order) {
         const i = h[0] <= h[1] ? 0 : 1;
@@ -12717,13 +13434,13 @@ const lociApp = createApp({
     });
 
     const todayJournal = computed(() => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const entries = data.value?.planning?.journal || [];
       return entries.find(d => d.filename.includes(today));
     });
 
     const pastJournals = computed(() => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const entries = data.value?.planning?.journal || [];
       return entries.filter(d => !d.filename.includes(today)).sort((a, b) => b.filename.localeCompare(a.filename));
     });
@@ -12763,7 +13480,7 @@ const lociApp = createApp({
       for (let i = 0; i < 7; i++) {
         const dd = new Date(mon);
         dd.setDate(mon.getDate() + i);
-        const ds = dd.toISOString().slice(0, 10);
+        const ds = dateToKey(dd);
         days.push({ date: ds, weekday: wdays[dd.getDay()], hasEntry: entryDates.has(ds) });
       }
       return days;
@@ -12776,7 +13493,7 @@ const lociApp = createApp({
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const startPad = (firstDay + 6) % 7;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const entries = data.value?.planning?.journal || [];
       const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
       const cells = [];
@@ -12840,7 +13557,7 @@ const lociApp = createApp({
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const startPad = (firstDay + 6) % 7; // Monday start
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const entries = data.value?.planning?.journal || [];
       const entryDates = new Set(entries.map(e => e.filename.replace('.md', '')));
       const cells = [];
@@ -12891,43 +13608,54 @@ const lociApp = createApp({
     const renamingNoteIdx = ref(-1);
     const renameNoteValue = ref('');
     const activeNote = computed(() => journalNotes[activeNoteIdx.value] || null);
+    const journalNotesLoading = ref(false);
+    let journalNotesLoadSeq = 0;
 
     function makeNoteId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
     async function loadAllNotes() {
-      const key = JOURNAL_LS_PREFIX + journalViewDate.value;
-      journalNotes.length = 0;
+      const requestedDate = journalViewDate.value;
+      const seq = ++journalNotesLoadSeq;
+      const key = JOURNAL_LS_PREFIX + requestedDate;
+      const nextNotes = [];
+      clearTimeout(journalAutoSaveTimer);
+      journalNotesLoading.value = true;
       // Try server first, fallback to localStorage
       let loaded = false;
       try {
         const r = await demoFetch('/api/journal/load-notes', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: journalViewDate.value })
+          body: JSON.stringify({ date: requestedDate })
         });
         if (r.ok) {
           const result = await r.json();
           if (result.notes && Array.isArray(result.notes) && result.notes.length > 0) {
-            result.notes.forEach(n => journalNotes.push(n));
+            result.notes.forEach(n => nextNotes.push(n));
             loaded = true;
           }
         }
       } catch (e) {}
+      if (seq !== journalNotesLoadSeq || requestedDate !== journalViewDate.value) return;
       if (!loaded) {
         const saved = localStorage.getItem(key);
         if (saved) {
           try {
             const arr = JSON.parse(saved);
-            arr.forEach(n => journalNotes.push(n));
+            if (Array.isArray(arr)) arr.forEach(n => nextNotes.push(n));
           } catch (e) {
-            journalNotes.push({ id: makeNoteId(), name: 'Note 1', content: saved });
+            nextNotes.push({ id: makeNoteId(), name: 'Note 1', content: saved });
           }
         }
       }
-      if (journalNotes.length === 0) {
-        journalNotes.push({ id: makeNoteId(), name: 'Note 1', content: '' });
+      if (seq !== journalNotesLoadSeq || requestedDate !== journalViewDate.value) return;
+      journalNotes.length = 0;
+      if (nextNotes.length === 0) {
+        nextNotes.push({ id: makeNoteId(), name: 'Note 1', content: '' });
       }
+      nextNotes.forEach(n => journalNotes.push(n));
       activeNoteIdx.value = 0;
       loadActiveNoteToEditor();
+      journalNotesLoading.value = false;
     }
 
     function loadActiveNoteToEditor() {
@@ -12944,6 +13672,7 @@ const lociApp = createApp({
     }
 
     function saveAllNotes() {
+      if (journalNotesLoading.value) return;
       // Sync current editor content to active note first
       const note = activeNote.value;
       if (note) {
@@ -15894,7 +16623,7 @@ const lociApp = createApp({
       if (!text) return;
       if (!data.value.inbox) data.value.inbox = { content: '', meta: {}, items: [] };
       if (!Array.isArray(data.value.inbox.items)) data.value.inbox.items = [];
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const localNote = { text, created: today };
       data.value.inbox.items.unshift(localNote);   // optimistic
       newFragmentNote.value = '';
@@ -15953,7 +16682,7 @@ const lociApp = createApp({
       const tags = fgTagList.value.slice();
       const refs = data.value.references || (data.value.references = { files: [], total: 0 });
       if (!Array.isArray(refs.files)) refs.files = [];
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       // optimistic entry so it shows instantly; then persist and re-pull /api/data so
       // the entry carries the REAL server-assigned filename (needed for later archive).
       const localRef = { name: '', file: '', filename: '', meta: { title, url, date: today, type: '文章', tags }, content: '', path: '' };
@@ -16054,7 +16783,7 @@ const lociApp = createApp({
     }
     function fragPromoteToNote(note) {
       if (!note) return;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const cleaned = fragCleanText(note.text);
       const title = cleaned.length > 24 ? cleaned.slice(0, 24) + '…' : cleaned;
       if (!data.value.notes) data.value.notes = { index: null, files: [] };
@@ -16473,7 +17202,7 @@ const lociApp = createApp({
           school: payload.school, major: payload.major, hometown: payload.hometown, hobby: payload.hobby,
           age: payload.age, birthday: payload.birthday, zodiac: payload.zodiac, mbti: payload.mbti, blood: payload.blood,
           nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders, interactions,
-          last_contact: new Date().toISOString().slice(0, 10) }, content: payload.note ? '<p>' + payload.note + '</p>' : '', filename: name + '.md' });
+          last_contact: dateToKey(new Date()) }, content: payload.note ? '<p>' + payload.note + '</p>' : '', filename: name + '.md' });
       }
       pplAddOpen.value = false;
       try {
@@ -16658,6 +17387,34 @@ const lociApp = createApp({
           pmapMarkers.push(mk); bounds.push([lat, lng]);
         });
       }
+      // places — colored square pins on the same map as contacts
+      for (const p of (placesData.value || [])) {
+        let plat = p.lat, plng = p.lng, papprox = false;
+        if (isNaN(plat) || isNaN(plng)) {
+          const q = (p.address || p.city || '').trim();
+          if (!q) continue;
+          const c = await pmapGeocode(q);
+          if (!c) continue;
+          plat = c.lat; plng = c.lng; papprox = !!c.approx;
+        }
+        const tmeta = plTypeMeta(p.type);
+        const icon = L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html:
+          '<div class="pmk"><div class="pmk-pl" style="--bg:' + tmeta.color + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + plIcon(p.type) + '</svg></div>' +
+          '<div class="pmk-name">' + p.name + '</div></div>' });
+        const safe = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const provs2 = (p.address || p.city) ? mapLinks(p.address || p.city).map(m =>
+          '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('') : '';
+        const mk = L.marker([plat, plng], { icon }).addTo(pmapMap).bindPopup(
+          '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
+          '<div class="rel">' + plTypeLabel(p.type) + (p.frequency ? ' · ' + p.frequency : '') + '</div>' +
+          ((p.address || p.city) ? '<div class="loc">📍 ' + (p.address || p.city) +
+            (papprox ? ' <span class="approx-tag">' + (zh ? '城市级 · 示意' : 'city-level') + '</span>' : '') + '</div>' : '') +
+          (provs2 ? '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div><div class="provs">' + provs2 + '</div>' : '') +
+          '<div class="acts"><button onclick="window.__lociOpenPlace && window.__lociOpenPlace(\'' + safe + '\')">' +
+          (zh ? '编辑位置' : 'Edit place') + '</button></div></div>');
+        pmapMarkers.push(mk); bounds.push([plat, plng]);
+      }
       if (bounds.length) pmapMap.fitBounds(bounds, { padding: [70, 70], maxZoom: 11 });
     }
     // popup "详情" button → open the regular person detail overlay
@@ -16665,6 +17422,140 @@ const lociApp = createApp({
       const p = (peopleData.value || []).find(x => x.name === name);
       if (p) openPersonDetail(p);
     };
+
+    // ── Places board (people page second board: 联系人 | 位置) ──────────────
+    const pplBoard = ref(localStorage.getItem('loci-ppl-board') === 'places' ? 'places' : 'people');
+    watch(pplBoard, v => localStorage.setItem('loci-ppl-board', v));
+    const plQuery = ref('');
+    const plTypeFilter = ref('');
+    const plTypeOrder = ['home', 'work', 'study', 'spot', 'client', 'other'];
+    const PLACE_TYPE_META = {
+      home:   { zh: '家',   en: 'Home',    color: '#f59e0b' },
+      work:   { zh: '工作', en: 'Work',    color: '#3b82f6' },
+      study:  { zh: '学习', en: 'Study',   color: '#8b5cf6' },
+      spot:   { zh: '常去', en: 'Spots',   color: '#10b981' },
+      client: { zh: '客户', en: 'Clients', color: '#0ea5a4' },
+      other:  { zh: '其他', en: 'Other',   color: '#8a8a84' },
+    };
+    const PLACE_ICONS = {
+      home:  '<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/>',
+      work:  '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
+      study: '<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>',
+      spot:  '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>',
+      client:'<path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M9 13h1M14 9h1M14 13h1M9 17h6"/>',
+      other: '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+    };
+    const plStrip = (html) => { const d = document.createElement('div'); d.innerHTML = html || ''; return (d.textContent || '').trim(); };
+    const placesData = computed(() => (data.value?.places || []).map(p => {
+      const m = p.meta || {};
+      return {
+        name: String(m.name || ''),
+        type: PLACE_TYPE_META[m.type] ? String(m.type) : 'other',
+        address: m.address ? String(m.address) : '',
+        city: m.city ? String(m.city) : '',
+        lat: parseFloat(m.lat), lng: parseFloat(m.lng),
+        people: Array.isArray(m.people) ? m.people.map(String) : [],
+        tags: Array.isArray(m.tags) ? m.tags.map(String) : [],
+        frequency: m.frequency ? String(m.frequency) : '',
+        note: plStrip(p.content),
+        filename: p.filename,
+      };
+    }).filter(p => p.name));
+    const plFiltered = computed(() => placesData.value.filter(p => {
+      if (plTypeFilter.value && p.type !== plTypeFilter.value) return false;
+      const q = plQuery.value.trim().toLowerCase();
+      if (!q) return true;
+      return [p.name, p.address, p.city, p.note, ...p.tags, ...p.people].join(' ').toLowerCase().includes(q);
+    }));
+    const plLife = computed(() => plFiltered.value.filter(p => ['home', 'spot', 'other'].includes(p.type)));
+    const plWork = computed(() => plFiltered.value.filter(p => ['work', 'study', 'client'].includes(p.type)));
+    const plTypeCounts = computed(() => { const c = {}; placesData.value.forEach(p => { c[p.type] = (c[p.type] || 0) + 1; }); return c; });
+    function plTypeMeta(t) { return PLACE_TYPE_META[t] || PLACE_TYPE_META.other; }
+    function plTypeLabel(t) { const m = plTypeMeta(t); return lang.value === 'zh' ? m.zh : m.en; }
+    function plIcon(t) { return PLACE_ICONS[t] || PLACE_ICONS.other; }
+    function plPersonPhoto(name) { const p = (peopleData.value || []).find(x => x.name === name); return (p && p.photo) || ''; }
+    function plToggleType(t) { plTypeFilter.value = plTypeFilter.value === t ? '' : t; }
+
+    const plModal = ref(false);
+    const plSaving = ref(false);
+    const plForm = reactive({ origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', peopleText: '', note: '', frequency: '' });
+    function plOpenAdd() {
+      Object.assign(plForm, { origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', peopleText: '', note: '', frequency: '' });
+      plModal.value = true;
+    }
+    function plOpenEdit(p) {
+      Object.assign(plForm, {
+        origName: p.name, name: p.name, type: p.type, address: p.address, city: p.city,
+        lat: isNaN(p.lat) ? '' : String(p.lat), lng: isNaN(p.lng) ? '' : String(p.lng),
+        peopleText: p.people.join('、'), note: p.note, frequency: p.frequency,
+      });
+      plModal.value = true;
+    }
+    async function plSave() {
+      const name = plForm.name.trim();
+      if (!name || plSaving.value) return;
+      plSaving.value = true;
+      const payload = {
+        name, type: plForm.type, address: plForm.address.trim(), city: plForm.city.trim(),
+        lat: plForm.lat.trim(), lng: plForm.lng.trim(), frequency: plForm.frequency.trim(),
+        people: plForm.peopleText.split(/[,，、;；]/).map(s => s.trim()).filter(Boolean),
+        note: plForm.note.trim(),
+      };
+      if (plForm.origName) payload.origName = plForm.origName;
+      try {
+        const r = await demoFetch(plForm.origName ? '/api/places/update' : '/api/places/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        });
+        if (r.ok) { await reloadBrainData(); plModal.value = false; if (viewMode.value === 'map') pmapStart(); }
+      } catch { /* leave the editor open so nothing is lost */ }
+      plSaving.value = false;
+    }
+    async function plRemove() {
+      if (!plForm.origName || plSaving.value) return;
+      if (!confirm(lang.value === 'zh' ? '归档这个位置？（移入档案，不会丢）' : 'Archive this place?')) return;
+      plSaving.value = true;
+      try {
+        const r = await demoFetch('/api/places/remove', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: plForm.origName }),
+        });
+        if (r.ok) { await reloadBrainData(); plModal.value = false; if (viewMode.value === 'map') pmapStart(); }
+      } catch { /* keep modal open */ }
+      plSaving.value = false;
+    }
+    // popup "编辑" button on place pins → open the place editor
+    window.__lociOpenPlace = (name) => {
+      const p = placesData.value.find(x => x.name === name);
+      if (p) plOpenEdit(p);
+    };
+
+    // ── Task ↔ people/places links (chips on task cards) ────────────────────
+    // A task's `location` that exactly matches a saved place name = linked place;
+    // anything else stays a plain one-off attribute. `task.people` are contact names.
+    function taskPlace(t) {
+      const loc = (t && t.location || '').trim();
+      if (!loc) return null;
+      return placesData.value.find(pl => pl.name === loc) || null;
+    }
+    function taskPeopleList(t) {
+      return ((t && t.people) || []).map(nm => {
+        const c = (peopleData.value || []).find(x => String(x.name).toLowerCase() === String(nm).toLowerCase());
+        return { name: c ? c.name : nm, photo: (c && c.photo) || '', found: !!c };
+      });
+    }
+    function gotoTaskPerson(nm) {
+      const p = (peopleData.value || []).find(x => x.name === nm);
+      if (!p) return;
+      currentPage.value = 'people';
+      pplBoard.value = 'people';
+      openPersonDetail(p);
+    }
+    function gotoTaskPlace(t) {
+      const pl = taskPlace(t);
+      if (!pl) return;
+      currentPage.value = 'people';
+      pplBoard.value = 'places';
+      plOpenEdit(pl);
+    }
 
     // ── People Relationship Graph (force-directed canvas) ──────────────────
     const pgCanvas = ref(null);
@@ -18606,7 +19497,7 @@ const lociApp = createApp({
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const startPad = (firstDay + 6) % 7;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateToKey(new Date());
       const selected = todayDateLabel.value;
       // Check which dates have daily plans
       const dailyPlans = data.value?.planning?.daily || [];
@@ -18852,7 +19743,8 @@ const lociApp = createApp({
     const detailTask = ref(null);     // the task object currently open in the modal
     const taskTitlePeek = ref(null);
     const taskPeekPos = ref(null);   // {top,left} px when anchored to a task, else null → centered
-    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '' });
+    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '', peopleText: '' });
+    const parsePeopleText = (s) => String(s || '').split(/[,，、;；]/).map(x => x.trim()).filter(Boolean);
 
     const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
     function openTaskTitlePeek(task, ev) {
@@ -18885,6 +19777,9 @@ const lociApp = createApp({
       editDetail.note = task.note || '';
       editDetail.priority = levelsToPriority(task);
       editDetail.category = task.category || '';
+      editDetail.peopleText = (task.people || []).join('、');
+      tmLocCustom.value = false;
+      tmPplOpen.value = false;
     }
     // The add-row's 详情 button opens the SAME modal in create mode, prefilled
     // with whatever was typed in the quick-add input.
@@ -18899,8 +19794,66 @@ const lociApp = createApp({
       editDetail.note = '';
       editDetail.priority = null;
       editDetail.category = '';
+      editDetail.peopleText = '';
+      tmLocCustom.value = false;
+      tmPplOpen.value = false;
     }
-    function closeTaskDetail() { detailTask.value = null; detailMode.value = 'edit'; }
+    function closeTaskDetail() { detailTask.value = null; detailMode.value = 'edit'; tmPplOpen.value = false; }
+
+    // linked-entity preview inside the task detail modal (live as the user picks)
+    const tmLinkedPlace = computed(() => {
+      const loc = (editDetail.location || '').trim();
+      return loc ? (placesData.value.find(pl => pl.name === loc) || null) : null;
+    });
+    // case-insensitive match, but display the contact's canonical saved name
+    const tmLinkedPeople = computed(() => parsePeopleText(editDetail.peopleText)
+      .map(nm => { const c = (peopleData.value || []).find(x => String(x.name).toLowerCase() === nm.toLowerCase()); return c ? { name: c.name, photo: c.photo || '' } : { name: nm, photo: '', off: true }; }));
+    // pickers: place <select> (custom free-text as escape hatch) + contact toggle panel
+    const tmPplOpen = ref(false);
+    const tmLocCustom = ref(false);
+    const tmLocSelect = computed(() => {
+      if (tmLocCustom.value) return '__custom__';
+      const loc = (editDetail.location || '').trim();
+      if (!loc) return '';
+      return placesData.value.some(p => p.name === loc) ? loc : '__custom__';
+    });
+    function onTmLocSelect(v) {
+      if (v === '__custom__') {
+        tmLocCustom.value = true;
+        if (placesData.value.some(p => p.name === (editDetail.location || '').trim())) editDetail.location = '';
+      } else {
+        tmLocCustom.value = false;
+        editDetail.location = v;
+      }
+    }
+    function tmHasPerson(nm) { return parsePeopleText(editDetail.peopleText).some(x => x.toLowerCase() === String(nm).toLowerCase()); }
+    function tmTogglePerson(nm) {
+      const list = parsePeopleText(editDetail.peopleText).filter(x => x.toLowerCase() !== String(nm).toLowerCase());
+      if (list.length === parsePeopleText(editDetail.peopleText).length) list.push(nm);
+      editDetail.peopleText = list.join('、');
+    }
+    function tmRemovePerson(nm) {
+      editDetail.peopleText = parsePeopleText(editDetail.peopleText).filter(x => x.toLowerCase() !== String(nm).toLowerCase()).join('、');
+    }
+    // mini-map for the linked place (skipped when the place has no coordinates)
+    const tmMapEl = ref(null);
+    let tmMap = null;
+    watch([tmLinkedPlace, detailTask], () => {
+      nextTick(() => {
+        if (tmMap) { try { tmMap.remove(); } catch {} tmMap = null; }
+        const pl = tmLinkedPlace.value;
+        if (!detailTask.value || !pl || !tmMapEl.value || typeof L === 'undefined') return;
+        const lat = parseFloat(pl.lat), lng = parseFloat(pl.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+        tmMap = L.map(tmMapEl.value, { zoomControl: false, scrollWheelZoom: false, dragging: false, attributionControl: false })
+          .setView([lat, lng], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(tmMap);
+        const tmeta = plTypeMeta(pl.type);
+        L.marker([lat, lng], { icon: L.divIcon({ className: '', iconSize: [30, 30], iconAnchor: [15, 15], html:
+          '<div class="pmk-pl" style="--bg:' + tmeta.color + '"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + plIcon(pl.type) + '</svg></div>' }) }).addTo(tmMap);
+        requestAnimationFrame(() => { if (tmMap) tmMap.invalidateSize(); });
+      });
+    });
 
     async function createTaskFromModal() {
       const text = editDetail.text.trim();
@@ -18913,13 +19866,14 @@ const lociApp = createApp({
         location: editDetail.location || null,
         color: editDetail.color || null,
         note: editDetail.note || null,
+        people: parsePeopleText(editDetail.peopleText),
         urgency: levels.urgency,
         importance: levels.importance,
         source: 'dashboard',
       };
       // optimistic: show it in the pool immediately
       const localTask = { text, done: false, date: payload.date, startTime: payload.startTime,
-        location: payload.location, color: payload.color, note: payload.note,
+        location: payload.location, color: payload.color, note: payload.note, people: payload.people,
         urgency: levels.urgency, importance: levels.importance };
       const target = data.value?.tasks?.active_tasks;
       if (target) { if (!target.P1) target.P1 = []; target.P1.push(localTask); }
@@ -18945,11 +19899,13 @@ const lociApp = createApp({
       // title: keep the old one if the field was cleared (never blank a task)
       const newText = editDetail.text.trim() || task.text;
       // optimistic update on the live task object
-      const prev = { text: task.text, title: task.title, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance, category: task.category };
+      const prev = { text: task.text, title: task.title, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance, category: task.category, people: task.people };
+      const newPeople = parsePeopleText(editDetail.peopleText);
       task.text = newText;
       task.title = newText;
       task.date = newDate;
       task.startTime = newTime;
+      task.people = newPeople;
       task.location = editDetail.location || null;
       task.color = editDetail.color || null;
       task.note = editDetail.note || null;
@@ -18966,6 +19922,7 @@ const lociApp = createApp({
             if (live) Object.assign(live, {
               title: newText, text: newText, date: newDate, startTime: newTime,
               location: task.location, color: task.color, note: task.note,
+              people: newPeople,
               urgency: levels.urgency, importance: levels.importance,
               category: task.category,
             });
@@ -18976,6 +19933,7 @@ const lociApp = createApp({
                 date: newDate, startTime: newTime,
                 urgency: levels.urgency, importance: levels.importance,
                 location: task.location, color: task.color, note: task.note,
+                people: newPeople,
                 category: task.category,
               })
             });
@@ -18985,7 +19943,7 @@ const lociApp = createApp({
         }
         const res = await demoFetch('/api/tasks/update-detail', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: task.id, title: newText, date: newDate, startTime: newTime, location: task.location, color: task.color, note: task.note, urgency: levels.urgency, importance: levels.importance })
+          body: JSON.stringify({ id: task.id, title: newText, date: newDate, startTime: newTime, location: task.location, color: task.color, note: task.note, urgency: levels.urgency, importance: levels.importance, people: newPeople })
         });
         if (!res.ok) throw new Error('update-detail failed: ' + res.status);
       } catch (e) {
@@ -19701,7 +20659,7 @@ const lociApp = createApp({
       // Deep link: /#people opens that page directly (used by the Today page's
       // collected-chips and shareable links). Unknown hashes fall through to
       // the default page; hash changes while open navigate the same way.
-      const PAGE_IDS = ['overview', 'today', 'journal', 'memory', 'people', 'brain', 'roadmap', 'notes', 'fragments'];
+      const PAGE_IDS = ['overview', 'today', 'journal', 'memory', 'people', 'brain', 'roadmap', 'notes', 'fragments', 'skills'];
       const hashPage = () => decodeURIComponent((location.hash || '').replace(/^#/, ''));
       if (PAGE_IDS.includes(hashPage())) currentPage.value = hashPage();
       window.addEventListener('hashchange', () => {
@@ -20105,8 +21063,112 @@ const lociApp = createApp({
       });
     });
 
+    // ===== SKILLS PAGE =====
+    // The user's Claude Code skills, read live via /api/skills. Display-only.
+    // origin: self (real dir in ~/.claude/skills, built by the user)
+    //         package (symlinked from ~/.agents/skills, installed by a manager)
+    //         project (symlinked from a project repo) · plugin
+    const skillsRaw = ref(null);
+    const skillsLoading = ref(false);
+    const skillsError = ref(false);
+    const skillsQuery = ref('');
+    const skillsOrigin = ref('all');
+    let skillsLoaded = false;
+    async function loadSkills() {
+      if (skillsLoaded) return;
+      skillsLoaded = true;
+      skillsLoading.value = true;
+      skillsError.value = false;
+      try {
+        const r = await fetch('/api/skills');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        skillsRaw.value = await r.json();
+        // Deep link: /?skill=<name>#skills opens that skill's detail directly.
+        const want = new URLSearchParams(location.search).get('skill');
+        if (want) {
+          const hit = (skillsRaw.value.skills || []).find(s => s.name === want);
+          if (hit) openSkillDetail(hit);
+        }
+      } catch (e) {
+        skillsError.value = true;
+        skillsLoaded = false; // let a later visit retry
+      } finally {
+        skillsLoading.value = false;
+      }
+    }
+    watch(currentPage, (p) => { if (p === 'skills') loadSkills(); });
+    const SK_FAM_COLOR = { cyc:'#e0a23c', dbs:'#5f9e6e', lark:'#3aa0e0', loci:'#0ea5a4', coo:'#e8836b', notion:'#7c74d6', publish:'#c2803a', clean:'#6aa0c0', core:'#9a9a94' };
+    const skFamilyColor = (fam) => SK_FAM_COLOR[fam] || 'var(--accent)';
+    const skFamilyLabel = (fam) => fam === 'core' ? (lang.value === 'zh' ? '通用' : 'Core') : fam;
+    const SK_ORIGIN_COLOR = { self:'#10b981', package:'#8b5cf6', project:'#3b82f6', plugin:'#9a9a94' };
+    const skOriginColor = (o) => SK_ORIGIN_COLOR[o] || 'var(--accent)';
+    const skOriginLabel = (o) => t('skills.origin.' + o);
+    const skillsCounts = computed(() => {
+      const list = (skillsRaw.value && skillsRaw.value.skills) || [];
+      const c = { all: list.length, self: 0, package: 0, project: 0, plugin: 0 };
+      for (const s of list) c[s.origin] = (c[s.origin] || 0) + 1;
+      return c;
+    });
+    const skOriginChips = computed(() =>
+      ['all', 'self', 'package', 'project', 'plugin'].filter(o => o === 'all' || (skillsCounts.value[o] || 0) > 0));
+    const skillsFiltered = computed(() => {
+      const r = skillsRaw.value;
+      if (!r || !Array.isArray(r.skills)) return [];
+      const q = skillsQuery.value.trim().toLowerCase();
+      const org = skillsOrigin.value;
+      return r.skills.filter(s => {
+        if (org !== 'all' && s.origin !== org) return false;
+        if (!q) return true;
+        return (s.name || '').toLowerCase().includes(q)
+          || (s.description || '').toLowerCase().includes(q)
+          || (s.family || '').toLowerCase().includes(q);
+      });
+    });
+    const skillsGroups = computed(() => {
+      const by = {};
+      for (const s of skillsFiltered.value) (by[s.family] = by[s.family] || []).push(s);
+      return Object.keys(by)
+        .map(k => ({ key: k, items: by[k] }))
+        .sort((a, b) => b.items.length - a.items.length || a.key.localeCompare(b.key));
+    });
+    // Detail modal — fetches the rendered SKILL.md on first open, then caches.
+    const skillDetail = ref(null);
+    const skillDetailLoading = ref(false);
+    const skillDetailErr = ref('');
+    const skillDetailCache = {};
+    async function openSkillDetail(sk) {
+      skillDetailErr.value = '';
+      const key = sk.source + ':' + sk.name;
+      if (skillDetailCache[key]) { skillDetail.value = skillDetailCache[key]; return; }
+      skillDetail.value = { ...sk, html: '', files: [] };
+      skillDetailLoading.value = true;
+      try {
+        const r = await fetch('/api/skills/detail?name=' + encodeURIComponent(sk.name) + '&source=' + encodeURIComponent(sk.source || ''));
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        skillDetailCache[key] = d;
+        skillDetail.value = d;
+      } catch (e) {
+        skillDetailErr.value = lang.value === 'zh' ? '读取详情失败' : 'Could not load detail';
+      } finally {
+        skillDetailLoading.value = false;
+      }
+    }
+    function closeSkillDetail() { skillDetail.value = null; }
+    // Open the skill's folder in Finder / the OS file manager.
+    function revealSkill(sk) {
+      fetch('/api/skills/reveal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: sk.name, source: sk.source || '' }),
+      }).catch(() => {});
+    }
+
     return {
       data, loading, error, now, weather, clockCanvas,
+      skillsRaw, skillsLoading, skillsError, skillsQuery, skillsOrigin, skOriginChips,
+      skillsCounts, skillsFiltered, skillsGroups, skFamilyColor, skFamilyLabel, loadSkills,
+      skOriginColor, skOriginLabel, skillDetail, skillDetailLoading, skillDetailErr, openSkillDetail, closeSkillDetail, revealSkill,
       currentPage, sidebarOpen, sidebarCollapsed, toggleSidebarCollapsed,
       taskScheduleView, taskSchedulePanePct, isTaskScheduleResizing, startTaskScheduleResize,
       stackOrder, stackDragging, stackDropTarget, toggleTaskScheduleExpand, taskScheduleFocus, focusPanel,
@@ -20121,6 +21183,8 @@ const lociApp = createApp({
       journalDayOffset, journalViewDate, journalIsToday, journalDateLabel, journalWeekdayLabel,
       journalNav, journalGoToday, journalGoDate, entryDateLabel, entryPreview, journalAISummary, journalMood, journalHeadline, journalBodyHtml, journalDetailOpen, journalLogOpen,
       trace, dtColumns, dtActivity, dtActivityMix, dtProgress, dtPgStructured, dtActOpen, dtPgOpen, dtPgRowOpen, dtDecOpen, dtUpdatedOpen,
+      dtSessions, dtSessOpen, dtSessMeaningful, dtSessHidden, dtSessTool, dtSessProj,
+      sxOpenFile, sxDetail, sxToggle, sxCleanSummary, sxReveal,
       dtDayPrefix, dtHeadline, dtPulse, dtTaskGroups, dtTasksCount, dtDecisions, dtCollected, dtCollectedCount,
       dtCat, dtToggleRow, dtTaskWhen, dtChipGo, dtEvening,
       dtDraft, dtDraftHtml, dtSaving, dtGenDraft, dtSaveDraft,
@@ -20156,7 +21220,7 @@ const lociApp = createApp({
       planDragText, planDropTarget, onPlanDragStart, onPlanDragOver, onPlanDragLeave, onPlanDrop,
       planCtx, openPlanCtx, closePlanCtx, planCtxAddToToday,
       memoryProfile, memoryView, memoryInsightCats, memoryCardStyle,
-      memoryIdentityContent, memoryIdentityStats,
+      memoryIdentityContent, memoryPreferencesContent, memoryIdentityStats,
       memoryValuesContent, memoryValuesStats,
       memoryLearnedContent, memoryLearnedStats,
       memoryLearningLog, memoryEvolutionEntries,
@@ -20165,6 +21229,11 @@ const lociApp = createApp({
       memProgress, memScroller, onMemScroll, setMemoryBlock,
       recalcMemProgress, stripLeadH1, meAvatar, memSparkPeak, profileEditing, profileSaving, profileDraft, meAvatarInput,
       startProfileEdit, cancelProfileEdit, saveProfileEdit, pickMeAvatar, onMeAvatarChosen, reloadBrainData,
+      sigEditing, sigSaving, sigDraft, sigInput, startSigEdit, cancelSigEdit, addSig, editSig, removeSig, saveSigEdit,
+      pplBoard, plQuery, plTypeFilter, plTypeOrder, placesData, plFiltered, plLife, plWork, plTypeCounts,
+      plTypeMeta, plTypeLabel, plIcon, plPersonPhoto, plToggleType, plModal, plSaving, plForm, plOpenAdd, plOpenEdit, plSave, plRemove,
+      taskPlace, taskPeopleList, gotoTaskPerson, gotoTaskPlace, tmLinkedPlace, tmLinkedPeople, tmMapEl,
+      tmPplOpen, tmLocSelect, onTmLocSelect, tmHasPerson, tmTogglePerson, tmRemovePerson,
       calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
       notifyEnabled, notifyLead, notifyPermission, notifyMenuOpen, notifyLeadOptions, toggleNotify, setNotifyLead,
       greeting, currentHour, dayHours,

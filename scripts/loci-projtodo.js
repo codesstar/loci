@@ -143,6 +143,7 @@ function normalizeTodo(todo, index, existingIds) {
     location: blankToNull(todo.location),
     color: blankToNull(todo.color),
     note: blankToNull(todo.note),
+    ...(Array.isArray(todo.people) && todo.people.length ? { people: todo.people.map(String) } : {}),
     source: todo.source || 'project',
     createdAt: todo.createdAt || now,
     updatedAt: todo.updatedAt || todo.createdAt || now,
@@ -209,6 +210,7 @@ function cmdAdd(repo, args) {
     location: args.location,
     color: args.color,
     note: args.note,
+    people: (args.people && args.people !== true) ? String(args.people).split(/[,，、;；]/).map(s => s.trim()).filter(Boolean) : undefined,
     source: args.source || 'project',
     order: maxOrder + 10,
   }, todos.length, existingIds);
@@ -253,6 +255,10 @@ function cmdUpdate(repo, args) {
   if (args.location != null && args.location !== true) todo.location = blankToNull(args.location);
   if (args.color != null && args.color !== true) todo.color = blankToNull(args.color);
   if (args.note != null && args.note !== true) todo.note = blankToNull(args.note);
+  if (args.people != null && args.people !== true) {
+    const ppl = String(args.people).split(/[,，、;；]/).map(s => s.trim()).filter(Boolean);
+    if (ppl.length) todo.people = ppl; else delete todo.people;
+  }
   if (args.source != null && args.source !== true) todo.source = String(args.source).trim() || 'project';
   todo.done = todo.status === 'done';
   todo.completedAt = todo.status === 'done' ? (todo.completedAt || todo.doneAt || isoNow()) : null;

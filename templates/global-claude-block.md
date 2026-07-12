@@ -8,13 +8,14 @@
 ### Automatic Context
 - On session start, read `<brain-path>/plan.md` for life direction and current goals
 - Read `<brain-path>/tasks/active.md` for current priorities
+- Read `<brain-path>/me/preferences.md` for the user's standing interaction instructions (what to call them, language, tone, reply style) — honor them from the first reply on
 - Check `<brain-path>/inbox.md` for pending items (latest 7 only)
 
 ### Context Loading Strategy
 - Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
 - **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/projects/index.md` as the project index.
-- **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, latest 7 items from `inbox.md`.
-- **L2 On Demand**: read module READMEs, `me/`, `decisions/`, `references/`, `notes/`, `tasks/daily/`, linked project `.loci/memory.md`, `.loci/profile.md`, or `.loci/progress/YYYY-MM.md` only when relevant to the user's request.
+- **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, `me/preferences.md`, latest 7 items from `inbox.md`.
+- **L2 On Demand**: read module READMEs, the rest of `me/`, `decisions/`, `references/`, `notes/`, `tasks/daily/`, linked project `.loci/memory.md`, `.loci/profile.md`, or `.loci/progress/YYYY-MM.md` only when relevant to the user's request.
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.
 
@@ -30,9 +31,11 @@ When the user's request mentions a topic, project, person, decision, material, o
 - Open task cache → `<brain-path>/tasks/active.md`; full task database → `<brain-path>/tasks/tasks.json`
 - Day notes/reviews → `<brain-path>/tasks/daily/YYYY-MM-DD.md`; scheduled time blocks → `<brain-path>/tasks/calendar.json`
 - Durable decisions and rationale → `<brain-path>/decisions/`
+- How the AI should talk to the user (nickname/称呼, language, tone, reply style) → `<brain-path>/me/preferences.md` (L1, already loaded)
 - Identity, values, wellbeing, lessons, and personal insights → `<brain-path>/me/` (read `me/README.md` first)
 - Serious project index (one line each) → `<brain-path>/projects/index.md`. Full project memory lives in each project's OWN repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/`), NOT in the brain — read the repo for detail. Loci aggregates, it does not own.
 - Project embryos (not serious yet) → `<brain-path>/projects/side.md`
+- Places (home / company addresses / frequent spots / client offices) → `<brain-path>/places/` (one `.md` per place; shown on the people-page map next to contacts)
 - People and relationships → `<brain-path>/people/` (one `.md` per contact; relationships BETWEEN contacts are edges in `people/.connections.json` — when the user says "A is B's friend / A introduced B", also add the edge via Dashboard API `POST /api/people/connect {a,b,how}`, or edit the JSON: `[a, b, "how"]`, names matching each person's `name:`)
 - Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
 - Saved articles, links, tools, and external materials (third-party content) → `<brain-path>/references/`
@@ -55,12 +58,15 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
   - Validate with `node <brain-path>/scripts/loci-task.js validate`.
 - Decisions → `<brain-path>/decisions/YYYY-MM-DD-slug.md`
 - Personal memory → `<brain-path>/me/`:
-  - `identity.md` for stable self-description and communication preferences
+  - `preferences.md` for standing instructions on how to talk and work — "以后叫我 X" / "回复短一点" / "no emoji" / "写文档要先给草稿" → save here AND comply in the very reply that acknowledges it (用户说「以后叫我老板」，确认那句就要叫「老板」— never "记住了" now and comply later); keep it short, it loads every conversation
+  - `identity.md` for stable self-description and background
   - `values.md` for durable values and decision principles
   - `wellbeing.md` for body, mental health, energy, sleep, confidence, and state
   - `insights.md` for fresh personal reflections; include background, insight, why it matters, tentative impact, and status
   - `learned.md` for reusable lessons and practices
   - `evolution.md` for append-only personal change history
+- A place ("记一下 XX 的地址在 YY", "remember where X is") → Dashboard API `POST /api/places/add` when running, else `<brain-path>/places/<slug>.md` (frontmatter: name / type home|work|study|spot|client|other / address / city / lat / lng / people / tags; body = note). Fill lat/lng when you know the address; `people` names must match contacts.
+- A person/place FIRST seen inside a task → do NOT auto-create a card; one-offs stay in the task's `location` attribute. Create directly only for possessive/identity statements ("我家在 X" / "我们公司搬到 X"); if the same one keeps coming back (2-3 tasks), offer ONCE at the end of a conversation. Already-saved person/place → reference by its exact saved `name:` so the dashboard links it (contacts → task `people` array via Dashboard API or `loci-task.js --people`; place → task `location`).
 - Quick thoughts → `<brain-path>/inbox.md`
 - The user's own notes → `<brain-path>/notes/`: an external note (Obsidian/Feishu/Notion) gets ONE line in `notes/index.md` — `- <title> · <link or path> · <gist> · #tags` — never copy the body; a short inline note becomes `notes/<slug>.md` plus its index line. This is the user's writing (vs. references = third-party content).
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.

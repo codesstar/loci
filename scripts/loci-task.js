@@ -148,7 +148,19 @@ function normalizeTask(task, existingIds) {
     updatedAt: task.updatedAt || task.createdAt || now,
     completedAt: task.completedAt || (status === 'done' ? now : null),
     archivedAt: task.archivedAt || (status === 'archived' ? now : null),
+    // Task detail fields — preserved verbatim so CLI writes never strip what
+    // the dashboard (or an AI session) attached to a task.
+    location: task.location || null,
+    color: task.color || null,
+    note: task.note || null,
+    // linked contact names (people/<name>.md), rendered as chips on task cards
+    ...(Array.isArray(task.people) && task.people.length ? { people: task.people.map(String) } : {}),
+    ...(typeof task.manualOrder === 'number' ? { manualOrder: task.manualOrder } : {}),
   };
+}
+
+function parsePeopleArg(v) {
+  return String(v || '').split(/[,，、;；]/).map(s => s.trim()).filter(Boolean);
 }
 
 function readTasks() {
@@ -324,6 +336,10 @@ function addTask(args) {
     project: args.project || null,
     urgency: parseLevelArg(args.urgency),
     importance: parseLevelArg(args.importance),
+    location: args.location || null,
+    color: args.color || null,
+    note: args.note || null,
+    people: args.people ? parsePeopleArg(args.people) : undefined,
     source: args.source || 'agent',
   }, new Set(tasks.map(t => t.id)));
   tasks.push(task);
@@ -354,6 +370,10 @@ function updateTask(args) {
     if (args.start !== undefined || args.startTime !== undefined) task.startTime = args.start || args.startTime || null;
     if (args.end !== undefined || args.endTime !== undefined) task.endTime = args.end || args.endTime || null;
   }
+  if (args.location !== undefined) task.location = args.location === true ? null : (args.location || null);
+  if (args.note !== undefined) task.note = args.note === true ? null : (args.note || null);
+  if (args.color !== undefined) task.color = args.color === true ? null : (args.color || null);
+  if (args.people !== undefined) task.people = args.people === true ? null : (parsePeopleArg(args.people).length ? parsePeopleArg(args.people) : null);
   task.updatedAt = isoNow();
   if (task.status === 'done' && !task.completedAt) task.completedAt = task.updatedAt;
   if (task.status !== 'done') task.completedAt = null;

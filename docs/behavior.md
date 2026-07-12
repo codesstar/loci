@@ -277,7 +277,8 @@ Full spec → `templates/commands/loci-consolidate.md`
 
 | File | Purpose | When to write |
 |------|---------|---------------|
-| `me/identity.md` | Stable self-description, communication preferences, personality | "I am...", "I prefer...", durable identity facts |
+| `me/preferences.md` | Standing instructions: 称呼, language, tone, reply style, work defaults. The only `me/` file in L1 — loaded every conversation | "以后叫我...", "回复短一点", "no emoji", "写文档要...". Save + comply in the same reply that acknowledges it |
+| `me/identity.md` | Stable self-description, personality, background | "I am...", durable identity facts (how to *address/talk to* the user → `preferences.md`) |
 | `me/values.md` | Stable values and decision principles | A principle has become durable and should guide decisions |
 | `me/wellbeing.md` | Body, mental health, energy, sleep, confidence, state | Health/state patterns that affect life or work |
 | `me/insights.md` | Fresh personal reflections | "I realized...", "I thought about...", "this moved me..." |
