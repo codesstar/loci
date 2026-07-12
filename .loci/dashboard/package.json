@@ -1,0 +1,8 @@
+{
+  "name": "loci-dashboard",
+  "private": true,
+  "description": "Loci dashboard server. Zero required dependencies — web-push is the one optional extra, enabling phone push notifications.",
+  "optionalDependencies": {
+    "web-push": "^3.6.7"
+  }
+}

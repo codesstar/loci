@@ -85,6 +85,66 @@
   })();
   </script>
   <!-- @pwa-head -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Loci">
+  <meta name="theme-color" content="#10b981">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <script>
+  // PWA + Web Push bootstrap. window.lociPush.toggle() is called from the
+  // notify menu; on iOS it requires the PWA installed to the home screen.
+  (function () {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('/sw.js').catch(function () { /* http non-localhost etc. */ });
+
+    function b64ToU8(base64) {
+      var pad = '='.repeat((4 - base64.length % 4) % 4);
+      var raw = atob((base64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+      var arr = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+      return arr;
+    }
+    var lociUrlFn = function (p) { return window.lociUrl ? window.lociUrl(p) : p; };
+    function post(path, body) {
+      return fetch(lociUrlFn(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    }
+
+    window.lociPush = {
+      status: function () { return fetch(lociUrlFn('/api/push/status')).then(function (r) { return r.json(); }); },
+      current: function () {
+        return navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); });
+      },
+      // Re-report the subscription every load — iOS rotates/expires them silently.
+      sync: function () {
+        window.lociPush.current().then(function (sub) {
+          if (sub) post('/api/push/subscribe', { subscription: sub.toJSON() });
+        }).catch(function () {});
+      },
+      toggle: function () {
+        return window.lociPush.current().then(function (sub) {
+          if (sub) {
+            var endpoint = sub.endpoint;
+            return sub.unsubscribe().then(function () { return post('/api/push/unsubscribe', { endpoint: endpoint }); }).then(function () { return { on: false }; });
+          }
+          return window.lociPush.status().then(function (s) {
+            if (!s.available) { alert(s.hint || 'web-push 未安装'); return { on: false }; }
+            return Notification.requestPermission().then(function (perm) {
+              if (perm !== 'granted') return { on: false };
+              return navigator.serviceWorker.ready.then(function (reg) {
+                return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(s.publicKey) });
+              }).then(function (sub2) {
+                return post('/api/push/subscribe', { subscription: sub2.toJSON() }).then(function () { return { on: true }; });
+              });
+            });
+          });
+        });
+      },
+      test: function () { return post('/api/push/test').then(function (r) { return r.json(); }); },
+    };
+    window.addEventListener('load', function () { window.lociPush.sync(); });
+  })();
+  </script>
   <!-- @mobile-css -->
   <link rel="icon" type="image/png" href="/assets/loci-logo2.png">
 
@@ -6567,7 +6627,14 @@
                           class="notify-lead" :class="{ sel: notifyLead === m }"
                           @click="setNotifyLead(m)">{{ m === 0 ? (lang === 'zh' ? '当时' : 'Now') : (m + (lang === 'zh' ? '分' : 'm')) }}</button>
                       </div>
-                      <div class="notify-hint subtle">{{ lang === 'zh' ? '日程和任务统一，仅在此页面打开时生效' : 'Same for events & tasks, while this tab is open' }}</div>
+                      <!-- Phone push (Web Push via server scheduler — works with the tab closed).
+                           Plain onclick on purpose: window.lociPush lives outside the Vue app. -->
+                      <div class="notify-lead-label" style="margin-top:6px">{{ lang === 'zh' ? '手机推送（关掉页面也能收到）' : 'Phone push (works with tab closed)' }}</div>
+                      <div class="notify-leads">
+                        <button class="notify-lead" onclick="var b=this;window.lociPush&&window.lociPush.toggle().then(function(r){b.textContent=r.on?'✓ 已开启':'开启'})">{{ lang === 'zh' ? '开启/关闭' : 'Toggle' }}</button>
+                        <button class="notify-lead" onclick="var b=this;window.lociPush&&window.lociPush.test().then(function(r){b.textContent=(r.sent>0)?'✓ 已发送':'无设备'})">{{ lang === 'zh' ? '测试' : 'Test' }}</button>
+                      </div>
+                      <div class="notify-hint subtle">{{ lang === 'zh' ? '日程和任务统一；页面提醒仅在打开时生效，手机推送由服务器发送' : 'Events & tasks; in-page needs the tab open, phone push is server-sent' }}</div>
                     </template>
                   </div>
                 </div>

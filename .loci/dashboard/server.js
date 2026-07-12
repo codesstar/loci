@@ -3949,13 +3949,21 @@ function handleSkillReveal(body) {
 }
 
 // ─── Pluggable API route modules ────────────────────────────────────────────
-// Each lib/routes/*.js exports { handle(req, res, parsed, ctx) → bool }.
-// Feature tracks (chat, push, …) add a file there; server.js stays untouched.
+// Each lib/routes/*.js exports { handle(req, res, parsed, ctx) → bool } and
+// optionally { init(ctx) }, called once at startup (e.g. the push module boots
+// the reminder scheduler there). Feature tracks add a file; server.js stays
+// untouched.
+const routeCtx = { LOCI_ROOT, SCRIPT_DIR, auth, sse, store, sendJson, sendError, parseJsonBody };
 const routeModules = [];
 try {
   const routesDir = path.join(__dirname, 'lib', 'routes');
   for (const f of fs.readdirSync(routesDir).sort()) {
-    if (f.endsWith('.js')) routeModules.push(require(path.join(routesDir, f)));
+    if (!f.endsWith('.js')) continue;
+    const mod = require(path.join(routesDir, f));
+    routeModules.push(mod);
+    if (typeof mod.init === 'function') {
+      try { mod.init(routeCtx); } catch (e) { console.error(`route ${f} init failed:`, e.message); }
+    }
   }
 } catch { /* no routes dir — fine */ }
 
@@ -4002,7 +4010,6 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Pluggable API routes (lib/routes/*.js).
-  const routeCtx = { LOCI_ROOT, SCRIPT_DIR, auth, sse, store, sendJson, sendError, parseJsonBody };
   for (const m of routeModules) {
     if (await m.handle(req, res, parsed, routeCtx)) return;
   }
