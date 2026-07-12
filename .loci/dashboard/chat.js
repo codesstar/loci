@@ -85,6 +85,7 @@
       '    </template>',
       '    <div v-if="streaming" class="lc-bubble lc-ai">{{ streamText }}<span style="opacity:.5">▍</span></div>',
       '    <div v-else-if="running" class="lc-typing">思考中…</div>',
+      '    <div v-if="connLost" class="lc-typing">连接中断，正在重连…</div>',
       '  </div>',
       '  <div class="lc-input">',
       '    <textarea ref="box" v-model="input" rows="1" placeholder="问点什么，或让我帮你记录…"',
@@ -107,6 +108,7 @@
         streaming: false,
         streamText: '',
         health: null,
+        connLost: false,
         es: null,
       };
     },
@@ -170,7 +172,21 @@
         this.closeStream();
         var es = new EventSource(lociUrl('/api/chat/stream?session=' + encodeURIComponent(id)));
         this.es = es;
-        function on(name, fn) { es.addEventListener(name, function (e) { var d = {}; try { d = JSON.parse(e.data); } catch (err) {} fn(d); self.scroll(); }); }
+        // Native EventSource error = connection dropped (server restart, sleep,
+        // …). It auto-reconnects — show a status line, never transcript spam.
+        // Server-sent `event: error` messages carry data and are handled below.
+        es.onerror = function (e) { if (e && e.data) return; self.connLost = true; };
+        es.onopen = function () {
+          if (self.connLost) {
+            self.connLost = false;
+            // resync: a turn may have died with the server while we were away
+            fetch(lociUrl('/api/chat/history?session=' + encodeURIComponent(id)))
+              .then(function (r) { return r.json(); })
+              .then(function (h) { self.items = h.transcript || []; self.running = !!h.running; self.scroll(); })
+              .catch(function () {});
+          }
+        };
+        function on(name, fn) { es.addEventListener(name, function (e) { if (!e.data) return; var d = {}; try { d = JSON.parse(e.data); } catch (err) {} fn(d); self.scroll(); }); }
         on('user', function (d) {
           var last = self.items[self.items.length - 1];
           if (!last || last.role !== 'user' || last.text !== d.text) self.items.push({ role: 'user', text: d.text });
@@ -184,7 +200,7 @@
         });
         on('tool_use', function (d) { self.streaming = false; self.streamText = ''; self.items.push({ role: 'tool', name: d.name, preview: d.preview }); });
         on('tool_result', function () { /* keep the panel calm — tool cards already show the call */ });
-        on('error', function (d) { self.items.push({ role: 'system', text: '出错了：' + (d.message || '') }); });
+        on('error', function (d) { self.items.push({ role: 'system', text: '出错了：' + (d.message || '未知错误') }); });
         on('turn_done', function (d) {
           self.running = false; self.streaming = false; self.streamText = '';
           if (d && d.stopped) self.items.push({ role: 'system', text: '已停止' });
