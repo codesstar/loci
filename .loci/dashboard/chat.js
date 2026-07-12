@@ -32,6 +32,9 @@
     '.lc-title{font-weight:600;font-size:14px;color:var(--ink,#1c1c1a);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.lc-iconbtn{border:0;background:transparent;cursor:pointer;color:var(--ink-3,#9a9a94);font-size:15px;padding:4px 6px;border-radius:8px}',
     '.lc-iconbtn:hover{background:var(--surface-3,#f5f5f3);color:var(--ink,#1c1c1a)}',
+    '.lc-engsel{border:1px solid var(--line-2,#e3e3e0);background:var(--surface,#fff);color:var(--ink-2,#5b5b57);',
+    '  border-radius:8px;font-size:11.5px;padding:3px 4px;outline:none;cursor:pointer}',
+    '.lc-engtag{font-size:10px;color:var(--ink-4,#c4c4be);border:1px solid var(--line,#ececea);border-radius:5px;padding:0 4px}',
     '.lc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}',
     '.lc-bubble{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.55;word-break:break-word}',
     '.lc-user{align-self:flex-end;background:var(--accent,#10b981);color:#fff;border-bottom-right-radius:4px;white-space:pre-wrap}',
@@ -102,11 +105,16 @@
       '  <div class="lc-head">',
       '    <button class="lc-iconbtn" @click="showSessions = !showSessions" title="会话列表">☰</button>',
       '    <div class="lc-title">{{ activeTitle }}</div>',
+      '    <select class="lc-engsel" v-model="engine" @change="engineChanged" title="新对话使用的 AI 引擎">',
+      '      <option value="claude">Claude</option>',
+      '      <option value="codex">Codex</option>',
+      '    </select>',
       '    <button class="lc-iconbtn" @click="newSession" title="新对话">＋</button>',
       '  </div>',
       '  <div class="lc-sessions" v-if="showSessions">',
       '    <div v-for="s in sessions" :key="s.id" class="lc-sessrow" :class="{active: s.id === activeId}" @click="openSession(s.id)">',
       '      <span class="t">{{ s.title }}</span>',
+      '      <span class="lc-engtag" v-if="s.engine && s.engine !== \'claude\'">{{ s.engine }}</span>',
       '      <span style="color:var(--ink-4);font-size:11px">{{ s.messages }}</span>',
       '      <span class="x" @click.stop="confirmRemove(s.id)" :title="confirmId === s.id ? \'再点一次确认删除\' : \'删除\'">{{ confirmId === s.id ? "确认?" : "×" }}</span>',
       '    </div>',
@@ -137,9 +145,14 @@
 
     data: function () {
       var savedOpen = false;
-      try { savedOpen = localStorage.getItem('loci.chat.open') === '1'; } catch (e) {}
+      var savedEngine = 'claude';
+      try {
+        savedOpen = localStorage.getItem('loci.chat.open') === '1';
+        savedEngine = localStorage.getItem('loci.chat.engine') || 'claude';
+      } catch (e) {}
       return {
         open: savedOpen,
+        engine: savedEngine === 'codex' ? 'codex' : 'claude',
         confirmId: null,
         confirmTimer: null,
         showSessions: false,
@@ -184,9 +197,20 @@
         try { localStorage.setItem('loci.chat.open', this.open ? '1' : '0'); } catch (e) {}
         if (this.open) this.boot();
       },
+      engineChanged: function () {
+        try { localStorage.setItem('loci.chat.engine', this.engine); } catch (e) {}
+        this.checkHealth();
+      },
+      checkHealth: function () {
+        var self = this;
+        fetch(lociUrl('/api/chat/health?engine=' + this.engine))
+          .then(function (r) { return r.json(); })
+          .then(function (h) { self.health = h; })
+          .catch(function () {});
+      },
       boot: function () {
         var self = this;
-        fetch(lociUrl('/api/chat/health')).then(function (r) { return r.json(); }).then(function (h) { self.health = h; });
+        this.checkHealth();
         this.loadSessions().then(function () {
           if (self.activeId) return;
           var saved = null;
@@ -217,7 +241,7 @@
       newSession: function () {
         var self = this;
         this.showSessions = false;
-        fetch(lociUrl('/api/chat/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+        fetch(lociUrl('/api/chat/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: this.engine }) })
           .then(function (r) { return r.json(); })
           .then(function (s) { return self.loadSessions().then(function () { self.openSession(s.id); }); });
       },
@@ -317,7 +341,7 @@
           return; // keep the draft in the box
         }
         var go = this.activeId ? Promise.resolve(this.activeId)
-          : fetch(lociUrl('/api/chat/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+          : fetch(lociUrl('/api/chat/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: this.engine }) })
               .then(function (r) { return r.json(); })
               .then(function (s) { self.activeId = s.id; self.connectStream(s.id); return self.loadSessions().then(function () { return s.id; }); });
         // optimistic bubble; confirmed (un-dimmed) by the SSE echo

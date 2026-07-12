@@ -14,6 +14,7 @@ const crypto = require('crypto');
 
 const engines = {
   claude: require('./engine-claude.js'),
+  codex: require('./engine-codex.js'),
 };
 
 const MAX_TRANSCRIPT = 400; // entries kept per session (UI history, not context)
@@ -136,9 +137,11 @@ function health(ctx, engine) {
   return eng ? eng.health() : Promise.resolve({ ok: false, reason: 'unknown engine' });
 }
 
-// Warm the engine health cache in the background at server start.
+// Warm the engine health caches in the background at server start.
 function warm() {
-  engines.claude.health().catch(() => { /* surfaces via /api/chat/health */ });
+  for (const eng of Object.values(engines)) {
+    eng.health().catch(() => { /* surfaces via /api/chat/health */ });
+  }
 }
 
 function stop(ctx, id) {
