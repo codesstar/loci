@@ -3,7 +3,14 @@
  *
  * Self-contained: own Vue app on #loci-chat-root, own styles, talks to
  * /api/chat/* and streams events over SSE. index.html only mounts it at the
- * @chat-mount anchor. Reuses the dashboard's design tokens (CSS variables).
+ * @chat-mount anchor. Reuses the dashboard's design tokens (CSS variables)
+ * and the vendored marked.min.js when present.
+ *
+ * Interaction contract:
+ *   Enter = send, Shift+Enter = newline — but never during IME composition
+ *   (Chinese input confirms candidates with Enter; that must not send).
+ *   Connection drops show one status line and auto-resync, never bubbles.
+ *   A send while the AI is replying keeps your text and tells you why.
  */
 (function () {
   'use strict';
@@ -23,21 +30,32 @@
     '.lc-iconbtn{border:0;background:transparent;cursor:pointer;color:var(--ink-3,#9a9a94);font-size:15px;padding:4px 6px;border-radius:8px}',
     '.lc-iconbtn:hover{background:var(--surface-3,#f5f5f3);color:var(--ink,#1c1c1a)}',
     '.lc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}',
-    '.lc-bubble{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}',
-    '.lc-user{align-self:flex-end;background:var(--accent,#10b981);color:#fff;border-bottom-right-radius:4px}',
+    '.lc-bubble{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.55;word-break:break-word}',
+    '.lc-user{align-self:flex-end;background:var(--accent,#10b981);color:#fff;border-bottom-right-radius:4px;white-space:pre-wrap}',
+    '.lc-user.lc-pending{opacity:.66}',
     '.lc-ai{align-self:flex-start;background:var(--surface-3,#f5f5f3);color:var(--ink,#1c1c1a);border-bottom-left-radius:4px}',
-    '.lc-sys{align-self:center;color:var(--red,#ef4444);font-size:12px;background:var(--red-weak,#fde8e8);padding:6px 10px;border-radius:10px}',
+    '.lc-ai.lc-stream{white-space:pre-wrap}',
+    '.lc-md p{margin:0 0 6px}.lc-md p:last-child{margin:0}',
+    '.lc-md ul,.lc-md ol{margin:2px 0 6px;padding-left:18px}.lc-md li{margin:2px 0}',
+    '.lc-md code{background:var(--surface-2,#fafafa);border:1px solid var(--line,#ececea);border-radius:4px;padding:0 4px;font-family:var(--mono,monospace);font-size:12px}',
+    '.lc-md pre{background:var(--surface-2,#fafafa);border:1px solid var(--line,#ececea);border-radius:8px;padding:8px;overflow-x:auto;margin:4px 0}',
+    '.lc-md pre code{border:0;background:none;padding:0}',
+    '.lc-md h1,.lc-md h2,.lc-md h3{font-size:13.5px;margin:6px 0 4px}',
+    '.lc-md blockquote{border-left:3px solid var(--line-2,#e3e3e0);margin:4px 0;padding-left:8px;color:var(--ink-2,#5b5b57)}',
+    '.lc-sys{align-self:center;color:var(--ink-2,#5b5b57);font-size:12px;background:var(--surface-2,#fafafa);padding:6px 10px;border-radius:10px;max-width:90%;text-align:center}',
+    '.lc-sys.lc-err{color:var(--red,#ef4444);background:var(--red-weak,#fde8e8)}',
     '.lc-tool{align-self:flex-start;font-size:12px;color:var(--ink-2,#5b5b57);background:var(--surface-2,#fafafa);',
     '  border:1px dashed var(--line-2,#e3e3e0);border-radius:10px;padding:5px 10px;max-width:86%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
     '.lc-tool b{color:var(--accent-ink,#047857);font-weight:600}',
     '.lc-typing{align-self:flex-start;color:var(--ink-3,#9a9a94);font-size:12px;padding-left:4px}',
-    '.lc-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line,#ececea);background:var(--surface,#fff)}',
+    '.lc-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line,#ececea);background:var(--surface,#fff);align-items:flex-end}',
     '.lc-input textarea{flex:1;resize:none;border:1px solid var(--line-2,#e3e3e0);border-radius:12px;padding:9px 12px;font-size:13.5px;',
     '  font-family:inherit;line-height:1.4;max-height:110px;outline:none;background:var(--surface-2,#fafafa);color:var(--ink,#1c1c1a)}',
     '.lc-input textarea:focus{border-color:var(--accent,#10b981);background:var(--surface,#fff)}',
-    '.lc-send{border:0;border-radius:12px;padding:0 16px;background:var(--accent,#10b981);color:#fff;cursor:pointer;font-size:14px;font-weight:600}',
+    '.lc-send{border:0;border-radius:12px;padding:9px 16px;background:var(--accent,#10b981);color:#fff;cursor:pointer;font-size:14px;font-weight:600}',
     '.lc-send:disabled{opacity:.45;cursor:default}',
     '.lc-stop{background:var(--red,#ef4444)}',
+    '.lc-hintline{font-size:11px;color:var(--ink-4,#c4c4be);padding:0 14px 8px;text-align:right}',
     '.lc-sessions{position:absolute;top:46px;left:10px;right:10px;max-height:60%;overflow-y:auto;background:var(--surface,#fff);',
     '  border:1px solid var(--line,#ececea);border-radius:14px;box-shadow:var(--shadow,0 8px 24px rgba(0,0,0,.08));z-index:5;padding:6px}',
     '.lc-sessrow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink,#1c1c1a)}',
@@ -57,6 +75,23 @@
 
   var lociUrl = window.lociUrl || function (p) { return p; };
 
+  // Friendly labels for tool cards — the user is not a developer.
+  var TOOL_LABELS = {
+    Bash: '执行', Read: '查看', Write: '写入', Edit: '修改',
+    Grep: '搜索', Glob: '搜索', WebFetch: '联网', WebSearch: '联网搜索', Task: '子任务',
+  };
+
+  // Markdown for finished assistant replies. Raw HTML is neutralized before
+  // parsing (single-user local app, but no reason to render model HTML).
+  function renderMd(text) {
+    var safe = String(text == null ? '' : text).replace(/</g, '&lt;');
+    if (window.marked && window.marked.parse) {
+      try { return window.marked.parse(safe, { gfm: true, breaks: true, async: false }); }
+      catch (e) { /* fall through */ }
+    }
+    return safe.replace(/\n/g, '<br>');
+  }
+
   var App = {
     template: [
       '<button class="lc-fab" @click="toggle" :title="open ? \'收起\' : \'AI 助手\'">{{ open ? \'×\' : \'✦\' }}</button>',
@@ -70,7 +105,7 @@
       '    <div v-for="s in sessions" :key="s.id" class="lc-sessrow" :class="{active: s.id === activeId}" @click="openSession(s.id)">',
       '      <span class="t">{{ s.title }}</span>',
       '      <span style="color:var(--ink-4);font-size:11px">{{ s.messages }}</span>',
-      '      <span class="x" @click.stop="removeSession(s.id)">×</span>',
+      '      <span class="x" @click.stop="removeSession(s.id)" title="删除">×</span>',
       '    </div>',
       '    <div v-if="!sessions.length" style="padding:10px;color:var(--ink-3);font-size:12.5px;text-align:center">还没有对话</div>',
       '  </div>',
@@ -78,21 +113,22 @@
       '    <div v-if="health && !health.ok" class="lc-health">AI 引擎不可用<br>{{ health.reason }}</div>',
       '    <div v-else-if="!items.length && !streaming" class="lc-empty">我是你的大脑助手，直接问我任务、日程、笔记，或让我帮你记录。</div>',
       '    <template v-for="(m, i) in items" :key="i">',
-      '      <div v-if="m.role === \'user\'" class="lc-bubble lc-user">{{ m.text }}</div>',
-      '      <div v-else-if="m.role === \'assistant\'" class="lc-bubble lc-ai">{{ m.text }}</div>',
-      '      <div v-else-if="m.role === \'tool\'" class="lc-tool"><b>{{ m.name }}</b> {{ m.preview }}</div>',
-      '      <div v-else-if="m.role === \'system\'" class="lc-sys">{{ m.text }}</div>',
+      '      <div v-if="m.role === \'user\'" class="lc-bubble lc-user" :class="{\'lc-pending\': m.pending}">{{ m.text }}</div>',
+      '      <div v-else-if="m.role === \'assistant\'" class="lc-bubble lc-ai lc-md" v-html="renderMd(m.text)"></div>',
+      '      <div v-else-if="m.role === \'tool\'" class="lc-tool"><b>{{ toolLabel(m.name) }}</b> {{ m.preview }}</div>',
+      '      <div v-else-if="m.role === \'system\'" class="lc-sys" :class="{\'lc-err\': m.error}">{{ m.text }}</div>',
       '    </template>',
-      '    <div v-if="streaming" class="lc-bubble lc-ai">{{ streamText }}<span style="opacity:.5">▍</span></div>',
-      '    <div v-else-if="running" class="lc-typing">思考中…</div>',
+      '    <div v-if="streaming" class="lc-bubble lc-ai lc-stream">{{ streamText }}<span style="opacity:.5">▍</span></div>',
+      '    <div v-else-if="running" class="lc-typing">思考中… {{ thinkSecs ? thinkSecs + "s" : "" }}</div>',
       '    <div v-if="connLost" class="lc-typing">连接中断，正在重连…</div>',
       '  </div>',
       '  <div class="lc-input">',
       '    <textarea ref="box" v-model="input" rows="1" placeholder="问点什么，或让我帮你记录…"',
-      '      @keydown.enter.exact.prevent="send" @input="autosize"></textarea>',
+      '      @keydown="onKey" @input="autosize"></textarea>',
       '    <button v-if="running" class="lc-send lc-stop" @click="stop">停止</button>',
       '    <button v-else class="lc-send" :disabled="!input.trim() || (health && !health.ok)" @click="send">发送</button>',
       '  </div>',
+      '  <div class="lc-hintline">Enter 发送 · Shift+Enter 换行</div>',
       '</div>',
     ].join('\n'),
 
@@ -109,18 +145,33 @@
         streamText: '',
         health: null,
         connLost: false,
+        thinkSecs: 0,
+        thinkTimer: null,
         es: null,
       };
     },
 
     computed: {
       activeTitle: function () {
-        var s = this.sessions.find(function (x) { return x.id === this.activeId; }, this);
+        var self = this;
+        var s = this.sessions.find(function (x) { return x.id === self.activeId; });
         return (s && s.title) || 'AI 助手';
       },
     },
 
+    watch: {
+      running: function (v) {
+        var self = this;
+        clearInterval(this.thinkTimer);
+        this.thinkSecs = 0;
+        if (v) this.thinkTimer = setInterval(function () { self.thinkSecs += 1; }, 1000);
+      },
+    },
+
     methods: {
+      renderMd: renderMd,
+      toolLabel: function (name) { return TOOL_LABELS[name] || name; },
+
       toggle: function () {
         this.open = !this.open;
         if (this.open) this.boot();
@@ -131,11 +182,13 @@
         this.loadSessions().then(function () {
           if (!self.activeId && self.sessions.length) self.openSession(self.sessions[0].id);
         });
+        this.$nextTick(function () { if (self.$refs.box) self.$refs.box.focus(); });
       },
       loadSessions: function () {
         var self = this;
         return fetch(lociUrl('/api/chat/sessions')).then(function (r) { return r.json(); })
-          .then(function (d) { self.sessions = d.sessions || []; });
+          .then(function (d) { self.sessions = d.sessions || []; })
+          .catch(function () {});
       },
       newSession: function () {
         var self = this;
@@ -158,15 +211,21 @@
         this.activeId = id;
         this.items = [];
         this.streaming = false; this.streamText = ''; this.running = false;
-        fetch(lociUrl('/api/chat/history?session=' + encodeURIComponent(id)))
+        this.refreshHistory(id).then(function () { self.connectStream(id); });
+        this.$nextTick(function () { if (self.$refs.box) self.$refs.box.focus(); });
+      },
+      refreshHistory: function (id) {
+        var self = this;
+        return fetch(lociUrl('/api/chat/history?session=' + encodeURIComponent(id)))
           .then(function (r) { return r.json(); })
           .then(function (h) {
             self.items = h.transcript || [];
             self.running = !!h.running;
-            self.scroll();
-            self.connectStream(id);
-          });
+            self.scroll(true);
+          })
+          .catch(function () {});
       },
+
       connectStream: function (id) {
         var self = this;
         this.closeStream();
@@ -174,22 +233,27 @@
         this.es = es;
         // Native EventSource error = connection dropped (server restart, sleep,
         // …). It auto-reconnects — show a status line, never transcript spam.
-        // Server-sent `event: error` messages carry data and are handled below.
         es.onerror = function (e) { if (e && e.data) return; self.connLost = true; };
         es.onopen = function () {
           if (self.connLost) {
             self.connLost = false;
-            // resync: a turn may have died with the server while we were away
-            fetch(lociUrl('/api/chat/history?session=' + encodeURIComponent(id)))
-              .then(function (r) { return r.json(); })
-              .then(function (h) { self.items = h.transcript || []; self.running = !!h.running; self.scroll(); })
-              .catch(function () {});
+            self.refreshHistory(id); // a turn may have died while we were away
           }
         };
-        function on(name, fn) { es.addEventListener(name, function (e) { if (!e.data) return; var d = {}; try { d = JSON.parse(e.data); } catch (err) {} fn(d); self.scroll(); }); }
+        function on(name, fn) {
+          es.addEventListener(name, function (e) {
+            if (!e.data) return;
+            var d = {};
+            try { d = JSON.parse(e.data); } catch (err) {}
+            fn(d);
+            self.scroll();
+          });
+        }
         on('user', function (d) {
+          // replace the optimistic pending bubble with the confirmed echo
           var last = self.items[self.items.length - 1];
-          if (!last || last.role !== 'user' || last.text !== d.text) self.items.push({ role: 'user', text: d.text });
+          if (last && last.role === 'user' && last.pending && last.text === d.text) last.pending = false;
+          else if (!last || last.role !== 'user' || last.text !== d.text) self.items.push({ role: 'user', text: d.text });
           self.running = true;
         });
         on('turn_start', function () { self.running = true; });
@@ -199,8 +263,8 @@
           self.items.push({ role: 'assistant', text: d.text });
         });
         on('tool_use', function (d) { self.streaming = false; self.streamText = ''; self.items.push({ role: 'tool', name: d.name, preview: d.preview }); });
-        on('tool_result', function () { /* keep the panel calm — tool cards already show the call */ });
-        on('error', function (d) { self.items.push({ role: 'system', text: '出错了：' + (d.message || '未知错误') }); });
+        on('tool_result', function () { /* tool cards already show the call */ });
+        on('error', function (d) { self.items.push({ role: 'system', error: true, text: '出错了：' + (d.message || '未知错误') }); });
         on('turn_done', function (d) {
           self.running = false; self.streaming = false; self.streamText = '';
           if (d && d.stopped) self.items.push({ role: 'system', text: '已停止' });
@@ -208,27 +272,61 @@
         });
       },
       closeStream: function () { if (this.es) { this.es.close(); this.es = null; } },
+
+      onKey: function (e) {
+        if (e.key !== 'Enter' || e.shiftKey) return;
+        // IME composition (Chinese/Japanese input) confirms candidates with
+        // Enter — that must NOT send. keyCode 229 covers older WebKit.
+        if (e.isComposing || e.keyCode === 229) return;
+        e.preventDefault();
+        this.send();
+      },
+
       send: function () {
         var self = this;
         var text = this.input.trim();
-        if (!text || this.running) return;
+        if (!text) return;
+        if (this.running) {
+          this.items.push({ role: 'system', text: '上一条还没回完 — 等它说完，或点「停止」再发' });
+          this.scroll(true);
+          return; // keep the draft in the box
+        }
         var go = this.activeId ? Promise.resolve(this.activeId)
           : fetch(lociUrl('/api/chat/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
               .then(function (r) { return r.json(); })
               .then(function (s) { self.activeId = s.id; self.connectStream(s.id); return self.loadSessions().then(function () { return s.id; }); });
+        // optimistic bubble; confirmed (un-dimmed) by the SSE echo
+        this.items.push({ role: 'user', text: text, pending: true });
+        this.input = '';
+        this.autosize();
+        this.scroll(true);
         go.then(function (id) {
-          self.input = '';
-          self.autosize();
           self.running = true;
           return fetch(lociUrl('/api/chat/send'), {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId: id, message: text }),
           });
         }).then(function (r) {
-          if (r && !r.ok) return r.json().then(function (d) {
-            self.running = false;
-            self.items.push({ role: 'system', text: '发送失败：' + (d.error || r.status) });
-          });
+          if (r && !r.ok) {
+            return r.json().catch(function () { return {}; }).then(function (d) {
+              self.running = false;
+              // roll back the optimistic bubble and give the draft back
+              var last = self.items[self.items.length - 1];
+              if (last && last.role === 'user' && last.pending) self.items.pop();
+              self.input = text;
+              self.autosize();
+              var msg = d.error === 'busy' ? '上一条还没回完 — 等它说完，或点「停止」再发' : '发送失败：' + (d.error || r.status);
+              self.items.push({ role: 'system', error: d.error !== 'busy', text: msg });
+              self.scroll(true);
+            });
+          }
+        }).catch(function () {
+          self.running = false;
+          var last = self.items[self.items.length - 1];
+          if (last && last.role === 'user' && last.pending) self.items.pop();
+          self.input = text;
+          self.items.push({ role: 'system', error: true, text: '发送失败：连不上服务器' });
+          self.scroll(true);
         });
       },
       stop: function () {
@@ -243,16 +341,21 @@
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 110) + 'px';
       },
-      scroll: function () {
+      // Follow the stream only when the user is already near the bottom —
+      // scrolling up to read history must not be yanked away.
+      scroll: function (force) {
         var self = this;
+        var el = this.$refs.msgs;
+        var near = force || !el || (el.scrollHeight - el.scrollTop - el.clientHeight < 120);
+        if (!near) return;
         this.$nextTick(function () {
-          var el = self.$refs.msgs;
-          if (el) el.scrollTop = el.scrollHeight;
+          var m = self.$refs.msgs;
+          if (m) m.scrollTop = m.scrollHeight;
         });
       },
     },
 
-    beforeUnmount: function () { this.closeStream(); },
+    beforeUnmount: function () { this.closeStream(); clearInterval(this.thinkTimer); },
   };
 
   Vue.createApp(App).mount('#loci-chat-root');

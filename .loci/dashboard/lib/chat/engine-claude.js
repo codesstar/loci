@@ -107,6 +107,21 @@ function preview(v, max = 200) {
   return s.length > max ? s.slice(0, max) + '…' : s;
 }
 
+// Human-readable one-liner for a tool call — the chat user is not a
+// developer, so show intent (Bash description, file name, search pattern)
+// instead of the raw input JSON.
+function toolPreview(name, input) {
+  if (!input || typeof input !== 'object') return preview(input);
+  switch (name) {
+    case 'Bash': return preview(input.description || input.command || '');
+    case 'Read': case 'Write': case 'Edit': case 'NotebookEdit':
+      return preview(String(input.file_path || '').split('/').pop());
+    case 'Grep': case 'Glob': return preview(input.pattern || '');
+    case 'WebFetch': case 'WebSearch': return preview(input.url || input.query || '');
+    default: return preview(input);
+  }
+}
+
 /**
  * Run one turn. Returns { kill(reason), pid }.
  * opts: { cwd, prompt, resumeSessionId, onEvent(ev), onExit({code, killed, sessionId, error?, stderr?}) }
@@ -161,7 +176,7 @@ function startTurn(opts) {
         if (block.type === 'text' && block.text) {
           opts.onEvent({ type: 'assistant_text', text: block.text });
         } else if (block.type === 'tool_use') {
-          opts.onEvent({ type: 'tool_use', name: block.name, inputPreview: preview(block.input) });
+          opts.onEvent({ type: 'tool_use', name: block.name, inputPreview: toolPreview(block.name, block.input) });
         }
       }
       return;
