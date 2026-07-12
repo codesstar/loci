@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Loci dashboard — launchd template (start at login, restart if it dies).
+
+  Setup (replace __BRAIN__ with `loci path` output, __HOME__ with your $HOME):
+    1. cp deploy/com.loci.dashboard.plist ~/Library/LaunchAgents/
+    2. edit the two __PLACEHOLDERS__ below
+    3. launchctl load ~/Library/LaunchAgents/com.loci.dashboard.plist
+
+  PATH and HOME are set explicitly: launchd does not run your shell profile,
+  and the embedded AI chat needs to find the `claude` binary.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.loci.dashboard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>node</string>
+    <string>__BRAIN__/.loci/dashboard/server.js</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__HOME__</string>
+    <key>PATH</key>
+    <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>__BRAIN__/.loci/dashboard.log</string>
+  <key>StandardErrorPath</key>
+  <string>__BRAIN__/.loci/dashboard.log</string>
+</dict>
+</plist>

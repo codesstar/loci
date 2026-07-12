@@ -2,6 +2,7 @@
 # loci — open your brain's dashboard from anywhere.
 #
 #   loci            start the dashboard (if needed) and open it in the browser
+#   loci serve      run the dashboard in the foreground, keeping the Mac awake
 #   loci stop       stop the dashboard server
 #   loci path       print where your brain lives
 #   loci token      print the dashboard access token (for phone/remote access)
@@ -57,6 +58,20 @@ case "$cmd" in
     BRAIN="$(find_brain)" || fail "no brain found — run setup first (see https://github.com/codesstar/loci)"
     say "$BRAIN"
     exit 0
+    ;;
+  serve)
+    BRAIN="$(find_brain)" || fail "no brain found — run setup first (see https://github.com/codesstar/loci)"
+    command -v node >/dev/null 2>&1 || fail "the dashboard needs Node.js — install it from https://nodejs.org"
+    if pid="$(lsof -ti:"$PORT" 2>/dev/null)" && [ -n "$pid" ]; then
+      say "Stopping background dashboard (port $PORT) to take over in the foreground..."
+      kill $pid; sleep 1
+    fi
+    say "Dashboard serving on http://localhost:$PORT — Mac kept awake (Ctrl+C to stop)"
+    if command -v caffeinate >/dev/null 2>&1; then
+      exec caffeinate -si node "$BRAIN/.loci/dashboard/server.js"
+    else
+      exec node "$BRAIN/.loci/dashboard/server.js"
+    fi
     ;;
   token)
     BRAIN="$(find_brain)" || fail "no brain found — run setup first"
