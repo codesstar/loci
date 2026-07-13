@@ -8,6 +8,11 @@
 # Never copies (instance data): .token, chat-sessions.json, node_modules/,
 # package-lock.json, data.json, dashboard.log — and never touches the brain's
 # tasks/, me/, .loci/push/, .loci/config.yml, etc.
+#
+# Overlay semantics on purpose (NO --delete): the repo owns the code files it
+# ships, but a brain legitimately carries local extras next to them (user
+# avatars in assets/, local demos, retired experiments). A file the repo
+# renamed away just lingers harmlessly; clean those up by hand when noticed.
 
 set -euo pipefail
 
@@ -19,7 +24,7 @@ DRY="${2:-}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 [ "$REPO" != "$(cd "$BRAIN" && pwd)" ] || { echo "error: source and target are the same directory" >&2; exit 1; }
 
-FLAGS=(-a --delete)
+FLAGS=(-a)
 [ "$DRY" = "--dry-run" ] && FLAGS+=(-n -v)
 
 rsync "${FLAGS[@]}" \
