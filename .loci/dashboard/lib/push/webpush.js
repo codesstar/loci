@@ -43,7 +43,9 @@ function vapidKeys() {
     keys = webpushLib.generateVAPIDKeys();
     st.store.atomicWriteSync(vapidFile(), JSON.stringify(keys, null, 2) + '\n', 'utf-8');
   }
-  webpushLib.setVapidDetails('mailto:loci@localhost', keys.publicKey, keys.privateKey);
+  // Apple's push service 403s VAPID subjects it deems invalid — a bogus
+  // localhost mailto was enough. A real https: URL passes.
+  webpushLib.setVapidDetails('https://github.com/codesstar/loci', keys.publicKey, keys.privateKey);
   st.vapid = keys;
   return keys;
 }
