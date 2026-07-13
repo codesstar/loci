@@ -17,6 +17,11 @@ const path = require('path');
 
 const TURN_TIMEOUT_MS = 10 * 60 * 1000;
 
+// Cheapest usable setting for brain chores. ChatGPT-account Codex rejects
+// the mini models outright and 'minimal' effort conflicts with its built-in
+// tools — 'low' is the floor that works. LOCI_CODEX_EFFORT overrides.
+const EFFORT = process.env.LOCI_CODEX_EFFORT || 'low';
+
 const SYSTEM_PREAMBLE = [
   '【环境说明，务必遵守】你正嵌在 Loci dashboard 网页的聊天窗口里，替用户打理他们的大脑（= 当前工作目录）。',
   '1. 用户只能发文字，无法给你发图片、截图或文件。需要了解任何文件就自己读，绝不让用户看代码或截图。',
@@ -97,9 +102,10 @@ function startTurn(opts) {
   // `codex exec resume` takes a narrower flag set than `codex exec` — no
   // --sandbox/--cd (the resumed thread keeps its original config).
   const prompt = opts.resumeSessionId ? String(opts.prompt) : SYSTEM_PREAMBLE + String(opts.prompt);
+  const effort = ['-c', 'model_reasoning_effort=' + EFFORT];
   const args = opts.resumeSessionId
-    ? ['exec', 'resume', '--json', '--skip-git-repo-check', opts.resumeSessionId, prompt]
-    : ['exec', '--json', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', opts.cwd, prompt];
+    ? ['exec', 'resume', '--json', '--skip-git-repo-check', ...effort, opts.resumeSessionId, prompt]
+    : ['exec', '--json', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', opts.cwd, ...effort, prompt];
 
   const child = spawn(bin, args, { cwd: opts.cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
 
