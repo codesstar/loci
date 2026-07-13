@@ -181,6 +181,7 @@ function send(ctx, id, message) {
   const turn = engine.startTurn({
     cwd: st.root,
     prompt: text,
+    procKey: id, // persistent-process pool key (claude engine)
     resumeSessionId: s.engineSessionId,
     onEvent(ev) {
       const ts = new Date().toISOString();

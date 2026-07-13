@@ -150,122 +150,194 @@ function toolPreview(name, input) {
   }
 }
 
-/**
- * Run one turn. Returns { kill(reason), pid }.
- * opts: { cwd, prompt, resumeSessionId, onEvent(ev), onExit({code, killed, sessionId, error?, stderr?}) }
- */
-function startTurn(opts) {
-  const bin = resolveBin();
-  if (!bin) {
-    process.nextTick(() => opts.onExit({ code: -1, killed: false, sessionId: opts.resumeSessionId || null, error: 'claude not found' }));
-    return { kill() { /* nothing to kill */ }, pid: null };
-  }
+// ─── Persistent process pool ────────────────────────────────────────────────
+// One live `claude -p --input-format stream-json` per chat session: follow-up
+// messages are written to stdin instead of paying a fresh CLI boot (3–6s)
+// every turn. Idle processes are reaped; a killed/timed-out/reaped process is
+// transparently respawned next turn with --resume, so context never breaks.
 
+const IDLE_MS = 15 * 60 * 1000;
+const pool = new Map(); // procKey → entry
+
+const idleReaper = setInterval(() => {
+  const now = Date.now();
+  for (const [key, ent] of pool) {
+    if (!ent.busy && now - ent.lastUsed > IDLE_MS) {
+      try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+      pool.delete(key);
+    }
+  }
+}, 60 * 1000);
+if (idleReaper.unref) idleReaper.unref();
+
+process.on('exit', () => {
+  for (const ent of pool.values()) {
+    try { ent.child.kill('SIGKILL'); } catch { /* gone */ }
+  }
+});
+
+function routeMessage(ent, msg) {
+  if (msg.session_id) ent.sessionId = msg.session_id;
+  const cur = ent.current;
+  if (!cur) return; // init/noise outside a turn
+  if (msg.type === 'stream_event' && msg.event) {
+    const ev = msg.event;
+    if (ev.type === 'content_block_delta' && ev.delta && ev.delta.type === 'text_delta' && ev.delta.text) {
+      cur.onEvent({ type: 'assistant_delta', text: ev.delta.text });
+    }
+    return;
+  }
+  if (msg.type === 'assistant' && msg.message && Array.isArray(msg.message.content)) {
+    for (const block of msg.message.content) {
+      if (block.type === 'text' && block.text) {
+        cur.onEvent({ type: 'assistant_text', text: block.text });
+      } else if (block.type === 'tool_use') {
+        cur.onEvent({ type: 'tool_use', name: block.name, inputPreview: toolPreview(block.name, block.input) });
+      }
+    }
+    return;
+  }
+  if (msg.type === 'user' && msg.message && Array.isArray(msg.message.content)) {
+    for (const block of msg.message.content) {
+      if (block.type === 'tool_result') {
+        cur.onEvent({ type: 'tool_result', ok: !block.is_error, preview: preview(block.content) });
+      }
+    }
+    return;
+  }
+  if (msg.type === 'result') {
+    const ok = msg.subtype === 'success';
+    cur.onEvent({
+      type: 'result',
+      ok,
+      text: typeof msg.result === 'string' ? msg.result : '',
+      costUsd: msg.total_cost_usd,
+      durationMs: msg.duration_ms,
+      sessionId: ent.sessionId,
+    });
+    finishTurn(ent, { code: ok ? 0 : 1 });
+  }
+}
+
+function finishTurn(ent, res) {
+  const cur = ent.current;
+  if (!cur) return;
+  ent.current = null;
+  ent.busy = false;
+  ent.lastUsed = Date.now();
+  clearTimeout(cur.timeout);
+  cur.onExit({
+    code: res.code,
+    killed: !!res.killed,
+    timedOut: !!cur.timedOut,
+    sessionId: ent.sessionId,
+    stderr: res.code !== 0 && !res.killed ? ent.stderrTail : '',
+    error: res.error,
+  });
+}
+
+function spawnEntry(bin, key, cwd, resumeSessionId) {
   const args = [
     '-p',
+    '--input-format', 'stream-json',
     '--output-format', 'stream-json',
     '--include-partial-messages',
     '--verbose',
     '--permission-mode', 'acceptEdits',
     '--model', MODEL,
-    '--allowedTools', allowedTools(opts.cwd),
+    '--allowedTools', allowedTools(cwd),
     '--append-system-prompt', SYSTEM_PROMPT,
   ];
-  if (opts.resumeSessionId) args.push('--resume', opts.resumeSessionId);
+  if (resumeSessionId) args.push('--resume', resumeSessionId);
 
-  const child = spawn(bin, args, {
-    cwd: opts.cwd,
-    env: process.env,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  child.stdin.on('error', () => { /* child died before reading the prompt */ });
-  child.stdin.write(String(opts.prompt));
-  child.stdin.end();
-
-  let buf = '';
-  let stderrTail = '';
-  let sessionId = opts.resumeSessionId || null;
-  let killed = false;
-
-  function handleMessage(msg) {
-    if (msg.session_id) sessionId = msg.session_id;
-    if (msg.type === 'system' && msg.subtype === 'init') {
-      opts.onEvent({ type: 'turn_start', sessionId });
-      return;
-    }
-    if (msg.type === 'stream_event' && msg.event) {
-      const ev = msg.event;
-      if (ev.type === 'content_block_delta' && ev.delta && ev.delta.type === 'text_delta' && ev.delta.text) {
-        opts.onEvent({ type: 'assistant_delta', text: ev.delta.text });
-      }
-      return;
-    }
-    if (msg.type === 'assistant' && msg.message && Array.isArray(msg.message.content)) {
-      for (const block of msg.message.content) {
-        if (block.type === 'text' && block.text) {
-          opts.onEvent({ type: 'assistant_text', text: block.text });
-        } else if (block.type === 'tool_use') {
-          opts.onEvent({ type: 'tool_use', name: block.name, inputPreview: toolPreview(block.name, block.input) });
-        }
-      }
-      return;
-    }
-    if (msg.type === 'user' && msg.message && Array.isArray(msg.message.content)) {
-      for (const block of msg.message.content) {
-        if (block.type === 'tool_result') {
-          opts.onEvent({ type: 'tool_result', ok: !block.is_error, preview: preview(block.content) });
-        }
-      }
-      return;
-    }
-    if (msg.type === 'result') {
-      opts.onEvent({
-        type: 'result',
-        ok: msg.subtype === 'success',
-        text: typeof msg.result === 'string' ? msg.result : '',
-        costUsd: msg.total_cost_usd,
-        durationMs: msg.duration_ms,
-        sessionId,
-      });
-    }
-  }
-
+  const child = spawn(bin, args, { cwd, env: process.env, stdio: ['pipe', 'pipe', 'pipe'] });
+  const ent = {
+    key, child,
+    sessionId: resumeSessionId || null,
+    busy: false, current: null,
+    lastUsed: Date.now(),
+    buf: '', stderrTail: '',
+  };
+  child.stdin.on('error', () => { /* surfaced via close */ });
   child.stdout.on('data', (chunk) => {
-    buf += chunk;
+    ent.buf += chunk;
     let nl;
-    while ((nl = buf.indexOf('\n')) >= 0) {
-      const line = buf.slice(0, nl).trim();
-      buf = buf.slice(nl + 1);
+    while ((nl = ent.buf.indexOf('\n')) >= 0) {
+      const line = ent.buf.slice(0, nl).trim();
+      ent.buf = ent.buf.slice(nl + 1);
       if (!line) continue;
       let msg;
-      try { msg = JSON.parse(line); } catch { continue; /* partial/no-JSON noise */ }
-      try { handleMessage(msg); } catch (e) { console.error('chat: event handling error:', e.message); }
+      try { msg = JSON.parse(line); } catch { continue; /* non-JSON noise */ }
+      try { routeMessage(ent, msg); } catch (e) { console.error('chat: event handling error:', e.message); }
     }
   });
-  child.stderr.on('data', (c) => { stderrTail = (stderrTail + c).slice(-2000); });
-
-  let timedOut = false;
-  const timeout = setTimeout(() => { timedOut = true; kill(); }, TURN_TIMEOUT_MS);
-  if (timeout.unref) timeout.unref();
-
-  function kill() {
-    if (killed) return;
-    killed = true;
-    try { child.kill('SIGTERM'); } catch { /* already gone */ }
-    const hardKill = setTimeout(() => { try { child.kill('SIGKILL'); } catch { /* gone */ } }, 3000);
-    if (hardKill.unref) hardKill.unref();
-  }
-
+  child.stderr.on('data', (c) => { ent.stderrTail = (ent.stderrTail + c).slice(-2000); });
   child.on('close', (code) => {
-    clearTimeout(timeout);
-    opts.onExit({ code, killed, timedOut, sessionId, stderr: code !== 0 && !killed ? stderrTail : '' });
+    if (pool.get(key) === ent) pool.delete(key);
+    // a mid-turn death (user stop, timeout, crash) must still end the turn
+    finishTurn(ent, { code: code == null ? -1 : code, killed: ent.killedByUser || (ent.current && ent.current.timedOut) });
   });
   child.on('error', (e) => {
-    clearTimeout(timeout);
-    opts.onExit({ code: -1, killed, timedOut, sessionId, error: e.message });
+    if (pool.get(key) === ent) pool.delete(key);
+    finishTurn(ent, { code: -1, error: e.message });
   });
+  pool.set(key, ent);
+  return ent;
+}
 
-  return { kill, pid: child.pid };
+/**
+ * Run one turn. Returns { kill(), pid }.
+ * opts: { cwd, prompt, procKey, resumeSessionId, onEvent(ev), onExit({code, killed, timedOut, sessionId, error?, stderr?}) }
+ */
+function startTurn(opts) {
+  const bin = resolveBin();
+  if (!bin) {
+    process.nextTick(() => opts.onExit({ code: -1, killed: false, timedOut: false, sessionId: opts.resumeSessionId || null, error: 'claude not found' }));
+    return { kill() { /* nothing to kill */ }, pid: null };
+  }
+
+  const key = opts.procKey || 'session:' + (opts.resumeSessionId || Math.random().toString(36).slice(2));
+  let ent = pool.get(key);
+  if (ent && (ent.child.exitCode !== null || ent.busy)) ent = null; // dead or (shouldn't happen) mid-turn
+  if (!ent) ent = spawnEntry(bin, key, opts.cwd, opts.resumeSessionId);
+
+  ent.busy = true;
+  ent.lastUsed = Date.now();
+  ent.stderrTail = '';
+  ent.killedByUser = false;
+  ent.current = {
+    onEvent: opts.onEvent,
+    onExit: opts.onExit,
+    timedOut: false,
+    timeout: setTimeout(() => {
+      if (ent.current) ent.current.timedOut = true;
+      try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+    }, TURN_TIMEOUT_MS),
+  };
+  if (ent.current.timeout.unref) ent.current.timeout.unref();
+
+  // synthetic turn_start: a reused process emits no init message
+  opts.onEvent({ type: 'turn_start', sessionId: ent.sessionId });
+
+  const payload = JSON.stringify({
+    type: 'user',
+    message: { role: 'user', content: [{ type: 'text', text: String(opts.prompt) }] },
+  }) + '\n';
+  try {
+    ent.child.stdin.write(payload);
+  } catch (e) {
+    finishTurn(ent, { code: -1, error: '发送到 AI 进程失败：' + e.message });
+  }
+
+  return {
+    kill() {
+      ent.killedByUser = true;
+      try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+      const hardKill = setTimeout(() => { try { ent.child.kill('SIGKILL'); } catch { /* gone */ } }, 3000);
+      if (hardKill.unref) hardKill.unref();
+    },
+    get pid() { return ent.child.pid; },
+  };
 }
 
 module.exports = { startTurn, health, allowedTools };
