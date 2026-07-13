@@ -45,12 +45,31 @@ function timingSafeEqual(a, b) {
   return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
 }
 
+function tokenFromCookie(req) {
+  const m = /(?:^|;\s*)loci_token=([^;]+)/.exec(req.headers.cookie || '');
+  try { return m ? decodeURIComponent(m[1]) : ''; } catch { return ''; }
+}
+
+// Returns { ok, via } — `via: 'query'` tells the server to mint the session
+// cookie. The cookie matters because subresources (script/link/img tags)
+// are fetched by the browser itself: they can't carry a custom header or a
+// ?token=, so without a cookie the SPA's own JS/CSS 401s behind a proxy and
+// the page renders blank.
 function authorize(req, parsedUrl) {
-  if (isLoopback(req)) return true;
+  if (isLoopback(req)) return { ok: true, via: 'loopback' };
   const bearer = String(req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
-  const presented = req.headers['x-loci-token'] || bearer
-    || (parsedUrl && parsedUrl.searchParams.get('token')) || '';
-  return !!presented && timingSafeEqual(presented, TOKEN);
+  const header = req.headers['x-loci-token'] || bearer;
+  if (header && timingSafeEqual(header, TOKEN)) return { ok: true, via: 'header' };
+  const query = (parsedUrl && parsedUrl.searchParams.get('token')) || '';
+  if (query && timingSafeEqual(query, TOKEN)) return { ok: true, via: 'query' };
+  const cookie = tokenFromCookie(req);
+  if (cookie && timingSafeEqual(cookie, TOKEN)) return { ok: true, via: 'cookie' };
+  return { ok: false };
+}
+
+function sessionCookie() {
+  // one year; HttpOnly so page JS never sees it; Lax survives normal navigation
+  return 'loci_token=' + encodeURIComponent(TOKEN) + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000';
 }
 
 // Never served, even to authenticated clients.
@@ -59,4 +78,4 @@ function isForbiddenPath(pathname) {
   return p === '/.token' || p.startsWith('/.git') || p.startsWith('/lib/') || p.includes('..');
 }
 
-module.exports = { TOKEN, TOKEN_FILE, authorize, isLoopback, isForbiddenPath };
+module.exports = { TOKEN, TOKEN_FILE, authorize, sessionCookie, isLoopback, isForbiddenPath };

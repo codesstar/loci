@@ -3998,9 +3998,15 @@ const server = http.createServer(async (req, res) => {
     sendError(res, 'Forbidden', 403);
     return;
   }
-  if (!auth.authorize(req, parsed)) {
+  const authed = auth.authorize(req, parsed);
+  if (!authed.ok) {
     sendUnauthorized(req, res);
     return;
+  }
+  // A ?token= entry mints the session cookie so the browser's own
+  // subresource loads (script/link/img) authenticate from then on.
+  if (authed.via === 'query') {
+    res.setHeader('Set-Cookie', auth.sessionCookie());
   }
 
   if (req.method === 'OPTIONS') {
