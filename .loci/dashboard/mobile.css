@@ -1,0 +1,76 @@
+/**
+ * mobile.css — phone-width adaptation (≤640px).
+ *
+ * The shell is already responsive (off-canvas sidebar + mobile top bar);
+ * this adds the app-like bottom tab bar, keeps content clear of it, and
+ * softens the densest desktop layouts for one-hand use. Desktop is
+ * untouched: everything lives behind one media query.
+ */
+
+#loci-mobile-nav { display: none; }
+
+@media (max-width: 640px) {
+
+  /* ── bottom tab bar ─────────────────────────────────────────────── */
+  #loci-mobile-nav {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 60; /* above content, below the sidebar drawer (z-50 aside sits in own stacking ctx) */
+    background: var(--surface, #fff);
+    border-top: 1px solid var(--line, #ececea);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -4px 16px rgba(20, 20, 18, .05);
+  }
+  #loci-mobile-nav button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0 6px;
+    min-height: 52px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-3, #9a9a94);
+    font-size: 11px;
+    font-family: var(--sans, -apple-system, sans-serif);
+    cursor: pointer;
+  }
+  #loci-mobile-nav button .mn-ic { font-size: 19px; line-height: 1; }
+  #loci-mobile-nav button.active { color: var(--accent-ink, #047857); }
+  #loci-mobile-nav button.active .mn-ic { transform: scale(1.08); }
+
+  /* content must not hide behind the bar */
+  .loci-main { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0)) !important; }
+
+  /* ── chat panel & FAB coexist with the bar ──────────────────────── */
+  .lc-fab { display: none !important; }                 /* the bar's 助手 tab replaces it */
+  .lc-panel, .lc-panel.lc-big {
+    right: 0 !important; left: 0 !important; width: auto !important;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0)) !important;
+    height: calc(100vh - 60px - env(safe-area-inset-bottom, 0) - 56px) !important;
+    border-radius: 18px 18px 0 0 !important;
+  }
+
+  /* ── general one-hand ergonomics ────────────────────────────────── */
+  /* touch targets: the drawer's nav rows and common action buttons */
+  .sbA-item { min-height: 44px; }
+  .notify-bell, .panel-expand-btn, .hud-tab { min-height: 36px; min-width: 36px; }
+
+  /* dense multi-column boards fold to one column for readability */
+  .loci-main [class*="grid-cols-2"],
+  .loci-main [class*="grid-cols-3"],
+  .loci-main [class*="grid-cols-4"] {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* wide tables/boards scroll inside themselves instead of the page */
+  .loci-main table { display: block; overflow-x: auto; }
+
+  /* trim desktop-sized paddings a notch */
+  .loci-main > div[class*="p-4"], .loci-main > div[class*="p-6"], .loci-main > div[class*="p-8"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}

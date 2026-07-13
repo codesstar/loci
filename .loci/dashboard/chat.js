@@ -527,8 +527,8 @@
     beforeUnmount: function () { this.closeStream(); clearInterval(this.thinkTimer); },
   };
 
-  // test hook: lets a headless harness compile the template & poke pure logic
+  // test hook: lets a headless harness compile the template & poke pure logic;
+  // vm lets mobile.js drive the panel (its bottom bar replaces the FAB)
   window.__lociChat = { App: App, groupItems: groupItems, renderMd: renderMd };
-
-  Vue.createApp(App).mount('#loci-chat-root');
+  window.__lociChat.vm = Vue.createApp(App).mount('#loci-chat-root');
 })();
