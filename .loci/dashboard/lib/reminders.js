@@ -88,14 +88,14 @@ function upcomingTimedItems(now) {
   for (let d = 0; d <= 1; d++) {
     dayKeys.push(dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + d)));
   }
-  const add = (key, startKey, title) => {
+  const add = (key, startKey, title, kind) => {
     const dedupe = key + '#' + startKey + '#' + (title || '');
     if (seen.has(dedupe)) return;
     seen.add(dedupe);
     const [y, m, dd] = key.split('-').map(Number);
     const start = new Date(y, m - 1, dd, 0, 0, 0, 0);
     start.setMinutes(startKey);
-    out.push({ id: dedupe, title: title || '日程', startAt: start });
+    out.push({ id: dedupe, title: title || '日程', startAt: start, kind });
   };
 
   // Source 1: calendar events
@@ -105,7 +105,7 @@ function upcomingTimedItems(now) {
     if (!Array.isArray(evs)) continue;
     for (const ev of evs) {
       if (!ev || typeof ev.startKey !== 'number') continue; // untimed → skip
-      add(key, ev.startKey, ev.title);
+      add(key, ev.startKey, ev.title, 'event');
     }
   }
 
@@ -117,7 +117,7 @@ function upcomingTimedItems(now) {
     if (!tk.date || !tk.startTime || !dayKeys.includes(tk.date)) continue;
     const parts = String(tk.startTime).split(':');
     const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
-    add(tk.date, startKey, tk.text || tk.title);
+    add(tk.date, startKey, tk.text || tk.title, 'task');
   }
   return out;
 }
@@ -145,14 +145,18 @@ async function scan() {
 
   for (const item of upcomingTimedItems(now)) {
     const startMs = item.startAt.getTime();
-    const fireAt = startMs - leadMs;
+    // Tasks carry a DEADLINE — remind exactly at that moment. Only schedule
+    // events (occupied time blocks) get the lead-minutes head start.
+    const fireAt = item.kind === 'task' ? startMs : startMs - leadMs;
     if (nowMs >= fireAt && nowMs < startMs + GRACE_MS && !fired.has(item.id)) {
       fired.add(item.id);
       dirty = true;
       const mins = Math.round((startMs - nowMs) / 60000);
       const hh = String(item.startAt.getHours()).padStart(2, '0');
       const mm = String(item.startAt.getMinutes()).padStart(2, '0');
-      const body = mins < 0 ? `已开始 · ${hh}:${mm}` : mins === 0 ? `现在 · ${hh}:${mm}` : `${mins} 分钟后 · ${hh}:${mm}`;
+      const body = item.kind === 'task'
+        ? (mins < 0 ? `已到截止 · ${hh}:${mm}` : `截止 · ${hh}:${mm}`)
+        : (mins < 0 ? `已开始 · ${hh}:${mm}` : mins === 0 ? `现在 · ${hh}:${mm}` : `${mins} 分钟后 · ${hh}:${mm}`);
       try {
         await webpush.sendToAll({ title: item.title, body, tag: item.id, url: '/' });
         console.log(`reminders: pushed "${item.title}" (${body})`);

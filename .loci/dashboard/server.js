@@ -57,6 +57,30 @@ function findBrainRoot() {
 }
 
 const LOCI_ROOT = findBrainRoot();
+
+// ── Live reload: recursive-watch the brain (dashboard code included) and
+// nudge every open page over SSE when anything changes. Debounced 400ms;
+// noisy paths (.git, logs) ignored. Pages reconnect automatically. ──
+const reloadClients = new Set();
+let reloadTimer = null;
+// Ignore: VCS/noise, temp files from the guarded writers, and files the server
+// itself regenerates on every request (active.md view cache, push bookkeeping) —
+// otherwise each reload triggers another reload, forever.
+const RELOAD_IGNORE = /(^|[\\/])(\.git|node_modules)([\\/]|$)|\.log$|\.tmp$|\.DS_Store|(^|[\\/])tasks[\\/]\.?active\.md|(^|[\\/])\.loci[\\/](push|status\.yml)/;
+function notifyReload(fn) {
+  clearTimeout(reloadTimer);
+  reloadTimer = setTimeout(() => {
+    for (const c of [...reloadClients]) {
+      if (!c.send('reload', { file: fn || '' })) reloadClients.delete(c);
+    }
+  }, 400);
+}
+try {
+  fs.watch(LOCI_ROOT, { recursive: true }, (ev, fn) => {
+    if (fn && RELOAD_IGNORE.test(String(fn))) return;
+    notifyReload(String(fn || ev));
+  });
+} catch { /* recursive fs.watch unavailable — live reload silently off */ }
 const DONE_HIDE_DAYS = 7;
 const STALE_AFTER_DAYS = 30;
 
@@ -4012,6 +4036,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
+    return;
+  }
+
+  // Live reload stream — the page listens here and refreshes itself on change.
+  if (pathname === '/api/reload' && req.method === 'GET') {
+    const stream = sse.openStream(req, res);
+    reloadClients.add(stream);
+    req.on('close', () => reloadClients.delete(stream));
     return;
   }
 

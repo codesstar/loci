@@ -14334,14 +14334,14 @@ const lociApp = createApp({
         const day = new Date(base.getFullYear(), base.getMonth(), base.getDate() + d);
         todayKeys.push(dateToKey(day));
       }
-      const push = (key, startKey, title, fallbackId) => {
+      const push = (key, startKey, title, fallbackId, kind) => {
         const dedupe = key + '#' + startKey + '#' + (title || '');
         if (seen.has(dedupe)) return;
         seen.add(dedupe);
         const [y, m, dd] = key.split('-').map(Number);
         const start = new Date(y, m - 1, dd, 0, 0, 0, 0);
         start.setMinutes(startKey);
-        out.push({ id: dedupe || fallbackId, title: title || '日程', startAt: start });
+        out.push({ id: dedupe || fallbackId, title: title || '日程', startAt: start, kind });
       };
       // Source 1: calendar events
       todayKeys.forEach(key => {
@@ -14349,7 +14349,7 @@ const lociApp = createApp({
         if (!Array.isArray(evs)) return;
         evs.forEach((ev, i) => {
           if (typeof ev.startKey !== 'number') return;        // untimed → skip
-          push(key, ev.startKey, ev.title, key + '#ev' + i);
+          push(key, ev.startKey, ev.title, key + '#ev' + i, 'event');
         });
       });
       // Source 2: timed tasks (date + startTime), read straight from the task pool
@@ -14360,7 +14360,7 @@ const lociApp = createApp({
           if (!tk.date || !tk.startTime || !todayKeys.includes(tk.date)) return;
           const parts = String(tk.startTime).split(':');
           const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
-          push(tk.date, startKey, tk.text || tk.title, 'task#' + tk.id);
+          push(tk.date, startKey, tk.text || tk.title, 'task#' + tk.id, 'task');
         });
       }
       return out;
@@ -14380,7 +14380,8 @@ const lociApp = createApp({
       const graceMs = 70000;
       upcomingTimedItems().forEach(item => {
         const startMs = item.startAt.getTime();
-        const fireAt = startMs - leadMs;                 // intended fire moment
+        // task time = deadline → fire at the moment itself; events get the lead
+        const fireAt = item.kind === 'task' ? startMs : startMs - leadMs;
         // fire once from the intended moment up until just past start: covers
         // both "page already open and lead moment arrives" and "page opened a
         // bit late but the item is still upcoming".
@@ -14390,7 +14391,9 @@ const lociApp = createApp({
           const hh = String(item.startAt.getHours()).padStart(2, '0');
           const mm = String(item.startAt.getMinutes()).padStart(2, '0');
           const zh = lang.value === 'zh';
-          const body = mins <= 0
+          const body = item.kind === 'task'
+            ? (zh ? `截止 · ${hh}:${mm}` : `Due · ${hh}:${mm}`)
+            : mins <= 0
             ? (zh ? `现在 · ${hh}:${mm}` : `Now · ${hh}:${mm}`)
             : (zh ? `${mins} 分钟后 · ${hh}:${mm}` : `In ${mins} min · ${hh}:${mm}`);
           try {
@@ -21549,5 +21552,23 @@ lociApp.mount('#app');
 <div id="loci-chat-root"></div>
 <script src="vendor/marked.min.js"></script>
 <script src="chat.js"></script>
+<script>
+// ── Live reload: the server watches brain files and pushes a 'reload' event;
+// the page refreshes itself. Skips refresh while the user is typing. ──
+(function () {
+  var pending = false;
+  function refresh() {
+    var ae = document.activeElement;
+    var typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
+    if (typing) { pending = true; return; }
+    location.reload();
+  }
+  document.addEventListener('focusout', function () { if (pending) setTimeout(refresh, 500); });
+  try {
+    var es = new EventSource(window.lociUrl ? window.lociUrl('/api/reload') : '/api/reload');
+    es.addEventListener('reload', refresh);
+  } catch (e) { /* live reload off */ }
+})();
+</script>
 </body>
 </html>
