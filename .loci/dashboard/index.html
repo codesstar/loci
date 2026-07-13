@@ -1541,6 +1541,32 @@
     .sx-live { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: auto; box-shadow: 0 0 0 3px var(--accent-weak); }
     .sx-hidden { font-size: 11.5px; color: var(--ink-4); padding: 8px 2px 2px; }
     .sx-foot { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line-2); font-family: var(--mono); font-size: 9.5px; letter-spacing: .02em; color: var(--ink-3); line-height: 1.5; }
+    /* ═══ 足迹页 三大件 + 当日收录 (dt3-) ═══ */
+    .dt3-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: stretch; }
+    @media (max-width: 1100px) { .dt3-row { grid-template-columns: 1fr; } }
+    .dt3-card { height: 560px; display: flex; flex-direction: column; overflow: hidden; }
+    @media (max-width: 1100px) { .dt3-card { height: auto; max-height: 560px; } }
+    .dt3-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; padding-right: 2px; }
+    .dt3-bar { display: flex; height: 6px; border-radius: 4px; overflow: hidden; gap: 2px; margin-top: 12px; }
+    .dt3-bar i { border-radius: 4px; min-width: 4px; }
+    .dt3-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 11px 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .dt3-chip { font-family: var(--mono); font-size: 10px; border: 1px solid var(--line-2); border-radius: 6px; padding: 2.5px 8px; color: var(--ink-2); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dt3-chip b { font-weight: 700; color: var(--ink); }
+    .dt3-chip.on { border-color: var(--accent); color: var(--accent-ink); }
+    .dt3-chip.on b { color: var(--accent-ink); }
+    .dt3-card .sx-meta { border-bottom: 0; padding-bottom: 6px; margin-bottom: 0; margin-top: 6px; }
+    .dt3-psum { font-size: 12.5px; color: var(--ink-2); line-height: 1.6; margin-top: 12px; }
+    .dt3-psum b { font-family: 'Playfair Display', 'Times New Roman', serif; font-size: 18px; font-weight: 800; color: var(--ink); padding: 0 1px; }
+    .dt3-combined { margin-top: 16px; }
+    .dt3-cgrid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 8px; }
+    @media (max-width: 1100px) { .dt3-cgrid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .dt3-cgrid { grid-template-columns: 1fr; } }
+    .dt3-csec { padding: 2px 18px 4px; border-left: 1px solid var(--line); min-width: 0; }
+    .dt3-csec:first-child { border-left: 0; padding-left: 2px; }
+    @media (max-width: 1100px) { .dt3-csec { border-left: 0; padding: 12px 2px; border-top: 1px solid var(--line); } .dt3-csec:nth-child(-n+2) { border-top: 0; } }
+    .dt3-chead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+    .dt3-chead .t { font-size: 12.5px; font-weight: 650; }
+    .dt3-chead .n { font-family: var(--mono); font-size: 10px; color: var(--ink-4); }
     /* expandable session detail */
     .sx-click { cursor: pointer; }
     .sx-badge { flex: none; font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .04em; color: var(--accent-ink); background: var(--accent-weak); padding: 1px 6px; border-radius: 5px; }
@@ -1636,6 +1662,13 @@
     .dt-src { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
     .dt-src + .dt-src { margin-top: 8px; }
     .dt-src-name { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 5px; }
+    /* journal page tab switch — 轨迹 / 日记, top right */
+    .jr-tabs-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .jr-tabs { display: inline-flex; gap: 2px; padding: 3px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; }
+    .jr-tabs button { border: none; background: transparent; cursor: pointer; padding: 5px 16px; border-radius: 999px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink-3); transition: all .18s ease; }
+    .jr-tabs button:hover { color: var(--ink); }
+    .jr-tabs button.on { background: var(--surface); color: var(--accent-ink); box-shadow: 0 1px 4px rgba(0,0,0,.07); font-weight: 600; }
+
     /* journal caption + review draft */
     .dt-jr-caption { display: flex; align-items: center; gap: 10px; margin: 22px 0 12px; padding-left: 2px; }
     .dt-jr-note { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; }
@@ -6751,72 +6784,42 @@
           <!-- ===== DAY VIEW ===== -->
           <div v-if="journalViewMode === 'day'">
 
-          <!-- Warm-journal hero — the Daily Trace masthead -->
-          <div data-tour="journal-date" class="jrnl-hero" :class="{ 'jrnl-hero--split': dtActivityMix }">
-            <!-- LEFT: date · mood · headline · pulse -->
-            <div class="jrnl-hero-main">
-              <div class="jrnl-hero-row">
-                <div class="jrnl-date-grp jrnl-cal-toggle" @click="journalCalOpen = !journalCalOpen">
-                  <span class="jrnl-bigday">{{ journalViewDate.slice(8, 10) }}</span>
-                  <div class="jrnl-datemeta">
-                    <div class="wd">{{ dtDayPrefix }}{{ journalWeekdayLabel }}</div>
-                    <div class="m">{{ journalViewDate.slice(0, 4) }} · {{ journalViewDate.slice(5, 7) }}月 <span class="caret">&#9660;</span></div>
-                  </div>
-                </div>
-                <!-- nav stays top-right only when there's no right column to hold it -->
-                <div v-if="!dtActivityMix" class="jrnl-hero-nav">
-                  <span v-if="trace && trace.summary.counts.total" class="dt-rec">{{ trace.summary.counts.total }} {{ lang === 'zh' ? '条记录' : 'records' }}</span>
-                  <button v-if="!journalIsToday" @click="journalGoToday()" class="jrnl-today-btn">{{ lang === 'zh' ? '回今天' : 'Today' }}</button>
-                  <button @click="journalNav(-1)" class="j-nav-btn" style="font-size: 11px; padding: 4px 9px;">&larr;</button>
-                  <button @click="journalNav(1)" class="j-nav-btn" style="font-size: 11px; padding: 4px 9px;" :disabled="journalIsToday">&rarr;</button>
-                </div>
-              </div>
-              <div v-if="journalMood" class="jrnl-mood"><span class="dot"></span>{{ lang === 'zh' ? '心情' : 'Mood' }}：{{ journalMood }}</div>
-              <!-- The written journal's own headline wins; the rule-composed
-                   trace line only fills in while the day has no journal yet. -->
-              <div v-if="journalHeadline" class="jrnl-headline"><span class="hl">{{ journalHeadline }}</span></div>
-              <div v-else-if="dtHeadline" class="jrnl-headline">{{ dtHeadline.pre }}<span v-if="dtHeadline.key" class="hl">{{ dtHeadline.key }}</span>{{ dtHeadline.tail }}</div>
-              <div v-if="dtPulse.length" class="dt-pulse">
-                <template v-for="(seg, si) in dtPulse" :key="si">
-                  <span v-if="si" class="sep">·</span>
-                  <span class="seg">{{ seg[0] }} <b>{{ seg[1] }}</b></span>
-                </template>
-              </div>
+          <!-- 轨迹 / 日记 tab switch — top right -->
+          <div class="jr-tabs-row">
+            <div class="jr-tabs">
+              <button :class="{ on: journalTab === 'trace' }" @click="jrSetTab('trace')">{{ lang === 'zh' ? '轨迹' : 'Trace' }}</button>
+              <button :class="{ on: journalTab === 'diary' }" @click="jrSetTab('diary')">{{ lang === 'zh' ? '日记' : 'Journal' }}</button>
             </div>
-            <!-- RIGHT: nav + activity-mix ring/bar (fills the empty space) -->
-            <div v-if="dtActivityMix" class="jrnl-hero-side">
+          </div>
+
+          <!-- Warm-journal hero — date + nav only -->
+          <div data-tour="journal-date" class="jrnl-hero">
+            <div class="jrnl-hero-row">
+              <div class="jrnl-date-grp jrnl-cal-toggle" @click="journalCalOpen = !journalCalOpen">
+                <span class="jrnl-bigday">{{ journalViewDate.slice(8, 10) }}</span>
+                <div class="jrnl-datemeta">
+                  <div class="wd">{{ dtDayPrefix }}{{ journalWeekdayLabel }}</div>
+                  <div class="m">{{ journalViewDate.slice(0, 4) }} · {{ journalViewDate.slice(5, 7) }}月 <span class="caret">&#9660;</span></div>
+                </div>
+              </div>
               <div class="jrnl-hero-nav">
                 <button v-if="!journalIsToday" @click="journalGoToday()" class="jrnl-today-btn">{{ lang === 'zh' ? '回今天' : 'Today' }}</button>
                 <button @click="journalNav(-1)" class="j-nav-btn" style="font-size: 11px; padding: 4px 9px;">&larr;</button>
                 <button @click="journalNav(1)" class="j-nav-btn" style="font-size: 11px; padding: 4px 9px;" :disabled="journalIsToday">&rarr;</button>
               </div>
-              <div class="dt-mix">
-                <div class="dt-mix-head">
-                  <span class="dt-mix-total">{{ dtActivityMix.total }}</span>
-                  <span class="dt-mix-cap">{{ lang === 'zh' ? '条今日轨迹' : 'traces today' }}</span>
-                </div>
-                <div class="dt-mix-bar">
-                  <span v-for="(s, mi) in dtActivityMix.segs" :key="mi" class="dt-mix-seg"
-                    :style="{ width: s.pct + '%', background: s.color }" :title="s.cat + ' · ' + s.n"></span>
-                </div>
-                <div class="dt-mix-legend">
-                  <span v-for="(s, li) in dtActivityMix.segs" :key="li" class="dt-mix-item">
-                    <span class="dt-mix-dot" :style="{ background: s.color }"></span>{{ s.cat }}
-                    <b>{{ s.n }}</b>
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
-          <!-- ═══ Daily Trace grid — modules packed into whichever column is
-               shorter (dtColumns), so the two columns always end together ═══ -->
-          <div v-if="trace" class="dt-grid" style="margin-top: 18px;">
-            <div v-for="(col, colIdx) in dtColumns" :key="colIdx" class="dt-col">
-              <template v-for="key in col" :key="key">
-              <!-- 轨迹 -->
-              <div v-if="key === 'trace'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Trace</span><span class="dt-t">{{ lang === 'zh' ? '轨迹' : 'Activity' }}</span><span v-if="trace.activity.length" class="dt-count">{{ trace.activity.length }}</span></div>
+          <!-- ═══ 足迹 — 上排三大件：大脑轨迹 · 终端记录 · 项目脉搏 ═══ -->
+          <div v-if="trace && journalTab === 'trace'" class="dt3-row" style="margin-top: 18px;">
+            <!-- 大脑轨迹 -->
+            <div class="dt-mod dt3-card">
+              <div class="dt-head"><span class="dt-eyebrow">Brain</span><span class="dt-t">{{ lang === 'zh' ? '大脑记录' : 'Brain log' }}</span><span v-if="trace.activity.length" class="dt-count">{{ trace.activity.length }}</span></div>
+              <template v-if="dtActivityMix">
+                <div class="dt3-bar"><i v-for="(sg, sgi) in dtActivityMix.segs" :key="sgi" :style="{ flexGrow: sg.n, background: sg.color }"></i></div>
+                <div class="dt3-chips"><span v-for="(sg, sgi) in dtActivityMix.segs" :key="'c' + sgi" class="dt3-chip">{{ sg.cat }} <b>{{ sg.n }}</b></span></div>
+              </template>
+              <div class="dt3-scroll">
                 <div v-if="!trace.activity.length" class="dt-empty">{{ lang === 'zh' ? '这天还没有留下轨迹。' : 'No trace recorded this day.' }}</div>
                 <div v-else class="dt-tl">
                   <div v-for="(a, ai) in dtActivity" :key="ai" class="dt-tl-item" :style="{ '--c': dtCat(a.category)[0], '--cw': dtCat(a.category)[1] }">
@@ -6832,11 +6835,66 @@
                   {{ dtActOpen ? (lang === 'zh' ? '收起 ▴' : 'Collapse ▴') : (lang === 'zh' ? '展开全部 ' + trace.activity.length + ' 条 ▾' : 'Show all ' + trace.activity.length + ' ▾') }}
                 </button>
               </div>
-              <!-- 项目进展 -->
-              <div v-else-if="key === 'projects'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Projects</span><span class="dt-t">{{ lang === 'zh' ? '项目进展' : 'Project progress' }}</span><span v-if="trace.projects.progress.length" class="dt-count">{{ trace.projects.progress.length }}</span></div>
-                <div v-if="!trace.projects.progress.length" class="dt-empty">{{ lang === 'zh' ? '这天项目没有新进展。' : 'No project progress this day.' }}</div>
-                <template v-else>
+            </div>
+            <!-- 终端记录 -->
+            <div class="dt-mod dt3-card">
+              <div class="dt-head"><span class="dt-eyebrow">Sessions</span><span class="dt-t">{{ lang === 'zh' ? '终端记录' : 'Terminal log' }}</span><span v-if="trace.sessions.count" class="dt-count">{{ trace.sessions.count }}</span></div>
+              <div v-if="!trace.sessions.count" class="dt-empty" style="margin-top: 8px;">{{ lang === 'zh' ? '这天没有终端记录。' : 'No terminal sessions this day.' }}</div>
+              <template v-else>
+                <div class="sx-meta">
+                  <div class="sx-stat"><b>{{ trace.sessions.count }}</b><span>{{ lang === 'zh' ? '终端会话' : 'sessions' }}</span></div>
+                  <div class="sx-stat"><b>{{ trace.sessions.dirs }}</b><span>{{ lang === 'zh' ? '工作目录' : 'dirs' }}</span></div>
+                  <div class="sx-stat"><b>{{ trace.sessions.turns }}</b><span>{{ lang === 'zh' ? '轮对话' : 'turns' }}</span></div>
+                  <div class="sx-stat" v-if="trace.sessions.live"><b>{{ trace.sessions.live }}</b><span>{{ lang === 'zh' ? '还开着' : 'live' }}</span></div>
+                  <div class="sx-split">
+                    <div class="sx-bar"><i v-if="trace.sessions.claude" :style="{ flexGrow: trace.sessions.claude, background: 'var(--accent)' }"></i><i v-if="trace.sessions.codex" :style="{ flexGrow: trace.sessions.codex, background: '#8a8780' }"></i></div>
+                    <div class="sx-leg"><span v-if="trace.sessions.claude"><i style="background:var(--accent)"></i>Claude {{ trace.sessions.claude }}</span><span v-if="trace.sessions.codex"><i style="background:#8a8780"></i>Codex {{ trace.sessions.codex }}</span></div>
+                  </div>
+                </div>
+                <div v-if="dtSessDirs.length" class="dt3-chips"><span v-for="d3 in dtSessDirs" :key="d3" class="dt3-chip">{{ d3 }}</span></div>
+                <div class="dt3-scroll">
+                  <div class="dt-tl">
+                    <div v-for="(s, si) in dtSessions" :key="si" class="dt-tl-item sx-item" :class="[s.tool === 'codex' ? 'sx-cx' : 'sx-cc', { open: sxOpenFile === s.file }]">
+                      <span class="dt-tl-node"></span>
+                      <div class="dt-tl-card sx-click" @click="sxToggle(s)">
+                        <span class="dt-tl-time">{{ s.start }}</span>
+                        <span class="sx-tl-tool">{{ dtSessTool(s.tool) }}</span>
+                        <span class="dt-tl-text">{{ s.title }}<span class="sx-proj">{{ dtSessProj(s.proj) }}</span></span>
+                        <span v-if="s.compacted" class="sx-badge" :title="lang === 'zh' ? '有完整摘要' : 'has full summary'">摘要</span>
+                        <span v-if="s.live" class="sx-live" :title="lang === 'zh' ? '还开着' : 'live'"></span>
+                        <span class="sx-caret" :class="{ on: sxOpenFile === s.file }">▾</span>
+                      </div>
+                      <div v-if="sxOpenFile === s.file" class="sx-detail">
+                        <div v-if="sxDetail[s.file] && sxDetail[s.file].loading" class="sx-d-load">{{ lang === 'zh' ? '读取中…' : 'loading…' }}</div>
+                        <div v-else-if="sxDetail[s.file] && sxDetail[s.file].err" class="sx-d-err">{{ lang === 'zh' ? '读不到这个会话' : 'could not read session' }}</div>
+                        <template v-else-if="sxDetail[s.file]">
+                          <div v-if="sxDetail[s.file].aiTitle" class="sx-d-title">{{ sxDetail[s.file].aiTitle }}</div>
+                          <div v-if="sxDetail[s.file].compactSummary" class="sx-d-sum">{{ sxCleanSummary(sxDetail[s.file].compactSummary) }}</div>
+                          <div v-else class="sx-d-first"><span class="k">{{ lang === 'zh' ? '开场' : 'Opener' }}</span>{{ sxDetail[s.file].firstUser || s.first }}<div class="sx-d-note">{{ lang === 'zh' ? '这个会话没被压缩，暂无完整摘要 — 展示开场。' : 'Not compacted — no full summary yet.' }}</div></div>
+                          <button class="sx-d-reveal" @click.stop="sxReveal(s)">{{ lang === 'zh' ? '在 Finder 中打开原文件' : 'Reveal in Finder' }}</button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                  <button v-if="dtSessMeaningful.length > 8" class="dt-more" @click="dtSessOpen = !dtSessOpen">
+                    {{ dtSessOpen ? (lang === 'zh' ? '收起 ▴' : 'Collapse ▴') : (lang === 'zh' ? '展开全部 ' + dtSessMeaningful.length + ' 个 ▾' : 'Show all ' + dtSessMeaningful.length + ' ▾') }}
+                  </button>
+                  <div v-if="dtSessHidden" class="sx-hidden">{{ lang === 'zh' ? '另有 ' + dtSessHidden + ' 个打招呼 / 测试会话已折叠' : dtSessHidden + ' greeting/test sessions hidden' }}</div>
+                  <div class="sx-foot">{{ lang === 'zh' ? '只读会话记录的时间戳与开场，零 token · 不读你的项目文件' : 'Timestamps & openers only · zero tokens · never reads your project files' }}</div>
+                </div>
+              </template>
+            </div>
+            <!-- 项目脉搏 -->
+            <div class="dt-mod dt3-card">
+              <div class="dt-head"><span class="dt-eyebrow">Pulse</span><span class="dt-t">{{ lang === 'zh' ? '项目脉搏' : 'Project pulse' }}</span><span v-if="trace.projects.progress.length" class="dt-count">{{ trace.projects.progress.length }}</span></div>
+              <div v-if="!trace.projects.progress.length" class="dt-empty" style="margin-top: 8px;">{{ lang === 'zh' ? '这天项目没有新进展。' : 'No project progress this day.' }}</div>
+              <template v-else>
+                <div class="dt3-psum">
+                  <template v-if="lang === 'zh'">这天推进了 <b>{{ dtPulseChips.length }}</b> 个项目 · <b>{{ trace.projects.progress.length }}</b> 条进展</template>
+                  <template v-else><b>{{ dtPulseChips.length }}</b> projects · <b>{{ trace.projects.progress.length }}</b> updates</template>
+                </div>
+                <div class="dt3-chips"><span v-for="(pc, pci) in dtPulseChips" :key="pc.name" class="dt3-chip" :class="{ on: pci === 0 }">{{ pc.name }} <b>{{ pc.n }}</b></span></div>
+                <div class="dt3-scroll">
                   <div v-for="(p, pi) in dtProgress" :key="pi" class="dt-pg-row" :class="{ open: dtPgRowOpen[pi] }" @click="dtToggleRow(dtPgRowOpen, pi)">
                     <div class="dt-pg-line">
                       <span class="dt-pg-proj">{{ p.project }}</span>
@@ -6849,11 +6907,18 @@
                   <button v-if="trace.projects.progress.length > 8" class="dt-more" @click="dtPgOpen = !dtPgOpen">
                     {{ dtPgOpen ? (lang === 'zh' ? '收起 ▴' : 'Collapse ▴') : (lang === 'zh' ? '展开全部 ' + trace.projects.progress.length + ' 条 ▾' : 'Show all ' + trace.projects.progress.length + ' ▾') }}
                   </button>
-                </template>
-              </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- ═══ 当日收录 — 决策 · 日程 · 任务变化 · 收集 合框 ═══ -->
+          <div v-if="trace && journalTab === 'trace'" class="dt-mod dt3-combined">
+            <div class="dt-head"><span class="dt-eyebrow">Collected</span><span class="dt-t">{{ lang === 'zh' ? '当日收录' : 'Day records' }}</span></div>
+            <div class="dt3-cgrid">
               <!-- 决策 -->
-              <div v-else-if="key === 'decisions'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Decisions</span><span class="dt-t">{{ lang === 'zh' ? '决策' : 'Decisions' }}</span><span v-if="dtDecisions.length" class="dt-count">{{ dtDecisions.length }}</span></div>
+              <div class="dt3-csec">
+                <div class="dt3-chead"><span class="t">{{ lang === 'zh' ? '决策' : 'Decisions' }}</span><span v-if="dtDecisions.length" class="n">{{ dtDecisions.length }}</span></div>
                 <div v-if="!dtDecisions.length" class="dt-empty">{{ lang === 'zh' ? '这天没有记下决策。' : 'No decisions this day.' }}</div>
                 <div v-else>
                   <div v-for="(x, xi) in dtDecisions" :key="xi" class="dt-d-row" :class="{ open: dtDecOpen[xi] }">
@@ -6867,8 +6932,8 @@
                 </div>
               </div>
               <!-- 日程 -->
-              <div v-else-if="key === 'schedule'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Schedule</span><span class="dt-t">{{ lang === 'zh' ? '日程' : 'Schedule' }}</span><span v-if="trace.schedule.length" class="dt-count">{{ trace.schedule.length }}</span></div>
+              <div class="dt3-csec">
+                <div class="dt3-chead"><span class="t">{{ lang === 'zh' ? '日程' : 'Schedule' }}</span><span v-if="trace.schedule.length" class="n">{{ trace.schedule.length }}</span></div>
                 <div v-if="!trace.schedule.length" class="dt-empty">{{ lang === 'zh' ? '这天没有安排日程。' : 'Nothing scheduled this day.' }}</div>
                 <div v-else>
                   <div v-for="(s, sci) in trace.schedule" :key="sci" class="dt-s-row">
@@ -6878,8 +6943,8 @@
                 </div>
               </div>
               <!-- 任务变化 -->
-              <div v-else-if="key === 'tasks'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Tasks</span><span class="dt-t">{{ lang === 'zh' ? '任务变化' : 'Task changes' }}</span><span v-if="dtTasksCount" class="dt-count">{{ dtTasksCount }}</span></div>
+              <div class="dt3-csec">
+                <div class="dt3-chead"><span class="t">{{ lang === 'zh' ? '任务变化' : 'Task changes' }}</span><span v-if="dtTasksCount" class="n">{{ dtTasksCount }}</span></div>
                 <div v-if="!dtTasksCount" class="dt-empty">{{ lang === 'zh' ? '这天任务没有变化。' : 'No task changes this day.' }}</div>
                 <template v-else>
                   <template v-for="g in dtTaskGroups" :key="g.key">
@@ -6905,8 +6970,8 @@
                 </template>
               </div>
               <!-- 人脉·笔记·收藏 -->
-              <div v-else-if="key === 'collected'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Collected</span><span class="dt-t">{{ lang === 'zh' ? '人脉 · 笔记 · 收藏' : 'Collected' }}</span><span v-if="dtCollectedCount" class="dt-count">{{ dtCollectedCount }}</span></div>
+              <div class="dt3-csec">
+                <div class="dt3-chead"><span class="t">{{ lang === 'zh' ? '人脉 · 笔记 · 收藏' : 'Collected' }}</span><span v-if="dtCollectedCount" class="n">{{ dtCollectedCount }}</span></div>
                 <div v-if="!dtCollectedCount" class="dt-empty">{{ lang === 'zh' ? '这天没有新增的人脉、笔记或收藏。' : 'Nothing collected this day.' }}</div>
                 <template v-else>
                   <template v-for="(g, gi) in dtCollected" :key="gi">
@@ -6923,59 +6988,18 @@
                 </template>
               </div>
               <!-- 外部来源（有数据才出现） -->
-              <div v-else-if="key === 'sources'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Sources</span><span class="dt-t">{{ lang === 'zh' ? '外部来源' : 'External sources' }}</span><span class="dt-count">{{ trace.sources.length }}</span></div>
+              <div v-if="trace.sources.length" class="dt3-csec">
+                <div class="dt3-chead"><span class="t">{{ lang === 'zh' ? '外部来源' : 'External sources' }}</span><span class="n">{{ trace.sources.length }}</span></div>
                 <div v-for="(s, sri) in trace.sources" :key="sri" class="dt-src">
                   <div class="dt-src-name">{{ s.source }}</div>
                   <div class="md-content" v-html="s.html"></div>
                 </div>
               </div>
-              <!-- 终端会话 — free metadata layer, scanned from local session transcripts -->
-              <div v-else-if="key === 'sessions'" class="dt-mod">
-                <div class="dt-head"><span class="dt-eyebrow">Sessions</span><span class="dt-t">{{ lang === 'zh' ? '终端会话' : 'Terminal sessions' }}</span><span class="dt-count">{{ trace.sessions.count }}</span></div>
-                <div class="sx-meta">
-                  <div class="sx-stat"><b>{{ trace.sessions.dirs }}</b><span>{{ lang === 'zh' ? '工作目录' : 'dirs' }}</span></div>
-                  <div class="sx-stat"><b>{{ trace.sessions.turns }}</b><span>{{ lang === 'zh' ? '轮对话' : 'turns' }}</span></div>
-                  <div class="sx-stat" v-if="trace.sessions.live"><b>{{ trace.sessions.live }}</b><span>{{ lang === 'zh' ? '还开着' : 'live' }}</span></div>
-                  <div class="sx-split">
-                    <div class="sx-bar"><i v-if="trace.sessions.claude" :style="{ flexGrow: trace.sessions.claude, background: 'var(--accent)' }"></i><i v-if="trace.sessions.codex" :style="{ flexGrow: trace.sessions.codex, background: '#8a8780' }"></i></div>
-                    <div class="sx-leg"><span v-if="trace.sessions.claude"><i style="background:var(--accent)"></i>Claude {{ trace.sessions.claude }}</span><span v-if="trace.sessions.codex"><i style="background:#8a8780"></i>Codex {{ trace.sessions.codex }}</span></div>
-                  </div>
-                </div>
-                <div class="dt-tl">
-                  <div v-for="(s, si) in dtSessions" :key="si" class="dt-tl-item sx-item" :class="[s.tool === 'codex' ? 'sx-cx' : 'sx-cc', { open: sxOpenFile === s.file }]">
-                    <span class="dt-tl-node"></span>
-                    <div class="dt-tl-card sx-click" @click="sxToggle(s)">
-                      <span class="dt-tl-time">{{ s.start }}</span>
-                      <span class="sx-tl-tool">{{ dtSessTool(s.tool) }}</span>
-                      <span class="dt-tl-text">{{ s.title }}<span class="sx-proj">{{ dtSessProj(s.proj) }}</span></span>
-                      <span v-if="s.compacted" class="sx-badge" :title="lang === 'zh' ? '有完整摘要' : 'has full summary'">摘要</span>
-                      <span v-if="s.live" class="sx-live" :title="lang === 'zh' ? '还开着' : 'live'"></span>
-                      <span class="sx-caret" :class="{ on: sxOpenFile === s.file }">▾</span>
-                    </div>
-                    <div v-if="sxOpenFile === s.file" class="sx-detail">
-                      <div v-if="sxDetail[s.file] && sxDetail[s.file].loading" class="sx-d-load">{{ lang === 'zh' ? '读取中…' : 'loading…' }}</div>
-                      <div v-else-if="sxDetail[s.file] && sxDetail[s.file].err" class="sx-d-err">{{ lang === 'zh' ? '读不到这个会话' : 'could not read session' }}</div>
-                      <template v-else-if="sxDetail[s.file]">
-                        <div v-if="sxDetail[s.file].aiTitle" class="sx-d-title">{{ sxDetail[s.file].aiTitle }}</div>
-                        <div v-if="sxDetail[s.file].compactSummary" class="sx-d-sum">{{ sxCleanSummary(sxDetail[s.file].compactSummary) }}</div>
-                        <div v-else class="sx-d-first"><span class="k">{{ lang === 'zh' ? '开场' : 'Opener' }}</span>{{ sxDetail[s.file].firstUser || s.first }}<div class="sx-d-note">{{ lang === 'zh' ? '这个会话没被压缩，暂无完整摘要 — 展示开场。' : 'Not compacted — no full summary yet.' }}</div></div>
-                        <button class="sx-d-reveal" @click.stop="sxReveal(s)">{{ lang === 'zh' ? '在 Finder 中打开原文件' : 'Reveal in Finder' }}</button>
-                      </template>
-                    </div>
-                  </div>
-                </div>
-                <button v-if="dtSessMeaningful.length > 8" class="dt-more" @click="dtSessOpen = !dtSessOpen">
-                  {{ dtSessOpen ? (lang === 'zh' ? '收起 ▴' : 'Collapse ▴') : (lang === 'zh' ? '展开全部 ' + dtSessMeaningful.length + ' 个 ▾' : 'Show all ' + dtSessMeaningful.length + ' ▾') }}
-                </button>
-                <div v-if="dtSessHidden" class="sx-hidden">{{ lang === 'zh' ? '另有 ' + dtSessHidden + ' 个打招呼 / 测试会话已折叠' : dtSessHidden + ' greeting/test sessions hidden' }}</div>
-                <div class="sx-foot">{{ lang === 'zh' ? '只读会话记录的时间戳与开场，零 token · 不读你的项目文件' : 'Timestamps & openers only · zero tokens · never reads your project files' }}</div>
-              </div>
-              </template>
             </div>
           </div>
 
-          <!-- 日记 · 复盘 — closes the day -->
+          <!-- ═══ 日记 tab — the written journal closes the day ═══ -->
+          <div v-if="journalTab === 'diary'">
           <div class="dt-jr-caption"><span class="dt-eyebrow">Journal</span><span class="dt-t">{{ lang === 'zh' ? '日记 · 复盘' : 'Journal · Review' }}</span></div>
 
           <!-- AI Summary — Crystal Card -->
@@ -7047,6 +7071,8 @@
               </div>
             </div>
           </div>
+
+          </div><!-- end diary tab -->
 
           </div><!-- end day view -->
         </section>
@@ -8376,7 +8402,7 @@
                   <button v-if="pplBoard === 'people'" :class="{ active: viewMode === 'graph' }" @click="setViewMode('graph')">{{ lang === 'zh' ? '关系图' : 'Graph' }}</button>
                   <button :class="{ active: viewMode === 'map' }" @click="setViewMode('map')">{{ lang === 'zh' ? '地图' : 'Map' }}</button>
                 </div>
-                <div class="phb-flip" v-if="pplBoard === 'people'" role="group" :aria-label="lang === 'zh' ? '卡片布局' : 'Card layout'">
+                <div class="phb-flip" v-if="false" role="group" :aria-label="lang === 'zh' ? '卡片布局' : 'Card layout'"><!-- 卡框/满图切换暂时隐藏 (2026-07-13) -->
                   <span class="thumb" :class="{ r: cardLayout === 'bleed' }" aria-hidden="true"></span>
                   <button :class="{ on: cardLayout === 'framed' }" @click="cardLayout = 'framed'">{{ lang === 'zh' ? '卡框' : 'Framed' }}</button>
                   <button :class="{ on: cardLayout === 'bleed' }" @click="cardLayout = 'bleed'">{{ lang === 'zh' ? '满图' : 'Bleed' }}</button>
@@ -9970,8 +9996,8 @@ const lociApp = createApp({
         // Nav
         'nav.today': '任务',
         'nav.plan': '任务',
-        'nav.journal': '日记',
-        'nav.memory': '记忆',
+        'nav.journal': '轨迹',
+        'nav.memory': '简介',
         'nav.people': '人脉',
         'nav.brain': '大脑',
         // System
@@ -10025,7 +10051,7 @@ const lociApp = createApp({
         'journal.fullLog': '完整记录',
         'journal.summary': '摘要',
         'journal.noAiSummary': '当天暂无 AI 摘要',
-        'journal.saySum': '对话结束时说"总结"即可生成',
+        'journal.saySum': '跟 AI 说「写日记」即可生成 — 来源:当天终端会话 · 活动记录 · 日程 · 昨日未完成',
         'journal.personalLog': '个人日志',
         'journal.placeholder': '写下你的一天... (支持 ## 标题, - 列表, > 引用, **加粗**, *斜体*)',
         'journal.upload': '上传',
@@ -10325,7 +10351,7 @@ const lociApp = createApp({
         'nav.today': 'Tasks',
         'nav.plan': 'Tasks',
         'nav.journal': 'Journal',
-        'nav.memory': 'Memory',
+        'nav.memory': 'Profile',
         'nav.people': 'People',
         'nav.brain': 'Brain',
         'sys.online': 'SYSTEM ONLINE',
@@ -10375,7 +10401,7 @@ const lociApp = createApp({
         'journal.fullLog': 'Full log',
         'journal.summary': 'Summary',
         'journal.noAiSummary': 'No AI summary for this day',
-        'journal.saySum': 'Say "summarize" at end of conversation to generate',
+        'journal.saySum': 'Tell the AI "write my journal" — sources: today\'s terminal sessions · activity log · schedule · yesterday\'s leftovers',
         'journal.personalLog': 'PERSONAL LOG',
         'journal.placeholder': 'Write about your day... (supports ## heading, - list, > quote, **bold**, *italic*)',
         'journal.upload': 'Upload',
@@ -12946,8 +12972,8 @@ const lociApp = createApp({
     const navById = (id) => navItems.value.find(i => i.id === id);
     const navGroups = computed(() => [
       { label: null,                    items: ['overview'] },
-      { label: t('nav.sec.daily'),      items: ['today', 'journal', 'memory'] },
-      { label: t('nav.sec.workspace'),  items: ['fragments', 'people', 'roadmap', 'notes', 'skills'] }, // 'brain' hidden (page kept, removed from sidebar)
+      { label: t('nav.sec.daily'),      items: ['today', 'fragments', 'people', 'memory'] },
+      { label: t('nav.sec.workspace'),  items: ['roadmap', 'notes', 'skills', 'journal'] }, // 'brain' hidden (page kept, removed from sidebar)
     ].map(g => ({ label: g.label, items: g.items.map(navById).filter(Boolean) })));
 
     const memoryTabs = computed(() => [
@@ -13191,6 +13217,18 @@ const lociApp = createApp({
     });
     function dtSessTool(t) { return t === 'codex' ? 'Cdx' : 'CC'; }
     function dtSessProj(p) { return String(p || '').replace(/^~\/Desktop\//, '').replace(/^~\/Documents\//, '').replace(/^~\//, '') || '~'; }
+    // dt3 — 终端记录目录标签 & 项目脉搏项目计数
+    const dtSessDirs = computed(() => {
+      const seen = [];
+      for (const s2 of dtSessMeaningful.value) { const p = dtSessProj(s2.proj); if (p && !seen.includes(p)) seen.push(p); }
+      return seen.slice(0, 8);
+    });
+    const dtPulseChips = computed(() => {
+      const d = trace.value; if (!d) return [];
+      const counts = {};
+      for (const p of d.projects.progress) { const k = p.project || '—'; counts[k] = (counts[k] || 0) + 1; }
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([name, n]) => ({ name, n }));
+    });
     // click-to-expand: show the session's precomputed auto-summary (compact
     // summary if it was compacted, else its ai-title) + a Finder reveal. All free.
     const sxOpenFile = ref('');          // which session (by file) is expanded
@@ -13447,6 +13485,9 @@ const lociApp = createApp({
 
     // --- Journal view mode (day/week/month) ---
     const journalViewMode = ref('day');
+    // --- Journal page tab: 'trace' (轨迹·进展) vs 'diary' (日记) — last pick persists ---
+    const journalTab = ref(localStorage.getItem('lociJournalTab') || 'trace');
+    function jrSetTab(t) { journalTab.value = t; try { localStorage.setItem('lociJournalTab', t); } catch {} }
     const journalDetailOpen = ref(false);
     // Personal Log is hidden by default — opened from a button on the AI Summary card.
     const journalLogOpen = ref(false);
@@ -21181,8 +21222,8 @@ const lociApp = createApp({
       brainStats, brainDays, brainSpark, sbFocus,
       currentNavItem, hasActiveTasks, todayPlan, todayJournal, pastJournals,
       journalDayOffset, journalViewDate, journalIsToday, journalDateLabel, journalWeekdayLabel,
-      journalNav, journalGoToday, journalGoDate, entryDateLabel, entryPreview, journalAISummary, journalMood, journalHeadline, journalBodyHtml, journalDetailOpen, journalLogOpen,
-      trace, dtColumns, dtActivity, dtActivityMix, dtProgress, dtPgStructured, dtActOpen, dtPgOpen, dtPgRowOpen, dtDecOpen, dtUpdatedOpen,
+      journalNav, journalGoToday, journalGoDate, entryDateLabel, entryPreview, journalAISummary, journalMood, journalHeadline, journalBodyHtml, journalDetailOpen, journalLogOpen, journalTab, jrSetTab,
+      trace, dtColumns, dtActivity, dtActivityMix, dtProgress, dtSessDirs, dtPulseChips, dtPgStructured, dtActOpen, dtPgOpen, dtPgRowOpen, dtDecOpen, dtUpdatedOpen,
       dtSessions, dtSessOpen, dtSessMeaningful, dtSessHidden, dtSessTool, dtSessProj,
       sxOpenFile, sxDetail, sxToggle, sxCleanSummary, sxReveal,
       dtDayPrefix, dtHeadline, dtPulse, dtTaskGroups, dtTasksCount, dtDecisions, dtCollected, dtCollectedCount,
