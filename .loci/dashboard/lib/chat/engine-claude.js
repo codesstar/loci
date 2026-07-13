@@ -61,6 +61,11 @@ const SYSTEM_PROMPT = [
 
 const TURN_TIMEOUT_MS = 10 * 60 * 1000;
 
+// Brain chores (look up tasks, add a schedule, jot a note) don't need a
+// frontier model — default to haiku for speed and cost; override with
+// LOCI_CHAT_MODEL=sonnet (etc.) when the chat should think harder.
+const MODEL = process.env.LOCI_CHAT_MODEL || 'haiku';
+
 let cachedBin;
 function resolveBin() {
   if (cachedBin !== undefined) return cachedBin;
@@ -162,6 +167,7 @@ function startTurn(opts) {
     '--include-partial-messages',
     '--verbose',
     '--permission-mode', 'acceptEdits',
+    '--model', MODEL,
     '--allowedTools', allowedTools(opts.cwd),
     '--append-system-prompt', SYSTEM_PROMPT,
   ];
