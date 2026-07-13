@@ -55,6 +55,8 @@
   (function () {
     try {
       var q = new URLSearchParams(location.search);
+      // ?e2e=1: automated screenshots/tests skip the first-visit welcome flow
+      if (q.get('e2e')) { localStorage.setItem('loci-welcome-done', '1'); }
       var fromUrl = q.get('token');
       if (fromUrl) {
         localStorage.setItem('loci.token', fromUrl);
@@ -21553,7 +21555,6 @@ lociApp.mount('#app');
 <div id="loci-chat-root"></div>
 <script src="vendor/marked.min.js"></script>
 <script src="chat.js"></script>
-<script src="mobile.js"></script>
 <script>
 // ── Live reload: the server watches brain files and pushes a 'reload' event;
 // the page refreshes itself. Skips refresh while the user is typing. ──
