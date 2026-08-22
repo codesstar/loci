@@ -1150,9 +1150,7 @@ configure_global() {
 - Brain path: \`${BRAIN_PATH}\`
 
 ### Automatic Context
-- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction
-- Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
-- Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
+- On session start, run ONCE: \`bash ${BRAIN_PATH}/scripts/loci-context.sh\` — it prints all startup context in one command. Never re-run per message; if it fails, read \`${BRAIN_PATH}/plan.md\`, \`${BRAIN_PATH}/tasks/active.md\`, and the latest 7 items of \`${BRAIN_PATH}/inbox.md\` each at most once, skipping failures silently.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
@@ -1263,9 +1261,7 @@ GEOF
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context
-- On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
-- Read \`${BRAIN_PATH}/tasks/active.md\` for current priorities
-- Check \`${BRAIN_PATH}/inbox.md\` for pending items (latest 7 only)
+- On session start, run ONCE: \`bash ${BRAIN_PATH}/scripts/loci-context.sh\` — it prints all startup context in one command. Never re-run per message; if it fails, read \`${BRAIN_PATH}/plan.md\`, \`${BRAIN_PATH}/tasks/active.md\`, and the latest 7 items of \`${BRAIN_PATH}/inbox.md\` each at most once, skipping failures silently.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:

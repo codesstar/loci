@@ -5,16 +5,17 @@
 - These rules apply **in every project and directory**, not just the brain folder.
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
-### Automatic Context
-- On session start, read `<brain-path>/plan.md` for life direction and current goals
-- Read `<brain-path>/tasks/active.md` for current priorities
-- Read `<brain-path>/me/preferences.md` for the user's standing interaction instructions (what to call them, language, tone, reply style) — honor them from the first reply on
-- Check `<brain-path>/inbox.md` for pending items (latest 7 only)
+### Automatic Context (ONE command — never read startup files one by one)
+- On session start, run this ONCE as a single command:
+  `bash <brain-path>/scripts/loci-context.sh`
+  It prints everything needed to start in one shot: today's date, the user's preferences (honor them from the first reply on), life plan, active tasks, the latest inbox items, and the project index.
+- Run it exactly once per session, then rely on the cached result (see Session Cache & Refresh). NEVER re-run it — or re-read its source files — on every user message.
+- If (and only if) the command itself fails, fall back to reading these files directly, each AT MOST once: `<brain-path>/me/preferences.md`, `<brain-path>/plan.md`, `<brain-path>/tasks/active.md`, latest 7 items of `<brain-path>/inbox.md`. A file that fails to read is skipped silently — never retry a failed read, never let a read failure block answering the user.
 
 ### Context Loading Strategy
 - Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
-- **L0 Map**: read `<brain-path>/CLAUDE.md` for the Directory Map and Context Layers. If present, read `<brain-path>/projects/index.md` as the project index.
-- **L1 Active Context**: load every conversation — `plan.md`, `tasks/active.md`, `me/preferences.md`, latest 7 items from `inbox.md`.
+- **L0 Map**: the Memory Retrieval Map below IS the map — route by it directly. Open `<brain-path>/CLAUDE.md` only when the map is not enough for the current request.
+- **L1 Active Context**: the output of `loci-context.sh` above, loaded once per session.
 - **L2 On Demand**: read module READMEs, the rest of `me/`, `decisions/`, `references/`, `notes/`, `tasks/daily/`, linked project `.loci/memory.md`, `.loci/profile.md`, or `.loci/progress/YYYY-MM.md` only when relevant to the user's request.
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.

@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Codex/WorkBuddy turns no longer take minutes** (engine 0.3.2): tools without a hook mechanism were following the instruction block literally — reading each startup file in its own tool call, sometimes re-reading per message and retrying failed reads, which stretched single turns to 5-15 minutes. New `scripts/loci-context.sh` prints the whole startup context in ONE command (~10ms); the instruction block now mandates running it once per session, forbids per-message re-reads, and forbids retrying failed reads. `update.sh` now refreshes the loci block in `~/.codex/AGENTS.md` and `~/.workbuddy/MEMORY.md` too (it previously only refreshed `~/.claude/CLAUDE.md`), so this fix actually reaches existing installs.
+
 ### Added
 - **WorkBuddy is now a first-class connect target in setup** — `./setup.sh` auto-detects `~/.workbuddy/` (`--connect auto`), offers it in the interactive wizard, and injects the shared rules block into WorkBuddy's `MEMORY.md`; `--connect workbuddy` / `--connect all` added for scripted installs. Same brain, third tool.
 

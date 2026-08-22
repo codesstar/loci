@@ -315,6 +315,23 @@ do_update() {
     print_ok "Global CLAUDE.md refreshed"
   fi
 
+  # Same refresh for Codex and WorkBuddy — they carry the identical block.
+  # This is how instruction fixes (e.g. the one-command startup context)
+  # actually reach tools that have no hook mechanism.
+  local gf
+  for gf in "$HOME/.codex/AGENTS.md" "$HOME/.workbuddy/MEMORY.md"; do
+    if [ -f "$gf" ] && grep -q '<!-- loci:start' "$gf" && [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
+      local tmp_gf
+      tmp_gf=$(mktemp)
+      sed '/<!-- loci:start/,/<!-- loci:end -->/d' "$gf" > "$tmp_gf"
+      local gblock
+      gblock=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+      printf "\n%s\n" "$gblock" >> "$tmp_gf"
+      mv "$tmp_gf" "$gf"
+      print_ok "$(basename "$gf") loci block refreshed"
+    fi
+  done
+
   # Copy slash commands
   if [ -d "$BRAIN_PATH/templates/commands" ]; then
     cp "$BRAIN_PATH"/templates/commands/*.md "$HOME/.claude/commands/" 2>/dev/null
