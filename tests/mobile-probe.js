@@ -1,16 +1,24 @@
 // tests/mobile-probe.js — needs playwright-core (npm i playwright-core) and a
-// cached Chromium (adjust executablePath). Usage: node tests/mobile-probe.js "#today" out.png <hash> <out.png> — iPhone-13 emulation via playwright-core against
+// cached Chromium. Set PLAYWRIGHT_CHROMIUM_PATH if yours isn't in the default
+// cache location. Usage: node tests/mobile-probe.js "#today" out.png <hash> <out.png> — iPhone-13 emulation via playwright-core against
 // the cached Chromium. Screenshots the page AND reports every element wider
 // than the viewport (the horizontal-overflow culprits), plus page scrollWidth.
 'use strict';
+const os = require('os');
+const path = require('path');
 const { chromium } = require('playwright-core');
 
 const page1 = process.argv[2] || '#today';
 const out = process.argv[3] || 'probe.png';
 
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || path.join(
+  os.homedir(),
+  'Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell'
+);
+
 (async () => {
   const browser = await chromium.launch({
-    executablePath: '/Users/callum/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell',
+    executablePath,
     headless: true,
   });
   const ctx = await browser.newContext({
