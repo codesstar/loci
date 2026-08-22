@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **WorkBuddy is now a first-class connect target in setup** — `./setup.sh` auto-detects `~/.workbuddy/` (`--connect auto`), offers it in the interactive wizard, and injects the shared rules block into WorkBuddy's `MEMORY.md`; `--connect workbuddy` / `--connect all` added for scripted installs. Same brain, third tool.
+
 ### Fixed
 - **Dashboard no longer flickers** (hit Windows users hardest — OneDrive/antivirus attribute-event storms): live reload now verifies a file's content actually changed (size+mtime), ignores the server's own writes, rate-limits notifications to one per 3s, and refreshes data in place over Vue reactivity instead of reloading the page. The journal draft and expanded panels survive a refresh; only dashboard code changes still trigger a real reload. (engine 0.3.1)
 

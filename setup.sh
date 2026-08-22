@@ -27,6 +27,7 @@ USER_SCHEDULE=""
 USER_ABOUT=""
 CONNECT_CLAUDE=1
 CONNECT_CODEX=1
+CONNECT_WORKBUDDY=0
 CONNECT_LABEL=""
 TOTAL_STEPS=4
 CURRENT_STEP=0
@@ -289,8 +290,9 @@ Non-interactive options:
   --schedule <word>       morning|daytime|evening|night|irregular  (default: daytime)
   --about <text>          Anything else worth knowing       (optional)
   --lang <code>           en | zh | mix                     (default: en)
-  --connect <target>      auto | both | claude | codex | none
+  --connect <target>      auto | all | both | claude | codex | workbuddy | none
                           auto detects installed tools      (default: auto)
+                          both = Claude Code + Codex; all adds WorkBuddy too
   --force                 Re-run setup even if this brain is already set up
   --help, -h              Show this help
 
@@ -342,27 +344,26 @@ apply_non_interactive_config() {
     *) echo "Error: --schedule must be morning, daytime, evening, night, or irregular"; exit 1 ;;
   esac
 
-  local has_claude=0 has_codex=0
+  local has_claude=0 has_codex=0 has_workbuddy=0
   if command -v claude &>/dev/null || [ -d "$HOME/.claude" ]; then has_claude=1; fi
   if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then has_codex=1; fi
+  if [ -d "$HOME/.workbuddy" ]; then has_workbuddy=1; fi
   case "$CONNECT_CHOICE" in
-    auto)   CONNECT_CLAUDE=$has_claude; CONNECT_CODEX=$has_codex ;;
-    both)   CONNECT_CLAUDE=1; CONNECT_CODEX=1 ;;
-    claude) CONNECT_CLAUDE=1; CONNECT_CODEX=0 ;;
-    codex)  CONNECT_CLAUDE=0; CONNECT_CODEX=1 ;;
-    none)   CONNECT_CLAUDE=0; CONNECT_CODEX=0 ;;
-    *) echo "Error: --connect must be auto, both, claude, codex, or none"; exit 1 ;;
+    auto)      CONNECT_CLAUDE=$has_claude; CONNECT_CODEX=$has_codex; CONNECT_WORKBUDDY=$has_workbuddy ;;
+    all)       CONNECT_CLAUDE=1; CONNECT_CODEX=1; CONNECT_WORKBUDDY=1 ;;
+    both)      CONNECT_CLAUDE=1; CONNECT_CODEX=1; CONNECT_WORKBUDDY=0 ;;
+    claude)    CONNECT_CLAUDE=1; CONNECT_CODEX=0; CONNECT_WORKBUDDY=0 ;;
+    codex)     CONNECT_CLAUDE=0; CONNECT_CODEX=1; CONNECT_WORKBUDDY=0 ;;
+    workbuddy) CONNECT_CLAUDE=0; CONNECT_CODEX=0; CONNECT_WORKBUDDY=1 ;;
+    none)      CONNECT_CLAUDE=0; CONNECT_CODEX=0; CONNECT_WORKBUDDY=0 ;;
+    *) echo "Error: --connect must be auto, all, both, claude, codex, workbuddy, or none"; exit 1 ;;
   esac
 
-  if [ "$CONNECT_CLAUDE" -eq 1 ] && [ "$CONNECT_CODEX" -eq 1 ]; then
-    CONNECT_LABEL="Claude Code + Codex"
-  elif [ "$CONNECT_CLAUDE" -eq 1 ]; then
-    CONNECT_LABEL="Claude Code"
-  elif [ "$CONNECT_CODEX" -eq 1 ]; then
-    CONNECT_LABEL="Codex"
-  else
-    CONNECT_LABEL="Brain only"
-  fi
+  CONNECT_LABEL=""
+  [ "$CONNECT_CLAUDE" -eq 1 ] && CONNECT_LABEL="Claude Code"
+  [ "$CONNECT_CODEX" -eq 1 ] && CONNECT_LABEL="${CONNECT_LABEL:+$CONNECT_LABEL + }Codex"
+  [ "$CONNECT_WORKBUDDY" -eq 1 ] && CONNECT_LABEL="${CONNECT_LABEL:+$CONNECT_LABEL + }WorkBuddy"
+  [ -z "$CONNECT_LABEL" ] && CONNECT_LABEL="Brain only"
 }
 
 # ─── Colors for gradient ─────────────────────────────────────────────────────
@@ -686,21 +687,26 @@ select_ai_tools() {
 
   local has_claude=0
   local has_codex=0
+  local has_workbuddy=0
   if command -v claude &>/dev/null || [ -d "$HOME/.claude" ]; then
     has_claude=1
   fi
   if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then
     has_codex=1
   fi
+  if [ -d "$HOME/.workbuddy" ]; then
+    has_workbuddy=1
+  fi
 
   clear
   printf "\n"
   printf "  ${DIM}[1/$TOTAL_STEPS]${NC} ${BOLD_CYAN}$(t "Connect AI tools" "连接 AI 工具")${NC}\n"
   printf "  ${DIM}$(printf '%.0s─' {1..50})${NC}\n"
-  printf "  ${DIM}$(t "Loci gives Claude Code and Codex one shared local brain." "Loci 让 Claude Code 和 Codex 共用一个本地大脑。")${NC}\n"
+  printf "  ${DIM}$(t "Loci gives all your AI tools one shared local brain." "Loci 让你的所有 AI 工具共用一个本地大脑。")${NC}\n"
   printf "\n"
   [ "$has_claude" -eq 1 ] && printf "  ${GREEN}✓${NC} Claude Code\n" || printf "  ${YELLOW}!${NC} Claude Code $(t "not detected" "未检测到")\n"
   [ "$has_codex" -eq 1 ] && printf "  ${GREEN}✓${NC} Codex\n" || printf "  ${YELLOW}!${NC} Codex $(t "not detected" "未检测到")\n"
+  [ "$has_workbuddy" -eq 1 ] && printf "  ${GREEN}✓${NC} WorkBuddy\n"
 
   if [ "$has_claude" -eq 1 ] && [ "$has_codex" -eq 1 ]; then
     ALLOW_BACK=0 QUESTION_NUM=6 QUESTION_TOTAL=6 \
@@ -740,6 +746,24 @@ select_ai_tools() {
     printf "\n"
     print_warn "$(t "No Claude Code or Codex install detected. Creating the brain only." "没有检测到 Claude Code 或 Codex，先只创建本地大脑。")"
     sleep 1
+  fi
+
+  if [ "$has_workbuddy" -eq 1 ]; then
+    ALLOW_BACK=0 QUESTION_NUM=6 QUESTION_TOTAL=6 \
+      choose "$(t "WorkBuddy detected — connect it to the same brain?" "检测到 WorkBuddy——也接入同一个大脑吗？")" \
+      "$(t "Yes, connect WorkBuddy (Recommended)" "接入 WorkBuddy（推荐）")" \
+      "$(t "Skip WorkBuddy" "跳过 WorkBuddy")"
+    case $MENU_RESULT in
+      1)
+        CONNECT_WORKBUDDY=1
+        if [ "$CONNECT_LABEL" = "$(t "Brain only" "仅本地大脑")" ]; then
+          CONNECT_LABEL="WorkBuddy"
+        else
+          CONNECT_LABEL="$CONNECT_LABEL + WorkBuddy"
+        fi
+        ;;
+      2) CONNECT_WORKBUDDY=0 ;;
+    esac
   fi
 }
 
@@ -1236,7 +1260,7 @@ GEOF
 
 - Brain path: \`${BRAIN_PATH}\`
 - These rules apply **in every project and directory**, not just the brain folder.
-- Claude Code and Codex can share this same local brain.
+- Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context
 - On session start, read \`${BRAIN_PATH}/plan.md\` for life direction and current goals
@@ -1274,6 +1298,30 @@ CODEXEOF
     fi
   else
     print_warn "$(t "Codex connection skipped" "已跳过 Codex 接入")"
+  fi
+
+  # ─── WorkBuddy (~/.workbuddy/MEMORY.md) ──────────────────────────────────
+  # WorkBuddy loads MEMORY.md as user-level long-term memory each session —
+  # same universal method as any other tool: drop the loci block in there.
+  local global_wb="$HOME/.workbuddy/MEMORY.md"
+  if [ "$CONNECT_WORKBUDDY" -eq 1 ]; then
+    if [ -f "$global_wb" ] && grep -q '<!-- loci:start' "$global_wb" 2>/dev/null; then
+      print_check "$(t "WorkBuddy MEMORY.md already connected" "WorkBuddy MEMORY.md 已连接")"
+    elif [ ! -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
+      print_warn "$(t "templates/global-claude-block.md missing — WorkBuddy connection skipped" "缺少 templates/global-claude-block.md — 已跳过 WorkBuddy 接入")"
+    else
+      mkdir -p "$HOME/.workbuddy"
+      if [ -f "$global_wb" ]; then
+        cp "$global_wb" "${global_wb}.loci-backup"
+        print_check "$(t "Backed up existing ~/.workbuddy/MEMORY.md" "已备份现有 ~/.workbuddy/MEMORY.md")"
+      else
+        printf '# MEMORY.md — user-level long-term memory\n' > "$global_wb"
+      fi
+      local wb_block
+      wb_block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+      printf "\n%s\n" "$wb_block" >> "$global_wb"
+      print_check "$(t "WorkBuddy awareness enabled (~/.workbuddy/MEMORY.md)" "WorkBuddy 全局感知已启用 (~/.workbuddy/MEMORY.md)")"
+    fi
   fi
 
   echo ""

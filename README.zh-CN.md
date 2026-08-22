@@ -279,7 +279,7 @@ Loci 先专注 Claude Code 和 Codex。两者会共用同一个本地大脑：Cl
 |------|------|
 | **Claude Code** | 重点支持 |
 | **Codex** | 重点支持 |
-| **WorkBuddy** | 用下面的万能接入法即可 |
+| **WorkBuddy** | setup 自动检测并接入 |
 | **Cursor / Windsurf / Cline** | 后续适配 |
 | **OpenCode / Hermes** | 用下面的万能接入法即可 |
 | **OpenClaw** | 实验性集成 |

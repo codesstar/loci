@@ -286,7 +286,7 @@ Loci currently focuses on Claude Code and Codex. Both can share the same local b
 |----------|--------|
 | **Claude Code** | Primary support |
 | **Codex** | Primary support |
-| **WorkBuddy** | Works via the universal method below |
+| **WorkBuddy** | Auto-detected and connected by setup |
 | **Cursor / Windsurf / Cline** | Future adapters |
 | **OpenCode / Hermes** | Works via the universal method below |
 | **OpenClaw** | Experimental integration |
