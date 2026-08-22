@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Dashboard no longer flickers** (hit Windows users hardest — OneDrive/antivirus attribute-event storms): live reload now verifies a file's content actually changed (size+mtime), ignores the server's own writes, rate-limits notifications to one per 3s, and refreshes data in place over Vue reactivity instead of reloading the page. The journal draft and expanded panels survive a refresh; only dashboard code changes still trigger a real reload. (engine 0.3.1)
+
 ### Changed
 - **`me/` personal-memory layer restructured** into six explicit files — `identity`, `values`, `wellbeing` (new), `insights` (repurposed for fresh personal reflections rather than only consolidation output), `learned`, and `evolution`. Goals now live in root `plan.md` instead of `me/goals.md`. Docs, templates, the dashboard, `examples/alex`, and both installers were updated to the new model.
 
