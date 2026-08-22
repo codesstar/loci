@@ -9993,6 +9993,17 @@ const lociApp = createApp({
     const data = ref(null);
     const loading = ref(true);
     const error = ref(null);
+    // Soft refresh for live reload: re-pull data and swap it in place instead
+    // of a full page reload — no white flash when brain files change.
+    window.lociSoftRefresh = async function () {
+      try {
+        const r = await fetch('/api/data');
+        if (!r.ok) return false;
+        data.value = await r.json();
+        if (typeof window.lociSoftRefreshTrace === 'function') window.lociSoftRefreshTrace();
+        return true;
+      } catch { return false; }
+    };
     const currentPage = ref('overview');
     const sidebarOpen = ref(false);
     const sidebarCollapsed = ref(false);
@@ -13220,7 +13231,9 @@ const lociApp = createApp({
     const dtDraft = ref('');           // composed review draft awaiting save
     const dtSaving = ref(false);
     let traceRequestSeq = 0;
-    async function fetchTrace() {
+    // soft=true: background live-reload refresh — swap trace data in place but
+    // keep expand states and the unsaved review draft; never blank on error.
+    async function loadTrace(soft) {
       const seq = ++traceRequestSeq;
       const requestedDate = journalViewDate.value;
       try {
@@ -13230,13 +13243,17 @@ const lociApp = createApp({
         if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
         trace.value = nextTrace;
       } catch {
-        if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
+        if (soft || seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
         trace.value = null;
       }
-      if (seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
+      if (soft || seq !== traceRequestSeq || requestedDate !== journalViewDate.value) return;
       dtActOpen.value = false; dtPgOpen.value = false; dtUpdatedOpen.value = false;
       dtPgRowOpen.value = {}; dtDecOpen.value = {}; dtDraft.value = '';
     }
+    function fetchTrace() { return loadTrace(false); }
+    window.lociSoftRefreshTrace = function () {
+      if (currentPage.value === 'journal') return loadTrace(true);
+    };
     watch(journalViewDate, fetchTrace);
     watch(currentPage, p => {
       if (p === 'journal' && (!trace.value || trace.value.date !== journalViewDate.value)) fetchTrace();
@@ -21556,20 +21573,30 @@ lociApp.mount('#app');
 <script src="vendor/marked.min.js"></script>
 <script src="chat.js"></script>
 <script>
-// ── Live reload: the server watches brain files and pushes a 'reload' event;
-// the page refreshes itself. Skips refresh while the user is typing. ──
+// ── Live reload: the server watches brain files and pushes a 'reload' event.
+// Data changes refresh in place (no white flash); only dashboard code changes
+// trigger a real page reload. Skips refresh while the user is typing. ──
 (function () {
   var pending = false;
-  function refresh() {
+  var pendingHard = false;
+  function refresh(hard) {
     var ae = document.activeElement;
     var typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
-    if (typing) { pending = true; return; }
-    location.reload();
+    if (typing) { pending = true; pendingHard = pendingHard || hard; return; }
+    if (hard || typeof window.lociSoftRefresh !== 'function') { location.reload(); return; }
+    window.lociSoftRefresh().then(function (ok) { if (!ok) location.reload(); });
   }
-  document.addEventListener('focusout', function () { if (pending) setTimeout(refresh, 500); });
+  document.addEventListener('focusout', function () {
+    if (pending) { pending = false; var h = pendingHard; pendingHard = false; setTimeout(function () { refresh(h); }, 500); }
+  });
   try {
     var es = new EventSource(window.lociUrl ? window.lociUrl('/api/reload') : '/api/reload');
-    es.addEventListener('reload', refresh);
+    es.addEventListener('reload', function (e) {
+      var file = '';
+      try { file = (JSON.parse(e.data) || {}).file || ''; } catch (err) {}
+      var isCode = /(^|[\\/])\.loci[\\/]dashboard[\\/]/.test(file);
+      refresh(isCode);
+    });
   } catch (e) { /* live reload off */ }
 })();
 </script>

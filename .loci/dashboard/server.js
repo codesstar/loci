@@ -63,22 +63,58 @@ const LOCI_ROOT = findBrainRoot();
 // noisy paths (.git, logs) ignored. Pages reconnect automatically. ──
 const reloadClients = new Set();
 let reloadTimer = null;
-// Ignore: VCS/noise, temp files from the guarded writers, and files the server
-// itself regenerates on every request (active.md view cache, push bookkeeping) —
-// otherwise each reload triggers another reload, forever.
-const RELOAD_IGNORE = /(^|[\\/])(\.git|node_modules)([\\/]|$)|\.log$|\.tmp$|\.DS_Store|(^|[\\/])tasks[\\/]\.?active\.md|(^|[\\/])\.loci[\\/](push|status\.yml)/;
+// Ignore: VCS/noise, temp files from the guarded writers, lock dirs, and files
+// the server itself regenerates on every request (active.md view cache, push
+// bookkeeping) — otherwise each reload triggers another reload, forever.
+const RELOAD_IGNORE = /(^|[\\/])(\.git|node_modules)([\\/]|$)|\.log$|\.tmp$|\.DS_Store|(^|[\\/])tasks[\\/]\.?active\.md|(^|[\\/])\.loci[\\/](push|status\.yml|\.write-lock)/;
+
+// Suppress events for files this process just wrote — a page load must never
+// be able to trigger its own reload, no matter what the ignore regex misses.
+const SELF_WRITE_TTL_MS = 3000;
+const recentSelfWrites = new Map();
+const _atomicWriteSync = store.atomicWriteSync;
+store.atomicWriteSync = function (filePath, ...rest) {
+  try { recentSelfWrites.set(path.resolve(String(filePath)), Date.now()); } catch {}
+  return _atomicWriteSync(filePath, ...rest);
+};
+
+// OneDrive / antivirus / indexers fire attribute-only events in a loop on
+// Windows. Only notify when a file's content plausibly changed: stat it and
+// compare size+mtime against the last event for the same path.
+const reloadStatCache = new Map();
+function contentLooksChanged(rel) {
+  let st = null;
+  try { st = fs.statSync(path.join(LOCI_ROOT, rel)); } catch { /* deleted/renamed — that IS a change */ }
+  const sig = st ? st.size + ':' + st.mtimeMs : 'gone';
+  if (reloadStatCache.get(rel) === sig) return false;
+  reloadStatCache.set(rel, sig);
+  if (reloadStatCache.size > 2000) reloadStatCache.clear();
+  return true;
+}
+
+// Debounced 400ms, then rate-limited: at most one notify per cooldown window,
+// so a watch storm degrades to an occasional refresh instead of a flicker.
+const RELOAD_COOLDOWN_MS = 3000;
+let lastNotifyAt = 0;
 function notifyReload(fn) {
   clearTimeout(reloadTimer);
+  const wait = Math.max(400, lastNotifyAt + RELOAD_COOLDOWN_MS - Date.now());
   reloadTimer = setTimeout(() => {
+    lastNotifyAt = Date.now();
     for (const c of [...reloadClients]) {
       if (!c.send('reload', { file: fn || '' })) reloadClients.delete(c);
     }
-  }, 400);
+  }, wait);
 }
 try {
   fs.watch(LOCI_ROOT, { recursive: true }, (ev, fn) => {
-    if (fn && RELOAD_IGNORE.test(String(fn))) return;
-    notifyReload(String(fn || ev));
+    const rel = String(fn || '');
+    if (rel && RELOAD_IGNORE.test(rel)) return;
+    const abs = rel ? path.resolve(path.join(LOCI_ROOT, rel)) : '';
+    const wrote = abs && recentSelfWrites.get(abs);
+    if (wrote && Date.now() - wrote < SELF_WRITE_TTL_MS) return;
+    if (rel && !contentLooksChanged(rel)) return;
+    notifyReload(rel || String(ev));
   });
 } catch { /* recursive fs.watch unavailable — live reload silently off */ }
 const DONE_HIDE_DAYS = 7;
