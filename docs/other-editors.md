@@ -2,6 +2,19 @@
 
 Loci is built for Claude Code, but its memory is plain Markdown — any AI coding tool can read it.
 
+## The universal method: let your AI connect it
+
+Connecting any tool (WorkBuddy, OpenCode, Hermes, Cursor, …) means putting Loci's rules block where that tool reads its global rules. Don't do it by hand — paste this to any agent you already use, or to the new tool itself:
+
+```text
+Help me connect Loci to <tool name>: read AGENTS.md in my brain directory,
+copy the whole block between <!-- loci:start --> and <!-- loci:end --> into
+<tool name>'s global rules / system instructions file, and keep every path
+pointing at my brain directory.
+```
+
+Known landing spots: WorkBuddy → `~/.workbuddy/MEMORY.md`; OpenCode → its global rules file (AGENTS.md convention); Codex → `~/.codex/AGENTS.md` (setup does this one automatically).
+
 ## What works everywhere
 
 - **Reading memory files** — your AI can read `me/`, `tasks/`, `decisions/`, `plan.md` regardless of editor

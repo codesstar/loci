@@ -286,8 +286,23 @@ Loci currently focuses on Claude Code and Codex. Both can share the same local b
 |----------|--------|
 | **Claude Code** | Primary support |
 | **Codex** | Primary support |
+| **WorkBuddy** | Works via the universal method below |
 | **Cursor / Windsurf / Cline** | Future adapters |
+| **OpenCode / Hermes** | Works via the universal method below |
 | **OpenClaw** | Experimental integration |
+
+### Connect any other tool — let your AI do it
+
+The brain is plain Markdown plus one block of read/write rules. Connecting a new tool just means putting that block where the tool reads its global rules — and the fastest way is to not do it yourself. Paste this to any agent you already use (Claude Code, Codex, or the new tool itself):
+
+```text
+Help me connect Loci to <tool name>: read AGENTS.md in my brain directory,
+copy the whole block between <!-- loci:start --> and <!-- loci:end --> into
+<tool name>'s global rules / system instructions file, and keep every path
+pointing at my brain directory.
+```
+
+Example: for WorkBuddy the block lands in its global memory file (`~/.workbuddy/MEMORY.md`); for OpenCode, in the global rules file it reads (it follows the AGENTS.md convention). Once the block is in place, that tool reads and writes the same brain as everything else.
 
 ---
 

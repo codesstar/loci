@@ -2,6 +2,18 @@
 
 Loci 是给 Claude Code 做的，但记忆层全是 Markdown 纯文本——随便哪个 AI 编程工具都能读。
 
+## 万能接入法：让你的 AI 来干
+
+接入任何工具（WorkBuddy、OpenCode、Hermes、Cursor……）本质上就是把 Loci 的规则块放进那个工具读的全局规则文件。别手动折腾——把这段话粘给你已经在用的任何 AI，或者新工具本身：
+
+```text
+帮我把 Loci 接入 <工具名>：读取我大脑目录里的 AGENTS.md，把
+<!-- loci:start --> 到 <!-- loci:end --> 之间的整块规则，复制到
+<工具名> 读取的全局规则/系统指令文件里，所有路径保持指向我的大脑目录。
+```
+
+已知落点：WorkBuddy → `~/.workbuddy/MEMORY.md`；OpenCode → 它读取的全局规则文件（遵循 AGENTS.md 约定）；Codex → `~/.codex/AGENTS.md`（这个 setup 会自动装好）。
+
 ## 不挑编辑器的功能
 
 - **读记忆文件** — 你的 AI 直接读 `me/`、`tasks/`、`decisions/`、`plan.md` 就行，跟编辑器无关

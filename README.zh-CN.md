@@ -279,8 +279,22 @@ Loci 先专注 Claude Code 和 Codex。两者会共用同一个本地大脑：Cl
 |------|------|
 | **Claude Code** | 重点支持 |
 | **Codex** | 重点支持 |
+| **WorkBuddy** | 用下面的万能接入法即可 |
 | **Cursor / Windsurf / Cline** | 后续适配 |
+| **OpenCode / Hermes** | 用下面的万能接入法即可 |
 | **OpenClaw** | 实验性集成 |
+
+### 接入任何其他工具——让你的 AI 来干
+
+大脑就是纯 Markdown 加一段读写规则，接入新工具本质上只是「把规则块放进那个工具读的全局配置」——而最快的方式是别自己动手。把这段话粘给你已经在用的任何 AI（Claude Code、Codex，或者新工具本身）：
+
+```text
+帮我把 Loci 接入 <工具名>：读取我大脑目录里的 AGENTS.md，把
+<!-- loci:start --> 到 <!-- loci:end --> 之间的整块规则，复制到
+<工具名> 读取的全局规则/系统指令文件里，所有路径保持指向我的大脑目录。
+```
+
+举例：WorkBuddy 的落点是它的全局记忆文件（`~/.workbuddy/MEMORY.md`）；OpenCode 遵循 AGENTS.md 约定，落点是它读取的全局规则文件。块放好之后，这个工具就和其他工具读写同一个大脑了。
 
 ---
 
