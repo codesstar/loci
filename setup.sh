@@ -1150,7 +1150,7 @@ configure_global() {
 - Brain path: \`${BRAIN_PATH}\`
 
 ### Automatic Context
-- On session start, run ONCE: \`bash ${BRAIN_PATH}/scripts/loci-context.sh\` — it prints all startup context in one command. Never re-run per message; if it fails, read \`${BRAIN_PATH}/plan.md\`, \`${BRAIN_PATH}/tasks/active.md\`, and the latest 7 items of \`${BRAIN_PATH}/inbox.md\` each at most once, skipping failures silently.
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_PATH}\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
@@ -1188,18 +1188,34 @@ GEOF
     print_check "$(t "Slash commands installed" "斜杠命令已安装")"
   fi
 
-  # Install the global SessionStart hook script that global-settings.json points to
+  # Install the native Node SessionStart hook and keep the shell fallback for
+  # existing settings files from older releases.
   local global_hooks="$HOME/.claude/hooks"
-  if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.sh" ]; then
+  if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.js" ]; then
     mkdir -p "$global_hooks"
-    cp "$BRAIN_PATH/.claude/hooks/loci-context.sh" "$global_hooks/loci-context.sh" 2>/dev/null
-    chmod +x "$global_hooks/loci-context.sh" 2>/dev/null
+    cp "$BRAIN_PATH/.claude/hooks/loci-context.js" "$global_hooks/loci-context.js" 2>/dev/null
+    chmod +x "$global_hooks/loci-context.js" 2>/dev/null
+    if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.sh" ]; then
+      cp "$BRAIN_PATH/.claude/hooks/loci-context.sh" "$global_hooks/loci-context.sh" 2>/dev/null
+      chmod +x "$global_hooks/loci-context.sh" 2>/dev/null
+    fi
     print_check "$(t "Global context hook installed" "全局上下文钩子已安装")"
   fi
 
   # Merge global settings.json
   local global_settings="$HOME/.claude/settings.json"
-  if [ -f "$BRAIN_PATH/templates/global-settings.json" ]; then
+  if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-claude-settings.js" ]; then
+    if node "$BRAIN_PATH/scripts/loci-claude-settings.js" install --home "$HOME" >/dev/null 2>&1; then
+      print_check "$(t "Global Node context hook configured" "全局 Node 上下文钩子已配置")"
+    else
+      print_warn "$(t "Claude settings.json could not be merged safely and was left unchanged" "Claude settings.json 无法安全合并，已保持原样")"
+    fi
+  elif [ -f "$BRAIN_PATH/templates/global-settings.json" ]; then
+    # No Node: keep the older Bash hook on Unix-like installations instead of
+    # writing a Node command that cannot run.
+    local hook_template
+    hook_template=$(sed "s|\\\$HOME|${HOME}|g" "$BRAIN_PATH/templates/global-settings.json" \
+      | sed "s|node \"${HOME}/.claude/hooks/loci-context.js\"|bash \"${HOME}/.claude/hooks/loci-context.sh\"|")
     if [ -f "$global_settings" ]; then
       # Check if loci hook already present
       if grep -q "loci-context" "$global_settings" 2>/dev/null; then
@@ -1210,8 +1226,6 @@ GEOF
         # Back up first
         cp "$global_settings" "${global_settings}.loci-backup"
         # Replace the brain-path placeholder in the template and use it
-        local hook_template
-        hook_template=$(sed "s|\\\$HOME|${HOME}|g" "$BRAIN_PATH/templates/global-settings.json")
         # If existing file is basically empty or minimal, replace it
         # Otherwise just warn the user
         if [ "$(wc -c < "$global_settings" | tr -d ' ')" -lt 10 ]; then
@@ -1223,7 +1237,7 @@ GEOF
         fi
       fi
     else
-      sed "s|\\\$HOME|${HOME}|g" "$BRAIN_PATH/templates/global-settings.json" > "$global_settings"
+      printf '%s\n' "$hook_template" > "$global_settings"
       print_check "$(t "Global hooks configured" "全局钩子已配置")"
     fi
   fi
@@ -1261,7 +1275,7 @@ GEOF
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context
-- On session start, run ONCE: \`bash ${BRAIN_PATH}/scripts/loci-context.sh\` — it prints all startup context in one command. Never re-run per message; if it fails, read \`${BRAIN_PATH}/plan.md\`, \`${BRAIN_PATH}/tasks/active.md\`, and the latest 7 items of \`${BRAIN_PATH}/inbox.md\` each at most once, skipping failures silently.
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_PATH}\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
@@ -1291,6 +1305,18 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 CODEXEOF
       fi
       print_check "$(t "Codex awareness enabled (~/.codex/AGENTS.md)" "Codex 全局感知已启用 (~/.codex/AGENTS.md)")"
+    fi
+
+    # Merge a native Codex SessionStart hook without overwriting user hooks.
+    # setup.sh can run without Node, so AGENTS.md remains the safe fallback.
+    if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ]; then
+      if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_PATH" --home "$HOME" >/dev/null 2>&1; then
+        print_check "$(t "Codex SessionStart hook installed (review once with /hooks)" "Codex SessionStart 钩子已安装（请用 /hooks 审核一次）")"
+      else
+        print_warn "$(t "Codex hooks.json was left unchanged because it could not be merged safely" "Codex hooks.json 无法安全合并，已保持原样")"
+      fi
+    else
+      print_warn "$(t "Node not found — Codex hook skipped; AGENTS.md fallback remains active" "未找到 Node — 已跳过 Codex 钩子，AGENTS.md 兜底仍可用")"
     fi
   else
     print_warn "$(t "Codex connection skipped" "已跳过 Codex 接入")"

@@ -8,6 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, exec } = require('child_process');
 const os = require('os');
+const { install: installCodexHook } = require('./scripts/loci-codex-hook');
+const { install: installClaudeSettings } = require('./scripts/loci-claude-settings');
 
 const PORT = 3456;
 const BRAIN_ROOT = __dirname;
@@ -268,9 +270,9 @@ function generateGlobalBlock() {
 - These rules apply **in every project and directory**, not just the brain folder.
 
 ### Automatic Context
-- On session start, read \`<brain-path>/plan.md\` for life direction and current goals
-- Read \`<brain-path>/tasks/active.md\` for current priorities
-- Check \`<brain-path>/inbox.md\` for pending items (latest 7 only)
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise use exactly one platform launcher: native Windows PowerShell/cmd → \`& "<brain-path>\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "<brain-path>/scripts/loci-context.sh"\`.
+- Do not preload plans, tasks, inbox, journals, project memory, or history. Read the smallest relevant source only when the user's request needs it.
+- If the command fails, read only \`<brain-path>/me/preferences.md\` once, then continue without retries.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
@@ -425,40 +427,28 @@ function runSetup(data) {
       results.push(`~/.claude/commands/ (${commandFiles.length} files)`);
     }
 
-    // 7a. Install the global SessionStart hook script that global-settings.json
-    // points to (~/.claude/hooks/loci-context.sh) — mirror setup.sh
-    const srcContextHook = path.join(BRAIN_ROOT, '.claude', 'hooks', 'loci-context.sh');
+    // 7a. Install the native Node hook plus the legacy shell fallback.
+    const srcContextHook = path.join(BRAIN_ROOT, '.claude', 'hooks', 'loci-context.js');
     if (fs.existsSync(srcContextHook)) {
       const destHooksDir = path.join(HOME, '.claude', 'hooks');
       ensureDir(destHooksDir);
-      const destContextHook = path.join(destHooksDir, 'loci-context.sh');
+      const destContextHook = path.join(destHooksDir, 'loci-context.js');
       fs.copyFileSync(srcContextHook, destContextHook);
       try { fs.chmodSync(destContextHook, 0o755); } catch { /* best effort */ }
-      results.push('~/.claude/hooks/loci-context.sh');
+      const legacyHook = path.join(BRAIN_ROOT, '.claude', 'hooks', 'loci-context.sh');
+      if (fs.existsSync(legacyHook)) {
+        fs.copyFileSync(legacyHook, path.join(destHooksDir, 'loci-context.sh'));
+      }
+      results.push('~/.claude/hooks/loci-context.js');
     }
 
-    // 8. ~/.claude/settings.json — global hooks (mirror setup.sh configure_global)
-    const globalSettingsPath = path.join(HOME, '.claude', 'settings.json');
-    const settingsTemplatePath = path.join(BRAIN_ROOT, 'templates', 'global-settings.json');
-    if (fs.existsSync(settingsTemplatePath)) {
-      const hookTemplate = fs.readFileSync(settingsTemplatePath, 'utf-8').replace(/\$HOME/g, HOME);
-      const existingGlobalSettings = readFileSafe(globalSettingsPath);
-      if (existingGlobalSettings !== null) {
-        if (existingGlobalSettings.includes('loci-context')) {
-          results.push('~/.claude/settings.json (hooks already configured)');
-        } else {
-          writeFileSafe(globalSettingsPath + '.loci-backup', existingGlobalSettings);
-          if (Buffer.byteLength(existingGlobalSettings) < 10) {
-            writeFileSafe(globalSettingsPath, hookTemplate);
-            results.push('~/.claude/settings.json (hooks configured)');
-          } else {
-            results.push('~/.claude/settings.json exists — merge hooks manually (see templates/global-settings.json)');
-          }
-        }
-      } else {
-        writeFileSafe(globalSettingsPath, hookTemplate);
-        results.push('~/.claude/settings.json (hooks configured)');
-      }
+    // 8. ~/.claude/settings.json — semantic merge, preserving user settings
+    // and replacing old Bash-only Loci handlers with the native Node wrapper.
+    try {
+      const settingsResult = installClaudeSettings({ home: HOME });
+      results.push(`~/.claude/settings.json (${settingsResult.changed ? 'Loci hook installed' : 'Loci hook current'})`);
+    } catch (error) {
+      results.push(`Claude hook skipped safely: ${error.message}`);
     }
   } else {
     results.push('Claude Code connection skipped');
@@ -479,6 +469,16 @@ function runSetup(data) {
       ensureDir(path.join(HOME, '.codex'));
       writeFileSafe(codexMdPath, generateCodexBlock() + '\n');
       results.push('~/.codex/AGENTS.md (created)');
+    }
+
+    // Merge one stable Loci SessionStart handler while preserving every hook
+    // the user already has. Invalid JSON is reported and never overwritten.
+    try {
+      const hookResult = installCodexHook({ brain: BRAIN_ROOT, home: HOME });
+      results.push(`~/.codex/hooks.json (${hookResult.changed ? 'Loci hook installed' : 'Loci hook current'})`);
+      results.push('Codex: review the Loci hook once with /hooks');
+    } catch (error) {
+      results.push(`Codex hook skipped safely: ${error.message}`);
     }
   } else {
     results.push('Codex connection skipped');

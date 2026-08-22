@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Startup context is now a cross-platform Node map, not a content dump** (engine 0.3.3): native Windows, macOS, and Linux share one zero-dependency builder with a hard output budget. It loads standing preferences, compact routing pointers, the current workspace project pointer, and a short state summary; plans, tasks, inbox items, journals, and project memory stay on demand. Claude Code hooks and shell fallbacks delegate to it, with a no-Node Unix fallback retained.
+
+### Added
+- **Native Codex SessionStart hook**: setup safely merges one short-timeout Loci hook into `~/.codex/hooks.json`, preserves unrelated hooks, removes duplicate old Loci handlers, and uses `commandWindows` on native Windows. Updates keep the definition stable and current. If Hook trust is pending, disabled, unavailable, or the JSON cannot be parsed safely, the lightweight `AGENTS.md` startup command remains the fallback.
+
 ### Fixed
 - **Codex/WorkBuddy turns no longer take minutes** (engine 0.3.2): tools without a hook mechanism were following the instruction block literally — reading each startup file in its own tool call, sometimes re-reading per message and retrying failed reads, which stretched single turns to 5-15 minutes. New `scripts/loci-context.sh` prints the whole startup context in ONE command (~10ms); the instruction block now mandates running it once per session, forbids per-message re-reads, and forbids retrying failed reads. `update.sh` now refreshes the loci block in `~/.codex/AGENTS.md` and `~/.workbuddy/MEMORY.md` too (it previously only refreshed `~/.claude/CLAUDE.md`), so this fix actually reaches existing installs.
 

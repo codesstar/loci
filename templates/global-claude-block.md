@@ -6,17 +6,19 @@
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context (ONE command — never read startup files one by one)
-- If a `[Loci]` startup context was already injected into this session (Claude Code's SessionStart hook does this), that counts — do NOT run the command below, do not re-read any startup file.
-- Otherwise, on session start, run this ONCE as a single command:
-  `bash <brain-path>/scripts/loci-context.sh`
-  It prints everything needed to start in one shot: today's date, the user's preferences (honor them from the first reply on), life plan, active tasks, the latest inbox items, and the project index.
+- If a `[Loci]` startup context was already injected into this session (Codex or Claude Code SessionStart hooks do this), that counts — do NOT run the command below, do not re-read any startup file.
+- Otherwise, on session start, run exactly ONE platform-appropriate command:
+  - Native Windows PowerShell/cmd: `& "<brain-path>\scripts\loci-context.cmd"`
+  - macOS/Linux/WSL/Git Bash: `bash "<brain-path>/scripts/loci-context.sh"`
+  Choose one; never run both. Both launch the same Node builder when Node is available, while the shell launcher keeps a no-Node fallback for Unix-like environments.
+  It prints only a lightweight startup map: today's date, standing user preferences, on-demand file pointers, the current workspace's project pointer when available, and a short state summary. Plans, tasks, inbox items, journals, and project memory stay on demand.
 - Run it exactly once per session, then rely on the cached result (see Session Cache & Refresh). NEVER re-run it — or re-read its source files — on every user message.
-- If (and only if) the command itself fails, fall back to reading these files directly, each AT MOST once: `<brain-path>/me/preferences.md`, `<brain-path>/plan.md`, `<brain-path>/tasks/active.md`, latest 7 items of `<brain-path>/inbox.md`. A file that fails to read is skipped silently — never retry a failed read, never let a read failure block answering the user.
+- If (and only if) the command itself fails, read `<brain-path>/me/preferences.md` at most once so standing preferences still apply, then use the Memory Retrieval Map below. Do not preload plans, tasks, inbox, journals, project memory, or history. A failed read is skipped silently — never retry it or let it block answering the user.
 
 ### Context Loading Strategy
 - Do **not** load the whole brain automatically. Keep startup context small and use the brain as a local memory map.
 - **L0 Map**: the Memory Retrieval Map below IS the map — route by it directly. Open `<brain-path>/CLAUDE.md` only when the map is not enough for the current request.
-- **L1 Active Context**: the output of `loci-context.sh` above, loaded once per session.
+- **L1 Lightweight Startup Context**: the output of the startup builder above, loaded once per session. It is a map, not a content dump.
 - **L2 On Demand**: read module READMEs, the rest of `me/`, `decisions/`, `references/`, `notes/`, `tasks/daily/`, linked project `.loci/memory.md`, `.loci/profile.md`, or `.loci/progress/YYYY-MM.md` only when relevant to the user's request.
 - **L3 Archive**: do not auto-load `archive/`, old journals, or historical decision files unless the user asks or the current task clearly needs them.
 - Prefer indexes and README files first; open specific files only after identifying the relevant location.
@@ -39,7 +41,7 @@ When the user's request mentions a topic, project, person, decision, material, o
 - Project embryos (not serious yet) → `<brain-path>/projects/side.md`
 - Places (home / company addresses / frequent spots / client offices) → `<brain-path>/places/` (one `.md` per place; shown on the people-page map next to contacts)
 - People and relationships → `<brain-path>/people/` (one `.md` per contact; relationships BETWEEN contacts are edges in `people/.connections.json` — when the user says "A is B's friend / A introduced B", also add the edge via Dashboard API `POST /api/people/connect {a,b,how}`, or edit the JSON: `[a, b, "how"]`, names matching each person's `name:`)
-- Quick unsorted thoughts → `<brain-path>/inbox.md` (latest 7 by default; read more only on request)
+- Quick unsorted thoughts → `<brain-path>/inbox.md` only when the user's request needs those fragments
 - Saved articles, links, tools, and external materials (third-party content) → `<brain-path>/references/`
 - The user's OWN notes (Obsidian / Feishu / Notion links, or short inline notes they wrote) → `<brain-path>/notes/index.md` (one-line index of pointers) + `<brain-path>/notes/<slug>.md` (inline notes). Loci indexes them, the body stays in the external app. L2: never auto-loaded; read the index and follow the link/path only when the user asks about their notes.
 - "What did I do today / lately?" — the activity ledger of every change made to the brain → `<brain-path>/.loci/activity/<YYYY-MM>.md`. Audit layer: never auto-loaded; read only when the user asks what they did.

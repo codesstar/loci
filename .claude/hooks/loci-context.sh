@@ -1,8 +1,7 @@
 #!/bin/bash
-# Loci: Global daily context injection
+# Loci: Global lightweight context injection
 # Works from ANY directory — reads brain path from ~/.loci/brain-path
-# Fires on SessionStart — gives the AI today's essential context
-# Zero dependencies, just reads markdown files
+# Fires on SessionStart and delegates to the same builder other agents use.
 
 # --- Resolve brain path ---
 BRAIN_PATH_FILE="$HOME/.loci/brain-path"
@@ -22,10 +21,11 @@ fi
 
 LOCI_ROOT="$(cat "$BRAIN_PATH_FILE")"
 
-# Skip when the current project ships its own Loci context hook —
-# that hook injects the same context; running both would double it.
+# Skip only when the current project is actually configured to run the legacy
+# shell hook. Merely shipping the file is not enough: new project settings run
+# the Node hook, and no-Node Unix installs still need this global shell fallback.
 PROJ_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-if [ -f "$PROJ_DIR/.claude/hooks/daily-context.sh" ]; then
+if grep -q 'daily-context\.sh' "$PROJ_DIR/.claude/settings.json" 2>/dev/null; then
   printf '{ "continue": true }\n'
   exit 0
 fi
@@ -44,58 +44,14 @@ EOF
   exit 0
 fi
 
-# --- Date calculation (macOS + Linux compatible) ---
-TODAY=$(date "+%Y-%m-%d")
-YESTERDAY=$(date -v-1d "+%Y-%m-%d" 2>/dev/null || date -d "yesterday" "+%Y-%m-%d")
-DAY_OF_WEEK=$(date "+%A")
-
-CTX="[Loci] Date: ${TODAY} (${DAY_OF_WEEK})"
-CTX+=$'\n'"Brain: ${LOCI_ROOT}"
-CTX+=$'\n'"(Startup context below is already loaded — do NOT run loci-context.sh and do NOT re-read the startup files.)"
-CTX+=$'\n\n'
-
-# 0. User preferences — standing instructions the AI must honor in EVERY reply.
-#    Injected here (not just referenced from CLAUDE.md) so compliance never
-#    depends on the model choosing to read the file. Skipped while still a template.
-PREFS="$LOCI_ROOT/me/preferences.md"
-if [ -f "$PREFS" ] && ! grep -q "^status: template" "$PREFS"; then
-  PREFS_BODY="$(awk 'BEGIN{fm=0} NR==1&&/^---[[:space:]]*$/{fm=1;next} fm&&/^---[[:space:]]*$/{fm=0;next} !fm{print}' "$PREFS")"
-  if [ -n "$(printf '%s' "$PREFS_BODY" | tr -d '[:space:]')" ]; then
-    CTX+="## User Preferences (standing instructions — EVERY reply must comply, including the first)"$'\n'
-    CTX+="$PREFS_BODY"$'\n\n'
-  fi
+# One source of truth: this hook and non-hook agents receive the same compact
+# preferences, routing map, workspace project pointer, and state summary.
+CONTEXT_SCRIPT="$LOCI_ROOT/scripts/loci-context.sh"
+if [ -f "$CONTEXT_SCRIPT" ]; then
+  CTX="$(LOCI_PROJECT_DIR="$PROJ_DIR" bash "$CONTEXT_SCRIPT" "$LOCI_ROOT" 2>/dev/null)"
 fi
-
-# 1. Today's daily plan
-DAILY="$LOCI_ROOT/tasks/daily/${TODAY}.md"
-if [ -f "$DAILY" ]; then
-  CTX+="## Today's Plan"$'\n'
-  CTX+="$(cat "$DAILY")"$'\n\n'
-else
-  CTX+="## Today's Plan"$'\n'
-  CTX+="No plan for today yet."$'\n\n'
-fi
-
-# 2. Active tasks (first 30 lines — Focus + Queue)
-if [ -f "$LOCI_ROOT/tasks/active.md" ]; then
-  CTX+="## Active Tasks"$'\n'
-  CTX+="$(head -30 "$LOCI_ROOT/tasks/active.md")"$'\n\n'
-fi
-
-# 3. Yesterday's journal (only if exists)
-JOURNAL="$LOCI_ROOT/tasks/journal/${YESTERDAY}.md"
-if [ -f "$JOURNAL" ]; then
-  CTX+="## Yesterday's Journal"$'\n'
-  CTX+="$(cat "$JOURNAL")"$'\n'
-fi
-
-# 4. Inbox (latest 7 items)
-if [ -f "$LOCI_ROOT/inbox.md" ]; then
-  INBOX_ITEMS=$(tail -14 "$LOCI_ROOT/inbox.md" 2>/dev/null)
-  if [ -n "$INBOX_ITEMS" ]; then
-    CTX+=$'\n'"## Recent Inbox"$'\n'
-    CTX+="${INBOX_ITEMS}"$'\n'
-  fi
+if [ -z "${CTX:-}" ]; then
+  CTX="[Loci] Startup map unavailable. Continue without it; do not retry or preload brain files."
 fi
 
 # --- Output JSON for Claude Code hook system ---

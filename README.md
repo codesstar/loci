@@ -123,7 +123,7 @@ Scripting it (or you're an AI reading this)? `./setup.sh --non-interactive --nam
 >
 > Prefer the old shell installer? `curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash` still works.
 
-> **Windows?** Use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) or Git Bash.
+> **Windows?** `npx create-loci` runs natively from PowerShell or Command Prompt. Startup context uses Node and does not require Bash. WSL/Git Bash remain supported for the optional terminal wizard and shell fallback.
 >
 > **Want to see what a brain looks like?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of history.
 >

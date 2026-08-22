@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/loci-context.sh\""
+            "command": "node \"$HOME/.claude/hooks/loci-context.js\""
           }
         ]
       }

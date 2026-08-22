@@ -301,6 +301,28 @@ do_update() {
   # 8. Re-run global config (idempotent)
   refresh_global_blocks
 
+  # Hooks installed in ~/.claude are copies, not symlinks. Update the native
+  # Node hook and retain the legacy shell copy for older settings files.
+  if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.js" ] \
+    && { grep -q '<!-- loci:start' "$HOME/.claude/CLAUDE.md" 2>/dev/null \
+      || grep -q 'loci-context' "$HOME/.claude/settings.json" 2>/dev/null; }; then
+    mkdir -p "$HOME/.claude/hooks"
+    cp "$BRAIN_PATH/.claude/hooks/loci-context.js" "$HOME/.claude/hooks/loci-context.js"
+    chmod +x "$HOME/.claude/hooks/loci-context.js" 2>/dev/null
+    if [ -f "$BRAIN_PATH/.claude/hooks/loci-context.sh" ]; then
+      cp "$BRAIN_PATH/.claude/hooks/loci-context.sh" "$HOME/.claude/hooks/loci-context.sh"
+      chmod +x "$HOME/.claude/hooks/loci-context.sh" 2>/dev/null
+    fi
+    if [ -f "$BRAIN_PATH/scripts/loci-claude-settings.js" ] && command -v node >/dev/null 2>&1; then
+      if node "$BRAIN_PATH/scripts/loci-claude-settings.js" install --home "$HOME" >/dev/null 2>&1; then
+        print_ok "Claude Code hook migrated to native Node"
+      else
+        print_warn "Claude settings.json was invalid or incompatible — left unchanged"
+      fi
+    fi
+    print_ok "Claude Code lightweight context hook updated"
+  fi
+
   # Copy slash commands
   if [ -d "$BRAIN_PATH/templates/commands" ]; then
     cp "$BRAIN_PATH"/templates/commands/*.md "$HOME/.claude/commands/" 2>/dev/null
@@ -355,6 +377,19 @@ refresh_global_blocks() {
       print_ok "$(basename "$gf") loci block refreshed"
     fi
   done
+
+  # Refresh/dedupe the native Codex hook only for an already-connected user.
+  # Invalid JSON is never overwritten; the helper exits non-zero instead.
+  if command -v node >/dev/null 2>&1 \
+    && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ] \
+    && { grep -q '<!-- loci:start' "$HOME/.codex/AGENTS.md" 2>/dev/null \
+      || grep -q 'loci-context' "$HOME/.codex/hooks.json" 2>/dev/null; }; then
+    if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_PATH" --home "$HOME" >/dev/null 2>&1; then
+      print_ok "Codex lightweight SessionStart hook updated"
+    else
+      print_warn "Codex hooks.json was invalid or incompatible — left unchanged"
+    fi
+  fi
 }
 
 # ─── Entry point ────────────────────────────────────────────────────────────

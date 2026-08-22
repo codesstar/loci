@@ -10,11 +10,11 @@ Check these before starting:
 
 ```bash
 git --version        # required
-node --version       # optional — needed only for the dashboard and task writer
+node --version       # recommended — native startup hooks, dashboard, task writer
 ```
 
 - No `git` → stop and tell the user to install git first.
-- No `node` → proceed anyway, but mention the dashboard won't run until Node.js is installed.
+- No `node` → proceed on macOS/Linux/WSL/Git Bash with the lightweight shell fallback, but mention that native startup hooks, the dashboard, and task writer need Node.js. The installer will not add a Codex hook that cannot run.
 - **Windows**: these steps require a POSIX shell. Use WSL or Git Bash.
 
 ## Step 1 — Ask the user two things
@@ -51,6 +51,7 @@ Notes:
 - Only `--name` is required. Every other flag has a sensible default (`./setup.sh --help` lists them).
 - `--about "<text>"` is optional — anything else worth knowing about the user (habits, birthday, goals). Include it if the user has shared such details in conversation.
 - `--connect auto` detects Claude Code and Codex on this machine and connects whatever is installed. This appends a Loci block to `~/.claude/CLAUDE.md` and/or `~/.codex/AGENTS.md` (existing files are backed up to `*.loci-backup` first).
+- With Node available, setup also merges one lightweight SessionStart handler into each connected tool's hook JSON. Existing settings and unrelated hooks are preserved; malformed JSON is left untouched.
 - `--lang` controls the language the brain (and its AI notifications) will use: `en`, `zh`, or `mix`.
 - If the script reports the brain is **already set up**, it exits without changing anything. Do not re-run with `--force` unless the user explicitly confirms they want to overwrite their existing brain.
 
@@ -78,6 +79,12 @@ grep -q 'loci:start' ~/.codex/AGENTS.md && echo CODEX_CONNECTED
 
 # 6. The `loci` launcher is installed
 test -x ~/.local/bin/loci && echo LAUNCHER_OK
+
+# 7. Native context builder is small and succeeds
+node ~/loci/scripts/loci-context.js ~/loci | wc -c   # should stay below 4400 bytes
+
+# 8. If Codex was connected with Node available:
+grep -q 'loci-context.js' ~/.codex/hooks.json && echo CODEX_HOOK_INSTALLED
 ```
 
 Optional smoke test (needs Node.js): `~/.local/bin/loci` starts the dashboard server and opens `http://localhost:8765` — a visual dashboard of the brain. (`loci stop` to shut it down.)
@@ -90,6 +97,7 @@ Tell the user, briefly and in their language:
 
 1. Loci is installed at `~/loci` (or wherever they chose) and which tools got connected.
 2. **They should restart their AI session** — the global instruction file is loaded at session start, so the current session doesn't know about the brain yet.
+   If Codex asks to review the new hook, they should run `/hooks` and trust the Loci SessionStart entry once.
 3. After restarting, they can just talk normally. First useful thing to say: introduce themselves or dump what they're working on — the brain fills itself from conversation. Nothing to learn, no commands to memorize.
 4. Optional: typing `loci` in a new terminal opens the visual dashboard at `localhost:8765` (starts the server automatically; `loci stop` shuts it down).
 
