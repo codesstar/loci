@@ -6,7 +6,8 @@
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context (ONE command — never read startup files one by one)
-- On session start, run this ONCE as a single command:
+- If a `[Loci]` startup context was already injected into this session (Claude Code's SessionStart hook does this), that counts — do NOT run the command below, do not re-read any startup file.
+- Otherwise, on session start, run this ONCE as a single command:
   `bash <brain-path>/scripts/loci-context.sh`
   It prints everything needed to start in one shot: today's date, the user's preferences (honor them from the first reply on), life plan, active tasks, the latest inbox items, and the project index.
 - Run it exactly once per session, then rely on the cached result (see Session Cache & Refresh). NEVER re-run it — or re-read its source files — on every user message.

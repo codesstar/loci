@@ -51,6 +51,7 @@ DAY_OF_WEEK=$(date "+%A")
 
 CTX="[Loci] Date: ${TODAY} (${DAY_OF_WEEK})"
 CTX+=$'\n'"Brain: ${LOCI_ROOT}"
+CTX+=$'\n'"(Startup context below is already loaded — do NOT run loci-context.sh and do NOT re-read the startup files.)"
 CTX+=$'\n\n'
 
 # 0. User preferences — standing instructions the AI must honor in EVERY reply.
