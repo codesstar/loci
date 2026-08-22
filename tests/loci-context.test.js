@@ -149,6 +149,9 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(!dailyHookContext.includes('PLAN_SECRET'));
   ok('project-level Claude hook delegates to the shared lightweight builder');
 
+  // Git Bash needs /d/... paths, while native Node on Windows needs D:\\....
+  // Switch the shared pointer back before exercising the native wrappers.
+  fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brain, 'utf8');
   const nodeHookEnv = {
     ...process.env,
     HOME: home,
