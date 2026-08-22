@@ -299,38 +299,7 @@ do_update() {
   [ "$removed" -gt 0 ] && print_ok "Removed $removed retired engine files (backed up first)"
 
   # 8. Re-run global config (idempotent)
-  # Update global CLAUDE.md if the loci block template changed
-  local global_claude="$HOME/.claude/CLAUDE.md"
-  if [ -f "$global_claude" ] && grep -q '<!-- loci:start' "$global_claude"; then
-    # Remove old block and re-inject from template
-    local tmp_global
-    tmp_global=$(mktemp)
-    sed '/<!-- loci:start/,/<!-- loci:end -->/d' "$global_claude" > "$tmp_global"
-    if [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
-      local block
-      block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
-      printf "\n%s\n" "$block" >> "$tmp_global"
-    fi
-    mv "$tmp_global" "$global_claude"
-    print_ok "Global CLAUDE.md refreshed"
-  fi
-
-  # Same refresh for Codex and WorkBuddy — they carry the identical block.
-  # This is how instruction fixes (e.g. the one-command startup context)
-  # actually reach tools that have no hook mechanism.
-  local gf
-  for gf in "$HOME/.codex/AGENTS.md" "$HOME/.workbuddy/MEMORY.md"; do
-    if [ -f "$gf" ] && grep -q '<!-- loci:start' "$gf" && [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
-      local tmp_gf
-      tmp_gf=$(mktemp)
-      sed '/<!-- loci:start/,/<!-- loci:end -->/d' "$gf" > "$tmp_gf"
-      local gblock
-      gblock=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
-      printf "\n%s\n" "$gblock" >> "$tmp_gf"
-      mv "$tmp_gf" "$gf"
-      print_ok "$(basename "$gf") loci block refreshed"
-    fi
-  done
+  refresh_global_blocks
 
   # Copy slash commands
   if [ -d "$BRAIN_PATH/templates/commands" ]; then
@@ -363,16 +332,43 @@ do_update() {
   echo -e "${DIM}Rollback: ./update.sh --rollback${NC}"
 }
 
+# ─── Refresh injected loci blocks in every connected tool ───────────────────
+# Claude Code (~/.claude/CLAUDE.md), Codex (~/.codex/AGENTS.md), and WorkBuddy
+# (~/.workbuddy/MEMORY.md) all carry the same instruction block. Re-injecting
+# it from the (freshly updated) template is how instruction fixes reach tools
+# that have no hook mechanism. User content outside the markers is untouched.
+refresh_global_blocks() {
+  local tpl="$BRAIN_PATH/templates/global-claude-block.md"
+  if [ ! -f "$tpl" ]; then
+    print_warn "templates/global-claude-block.md missing — blocks not refreshed"
+    return 0
+  fi
+  local block
+  block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$tpl")
+  local gf tmp_gf
+  for gf in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md" "$HOME/.workbuddy/MEMORY.md"; do
+    if [ -f "$gf" ] && grep -q '<!-- loci:start' "$gf"; then
+      tmp_gf=$(mktemp)
+      sed '/<!-- loci:start/,/<!-- loci:end -->/d' "$gf" > "$tmp_gf"
+      printf "\n%s\n" "$block" >> "$tmp_gf"
+      mv "$tmp_gf" "$gf"
+      print_ok "$(basename "$gf") loci block refreshed"
+    fi
+  done
+}
+
 # ─── Entry point ────────────────────────────────────────────────────────────
 case "${1:-}" in
   --check)    do_check ;;
   --rollback) do_rollback ;;
+  --refresh-blocks) refresh_global_blocks ;;
   --help|-h)
-    echo "Usage: ./update.sh [--check] [--rollback] [--help]"
+    echo "Usage: ./update.sh [--check] [--rollback] [--refresh-blocks] [--help]"
     echo ""
-    echo "  (no args)    Update engine files to latest version"
-    echo "  --check      Check if updates are available"
-    echo "  --rollback   Restore from the most recent backup"
+    echo "  (no args)         Update engine files to latest version"
+    echo "  --check           Check if updates are available"
+    echo "  --rollback        Restore from the most recent backup"
+    echo "  --refresh-blocks  Re-inject the loci block into Claude Code / Codex / WorkBuddy global files from the local template"
     ;;
   *)          do_update ;;
 esac
