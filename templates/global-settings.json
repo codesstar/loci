@@ -2,11 +2,12 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|compact",
+        "matcher": "startup|resume|clear|compact|fork",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$HOME/.claude/hooks/loci-context.js\""
+            "command": "node \"$HOME/.claude/hooks/loci-context.js\"",
+            "timeout": 3
           }
         ]
       }

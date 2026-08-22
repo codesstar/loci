@@ -102,7 +102,7 @@ One command. Loci gives Claude Code and Codex one shared local brain, so decisio
 npx create-loci
 ```
 
-The installer opens a browser setup wizard, creates your brain, detects Claude Code and Codex, and asks which tools should connect. Takes about 2 minutes. Prefer terminal setup? Run `npx create-loci --cli`.
+The installer opens a browser setup wizard, creates your brain, and lets you connect Claude Code, Codex, WorkBuddy, or a combination. Takes about 2 minutes. Prefer terminal setup? Run `npx create-loci --cli`.
 
 ### OpenClaw (experimental)
 
@@ -286,7 +286,7 @@ Loci currently focuses on Claude Code and Codex. Both can share the same local b
 |----------|--------|
 | **Claude Code** | Primary support |
 | **Codex** | Primary support |
-| **WorkBuddy** | Auto-detected and connected by setup |
+| **WorkBuddy** | Selectable in the web wizard; auto-detected by CLI setup |
 | **Cursor / Windsurf / Cline** | Future adapters |
 | **OpenCode / Hermes** | Works via the universal method below |
 | **OpenClaw** | Experimental integration |

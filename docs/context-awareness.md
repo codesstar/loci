@@ -160,50 +160,14 @@ When the user says `/sync`, the AI immediately:
 
 ### Hook Configuration
 
-**Write hook** (`.loci/hooks/on-file-change.sh`):
+**Write hook** (`.loci/hooks/on-file-change.js`) reads Claude Code's official
+PostToolUse JSON from stdin, extracts `tool_input.file_path`, and appends only
+tracked brain files to `.loci/changelog.log`. It uses Node built-ins and works
+the same on native Windows, macOS, and Linux.
 
-```bash
-#!/bin/bash
-LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-CHANGELOG="$LOCI_ROOT/.loci/changelog.log"
-TERMINAL_ID="${LOCI_TERMINAL_ID:-terminal-$$}"
-TIMESTAMP=$(date +%s)
-FILEPATH="${1#$LOCI_ROOT/}"
-
-case "$FILEPATH" in
-  inbox.md|plan.md|projects/index.md|projects/*|.loci/status.yml|tasks/*)
-    echo "${TIMESTAMP}|${TERMINAL_ID}|WRITE|${FILEPATH}|" >> "$CHANGELOG"
-    ;;
-esac
-```
-
-**Read hook** (`.loci/hooks/check-updates.sh`):
-
-```bash
-#!/bin/bash
-LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-CHANGELOG="$LOCI_ROOT/.loci/changelog.log"
-LAST_CHECK="$LOCI_ROOT/.loci/last-check-${LOCI_TERMINAL_ID:-default}"
-TERMINAL_ID="${LOCI_TERMINAL_ID:-terminal-$$}"
-
-if [ ! -f "$CHANGELOG" ]; then exit 0; fi
-
-SINCE=$(cat "$LAST_CHECK" 2>/dev/null || echo 0)
-
-UPDATES=$(awk -F'|' -v since="$SINCE" -v me="$TERMINAL_ID" \
-    '$1 > since && $2 != me { print }' "$CHANGELOG")
-
-if [ -n "$UPDATES" ]; then
-    echo "=== Cross-terminal updates ==="
-    echo "$UPDATES" | while IFS='|' read -r ts tid op fp desc; do
-        HUMAN_TIME=$(date -r "$ts" "+%H:%M" 2>/dev/null || date -d "@$ts" "+%H:%M")
-        echo "  [$HUMAN_TIME] $tid: $op $fp $desc"
-    done
-    echo "=============================="
-fi
-
-date +%s > "$LAST_CHECK"
-```
+**Read hook** (`.loci/hooks/check-updates.js`) reads that append-only log,
+filters out the current terminal, and stores a line-number checkpoint. The old
+`.sh` launchers remain compatibility wrappers and delegate to the Node files.
 
 **Claude Code settings** (`.claude/settings.json`):
 
@@ -213,7 +177,11 @@ date +%s > "$LAST_CHECK"
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
-        "command": ".loci/hooks/on-file-change.sh \"$FILE_PATH\""
+        "hooks": [{
+          "type": "command",
+          "command": "node \".loci/hooks/on-file-change.js\"",
+          "timeout": 3
+        }]
       }
     ]
   }

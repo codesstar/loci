@@ -47,19 +47,28 @@ function hasCommand(cmd) {
 function detectTools() {
   return {
     claude: hasCommand('claude') || fs.existsSync(path.join(HOME, '.claude')),
-    codex: hasCommand('codex') || fs.existsSync(path.join(HOME, '.codex'))
+    codex: hasCommand('codex') || fs.existsSync(path.join(HOME, '.codex')),
+    workbuddy: hasCommand('workbuddy') || fs.existsSync(path.join(HOME, '.workbuddy'))
   };
 }
 
 function normalizeToolSelection(tools) {
   if (Array.isArray(tools)) {
-    const selected = new Set(tools.filter(t => t === 'claude' || t === 'codex'));
-    return { claude: selected.has('claude'), codex: selected.has('codex') };
+    const selected = new Set(tools.filter(t => ['claude', 'codex', 'workbuddy'].includes(t)));
+    return {
+      claude: selected.has('claude'),
+      codex: selected.has('codex'),
+      workbuddy: selected.has('workbuddy')
+    };
   }
   if (tools && typeof tools === 'object') {
-    return { claude: !!tools.claude, codex: !!tools.codex };
+    return {
+      claude: !!tools.claude,
+      codex: !!tools.codex,
+      workbuddy: !!tools.workbuddy
+    };
   }
-  return { claude: true, codex: true };
+  return { claude: true, codex: true, workbuddy: false };
 }
 
 function getScheduleTimes(schedule) {
@@ -484,6 +493,26 @@ function runSetup(data) {
     results.push('Codex connection skipped');
   }
 
+  if (tools.workbuddy) {
+    const workbuddyMdPath = path.join(HOME, '.workbuddy', 'MEMORY.md');
+    const existingWorkbuddyMd = readFileSafe(workbuddyMdPath);
+
+    if (existingWorkbuddyMd && existingWorkbuddyMd.includes('<!-- loci:start')) {
+      results.push('~/.workbuddy/MEMORY.md (already connected)');
+    } else if (existingWorkbuddyMd) {
+      writeFileSafe(workbuddyMdPath + '.loci-backup', existingWorkbuddyMd);
+      writeFileSafe(workbuddyMdPath, existingWorkbuddyMd.trimEnd() + '\n\n' + generateGlobalBlock() + '\n');
+      results.push('~/.workbuddy/MEMORY.md (appended)');
+    } else {
+      ensureDir(path.join(HOME, '.workbuddy'));
+      writeFileSafe(workbuddyMdPath,
+        '# MEMORY.md — user-level long-term memory\n\n' + generateGlobalBlock() + '\n');
+      results.push('~/.workbuddy/MEMORY.md (created)');
+    }
+  } else {
+    results.push('WorkBuddy connection skipped');
+  }
+
   // 9. Git safety: remove origin if codesstar/loci, set hooksPath, make hooks executable
   try {
     const origin = execSync('git remote get-url origin', { cwd: BRAIN_ROOT, encoding: 'utf-8' }).trim();
@@ -642,9 +671,10 @@ const server = http.createServer((req, res) => {
 
 // ===== Start =====
 
-server.listen(PORT, () => {
-  const url = `http://localhost:${PORT}`;
-  console.log(`
+function startServer() {
+  server.listen(PORT, () => {
+    const url = `http://localhost:${PORT}`;
+    console.log(`
   ╔══════════════════════════════════════════╗
   ║         Loci Setup Wizard                ║
   ║                                          ║
@@ -654,31 +684,36 @@ server.listen(PORT, () => {
   ╚══════════════════════════════════════════╝
   `);
 
-  // Auto-open browser
-  const platform = process.platform;
-  const openCmd = platform === 'darwin' ? 'open'
-    : platform === 'win32' ? 'start'
-    : 'xdg-open';
+    // Auto-open browser
+    const platform = process.platform;
+    const openCmd = platform === 'darwin' ? 'open'
+      : platform === 'win32' ? 'start'
+      : 'xdg-open';
 
-  exec(`${openCmd} ${url}`, (err) => {
-    if (err) {
-      console.log(`  Could not open browser automatically.`);
-      console.log(`  Please visit: ${url}\n`);
-    }
+    exec(`${openCmd} ${url}`, (err) => {
+      if (err) {
+        console.log(`  Could not open browser automatically.`);
+        console.log(`  Please visit: ${url}\n`);
+      }
+    });
+
+    // 5-minute timeout if no setup happens
+    setTimeout(() => {
+      console.log('\n  No setup detected. Shutting down (5 min timeout).\n');
+      process.exit(0);
+    }, 5 * 60 * 1000);
   });
 
-  // 5-minute timeout if no setup happens
-  setTimeout(() => {
-    console.log('\n  No setup detected. Shutting down (5 min timeout).\n');
-    process.exit(0);
-  }, 5 * 60 * 1000);
-});
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n  Port ${PORT} is already in use. Is another setup wizard running?\n`);
+    } else {
+      console.error(`\n  Server error: ${err.message}\n`);
+    }
+    process.exit(1);
+  });
+}
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n  Port ${PORT} is already in use. Is another setup wizard running?\n`);
-  } else {
-    console.error(`\n  Server error: ${err.message}\n`);
-  }
-  process.exit(1);
-});
+module.exports = { detectTools, normalizeToolSelection, runSetup, startServer };
+
+if (require.main === module) startServer();

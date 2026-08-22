@@ -1,6 +1,6 @@
 # create-loci
 
-Set up a [Loci](https://github.com/codesstar/loci) brain — one shared local memory for Claude Code and Codex.
+Set up a [Loci](https://github.com/codesstar/loci) brain — one shared local memory for Claude Code, Codex, and WorkBuddy.
 
 Loci stores memory as local Markdown and JSON files. The installer creates a brain directory, then connects your AI tools so they can read and write that same memory from any project.
 
@@ -10,7 +10,7 @@ Loci stores memory as local Markdown and JSON files. The installer creates a bra
 npx create-loci
 ```
 
-That's it. The installer downloads the Loci template, opens a browser setup wizard, detects Claude Code and Codex, then asks which tools should share the brain.
+That's it. The installer downloads the Loci template, opens a browser setup wizard, then asks which supported tools should share the brain.
 
 Prefer terminal-only setup?
 
@@ -33,11 +33,11 @@ npx create-loci --help         # Show all options
 2. Creates or updates your local brain directory
 3. Opens the browser setup wizard, or terminal wizard with `--cli`
 4. Asks for your name, role, language, current focus, and basic preferences
-5. Detects Claude Code and Codex
-6. Connects Claude Code, Codex, or both to the same local brain
+5. Detects supported local tools
+6. Connects Claude Code, Codex, WorkBuddy, or a selected combination to the same local brain
 7. Writes user-level instruction blocks so future sessions know where the brain is
 
-After setup, open Claude Code or Codex from any project:
+After setup, open a connected tool from any project:
 
 ```bash
 claude
@@ -45,7 +45,7 @@ claude
 codex
 ```
 
-Both tools will load the same Loci context. Tasks, decisions, notes, and project context saved in one tool can be used by the other.
+Connected tools use the same Loci brain. Tasks, decisions, notes, and project context saved in one can be used by the others.
 
 ## Manual install
 

@@ -55,6 +55,11 @@ try {
   const codex = JSON.parse(fs.readFileSync(codexFile, 'utf8'));
 
   assert(handlers(claude, 'SessionStart').some((hook) => /loci-context\.js/.test(hook.command || '')));
+  const claudeLociGroup = claude.hooks.SessionStart.find((group) =>
+    (group.hooks || []).some((hook) => /loci-context\.js/.test(hook.command || '')));
+  const claudeLoci = claudeLociGroup.hooks.find((hook) => /loci-context\.js/.test(hook.command || ''));
+  assert.strictEqual(claudeLociGroup.matcher, 'startup|resume|clear|compact|fork');
+  assert.strictEqual(claudeLoci.timeout, 3);
   assert(handlers(claude, 'Stop').some((hook) => hook.command === 'node keep-claude.js'));
   assert.strictEqual(claude.permissions.allow[0], 'Read');
   assert(fs.existsSync(`${claudeFile}.loci-backup`));

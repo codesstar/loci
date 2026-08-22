@@ -40,9 +40,11 @@ npx create-loci
 
 1. 创建或选择本地大脑目录
 2. 填写名字、角色、偏好、当前重点
-3. 检测 Claude Code 和 Codex
-4. 询问接入 Claude Code、Codex，还是两者都接入
-5. 写入用户级 Loci 规则，让两个工具知道同一个大脑路径
+3. 检测本机支持的工具
+4. 选择接入 Claude Code、Codex、WorkBuddy、全部三个，或仅创建本地大脑
+5. 写入用户级 Loci 规则，让选中的工具知道同一个大脑路径
+
+Claude Code 和 Codex 会安装轻量的 SessionStart Hook，只注入用户偏好、目录地图、当前项目指针和简短状态；计划、任务、随手记、日志及项目正文都按需读取。WorkBuddy 通过用户级 `MEMORY.md` 里的轻量启动命令接入，Loci 不会为它安装原生 Hook。
 
 喜欢终端向导的话：
 
@@ -371,7 +373,7 @@ Loci 每次对话启动时会检测其他终端的文件变更。同时写同一
 跑 `/loci-brain-settings`，把 persistence 设成 `manual`。手动模式下，除非你明确说"保存这个"或者跑 `/loci-sync`，不然啥都不会自动存。
 
 **Q：怎么卸载？**
-删掉 `~/.claude/CLAUDE.md` 和/或 `~/.codex/AGENTS.md` 里 `<!-- loci:start -->` 那段，删掉对应的 slash commands，再删掉 brain 文件夹就行。没有系统级别的改动需要还原。
+删掉 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 和/或 `~/.workbuddy/MEMORY.md` 里 `<!-- loci:start -->` 那段；从 `~/.claude/settings.json`、`~/.codex/hooks.json` 移除命令含 `loci-context` 的 SessionStart 项；再删掉 Loci 安装的 Claude Hook、slash commands 和 brain 文件夹。安装时生成的 `.loci-backup` 可用于对照或恢复。
 
 **Q：发现 bug / 有建议怎么反馈？**
 去 [GitHub](https://github.com/codesstar/loci/issues) 提 issue。欢迎贡献——详见 [CONTRIBUTING.md](../CONTRIBUTING.md)。

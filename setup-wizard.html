@@ -1014,11 +1014,13 @@
 <!-- ======================== STEP 6: Shared Brain Tools ======================== -->
 <div class="step-container" id="step-6">
   <div class="question-title" data-i18n="tools_title">Connect your AI tools</div>
-  <div class="question-desc" data-i18n="tools_desc">Claude Code and Codex can share the same local Loci brain. Choose both if you use both tools.</div>
+  <div class="question-desc" data-i18n="tools_desc">Claude Code, Codex, and WorkBuddy can share the same local Loci brain.</div>
   <div class="pill-options" id="toolsOptions">
+    <div class="pill-wrap"><button class="pill-option" data-value="all" onclick="selectOption(this, 'tools')"><span data-i18n="tools_all">Claude Code + Codex + WorkBuddy</span></button></div>
     <div class="pill-wrap"><button class="pill-option" data-value="both" onclick="selectOption(this, 'tools')"><span data-i18n="tools_both">Claude Code + Codex</span><span class="pill-sub" data-i18n="tools_recommended">Recommended</span></button></div>
     <div class="pill-wrap"><button class="pill-option" data-value="claude" onclick="selectOption(this, 'tools')"><span data-i18n="tools_claude">Claude Code only</span></button></div>
     <div class="pill-wrap"><button class="pill-option" data-value="codex" onclick="selectOption(this, 'tools')"><span data-i18n="tools_codex">Codex only</span></button></div>
+    <div class="pill-wrap"><button class="pill-option" data-value="workbuddy" onclick="selectOption(this, 'tools')"><span data-i18n="tools_workbuddy">WorkBuddy only</span></button></div>
     <div class="pill-wrap"><button class="pill-option" data-value="none" onclick="selectOption(this, 'tools')"><span data-i18n="tools_none">Brain only</span></button></div>
   </div>
 </div>
@@ -1140,9 +1142,11 @@ const i18n = {
     about_placeholder: "e.g. I'm a night owl, my birthday is March 5th, I love hiking...",
     about_continue: "Continue",
     tools_title: "Connect your AI tools",
-    tools_desc: "Claude Code and Codex can share the same local Loci brain. Choose both if you use both tools.",
+    tools_desc: "Claude Code, Codex, and WorkBuddy can share the same local Loci brain.",
+    tools_all: "Claude Code + Codex + WorkBuddy",
     tools_both: "Claude Code + Codex", tools_recommended: "Recommended",
-    tools_claude: "Claude Code only", tools_codex: "Codex only", tools_none: "Brain only",
+    tools_claude: "Claude Code only", tools_codex: "Codex only",
+    tools_workbuddy: "WorkBuddy only", tools_none: "Brain only",
     review_about: "About you",
     review_title: "Review your setup",
     review_desc: "Everything look good? You can edit anything before creating your brain.",
@@ -1188,9 +1192,11 @@ const i18n = {
     about_placeholder: "\u6bd4\u5982\uff1a\u6211\u662f\u591c\u732b\u5b50\uff0c\u751f\u65e5\u662f3\u67085\u53f7\uff0c\u559c\u6b22\u5f92\u6b65...",
     about_continue: "\u7ee7\u7eed",
     tools_title: "\u8fde\u63a5\u4f60\u7684 AI \u5de5\u5177",
-    tools_desc: "Claude Code \u548c Codex \u53ef\u4ee5\u5171\u7528\u540c\u4e00\u4e2a Loci \u672c\u5730\u5927\u8111\u3002\u5982\u679c\u4e24\u4e2a\u90fd\u7528\uff0c\u5efa\u8bae\u9009\u4e24\u4e2a\u3002",
+    tools_desc: "Claude Code\u3001Codex \u548c WorkBuddy \u53ef\u4ee5\u5171\u7528\u540c\u4e00\u4e2a Loci \u672c\u5730\u5927\u8111\u3002",
+    tools_all: "Claude Code + Codex + WorkBuddy",
     tools_both: "Claude Code + Codex", tools_recommended: "\u63a8\u8350",
-    tools_claude: "\u53ea\u63a5 Claude Code", tools_codex: "\u53ea\u63a5 Codex", tools_none: "\u4ec5\u521b\u5efa\u672c\u5730\u5927\u8111",
+    tools_claude: "\u53ea\u63a5 Claude Code", tools_codex: "\u53ea\u63a5 Codex",
+    tools_workbuddy: "\u53ea\u63a5 WorkBuddy", tools_none: "\u4ec5\u521b\u5efa\u672c\u5730\u5927\u8111",
     review_about: "\u5173\u4e8e\u4f60",
     review_title: "\u786e\u8ba4\u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u770b\u770b\u662f\u5426\u90fd\u5bf9? \u521b\u5efa\u524d\u53ef\u4ee5\u968f\u65f6\u4fee\u6539\u3002",
@@ -1233,9 +1239,11 @@ const i18n = {
     about_placeholder: "e.g. \u6211\u662f night owl\uff0c\u751f\u65e5 3\u67085\u53f7\uff0c\u559c\u6b22 hiking...",
     about_continue: "Continue",
     tools_title: "\u8fde\u63a5\u4f60\u7684 AI tools",
-    tools_desc: "Claude Code \u548c Codex \u53ef\u4ee5 share \u540c\u4e00\u4e2a Loci local brain. \u4e24\u4e2a\u90fd\u7528\u5c31\u9009\u4e24\u4e2a\u3002",
+    tools_desc: "Claude Code\u3001Codex \u548c WorkBuddy \u53ef\u4ee5 share \u540c\u4e00\u4e2a Loci local brain.",
+    tools_all: "Claude Code + Codex + WorkBuddy",
     tools_both: "Claude Code + Codex", tools_recommended: "Recommended",
-    tools_claude: "Claude Code only", tools_codex: "Codex only", tools_none: "Brain only",
+    tools_claude: "Claude Code only", tools_codex: "Codex only",
+    tools_workbuddy: "WorkBuddy only", tools_none: "Brain only",
     review_about: "About you",
     review_title: "Review \u4f60\u7684\u8bbe\u7f6e",
     review_desc: "\u90fd\u5bf9\u5417? Create \u524d\u53ef\u4ee5\u968f\u65f6\u6539\u3002",
@@ -1572,9 +1580,11 @@ function buildReview() {
   const role = formData.role === 'Other' ? formData.roleOther : formData.role;
   const focus = formData.focus === 'Other' ? formData.focusOther : formData.focus;
   const toolsDisplay = {
+    all: 'Claude Code + Codex + WorkBuddy',
     both: 'Claude Code + Codex',
     claude: 'Claude Code',
     codex: 'Codex',
+    workbuddy: 'WorkBuddy',
     none: t('tools_none')
   };
 
@@ -1652,8 +1662,9 @@ async function createBrain() {
         schedule: formData.schedule,
         about: formData.about,
         tools: {
-          claude: formData.tools === 'both' || formData.tools === 'claude',
-          codex: formData.tools === 'both' || formData.tools === 'codex'
+          claude: formData.tools === 'all' || formData.tools === 'both' || formData.tools === 'claude',
+          codex: formData.tools === 'all' || formData.tools === 'both' || formData.tools === 'codex',
+          workbuddy: formData.tools === 'all' || formData.tools === 'workbuddy'
         }
       })
     });
@@ -1696,6 +1707,8 @@ async function createBrain() {
     const startBtn = document.getElementById('startBtn');
     if (formData.tools === 'codex') {
       startBtn.innerHTML = 'Run <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">codex</code> to start';
+    } else if (formData.tools === 'workbuddy') {
+      startBtn.innerHTML = 'Open WorkBuddy to start';
     } else if (formData.tools === 'none') {
       startBtn.innerHTML = 'Open <code style="background:rgba(155,89,182,0.15);padding:2px 8px;border-radius:4px;margin:0 4px;">localhost:8765</code>';
     } else {

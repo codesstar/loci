@@ -12,6 +12,7 @@ const NODE_SCRIPT = path.join(ROOT, 'scripts', 'loci-context.js');
 const HOOK = path.join(ROOT, '.claude', 'hooks', 'loci-context.sh');
 const DAILY_HOOK = path.join(ROOT, '.claude', 'hooks', 'daily-context.sh');
 const NODE_HOOK = path.join(ROOT, '.claude', 'hooks', 'loci-context.js');
+const GLOBAL_BLOCK = path.join(ROOT, 'templates', 'global-claude-block.md');
 const NODE_DAILY_HOOK = path.join(ROOT, '.claude', 'hooks', 'daily-context.js');
 const UPDATE = path.join(ROOT, 'update.sh');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci context 测试-'));
@@ -62,6 +63,10 @@ function ok(name) {
 }
 
 try {
+  const globalBlockBytes = Buffer.byteLength(fs.readFileSync(GLOBAL_BLOCK, 'utf8'));
+  assert(globalBlockBytes <= 4000, `global instructions grew to ${globalBlockBytes} bytes`);
+  ok('global instruction block stays below 4 KB');
+
   fs.mkdirSync(workspace, { recursive: true });
   fs.mkdirSync(path.join(home, '.loci'), { recursive: true });
   fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brainForBash, 'utf8');
@@ -182,7 +187,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
     const refreshed = fs.readFileSync(path.join(home, rel), 'utf8');
     assert(refreshed.includes('USER CONTENT BEFORE'));
     assert(refreshed.includes('USER CONTENT AFTER'));
-    assert(refreshed.includes('lightweight startup map'));
+    assert(/lightweight startup/i.test(refreshed));
     assert(!refreshed.includes('OLD STARTUP CONTENT'));
   }
   const refreshedCodexHooks = JSON.parse(fs.readFileSync(path.join(home, '.codex', 'hooks.json'), 'utf8'));

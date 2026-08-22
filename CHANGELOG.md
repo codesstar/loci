@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Always-loaded global rules are compact** (engine 0.3.4): the shared Claude/Codex/WorkBuddy block is reduced from 13.8 KB to 3.3 KB. It keeps startup, safe persistence, and project-routing essentials; detailed rules move to on-demand reads from the brain's `CLAUDE.md`.
 - **Startup context is now a cross-platform Node map, not a content dump** (engine 0.3.3): native Windows, macOS, and Linux share one zero-dependency builder with a hard output budget. It loads standing preferences, compact routing pointers, the current workspace project pointer, and a short state summary; plans, tasks, inbox items, journals, and project memory stay on demand. Claude Code hooks and shell fallbacks delegate to it, with a no-Node Unix fallback retained.
 
 ### Added
 - **Native Codex SessionStart hook**: setup safely merges one short-timeout Loci hook into `~/.codex/hooks.json`, preserves unrelated hooks, removes duplicate old Loci handlers, and uses `commandWindows` on native Windows. Updates keep the definition stable and current. If Hook trust is pending, disabled, unavailable, or the JSON cannot be parsed safely, the lightweight `AGENTS.md` startup command remains the fallback.
 
 ### Fixed
+- **Removed the hidden duplicate Codex hook layer** (engine 0.3.4): obsolete project-level `.codex/hooks.json` and Bash context dump scripts are retired. The installer/updater semantically removes only old Loci handlers, preserves unrelated project hooks, and backs up every removed artifact. This prevents concurrent duplicate injection and invalid machine-specific paths.
+- **Cross-terminal hooks are native Node** (engine 0.3.4): Claude's write tracker now reads the official PostToolUse JSON payload instead of relying on a missing shell variable, and the update checker is portable across native Windows, macOS, and Linux. Shell launchers remain thin compatibility fallbacks.
+- **Web setup now matches CLI integrations** (engine 0.3.4): WorkBuddy can be selected directly in the default browser wizard, while existing `MEMORY.md` content is backed up, preserved, and never duplicated on repeat setup. The browser setup files are now part of the managed upgrade set, so existing installations receive future wizard fixes.
+- **Claude startup coverage is complete** (engine 0.3.4): the lightweight `SessionStart` hook now refreshes after `/clear` and forked/branched sessions as well as startup, resume, and compaction. Project and global handlers both have a 3-second fail-open timeout, preventing a broken context helper from holding a session open.
 - **Codex/WorkBuddy turns no longer take minutes** (engine 0.3.2): tools without a hook mechanism were following the instruction block literally — reading each startup file in its own tool call, sometimes re-reading per message and retrying failed reads, which stretched single turns to 5-15 minutes. New `scripts/loci-context.sh` prints the whole startup context in ONE command (~10ms); the instruction block now mandates running it once per session, forbids per-message re-reads, and forbids retrying failed reads. `update.sh` now refreshes the loci block in `~/.codex/AGENTS.md` and `~/.workbuddy/MEMORY.md` too (it previously only refreshed `~/.claude/CLAUDE.md`), so this fix actually reaches existing installs.
 
 ### Added

@@ -1,7 +1,7 @@
 {
   "name": "create-loci",
   "version": "0.1.1",
-  "description": "Set up a shared Loci brain for Claude Code and Codex",
+  "description": "Set up a shared Loci brain for Claude Code, Codex, and WorkBuddy",
   "bin": {
     "create-loci": "index.js"
   },
@@ -14,6 +14,7 @@
     "memory",
     "claude",
     "codex",
+    "workbuddy",
     "brain",
     "loci",
     "claude-code"

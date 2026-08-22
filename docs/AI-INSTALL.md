@@ -50,8 +50,8 @@ Notes:
 
 - Only `--name` is required. Every other flag has a sensible default (`./setup.sh --help` lists them).
 - `--about "<text>"` is optional — anything else worth knowing about the user (habits, birthday, goals). Include it if the user has shared such details in conversation.
-- `--connect auto` detects Claude Code and Codex on this machine and connects whatever is installed. This appends a Loci block to `~/.claude/CLAUDE.md` and/or `~/.codex/AGENTS.md` (existing files are backed up to `*.loci-backup` first).
-- With Node available, setup also merges one lightweight SessionStart handler into each connected tool's hook JSON. Existing settings and unrelated hooks are preserved; malformed JSON is left untouched.
+- `--connect auto` detects Claude Code, Codex, and WorkBuddy on this machine and connects whatever is installed. This appends a Loci block to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and/or `~/.workbuddy/MEMORY.md` (existing files are backed up to `*.loci-backup` first).
+- With Node available, setup also merges one lightweight SessionStart handler into Claude Code and Codex. WorkBuddy uses its user-level `MEMORY.md` instruction block because Loci does not install a native WorkBuddy hook. Existing settings and unrelated hooks are preserved; malformed JSON is left untouched.
 - `--lang` controls the language the brain (and its AI notifications) will use: `en`, `zh`, or `mix`.
 - If the script reports the brain is **already set up**, it exits without changing anything. Do not re-run with `--force` unless the user explicitly confirms they want to overwrite their existing brain.
 

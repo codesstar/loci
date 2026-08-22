@@ -8,9 +8,17 @@ on:
       - 'scripts/loci-claude-settings.js'
       - '.claude/hooks/loci-context.*'
       - '.claude/hooks/daily-context.*'
+      - '.claude/settings.json'
+      - '.loci/hooks/*.js'
+      - '.loci/hooks/*.sh'
+      - 'templates/global-claude-block.md'
       - 'tests/loci-context.test.js'
       - 'tests/context-hooks.test.js'
       - 'tests/setup-hooks.test.js'
+      - 'tests/setup-web.test.js'
+      - 'tests/activity-hooks.test.js'
+      - 'setup-web.js'
+      - 'setup-wizard.html'
       - '.github/workflows/context-compat.yml'
   pull_request:
     paths:
@@ -19,9 +27,17 @@ on:
       - 'scripts/loci-claude-settings.js'
       - '.claude/hooks/loci-context.*'
       - '.claude/hooks/daily-context.*'
+      - '.claude/settings.json'
+      - '.loci/hooks/*.js'
+      - '.loci/hooks/*.sh'
+      - 'templates/global-claude-block.md'
       - 'tests/loci-context.test.js'
       - 'tests/context-hooks.test.js'
       - 'tests/setup-hooks.test.js'
+      - 'tests/setup-web.test.js'
+      - 'tests/activity-hooks.test.js'
+      - 'setup-web.js'
+      - 'setup-wizard.html'
       - '.github/workflows/context-compat.yml'
   workflow_dispatch:
 
@@ -45,3 +61,5 @@ jobs:
       - run: node tests/loci-context.test.js
       - run: node tests/context-hooks.test.js
       - run: node tests/setup-hooks.test.js
+      - run: node tests/setup-web.test.js
+      - run: node tests/activity-hooks.test.js

@@ -2,6 +2,11 @@
 # Loci: Startup hook — shows cross-terminal changes since last session
 # Run at conversation start or when user triggers /sync
 
+NODE_HOOK="$(cd "$(dirname "$0")" && pwd)/check-updates.js"
+if command -v node >/dev/null 2>&1 && [ -f "$NODE_HOOK" ]; then
+    exec node "$NODE_HOOK" "$@"
+fi
+
 LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHANGELOG="$LOCI_ROOT/.loci/changelog.log"
 TERMINAL_ID="${LOCI_TERMINAL_ID:-terminal-$$}"

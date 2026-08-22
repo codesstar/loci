@@ -289,7 +289,7 @@ persistence:
 - The server also exposes local API endpoints for live task, schedule, journal, note, reference, and project-todo workflows
 
 ### Cross-Terminal Sync
-- `.loci/hooks/check-updates.sh` — detects file changes from other terminals
+- `node .loci/hooks/check-updates.js` — detects file changes from other terminals
 - Runs automatically at conversation start
 - `/sync` for manual refresh
 
@@ -298,7 +298,7 @@ persistence:
 ### Known Limitations (v1.0)
 
 - **Concurrent editing**: Multiple terminals writing to the same brain file simultaneously may cause conflicts. Git tracks all changes, so no data is truly lost, but you may need to resolve a manual merge.
-- **Cross-terminal detection**: The hook system (`check-updates.sh`) detects when another terminal has modified files, but it cannot prevent two writes from overlapping.
+- **Cross-terminal detection**: The hook system (`check-updates.js`) detects when another terminal has modified files, but it cannot prevent two writes from overlapping.
 - **Best practice**: Avoid editing the same brain file from multiple terminals at the same time. In practice this is rare — most conversations touch different files — but it's worth knowing.
 
 Future versions will add file-level locking or conflict-free merge strategies.

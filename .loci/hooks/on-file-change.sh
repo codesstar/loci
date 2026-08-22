@@ -6,6 +6,11 @@
 # Triggered by Claude Code PostToolUse hook on Write/Edit operations
 # Usage: .loci/hooks/on-file-change.sh "$FILE_PATH"
 
+NODE_HOOK="$(cd "$(dirname "$0")" && pwd)/on-file-change.js"
+if command -v node >/dev/null 2>&1 && [ -f "$NODE_HOOK" ]; then
+  exec node "$NODE_HOOK" "$@"
+fi
+
 LOCI_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHANGELOG="$LOCI_ROOT/.loci/changelog.log"
 TERMINAL_ID="${LOCI_TERMINAL_ID:-terminal-$$}"

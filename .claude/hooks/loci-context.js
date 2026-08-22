@@ -23,8 +23,10 @@ function run(options = {}) {
   try {
     const project = process.env.CLAUDE_PROJECT_DIR || process.cwd();
     const projectSettings = path.join(project, '.claude', 'settings.json');
+    // Skip only for the current native project hook. A stale Bash entry must
+    // not suppress this working Node fallback on Windows or after migration.
     const projectRunsContextHook = fs.existsSync(projectSettings)
-      && /daily-context\.(?:js|sh)/.test(fs.readFileSync(projectSettings, 'utf8'));
+      && /daily-context\.js/.test(fs.readFileSync(projectSettings, 'utf8'));
     if (options.skipProjectHook && projectRunsContextHook) {
       reply();
       return;

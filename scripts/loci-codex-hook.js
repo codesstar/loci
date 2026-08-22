@@ -11,6 +11,7 @@ const os = require('os');
 const path = require('path');
 
 const LOCI_MARKER = /loci-context\.(?:js|sh|cmd)|Loading Loci startup map/i;
+const LEGACY_PROJECT_MARKER = /(?:\.codex[\\/]hooks[\\/](?:daily-context|loci-context)\.sh|on-file-change\.(?:js|sh))/i;
 
 function quote(value, platform) {
   const string = String(value);
@@ -36,6 +37,11 @@ function hookHandler(brain, platform = process.platform) {
 function isLociHandler(handler) {
   if (!handler || typeof handler !== 'object') return false;
   return LOCI_MARKER.test(`${handler.command || ''}\n${handler.commandWindows || ''}\n${handler.statusMessage || ''}`);
+}
+
+function isLegacyProjectHandler(handler) {
+  if (!handler || typeof handler !== 'object') return false;
+  return LEGACY_PROJECT_MARKER.test(`${handler.command || ''}\n${handler.commandWindows || ''}`);
 }
 
 function mergeHooks(config, brain, platform = process.platform) {
@@ -93,18 +99,76 @@ function atomicWrite(file, content) {
   }
 }
 
+function cleanupLegacyProjectConfig(file) {
+  if (!fs.existsSync(file)) return { changed: false, file, removedFile: false };
+  const config = readConfig(file);
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error('project hooks.json must contain a JSON object');
+  }
+  if (config.hooks !== undefined &&
+      (typeof config.hooks !== 'object' || config.hooks === null || Array.isArray(config.hooks))) {
+    throw new Error('project hooks.json "hooks" must be an object');
+  }
+
+  let changed = false;
+  for (const [event, groups] of Object.entries(config.hooks || {})) {
+    if (!Array.isArray(groups)) continue;
+    const preservedGroups = [];
+    for (const group of groups) {
+      if (!group || typeof group !== 'object' || !Array.isArray(group.hooks)) {
+        preservedGroups.push(group);
+        continue;
+      }
+      const handlers = group.hooks.filter((handler) => !isLegacyProjectHandler(handler));
+      if (handlers.length !== group.hooks.length) changed = true;
+      if (handlers.length) preservedGroups.push({ ...group, hooks: handlers });
+    }
+    if (preservedGroups.length) config.hooks[event] = preservedGroups;
+    else delete config.hooks[event];
+  }
+  if (!changed) return { changed: false, file, removedFile: false };
+  if (config.hooks && !Object.keys(config.hooks).length) delete config.hooks;
+
+  const backup = `${file}.loci-backup`;
+  if (!fs.existsSync(backup)) fs.copyFileSync(file, backup);
+  const removedFile = !Object.keys(config).length;
+  if (removedFile) fs.unlinkSync(file);
+  else atomicWrite(file, JSON.stringify(config, null, 2) + '\n');
+  return { changed: true, file, removedFile };
+}
+
+function cleanupLegacyProjectArtifacts(brain) {
+  const removedScripts = [];
+  for (const name of ['daily-context.sh', 'loci-context.sh']) {
+    const file = path.join(brain, '.codex', 'hooks', name);
+    if (!fs.existsSync(file)) continue;
+    const backup = `${file}.loci-backup`;
+    if (!fs.existsSync(backup)) fs.copyFileSync(file, backup);
+    fs.unlinkSync(file);
+    removedScripts.push(file);
+  }
+  const config = cleanupLegacyProjectConfig(path.join(brain, '.codex', 'hooks.json'));
+  return { changed: removedScripts.length > 0 || config.changed, config, removedScripts };
+}
+
 function install(options = {}) {
   const home = options.home || os.homedir();
   const platform = options.platform || process.platform;
   const api = platform === 'win32' ? path.win32 : path;
   const brain = options.brain || path.join(__dirname, '..');
   const normalizedBrain = api.normalize(brain);
+  let projectCleanup = { changed: false };
+  try {
+    projectCleanup = cleanupLegacyProjectArtifacts(brain);
+  } catch (error) {
+    projectCleanup = { changed: false, error: error.message };
+  }
   const file = options.file || path.join(home, '.codex', 'hooks.json');
   const existed = fs.existsSync(file);
   const before = existed ? fs.readFileSync(file, 'utf8') : '';
   const config = mergeHooks(readConfig(file), normalizedBrain, platform);
   const after = JSON.stringify(config, null, 2) + '\n';
-  if (before === after) return { changed: false, file };
+  if (before === after) return { changed: false, file, projectCleanup };
 
   if (existed) {
     const backup = `${file}.loci-backup`;
@@ -114,7 +178,7 @@ function install(options = {}) {
     }
   }
   atomicWrite(file, after);
-  return { changed: true, file };
+  return { changed: true, file, projectCleanup };
 }
 
 function argument(args, name) {
@@ -134,6 +198,9 @@ function main(args = process.argv.slice(2)) {
       home: argument(args, '--home'),
       platform: argument(args, '--platform')
     });
+    if (result.projectCleanup && result.projectCleanup.error) {
+      process.stderr.write(`[Loci] Legacy project hook not changed: ${result.projectCleanup.error}\n`);
+    }
     process.stdout.write(`${result.changed ? 'installed' : 'unchanged'} ${result.file}\n`);
   } catch (error) {
     process.stderr.write(`[Loci] Codex hook not changed: ${error.message}\n`);
@@ -141,6 +208,15 @@ function main(args = process.argv.slice(2)) {
   }
 }
 
-module.exports = { hookHandler, install, isLociHandler, mergeHooks, readConfig };
+module.exports = {
+  cleanupLegacyProjectArtifacts,
+  cleanupLegacyProjectConfig,
+  hookHandler,
+  install,
+  isLegacyProjectHandler,
+  isLociHandler,
+  mergeHooks,
+  readConfig
+};
 
 if (require.main === module) main();

@@ -40,11 +40,12 @@ The installer opens a browser wizard and helps you:
 
 1. Create or choose a local brain directory
 2. Enter your name, role, language, current focus, and preferences
-3. Detect Claude Code and Codex
-4. Choose whether to connect Claude Code, Codex, or both
-5. Write user-level Loci rules so both tools know the same brain path
+3. Detect supported local tools
+4. Choose Claude Code, Codex, WorkBuddy, all three, or brain-only mode
+5. Write user-level Loci rules so the selected tools know the same brain path
 
-For fast startup, setup also installs a small SessionStart hook. The hook loads
+For fast startup, setup also installs a small SessionStart hook for Claude Code
+and Codex. The hook loads
 only your standing preferences, a compact file map, the current project's
 pointer, and a short state summary. It does **not** preload your plans, tasks,
 inbox, journals, or project history. Its output is capped, and it times out
@@ -55,6 +56,9 @@ skips untrusted changed hooks; if that happens, hooks are disabled, or your
 existing JSON cannot be merged safely, the global `AGENTS.md` rule uses the
 same lightweight builder as a fallback. Existing unrelated hooks are preserved.
 See the [official Codex Hooks documentation](https://learn.chatgpt.com/docs/hooks).
+
+WorkBuddy uses the same lightweight builder through its user-level instructions;
+Loci does not install a native WorkBuddy hook.
 
 Prefer a terminal wizard?
 
@@ -375,7 +379,7 @@ Yes, but Loci prefers archiving over deleting. Move files to `archive/` instead.
 Switch to manual mode: run `/loci-brain-settings` and set persistence to `manual`. In manual mode, nothing saves unless you explicitly say "save this" or run `/loci-sync`.
 
 **Q: How do I uninstall Loci?**
-Remove the `<!-- loci:start -->` block from `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`; remove the SessionStart entries whose command contains `loci-context` from `~/.claude/settings.json` and `~/.codex/hooks.json`; delete Loci's files from `~/.claude/hooks/` and slash commands from `~/.claude/commands/`; then delete your brain folder. Setup creates `.loci-backup` copies before changing existing hook JSON, so you can compare or restore them if needed.
+Remove the `<!-- loci:start -->` block from `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and/or `~/.workbuddy/MEMORY.md`; remove the SessionStart entries whose command contains `loci-context` from `~/.claude/settings.json` and `~/.codex/hooks.json`; delete Loci's files from `~/.claude/hooks/` and slash commands from `~/.claude/commands/`; then delete your brain folder. Setup creates `.loci-backup` copies before changing existing files, so you can compare or restore them if needed.
 
 **Q: I found a bug / have a feature idea.**
 Open an issue on [GitHub](https://github.com/codesstar/loci/issues). Contributions are welcome — see [CONTRIBUTING.md](../CONTRIBUTING.md).

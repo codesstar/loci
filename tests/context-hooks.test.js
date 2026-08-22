@@ -7,7 +7,12 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
-const { install: installCodex, hookHandler, isLociHandler } = require('../scripts/loci-codex-hook');
+const {
+  cleanupLegacyProjectConfig,
+  install: installCodex,
+  hookHandler,
+  isLociHandler
+} = require('../scripts/loci-codex-hook');
 const { install: installClaude, isLoci: isClaudeLoci } = require('../scripts/loci-claude-settings');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci hook 测试-'));
 const home = path.join(tmp, 'home with 空格');
@@ -26,6 +31,35 @@ try {
   fs.mkdirSync(path.join(brain, 'me'), { recursive: true });
   fs.copyFileSync(path.join(ROOT, 'scripts', 'loci-context.js'), path.join(brain, 'scripts', 'loci-context.js'));
   fs.writeFileSync(path.join(brain, 'me', 'preferences.md'), '- Hook test preference\n', 'utf8');
+  fs.mkdirSync(path.join(brain, '.claude'), { recursive: true });
+  const projectClaudeFile = path.join(brain, '.claude', 'settings.json');
+  fs.writeFileSync(projectClaudeFile, JSON.stringify({
+    hooks: {
+      SessionStart: [{ matcher: 'startup', hooks: [
+        { type: 'command', command: 'bash ".claude/hooks/daily-context.sh"' },
+        { type: 'command', command: 'node keep-project-claude.js' }
+      ] }],
+      PostToolUse: [{ matcher: 'Write|Edit', hooks: [
+        { type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.loci/hooks/on-file-change.sh' }
+      ] }]
+    }
+  }, null, 2), 'utf8');
+  fs.mkdirSync(path.join(brain, '.codex', 'hooks'), { recursive: true });
+  for (const name of ['daily-context.sh', 'loci-context.sh']) {
+    fs.writeFileSync(path.join(brain, '.codex', 'hooks', name), '#!/bin/bash\n', 'utf8');
+  }
+  const projectCodexFile = path.join(brain, '.codex', 'hooks.json');
+  fs.writeFileSync(projectCodexFile, JSON.stringify({
+    hooks: {
+      SessionStart: [{ hooks: [
+        { type: 'command', command: "'/old/.codex/hooks/daily-context.sh'" },
+        { type: 'command', command: 'node keep-project-hook.js' }
+      ] }],
+      PostToolUse: [{ hooks: [
+        { type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.loci/hooks/on-file-change.sh' }
+      ] }]
+    }
+  }, null, 2), 'utf8');
 
   const codexFile = path.join(home, '.codex', 'hooks.json');
   fs.mkdirSync(path.dirname(codexFile), { recursive: true });
@@ -57,10 +91,30 @@ try {
     assert(!handler.commandWindows, 'POSIX install should not add an unused Windows command');
   }
   assert(fs.existsSync(`${codexFile}.loci-backup`));
+  const cleanedProject = JSON.parse(fs.readFileSync(projectCodexFile, 'utf8'));
+  assert.strictEqual(lociHandlers(cleanedProject.hooks.SessionStart, () => true).length, 1);
+  assert.strictEqual(cleanedProject.hooks.SessionStart[0].hooks[0].command, 'node keep-project-hook.js');
+  assert(!cleanedProject.hooks.PostToolUse);
+  assert(fs.existsSync(`${projectCodexFile}.loci-backup`));
+  for (const name of ['daily-context.sh', 'loci-context.sh']) {
+    const legacyScript = path.join(brain, '.codex', 'hooks', name);
+    assert(!fs.existsSync(legacyScript));
+    assert(fs.existsSync(`${legacyScript}.loci-backup`));
+  }
   const installedBytes = fs.readFileSync(codexFile, 'utf8');
   assert.strictEqual(installCodex({ home, brain }).changed, false);
   assert.strictEqual(fs.readFileSync(codexFile, 'utf8'), installedBytes);
   ok('Codex merge preserves user hooks, dedupes Loci, backs up, and is idempotent');
+
+  const legacyOnly = path.join(brain, '.codex', 'legacy-only.json');
+  fs.writeFileSync(legacyOnly, JSON.stringify({
+    hooks: { SessionStart: [{ hooks: [{ command: '/brain/.codex/hooks/loci-context.sh' }] }] }
+  }), 'utf8');
+  const removedLegacy = cleanupLegacyProjectConfig(legacyOnly);
+  assert(removedLegacy.removedFile);
+  assert(!fs.existsSync(legacyOnly));
+  assert(fs.existsSync(`${legacyOnly}.loci-backup`));
+  ok('obsolete project-level Codex hooks are removed without deleting unrelated handlers');
 
   const hookOutput = execSync(handler.command, { cwd: brain, encoding: 'utf8' });
   assert(hookOutput.includes('Hook test preference'));
@@ -91,18 +145,32 @@ try {
       ]
     }
   }, null, 2), 'utf8');
-  const claudeResult = installClaude({ home });
+  const claudeResult = installClaude({ home, brain });
   assert(claudeResult.changed);
   const claude = JSON.parse(fs.readFileSync(claudeFile, 'utf8'));
   assert.deepStrictEqual(claude.permissions, { allow: ['Read'] });
   assert.strictEqual(lociHandlers(claude.hooks.SessionStart, isClaudeLoci).length, 1);
   assert(claude.hooks.SessionStart.some((group) => group.hooks.some((hook) => hook.command === 'node user-claude-hook.js')));
   const claudeHandler = lociHandlers(claude.hooks.SessionStart, isClaudeLoci)[0];
+  const claudeGroup = claude.hooks.SessionStart.find((group) => group.hooks.includes(claudeHandler));
   assert(claudeHandler.command.startsWith('node '));
   assert(!claudeHandler.command.includes('loci-context.sh'));
   assert.strictEqual(claudeHandler.timeout, 3);
-  assert.strictEqual(installClaude({ home }).changed, false);
-  ok('Claude settings migrate from Bash to Node without losing user settings');
+  assert.strictEqual(claudeGroup.matcher, 'startup|resume|clear|compact|fork');
+  const projectClaude = JSON.parse(fs.readFileSync(projectClaudeFile, 'utf8'));
+  const projectContext = projectClaude.hooks.SessionStart.find((group) =>
+    (group.hooks || []).some((hook) => /daily-context\.js/.test(hook.command || '')));
+  assert.strictEqual(projectContext.matcher, 'startup|resume|clear|compact|fork');
+  assert.strictEqual(projectContext.hooks[0].timeout, 3);
+  assert(projectClaude.hooks.SessionStart.some((group) =>
+    (group.hooks || []).some((hook) => hook.command === 'node keep-project-claude.js')));
+  const activity = projectClaude.hooks.PostToolUse.flatMap((group) => group.hooks || [])
+    .find((hook) => /on-file-change\.js/.test(hook.command || ''));
+  assert(activity);
+  assert.strictEqual(activity.timeout, 3);
+  assert(fs.existsSync(`${projectClaudeFile}.loci-backup`));
+  assert.strictEqual(installClaude({ home, brain }).changed, false);
+  ok('Claude settings cover every session source and migrate from Bash without losing user settings');
 
   const invalidClaudeFile = path.join(home, '.claude-invalid', 'settings.json');
   fs.mkdirSync(path.dirname(invalidClaudeFile), { recursive: true });

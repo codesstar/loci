@@ -8,14 +8,14 @@ The recommended path is:
 npx create-loci
 ```
 
-The installer creates or selects a local brain, then connects Claude Code, Codex, or both to that same brain path.
+The installer creates or selects a local brain, then connects Claude Code, Codex, WorkBuddy, or a selected combination to that same brain path.
 
 ## What It Enables
 
-After global install, opening Claude Code or Codex in any project gives the AI:
+After global install, opening a connected tool in any project gives the AI:
 
 - The path to your Loci brain
-- Startup context such as plan, active tasks, and recent inbox items
+- A lightweight startup map: standing preferences, memory locations, the current project pointer, and a short state summary
 - Rules for saving tasks, decisions, notes, people, schedules, and project memory
 - Cross-project memory: a project can keep its own `.loci/` memory while the brain keeps only an index
 
@@ -29,6 +29,7 @@ Global install writes user-level instruction blocks:
 |---|---|
 | Claude Code | `~/.claude/CLAUDE.md` |
 | Codex | `~/.codex/AGENTS.md` |
+| WorkBuddy | `~/.workbuddy/MEMORY.md` |
 
 Those files receive an idempotent `<!-- loci:start --> ... <!-- loci:end -->` block that tells the tool:
 
@@ -53,7 +54,7 @@ The browser wizard asks:
 
 1. Where should the brain live?
 2. What is your name, role, language, and current focus?
-3. Which detected tools should connect: Claude Code, Codex, or both?
+3. Which tools should connect: Claude Code, Codex, WorkBuddy, all three, or none?
 
 Prefer terminal setup:
 
@@ -71,7 +72,7 @@ cd ~/loci
 ./setup.sh
 ```
 
-Manual setup can still add the Loci blocks to Claude Code and/or Codex. If you edit the blocks by hand, keep the `<!-- loci:start -->` and `<!-- loci:end -->` markers so future installs can update them safely.
+Manual setup can still add the Loci blocks to Claude Code, Codex, and/or WorkBuddy. If you edit the blocks by hand, keep the `<!-- loci:start -->` and `<!-- loci:end -->` markers so future installs can update them safely.
 
 ## Verify
 
@@ -89,7 +90,7 @@ Ask:
 where is my Loci brain?
 ```
 
-It should report the configured brain path and load the current plan/tasks context.
+It should report the configured brain path and use the lightweight startup map. Plans and tasks should be opened only when your request needs them.
 
 ## Dashboard
 
@@ -111,8 +112,10 @@ http://127.0.0.1:8765/
 
 1. Remove the Loci block from `~/.claude/CLAUDE.md`, if installed.
 2. Remove the Loci block from `~/.codex/AGENTS.md`, if installed.
-3. Delete any Loci slash commands or shortcuts you installed manually.
-4. Optionally delete the brain directory.
+3. Remove the Loci block from `~/.workbuddy/MEMORY.md`, if installed.
+4. Remove handlers containing `loci-context` from `~/.claude/settings.json` and `~/.codex/hooks.json`.
+5. Delete Loci's copied Claude hooks and slash commands.
+6. Optionally delete the brain directory.
 
 Your brain data is not deleted by removing the user-level blocks.
 

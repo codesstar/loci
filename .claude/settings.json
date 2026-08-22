@@ -2,11 +2,12 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|compact",
+        "matcher": "startup|resume|clear|compact|fork",
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/daily-context.js\""
+            "command": "node \".claude/hooks/daily-context.js\"",
+            "timeout": 3
           }
         ]
       }
@@ -17,7 +18,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.loci/hooks/on-file-change.sh"
+            "command": "node \".loci/hooks/on-file-change.js\"",
+            "timeout": 3
           }
         ]
       }

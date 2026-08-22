@@ -86,7 +86,7 @@ At the start of every conversation:
 3. Cross-reference `plan.md` and `tasks/active.md` for today's key tasks
 4. Read `projects/index.md` as the project index; open a project's repo memory only when the current request mentions that project or clearly needs it
 5. Do NOT auto-load the activity ledger (`.loci/activity/`). It is an audit layer — read it only when the user asks what they did (see Persistence → Activity ledger)
-6. Run `.loci/hooks/check-updates.sh` for cross-terminal changes
+6. Run `node .loci/hooks/check-updates.js` for cross-terminal changes
 7. **Memory Consolidation**: Check `.loci/last-consolidation.txt` — if missing or date < today, run daily consolidation (scan last 24h of changes, find patterns, write insights to `me/insights.md`). Details → `docs/behavior.md`
 8. **Inbox management** (three-layer mechanism):
    - **L2 on demand**: Do **not** auto-load `inbox.md` into L1 working memory. It is a contextual fragment pool, not a startup source. Read it only when the user asks about fragments/quick thoughts/saved ideas, wants to organize them, or the current task clearly needs those loose ideas.
