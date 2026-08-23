@@ -10,9 +10,11 @@ const { execSync, exec } = require('child_process');
 const os = require('os');
 const { install: installCodexHook } = require('./scripts/loci-codex-hook');
 const { install: installClaudeSettings } = require('./scripts/loci-claude-settings');
+const { normalizePath, registerBrain } = require('./scripts/loci-path');
 
 const PORT = 3456;
 const BRAIN_ROOT = __dirname;
+const BRAIN_CONFIG_PATH = normalizePath(BRAIN_ROOT);
 const HOME = os.homedir();
 
 // ===== Helpers =====
@@ -279,7 +281,7 @@ function generateGlobalBlock() {
 - These rules apply **in every project and directory**, not just the brain folder.
 
 ### Automatic Context
-- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise use exactly one platform launcher: native Windows PowerShell/cmd → \`& "<brain-path>\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "<brain-path>/scripts/loci-context.sh"\`.
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise use exactly one platform launcher: native Windows PowerShell/cmd → \`& "<brain-path>/scripts/loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "<brain-path>/scripts/loci-context.sh"\`.
 - Do not preload plans, tasks, inbox, journals, project memory, or history. Read the smallest relevant source only when the user's request needs it.
 - If the command fails, read only \`<brain-path>/me/preferences.md\` once, then continue without retries.
 
@@ -308,7 +310,7 @@ When the user mentions tasks, decisions, or insights — save them to the brain:
 /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->`;
   }
-  return block.replace(/<brain-path>/g, BRAIN_ROOT);
+  return block.replace(/<brain-path>/g, BRAIN_CONFIG_PATH);
 }
 
 function generateCodexBlock() {
@@ -397,9 +399,7 @@ function runSetup(data) {
   results.push('notes/');
 
   // 5. ~/.loci/brain-path
-  const lociHome = path.join(HOME, '.loci');
-  ensureDir(lociHome);
-  writeFileSafe(path.join(lociHome, 'brain-path'), BRAIN_ROOT + '\n');
+  registerBrain({ brain: BRAIN_ROOT, home: HOME, force: true });
   results.push('~/.loci/brain-path');
 
   if (tools.claude) {
@@ -483,7 +483,7 @@ function runSetup(data) {
     // Merge one stable Loci SessionStart handler while preserving every hook
     // the user already has. Invalid JSON is reported and never overwritten.
     try {
-      const hookResult = installCodexHook({ brain: BRAIN_ROOT, home: HOME });
+      const hookResult = installCodexHook({ brain: BRAIN_CONFIG_PATH, home: HOME });
       results.push(`~/.codex/hooks.json (${hookResult.changed ? 'Loci hook installed' : 'Loci hook current'})`);
       results.push('Codex: review the Loci hook once with /hooks');
     } catch (error) {

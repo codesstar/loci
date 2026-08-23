@@ -30,6 +30,7 @@ try {
   fs.mkdirSync(path.join(brain, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(brain, 'me'), { recursive: true });
   fs.copyFileSync(path.join(ROOT, 'scripts', 'loci-context.js'), path.join(brain, 'scripts', 'loci-context.js'));
+  fs.copyFileSync(path.join(ROOT, 'scripts', 'loci-path.js'), path.join(brain, 'scripts', 'loci-path.js'));
   fs.writeFileSync(path.join(brain, 'me', 'preferences.md'), '- Hook test preference\n', 'utf8');
   fs.mkdirSync(path.join(brain, '.claude'), { recursive: true });
   const projectClaudeFile = path.join(brain, '.claude', 'settings.json');

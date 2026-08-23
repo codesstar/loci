@@ -18,6 +18,7 @@ NC='\033[0m'
 
 # ─── Globals ─────────────────────────────────────────────────────────────────
 BRAIN_PATH="$(cd "$(dirname "$0")" && pwd)"
+BRAIN_CONFIG_PATH="$BRAIN_PATH"
 LANG_CHOICE="en"
 USER_NAME=""
 USER_NICKNAME=""
@@ -1117,9 +1118,18 @@ configure_global() {
   CURRENT_STEP=3
   print_step "$(t "Connecting to AI tools" "连接 AI 工具")"
 
-  # Register brain path globally
+  # Register brain path globally. Native Node writes a portable Windows path
+  # (G:/loci rather than Git Bash's /g/loci) and backs up an older pointer.
   mkdir -p "$HOME/.loci"
-  echo "$BRAIN_PATH" > "$HOME/.loci/brain-path"
+  if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
+    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$BRAIN_PATH" --home "$HOME" --force 2>/dev/null); then
+      BRAIN_CONFIG_PATH="$registered_brain"
+    else
+      printf '%s\n' "$BRAIN_PATH" > "$HOME/.loci/brain-path"
+    fi
+  else
+    printf '%s\n' "$BRAIN_PATH" > "$HOME/.loci/brain-path"
+  fi
   print_check "$(t "Brain registered at ~/.loci/brain-path" "大脑路径已注册 ~/.loci/brain-path")"
 
   if [ "$CONNECT_CLAUDE" -eq 1 ]; then
@@ -1138,7 +1148,9 @@ configure_global() {
     # Read template and replace <brain-path>
     if [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
       local block
-      block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+      local escaped_brain
+      escaped_brain=$(printf '%s' "$BRAIN_CONFIG_PATH" | sed 's/[&|]/\\&/g')
+      block=$(sed "s|<brain-path>|${escaped_brain}|g" "$BRAIN_PATH/templates/global-claude-block.md")
       printf "\n%s\n" "$block" >> "$global_claude"
     else
       # Inline fallback if template missing
@@ -1147,32 +1159,32 @@ configure_global() {
 <!-- loci:start v2 -->
 ## Loci Brain Connection (Global)
 
-- Brain path: \`${BRAIN_PATH}\`
+- Brain path: \`${BRAIN_CONFIG_PATH}\`
 
 ### Automatic Context
-- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_PATH}\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_CONFIG_PATH}/scripts/loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_CONFIG_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
 - Tasks → use the guarded task writer, not manual JSON edits:
-  - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
-  - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
-  - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
-- Task with specific time → still write ONLY to \`${BRAIN_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
-- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
-- Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
-- Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
-- Personal memory → \`${BRAIN_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
-- Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
-- Links / materials → \`${BRAIN_PATH}/references/YYYY-MM-DD-slug.md\`
+  - Preferred: Dashboard API when \`${BRAIN_CONFIG_PATH}/.loci/dashboard/server.js\` is running.
+  - Fallback: run \`node ${BRAIN_CONFIG_PATH}/scripts/loci-task.js ...\`.
+  - Validate with \`node ${BRAIN_CONFIG_PATH}/scripts/loci-task.js validate\`.
+- Task with specific time → still write ONLY to \`${BRAIN_CONFIG_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
+- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_CONFIG_PATH}/tasks/calendar.json\`
+- Do not hand-edit \`${BRAIN_CONFIG_PATH}/tasks/tasks.json\` or \`${BRAIN_CONFIG_PATH}/tasks/calendar.json\` except as an emergency fallback.
+- Decisions → \`${BRAIN_CONFIG_PATH}/decisions/YYYY-MM-DD-slug.md\`
+- Personal memory → \`${BRAIN_CONFIG_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
+- Quick thoughts → \`${BRAIN_CONFIG_PATH}/inbox.md\`
+- Links / materials → \`${BRAIN_CONFIG_PATH}/references/YYYY-MM-DD-slug.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
 
 ### Cross-Project Memory
-- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/profile.md\` + \`.loci/progress/\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_PATH}/projects/index.md\`.
+- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/profile.md\` + \`.loci/progress/\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_CONFIG_PATH}/projects/index.md\`.
 - In connected project repos: read \`.loci/memory.md\` first for restart context. Read \`.loci/profile.md\` for stable project details, \`.loci/progress/YYYY-MM.md\` for project progress, and \`.loci/decisions/\` for rationale only when relevant.
 - In connected project repos: write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; write project progress to \`.loci/progress/YYYY-MM.md\`; update \`.loci/memory.md\` only for current state / Now-Next / active decisions / risks; update \`.loci/profile.md\` for milestones, key people, files, scope, and conventions.
 - Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
-- Connect projects through the guarded writer when available: \`node ${BRAIN_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
+- Connect projects through the guarded writer when available: \`node ${BRAIN_CONFIG_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_CONFIG_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 - Commands: /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
 <!-- loci:end -->
 GEOF
@@ -1261,7 +1273,9 @@ GEOF
       # Read the same global template Claude Code uses so both tools follow identical rules.
       if [ -f "$BRAIN_PATH/templates/global-claude-block.md" ]; then
         local block
-        block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+        local escaped_brain
+        escaped_brain=$(printf '%s' "$BRAIN_CONFIG_PATH" | sed 's/[&|]/\\&/g')
+        block=$(sed "s|<brain-path>|${escaped_brain}|g" "$BRAIN_PATH/templates/global-claude-block.md")
         printf "\n%s\n" "$block" >> "$global_codex"
       else
         # Inline fallback if template missing
@@ -1270,34 +1284,34 @@ GEOF
 <!-- loci:start v2 -->
 ## Loci Brain Connection (Global)
 
-- Brain path: \`${BRAIN_PATH}\`
+- Brain path: \`${BRAIN_CONFIG_PATH}\`
 - These rules apply **in every project and directory**, not just the brain folder.
 - Claude Code, Codex and WorkBuddy can share this same local brain.
 
 ### Automatic Context
-- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_PATH}\\scripts\\loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
+- If a Loci startup map was injected by a SessionStart hook, do not run another command. Otherwise run exactly one platform command: native Windows PowerShell/cmd → \`& "${BRAIN_CONFIG_PATH}/scripts/loci-context.cmd"\`; macOS/Linux/WSL/Git Bash → \`bash "${BRAIN_CONFIG_PATH}/scripts/loci-context.sh"\`. Never run both or retry. The map contains only standing preferences and on-demand pointers; plans, tasks, inbox, journals, and project memory remain on demand.
 
 ### Persistence (any directory)
 When the user mentions tasks, decisions, or insights — save them to the brain:
 - Tasks → use the guarded task writer, not manual JSON edits:
-  - Preferred: Dashboard API when \`${BRAIN_PATH}/.loci/dashboard/server.js\` is running.
-  - Fallback: run \`node ${BRAIN_PATH}/scripts/loci-task.js ...\`.
-  - Validate with \`node ${BRAIN_PATH}/scripts/loci-task.js validate\`.
-- Task with specific time → still write ONLY to \`${BRAIN_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
-- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_PATH}/tasks/calendar.json\`
-- Do not hand-edit \`${BRAIN_PATH}/tasks/tasks.json\` or \`${BRAIN_PATH}/tasks/calendar.json\` except as an emergency fallback.
-- Decisions → \`${BRAIN_PATH}/decisions/YYYY-MM-DD-slug.md\`
-- Personal memory → \`${BRAIN_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
-- Quick thoughts → \`${BRAIN_PATH}/inbox.md\`
+  - Preferred: Dashboard API when \`${BRAIN_CONFIG_PATH}/.loci/dashboard/server.js\` is running.
+  - Fallback: run \`node ${BRAIN_CONFIG_PATH}/scripts/loci-task.js ...\`.
+  - Validate with \`node ${BRAIN_CONFIG_PATH}/scripts/loci-task.js validate\`.
+- Task with specific time → still write ONLY to \`${BRAIN_CONFIG_PATH}/tasks/tasks.json\` via the guarded writer; it is NOT projected onto the calendar (the dashboard reminder reads timed tasks straight from the task pool)
+- Schedule-only time block → guarded writer/API writes only to \`${BRAIN_CONFIG_PATH}/tasks/calendar.json\`
+- Do not hand-edit \`${BRAIN_CONFIG_PATH}/tasks/tasks.json\` or \`${BRAIN_CONFIG_PATH}/tasks/calendar.json\` except as an emergency fallback.
+- Decisions → \`${BRAIN_CONFIG_PATH}/decisions/YYYY-MM-DD-slug.md\`
+- Personal memory → \`${BRAIN_CONFIG_PATH}/me/\` (identity, values, wellbeing, insights, learned, evolution — read \`me/README.md\` first)
+- Quick thoughts → \`${BRAIN_CONFIG_PATH}/inbox.md\`
 - Factual info: auto-save + one-line confirm. Subjective/strategic: ask before writing.
-- **Dashboard**: if \`server.js\` is running (\`node ${BRAIN_PATH}/.loci/dashboard/server.js\`), use its API. Otherwise use \`node ${BRAIN_PATH}/scripts/loci-task.js ...\` for task/schedule writes.
+- **Dashboard**: if \`server.js\` is running (\`node ${BRAIN_CONFIG_PATH}/.loci/dashboard/server.js\`), use its API. Otherwise use \`node ${BRAIN_CONFIG_PATH}/scripts/loci-task.js ...\` for task/schedule writes.
 
 ### Cross-Project Memory
-- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/profile.md\` + \`.loci/progress/\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_PATH}/projects/index.md\`.
+- Loci aggregates memory, it does not own it: a serious project's memory belongs in that project's own repo (\`.loci/memory.md\` + \`.loci/profile.md\` + \`.loci/progress/\` + \`.loci/decisions/\`), while the brain keeps only a one-line index in \`${BRAIN_CONFIG_PATH}/projects/index.md\`.
 - In connected project repos: read \`.loci/memory.md\` first for restart context. Read \`.loci/profile.md\` for stable project details, \`.loci/progress/YYYY-MM.md\` for project progress, and \`.loci/decisions/\` for rationale only when relevant.
 - In connected project repos: write durable project decisions to \`.loci/decisions/YYYY-MM-DD-slug.md\`; write project progress to \`.loci/progress/YYYY-MM.md\`; update \`.loci/memory.md\` only for current state / Now-Next / active decisions / risks; update \`.loci/profile.md\` for milestones, key people, files, scope, and conventions.
 - Tags: \`[decision]\` and project-local facts stay in the project repo. Promote only \`[insight]\` / \`[milestone]\` summaries to the brain's project index when they matter outside the repo. \`[local]\` \`[debug]\` \`[wip]\` stay local.
-- Connect projects through the guarded writer when available: \`node ${BRAIN_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
+- Connect projects through the guarded writer when available: \`node ${BRAIN_CONFIG_PATH}/scripts/loci-project.js connect --repo <repo-path> --brain ${BRAIN_CONFIG_PATH} --name "<project>" --description "<one-line>"\`. It creates project memory, injects both \`CLAUDE.md\` and \`AGENTS.md\`, updates \`.gitignore\`, and writes the brain index.
 
 ### Commands
 /loci-sync, /loci-settings, /loci-scan, /loci-consolidate
@@ -1310,7 +1324,7 @@ CODEXEOF
     # Merge a native Codex SessionStart hook without overwriting user hooks.
     # setup.sh can run without Node, so AGENTS.md remains the safe fallback.
     if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ]; then
-      if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_PATH" --home "$HOME" >/dev/null 2>&1; then
+      if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_CONFIG_PATH" --home "$HOME" >/dev/null 2>&1; then
         print_check "$(t "Codex SessionStart hook installed (review once with /hooks)" "Codex SessionStart 钩子已安装（请用 /hooks 审核一次）")"
       else
         print_warn "$(t "Codex hooks.json was left unchanged because it could not be merged safely" "Codex hooks.json 无法安全合并，已保持原样")"
@@ -1340,7 +1354,9 @@ CODEXEOF
         printf '# MEMORY.md — user-level long-term memory\n' > "$global_wb"
       fi
       local wb_block
-      wb_block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$BRAIN_PATH/templates/global-claude-block.md")
+      local escaped_brain
+      escaped_brain=$(printf '%s' "$BRAIN_CONFIG_PATH" | sed 's/[&|]/\\&/g')
+      wb_block=$(sed "s|<brain-path>|${escaped_brain}|g" "$BRAIN_PATH/templates/global-claude-block.md")
       printf "\n%s\n" "$wb_block" >> "$global_wb"
       print_check "$(t "WorkBuddy awareness enabled (~/.workbuddy/MEMORY.md)" "WorkBuddy 全局感知已启用 (~/.workbuddy/MEMORY.md)")"
     fi

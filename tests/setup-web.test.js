@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { normalizePath } = require('../scripts/loci-path');
 
 const ROOT = path.join(__dirname, '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci web setup-'));
@@ -56,6 +57,10 @@ try {
   assert.strictEqual(fs.readFileSync(`${memory}.loci-backup`, 'utf8'), '# Existing user memory\n');
   assert(!fs.existsSync(path.join(home, '.claude')));
   assert(!fs.existsSync(path.join(home, '.codex')));
+  assert.strictEqual(
+    fs.readFileSync(path.join(home, '.loci', 'brain-path'), 'utf8').trim(),
+    normalizePath(fs.realpathSync(brain))
+  );
   ok('web setup installs WorkBuddy only, preserves user memory, and is idempotent');
 
   const { normalizeToolSelection } = require('../setup-web');

@@ -2,7 +2,7 @@
 # These files are managed by Loci and will be updated on upgrade.
 # All other files in ~/loci/ are user data — never touched by upgrades.
 
-version: "0.3.4"
+version: "0.3.5"
 loci-schema: 1
 
 managed:

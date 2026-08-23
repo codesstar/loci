@@ -9,6 +9,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { normalizePath } = require('./loci-path');
 
 const LOCI_MARKER = /loci-context\.(?:js|sh|cmd)|Loading Loci startup map/i;
 const LEGACY_PROJECT_MARKER = /(?:\.codex[\\/]hooks[\\/](?:daily-context|loci-context)\.sh|on-file-change\.(?:js|sh))/i;
@@ -154,9 +155,8 @@ function cleanupLegacyProjectArtifacts(brain) {
 function install(options = {}) {
   const home = options.home || os.homedir();
   const platform = options.platform || process.platform;
-  const api = platform === 'win32' ? path.win32 : path;
   const brain = options.brain || path.join(__dirname, '..');
-  const normalizedBrain = api.normalize(brain);
+  const normalizedBrain = normalizePath(brain, platform);
   let projectCleanup = { changed: false };
   try {
     projectCleanup = cleanupLegacyProjectArtifacts(brain);

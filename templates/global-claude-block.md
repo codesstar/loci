@@ -8,7 +8,7 @@
 
 - If a `[Loci] Lightweight startup map` was injected by a SessionStart hook, use it and run nothing else.
 - Otherwise run exactly one launcher once per session:
-  - Native Windows PowerShell/cmd: `& "<brain-path>\scripts\loci-context.cmd"`
+  - Native Windows PowerShell/cmd: `& "<brain-path>/scripts/loci-context.cmd"`
   - macOS/Linux/WSL/Git Bash: `bash "<brain-path>/scripts/loci-context.sh"`
 - Never run both, retry, or repeat the launcher on each message. If it fails, read only `<brain-path>/me/preferences.md` once and continue.
 - The map contains standing preferences and pointers only. Do not preload plans, tasks, inbox, journals, history, or project memory. Open the smallest relevant file when the request needs it, and cache it for the session.

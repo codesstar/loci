@@ -7,6 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { normalizePath, resolveBrain } = require('./loci-path');
 
 const MAX_PREFERENCE_LINES = 30;
 const MAX_PREFERENCE_BYTES = 2000;
@@ -155,9 +156,15 @@ function section(title, body) {
 }
 
 function buildContext(options = {}) {
-  const brain = path.resolve(options.brain || path.join(__dirname, '..'));
-  const workspace = path.resolve(options.workspace || process.env.LOCI_PROJECT_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd());
   const platform = options.platform || process.platform;
+  const brain = resolveBrain([
+    options.brain,
+    path.join(__dirname, '..')
+  ], { platform }) || normalizePath(options.brain || path.join(__dirname, '..'), platform);
+  const workspace = normalizePath(
+    options.workspace || process.env.LOCI_PROJECT_DIR || process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+    platform
+  );
 
   let output = `[Loci] Lightweight startup map · ${localTimestamp(options.now)}\n`;
   output += `Brain: ${brain}\nWorkspace: ${workspace}\n`;

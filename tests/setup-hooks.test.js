@@ -5,11 +5,12 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { normalizePath } = require('../scripts/loci-path');
 
 const ROOT = path.join(__dirname, '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci setup integration-'));
-const brain = path.join(tmp, 'brain with spaces');
-const home = path.join(tmp, 'home with spaces');
+const brain = path.join(tmp, "brain $cash's & 空格");
+const home = path.join(tmp, 'home & 空格');
 
 function ok(name) {
   process.stdout.write(`  ok  ${name}\n`);
@@ -51,8 +52,13 @@ try {
 
   const claudeFile = path.join(home, '.claude', 'settings.json');
   const codexFile = path.join(home, '.codex', 'hooks.json');
+  const registeredBrain = fs.readFileSync(path.join(home, '.loci', 'brain-path'), 'utf8').trim();
+  assert.strictEqual(registeredBrain, normalizePath(brain));
+  if (process.platform === 'win32') assert(!/^\/[a-z]\//i.test(registeredBrain));
   const claude = JSON.parse(fs.readFileSync(claudeFile, 'utf8'));
   const codex = JSON.parse(fs.readFileSync(codexFile, 'utf8'));
+  assert(fs.readFileSync(path.join(home, '.claude', 'CLAUDE.md'), 'utf8').includes(registeredBrain));
+  assert(fs.readFileSync(path.join(home, '.codex', 'AGENTS.md'), 'utf8').includes(registeredBrain));
 
   assert(handlers(claude, 'SessionStart').some((hook) => /loci-context\.js/.test(hook.command || '')));
   const claudeLociGroup = claude.hooks.SessionStart.find((group) =>
@@ -73,6 +79,17 @@ try {
   assert.strictEqual(codex.custom, 'keep');
   assert(fs.existsSync(`${codexFile}.loci-backup`));
   ok('real setup preserves user config and installs native Claude/Codex hooks');
+
+  const plainWorkspace = path.join(tmp, 'plain workspace');
+  fs.mkdirSync(plainWorkspace, { recursive: true });
+  const installedHook = path.join(home, '.claude', 'hooks', 'loci-context.js');
+  const hookPayload = JSON.parse(execFileSync(process.execPath, [installedHook], {
+    encoding: 'utf8',
+    env: { ...process.env, HOME: home, USERPROFILE: home, CLAUDE_PROJECT_DIR: plainWorkspace }
+  }));
+  assert(hookPayload.hookSpecificOutput.additionalContext.includes('Lightweight startup map'));
+  assert(!hookPayload.hookSpecificOutput.additionalContext.includes('Startup map unavailable'));
+  ok('fresh setup pointer drives the installed Claude hook outside the brain repo');
 
   const context = execFileSync(process.execPath, [path.join(brain, 'scripts', 'loci-context.js'), brain], {
     encoding: 'utf8'

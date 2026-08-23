@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/loci-context.*'
+      - 'scripts/loci-path.js'
       - 'scripts/loci-*-hook.js'
       - 'scripts/loci-claude-settings.js'
       - '.claude/hooks/loci-context.*'
@@ -17,12 +18,15 @@ on:
       - 'tests/setup-hooks.test.js'
       - 'tests/setup-web.test.js'
       - 'tests/activity-hooks.test.js'
+      - 'setup.sh'
+      - 'update.sh'
       - 'setup-web.js'
       - 'setup-wizard.html'
       - '.github/workflows/context-compat.yml'
   pull_request:
     paths:
       - 'scripts/loci-context.*'
+      - 'scripts/loci-path.js'
       - 'scripts/loci-*-hook.js'
       - 'scripts/loci-claude-settings.js'
       - '.claude/hooks/loci-context.*'
@@ -36,6 +40,8 @@ on:
       - 'tests/setup-hooks.test.js'
       - 'tests/setup-web.test.js'
       - 'tests/activity-hooks.test.js'
+      - 'setup.sh'
+      - 'update.sh'
       - 'setup-web.js'
       - 'setup-wizard.html'
       - '.github/workflows/context-compat.yml'

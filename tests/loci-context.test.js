@@ -15,6 +15,7 @@ const NODE_HOOK = path.join(ROOT, '.claude', 'hooks', 'loci-context.js');
 const GLOBAL_BLOCK = path.join(ROOT, 'templates', 'global-claude-block.md');
 const NODE_DAILY_HOOK = path.join(ROOT, '.claude', 'hooks', 'daily-context.js');
 const UPDATE = path.join(ROOT, 'update.sh');
+const PATH_SCRIPT = path.join(ROOT, 'scripts', 'loci-path.js');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci context 测试-'));
 const brain = path.join(tmp, 'brain with 空格');
 const repo = path.join(tmp, 'project with 空格');
@@ -70,6 +71,9 @@ try {
   fs.mkdirSync(workspace, { recursive: true });
   fs.mkdirSync(path.join(home, '.loci'), { recursive: true });
   fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brainForBash, 'utf8');
+  fs.mkdirSync(path.join(brain, 'scripts'), { recursive: true });
+  fs.copyFileSync(NODE_SCRIPT, path.join(brain, 'scripts', 'loci-context.js'));
+  fs.copyFileSync(PATH_SCRIPT, path.join(brain, 'scripts', 'loci-path.js'));
 
   write('me/preferences.md', `---
 status: active
@@ -125,9 +129,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
 
   // The Claude hook must delegate to the same builder instead of maintaining
   // a second payload. Copy the managed script into the fake installed brain.
-  fs.mkdirSync(path.join(brain, 'scripts'), { recursive: true });
   fs.copyFileSync(SCRIPT, path.join(brain, 'scripts', 'loci-context.sh'));
-  fs.copyFileSync(NODE_SCRIPT, path.join(brain, 'scripts', 'loci-context.js'));
   const hookRaw = execFileSync('bash', [hookForBash], {
     encoding: 'utf8',
     env: { ...process.env, HOME: homeForBash, CLAUDE_PROJECT_DIR: workspaceForBash },
@@ -149,9 +151,11 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(!dailyHookContext.includes('PLAN_SECRET'));
   ok('project-level Claude hook delegates to the shared lightweight builder');
 
-  // Git Bash needs /d/... paths, while native Node on Windows needs D:\\....
-  // Switch the shared pointer back before exercising the native wrappers.
-  fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brain, 'utf8');
+  // Keep Git Bash's /d/... pointer intact here. The native Windows Node hook
+  // must translate it instead of requiring tests or users to rewrite it first.
+  if (process.platform === 'win32') {
+    assert(/^\/[a-z]\//i.test(fs.readFileSync(path.join(home, '.loci', 'brain-path'), 'utf8')));
+  }
   const nodeHookEnv = {
     ...process.env,
     HOME: home,
@@ -175,7 +179,16 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
     encoding: 'utf8', env: nodeHookEnv
   }));
   assert(nodeDailyPayload.hookSpecificOutput.additionalContext.includes('Project: Unicode Project'));
-  ok('Claude Node hooks work without Bash or Python');
+  ok('Claude Node hooks translate a Git Bash pointer without Bash or Python');
+
+  fs.writeFileSync(path.join(home, '.loci', 'brain-path'), '/definitely/missing/loci', 'utf8');
+  const fallbackPayload = JSON.parse(execFileSync(process.execPath, [NODE_DAILY_HOOK], {
+    encoding: 'utf8', env: nodeHookEnv
+  }));
+  assert(fallbackPayload.hookSpecificOutput.additionalContext.includes('[Loci] Lightweight startup map'));
+  assert(!fallbackPayload.hookSpecificOutput.additionalContext.includes('Startup map unavailable'));
+  fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brainForBash, 'utf8');
+  ok('project hook falls back to its own brain when the pointer is stale');
 
   for (const rel of ['.claude/CLAUDE.md', '.codex/AGENTS.md', '.workbuddy/MEMORY.md']) {
     const target = path.join(home, rel);
@@ -232,6 +245,38 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   );
   assert(windowsProject && windowsProject.name === 'Windows Project');
   ok('Windows drive paths match case-insensitively');
+
+  const { normalizePath, registerBrain, resolveBrain, windowsShellPath } = require(PATH_SCRIPT);
+  assert.strictEqual(windowsShellPath('/g/loci'), 'G:/loci');
+  assert.strictEqual(windowsShellPath('/cygdrive/g/loci'), 'G:/loci');
+  assert.strictEqual(windowsShellPath('/mnt/g/loci'), 'G:/loci');
+  assert.strictEqual(normalizePath('G:\\loci', 'win32'), 'G:/loci');
+  const translatedBrain = resolveBrain(['/g/loci'], {
+    platform: 'win32',
+    exists(file) { return file.replace(/\\/g, '/').toLowerCase() === 'g:/loci/scripts/loci-context.js'; }
+  });
+  assert.strictEqual(translatedBrain, 'G:/loci');
+  ok('Windows Git Bash, Cygwin, and WSL drive paths normalize safely');
+
+  const repairHome = path.join(tmp, 'repair home');
+  const repairPointer = path.join(repairHome, '.loci', 'brain-path');
+  fs.mkdirSync(path.dirname(repairPointer), { recursive: true });
+  fs.writeFileSync(repairPointer, '/stale/missing/brain\n', 'utf8');
+  const repaired = registerBrain({ brain, home: repairHome });
+  assert(repaired.changed);
+  assert.strictEqual(fs.readFileSync(repairPointer, 'utf8').trim(), normalizePath(brain));
+  assert.strictEqual(fs.readFileSync(`${repairPointer}.loci-backup`, 'utf8'), '/stale/missing/brain\n');
+
+  const otherBrain = path.join(tmp, 'other valid brain');
+  fs.mkdirSync(path.join(otherBrain, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(otherBrain, 'scripts', 'loci-context.js'), '// valid marker\n', 'utf8');
+  fs.writeFileSync(repairPointer, `${otherBrain}\n`, 'utf8');
+  const preserved = registerBrain({ brain, home: repairHome });
+  assert(preserved.preserved);
+  assert.strictEqual(fs.readFileSync(repairPointer, 'utf8').trim(), otherBrain);
+  registerBrain({ brain, home: repairHome, force: true });
+  assert.strictEqual(fs.readFileSync(repairPointer, 'utf8').trim(), normalizePath(brain));
+  ok('registration repairs stale pointers, backs up, and preserves another valid brain unless forced');
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }

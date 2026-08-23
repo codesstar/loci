@@ -15,6 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 BRAIN_PATH="$(cd "$(dirname "$0")" && pwd)"
+BRAIN_CONFIG_PATH="$BRAIN_PATH"
 MANIFEST="$BRAIN_PATH/.loci/engine-files.yml"
 BACKUP_DIR="$BRAIN_PATH/.loci/backups"
 REPO="codesstar/loci"
@@ -153,6 +154,9 @@ do_update() {
   if [ "$local_ver" = "$remote_ver" ]; then
     echo ""
     print_ok "Already up to date."
+    # Even without engine downloads, heal an invalid/legacy pointer and refresh
+    # connected tool blocks. Moving a brain must not require a future release.
+    refresh_global_blocks
     return
   fi
 
@@ -359,14 +363,28 @@ do_update() {
 # (~/.workbuddy/MEMORY.md) all carry the same instruction block. Re-injecting
 # it from the (freshly updated) template is how instruction fixes reach tools
 # that have no hook mechanism. User content outside the markers is untouched.
+refresh_registered_brain_path() {
+  BRAIN_CONFIG_PATH="$BRAIN_PATH"
+  if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
+    local registered_brain
+    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$BRAIN_PATH" --home "$HOME" 2>/dev/null); then
+      BRAIN_CONFIG_PATH="$registered_brain"
+    else
+      print_warn "Could not validate ~/.loci/brain-path — existing pointer left unchanged"
+    fi
+  fi
+}
+
 refresh_global_blocks() {
+  refresh_registered_brain_path
   local tpl="$BRAIN_PATH/templates/global-claude-block.md"
   if [ ! -f "$tpl" ]; then
     print_warn "templates/global-claude-block.md missing — blocks not refreshed"
     return 0
   fi
-  local block
-  block=$(sed "s|<brain-path>|${BRAIN_PATH}|g" "$tpl")
+  local block escaped_brain
+  escaped_brain=$(printf '%s' "$BRAIN_CONFIG_PATH" | sed 's/[&|]/\\&/g')
+  block=$(sed "s|<brain-path>|${escaped_brain}|g" "$tpl")
   local gf tmp_gf
   for gf in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md" "$HOME/.workbuddy/MEMORY.md"; do
     if [ -f "$gf" ] && grep -q '<!-- loci:start' "$gf"; then
@@ -384,7 +402,7 @@ refresh_global_blocks() {
     && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ] \
     && { grep -q '<!-- loci:start' "$HOME/.codex/AGENTS.md" 2>/dev/null \
       || grep -q 'loci-context' "$HOME/.codex/hooks.json" 2>/dev/null; }; then
-    if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_PATH" --home "$HOME" >/dev/null 2>&1; then
+    if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_CONFIG_PATH" --home "$HOME" >/dev/null 2>&1; then
       print_ok "Codex lightweight SessionStart hook updated"
     else
       print_warn "Codex hooks.json was invalid or incompatible — left unchanged"
