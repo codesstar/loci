@@ -367,7 +367,7 @@ refresh_registered_brain_path() {
   BRAIN_CONFIG_PATH="$BRAIN_PATH"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
     local registered_brain node_brain="$BRAIN_PATH" node_home="$HOME" node_platform
-    node_platform=$(node -p 'process.platform' 2>/dev/null || printf '')
+    node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
     if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
       node_brain=$(cygpath -m "$BRAIN_PATH")
       node_home=$(cygpath -m "$HOME")

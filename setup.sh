@@ -1125,7 +1125,7 @@ configure_global() {
     local node_brain="$BRAIN_PATH"
     local node_home="$HOME"
     local node_platform
-    node_platform=$(node -p 'process.platform' 2>/dev/null || printf '')
+    node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
     # Git Bash's /tmp and other virtual mounts cannot be translated safely by
     # string rules. Ask the environment that created the path for its native
     # spelling before handing it to Node.
