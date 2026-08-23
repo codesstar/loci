@@ -118,7 +118,9 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(!output.includes('status: active'), 'preference frontmatter leaked');
   assert(output.includes('Paths below are relative to Brain.'));
   assert(output.includes('Project: Unicode Project'));
-  assert(output.includes(`Repo: ${repoForBash}`));
+  // The shell launcher delegates to native Node when available. On Windows the
+  // normalized workspace therefore matches the native project-index entry.
+  assert(output.includes(`Repo: ${process.platform === 'win32' ? repo : repoForBash}`));
   assert(output.includes('state: focused'));
   assert(!output.includes('private_detail'));
   for (const secret of ['PLAN_SECRET', 'TASK_SECRET', 'INBOX_SECRET', 'JOURNAL_SECRET', 'STATUS_SECRET']) {
