@@ -63,6 +63,19 @@ print_ok()   { echo -e "  ${GREEN}✓${NC} $1"; }
 print_warn() { echo -e "  ${YELLOW}!${NC} $1"; }
 print_fail() { echo -e "  ${RED}✗${NC} $1"; }
 
+node_fs_path() {
+  local value="$1"
+  local node_platform
+  node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
+  if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
+    cygpath -m "$value"
+  elif [ "$node_platform" = "win32" ] && command -v wslpath >/dev/null 2>&1 && [[ "$value" == /mnt/* ]]; then
+    wslpath -m "$value"
+  else
+    printf '%s\n' "$value"
+  fi
+}
+
 is_protected() {
   local file="$1"
   for pattern in "${NEVER_TOUCH[@]}"; do
@@ -318,7 +331,7 @@ do_update() {
       chmod +x "$HOME/.claude/hooks/loci-context.sh" 2>/dev/null
     fi
     if [ -f "$BRAIN_PATH/scripts/loci-claude-settings.js" ] && command -v node >/dev/null 2>&1; then
-      if node "$BRAIN_PATH/scripts/loci-claude-settings.js" install --home "$HOME" >/dev/null 2>&1; then
+      if node "$(node_fs_path "$BRAIN_PATH/scripts/loci-claude-settings.js")" install --home "$(node_fs_path "$HOME")" >/dev/null 2>&1; then
         print_ok "Claude Code hook migrated to native Node"
       else
         print_warn "Claude settings.json was invalid or incompatible — left unchanged"
@@ -366,16 +379,11 @@ do_update() {
 refresh_registered_brain_path() {
   BRAIN_CONFIG_PATH="$BRAIN_PATH"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
-    local registered_brain node_brain="$BRAIN_PATH" node_home="$HOME" node_platform
-    node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
-    if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
-      node_brain=$(cygpath -m "$BRAIN_PATH")
-      node_home=$(cygpath -m "$HOME")
-    elif [ "$node_platform" = "win32" ] && command -v wslpath >/dev/null 2>&1 && [[ "${BRAIN_PATH}" == /mnt/* ]]; then
-      node_brain=$(wslpath -m "$BRAIN_PATH")
-      node_home=$(wslpath -m "$HOME" 2>/dev/null || printf '%s' "$HOME")
-    fi
-    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$node_brain" --home "$node_home" 2>/dev/null); then
+    local registered_brain node_brain node_home node_helper
+    node_brain=$(node_fs_path "$BRAIN_PATH")
+    node_home=$(node_fs_path "$HOME")
+    node_helper=$(node_fs_path "$BRAIN_PATH/scripts/loci-path.js")
+    if registered_brain=$(node "$node_helper" register --brain "$node_brain" --home "$node_home" 2>/dev/null); then
       BRAIN_CONFIG_PATH="$registered_brain"
     else
       print_warn "Could not validate ~/.loci/brain-path — existing pointer left unchanged"
@@ -410,7 +418,7 @@ refresh_global_blocks() {
     && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ] \
     && { grep -q '<!-- loci:start' "$HOME/.codex/AGENTS.md" 2>/dev/null \
       || grep -q 'loci-context' "$HOME/.codex/hooks.json" 2>/dev/null; }; then
-    if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_CONFIG_PATH" --home "$HOME" >/dev/null 2>&1; then
+    if node "$(node_fs_path "$BRAIN_PATH/scripts/loci-codex-hook.js")" install --brain "$(node_fs_path "$BRAIN_CONFIG_PATH")" --home "$(node_fs_path "$HOME")" >/dev/null 2>&1; then
       print_ok "Codex lightweight SessionStart hook updated"
     else
       print_warn "Codex hooks.json was invalid or incompatible — left unchanged"

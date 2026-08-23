@@ -68,6 +68,22 @@ print_fail() {
   echo -e "  ${RED}✗${NC} $1"
 }
 
+# Convert a shell path before passing it to native Windows Node. Git Bash may
+# expose drives as /d/... and virtual mounts as /tmp/..., neither of which Node
+# can resolve reliably without asking MSYS. POSIX Node receives paths unchanged.
+node_fs_path() {
+  local value="$1"
+  local node_platform
+  node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
+  if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
+    cygpath -m "$value"
+  elif [ "$node_platform" = "win32" ] && command -v wslpath >/dev/null 2>&1 && [[ "$value" == /mnt/* ]]; then
+    wslpath -m "$value"
+  else
+    printf '%s\n' "$value"
+  fi
+}
+
 # Spinner animation for file generation
 spin() {
   local msg="$1"
@@ -931,7 +947,7 @@ TASKEOF
   # Re-render active.md with the authoritative renderer so it is byte-identical
   # to what `loci-task.js validate` expects (avoids a day-one "stale" warning).
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-task.js" ]; then
-    node "$BRAIN_PATH/scripts/loci-task.js" rebuild >/dev/null 2>&1 || true
+    node "$(node_fs_path "$BRAIN_PATH/scripts/loci-task.js")" rebuild >/dev/null 2>&1 || true
   fi
 
   # --- .loci/config.yml ---
@@ -1122,21 +1138,11 @@ configure_global() {
   # (G:/loci rather than Git Bash's /g/loci) and backs up an older pointer.
   mkdir -p "$HOME/.loci"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
-    local node_brain="$BRAIN_PATH"
-    local node_home="$HOME"
-    local node_platform
-    node_platform=$(node -p 'process.platform' 2>/dev/null | tr -d '\r' || printf '')
-    # Git Bash's /tmp and other virtual mounts cannot be translated safely by
-    # string rules. Ask the environment that created the path for its native
-    # spelling before handing it to Node.
-    if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
-      node_brain=$(cygpath -m "$BRAIN_PATH")
-      node_home=$(cygpath -m "$HOME")
-    elif [ "$node_platform" = "win32" ] && command -v wslpath >/dev/null 2>&1 && [[ "${BRAIN_PATH}" == /mnt/* ]]; then
-      node_brain=$(wslpath -m "$BRAIN_PATH")
-      node_home=$(wslpath -m "$HOME" 2>/dev/null || printf '%s' "$HOME")
-    fi
-    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$node_brain" --home "$node_home" --force 2>/dev/null); then
+    local node_brain node_home node_helper
+    node_brain=$(node_fs_path "$BRAIN_PATH")
+    node_home=$(node_fs_path "$HOME")
+    node_helper=$(node_fs_path "$BRAIN_PATH/scripts/loci-path.js")
+    if registered_brain=$(node "$node_helper" register --brain "$node_brain" --home "$node_home" --force 2>/dev/null); then
       BRAIN_CONFIG_PATH="$registered_brain"
     else
       printf '%s\n' "$BRAIN_PATH" > "$HOME/.loci/brain-path"
@@ -1231,7 +1237,7 @@ GEOF
   # Merge global settings.json
   local global_settings="$HOME/.claude/settings.json"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-claude-settings.js" ]; then
-    if node "$BRAIN_PATH/scripts/loci-claude-settings.js" install --home "$HOME" >/dev/null 2>&1; then
+    if node "$(node_fs_path "$BRAIN_PATH/scripts/loci-claude-settings.js")" install --home "$(node_fs_path "$HOME")" >/dev/null 2>&1; then
       print_check "$(t "Global Node context hook configured" "全局 Node 上下文钩子已配置")"
     else
       print_warn "$(t "Claude settings.json could not be merged safely and was left unchanged" "Claude settings.json 无法安全合并，已保持原样")"
@@ -1338,7 +1344,7 @@ CODEXEOF
     # Merge a native Codex SessionStart hook without overwriting user hooks.
     # setup.sh can run without Node, so AGENTS.md remains the safe fallback.
     if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-codex-hook.js" ]; then
-      if node "$BRAIN_PATH/scripts/loci-codex-hook.js" install --brain "$BRAIN_CONFIG_PATH" --home "$HOME" >/dev/null 2>&1; then
+      if node "$(node_fs_path "$BRAIN_PATH/scripts/loci-codex-hook.js")" install --brain "$(node_fs_path "$BRAIN_CONFIG_PATH")" --home "$(node_fs_path "$HOME")" >/dev/null 2>&1; then
         print_check "$(t "Codex SessionStart hook installed (review once with /hooks)" "Codex SessionStart 钩子已安装（请用 /hooks 审核一次）")"
       else
         print_warn "$(t "Codex hooks.json was left unchanged because it could not be merged safely" "Codex hooks.json 无法安全合并，已保持原样")"
