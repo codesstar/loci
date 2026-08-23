@@ -8,7 +8,11 @@ const { execFileSync } = require('child_process');
 const { normalizePath } = require('../scripts/loci-path');
 
 const ROOT = path.join(__dirname, '..');
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'loci setup integration-'));
+// On Windows, keep the fixture on the checkout drive. Git Bash then exposes a
+// real /d/... path like a user's /g/loci install instead of its runner-specific
+// virtual /tmp mount.
+const tmpParent = process.platform === 'win32' ? path.dirname(ROOT) : os.tmpdir();
+const tmp = fs.mkdtempSync(path.join(tmpParent, 'loci setup integration-'));
 const brain = path.join(tmp, "brain $cash's & 空格");
 const home = path.join(tmp, 'home & 空格');
 
@@ -41,18 +45,19 @@ try {
     hooks: { Stop: [{ hooks: [{ type: 'command', command: 'node keep-codex.js' }] }] }
   }), 'utf8');
 
-  execFileSync('bash', [
+  const setupOutput = execFileSync('bash', [
     path.join(brain, 'setup.sh'), '--non-interactive', '--force',
     '--name', 'Setup Test', '--connect', 'both', '--lang', 'zh'
   ], {
     cwd: brain,
     env: { ...process.env, HOME: home, USERPROFILE: home, TERM: 'xterm' },
-    stdio: 'pipe'
+    encoding: 'utf8'
   });
 
   const claudeFile = path.join(home, '.claude', 'settings.json');
   const codexFile = path.join(home, '.codex', 'hooks.json');
   const registeredBrain = fs.readFileSync(path.join(home, '.loci', 'brain-path'), 'utf8').trim();
+  assert(fs.existsSync(registeredBrain), `registered brain does not exist: ${registeredBrain}\n${setupOutput}`);
   assert.strictEqual(
     normalizePath(fs.realpathSync(registeredBrain)),
     normalizePath(fs.realpathSync(brain))
