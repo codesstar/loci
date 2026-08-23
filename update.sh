@@ -366,10 +366,16 @@ do_update() {
 refresh_registered_brain_path() {
   BRAIN_CONFIG_PATH="$BRAIN_PATH"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
-    local registered_brain
-    # Native __dirname remains correct even when Git Bash reports /g/... or an
-    # MSYS virtual path such as /tmp/....
-    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --home "$HOME" 2>/dev/null); then
+    local registered_brain node_brain="$BRAIN_PATH" node_home="$HOME" node_platform
+    node_platform=$(node -p 'process.platform' 2>/dev/null || printf '')
+    if [ "$node_platform" = "win32" ] && command -v cygpath >/dev/null 2>&1; then
+      node_brain=$(cygpath -m "$BRAIN_PATH")
+      node_home=$(cygpath -m "$HOME")
+    elif [ "$node_platform" = "win32" ] && command -v wslpath >/dev/null 2>&1 && [[ "${BRAIN_PATH}" == /mnt/* ]]; then
+      node_brain=$(wslpath -m "$BRAIN_PATH")
+      node_home=$(wslpath -m "$HOME" 2>/dev/null || printf '%s' "$HOME")
+    fi
+    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$node_brain" --home "$node_home" 2>/dev/null); then
       BRAIN_CONFIG_PATH="$registered_brain"
     else
       print_warn "Could not validate ~/.loci/brain-path — existing pointer left unchanged"
