@@ -53,7 +53,10 @@ try {
   const claudeFile = path.join(home, '.claude', 'settings.json');
   const codexFile = path.join(home, '.codex', 'hooks.json');
   const registeredBrain = fs.readFileSync(path.join(home, '.loci', 'brain-path'), 'utf8').trim();
-  assert.strictEqual(registeredBrain, normalizePath(brain));
+  assert.strictEqual(
+    normalizePath(fs.realpathSync(registeredBrain)),
+    normalizePath(fs.realpathSync(brain))
+  );
   if (process.platform === 'win32') assert(!/^\/[a-z]\//i.test(registeredBrain));
   const claude = JSON.parse(fs.readFileSync(claudeFile, 'utf8'));
   const codex = JSON.parse(fs.readFileSync(codexFile, 'utf8'));

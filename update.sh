@@ -367,7 +367,9 @@ refresh_registered_brain_path() {
   BRAIN_CONFIG_PATH="$BRAIN_PATH"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
     local registered_brain
-    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$BRAIN_PATH" --home "$HOME" 2>/dev/null); then
+    # Native __dirname remains correct even when Git Bash reports /g/... or an
+    # MSYS virtual path such as /tmp/....
+    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --home "$HOME" 2>/dev/null); then
       BRAIN_CONFIG_PATH="$registered_brain"
     else
       print_warn "Could not validate ~/.loci/brain-path — existing pointer left unchanged"

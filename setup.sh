@@ -1122,7 +1122,9 @@ configure_global() {
   # (G:/loci rather than Git Bash's /g/loci) and backs up an older pointer.
   mkdir -p "$HOME/.loci"
   if command -v node >/dev/null 2>&1 && [ -f "$BRAIN_PATH/scripts/loci-path.js" ]; then
-    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --brain "$BRAIN_PATH" --home "$HOME" --force 2>/dev/null); then
+    # The helper derives the brain from native Node __dirname. Do not pass the
+    # Bash spelling: MSYS virtual paths such as /tmp/... have no safe regex map.
+    if registered_brain=$(node "$BRAIN_PATH/scripts/loci-path.js" register --home "$HOME" --force 2>/dev/null); then
       BRAIN_CONFIG_PATH="$registered_brain"
     else
       printf '%s\n' "$BRAIN_PATH" > "$HOME/.loci/brain-path"
