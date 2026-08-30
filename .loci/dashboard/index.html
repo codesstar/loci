@@ -224,6 +224,10 @@
       --blue-weak:   #e6effe;
       --blue-ink:    #1d4ed8;
 
+      --recur:      #7c6cf0;
+      --recur-weak: #efeafd;
+      --recur-ink:  #5b4bc4;
+
       --p0: #ef4444;
       --p1: #f59e0b;
       --p2: #3b82f6;
@@ -870,8 +874,8 @@
     .notify-bell.on { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
     .notify-dot { position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface); }
     .notify-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 60;
-      width: 232px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0,0,0,.12); padding: 14px; }
+      width: 288px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.12); padding: 14px; max-height: 80vh; overflow-y: auto; }
     .notify-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink); }
     .notify-toggle { position: relative; width: 38px; height: 22px; border-radius: 11px; border: none;
       background: var(--line-2); cursor: pointer; transition: background .18s; padding: 0; }
@@ -887,6 +891,57 @@
     .notify-lead.sel { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); font-weight: 600; }
     .notify-hint { font-size: 11px; color: var(--ink-3); margin-top: 10px; line-height: 1.5; }
     .notify-hint.subtle { color: var(--ink-4); margin-top: 9px; }
+
+    /* Recurring reminders (standing weekly rules) — nests inside .notify-menu */
+    .recur-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .recur-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .recur-head .notify-lead-label { margin: 0; display: flex; align-items: center; gap: 6px; }
+    .recur-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--recur); display: inline-block; flex: none; }
+    .recur-new-btn { font-family: var(--mono); font-size: 10.5px; font-weight: 600; color: var(--recur-ink);
+      background: var(--recur-weak); border: none; border-radius: 7px; padding: 4px 8px; cursor: pointer; }
+    .recur-new-btn:hover { filter: brightness(0.97); }
+    .recur-rules { display: flex; flex-direction: column; gap: 6px; }
+    .recur-rule { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 9px;
+      padding: 7px 8px 7px 10px; background: var(--surface-2); }
+    .recur-rule.off .recur-dot { background: var(--ink-4); }
+    .recur-rule-main { min-width: 0; flex: 1; }
+    .recur-rule-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+    .recur-rule.off .recur-rule-title { color: var(--ink-3); }
+    .recur-rule-meta { font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-top: 2px; display: flex; gap: 5px; flex-wrap: wrap; }
+    .recur-rule-meta .times { color: var(--recur-ink); }
+    .recur-rule.off .recur-rule-meta .times { color: var(--ink-3); }
+    .recur-toggle { width: 26px; height: 15px; border-radius: 999px; border: none; cursor: pointer;
+      background: var(--recur); position: relative; padding: 0; flex: none; }
+    .recur-rule.off .recur-toggle { background: var(--line-2); }
+    .recur-toggle .k { position: absolute; top: 2px; left: 13px; width: 11px; height: 11px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .15s ease; }
+    .recur-rule.off .recur-toggle .k { left: 2px; }
+    .recur-del { border: none; background: none; color: var(--ink-4); cursor: pointer; font-size: 12px; padding: 2px; flex: none; opacity: 0; transition: opacity .12s; }
+    .recur-rule:hover .recur-del { opacity: 1; }
+    .recur-del:hover { color: var(--red); }
+
+    .recur-form { display: flex; flex-direction: column; gap: 8px; border: 1px dashed var(--line-2);
+      border-radius: 9px; padding: 10px; margin-top: 8px; background: var(--surface-2); }
+    .recur-form input[type=text] { font: inherit; font-size: 12px; border: 1px solid var(--line); border-radius: 7px;
+      padding: 6px 8px; background: var(--surface); color: var(--ink); width: 100%; }
+    .recur-day-picker { display: flex; gap: 3px; }
+    .recur-day-chip { width: 24px; height: 24px; border-radius: 7px; border: 1px solid var(--line);
+      background: var(--surface); font-family: var(--mono); font-size: 10px; color: var(--ink-3);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+    .recur-day-chip.sel { background: var(--recur); border-color: var(--recur); color: #fff; font-weight: 600; }
+    .recur-time-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    .recur-time-chip { font-family: var(--mono); font-size: 10.5px; padding: 3px 7px; border-radius: 6px;
+      background: var(--recur-weak); color: var(--recur-ink); display: flex; align-items: center; gap: 4px; }
+    .recur-time-chip input[type=time] { font: inherit; font-family: var(--mono); font-size: 10.5px; border: none; background: none; color: inherit; width: 58px; padding: 0; }
+    .recur-time-chip button { border: none; background: none; color: inherit; cursor: pointer; opacity: .6; font-size: 10px; line-height: 1; padding: 0; }
+    .recur-time-add { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); background: none;
+      border: 1px dashed var(--line-2); border-radius: 6px; padding: 3px 7px; cursor: pointer; }
+    .recur-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+    .recur-btn-primary { font-family: var(--mono); font-size: 11px; font-weight: 600; color: #fff; background: var(--recur);
+      border: none; border-radius: 7px; padding: 5px 12px; cursor: pointer; }
+    .recur-btn-primary:disabled { opacity: .5; cursor: default; }
+    .recur-btn-ghost { font-family: var(--mono); font-size: 11px; color: var(--ink-3); background: none;
+      border: none; padding: 5px 4px; cursor: pointer; }
 
     /* New-event popup: native time inputs (replaces the old long time list) */
     .ev-time-input { width: 110px; font-family: var(--mono); color: var(--ink-2); accent-color: var(--accent); font-size: 0.8rem; padding: 5px 8px; }
@@ -939,6 +994,13 @@
     .hud-event:hover { box-shadow: 0 8px 20px rgba(16,185,129,.38); transform: translateY(-1px); filter: brightness(1.04); }
     .hud-event::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,.4); }
     .hud-event .ev-tag { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin-right: 6px; }
+    /* 关联人头像 + 地点图标 — only shown on tall-enough blocks, see the ≥50px gate above */
+    .hud-event .ev-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    .hud-event .ev-avs { display: flex; align-items: center; }
+    .hud-event .ev-av-img { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.85); object-fit: cover; margin-left: -5px; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+    .hud-event .ev-av-img:first-child { margin-left: 0; }
+    .hud-event .ev-loc-ic { display: inline-flex; opacity: .85; }
+    .hud-event .ev-loc-ic svg { width: 10px; height: 10px; }
     /* event-type gradients — personal = emerald (above), meeting = blue,
        rest/meal = amber, pulled-from-task = indigo. White text throughout. */
     .hud-event.ev-task    { background: linear-gradient(135deg, #5a5fd8, #6366f1 60%, #818cf8); box-shadow: 0 5px 14px rgba(99,102,241,.32); }
@@ -1943,10 +2005,25 @@
       max-width:min(70%,560px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .pmk{ position:relative; }
     .pmk, .pmk *{ pointer-events:none; }   /* clicks land on Leaflet's marker button, even when markers overlap */
-    .pmk-av{ width:44px; height:44px; border-radius:50%; border:3px solid #fff; outline:3px solid var(--ring,#10b981);
+    .pmk-av{ position:relative; width:44px; height:44px; border-radius:50%; border:3px solid #fff; outline:3px solid var(--ring,#10b981);
       box-shadow:0 3px 10px rgba(0,0,0,.25); overflow:hidden; background:#fff; }
     .pmk-av img{ width:100%; height:100%; object-fit:cover; }
     .pmk-approx{ outline-style:dashed; opacity:.92; }   /* city-level pin: indicative, not exact */
+    /* A place linked to a person shows THEIR avatar (precise location) — the
+       badge in the corner still says what kind of place it is (home/work/…). */
+    .pmk-place-av{ overflow:visible; }
+    .pmk-badge{ position:absolute; right:-3px; bottom:-3px; width:18px; height:18px; border-radius:6px;
+      background:var(--bg,#10b981); border:2px solid #fff; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+    .pmk-badge svg{ width:10px; height:10px; }
+    .pmk-more{ position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px;
+      background:#1c1c1a; color:#fff; font-size:9px; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
+    /* Cluster badge: nearby markers (at the current zoom) collapse into this —
+       click to zoom in until they separate. */
+    .pmk-cluster{ position:relative; width:44px; height:44px; cursor:pointer; }
+    .pmk-cluster img{ position:absolute; width:26px; height:26px; border-radius:50%; border:2px solid #fff;
+      box-shadow:0 2px 6px rgba(0,0,0,.25); left:calc(var(--i) * 9px); top:calc(var(--i) * 7px); }
+    .pmk-cluster-n{ position:absolute; right:-3px; bottom:-3px; min-width:19px; height:19px; padding:0 4px; border-radius:999px;
+      background:#1c1c1a; color:#fff; font-size:10.5px; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
     .pmk-pop .approx-tag{ font-size:9.5px; color:var(--ink-4); background:var(--surface-2); border:1px dashed var(--line-2);
       border-radius:5px; padding:1px 5px; margin-left:5px; vertical-align:1px; }
     .pmk-name{ position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:4px; white-space:nowrap;
@@ -3372,6 +3449,29 @@
     .pe-tag button { border: 0; background: none; color: var(--accent-ink); opacity: .6; cursor: pointer; font-size: 10px; padding: 0 3px; line-height: 1; }
     .pe-tag button:hover { opacity: 1; }
     .pe-tag-input { flex: 1; min-width: 70px; border: 0 !important; outline: none; font: inherit; font-size: 13px; padding: 2px !important; background: none; }
+
+    /* Person↔place link picker — reused for "关联的人" (place edit) and "关联位置" (person edit) */
+    .link-picker { position: relative; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; }
+    .link-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-weak); color: var(--accent-ink); border-radius: 999px; padding: 3px 8px 3px 4px; font-size: 12px; font-weight: 500; }
+    .link-chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none; }
+    .link-chip-ic { width: 18px; height: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex: none; }
+    .link-chip-ic svg { width: 10px; height: 10px; }
+    .link-chip button { border: 0; background: none; color: inherit; opacity: .6; cursor: pointer; font-size: 10px; padding: 0 0 0 2px; line-height: 1; }
+    .link-chip button:hover { opacity: 1; }
+    .link-add-btn { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--ink-3); background: var(--surface-2); border: 1px dashed var(--line-2); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+    .link-add-btn:hover { color: var(--accent-ink); border-color: var(--accent); }
+    .link-dropdown { position: absolute; top: calc(100% + 6px); left: 0; z-index: 40; width: 260px; max-width: 80vw;
+      background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.14); padding: 8px; }
+    .link-dropdown-search { width: 100%; font: inherit; font-size: 12.5px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; background: var(--surface-2); color: var(--ink); margin-bottom: 6px; box-sizing: border-box; }
+    .link-dropdown-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+    .link-dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: none; background: none;
+      padding: 7px 8px; border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--ink-2); }
+    .link-dropdown-item:hover { background: var(--surface-2); }
+    .link-dropdown-item.on { background: var(--accent-weak); color: var(--accent-ink); font-weight: 600; }
+    .link-dropdown-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex: none; }
+    .link-dropdown-noavatar { width: 22px; height: 22px; border-radius: 50%; background: var(--line-2); flex: none; }
+    .link-dropdown-item .ck { width: 13px; height: 13px; margin-left: auto; flex: none; }
+    .link-dropdown-empty { padding: 10px 8px; font-size: 12px; color: var(--ink-3); text-align: center; }
     /* reminder editor (per-person sticky to-dos) */
     .pe-reminders { flex: 1; display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--line); border-radius: 9px; padding: 7px 8px; background: var(--surface); }
     .pe-reminders:focus-within { border-color: var(--accent); }
@@ -6475,13 +6575,6 @@
                 <h3 class="hud-title-glow liquid-task-title" style="margin: 0;">{{ lang === 'zh' ? '任务' : 'Tasks' }}</h3>
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="tk-stats">
-                  <span class="tks" style="--mc:#5b86d6"><b>{{ taskPoolStats.open }}</b>{{ lang === 'zh' ? '待推进' : 'open' }}</span>
-                  <span class="tks" style="--mc:#e0a23c"><b>{{ taskPoolStats.today }}</b>{{ lang === 'zh' ? '今日' : 'today' }}</span>
-                  <span class="tks" :class="{ alert: taskPoolStats.overdue > 0 }" style="--mc:#e0574f"><b>{{ taskPoolStats.overdue }}</b>{{ lang === 'zh' ? '逾期' : 'late' }}</span>
-                  <span class="tks" style="--mc:#10b981"><b>{{ taskPoolStats.done }}</b>{{ lang === 'zh' ? '已完成' : 'done' }}</span>
-                </span>
-                <span class="tks-sep"></span>
                 <button class="tks-proj-btn" :class="{ on: showProjectTodos }" @click="toggleProjectTodos()"
                   :title="lang === 'zh' ? '显示/隐藏项目任务' : 'Show/hide project tasks'">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -6624,12 +6717,67 @@
                       {{ lang === 'zh' ? '此浏览器不支持通知' : 'Notifications not supported here' }}
                     </div>
                     <template v-else>
-                      <div class="notify-lead-label">{{ lang === 'zh' ? '提前提醒' : 'Lead time' }}</div>
+                      <div class="notify-hint subtle" style="margin: 0 0 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                        <span>{{ lang === 'zh' ? '开启后，事项开始的那一刻一定会提醒' : 'Always notifies right when it starts, once turned on' }}</span>
+                        <button class="notify-lead" style="flex: none; padding: 4px 10px;" @click="testBrowserNotification()">{{ lang === 'zh' ? '测试' : 'Test' }}</button>
+                      </div>
+                      <div class="notify-hint subtle" v-if="notifyTestResult === 'sent'">{{ lang === 'zh' ? '系统通知已发送。如果没弹出来，去系统设置里检查 Chrome 的通知权限，或者看看是不是开着勿扰/专注模式' : 'System notification sent. If nothing popped up, check Chrome notification permission in your OS settings, or Do Not Disturb / Focus mode' }}</div>
+                      <div class="notify-hint subtle" v-else-if="notifyTestResult === 'no-permission'">{{ lang === 'zh' ? '还没有通知权限，先打开上面的开关' : 'No notification permission yet — turn on the switch above first' }}</div>
+                      <div class="notify-hint subtle" v-else-if="notifyTestResult === 'unsupported'">{{ lang === 'zh' ? '这个浏览器环境不支持系统通知' : 'System notifications are not supported here' }}</div>
+                      <div class="notify-lead-label">{{ lang === 'zh' ? '提前提醒（可多选）' : 'Extra heads-up (multi-select)' }}</div>
                       <div class="notify-leads">
                         <button v-for="m in notifyLeadOptions" :key="m"
-                          class="notify-lead" :class="{ sel: notifyLead === m }"
-                          @click="setNotifyLead(m)">{{ m === 0 ? (lang === 'zh' ? '当时' : 'Now') : (m + (lang === 'zh' ? '分' : 'm')) }}</button>
+                          class="notify-lead" :class="{ sel: notifyLeads.includes(m) }"
+                          @click="toggleNotifyLead(m)">{{ m + (lang === 'zh' ? ' 分钟前' : 'm before') }}</button>
                       </div>
+                      <!-- Recurring reminders: standing weekly rules, third source alongside
+                           calendar events and timed tasks — see upcomingTimedItems() above
+                           and lib/routes/recurring.js / lib/reminders.js on the server side. -->
+                      <div class="recur-section">
+                        <div class="recur-head">
+                          <div class="notify-lead-label"><span class="recur-dot"></span>{{ lang === 'zh' ? '重复提醒' : 'Recurring' }}</div>
+                          <button class="recur-new-btn" @click="recurringFormOpen ? cancelRecurringForm() : openRecurringForm()">{{ recurringFormOpen ? (lang === 'zh' ? '取消' : 'Cancel') : (lang === 'zh' ? '+ 新建' : '+ New') }}</button>
+                        </div>
+
+                        <div class="recur-rules" v-if="recurringRules.length">
+                          <div v-for="rule in recurringRules" :key="rule.id" class="recur-rule" :class="{ off: !rule.active }">
+                            <span class="recur-dot"></span>
+                            <div class="recur-rule-main">
+                              <div class="recur-rule-title">{{ rule.title }}</div>
+                              <div class="recur-rule-meta"><span>{{ recurringDaysLabel(rule) }}</span><span class="times">{{ (rule.times || []).join(' · ') }}</span></div>
+                            </div>
+                            <button class="recur-del" :title="lang === 'zh' ? '删除' : 'Delete'" @click="removeRecurringRule(rule)">✕</button>
+                            <button class="recur-toggle" @click="toggleRecurringRule(rule)"><span class="k"></span></button>
+                          </div>
+                        </div>
+                        <div class="notify-hint subtle" v-else-if="!recurringFormOpen" style="margin-top: 0;">{{ lang === 'zh' ? '还没有重复提醒，比如"每天喝水"' : 'No recurring reminders yet — e.g. drink water daily' }}</div>
+
+                        <div class="recur-form" v-if="recurringFormOpen">
+                          <input type="text" v-model="recurringDraft.title" :placeholder="lang === 'zh' ? '提醒什么？' : 'What to remind?'">
+                          <div>
+                            <div class="notify-lead-label" style="margin: 0 0 5px;">{{ lang === 'zh' ? '哪几天' : 'Which days' }}</div>
+                            <div class="recur-day-picker">
+                              <button v-for="d in 7" :key="d" class="recur-day-chip" :class="{ sel: recurringDraft.days.includes(d) }"
+                                @click="toggleRecurringDraftDay(d)">{{ (lang === 'zh' ? RECURRING_DAY_LABELS_ZH : RECURRING_DAY_LABELS_EN)[d-1] }}</button>
+                            </div>
+                          </div>
+                          <div>
+                            <div class="notify-lead-label" style="margin: 0 0 5px;">{{ lang === 'zh' ? '几点（可加多个）' : 'What time(s)' }}</div>
+                            <div class="recur-time-row">
+                              <span class="recur-time-chip" v-for="(t, i) in recurringDraft.times" :key="i">
+                                <input type="time" v-model="recurringDraft.times[i]">
+                                <button @click="removeRecurringDraftTime(i)">✕</button>
+                              </span>
+                              <button class="recur-time-add" @click="addRecurringDraftTime()">{{ lang === 'zh' ? '+ 时间点' : '+ time' }}</button>
+                            </div>
+                          </div>
+                          <div class="recur-form-actions">
+                            <button class="recur-btn-ghost" @click="cancelRecurringForm()">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
+                            <button class="recur-btn-primary" :disabled="!recurringDraft.title.trim() || !recurringDraft.days.length || !recurringDraft.times.length" @click="saveRecurringRule()">{{ lang === 'zh' ? '保存' : 'Save' }}</button>
+                          </div>
+                        </div>
+                      </div>
+
                       <!-- Phone push (Web Push via server scheduler — works with the tab closed).
                            Plain onclick on purpose: window.lociPush lives outside the Vue app. -->
                       <div class="notify-lead-label" style="margin-top:6px">{{ lang === 'zh' ? '手机推送（关掉页面也能收到）' : 'Phone push (works with tab closed)' }}</div>
@@ -6741,13 +6889,30 @@
                       :style="'top: ' + minuteToY(event.startKey) + 'px; height: ' + Math.max(minuteToY(event.endKey) - minuteToY(event.startKey), 16) + 'px; left: calc(' + (event._col || 0) + ' * (100% - 8px) / ' + (event._totalCols || 1) + ' + 4px); width: calc((100% - 8px) / ' + (event._totalCols || 1) + ' - 2px)' + evTaskStyleStr(event)">
                       <div @mousedown.stop="onResizeMousedown(event._ref || event, 'top', $event)"
                         style="position: absolute; top: -2px; left: 0; right: 0; height: 6px; cursor: n-resize; z-index: 4;"></div>
-                      <div style="padding: 5px 11px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
+                      <!-- Short/point events (Google-Calendar style): one line, "Title, h:mm", no tag chip. -->
+                      <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) < 26" style="padding: 1px 10px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; line-height: 1; display: flex; align-items: baseline; gap: 4px;">
+                          <span style="font-weight: 600;">{{ event.title }}</span><span style="opacity: .8;">{{ ', ' + keyToTime(event.startKey) }}</span>
+                        </div>
+                        <span @click.stop="removeEvent(event._ref || event)" style="cursor: pointer; opacity: .5; font-size: 0.8rem; flex-shrink: 0; margin-left: 4px;">&times;</span>
+                      </div>
+                      <div v-else style="padding: 5px 11px; min-width: 0; overflow: hidden; flex: 1; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="min-width: 0; overflow: hidden;">
                           <div style="display: flex; align-items: center; min-width: 0;">
                             <span class="ev-tag">{{ event.fromTask ? (lang === 'zh' ? '任务' : 'Task') : (eventTypeClass(event) === 'ev-meeting' ? (lang === 'zh' ? '会议' : 'Meeting') : eventTypeClass(event) === 'ev-rest' ? (lang === 'zh' ? '休息' : 'Rest') : (lang === 'zh' ? '日程' : 'Event')) }}</span>
                             <div style="font-size: 13px; line-height: 1.3; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ event.title }}</div>
                           </div>
                           <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 28" style="font-family: var(--mono); font-size: 10.5px; opacity: .75; margin-top: 2px;">{{ keyToTime(event.startKey) }} – {{ keyToTime(event.endKey) }}</div>
+                          <!-- 关联人头像 + 地点图标 — only once the block has real room (≥50px ≈ 45min+);
+                               shorter blocks stay title-only so they don't get cramped. -->
+                          <div v-if="minuteToY(event.endKey) - minuteToY(event.startKey) >= 50 && (taskPeopleList(event).length || event.location)" class="ev-meta">
+                            <span v-if="taskPeopleList(event).length" class="ev-avs">
+                              <img v-for="pp in taskPeopleList(event).filter(p => p.photo).slice(0, 4)" :key="pp.name" :src="pp.photo" class="ev-av-img">
+                            </span>
+                            <span v-if="event.location" class="ev-loc-ic" :title="event.location">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </span>
+                          </div>
                         </div>
                         <span @click.stop="removeEvent(event._ref || event)" style="cursor: pointer; opacity: .5; font-size: 0.8rem; flex-shrink: 0; margin-left: 4px;">&times;</span>
                       </div>
@@ -6787,9 +6952,33 @@
                         <span style="color: #9a9a94;">—</span>
                         <input type="time" v-model="eventEndTime" class="hud-input ev-time-input" @click.stop>
                       </div>
-                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span class="hud-mono" style="color: #047857; font-size: 0.65rem; letter-spacing: 2px; min-width: 40px;">{{ t('today.location') }}</span>
-                        <input v-model="newEventLocation" :placeholder="t('today.location')" class="hud-input" style="flex: 1;">
+                      <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
+                        <span class="hud-mono" style="color: #047857; font-size: 0.65rem; letter-spacing: 2px; min-width: 40px; margin-top: 8px;">{{ t('today.location') }}</span>
+                        <div style="flex: 1;">
+                          <select class="tm-loc-sel" :value="evLocSelect" @change="onEvLocSelect($event.target.value)">
+                            <option value="">{{ lang === 'zh' ? '不填' : 'None' }}</option>
+                            <option v-for="p in placesData" :key="p.name" :value="p.name">{{ p.name }}{{ p.address ? ' · ' + p.address : (p.city ? ' · ' + p.city : '') }}</option>
+                            <option value="__custom__">{{ lang === 'zh' ? '其他地点（手动输入）…' : 'Somewhere else…' }}</option>
+                          </select>
+                          <input v-if="evLocSelect === '__custom__'" v-model="newEventLocation" style="margin-top:6px;" class="hud-input" :placeholder="lang === 'zh' ? '一次性地点，只属于这条日程' : 'One-off location for this event'">
+                        </div>
+                      </div>
+                      <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
+                        <span class="hud-mono" style="color: #047857; font-size: 0.65rem; letter-spacing: 2px; min-width: 40px; margin-top: 8px;">{{ lang === 'zh' ? '关联人' : 'People' }}</span>
+                        <div style="flex: 1;">
+                          <div class="tm-ppl" @click.self="evPplOpen = !evPplOpen">
+                            <span v-for="pp in evLinkedPeople" :key="pp.name" class="tpill tp-person" :class="{ off: pp.off }">
+                              <img v-if="pp.photo" :src="pp.photo">{{ pp.name }}<b class="x" :title="lang === 'zh' ? '移除' : 'Remove'" @click.stop="evRemovePerson(pp.name)">×</b>
+                            </span>
+                            <button type="button" class="tm-ppl-add" :title="lang === 'zh' ? '选择联系人' : 'Pick contacts'" @click="evPplOpen = !evPplOpen">＋</button>
+                          </div>
+                          <div v-if="evPplOpen" class="tm-ppl-panel">
+                            <button type="button" v-for="c in peopleData" :key="c.name" class="tm-ppl-opt" :class="{ on: evHasPerson(c.name) }" @click="evTogglePerson(c.name)">
+                              <img v-if="c.photo" :src="c.photo"><span>{{ c.name }}</span><i v-if="evHasPerson(c.name)">✓</i>
+                            </button>
+                            <div v-if="!peopleData.length" class="tm-ppl-none">{{ lang === 'zh' ? '人脉里还没有联系人' : 'No contacts yet' }}</div>
+                          </div>
+                        </div>
                       </div>
                       <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
                         <span class="hud-mono" style="color: #047857; font-size: 0.65rem; letter-spacing: 2px; min-width: 40px; margin-top: 6px;">{{ t('today.note') }}</span>
@@ -8924,7 +9113,27 @@
                 <label>{{ lang === 'zh' ? '频率' : 'Frequency' }}<input v-model="plForm.frequency" maxlength="20" :placeholder="lang === 'zh' ? '如 每周 2 次' : 'e.g. weekly'"></label>
                 <label>{{ lang === 'zh' ? '纬度' : 'Lat' }}<input v-model="plForm.lat" placeholder="-33.89"></label>
                 <label>{{ lang === 'zh' ? '经度' : 'Lng' }}<input v-model="plForm.lng" placeholder="151.19"></label>
-                <label class="full">{{ lang === 'zh' ? '关联的人' : 'People' }}<input v-model="plForm.peopleText" :placeholder="lang === 'zh' ? '多个用、分隔，与联系人名字一致' : 'Comma-separated contact names'"></label>
+                <label class="full">{{ lang === 'zh' ? '关联的人' : 'People' }}
+                  <div class="link-picker">
+                    <span class="link-chip" v-for="nm in plForm.people" :key="nm">
+                      <img v-if="plPersonPhoto(nm)" :src="plPersonPhoto(nm)">
+                      {{ nm }}
+                      <button type="button" @click="plToggleFormPerson(nm)">✕</button>
+                    </span>
+                    <button type="button" class="link-add-btn" @click.stop="plPeoplePickerOpen = !plPeoplePickerOpen; plPeopleQuery = ''">+ {{ lang === 'zh' ? '关联' : 'Add' }}</button>
+                    <div v-if="plPeoplePickerOpen" class="link-dropdown" @click.stop>
+                      <input class="link-dropdown-search" v-model="plPeopleQuery" :placeholder="lang === 'zh' ? '搜索联系人…' : 'Search contacts…'">
+                      <div class="link-dropdown-list">
+                        <button type="button" v-for="p in plPeoplePickerOptions" :key="p.name" class="link-dropdown-item" :class="{ on: plForm.people.includes(p.name) }" @click="plToggleFormPerson(p.name)">
+                          <img v-if="p.photo" :src="p.photo"><span v-else class="link-dropdown-noavatar"></span>
+                          {{ p.name }}
+                          <svg v-if="plForm.people.includes(p.name)" class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                        </button>
+                        <div v-if="!plPeoplePickerOptions.length" class="link-dropdown-empty">{{ lang === 'zh' ? '没有匹配的联系人' : 'No matches' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
                 <label class="full">{{ lang === 'zh' ? '备注' : 'Note' }}<textarea v-model="plForm.note" rows="2" :placeholder="lang === 'zh' ? '这里发生过什么、要记住什么' : 'What happens here'"></textarea></label>
               </div>
               <div class="pl-m-acts">
@@ -8978,6 +9187,27 @@
                 <label class="pe-field"><span>{{ lang === 'zh' ? '专业' : 'Major' }}</span><input v-model="editForm.major" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '所在地' : 'Location' }}</span><input v-model="editForm.location" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '老家' : 'Hometown' }}</span><input v-model="editForm.hometown" /></label>
+                <div class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '关联位置' : 'Linked places' }}</span>
+                  <div class="link-picker">
+                    <span class="link-chip" v-for="nm in editForm.places" :key="nm">
+                      <span class="link-chip-ic" :style="{ background: plTypeMeta(plNameType(nm)).color }"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(plNameType(nm))"></svg></span>
+                      {{ nm }}
+                      <button type="button" @click="toggleFormPlace(editForm, nm)">✕</button>
+                    </span>
+                    <button type="button" class="link-add-btn" @click.stop="editPlacePickerOpen = !editPlacePickerOpen; editPlaceQuery = ''">+ {{ lang === 'zh' ? '关联' : 'Add' }}</button>
+                    <div v-if="editPlacePickerOpen" class="link-dropdown" @click.stop>
+                      <input class="link-dropdown-search" v-model="editPlaceQuery" :placeholder="lang === 'zh' ? '搜索位置…' : 'Search places…'">
+                      <div class="link-dropdown-list">
+                        <button type="button" v-for="pl in editPlacePickerOptions" :key="pl.name" class="link-dropdown-item" :class="{ on: editForm.places.includes(pl.name) }" @click="toggleFormPlace(editForm, pl.name)">
+                          <span class="link-chip-ic" :style="{ background: plTypeMeta(pl.type).color }"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(pl.type)"></svg></span>
+                          {{ pl.name }}
+                          <svg v-if="editForm.places.includes(pl.name)" class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                        </button>
+                        <div v-if="!editPlacePickerOptions.length" class="link-dropdown-empty">{{ lang === 'zh' ? '没有匹配的位置' : 'No matches' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="pe-divider"></div>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '电话' : 'Phone' }}</span><input v-model="editForm.phone" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '邮箱' : 'Email' }}</span><input v-model="editForm.email" /></label>
@@ -9189,6 +9419,27 @@
                 <label class="pe-field"><span>{{ lang === 'zh' ? '专业' : 'Major' }}</span><input v-model="addForm.major" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '所在地' : 'Location' }}</span><input v-model="addForm.location" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '老家' : 'Hometown' }}</span><input v-model="addForm.hometown" /></label>
+                <div class="pe-field pe-field-col"><span>{{ lang === 'zh' ? '关联位置' : 'Linked places' }}</span>
+                  <div class="link-picker">
+                    <span class="link-chip" v-for="nm in addForm.places" :key="nm">
+                      <span class="link-chip-ic" :style="{ background: plTypeMeta(plNameType(nm)).color }"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(plNameType(nm))"></svg></span>
+                      {{ nm }}
+                      <button type="button" @click="toggleFormPlace(addForm, nm)">✕</button>
+                    </span>
+                    <button type="button" class="link-add-btn" @click.stop="addPlacePickerOpen = !addPlacePickerOpen; addPlaceQuery = ''">+ {{ lang === 'zh' ? '关联' : 'Add' }}</button>
+                    <div v-if="addPlacePickerOpen" class="link-dropdown" @click.stop>
+                      <input class="link-dropdown-search" v-model="addPlaceQuery" :placeholder="lang === 'zh' ? '搜索位置…' : 'Search places…'">
+                      <div class="link-dropdown-list">
+                        <button type="button" v-for="pl in addPlacePickerOptions" :key="pl.name" class="link-dropdown-item" :class="{ on: addForm.places.includes(pl.name) }" @click="toggleFormPlace(addForm, pl.name)">
+                          <span class="link-chip-ic" :style="{ background: plTypeMeta(pl.type).color }"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(pl.type)"></svg></span>
+                          {{ pl.name }}
+                          <svg v-if="addForm.places.includes(pl.name)" class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                        </button>
+                        <div v-if="!addPlacePickerOptions.length" class="link-dropdown-empty">{{ lang === 'zh' ? '没有匹配的位置' : 'No matches' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="pe-divider"></div>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '电话' : 'Phone' }}</span><input v-model="addForm.phone" /></label>
                 <label class="pe-field"><span>{{ lang === 'zh' ? '邮箱' : 'Email' }}</span><input v-model="addForm.email" /></label>
@@ -9971,6 +10222,16 @@ function initBrain(container) {
 // touches a real brain, and short-circuits every /api/* call so the static
 // page works on GitHub Pages (no backend) with zero console 404s.
 const DEMO_MODE = false;
+
+// Map tiles — 高德 (AMap) raster tiles instead of CARTO, which is essentially
+// unreachable from mainland China without a VPN. No API key needed for this
+// raster endpoint. Trade-off: AMap tiles are in GCJ-02 ("Mars") coordinates,
+// so a China location plotted from its plain WGS-84 lat/lng (what people/
+// places store) can sit up to a few hundred meters off — fine for "which
+// neighborhood", not for pinpoint accuracy. Style 8 = plain road map, closest
+// visual match to the old CARTO "light" basemap.
+const MAP_TILE_URL = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
+const MAP_TILE_OPTS = { subdomains: ['1', '2', '3', '4'], maxZoom: 18, attribution: '&copy; 高德地图' };
 
 // Drop-in replacement for fetch() on /api/* endpoints. In demo mode it resolves
 // to a benign "empty success" Response so callers that check `r.ok` / parse JSON
@@ -14298,27 +14559,42 @@ const lociApp = createApp({
     setInterval(() => { now.value = new Date(); }, 1000);
 
     // === Reminders (browser Notification, dashboard-open only) =================
-    // Scans timed calendar items and fires a system notification `notifyLead`
-    // minutes before each one's start. Fires once per item per day. This only
-    // works while this tab is open — see the project todo for phone/Feishu sync.
+    // Scans timed calendar items AND timed tasks with the exact same rule:
+    // "at the moment" always fires once enabled (not a choice), plus any
+    // extra heads-up minutes the user has multi-selected (15/30, both OK).
+    // Fires once per item per offset per day. This only works while this tab
+    // is open — lib/reminders.js is the phone-push twin (see notifyLeads watch).
     const notifyEnabled = ref(localStorage.getItem('loci.notifyEnabled') === '1');
-    const notifyLeadOptions = [0, 15, 30];  // 0 = 当时/Now (no lead)
-    // parse saved lead; note 0 is valid (don't let `|| 15` swallow it), and snap
-    // any legacy value (5/10/60) to the nearest current option.
-    const _savedLead = localStorage.getItem('loci.notifyLead');
-    const _leadNum = _savedLead === null ? 15 : Number(_savedLead);
-    const notifyLead = ref(
-      notifyLeadOptions.includes(_leadNum)
-        ? _leadNum
-        : notifyLeadOptions.reduce((a, b) => Math.abs(b - _leadNum) < Math.abs(a - _leadNum) ? b : a, 15)
-    );
+    const notifyLeadOptions = [15, 30];   // optional extra heads-up; "at the moment" (0) is implicit and always on
+    function _loadNotifyLeads() {
+      try {
+        const raw = localStorage.getItem('loci.notifyLeads');
+        if (raw !== null) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) return arr.filter(n => notifyLeadOptions.includes(n));
+        }
+        // migrate the old single-value setting; its 0 ("当时") is dropped since
+        // that's implicit now, not a selectable option.
+        const legacy = localStorage.getItem('loci.notifyLead');
+        if (legacy !== null) {
+          const n = Number(legacy);
+          return notifyLeadOptions.includes(n) ? [n] : [];
+        }
+      } catch {}
+      return [15];
+    }
+    const notifyLeads = ref(_loadNotifyLeads());
     const notifyPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
     const notifyMenuOpen = ref(false);
     // ids of reminders already fired, scoped to today so they reset each day
     const firedReminders = reactive(new Set());
 
     watch(notifyEnabled, v => { try { localStorage.setItem('loci.notifyEnabled', v ? '1' : '0'); } catch {} });
-    watch(notifyLead, v => { try { localStorage.setItem('loci.notifyLead', String(v)); } catch {} });
+    watch(notifyLeads, v => {
+      try { localStorage.setItem('loci.notifyLeads', JSON.stringify(v)); } catch {}
+      // keep phone push (lib/reminders.js) in sync so a locked phone honors the same choices
+      demoFetch('/api/push/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ leads: v }) }).catch(() => {});
+    }, { deep: true });
 
     async function toggleNotify() {
       if (typeof Notification === 'undefined') {
@@ -14337,12 +14613,120 @@ const lociApp = createApp({
         notifyEnabled.value = false;
       }
     }
-    function setNotifyLead(min) { notifyLead.value = min; }
+    function toggleNotifyLead(min) {
+      const i = notifyLeads.value.indexOf(min);
+      notifyLeads.value = i === -1
+        ? [...notifyLeads.value, min].sort((a, b) => a - b)
+        : notifyLeads.value.filter(n => n !== min);
+    }
 
-    // Collect today's + tomorrow's timed items from TWO independent sources:
+    // One-click diagnostic: fires a real system notification right now, so
+    // "reminders don't work" can be split into "permission problem" (this
+    // button never even sends) vs. "OS/Chrome is silently swallowing it"
+    // (this button reports 'sent' but nothing visibly pops up).
+    const notifyTestResult = ref('');
+    function testBrowserNotification() {
+      if (typeof Notification === 'undefined') { notifyTestResult.value = 'unsupported'; return; }
+      if (Notification.permission !== 'granted') { notifyTestResult.value = 'no-permission'; return; }
+      try {
+        new Notification(lang.value === 'zh' ? 'Loci 测试提醒' : 'Loci test reminder', {
+          body: lang.value === 'zh' ? '看到这条说明浏览器提醒没问题' : 'If you see this, browser notifications work fine',
+          tag: 'loci-test-' + Date.now(),
+        });
+        notifyTestResult.value = 'sent';
+      } catch (e) {
+        notifyTestResult.value = 'unsupported';
+        console.error('Test notification failed:', e);
+      }
+    }
+
+    // === Recurring reminders (standing weekly rules, e.g. "drink water Mon-Fri") ===
+    // tasks/recurring.json via lib/routes/recurring.js — one record per rule,
+    // days are ISO weekday numbers (1=Mon..7=Sun). Not materialized into
+    // calendar/tasks: upcomingTimedItems() below computes today's instances
+    // live from these rules (third source, alongside events/tasks).
+    const recurringRules = computed(() => (data.value?.recurring?.rules) || []);
+    const RECURRING_DAY_LABELS_ZH = ['一', '二', '三', '四', '五', '六', '日'];   // index 0 = Monday (ISO day 1)
+    const RECURRING_DAY_LABELS_EN = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+    const recurringFormOpen = ref(false);
+    const recurringDraft = reactive({ title: '', days: [1, 2, 3, 4, 5], times: ['09:00'] });
+    function openRecurringForm() {
+      recurringDraft.title = '';
+      recurringDraft.days = [1, 2, 3, 4, 5];
+      recurringDraft.times = ['09:00'];
+      recurringFormOpen.value = true;
+    }
+    function cancelRecurringForm() { recurringFormOpen.value = false; }
+    function toggleRecurringDraftDay(iso) {
+      const i = recurringDraft.days.indexOf(iso);
+      recurringDraft.days = i === -1
+        ? [...recurringDraft.days, iso].sort((a, b) => a - b)
+        : recurringDraft.days.filter(d => d !== iso);
+    }
+    function addRecurringDraftTime() { recurringDraft.times = [...recurringDraft.times, '18:00']; }
+    function removeRecurringDraftTime(i) { recurringDraft.times = recurringDraft.times.filter((_, idx) => idx !== i); }
+    async function saveRecurringRule() {
+      const title = recurringDraft.title.trim();
+      if (!title || !recurringDraft.days.length || !recurringDraft.times.length) return;
+      try {
+        const res = await demoFetch('/api/recurring/add', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, days: recurringDraft.days, times: recurringDraft.times }),
+        });
+        const r = await res.json();
+        if (r.ok && r.rule) {
+          if (!data.value.recurring) data.value.recurring = { rules: [] };
+          data.value.recurring.rules = [...data.value.recurring.rules, r.rule];
+        }
+      } catch (e) { console.error('Failed to add recurring rule:', e); }
+      recurringFormOpen.value = false;
+    }
+    async function toggleRecurringRule(rule) {
+      rule.active = !rule.active;   // optimistic
+      try {
+        const res = await demoFetch('/api/recurring/toggle', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: rule.id }),
+        });
+        if (!res.ok) throw new Error('toggle failed ' + res.status);
+      } catch (e) {
+        rule.active = !rule.active;  // revert
+        console.error('Failed to toggle recurring rule:', e);
+      }
+    }
+    async function removeRecurringRule(rule) {
+      const rules = data.value?.recurring?.rules;
+      if (!rules) return;
+      const prev = rules;
+      data.value.recurring.rules = rules.filter(r => r !== rule);   // optimistic
+      try {
+        const res = await demoFetch('/api/recurring/remove', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: rule.id }),
+        });
+        if (!res.ok) throw new Error('remove failed ' + res.status);
+      } catch (e) {
+        data.value.recurring.rules = prev;   // revert
+        console.error('Failed to remove recurring rule:', e);
+      }
+    }
+    function recurringDaysLabel(rule) {
+      if (!Array.isArray(rule.days) || !rule.days.length) return '';
+      const zh = lang.value === 'zh';
+      const sorted = [...rule.days].sort((a, b) => a - b);
+      if (sorted.length === 7) return zh ? '每天' : 'Daily';
+      if (sorted.length === 5 && sorted.join(',') === '1,2,3,4,5') return zh ? '工作日' : 'Weekdays';
+      const labels = zh ? RECURRING_DAY_LABELS_ZH : RECURRING_DAY_LABELS_EN;
+      return sorted.map(d => labels[d - 1]).join(zh ? '' : ' ');
+    }
+
+    // Collect today's + tomorrow's timed items from THREE independent sources:
     //   1. calendar events (real schedule blocks)
     //   2. tasks that carry a date + startTime (NOT projected onto the schedule —
     //      tasks and schedule are kept separate; we read the task directly)
+    //   3. recurring rules (standing weekly reminders — "drink water Mon-Fri"),
+    //      not tied to one date; computed live for today/tomorrow's weekday
+    //      rather than materialized into calendar.json/tasks.json
     // Deduped by date+time+title so a task that the user *did* pull onto the
     // schedule doesn't fire twice.
     function upcomingTimedItems() {
@@ -14383,6 +14767,24 @@ const lociApp = createApp({
           push(tk.date, startKey, tk.text || tk.title, 'task#' + tk.id, 'task');
         });
       }
+      // Source 3: recurring rules — same file recurringRules() reads for the UI
+      const rules = recurringRules.value;
+      if (Array.isArray(rules) && rules.length) {
+        todayKeys.forEach(key => {
+          const [y, m, dd] = key.split('-').map(Number);
+          const jsDay = new Date(y, m - 1, dd).getDay();     // 0=Sun..6=Sat
+          const isoDay = jsDay === 0 ? 7 : jsDay;              // 1=Mon..7=Sun
+          rules.forEach(rule => {
+            if (!rule || rule.active === false) return;
+            if (!Array.isArray(rule.days) || !rule.days.includes(isoDay)) return;
+            (rule.times || []).forEach(t => {
+              const parts = String(t).split(':');
+              const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
+              push(key, startKey, rule.title, 'rec#' + rule.id + '#' + key + '#' + t, 'recurring');
+            });
+          });
+        });
+      }
       return out;
     }
 
@@ -14394,32 +14796,35 @@ const lociApp = createApp({
       // throttle to ~once per 20s even though `now` ticks every second
       if (nowMs - lastReminderScan < 20000) return;
       lastReminderScan = nowMs;
-      const leadMs = notifyLead.value * 60000;
-      // grace lets "当时/Now" (lead 0) fire right at start, and tolerates the
+      // "当时" (offset 0) always fires once enabled; 15/30 are optional extra
+      // heads-up and can both be on at once. Same rule for tasks and events.
+      const offsets = [0, ...notifyLeads.value];
+      // grace lets "当时" (offset 0) fire right at start, and tolerates the
       // ~20s scan throttle so we don't skip the exact moment.
       const graceMs = 70000;
+      const zh = lang.value === 'zh';
       upcomingTimedItems().forEach(item => {
         const startMs = item.startAt.getTime();
-        // task time = deadline → fire at the moment itself; events get the lead
-        const fireAt = item.kind === 'task' ? startMs : startMs - leadMs;
-        // fire once from the intended moment up until just past start: covers
-        // both "page already open and lead moment arrives" and "page opened a
-        // bit late but the item is still upcoming".
-        if (nowMs >= fireAt && nowMs < startMs + graceMs && !firedReminders.has(item.id)) {
-          firedReminders.add(item.id);
-          const mins = Math.round((startMs - nowMs) / 60000);
-          const hh = String(item.startAt.getHours()).padStart(2, '0');
-          const mm = String(item.startAt.getMinutes()).padStart(2, '0');
-          const zh = lang.value === 'zh';
-          const body = item.kind === 'task'
-            ? (zh ? `截止 · ${hh}:${mm}` : `Due · ${hh}:${mm}`)
-            : mins <= 0
-            ? (zh ? `现在 · ${hh}:${mm}` : `Now · ${hh}:${mm}`)
-            : (zh ? `${mins} 分钟后 · ${hh}:${mm}` : `In ${mins} min · ${hh}:${mm}`);
-          try {
-            new Notification(item.title, { body, tag: item.id, requireInteraction: false });
-          } catch (e) { console.error('Notification failed:', e); }
-        }
+        const hh = String(item.startAt.getHours()).padStart(2, '0');
+        const mm = String(item.startAt.getMinutes()).padStart(2, '0');
+        offsets.forEach(offset => {
+          const fireAt = startMs - offset * 60000;
+          const fireId = item.id + '#' + offset;
+          // fire once from the intended moment up until just past start: covers
+          // both "page already open and offset moment arrives" and "page opened
+          // a bit late but the item is still upcoming".
+          if (nowMs >= fireAt && nowMs < startMs + graceMs && !firedReminders.has(fireId)) {
+            firedReminders.add(fireId);
+            const body = offset === 0
+              ? (item.kind === 'task' ? (zh ? `截止 · ${hh}:${mm}` : `Due · ${hh}:${mm}`) : (zh ? `现在 · ${hh}:${mm}` : `Now · ${hh}:${mm}`))
+              : item.kind === 'task'
+              ? (zh ? `${offset} 分钟后到期 · ${hh}:${mm}` : `Due in ${offset} min · ${hh}:${mm}`)
+              : (zh ? `${offset} 分钟后 · ${hh}:${mm}` : `In ${offset} min · ${hh}:${mm}`);
+            try {
+              new Notification(item.title, { body, tag: fireId, requireInteraction: false });
+            } catch (e) { console.error('Notification failed:', e); }
+          }
+        });
       });
     }
     watch(now, scanReminders);
@@ -17059,8 +17464,36 @@ const lociApp = createApp({
     const detailEditing = ref(false);      // detail panel in edit mode?
     const peSaving = ref(false);
     const editForm = reactive({ name: '', relation: '', gender: '', photo: '', title: '', org: '', location: '', phone: '', email: '', wechat: '', met_how: '', tagsStr: '', note: '',
-      school: '', major: '', hometown: '', hobby: '', age: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [] });
+      school: '', major: '', hometown: '', hobby: '', age: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [], places: [] });
     const editMoreOpen = ref(false);   // edit form's "更多资料" cold-field section
+    // "关联位置" picker (person edit form) — the reverse of a place's own "关联的人"
+    // field. Places stay the single source of truth (place.people); editing from
+    // here just toggles this person's name in/out of the picked places' people[]
+    // (see savePersonEdit's place-link sync pass below).
+    function personLinkedPlaces(name) {
+      return (placesData.value || []).filter(pl => (pl.people || []).includes(name));
+    }
+    function plNameType(nm) {
+      const pl = (placesData.value || []).find(x => x.name === nm);
+      return pl ? pl.type : 'other';
+    }
+    const editPlacePickerOpen = ref(false);
+    const editPlaceQuery = ref('');
+    // shared by editForm and addForm — both carry a `places` draft array
+    function toggleFormPlace(form, name) {
+      const i = form.places.indexOf(name);
+      form.places = i === -1 ? [...form.places, name] : form.places.filter(n => n !== name);
+    }
+    const editPlacePickerOptions = computed(() => {
+      const q = editPlaceQuery.value.trim().toLowerCase();
+      return (placesData.value || []).filter(pl => !q || pl.name.toLowerCase().includes(q));
+    });
+    const addPlacePickerOpen = ref(false);
+    const addPlaceQuery = ref('');
+    const addPlacePickerOptions = computed(() => {
+      const q = addPlaceQuery.value.trim().toLowerCase();
+      return (placesData.value || []).filter(pl => !q || pl.name.toLowerCase().includes(q));
+    });
     function startEditPerson() {
       const p = selectedPerson.value; if (!p) return;
       editForm.name = p.name || ''; editForm.relation = p.relation || ''; editForm.gender = p.gender || '';
@@ -17074,6 +17507,7 @@ const lociApp = createApp({
       editForm.nickname = p.nickname || ''; editForm.twitter = p.twitter || ''; editForm.linkedin = p.linkedin || '';
       editForm.reminders = Array.isArray(p.reminders) ? p.reminders.slice() : [];
       editForm.interactions = Array.isArray(p.interactions) ? p.interactions.slice() : [];
+      editForm.places = personLinkedPlaces(p.name).map(pl => pl.name);
       editMoreOpen.value = !!(editForm.school || editForm.major || editForm.hometown || editForm.hobby || editForm.age || editForm.birthday || editForm.zodiac || editForm.mbti || editForm.blood || editForm.nickname || editForm.twitter || editForm.linkedin);
       detailEditing.value = true;
     }
@@ -17081,6 +17515,7 @@ const lociApp = createApp({
     async function savePersonEdit() {
       const p = selectedPerson.value; if (!p || !editForm.name.trim()) return;
       peSaving.value = true;
+      const origName = p.name;   // capture before the optimistic Object.assign below renames it
       const reminders = (editForm.reminders || []).map(r => String(r).trim()).filter(Boolean);
       const interactions = (editForm.interactions || []).map(r => String(r).trim()).filter(Boolean);
       const payload = {
@@ -17105,6 +17540,30 @@ const lociApp = createApp({
         const res = await demoFetch('/api/people/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error('update failed ' + res.status);
       } catch (e) { console.error('Failed to save person:', e); }
+      // sync place links: places are the source of truth (place.people), so
+      // toggling from this side means patching whichever places gained/lost
+      // this person's name. Partial /api/places/update — only `people` is sent
+      // — so every other field on the place file is left untouched.
+      try {
+        const newName = payload.name;
+        const origPlaces = personLinkedPlaces(origName).map(pl => pl.name);
+        const nextPlaces = editForm.places;
+        const touched = new Set([...origPlaces, ...nextPlaces]);
+        for (const placeName of touched) {
+          const pl = (placesData.value || []).find(x => x.name === placeName);
+          if (!pl) continue;
+          const was = (pl.people || []).includes(origName);
+          const now = nextPlaces.includes(placeName);
+          if (was === now && origName === newName) continue;   // this place is unaffected
+          let peopleArr = (pl.people || []).filter(n => n !== origName);
+          if (now) peopleArr = [...peopleArr, newName];
+          pl.people = peopleArr;   // optimistic
+          await demoFetch('/api/places/update', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ origName: placeName, people: peopleArr }),
+          });
+        }
+      } catch (e) { console.error('Failed to sync place links:', e); }
       peSaving.value = false; detailEditing.value = false;
     }
     // People card layout toggle: 'framed' (inset rounded photo) ↔ 'bleed' (edge-to-edge photo fading into card)
@@ -17342,10 +17801,10 @@ const lociApp = createApp({
     const pplSaving = ref(false);
     const pplAddNameInput = ref(null);
     const addForm = reactive({ name: '', relation: '', gender: '', photo: '', title: '', org: '', location: '', phone: '', email: '', wechat: '', met_how: '', tagsStr: '', note: '',
-      school: '', major: '', hometown: '', hobby: '', age: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [] });
+      school: '', major: '', hometown: '', hobby: '', age: '', birthday: '', zodiac: '', mbti: '', blood: '', nickname: '', twitter: '', linkedin: '', reminders: [], interactions: [], places: [] });
     const addMoreOpen = ref(false);    // add form's "更多资料" cold-field section
     function pplOpenAdd() {
-      Object.keys(addForm).forEach(k => { addForm[k] = (k === 'reminders' || k === 'interactions') ? [] : ''; });
+      Object.keys(addForm).forEach(k => { addForm[k] = (k === 'reminders' || k === 'interactions' || k === 'places') ? [] : ''; });
       remDraftAdd.value = ''; intDraftAdd.value = ''; addMoreOpen.value = false;
       pplAddOpen.value = true;
       nextTick(() => pplAddNameInput.value && pplAddNameInput.value.focus());
@@ -17373,11 +17832,26 @@ const lociApp = createApp({
           nickname: payload.nickname, twitter: payload.twitter, linkedin: payload.linkedin, reminders, interactions,
           last_contact: dateToKey(new Date()) }, content: payload.note ? '<p>' + payload.note + '</p>' : '', filename: name + '.md' });
       }
+      const newPlaces = addForm.places.slice();
       pplAddOpen.value = false;
       try {
         const res = await demoFetch('/api/people/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error('add failed ' + res.status);
       } catch (e) { console.error('Failed to add person:', e); }
+      // a brand-new person has no prior place links, so just append their name
+      // to whichever places got picked — no removal branch needed like the edit form
+      for (const placeName of newPlaces) {
+        const pl = (placesData.value || []).find(x => x.name === placeName);
+        if (!pl) continue;
+        const peopleArr = [...new Set([...(pl.people || []), name])];
+        pl.people = peopleArr;
+        try {
+          await demoFetch('/api/places/update', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ origName: placeName, people: peopleArr }),
+          });
+        } catch (e) { console.error('Failed to link new person to place:', e); }
+      }
       pplSaving.value = false;
     }
     // Flat ordered list for the Cover Flow carousel (composes the 4 category computeds, doesn't touch them)
@@ -17480,8 +17954,10 @@ const lociApp = createApp({
     const pmapEl = ref(null);
     const pmapNoLoc = computed(() =>
       (peopleData.value || []).filter(p => !(p.location || '').trim()).map(p => p.name));
-    let pmapMap = null, pmapMarkers = [];
+    let pmapMap = null, pmapMarkers = [], pmapPoints = [], pmapZoomBound = false;
     const PMAP_CAT = { family: '#e8836b', friend: '#10b981', partner: '#5b86d6', prospect: '#e0a23c', mentor: '#9b7ed0' };
+    // markers projected closer than this many px apart (at the CURRENT zoom) collapse into one cluster badge
+    const PMAP_CLUSTER_PX = 46;
     // Place name → coordinates. Free Nominatim API; picks the highest-importance
     // candidate (so "Sydney" resolves to Sydney AU, not the small Canadian one)
     // and caches results in localStorage — each place is looked up once, ever.
@@ -17507,56 +17983,137 @@ const lociApp = createApp({
     // map on the new node instead of staying bound to a dead one → blank map.
     function pmapStop() {
       if (pmapMap) { pmapMap.remove(); pmapMap = null; pmapMarkers = []; }
+      pmapPoints = []; pmapZoomBound = false;
+    }
+    // Render one un-clustered point. A place with linked people shows THEIR
+    // avatar (it's a precise spot) with a small corner badge for what kind of
+    // place it is; a place with no one linked keeps the plain type-icon pin.
+    function pmapRenderPoint(pt) {
+      const zh = lang.value === 'zh';
+      if (pt.kind === 'person') {
+        const p = pt.person;
+        const icon = L.divIcon({ className: '', iconSize: [44, 44], iconAnchor: [22, 22], html:
+          '<div class="pmk"><div class="pmk-av' + (pt.approx ? ' pmk-approx' : '') + '" style="--ring:' + pt.color + '"><img src="' + p.photo + '" onerror="this.remove()"></div>' +
+          '<div class="pmk-name">' + p.name + '</div></div>' });
+        const safeName = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const provs = mapLinks(p.location).map(m =>
+          '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('');
+        const mk = L.marker([pt.lat, pt.lng], { icon }).addTo(pmapMap).bindPopup(
+          '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
+          (p.relation ? '<div class="rel">' + p.relation + '</div>' : '') +
+          '<div class="loc">📍 ' + p.location +
+          (pt.approx ? ' <span class="approx-tag">' + (zh ? '城市级 · 示意' : 'city-level') + '</span>' : '') + '</div>' +
+          '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div>' +
+          '<div class="provs">' + provs + '</div>' +
+          '<div class="acts"><button onclick="window.__lociOpenPerson && window.__lociOpenPerson(\'' + safeName + '\')">' +
+          (zh ? '查看详情' : 'Details') + '</button></div></div>');
+        pmapMarkers.push(mk);
+        return;
+      }
+      const p = pt.place, linked = pt.linkedPeople, tmeta = plTypeMeta(p.type);
+      let iconHtml;
+      if (linked.length) {
+        const primary = linked[0], extra = linked.length - 1;
+        iconHtml = '<div class="pmk"><div class="pmk-av pmk-place-av' + (pt.approx ? ' pmk-approx' : '') + '" style="--ring:' + tmeta.color + '">' +
+          '<img src="' + primary.photo + '" onerror="this.remove()">' +
+          '<span class="pmk-badge" style="--bg:' + tmeta.color + '"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + plIcon(p.type) + '</svg></span>' +
+          (extra > 0 ? '<span class="pmk-more">+' + extra + '</span>' : '') +
+          '</div><div class="pmk-name">' + p.name + '</div></div>';
+      } else {
+        iconHtml = '<div class="pmk"><div class="pmk-pl" style="--bg:' + tmeta.color + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + plIcon(p.type) + '</svg></div>' +
+          '<div class="pmk-name">' + p.name + '</div></div>';
+      }
+      const icon = L.divIcon({ className: '', iconSize: linked.length ? [44, 44] : [34, 34], iconAnchor: linked.length ? [22, 22] : [17, 17], html: iconHtml });
+      const safe = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const provs2 = (p.address || p.city) ? mapLinks(p.address || p.city).map(m =>
+        '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('') : '';
+      const peopleLine = linked.length ? '<div class="rel">' + (zh ? '关联：' : 'People: ') + linked.map(x => x.name).join('、') + '</div>' : '';
+      const mk = L.marker([pt.lat, pt.lng], { icon }).addTo(pmapMap).bindPopup(
+        '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
+        '<div class="rel">' + plTypeLabel(p.type) + (p.frequency ? ' · ' + p.frequency : '') + '</div>' +
+        peopleLine +
+        ((p.address || p.city) ? '<div class="loc">📍 ' + (p.address || p.city) +
+          (pt.approx ? ' <span class="approx-tag">' + (zh ? '城市级 · 示意' : 'city-level') + '</span>' : '') + '</div>' : '') +
+        (provs2 ? '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div><div class="provs">' + provs2 + '</div>' : '') +
+        '<div class="acts"><button onclick="window.__lociOpenPlace && window.__lociOpenPlace(\'' + safe + '\')">' +
+        (zh ? '编辑位置' : 'Edit place') + '</button></div></div>');
+      pmapMarkers.push(mk);
+    }
+    // A cluster badge for 2+ points that land within PMAP_CLUSTER_PX of each
+    // other at the current zoom — click zooms in until they separate.
+    function pmapRenderCluster(group) {
+      const lat = group.reduce((s, g) => s + g.lat, 0) / group.length;
+      const lng = group.reduce((s, g) => s + g.lng, 0) / group.length;
+      const avatars = group
+        .map(g => g.kind === 'person' ? g.person.photo : (g.linkedPeople[0] && g.linkedPeople[0].photo))
+        .filter(Boolean).slice(0, 3);
+      const html = '<div class="pmk-cluster">' +
+        avatars.map((src, i) => '<img src="' + src + '" style="--i:' + i + '" onerror="this.remove()">').join('') +
+        '<span class="pmk-cluster-n">' + group.length + '</span></div>';
+      const icon = L.divIcon({ className: '', iconSize: [44, 44], iconAnchor: [22, 22], html });
+      const mk = L.marker([lat, lng], { icon }).addTo(pmapMap);
+      mk.on('click', () => {
+        pmapMap.fitBounds(group.map(g => [g.lat, g.lng]), { padding: [60, 60], maxZoom: pmapMap.getZoom() + 4 });
+      });
+      pmapMarkers.push(mk);
+    }
+    // Screen-pixel distance between two lat/lngs depends only on zoom, not on
+    // pan — map.project(latlng, zoom) gives absolute world-pixel coords at
+    // that zoom regardless of current view, so clustering only needs to
+    // recompute on 'zoomend', never on pan/drag.
+    function pmapCluster() {
+      if (!pmapMap) return;
+      pmapMarkers.forEach(mk => mk.remove()); pmapMarkers = [];
+      const zoom = pmapMap.getZoom();
+      const pts = pmapPoints.map(pt => ({ pt, px: pmapMap.project([pt.lat, pt.lng], zoom) }));
+      const used = new Array(pts.length).fill(false);
+      for (let i = 0; i < pts.length; i++) {
+        if (used[i]) continue;
+        const group = [pts[i].pt]; used[i] = true;
+        for (let j = i + 1; j < pts.length; j++) {
+          if (used[j]) continue;
+          if (pts[i].px.distanceTo(pts[j].px) < PMAP_CLUSTER_PX) { group.push(pts[j].pt); used[j] = true; }
+        }
+        if (group.length === 1) pmapRenderPoint(group[0]);
+        else pmapRenderCluster(group);
+      }
     }
     async function pmapStart() {
       if (typeof L === 'undefined' || !pmapEl.value) return;
       // Defense in depth: if a stale instance survived (bound to a removed node),
       // rebuild it on the current container.
       if (pmapMap && pmapMap.getContainer() !== pmapEl.value) {
-        pmapMap.remove(); pmapMap = null; pmapMarkers = [];
+        pmapMap.remove(); pmapMap = null; pmapMarkers = []; pmapZoomBound = false;
       }
       if (!pmapMap) {
         pmapMap = L.map(pmapEl.value, { zoomControl: true }).setView([20, 0], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19,
-        }).addTo(pmapMap);
+        L.tileLayer(MAP_TILE_URL, MAP_TILE_OPTS).addTo(pmapMap);
       }
+      if (!pmapZoomBound) { pmapMap.on('zoomend', pmapCluster); pmapZoomBound = true; }
       pmapMap.invalidateSize();
       // The freshly-mounted container can report 0×0 for a frame; recompute once
-      // more after paint so CARTO tiles fill the pane instead of rendering blank.
+      // more after paint so map tiles fill the pane instead of rendering blank.
       requestAnimationFrame(() => { if (pmapMap) pmapMap.invalidateSize(); });
       pmapMarkers.forEach(mk => mk.remove()); pmapMarkers = [];
-      const zh = lang.value === 'zh';
-      const withLoc = (peopleData.value || []).filter(p => (p.location || '').trim());
+      pmapPoints = [];
+      // A place linked to a person is a PRECISE spot for them — don't also
+      // plot their vague city-text location; precise wins, no one shows twice.
+      const linkedNames = new Set();
+      (placesData.value || []).forEach(pl => (pl.people || []).forEach(n => linkedNames.add(n)));
+      const withLoc = (peopleData.value || []).filter(p => (p.location || '').trim() && !linkedNames.has(p.name));
       const byLoc = {};
       withLoc.forEach(p => { const k = p.location.trim(); (byLoc[k] = byLoc[k] || []).push(p); });
-      const bounds = [];
       for (const [loc, ppl] of Object.entries(byLoc)) {
         const c = await pmapGeocode(loc); if (!c) continue;
         ppl.forEach((p, i) => {
           // same-place people fan out ~2km so they don't stack (indicative, not exact)
           const n = ppl.length, spread = n > 1 ? 0.02 : 0, ang = (2 * Math.PI * i) / Math.max(n, 1);
           const lat = c.lat + spread * Math.sin(ang), lng = c.lng + spread * Math.cos(ang) * 1.4;
-          const color = PMAP_CAT[p.category] || PMAP_CAT.friend;
-          const icon = L.divIcon({ className: '', iconSize: [44, 44], iconAnchor: [22, 22], html:
-            '<div class="pmk"><div class="pmk-av' + (c.approx ? ' pmk-approx' : '') + '" style="--ring:' + color + '"><img src="' + p.photo + '" onerror="this.remove()"></div>' +
-            '<div class="pmk-name">' + p.name + '</div></div>' });
-          const safeName = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-          const provs = mapLinks(p.location).map(m =>
-            '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('');
-          const mk = L.marker([lat, lng], { icon }).addTo(pmapMap).bindPopup(
-            '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
-            (p.relation ? '<div class="rel">' + p.relation + '</div>' : '') +
-            '<div class="loc">📍 ' + p.location +
-            (c.approx ? ' <span class="approx-tag">' + (zh ? '城市级 · 示意' : 'city-level') + '</span>' : '') + '</div>' +
-            '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div>' +
-            '<div class="provs">' + provs + '</div>' +
-            '<div class="acts"><button onclick="window.__lociOpenPerson && window.__lociOpenPerson(\'' + safeName + '\')">' +
-            (zh ? '查看详情' : 'Details') + '</button></div></div>');
-          pmapMarkers.push(mk); bounds.push([lat, lng]);
+          pmapPoints.push({ kind: 'person', lat, lng, approx: !!c.approx, person: p, color: PMAP_CAT[p.category] || PMAP_CAT.friend });
         });
       }
-      // places — colored square pins on the same map as contacts
+      // places — precise dots (that person's avatar when linked) on the same map as contacts
       for (const p of (placesData.value || [])) {
         let plat = p.lat, plng = p.lng, papprox = false;
         if (isNaN(plat) || isNaN(plng)) {
@@ -17566,24 +18123,11 @@ const lociApp = createApp({
           if (!c) continue;
           plat = c.lat; plng = c.lng; papprox = !!c.approx;
         }
-        const tmeta = plTypeMeta(p.type);
-        const icon = L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html:
-          '<div class="pmk"><div class="pmk-pl" style="--bg:' + tmeta.color + '">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + plIcon(p.type) + '</svg></div>' +
-          '<div class="pmk-name">' + p.name + '</div></div>' });
-        const safe = String(p.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        const provs2 = (p.address || p.city) ? mapLinks(p.address || p.city).map(m =>
-          '<a href="' + m.url + '" target="_blank" rel="noopener">' + m.label + '</a>').join('') : '';
-        const mk = L.marker([plat, plng], { icon }).addTo(pmapMap).bindPopup(
-          '<div class="pmk-pop"><div class="nm">' + p.name + '</div>' +
-          '<div class="rel">' + plTypeLabel(p.type) + (p.frequency ? ' · ' + p.frequency : '') + '</div>' +
-          ((p.address || p.city) ? '<div class="loc">📍 ' + (p.address || p.city) +
-            (papprox ? ' <span class="approx-tag">' + (zh ? '城市级 · 示意' : 'city-level') + '</span>' : '') + '</div>' : '') +
-          (provs2 ? '<div class="provs-label">' + (zh ? '打开导航' : 'Open in') + '</div><div class="provs">' + provs2 + '</div>' : '') +
-          '<div class="acts"><button onclick="window.__lociOpenPlace && window.__lociOpenPlace(\'' + safe + '\')">' +
-          (zh ? '编辑位置' : 'Edit place') + '</button></div></div>');
-        pmapMarkers.push(mk); bounds.push([plat, plng]);
+        const linkedPeople = (p.people || []).map(nm => (peopleData.value || []).find(x => x.name === nm)).filter(Boolean);
+        pmapPoints.push({ kind: 'place', lat: plat, lng: plng, approx: papprox, place: p, linkedPeople });
       }
+      pmapCluster();
+      const bounds = pmapPoints.map(pt => [pt.lat, pt.lng]);
       if (bounds.length) pmapMap.fitBounds(bounds, { padding: [70, 70], maxZoom: 11 });
     }
     // popup "详情" button → open the regular person detail overlay
@@ -17647,16 +18191,30 @@ const lociApp = createApp({
 
     const plModal = ref(false);
     const plSaving = ref(false);
-    const plForm = reactive({ origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', peopleText: '', note: '', frequency: '' });
+    const plForm = reactive({ origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', people: [], note: '', frequency: '' });
+    // "关联的人" picker (place edit form) — pick from existing contacts instead of
+    // hand-typing names, so a typo can't create a dangling reference (this is
+    // exactly how the old free-text peopleText field used to silently break the
+    // relationship graph / task chips when a name got typo'd or later renamed).
+    const plPeoplePickerOpen = ref(false);
+    const plPeopleQuery = ref('');
+    function plToggleFormPerson(name) {
+      const i = plForm.people.indexOf(name);
+      plForm.people = i === -1 ? [...plForm.people, name] : plForm.people.filter(n => n !== name);
+    }
+    const plPeoplePickerOptions = computed(() => {
+      const q = plPeopleQuery.value.trim().toLowerCase();
+      return (peopleData.value || []).filter(p => !q || p.name.toLowerCase().includes(q));
+    });
     function plOpenAdd() {
-      Object.assign(plForm, { origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', peopleText: '', note: '', frequency: '' });
+      Object.assign(plForm, { origName: '', name: '', type: 'spot', address: '', city: '', lat: '', lng: '', people: [], note: '', frequency: '' });
       plModal.value = true;
     }
     function plOpenEdit(p) {
       Object.assign(plForm, {
         origName: p.name, name: p.name, type: p.type, address: p.address, city: p.city,
         lat: isNaN(p.lat) ? '' : String(p.lat), lng: isNaN(p.lng) ? '' : String(p.lng),
-        peopleText: p.people.join('、'), note: p.note, frequency: p.frequency,
+        people: (p.people || []).slice(), note: p.note, frequency: p.frequency,
       });
       plModal.value = true;
     }
@@ -17667,7 +18225,7 @@ const lociApp = createApp({
       const payload = {
         name, type: plForm.type, address: plForm.address.trim(), city: plForm.city.trim(),
         lat: plForm.lat.trim(), lng: plForm.lng.trim(), frequency: plForm.frequency.trim(),
-        people: plForm.peopleText.split(/[,，、;；]/).map(s => s.trim()).filter(Boolean),
+        people: plForm.people.slice(),
         note: plForm.note.trim(),
       };
       if (plForm.origName) payload.origName = plForm.origName;
@@ -18937,6 +19495,38 @@ const lociApp = createApp({
     const newEventTitle = ref('');
     const newEventLocation = ref('');
     const newEventNote = ref('');
+    // Schedule events get the same 关联的人/地点 pickers as the task detail modal
+    // (tm-ppl-*/tm-loc-sel CSS is reused as-is). `ev` prefix to avoid clashing
+    // with the task modal's `tm` state — same pattern, separate instance.
+    const newEventPeopleText = ref('');
+    const evPplOpen = ref(false);
+    const evLocCustom = ref(false);
+    const evLocSelect = computed(() => {
+      if (evLocCustom.value) return '__custom__';
+      const loc = (newEventLocation.value || '').trim();
+      if (!loc) return '';
+      return placesData.value.some(p => p.name === loc) ? loc : '__custom__';
+    });
+    function onEvLocSelect(v) {
+      if (v === '__custom__') {
+        evLocCustom.value = true;
+        if (placesData.value.some(p => p.name === (newEventLocation.value || '').trim())) newEventLocation.value = '';
+      } else {
+        evLocCustom.value = false;
+        newEventLocation.value = v;
+      }
+    }
+    const evLinkedPeople = computed(() => parsePeopleText(newEventPeopleText.value)
+      .map(nm => { const c = (peopleData.value || []).find(x => String(x.name).toLowerCase() === nm.toLowerCase()); return c ? { name: c.name, photo: c.photo || '' } : { name: nm, photo: '', off: true }; }));
+    function evHasPerson(nm) { return parsePeopleText(newEventPeopleText.value).some(x => x.toLowerCase() === String(nm).toLowerCase()); }
+    function evTogglePerson(nm) {
+      const list = parsePeopleText(newEventPeopleText.value).filter(x => x.toLowerCase() !== String(nm).toLowerCase());
+      if (list.length === parsePeopleText(newEventPeopleText.value).length) list.push(nm);
+      newEventPeopleText.value = list.join('、');
+    }
+    function evRemovePerson(nm) {
+      newEventPeopleText.value = parsePeopleText(newEventPeopleText.value).filter(x => x.toLowerCase() !== String(nm).toLowerCase()).join('、');
+    }
     const isDraggingTime = ref(false);
     const dragStartKey = ref(null);
     const dragEndKey = ref(null);
@@ -18971,6 +19561,9 @@ const lociApp = createApp({
       newEventTitle.value = '';
       newEventLocation.value = '';
       newEventNote.value = '';
+      newEventPeopleText.value = '';
+      evPplOpen.value = false;
+      evLocCustom.value = false;
       addingEventFromTask.value = false;
       editingEvent.value = null;
       dragStartKey.value = null;
@@ -18999,11 +19592,13 @@ const lociApp = createApp({
       if (addingEventFromTask.value) ev.fromTask = true;
       if (newEventLocation.value.trim()) ev.location = newEventLocation.value.trim();
       if (newEventNote.value.trim()) ev.note = newEventNote.value.trim();
+      const evPeople = parsePeopleText(newEventPeopleText.value);
+      if (evPeople.length) ev.people = evPeople;
       calendarEvents[key].push(ev);
       calendarEvents[key] = [...calendarEvents[key]];
 
       try {
-        await demoFetch('/api/calendar/add', {
+        const res = await demoFetch('/api/calendar/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -19013,14 +19608,20 @@ const lociApp = createApp({
             endMin: ev.endKey,
             location: ev.location,
             note: ev.note,
+            people: ev.people,
             fromTask: !!ev.fromTask
           })
         });
+        // capture the server-assigned id so this event can be edited/deleted later
+        if (res.ok) { const out = await res.json(); if (out.event && out.event.id) ev.id = out.event.id; }
       } catch (e) { /* localStorage keeps the optimistic event */ }
 
       newEventTitle.value = '';
       newEventLocation.value = '';
       newEventNote.value = '';
+      newEventPeopleText.value = '';
+      evPplOpen.value = false;
+      evLocCustom.value = false;
       addingEventStart.value = null;
       addingEventEnd.value = null;
       addingEventFromTask.value = false;
@@ -19143,15 +19744,23 @@ const lociApp = createApp({
       });
     }
 
-    function removeEvent(eventObj) {
+    // Matched server-side by id when the event has one (assigned on first
+    // save); older events created before ids existed fall back to date +
+    // title + startKey, same dedupe key the reminder scanners already use.
+    async function removeEvent(eventObj) {
       const key = dateToKey(viewingDate.value);
       const dayEvents = calendarEvents[key];
       if (!dayEvents) return;
       const idx = dayEvents.indexOf(eventObj);
-      if (idx > -1) {
-        dayEvents.splice(idx, 1);
-        calendarEvents[key] = [...dayEvents];
-      }
+      if (idx === -1) return;
+      dayEvents.splice(idx, 1);
+      calendarEvents[key] = [...dayEvents];
+      try {
+        await demoFetch('/api/calendar/remove', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: key, id: eventObj.id, matchTitle: eventObj.title, matchStart: eventObj.startKey }),
+        });
+      } catch (e) { console.error('Failed to remove event:', e); }
     }
 
     const editingEvent = ref(null);
@@ -19164,13 +19773,16 @@ const lociApp = createApp({
       newEventTitle.value = event.title;
       newEventLocation.value = event.location || '';
       newEventNote.value = event.note || '';
+      newEventPeopleText.value = (event.people || []).join('、');
+      evPplOpen.value = false;
+      evLocCustom.value = event.location ? !placesData.value.some(p => p.name === event.location) : false;
       setTimeout(() => {
         const input = document.querySelector('input[placeholder="Event designation..."]');
         if (input) input.focus();
       }, 50);
     }
 
-    function saveEditEvent() {
+    async function saveEditEvent() {
       if (!newEventTitle.value.trim()) return;
       if (addingEventStart.value === null) return;            // need a start time
       if (addingEventEnd.value === null || addingEventEnd.value <= addingEventStart.value) {
@@ -19178,19 +19790,36 @@ const lociApp = createApp({
       }
       const ev = editingEvent.value;
       if (ev) {
+        const origId = ev.id, origTitle = ev.title, origStart = ev.startKey;
         ev.title = newEventTitle.value.trim();
         ev.startKey = addingEventStart.value;
         ev.endKey = addingEventEnd.value;
         ev.hour = Math.floor(addingEventStart.value / 60);
         ev.location = newEventLocation.value.trim() || undefined;
         ev.note = newEventNote.value.trim() || undefined;
+        const evPeople = parsePeopleText(newEventPeopleText.value);
+        ev.people = evPeople.length ? evPeople : undefined;
         const key = dateToKey(viewingDate.value);
         if (calendarEvents[key]) calendarEvents[key] = [...calendarEvents[key]];
+        try {
+          const res = await demoFetch('/api/calendar/update', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              date: key, id: origId, matchTitle: origTitle, matchStart: origStart,
+              title: ev.title, startMin: ev.startKey, endMin: ev.endKey,
+              location: newEventLocation.value.trim(), note: newEventNote.value.trim(), people: evPeople,
+            }),
+          });
+          if (res.ok) { const out = await res.json(); if (out.event && out.event.id) ev.id = out.event.id; }
+        } catch (e) { console.error('Failed to save event:', e); }
       }
       editingEvent.value = null;
       newEventTitle.value = '';
       newEventLocation.value = '';
       newEventNote.value = '';
+      newEventPeopleText.value = '';
+      evPplOpen.value = false;
+      evLocCustom.value = false;
       addingEventStart.value = null;
       addingEventEnd.value = null;
       addingEventFromTask.value = false;
@@ -19515,6 +20144,9 @@ const lociApp = createApp({
       addingEventStart.value = startMin;
       addingEventEnd.value = endMin;
       newEventTitle.value = task.text;
+      newEventPeopleText.value = '';
+      evPplOpen.value = false;
+      evLocCustom.value = false;
       newEventLocation.value = '';
       newEventNote.value = '';
       addingEventFromTask.value = true;
@@ -20016,7 +20648,7 @@ const lociApp = createApp({
         if (isNaN(lat) || isNaN(lng)) return;
         tmMap = L.map(tmMapEl.value, { zoomControl: false, scrollWheelZoom: false, dragging: false, attributionControl: false })
           .setView([lat, lng], 14);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(tmMap);
+        L.tileLayer(MAP_TILE_URL, MAP_TILE_OPTS).addTo(tmMap);
         const tmeta = plTypeMeta(pl.type);
         L.marker([lat, lng], { icon: L.divIcon({ className: '', iconSize: [30, 30], iconAnchor: [15, 15], html:
           '<div class="pmk-pl" style="--bg:' + tmeta.color + '"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + plIcon(pl.type) + '</svg></div>' }) }).addTo(tmMap);
@@ -21070,6 +21702,9 @@ const lociApp = createApp({
       document.addEventListener('click', (e) => {
         if (openTimePicker.value) openTimePicker.value = null;
         if (notifyMenuOpen.value) notifyMenuOpen.value = false;
+        if (plPeoplePickerOpen.value) plPeoplePickerOpen.value = false;
+        if (editPlacePickerOpen.value) editPlacePickerOpen.value = false;
+        if (addPlacePickerOpen.value) addPlacePickerOpen.value = false;
         if (addingEventStart.value !== null) {
           addingEventStart.value = null;
           addingEventFromTask.value = false;
@@ -21401,15 +22036,23 @@ const lociApp = createApp({
       sigEditing, sigSaving, sigDraft, sigInput, startSigEdit, cancelSigEdit, addSig, editSig, removeSig, saveSigEdit,
       pplBoard, plQuery, plTypeFilter, plTypeOrder, placesData, plFiltered, plLife, plWork, plTypeCounts,
       plTypeMeta, plTypeLabel, plIcon, plPersonPhoto, plToggleType, plModal, plSaving, plForm, plOpenAdd, plOpenEdit, plSave, plRemove,
+      plPeoplePickerOpen, plPeopleQuery, plToggleFormPerson, plPeoplePickerOptions,
+      personLinkedPlaces, plNameType, editPlacePickerOpen, editPlaceQuery, toggleFormPlace, editPlacePickerOptions,
+      addPlacePickerOpen, addPlaceQuery, addPlacePickerOptions,
       taskPlace, taskPeopleList, gotoTaskPerson, gotoTaskPlace, tmLinkedPlace, tmLinkedPeople, tmMapEl,
       tmPplOpen, tmLocSelect, onTmLocSelect, tmHasPerson, tmTogglePerson, tmRemovePerson,
       calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
-      notifyEnabled, notifyLead, notifyPermission, notifyMenuOpen, notifyLeadOptions, toggleNotify, setNotifyLead,
+      notifyEnabled, notifyLeads, notifyPermission, notifyMenuOpen, notifyLeadOptions, toggleNotify, toggleNotifyLead,
+      notifyTestResult, testBrowserNotification,
+      recurringRules, RECURRING_DAY_LABELS_ZH, RECURRING_DAY_LABELS_EN, recurringFormOpen, recurringDraft,
+      openRecurringForm, cancelRecurringForm, toggleRecurringDraftDay, addRecurringDraftTime, removeRecurringDraftTime,
+      saveRecurringRule, toggleRecurringRule, removeRecurringRule, recurringDaysLabel,
       greeting, currentHour, dayHours,
       viewingDate, viewingDayLabel, viewingWeekLabel, goToDay, missionLogDateLabel, toggleMissionTask, taskMetaLine, taskOverdueDays, eventTypeClass,
       todayCalOpen, todayCalMonth, todayWeekdayLabel, todayDateLabel, todayCalMonthLabel, todayCalCells, todayPickDate,
       switchCalendarView, calendarNav,
       addingEventStart, addingEventEnd, addingEventFromTask, addingEventHour, newEventTitle, newEventLocation, newEventNote, confirmAddEvent, removeEvent,
+      newEventPeopleText, evPplOpen, evLocCustom, evLocSelect, onEvLocSelect, evLinkedPeople, evHasPerson, evTogglePerson, evRemovePerson,
       editingEvent, startEditEvent, saveEditEvent,
       onEventMousedown, onResizeMousedown, onEventClick, eventDragState,
       isDraggingTime, dragStartKey, dragEndKey, onTimelineMousedown, onTimelineMousemove, onTimelineMouseup,

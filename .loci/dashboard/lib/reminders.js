@@ -2,18 +2,21 @@
  * lib/reminders.js — server-side reminder scheduler.
  *
  * Line-for-line port of the browser reminder engine in index.html
- * (upcomingTimedItems + scanReminders): same two data sources — timed
- * calendar events AND tasks carrying date+startTime, read straight from the
- * task pool — same dedupe key (date#startKey#title), same lead/grace
- * semantics. Runs every 30s regardless of any browser tab, and delivers
- * through Web Push (lib/push/webpush.js) so a locked phone still buzzes.
+ * (upcomingTimedItems + scanReminders): same three data sources — timed
+ * calendar events, tasks carrying date+startTime (read straight from the
+ * task pool), and recurring rules (tasks/recurring.json, computed live for
+ * today/tomorrow's weekday) — same dedupe key (date#startKey#title), same
+ * lead/grace semantics. Runs every 30s regardless of any browser tab, and
+ * delivers through Web Push (lib/push/webpush.js) so a locked phone still buzzes.
  *
  * The browser engine stays: desktop-open gets instant in-page notifications,
  * each side keeps its own fired-set (one ping per device is by design).
  *
  * State under <brain>/.loci/push/:
  *   fired.json     {date, ids[]} — reset when the day changes, survives restarts
- *   settings.json  {lead} — minutes before start (0/15/30), default 15
+ *   settings.json  {leads[]} — extra heads-up minutes before start (15/30, both
+ *                  OK), default [15]. "At the moment" (offset 0) is implicit
+ *                  and always fires once push is on — it is not a choice.
  * Quiet hours honor config.yml wellbeing (wind_down_time → wake_up_time).
  */
 
@@ -21,10 +24,10 @@ const fs = require('fs');
 const path = require('path');
 
 const SCAN_MS = 30000;
-// Fires from (start - lead) until 10min past start: covers the exact moment,
+// Fires from (start - offset) until 10min past start: covers the exact moment,
 // the 30s scan grid, and "Mac just woke up, item started minutes ago" catch-up.
 const GRACE_MS = 10 * 60 * 1000;
-const LEAD_OPTIONS = [0, 15, 30];
+const LEAD_OPTIONS = [15, 30];   // optional extra heads-up; 0 ("at the moment") is implicit
 
 let st = null;
 
@@ -42,12 +45,16 @@ function readJson(file, fallback) {
 
 function loadSettings() {
   const s = readJson(settingsFile(), {});
-  return { lead: LEAD_OPTIONS.includes(s.lead) ? s.lead : 15 };
+  if (Array.isArray(s.leads)) return { leads: s.leads.filter(l => LEAD_OPTIONS.includes(l)) };
+  // migrate the old single-value {lead} shape; its 0 ("at the moment") is
+  // dropped since that's implicit now, not a selectable option.
+  if (LEAD_OPTIONS.includes(s.lead)) return { leads: [s.lead] };
+  return { leads: [15] };
 }
 
 function saveSettings(next) {
   const merged = { ...loadSettings(), ...next };
-  if (!LEAD_OPTIONS.includes(merged.lead)) merged.lead = 15;
+  merged.leads = Array.isArray(merged.leads) ? [...new Set(merged.leads.filter(l => LEAD_OPTIONS.includes(l)))].sort((a, b) => a - b) : [15];
   st.store.atomicWriteSync(settingsFile(), JSON.stringify(merged, null, 2) + '\n', 'utf-8');
   return merged;
 }
@@ -119,6 +126,28 @@ function upcomingTimedItems(now) {
     const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
     add(tk.date, startKey, tk.text || tk.title, 'task');
   }
+
+  // Source 3: recurring rules (standing weekly reminders — "drink water
+  // Mon-Fri"), not tied to one date. Computed live for today/tomorrow rather
+  // than materialized into calendar.json/tasks.json.
+  const recurring = readJson(path.join(st.root, 'tasks', 'recurring.json'), {});
+  const rules = Array.isArray(recurring.rules) ? recurring.rules : [];
+  if (rules.length) {
+    for (const key of dayKeys) {
+      const [y, m, dd] = key.split('-').map(Number);
+      const jsDay = new Date(y, m - 1, dd).getDay();       // 0=Sun..6=Sat
+      const isoDay = jsDay === 0 ? 7 : jsDay;               // 1=Mon..7=Sun
+      for (const rule of rules) {
+        if (!rule || rule.active === false) continue;
+        if (!Array.isArray(rule.days) || !rule.days.includes(isoDay)) continue;
+        for (const t of (rule.times || [])) {
+          const parts = String(t).split(':');
+          const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
+          add(key, startKey, rule.title, 'recurring');
+        }
+      }
+    }
+  }
   return out;
 }
 
@@ -140,28 +169,34 @@ async function scan() {
   const todayKey = dateKey(now);
   const fired = loadFired(todayKey);
   const nowMs = now.getTime();
-  const leadMs = loadSettings().lead * 60000;
+  // "At the moment" (offset 0) always fires; 15/30 are optional extra
+  // heads-up and both can be on at once. Same rule for tasks and events —
+  // mirrors the browser engine's scanReminders() in index.html.
+  const offsets = [0, ...loadSettings().leads];
   let dirty = false;
 
   for (const item of upcomingTimedItems(now)) {
     const startMs = item.startAt.getTime();
-    // Tasks carry a DEADLINE — remind exactly at that moment. Only schedule
-    // events (occupied time blocks) get the lead-minutes head start.
-    const fireAt = item.kind === 'task' ? startMs : startMs - leadMs;
-    if (nowMs >= fireAt && nowMs < startMs + GRACE_MS && !fired.has(item.id)) {
-      fired.add(item.id);
-      dirty = true;
-      const mins = Math.round((startMs - nowMs) / 60000);
-      const hh = String(item.startAt.getHours()).padStart(2, '0');
-      const mm = String(item.startAt.getMinutes()).padStart(2, '0');
-      const body = item.kind === 'task'
-        ? (mins < 0 ? `已到截止 · ${hh}:${mm}` : `截止 · ${hh}:${mm}`)
-        : (mins < 0 ? `已开始 · ${hh}:${mm}` : mins === 0 ? `现在 · ${hh}:${mm}` : `${mins} 分钟后 · ${hh}:${mm}`);
-      try {
-        await webpush.sendToAll({ title: item.title, body, tag: item.id, url: '/' });
-        console.log(`reminders: pushed "${item.title}" (${body})`);
-      } catch (e) {
-        console.error('reminders: push failed:', e.message);
+    const hh = String(item.startAt.getHours()).padStart(2, '0');
+    const mm = String(item.startAt.getMinutes()).padStart(2, '0');
+    for (const offset of offsets) {
+      const fireAt = startMs - offset * 60000;
+      const fireId = item.id + '#' + offset;
+      if (nowMs >= fireAt && nowMs < startMs + GRACE_MS && !fired.has(fireId)) {
+        fired.add(fireId);
+        dirty = true;
+        const mins = Math.round((startMs - nowMs) / 60000);
+        const body = offset === 0
+          ? (item.kind === 'task' ? (mins < 0 ? `已到截止 · ${hh}:${mm}` : `截止 · ${hh}:${mm}`) : (mins < 0 ? `已开始 · ${hh}:${mm}` : `现在 · ${hh}:${mm}`))
+          : item.kind === 'task'
+          ? `${offset} 分钟后到期 · ${hh}:${mm}`
+          : `${offset} 分钟后 · ${hh}:${mm}`;
+        try {
+          await webpush.sendToAll({ title: item.title, body, tag: fireId, url: '/' });
+          console.log(`reminders: pushed "${item.title}" (${body})`);
+        } catch (e) {
+          console.error('reminders: push failed:', e.message);
+        }
       }
     }
   }

@@ -1,10 +1,11 @@
 /**
  * lib/routes/push.js — Web Push subscription API + reminder scheduler boot.
  *
- *   GET  /api/push/status        {available, count, publicKey, lead, quietHours}
+ *   GET  /api/push/status        {available, count, publicKey, leads, quietHours}
  *   POST /api/push/subscribe     {subscription} (from PushManager.subscribe)
  *   POST /api/push/unsubscribe   {endpoint}
- *   POST /api/push/settings      {lead: 0|15|30}
+ *   POST /api/push/settings      {leads: number[]} — extra heads-up minutes (15/30,
+ *                                 multi-select); "at the moment" is implicit, not sent
  *   POST /api/push/test          sends a test notification to every device
  *
  * init(ctx) runs once at server start: boots the server-side reminder
@@ -31,7 +32,7 @@ module.exports = {
         available: webpush.available(),
         count: webpush.count(),
         publicKey: webpush.available() ? webpush.publicKey() : null,
-        lead: reminders.loadSettings().lead,
+        leads: reminders.loadSettings().leads,
         hint: webpush.available() ? null : '手机推送未启用：在电脑上运行 cd .loci/dashboard && npm install web-push 然后重启 dashboard',
       });
       return true;
@@ -55,7 +56,8 @@ module.exports = {
 
     if (p === '/api/push/settings' && req.method === 'POST') {
       const body = await ctx.parseJsonBody(req).catch(() => ({}));
-      ctx.sendJson(res, reminders.saveSettings({ lead: Number(body.lead) }));
+      const leads = Array.isArray(body.leads) ? body.leads.map(Number) : [];
+      ctx.sendJson(res, reminders.saveSettings({ leads }));
       return true;
     }
 

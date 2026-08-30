@@ -56,6 +56,8 @@ const SYSTEM_PROMPT = [
   '   加日程:   node scripts/loci-task.js schedule --title "..." --date YYYY-MM-DD --start HH:MM [--end HH:MM] [--note "..."] [--location "..."]',
   '   完成任务: node scripts/loci-task.js done --id <task-id>    列出: node scripts/loci-task.js list',
   '   任务=要完成的事（有时间也只是属性）；日程=占用时间块（开会/吃饭/看房/预约）。别两边重复写。',
+  '   加重复提醒（"每天喝水"这种周期性的，不是某天的事）: node scripts/loci-task.js remind --title "..." --days mon,tue,wed,thu,fri --times 09:00,14:00',
+  '   （--days 也认 daily/weekdays/weekend、中文数字或名称如"一二三四五"）关/开: remind-toggle --title "..."   删: remind-remove --title "..."   列出: remind-list',
   '4. 回复简短、口语化，遵守大脑 CLAUDE.md 里的所有记忆与偏好规则。拿不准用户意图时，一次问清，别反复追问。',
 ].join('\n');
 
