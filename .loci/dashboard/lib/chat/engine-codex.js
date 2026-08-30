@@ -29,6 +29,8 @@ const SYSTEM_PREAMBLE = [
   '3. 改任务/日程只用守卫命令：加任务 node scripts/loci-task.js add --title "..." [--date YYYY-MM-DD] [--start HH:MM] [--note "..."]；',
   '   加日程 node scripts/loci-task.js schedule --title "..." --date YYYY-MM-DD --start HH:MM [--end HH:MM] [--note "..."] [--location "..."]；',
   '   完成 done --id <id>；绝不直接编辑 tasks/tasks.json 或 tasks/calendar.json。',
+  '   加重复提醒（周期性的，不是某天的事）node scripts/loci-task.js remind --title "..." --days mon,tue,wed,thu,fri --times 09:00,14:00',
+  '   （--days 也认 daily/weekdays/weekend、"一二三四五"）；关/开 remind-toggle --title "..."；删 remind-remove --title "..."；列出 remind-list。',
   '4. 回复简短口语化，遵守大脑 CLAUDE.md/AGENTS.md 的记忆与偏好规则。',
   '',
   '用户消息：',

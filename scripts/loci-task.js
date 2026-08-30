@@ -6,6 +6,7 @@ const LOCI_ROOT = path.resolve(__dirname, '..');
 const TASK_DB = path.join(LOCI_ROOT, 'tasks', 'tasks.json');
 const ACTIVE_VIEW = path.join(LOCI_ROOT, 'tasks', 'active.md');
 const CALENDAR_DB = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
+const RECURRING_DB = path.join(LOCI_ROOT, 'tasks', 'recurring.json');
 const DONE_HIDE_DAYS = 7;
 const STALE_AFTER_DAYS = 30;
 
@@ -18,7 +19,13 @@ function usage() {
   node scripts/loci-task.js done --id task_x
   node scripts/loci-task.js open --id task_x
   node scripts/loci-task.js archive --id task_x
-  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."]`);
+  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."]
+    (no --end → a point event: endKey = startKey, rendered as a thin Google-Calendar-style block)
+  node scripts/loci-task.js remind --title "Drink water" --days mon,tue,wed,thu,fri --times 09:00,14:00,17:00
+    (--days also takes "daily"/"weekdays"/"weekend", Chinese day names/digits like "一二三四五" or "1,2,3,4,5")
+  node scripts/loci-task.js remind-toggle --id rec_x   (or --title "...")   — flip a recurring reminder on/off
+  node scripts/loci-task.js remind-remove --id rec_x   (or --title "...")
+  node scripts/loci-task.js remind-list`);
 }
 
 function parseArgs(argv) {
@@ -309,7 +316,8 @@ function validateCalendar(calendar) {
       if (!event.allDay && !event.startDate) {
         if (!Number.isFinite(event.startKey) || !Number.isFinite(event.endKey)) {
           errors.push(`Calendar ${date} timed event "${event.title || ''}" needs numeric startKey/endKey`);
-        } else if (event.endKey <= event.startKey) {
+        } else if (event.endKey < event.startKey) {
+          // endKey === startKey is a valid point event (see addSchedule / handleCalendarAdd)
           errors.push(`Calendar ${date} event "${event.title || ''}" ends before it starts`);
         }
       }
@@ -414,8 +422,10 @@ function addSchedule(args) {
   const date = assertDate(args.date, 'date');
   if (!date) throw new Error('Missing --date');
   const startKey = args.start ? timeToMinutes(args.start) : 540;
-  const endKey = args.end ? timeToMinutes(args.end) : startKey + 60;
-  if (endKey <= startKey) throw new Error('schedule --end must be after --start');
+  // No --end → a point event (endKey = startKey), not a 1h block. Only reject
+  // an explicitly-passed --end that doesn't make sense.
+  const endKey = args.end ? timeToMinutes(args.end) : startKey;
+  if (args.end && endKey <= startKey) throw new Error('schedule --end must be after --start');
   const calendar = readCalendar();
   if (!calendar[date]) calendar[date] = [];
   const ev = { title, startKey, endKey, hour: Math.floor(startKey / 60) };
@@ -426,6 +436,110 @@ function addSchedule(args) {
   calendar[date].push(ev);
   saveCalendar(calendar);
   console.log(JSON.stringify({ ok: true, date, event: ev }, null, 2));
+}
+
+// ─── Recurring reminders ────────────────────────────────────────────────────
+// Standing weekly rules ("drink water Mon-Fri at 9/14/17") — a separate list
+// in tasks/recurring.json, not materialized into tasks.json/calendar.json.
+// Mirrors .loci/dashboard/lib/routes/recurring.js (the dashboard's own write
+// path); both land in the same file under the same cross-process lock.
+const DAY_ALIASES = {
+  '1': 1, 'mon': 1, 'monday': 1, '一': 1, '周一': 1, '星期一': 1,
+  '2': 2, 'tue': 2, 'tuesday': 2, '二': 2, '周二': 2, '星期二': 2,
+  '3': 3, 'wed': 3, 'wednesday': 3, '三': 3, '周三': 3, '星期三': 3,
+  '4': 4, 'thu': 4, 'thursday': 4, '四': 4, '周四': 4, '星期四': 4,
+  '5': 5, 'fri': 5, 'friday': 5, '五': 5, '周五': 5, '星期五': 5,
+  '6': 6, 'sat': 6, 'saturday': 6, '六': 6, '周六': 6, '星期六': 6,
+  '7': 7, 'sun': 7, 'sunday': 7, '日': 7, '天': 7, '周日': 7, '周天': 7, '星期日': 7, '星期天': 7,
+};
+
+// Accepts "mon,tue,wed,thu,fri", "1,2,3,4,5", Chinese names/digits either
+// comma-separated or run together ("一二三四五"), or the keywords
+// daily/weekdays/weekend (English or Chinese).
+function parseDaysArg(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return [];
+  if (/^(daily|every ?day|每天|每日|天天)$/.test(s)) return [1, 2, 3, 4, 5, 6, 7];
+  if (/^(weekdays?|工作日|平时)$/.test(s)) return [1, 2, 3, 4, 5];
+  if (/^(weekends?|周末)$/.test(s)) return [6, 7];
+  let tokens;
+  if (/[,，、;；\s]/.test(s)) tokens = s.split(/[,，、;；\s]+/).filter(Boolean);
+  else if (/^[一二三四五六日天]+$/.test(s)) tokens = s.split('');
+  else tokens = [s];
+  const days = tokens.map(t => DAY_ALIASES[t]).filter(Boolean);
+  return [...new Set(days)].sort((a, b) => a - b);
+}
+
+function parseTimesArg(v) {
+  const s = String(v || '').trim();
+  if (!s) return [];
+  const parts = s.split(/[,，、;；\s]+/).filter(Boolean);
+  return [...new Set(parts.map(t => assertTime(t, 'times')))].sort();
+}
+
+function makeRecurringId() {
+  return 'rec_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function readRecurring() {
+  const parsed = readJson(RECURRING_DB, { rules: [] });
+  const rules = Array.isArray(parsed) ? parsed : parsed.rules;
+  if (!Array.isArray(rules)) throw new Error('tasks/recurring.json must contain a rules array');
+  return rules;
+}
+
+function saveRecurring(rules) {
+  withWriteLock(() => writeJson(RECURRING_DB, { rules }));
+}
+
+function addRecurring(args) {
+  const title = String(args.title || args.text || '').trim();
+  if (!title) throw new Error('Missing --title');
+  const days = parseDaysArg(args.days);
+  if (!days.length) throw new Error('Missing or unrecognized --days (e.g. "mon,tue,wed,thu,fri", "一二三四五", "daily", "weekdays")');
+  const times = parseTimesArg(args.times || args.time);
+  if (!times.length) throw new Error('Missing --times (e.g. "09:00,14:00")');
+  const rule = { id: makeRecurringId(), title, days, times, active: true, createdAt: isoNow() };
+  const rules = readRecurring();
+  rules.push(rule);
+  saveRecurring(rules);
+  console.log(JSON.stringify({ ok: true, rule }, null, 2));
+}
+
+// Looked up by --id, or by --title (exact match preferred, falls back to a
+// substring match) — natural-language callers rarely know the id.
+function findRecurring(rules, args) {
+  if (args.id) {
+    const rule = rules.find(r => r.id === args.id);
+    if (!rule) throw new Error(`No recurring reminder with id ${args.id}`);
+    return rule;
+  }
+  const title = String(args.title || '').trim();
+  if (!title) throw new Error('Missing --id or --title');
+  const exact = rules.filter(r => r.title === title);
+  const pool = exact.length ? exact : rules.filter(r => r.title.includes(title));
+  if (!pool.length) throw new Error(`No recurring reminder matching "${title}"`);
+  if (pool.length > 1) throw new Error(`Multiple recurring reminders match "${title}" — use --id (see remind-list)`);
+  return pool[0];
+}
+
+function toggleRecurring(args) {
+  const rules = readRecurring();
+  const rule = findRecurring(rules, args);
+  rule.active = !rule.active;
+  saveRecurring(rules);
+  console.log(JSON.stringify({ ok: true, rule }, null, 2));
+}
+
+function removeRecurring(args) {
+  const rules = readRecurring();
+  const rule = findRecurring(rules, args);
+  saveRecurring(rules.filter(r => r.id !== rule.id));
+  console.log(JSON.stringify({ ok: true, removed: rule.id }, null, 2));
+}
+
+function listRecurring() {
+  console.log(JSON.stringify({ ok: true, rules: readRecurring() }, null, 2));
 }
 
 function main() {
@@ -457,6 +571,10 @@ function main() {
   if (command === 'open') return setStatus('open', args);
   if (command === 'archive') return setStatus('archived', args);
   if (command === 'schedule') return addSchedule(args);
+  if (command === 'remind') return addRecurring(args);
+  if (command === 'remind-toggle') return toggleRecurring(args);
+  if (command === 'remind-remove') return removeRecurring(args);
+  if (command === 'remind-list') return listRecurring();
 
   throw new Error(`Unknown command: ${command}`);
 }

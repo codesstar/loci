@@ -715,6 +715,19 @@ function buildPlaces() {
   return places.filter(p => p.meta && p.meta.name);
 }
 
+// Recurring reminders — standing rules ("drink water Mon-Fri"), not tied to
+// one date. Read straight through; the reminder scanners (client +
+// lib/reminders.js) compute today's instances live. Writes go through
+// lib/routes/recurring.js, not here.
+function buildRecurring() {
+  try {
+    const f = path.join(LOCI_ROOT, 'tasks', 'recurring.json');
+    if (!fs.existsSync(f)) return { rules: [] };
+    const parsed = JSON.parse(fs.readFileSync(f, 'utf-8'));
+    return { rules: Array.isArray(parsed.rules) ? parsed.rules : [] };
+  } catch { return { rules: [] }; }
+}
+
 function buildDecisions() {
   const decisionsDir = path.join(LOCI_ROOT, 'decisions');
   const decisions = scanMdFiles(decisionsDir);
@@ -2621,6 +2634,7 @@ function buildAllData() {
     ['planning', buildPlanning],
     ['people', buildPeople],
     ['places', buildPlaces],
+    ['recurring', buildRecurring],
     ['decisions', buildDecisions],
     ['finance', buildFinance],
     ['content', buildContent],
@@ -3625,37 +3639,97 @@ function handleReferenceRemove(body) {
   } catch (e) { return { error: 'Could not archive file' }; }
 }
 
+const CALENDAR_DB_PATH = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
+function genEventId() {
+  return 'ev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+function readCalendarDb() {
+  if (!fs.existsSync(CALENDAR_DB_PATH)) return {};
+  try { return JSON.parse(fs.readFileSync(CALENDAR_DB_PATH, 'utf-8')); } catch { return {}; }
+}
+// Prefer id (assigned on first save); events created before ids existed fall
+// back to date + title + startKey — the same dedupe key the reminder
+// scanners (lib/reminders.js / index.html scanReminders) already use.
+function findCalendarEvent(cal, date, id, matchTitle, matchStart) {
+  const list = cal[date];
+  if (!Array.isArray(list)) return -1;
+  if (id) { const i = list.findIndex(e => e && e.id === id); if (i !== -1) return i; }
+  if (matchTitle !== undefined && matchStart !== undefined) {
+    return list.findIndex(e => e && e.title === matchTitle && e.startKey === matchStart);
+  }
+  return -1;
+}
+
 function handleCalendarAdd(body) {
-  const { date, title, startMin, endMin, location, note, startDate, endDate, allDay, fromTask, taskId } = body;
+  const { date, title, startMin, endMin, location, note, startDate, endDate, allDay, fromTask, taskId, people } = body;
   if (!date || !title) return { error: 'Missing date or title' };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Invalid date format (YYYY-MM-DD)' };
 
-  const calPath = path.join(LOCI_ROOT, 'tasks', 'calendar.json');
   return store.withLock(writeLockDir(), () => {
-  let cal = {};
-  if (fs.existsSync(calPath)) {
-    try { cal = JSON.parse(fs.readFileSync(calPath, 'utf-8')); } catch {}
-  }
+  const cal = readCalendarDb();
 
   if (!cal[date]) cal[date] = [];
-  const ev = { title };
+  const ev = { id: genEventId(), title };
   if (allDay || startDate || endDate) {
     ev.allDay = true;
     ev.startDate = startDate || date;
     ev.endDate = endDate || startDate || date;
   } else {
-    ev.startKey = startMin || 540;
-    ev.endKey = endMin || (startMin ? startMin + 60 : 600);
-    ev.hour = Math.floor((startMin || 540) / 60);
+    const start = startMin || 540;
+    ev.startKey = start;
+    // No end passed → a point event (endKey = startKey), not a 1h block.
+    ev.endKey = (endMin !== undefined && endMin !== null) ? endMin : start;
+    ev.hour = Math.floor(start / 60);
   }
   if (location) ev.location = location;
   if (note) ev.note = note;
+  if (Array.isArray(people) && people.length) ev.people = people.map(String);
   if (fromTask) ev.fromTask = true;
   if (taskId) ev.taskId = taskId;
   cal[date].push(ev);
 
-  store.atomicWriteSync(calPath, JSON.stringify(cal, null, 2), 'utf-8');
+  store.atomicWriteSync(CALENDAR_DB_PATH, JSON.stringify(cal, null, 2), 'utf-8');
   return { ok: true, date, event: ev };
+  });
+}
+
+// Partial update: only fields present in body are changed (location: '' /
+// note: '' / people: [] explicitly CLEAR that field — omitting the key
+// entirely leaves it untouched, same convention as handlePlaceUpdate).
+function handleCalendarUpdate(body) {
+  const { date, id, matchTitle, matchStart, title, startMin, endMin, location, note, people } = body;
+  if (!date) return { error: 'Missing date' };
+  return store.withLock(writeLockDir(), () => {
+  const cal = readCalendarDb();
+  const idx = findCalendarEvent(cal, date, id, matchTitle, matchStart);
+  if (idx === -1) return { error: 'Event not found' };
+  const ev = cal[date][idx];
+  if (!ev.id) ev.id = genEventId();   // backfill an id for legacy events on first touch
+  if (title !== undefined && title !== '') ev.title = title;
+  if (startMin !== undefined && startMin !== null) { ev.startKey = startMin; ev.hour = Math.floor(startMin / 60); }
+  if (endMin !== undefined && endMin !== null) ev.endKey = endMin;
+  if (location !== undefined) { if (location) ev.location = location; else delete ev.location; }
+  if (note !== undefined) { if (note) ev.note = note; else delete ev.note; }
+  if (people !== undefined) {
+    if (Array.isArray(people) && people.length) ev.people = people.map(String);
+    else delete ev.people;
+  }
+  store.atomicWriteSync(CALENDAR_DB_PATH, JSON.stringify(cal, null, 2), 'utf-8');
+  return { ok: true, date, event: ev };
+  });
+}
+
+function handleCalendarRemove(body) {
+  const { date, id, matchTitle, matchStart } = body;
+  if (!date) return { error: 'Missing date' };
+  return store.withLock(writeLockDir(), () => {
+  const cal = readCalendarDb();
+  const idx = findCalendarEvent(cal, date, id, matchTitle, matchStart);
+  if (idx === -1) return { error: 'Event not found' };
+  const [removed] = cal[date].splice(idx, 1);
+  if (!cal[date].length) delete cal[date];
+  store.atomicWriteSync(CALENDAR_DB_PATH, JSON.stringify(cal, null, 2), 'utf-8');
+  return { ok: true, removed: removed && removed.id };
   });
 }
 
@@ -4639,6 +4713,27 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       sendError(res, e.message, 500);
     }
+    return;
+  }
+
+  // Edit / delete an existing calendar event. Matched by id (assigned on
+  // first save) or, for events saved before ids existed, by date+title+startKey.
+  if (pathname === '/api/calendar/update' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleCalendarUpdate(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
+    return;
+  }
+  if (pathname === '/api/calendar/remove' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleCalendarRemove(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) { sendError(res, e.message, 500); }
     return;
   }
 
