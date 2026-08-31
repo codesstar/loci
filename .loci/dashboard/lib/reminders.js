@@ -89,8 +89,35 @@ function inQuietHours(now) {
 
 // Server-side twin of the client's mapLinks() (index.html) — amap only,
 // since that's the one link a push notification actually jumps to on tap.
+// A saved place's NAME ("沐辰的公司") means nothing to a map app, so resolve it
+// against places/*.md and search the real address instead. Address text (not
+// lat/lng) on purpose: amap geocodes it itself, sidestepping the GCJ-02/WGS-84
+// coordinate-system mismatch our stored coordinates would carry into a pin.
+function resolvePlace(name) {
+  try {
+    const dir = path.join(st.root, 'places');
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md')) continue;
+      const text = fs.readFileSync(path.join(dir, f), 'utf-8');
+      const pick = (key) => {
+        const m = text.match(new RegExp('^' + key + ':\\s*(.+)$', 'm'));
+        return m ? m[1].trim().replace(/^['"]|['"]$/g, '') : '';
+      };
+      if (pick('name') === name) return { address: pick('address'), city: pick('city') };
+    }
+  } catch { /* no places dir → fall through to the raw text */ }
+  return null;
+}
+
 function amapUrl(location) {
-  return 'https://uri.amap.com/search?keyword=' + encodeURIComponent(String(location).trim()) + '&callnative=1';
+  const raw = String(location).trim();
+  const pl = resolvePlace(raw);
+  const target = pl && (pl.address || pl.city)
+    ? (pl.address
+        ? (pl.city && !pl.address.includes(pl.city) ? pl.address + ', ' + pl.city : pl.address)
+        : pl.city)
+    : raw;
+  return 'https://uri.amap.com/search?keyword=' + encodeURIComponent(target) + '&callnative=1';
 }
 
 // Same sources + dedupe as the browser's upcomingTimedItems().
@@ -222,4 +249,4 @@ function start(ctx, webpush) {
   if (timer.unref) timer.unref();
 }
 
-module.exports = { start, loadSettings, saveSettings, upcomingTimedItems: (now) => upcomingTimedItems(now || new Date()) };
+module.exports = { start, loadSettings, saveSettings, amapUrl, upcomingTimedItems: (now) => upcomingTimedItems(now || new Date()) };

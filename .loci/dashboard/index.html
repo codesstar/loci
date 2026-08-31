@@ -17944,11 +17944,20 @@ const lociApp = createApp({
     }
 
     // ── People Map view (Leaflet + OSM/CARTO tiles; free Nominatim geocoding) ──
-    // Deep links to the user's preferred map app — all four take the raw address
-    // text, so navigation precision comes from the target app, not our pin.
+    // Deep links to the user's preferred map app — all four take address text,
+    // so navigation precision comes from the target app, not our pin.
+    // A saved place's NAME ("沐辰的公司") means nothing to a map app, so when the
+    // location matches a saved place, its real address is what gets searched.
     function mapLinks(location) {
-      const q = encodeURIComponent(String(location || '').trim());
-      if (!q) return [];
+      const raw = String(location || '').trim();
+      if (!raw) return [];
+      const pl = (placesData.value || []).find(p => p.name === raw);
+      const target = pl
+        ? (pl.address
+            ? (pl.city && !pl.address.includes(pl.city) ? pl.address + ', ' + pl.city : pl.address)
+            : (pl.city || raw))
+        : raw;
+      const q = encodeURIComponent(target);
       return [
         { k: 'google', label: 'Google', url: 'https://www.google.com/maps/search/?api=1&query=' + q },
         { k: 'amap',   label: '高德',    url: 'https://uri.amap.com/search?keyword=' + q + '&callnative=1' },
@@ -20145,14 +20154,15 @@ const lociApp = createApp({
       const key = dateToKey(viewingDate.value);
       if (!calendarEvents[key]) calendarEvents[key] = [];
 
-      // Pre-fill the event add form so user can adjust
+      // Pre-fill the event add form so user can adjust — carry the task's
+      // linked people/location over so a linked task stays linked on the schedule
       addingEventStart.value = startMin;
       addingEventEnd.value = endMin;
       newEventTitle.value = task.text;
-      newEventPeopleText.value = '';
+      newEventPeopleText.value = Array.isArray(task.people) ? task.people.join('、') : '';
       evPplOpen.value = false;
-      evLocCustom.value = false;
-      newEventLocation.value = '';
+      newEventLocation.value = task.location || '';
+      evLocCustom.value = task.location ? !placesData.value.some(p => p.name === task.location) : false;
       newEventNote.value = '';
       addingEventFromTask.value = true;
       editingEvent.value = null;
