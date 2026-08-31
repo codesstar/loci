@@ -2093,7 +2093,7 @@
        ============================================================ */
     .cf-stage {
       position: relative;
-      height: clamp(520px, 68vh, 620px);
+      height: clamp(440px, 58vh, 520px);
       margin-top: 28px;
       perspective: 1400px;
       perspective-origin: 50% 60%;
@@ -2106,7 +2106,7 @@
     }
     .cf-card {
       position: absolute; left: 50%; top: 50%;
-      width: 264px;
+      width: 288px;
       transform-origin: 50% 82%;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
@@ -2146,7 +2146,7 @@
 
     /* ---- Frosted glass control bar (sits OUTSIDE preserve-3d as a sibling) ---- */
     .cf-bar {
-      position: absolute; left: 50%; bottom: -52px; transform: translateX(-50%);
+      position: absolute; left: 50%; bottom: -66px; transform: translateX(-50%);
       display: flex; align-items: center; gap: 14px;
       padding: 8px 10px 8px 12px;
       background: rgba(255,255,255,.62);
@@ -2198,14 +2198,12 @@
     .cf-bar-view:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .cf-bar-fade-enter-active, .cf-bar-fade-leave-active { transition: opacity .22s ease; }
     .cf-bar-fade-enter-from, .cf-bar-fade-leave-to { opacity: 0; }
-    /* hero card: category strip along the top edge (color comes inline per person) */
-    .cf-card .cf-strip { position: absolute; top: 0; left: 10px; right: 10px; height: 3px; border-radius: 0 0 4px 4px; z-index: 3; }
     /* category jump dots in the control bar — click a dot to flip to that group */
     .cf-bar-cats { display: flex; align-items: center; gap: 7px; padding: 0 12px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
     .cf-cdot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--accent)); opacity: .35; cursor: pointer; transition: transform .14s, opacity .14s, box-shadow .14s; }
     .cf-cdot:hover { opacity: .85; }
     .cf-cdot.on { opacity: 1; transform: scale(1.35); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--accent)) 20%, transparent); }
-    .cf-kbd { position: absolute; right: 6px; bottom: -46px; font-family: var(--mono); font-size: 10px; color: var(--ink-4); z-index: 190; }
+    .cf-kbd { position: absolute; right: 6px; bottom: -60px; font-family: var(--mono); font-size: 10px; color: var(--ink-4); z-index: 190; }
     .cf-kbd kbd { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); padding: 1px 5px; color: var(--ink-3); margin: 0 2px; }
     @media (max-width: 760px) { .cf-kbd { display: none; } .cf-bar-cats { display: none; } }
 
@@ -8996,7 +8994,6 @@
                    :style="cfStyle(i)" @click="cfFocus(i)">
                 <div class="crystal-card" :class="cardLayout"
                      :style="i === focusIndex ? { borderColor: 'color-mix(in srgb, ' + pplCatColor(person) + ' 45%, var(--line))', boxShadow: '0 0 0 1.5px color-mix(in srgb, ' + pplCatColor(person) + ' 30%, transparent), 0 22px 50px -16px rgba(20,30,25,.32), 0 6px 16px rgba(20,30,25,.10)' } : null">
-                  <div v-if="i === focusIndex" class="cf-strip" :style="{ background: pplCatColor(person) }"></div>
                   <div class="pc-photo" :class="{ lineart: person.lineart }" :style="person.lineart ? peopleLineartTint(person.name) : null">
                       <img v-if="person.photo" :src="person.photo" :alt="person.name">
                     <div v-else class="pc-photo-initials" :style="peopleInitialStyle(person.name)">{{ getPeopleInitials(person.name) }}</div>
