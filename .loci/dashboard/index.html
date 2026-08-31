@@ -2093,8 +2093,8 @@
        ============================================================ */
     .cf-stage {
       position: relative;
-      height: clamp(440px, 58vh, 520px);
-      margin-top: 28px;
+      height: clamp(460px, 64vh, 600px);
+      margin-top: clamp(72px, 10vh, 120px);
       perspective: 1400px;
       perspective-origin: 50% 60%;
       overflow: visible;
@@ -2146,7 +2146,7 @@
 
     /* ---- Frosted glass control bar (sits OUTSIDE preserve-3d as a sibling) ---- */
     .cf-bar {
-      position: absolute; left: 50%; bottom: -66px; transform: translateX(-50%);
+      position: absolute; left: 50%; bottom: -110px; transform: translateX(-50%);
       display: flex; align-items: center; gap: 14px;
       padding: 8px 10px 8px 12px;
       background: rgba(255,255,255,.62);
@@ -2203,14 +2203,14 @@
     .cf-cdot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--accent)); opacity: .35; cursor: pointer; transition: transform .14s, opacity .14s, box-shadow .14s; }
     .cf-cdot:hover { opacity: .85; }
     .cf-cdot.on { opacity: 1; transform: scale(1.35); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--accent)) 20%, transparent); }
-    .cf-kbd { position: absolute; right: 6px; bottom: -60px; font-family: var(--mono); font-size: 10px; color: var(--ink-4); z-index: 190; }
+    .cf-kbd { position: absolute; right: 6px; bottom: -104px; font-family: var(--mono); font-size: 10px; color: var(--ink-4); z-index: 190; }
     .cf-kbd kbd { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); padding: 1px 5px; color: var(--ink-3); margin: 0 2px; }
     @media (max-width: 760px) { .cf-kbd { display: none; } .cf-bar-cats { display: none; } }
 
     @media (max-width: 760px) {
-      .cf-stage { height: 380px; perspective: 1000px; }
+      .cf-stage { height: 380px; margin-top: 32px; perspective: 1000px; }
       .cf-card { width: clamp(150px, 48vw, 190px); }
-      .cf-bar { left: 12px; right: 12px; transform: none; max-width: none; }
+      .cf-bar { left: 12px; right: 12px; bottom: -66px; transform: none; max-width: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       .cf-card, .cf-stage.entering .cf-card {
