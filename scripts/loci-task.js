@@ -16,16 +16,18 @@ function usage() {
   node scripts/loci-task.js rebuild
   node scripts/loci-task.js add --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--end-date YYYY-MM-DD] [--people "A、B"] [--location "..."]
   node scripts/loci-task.js update --id task_x --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--clear-time] [--clear-date] [--people "A、B"] [--location "..."]
-  node scripts/loci-task.js done --id task_x
-  node scripts/loci-task.js open --id task_x
-  node scripts/loci-task.js archive --id task_x
+  node scripts/loci-task.js done --id task_x       (or --title "关键词" — unique open-task match)
+  node scripts/loci-task.js open --id task_x       (or --title "...")
+  node scripts/loci-task.js archive --id task_x    (or --title "...")
   node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."] [--people "A、B"]
     (no --end → a point event: endKey = startKey, rendered as a thin Google-Calendar-style block)
   node scripts/loci-task.js remind --title "Drink water" --days mon,tue,wed,thu,fri --times 09:00,14:00,17:00
     (--days also takes "daily"/"weekdays"/"weekend", Chinese day names/digits like "一二三四五" or "1,2,3,4,5")
   node scripts/loci-task.js remind-toggle --id rec_x   (or --title "...")   — flip a recurring reminder on/off
   node scripts/loci-task.js remind-remove --id rec_x   (or --title "...")
-  node scripts/loci-task.js remind-list`);
+  node scripts/loci-task.js remind-list
+  node scripts/loci-task.js log --category "人脉" --line "认识了新朋友阿泰"
+    (one-shot activity-ledger append; add/schedule/done/remind already log themselves)`);
 }
 
 function parseArgs(argv) {
@@ -281,6 +283,39 @@ function saveTasks(tasks, options = {}) {
   return normalized;
 }
 
+// Append one line to the activity ledger (.loci/activity/YYYY-MM.md) so the
+// AI caller doesn't have to burn extra tool round-trips (Read + Edit) doing it
+// by hand after every add/schedule/done — the guarded writer knows everything
+// the ledger line needs. Best-effort: a ledger hiccup must never fail the write.
+function logActivity(category, line) {
+  try {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const month = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+    const day = `${month}-${pad(now.getDate())}`;
+    const hhmm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const dir = path.join(LOCI_ROOT, '.loci', 'activity');
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, month + '.md');
+    let text = '';
+    try { text = fs.readFileSync(file, 'utf-8'); } catch { /* new month */ }
+    const entry = `- ${hhmm} · ${category} · ${line}`;
+    if (text.includes(`## ${day}`)) {
+      // append under today's heading: insert before the next heading (or EOF)
+      const idx = text.indexOf(`## ${day}`);
+      const rest = text.slice(idx);
+      const nextHead = rest.indexOf('\n## ', 4);
+      const insertAt = nextHead === -1 ? text.length : idx + nextHead;
+      const before = text.slice(0, insertAt).replace(/\n*$/, '\n');
+      const after = text.slice(insertAt).replace(/^\n*/, '\n');
+      text = before + entry + (after.trim() ? after : '\n');
+    } else {
+      text = text.replace(/\n*$/, text ? '\n\n' : '') + `## ${day}\n${entry}\n`;
+    }
+    fs.writeFileSync(file, text, 'utf-8');
+  } catch { /* ledger is best-effort */ }
+}
+
 function validateTasks(tasks) {
   const errors = [];
   const ids = new Set();
@@ -366,6 +401,8 @@ function addTask(args) {
   }, new Set(tasks.map(t => t.id)));
   tasks.push(task);
   saveTasks(tasks, { syncCalendar: true });
+  logActivity('任务', '新增任务：' + title
+    + (task.date ? '（' + task.date + (task.startTime ? ' ' + task.startTime : '') + '）' : ''));
   console.log(JSON.stringify({ ok: true, task }, null, 2));
 }
 
@@ -405,14 +442,30 @@ function updateTask(args) {
 }
 
 function setStatus(status, args) {
-  if (!args.id) throw new Error('Missing --id');
   const tasks = readTasks();
-  const task = findTask(tasks, args.id);
+  let task;
+  if (args.id) {
+    task = findTask(tasks, args.id);
+  } else if (args.title && args.title !== true) {
+    // title lookup so the AI can complete a task in ONE command without a
+    // read-tasks round trip first: exact match, then unique substring match
+    // among open tasks; ambiguity is an error listing the candidates.
+    const q = String(args.title).trim();
+    const open = tasks.filter(t => t.status === 'open');
+    const exact = open.filter(t => t.title === q);
+    const fuzzy = exact.length ? exact : open.filter(t => t.title.includes(q));
+    if (!fuzzy.length) throw new Error(`No open task matching title: ${q}`);
+    if (fuzzy.length > 1) throw new Error(`Ambiguous title "${q}" — matches: ` + fuzzy.map(t => `${t.id} (${t.title})`).join(', '));
+    task = fuzzy[0];
+  } else {
+    throw new Error('Missing --id (or --title)');
+  }
   task.status = status;
   task.updatedAt = isoNow();
   task.completedAt = status === 'done' ? (task.completedAt || task.updatedAt) : null;
   task.archivedAt = status === 'archived' ? (task.archivedAt || task.updatedAt) : null;
   saveTasks(tasks, { syncCalendar: true });
+  if (status === 'done') logActivity('任务', '完成任务：' + task.title);
   console.log(JSON.stringify({ ok: true, task }, null, 2));
 }
 
@@ -440,6 +493,10 @@ function addSchedule(args) {
   }
   calendar[date].push(ev);
   saveCalendar(calendar);
+  const fmt = (k) => String(Math.floor(k / 60)).padStart(2, '0') + ':' + String(k % 60).padStart(2, '0');
+  logActivity('日程', '新增日程：' + date + ' ' + fmt(startKey)
+    + (endKey > startKey ? '-' + fmt(endKey) : '') + ' ' + title
+    + (ev.location ? '（' + ev.location + '）' : ''));
   console.log(JSON.stringify({ ok: true, date, event: ev }, null, 2));
 }
 
@@ -508,6 +565,7 @@ function addRecurring(args) {
   const rules = readRecurring();
   rules.push(rule);
   saveRecurring(rules);
+  logActivity('提醒', '新增重复提醒：' + title + '（周' + days.map(d => '一二三四五六日'[d - 1]).join('') + ' ' + times.join('/') + '）');
   console.log(JSON.stringify({ ok: true, rule }, null, 2));
 }
 
@@ -580,6 +638,14 @@ function main() {
   if (command === 'remind-toggle') return toggleRecurring(args);
   if (command === 'remind-remove') return removeRecurring(args);
   if (command === 'remind-list') return listRecurring();
+  if (command === 'log') {
+    const category = String(args.category || '记录').trim();
+    const line = String(args.line || '').trim();
+    if (!line) throw new Error('Missing --line');
+    logActivity(category, line);
+    console.log(JSON.stringify({ ok: true }, null, 2));
+    return;
+  }
 
   throw new Error(`Unknown command: ${command}`);
 }

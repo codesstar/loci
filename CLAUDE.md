@@ -226,7 +226,7 @@ No signal = no save. User can say "undo" / "撤销" to reverse the last save (re
 
 ### Activity ledger (audit layer — what the user did, and when)
 A plain-language log of every change you make to the brain, so the user can later ask "what did I do today?" and get a timeline.
-- **Write**: AFTER any brain-facing write (task, schedule, decision, person, project memory, inbox, reference, personal info), you MUST append one line to `.loci/activity/<YYYY-MM>.md` (current month; create the file and a `## <YYYY-MM-DD>` heading for today if absent). Run `date` first for the time. Format:
+- **Write**: AFTER any brain-facing write (task, schedule, decision, person, project memory, inbox, reference, personal info), you MUST append one line — EXCEPT writes made through `loci-task.js add/schedule/done/remind`, which log themselves automatically (do NOT append a second line for those; for other writes, `loci-task.js log --category "..." --line "..."` is a one-shot appender) to `.loci/activity/<YYYY-MM>.md` (current month; create the file and a `## <YYYY-MM-DD>` heading for today if absent). Run `date` first for the time. Format:
   `- HH:MM · <category> · <one plain-language line>` — e.g. `- 21:00 · 决策 · 在 TaskFlow 决定用 PostgreSQL 存文章`.
   Make it human, include a traceable keyword (which project / which person); never expose file paths. This applies in Claude Code AND Codex.
 - **Read (on demand only)**: when the user asks what they did ("今天/这周/这月/最近做了啥", "总结一下今天", "what did I do today") → read `.loci/activity/<relevant month>.md`, summarize as a timeline; for detail, follow a ledger line into the project/file it names.

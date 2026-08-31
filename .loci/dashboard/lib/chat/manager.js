@@ -104,6 +104,12 @@ function create(ctx, engine) {
   };
   st.sessions.set(s.id, s);
   persistSoon();
+  // boot the CLI in the background while the user is still typing their
+  // first message — by send time the process is warm and the turn starts
+  // at the API request instead of at process spawn
+  if (typeof engines[eng].prewarm === 'function') {
+    engines[eng].prewarm({ cwd: st.root, procKey: s.id });
+  }
   return summary(s);
 }
 
@@ -125,9 +131,16 @@ function history(ctx, id) {
 
 function subscribe(ctx, id, stream) {
   init(ctx);
-  if (!st.sessions.has(id)) return false;
+  const s = st.sessions.get(id);
+  if (!s) return false;
   if (!st.subscribers.has(id)) st.subscribers.set(id, new Set());
   st.subscribers.get(id).add(stream);
+  // panel (re)opened on this session → warm its CLI process (resuming prior
+  // context) so the next message doesn't pay the spawn inside the turn
+  const eng = engines[s.engine] || engines.claude;
+  if (!s.running && typeof eng.prewarm === 'function') {
+    eng.prewarm({ cwd: st.root, procKey: id, resumeSessionId: s.engineSessionId });
+  }
   return true;
 }
 
