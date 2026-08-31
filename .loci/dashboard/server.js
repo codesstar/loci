@@ -258,6 +258,23 @@ function mdToHtmlLegacy(text) {
 
 // ─── YAML frontmatter parser ────────────────────────────────────────────────
 
+// Frontmatter fields that must always stay a string, even when the raw text
+// looks like a number or boolean (a phone number, a birth year typed as a
+// bare "1998", or someone literally named "123"). Without this, the hand-
+// rolled parser below auto-coerces `name: 123` to the NUMBER 123, and the
+// person/place edit forms' unconditional `.trim()` calls on these fields
+// then throw — crashing the whole page (white screen) on open. This is the
+// root cause behind "editing some contacts crashes" reports. lat/lng are
+// deliberately NOT in this list — they genuinely need to round-trip as
+// numbers for the map code (isNaN checks, Leaflet coordinates).
+const NEVER_COERCE_KEYS = new Set([
+  'name', 'relation', 'gender', 'title', 'org', 'industry', 'location', 'age',
+  'met_date', 'met_place', 'met_how', 'last_contact', 'frequency', 'strength',
+  'phone', 'email', 'wechat', 'twitter', 'linkedin',
+  'nickname', 'birthday', 'zodiac', 'mbti', 'blood', 'hobby', 'hometown', 'school', 'major',
+  'type', 'address', 'city',
+]);
+
 function parseFrontmatter(content) {
   if (!content || !content.startsWith('---')) {
     return [{}, content || ''];
@@ -277,7 +294,9 @@ function parseFrontmatter(content) {
     const key = trimmed.substring(0, colonIdx).trim();
     let value = trimmed.substring(colonIdx + 1).trim();
 
-    if (value.startsWith('[') && value.endsWith(']')) {
+    if (NEVER_COERCE_KEYS.has(key)) {
+      meta[key] = value.replace(/^['"]|['"]$/g, '');
+    } else if (value.startsWith('[') && value.endsWith(']')) {
       const items = value.slice(1, -1).split(',');
       meta[key] = items
         .map(i => i.trim().replace(/^['"]|['"]$/g, ''))
@@ -3110,13 +3129,22 @@ function handleMeAvatarUpload(body) {
 }
 
 // Build a YAML frontmatter + body markdown string from a person object.
+// Quote a frontmatter value when writing it back would otherwise let it be
+// silently misread as a different type next time (see NEVER_COERCE_KEYS) —
+// on top of the pre-existing "contains special chars" case.
+function needsQuote(key, v) {
+  const s = String(v);
+  if (/[:#\[\]]/.test(s)) return true;
+  return NEVER_COERCE_KEYS.has(key) && /^(-?\d+(\.\d+)?|true|false|yes|no|null)$/i.test(s);
+}
+
 function personToMd(p) {
   const lines = ['---'];
   for (const k of PERSON_FIELDS) {
     const v = p[k];
     if (v === undefined || v === null || v === '') continue;
     if (k === 'tags') continue;
-    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
+    lines.push(k + ': ' + (needsQuote(k, v) ? JSON.stringify(String(v)) : v));
   }
   const tags = Array.isArray(p.tags) ? p.tags.map(t => String(t).trim()).filter(Boolean) : [];
   if (tags.length) lines.push('tags: [' + tags.join(', ') + ']');
@@ -3199,7 +3227,7 @@ function placeToMd(p) {
   for (const k of PLACE_FIELDS) {
     const v = p[k];
     if (v === undefined || v === null || v === '') continue;
-    lines.push(k + ': ' + (/[:#\[\]]/.test(String(v)) ? JSON.stringify(String(v)) : v));
+    lines.push(k + ': ' + (needsQuote(k, v) ? JSON.stringify(String(v)) : v));
   }
   const people = Array.isArray(p.people) ? p.people.map(t => String(t).trim()).filter(Boolean) : [];
   if (people.length) lines.push('people: [' + people.map(t => JSON.stringify(t)).join(', ') + ']');
