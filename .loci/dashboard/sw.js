@@ -23,6 +23,11 @@ self.addEventListener('notificationclick', (event) => {
   const url = (event.notification.data && event.notification.data.url) || '/';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      // A specific destination (e.g. a maps link for a located reminder)
+      // always opens there, even with a dashboard tab already open —
+      // otherwise this would just focus that tab and go nowhere. The
+      // "focus what's already open" shortcut is only for the plain '/' case.
+      if (url !== '/') return self.clients.openWindow(url);
       for (const c of list) {
         if ('focus' in c) return c.focus();
       }

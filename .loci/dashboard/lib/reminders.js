@@ -87,6 +87,12 @@ function inQuietHours(now) {
   return from <= to ? (cur >= from && cur < to) : (cur >= from || cur < to);
 }
 
+// Server-side twin of the client's mapLinks() (index.html) — amap only,
+// since that's the one link a push notification actually jumps to on tap.
+function amapUrl(location) {
+  return 'https://uri.amap.com/search?keyword=' + encodeURIComponent(String(location).trim()) + '&callnative=1';
+}
+
 // Same sources + dedupe as the browser's upcomingTimedItems().
 function upcomingTimedItems(now) {
   const out = [];
@@ -95,14 +101,14 @@ function upcomingTimedItems(now) {
   for (let d = 0; d <= 1; d++) {
     dayKeys.push(dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + d)));
   }
-  const add = (key, startKey, title, kind) => {
+  const add = (key, startKey, title, kind, location) => {
     const dedupe = key + '#' + startKey + '#' + (title || '');
     if (seen.has(dedupe)) return;
     seen.add(dedupe);
     const [y, m, dd] = key.split('-').map(Number);
     const start = new Date(y, m - 1, dd, 0, 0, 0, 0);
     start.setMinutes(startKey);
-    out.push({ id: dedupe, title: title || '日程', startAt: start, kind });
+    out.push({ id: dedupe, title: title || '日程', startAt: start, kind, location: location || null });
   };
 
   // Source 1: calendar events
@@ -112,7 +118,7 @@ function upcomingTimedItems(now) {
     if (!Array.isArray(evs)) continue;
     for (const ev of evs) {
       if (!ev || typeof ev.startKey !== 'number') continue; // untimed → skip
-      add(key, ev.startKey, ev.title, 'event');
+      add(key, ev.startKey, ev.title, 'event', ev.location);
     }
   }
 
@@ -124,7 +130,7 @@ function upcomingTimedItems(now) {
     if (!tk.date || !tk.startTime || !dayKeys.includes(tk.date)) continue;
     const parts = String(tk.startTime).split(':');
     const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
-    add(tk.date, startKey, tk.text || tk.title, 'task');
+    add(tk.date, startKey, tk.text || tk.title, 'task', tk.location);
   }
 
   // Source 3: recurring rules (standing weekly reminders — "drink water
@@ -186,13 +192,19 @@ async function scan() {
         fired.add(fireId);
         dirty = true;
         const mins = Math.round((startMs - nowMs) / 60000);
-        const body = offset === 0
+        let body = offset === 0
           ? (item.kind === 'task' ? (mins < 0 ? `已到截止 · ${hh}:${mm}` : `截止 · ${hh}:${mm}`) : (mins < 0 ? `已开始 · ${hh}:${mm}` : `现在 · ${hh}:${mm}`))
           : item.kind === 'task'
           ? `${offset} 分钟后到期 · ${hh}:${mm}`
           : `${offset} 分钟后 · ${hh}:${mm}`;
+        // Has a location → tap the notification to jump straight into 高德
+        // (amap) navigation instead of back to the dashboard. Picked amap
+        // specifically because Google/Apple Maps are weak-to-unusable from
+        // mainland China; see the reminder-nav-link-preview.html A/B check.
+        const url = item.location ? amapUrl(item.location) : '/';
+        if (item.location) body += ` · ${item.location}`;
         try {
-          await webpush.sendToAll({ title: item.title, body, tag: fireId, url: '/' });
+          await webpush.sendToAll({ title: item.title, body, tag: fireId, url });
           console.log(`reminders: pushed "${item.title}" (${body})`);
         } catch (e) {
           console.error('reminders: push failed:', e.message);
