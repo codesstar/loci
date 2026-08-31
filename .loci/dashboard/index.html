@@ -14738,14 +14738,14 @@ const lociApp = createApp({
         const day = new Date(base.getFullYear(), base.getMonth(), base.getDate() + d);
         todayKeys.push(dateToKey(day));
       }
-      const push = (key, startKey, title, fallbackId, kind) => {
+      const push = (key, startKey, title, fallbackId, kind, location) => {
         const dedupe = key + '#' + startKey + '#' + (title || '');
         if (seen.has(dedupe)) return;
         seen.add(dedupe);
         const [y, m, dd] = key.split('-').map(Number);
         const start = new Date(y, m - 1, dd, 0, 0, 0, 0);
         start.setMinutes(startKey);
-        out.push({ id: dedupe || fallbackId, title: title || '日程', startAt: start, kind });
+        out.push({ id: dedupe || fallbackId, title: title || '日程', startAt: start, kind, location: location || null });
       };
       // Source 1: calendar events
       todayKeys.forEach(key => {
@@ -14753,7 +14753,7 @@ const lociApp = createApp({
         if (!Array.isArray(evs)) return;
         evs.forEach((ev, i) => {
           if (typeof ev.startKey !== 'number') return;        // untimed → skip
-          push(key, ev.startKey, ev.title, key + '#ev' + i, 'event');
+          push(key, ev.startKey, ev.title, key + '#ev' + i, 'event', ev.location);
         });
       });
       // Source 2: timed tasks (date + startTime), read straight from the task pool
@@ -14764,7 +14764,7 @@ const lociApp = createApp({
           if (!tk.date || !tk.startTime || !todayKeys.includes(tk.date)) return;
           const parts = String(tk.startTime).split(':');
           const startKey = (Number(parts[0]) || 0) * 60 + (Number(parts[1]) || 0);
-          push(tk.date, startKey, tk.text || tk.title, 'task#' + tk.id, 'task');
+          push(tk.date, startKey, tk.text || tk.title, 'task#' + tk.id, 'task', tk.location);
         });
       }
       // Source 3: recurring rules — same file recurringRules() reads for the UI
@@ -14815,13 +14815,21 @@ const lociApp = createApp({
           // a bit late but the item is still upcoming".
           if (nowMs >= fireAt && nowMs < startMs + graceMs && !firedReminders.has(fireId)) {
             firedReminders.add(fireId);
-            const body = offset === 0
+            let body = offset === 0
               ? (item.kind === 'task' ? (zh ? `截止 · ${hh}:${mm}` : `Due · ${hh}:${mm}`) : (zh ? `现在 · ${hh}:${mm}` : `Now · ${hh}:${mm}`))
               : item.kind === 'task'
               ? (zh ? `${offset} 分钟后到期 · ${hh}:${mm}` : `Due in ${offset} min · ${hh}:${mm}`)
               : (zh ? `${offset} 分钟后 · ${hh}:${mm}` : `In ${offset} min · ${hh}:${mm}`);
+            if (item.location) body += ' · ' + item.location;
             try {
-              new Notification(item.title, { body, tag: fireId, requireInteraction: false });
+              const n = new Notification(item.title, { body, tag: fireId, requireInteraction: false });
+              // Has a location → tap jumps straight into 高德 (amap) navigation
+              // instead of doing nothing. Picked amap specifically because
+              // Google/Apple Maps are weak-to-unusable from mainland China.
+              if (item.location) {
+                const nav = mapLinks(item.location).find(m => m.k === 'amap');
+                if (nav) n.onclick = () => { window.open(nav.url, '_blank'); n.close(); };
+              }
             } catch (e) { console.error('Notification failed:', e); }
           }
         });
