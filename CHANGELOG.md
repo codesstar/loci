@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] — 2026-08-31
+
+### Added
+- **Recurring reminders** — standing weekly rules ("drink water Mon–Fri at 9/14/17") as a third reminder source alongside calendar events and timed tasks, computed live instead of materialized into `calendar.json`/`tasks.json`. Manageable from the reminder bell's dropdown (pick/search contacts and places), via guarded CLI commands (`loci-task.js remind` / `remind-toggle` / `remind-remove` / `remind-list`), or by asking the embedded dashboard chat in plain language.
+- **People ↔ place linking, both directions** — a place's "关联的人" field is now a contact picker instead of hand-typed names (root-caused a class of relationship-graph/task-chip breakage from typos and forgotten renames); person edit/add forms gained the reverse "关联位置" place picker.
+- **Calendar events can carry linked people + a location picker**, matching what tasks already had.
+- **Location-aware reminders** — a reminder for a task/event with a location appends it to the notification and, on tap/click, jumps straight into 高德 (amap) navigation. Works for both the in-page browser notification and phone Web Push.
+- **One-click "test" button** in the reminder menu to tell a permission problem apart from the OS/Do Not Disturb silently swallowing notifications.
+
+### Changed
+- Reminder lead time is no longer a single choice — "at the moment" is now implicit and always fires once reminders are on; 15/30-minute heads-up are optional and multi-selectable. Tasks and calendar events now share the exact same firing logic (previously tasks only fired at the due moment).
+- Map tiles switched from CARTO to 高德 (AMap) raster tiles — CARTO is effectively unreachable from mainland China without a VPN.
+- A place linked to a person now shows that person's avatar (with a small place-type badge) on the map instead of a generic icon; a person with a precise place link no longer also gets a redundant vague city-level pin. Nearby markers collapse into a click-to-expand cluster badge.
+- Scheduling something with no explicit end time now creates a point event (`endKey = startKey`) instead of defaulting to a 1-hour block, rendered as a compact single-line entry when short.
+- Task pool header decluttered (removed the 待推进/今日/逾期/已完成 stat pills).
+
+### Fixed
+- Editing or deleting a calendar event only mutated client-side state and was never persisted — it silently reverted on the next reload. Added real `/api/calendar/update` and `/api/calendar/remove` endpoints.
+- The push service worker's `notificationclick` handler used to just focus an already-open dashboard tab and ignore the notification's destination URL entirely whenever one was open — a location's navigation link would never open in that case.
+- The embedded AI chat panel had no way to close it on mobile: the full-screen bottom-sheet layout visually covered the only close control (an external floating button). Added a close button inside the panel header itself.
+- `loci-task.js validate` flagged a valid point event (`endKey === startKey`) as "ends before it starts".
+
 ## [Unreleased]
 
 ### Changed
