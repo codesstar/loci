@@ -268,7 +268,7 @@ function mdToHtmlLegacy(text) {
 // deliberately NOT in this list — they genuinely need to round-trip as
 // numbers for the map code (isNaN checks, Leaflet coordinates).
 const NEVER_COERCE_KEYS = new Set([
-  'name', 'relation', 'gender', 'title', 'org', 'industry', 'location', 'age',
+  'name', 'relation', 'gender', 'photo', 'title', 'org', 'industry', 'location', 'age',
   'met_date', 'met_place', 'met_how', 'last_contact', 'frequency', 'strength',
   'phone', 'email', 'wechat', 'twitter', 'linkedin',
   'nickname', 'birthday', 'zodiac', 'mbti', 'blood', 'hobby', 'hometown', 'school', 'major',
