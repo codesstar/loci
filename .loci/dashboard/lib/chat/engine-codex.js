@@ -28,15 +28,46 @@ const SYSTEM_PREAMBLE = [
   '2. 用户是非技术用户：不展示代码、不暴露路径和内部术语，办完事用一两句话说结果。',
   '3. 改任务/日程只用守卫命令：加任务 node scripts/loci-task.js add --title "..." [--date YYYY-MM-DD] [--start HH:MM] [--note "..."] [--people "A、B"] [--location "..."]；',
   '   加日程 node scripts/loci-task.js schedule --title "..." --date YYYY-MM-DD --start HH:MM [--end HH:MM] [--note "..."] [--location "..."] [--people "A、B"]；',
-  '   完成 done --id <id>；绝不直接编辑 tasks/tasks.json 或 tasks/calendar.json。',
+  '   完成 done --title "标题关键词"（按标题匹配，不用先查 id）；绝不直接编辑 tasks/tasks.json 或 tasks/calendar.json。',
   '   ⚠️ 自动关联：任务/日程提到人或地方时，先查 people/ 有没有该联系人、places/ 有没有该位置（ls + grep name:），',
   '   有就用档案里 name: 的准确名字填 --people / --location；没有就不加，别新建人或位置卡片。',
   '   加重复提醒（周期性的，不是某天的事）node scripts/loci-task.js remind --title "..." --days mon,tue,wed,thu,fri --times 09:00,14:00',
   '   （--days 也认 daily/weekdays/weekend、"一二三四五"）；关/开 remind-toggle --title "..."；删 remind-remove --title "..."；列出 remind-list。',
   '4. 回复简短口语化，遵守大脑 CLAUDE.md/AGENTS.md 的记忆与偏好规则。',
-  '',
-  '用户消息：',
+  '5. ⚡ 快字当头：当前工作目录就是大脑，无视全局配置里的其他 brain 路径；跳过会话启动仪式（读 plan.md、',
+  '   状态检查、记忆整理等）；下方【当前上下文】已给出时间和已存人/位置名单，别再跑 date 或 ls 确认；',
+  '   loci-task.js 会自动写活动账本，不用手动 append；其他写入（新联系人、决策等）完成后用一条',
+  '   node scripts/loci-task.js log --category "人脉" --line "..." 记账本；记新联系人直接写 people/<名字>.md',
+  '   （--- / name: / relation: / title: / met_date: / tags: [..] / --- 正文），别读别的卡片抄格式；',
+  '   没看到命令成功输出前绝不说"已加上"。',
 ].join('\n');
+
+// Spawn-time dynamic context (same idea as engine-claude): date + saved
+// contact/place names embedded up front so simple chores skip lookup rounds.
+function listNames(dir) {
+  const names = [];
+  try {
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md') || f === 'README.md') continue;
+      const m = fs.readFileSync(path.join(dir, f), 'utf-8').slice(0, 600).match(/^name:\s*(.+)$/m);
+      if (m) names.push(m[1].trim().replace(/^['"]|['"]$/g, ''));
+    }
+  } catch { /* module dir absent */ }
+  return names;
+}
+
+function buildPreamble(cwd) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} 周${'日一二三四五六'[now.getDay()]}`;
+  const people = listNames(path.join(cwd, 'people'));
+  const places = listNames(path.join(cwd, 'places'));
+  return SYSTEM_PREAMBLE + '\n'
+    + '【当前上下文】现在：' + stamp
+    + '；已存联系人：' + (people.length ? people.join('、') : '（无）')
+    + '；已存位置：' + (places.length ? places.join('、') : '（无）') + '\n'
+    + '\n用户消息：\n';
+}
 
 let cachedBin;
 function resolveBin() {
@@ -105,7 +136,7 @@ function startTurn(opts) {
 
   // `codex exec resume` takes a narrower flag set than `codex exec` — no
   // --sandbox/--cd (the resumed thread keeps its original config).
-  const prompt = opts.resumeSessionId ? String(opts.prompt) : SYSTEM_PREAMBLE + String(opts.prompt);
+  const prompt = opts.resumeSessionId ? String(opts.prompt) : buildPreamble(opts.cwd) + String(opts.prompt);
   const effort = ['-c', 'model_reasoning_effort=' + EFFORT];
   const args = opts.resumeSessionId
     ? ['exec', 'resume', '--json', '--skip-git-repo-check', ...effort, opts.resumeSessionId, prompt]
