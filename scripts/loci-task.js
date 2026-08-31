@@ -14,12 +14,12 @@ function usage() {
   console.log(`Usage:
   node scripts/loci-task.js validate
   node scripts/loci-task.js rebuild
-  node scripts/loci-task.js add --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--end-date YYYY-MM-DD]
-  node scripts/loci-task.js update --id task_x --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--clear-time] [--clear-date]
+  node scripts/loci-task.js add --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--end-date YYYY-MM-DD] [--people "A、B"] [--location "..."]
+  node scripts/loci-task.js update --id task_x --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--clear-time] [--clear-date] [--people "A、B"] [--location "..."]
   node scripts/loci-task.js done --id task_x
   node scripts/loci-task.js open --id task_x
   node scripts/loci-task.js archive --id task_x
-  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."]
+  node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."] [--people "A、B"]
     (no --end → a point event: endKey = startKey, rendered as a thin Google-Calendar-style block)
   node scripts/loci-task.js remind --title "Drink water" --days mon,tue,wed,thu,fri --times 09:00,14:00,17:00
     (--days also takes "daily"/"weekdays"/"weekend", Chinese day names/digits like "一二三四五" or "1,2,3,4,5")
@@ -430,9 +430,14 @@ function addSchedule(args) {
   if (!calendar[date]) calendar[date] = [];
   const ev = { title, startKey, endKey, hour: Math.floor(startKey / 60) };
   // Optional extras — the dashboard's calendar API supports these, so the CLI
-  // keeps parity (note shows on the event card, location links a saved place).
+  // keeps parity (note shows on the event card, location links a saved place,
+  // people links saved contacts by their exact name).
   if (args.note && args.note !== true) ev.note = String(args.note);
   if (args.location && args.location !== true) ev.location = String(args.location);
+  if (args.people && args.people !== true) {
+    const ppl = parsePeopleArg(args.people);
+    if (ppl.length) ev.people = ppl;
+  }
   calendar[date].push(ev);
   saveCalendar(calendar);
   console.log(JSON.stringify({ ok: true, date, event: ev }, null, 2));
