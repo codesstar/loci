@@ -21,6 +21,8 @@ function usage() {
   node scripts/loci-task.js archive --id task_x    (or --title "...")
   node scripts/loci-task.js schedule --title "Event" --date YYYY-MM-DD [--start HH:MM] [--end HH:MM] [--note "..."] [--location "..."] [--people "A、B"]
     (no --end → a point event: endKey = startKey, rendered as a thin Google-Calendar-style block)
+  node scripts/loci-task.js schedule-remove --date YYYY-MM-DD --title "关键词"
+    (delete one event that date — exact title match, else unique substring; use to fix a wrongly-added event)
   node scripts/loci-task.js remind --title "Drink water" --days mon,tue,wed,thu,fri --times 09:00,14:00,17:00
     (--days also takes "daily"/"weekdays"/"weekend", Chinese day names/digits like "一二三四五" or "1,2,3,4,5")
   node scripts/loci-task.js remind-toggle --id rec_x   (or --title "...")   — flip a recurring reminder on/off
@@ -286,6 +288,47 @@ function saveTasks(tasks, options = {}) {
   return normalized;
 }
 
+// ─── Atomic read-modify-write sections ──────────────────────────────────────
+// The advisory lock must cover the READ too: locking only the write (as
+// saveTasks does for its full-rewrite callers like `rebuild`) lets two
+// concurrent writers read the same snapshot and silently drop each other's
+// changes — found by a 10-way concurrent-add test, where only 4 of 10 tasks
+// survived. Every incremental mutation goes through one of these.
+function mutateTasks(fn) {
+  return withWriteLock(() => {
+    const tasks = readTasks();
+    const out = fn(tasks);
+    const normalized = tasks.map(normalizeTask).filter(task => task.title);
+    writeJson(TASK_DB, { tasks: normalized });
+    writeActiveTaskView(normalized);
+    return out;
+  });
+}
+
+function mutateCalendar(fn) {
+  return withWriteLock(() => {
+    const calendar = readCalendar();
+    const out = fn(calendar);
+    const cleaned = {};
+    for (const date of Object.keys(calendar).sort()) {
+      const events = Array.isArray(calendar[date]) ? calendar[date].filter(Boolean) : [];
+      if (events.length) cleaned[date] = events;
+    }
+    writeJson(CALENDAR_DB, cleaned);
+    return out;
+  });
+}
+
+// fn(rules) mutates the array in place, or returns a replacement array.
+function mutateRecurring(fn) {
+  return withWriteLock(() => {
+    const rules = readRecurring();
+    const ret = fn(rules);
+    writeJson(RECURRING_DB, { rules: Array.isArray(ret) ? ret : rules });
+    return ret;
+  });
+}
+
 // Append one line to the activity ledger (.loci/activity/YYYY-MM.md) so the
 // AI caller doesn't have to burn extra tool round-trips (Read + Edit) doing it
 // by hand after every add/schedule/done — the guarded writer knows everything
@@ -449,24 +492,25 @@ function addTask(args) {
     args.people && args.people !== true ? parsePeopleArg(args.people) : [],
     args.location && args.location !== true ? String(args.location) : null
   );
-  const tasks = readTasks();
-  const task = normalizeTask({
-    title,
-    date: args.date || null,
-    endDate: args['end-date'] || args.endDate || null,
-    startTime: args.start || args.startTime || null,
-    endTime: args.end || args.endTime || null,
-    project: args.project || null,
-    urgency: parseLevelArg(args.urgency),
-    importance: parseLevelArg(args.importance),
-    location: links.location,
-    color: args.color || null,
-    note: args.note || null,
-    people: links.people.length ? links.people : undefined,
-    source: args.source || 'agent',
-  }, new Set(tasks.map(t => t.id)));
-  tasks.push(task);
-  saveTasks(tasks, { syncCalendar: true });
+  const task = mutateTasks(tasks => {
+    const t = normalizeTask({
+      title,
+      date: args.date || null,
+      endDate: args['end-date'] || args.endDate || null,
+      startTime: args.start || args.startTime || null,
+      endTime: args.end || args.endTime || null,
+      project: args.project || null,
+      urgency: parseLevelArg(args.urgency),
+      importance: parseLevelArg(args.importance),
+      location: links.location,
+      color: args.color || null,
+      note: args.note || null,
+      people: links.people.length ? links.people : undefined,
+      source: args.source || 'agent',
+    }, new Set(tasks.map(x => x.id)));
+    tasks.push(t);
+    return t;
+  });
   logActivity('任务', '新增任务：' + title
     + (task.date ? '（' + task.date + (task.startTime ? ' ' + task.startTime : '') + '）' : ''));
   console.log(JSON.stringify({ ok: true, task, links }, null, 2));
@@ -474,8 +518,18 @@ function addTask(args) {
 
 function updateTask(args) {
   if (!args.id) throw new Error('Missing --id');
-  const tasks = readTasks();
-  const task = findTask(tasks, args.id);
+  let links = null;
+  if ((args.people !== undefined && args.people !== true) || (args.location !== undefined && args.location !== true)) {
+    links = resolveLinks(
+      args.people !== undefined && args.people !== true ? parsePeopleArg(args.people) : [],
+      args.location !== undefined && args.location !== true ? (args.location || null) : null
+    );
+  }
+  const task = mutateTasks(tasks => applyTaskUpdate(findTask(tasks, args.id), args, links));
+  console.log(JSON.stringify(links ? { ok: true, task, links } : { ok: true, task }, null, 2));
+}
+
+function applyTaskUpdate(task, args, links) {
   if (args.title || args.text) task.title = String(args.title || args.text).trim();
   if (args.project !== undefined) task.project = args.project || null;
   if (args.status) task.status = args.status;
@@ -495,13 +549,6 @@ function updateTask(args) {
     if (args.start !== undefined || args.startTime !== undefined) task.startTime = args.start || args.startTime || null;
     if (args.end !== undefined || args.endTime !== undefined) task.endTime = args.end || args.endTime || null;
   }
-  let links = null;
-  if ((args.people !== undefined && args.people !== true) || (args.location !== undefined && args.location !== true)) {
-    links = resolveLinks(
-      args.people !== undefined && args.people !== true ? parsePeopleArg(args.people) : [],
-      args.location !== undefined && args.location !== true ? (args.location || null) : null
-    );
-  }
   if (args.location !== undefined) task.location = args.location === true ? null : (links && links.location) || null;
   if (args.note !== undefined) task.note = args.note === true ? null : (args.note || null);
   if (args.color !== undefined) task.color = args.color === true ? null : (args.color || null);
@@ -510,24 +557,31 @@ function updateTask(args) {
   if (task.status === 'done' && !task.completedAt) task.completedAt = task.updatedAt;
   if (task.status !== 'done') task.completedAt = null;
   if (task.status === 'archived' && !task.archivedAt) task.archivedAt = task.updatedAt;
-  saveTasks(tasks, { syncCalendar: true });
-  console.log(JSON.stringify(links ? { ok: true, task, links } : { ok: true, task }, null, 2));
+  return task;
 }
 
 function setStatus(status, args) {
-  const tasks = readTasks();
+  const task = mutateTasks(tasks => setStatusIn(tasks, status, args));
+  if (status === 'done') logActivity('任务', '完成任务：' + task.title);
+  console.log(JSON.stringify({ ok: true, task }, null, 2));
+}
+
+function setStatusIn(tasks, status, args) {
   let task;
   if (args.id) {
     task = findTask(tasks, args.id);
   } else if (args.title && args.title !== true) {
-    // title lookup so the AI can complete a task in ONE command without a
-    // read-tasks round trip first: exact match, then unique substring match
-    // among open tasks; ambiguity is an error listing the candidates.
+    // title lookup so the AI can flip a task's status in ONE command without
+    // a read-tasks round trip first: exact match, then unique substring
+    // match; ambiguity is an error listing the candidates. The candidate
+    // pool depends on the TARGET status — completing searches open tasks,
+    // reopening searches done/archived ones, archiving searches the rest.
     const q = String(args.title).trim();
-    const open = tasks.filter(t => t.status === 'open');
-    const exact = open.filter(t => t.title === q);
-    const fuzzy = exact.length ? exact : open.filter(t => t.title.includes(q));
-    if (!fuzzy.length) throw new Error(`No open task matching title: ${q}`);
+    const SOURCE = { done: ['open'], open: ['done', 'archived'], archived: ['open', 'done'] };
+    const pool = tasks.filter(t => (SOURCE[status] || ['open']).includes(t.status));
+    const exact = pool.filter(t => t.title === q);
+    const fuzzy = exact.length ? exact : pool.filter(t => t.title.includes(q));
+    if (!fuzzy.length) throw new Error(`No ${(SOURCE[status] || ['open']).join('/')} task matching title: ${q}`);
     if (fuzzy.length > 1) throw new Error(`Ambiguous title "${q}" — matches: ` + fuzzy.map(t => `${t.id} (${t.title})`).join(', '));
     task = fuzzy[0];
   } else {
@@ -537,9 +591,7 @@ function setStatus(status, args) {
   task.updatedAt = isoNow();
   task.completedAt = status === 'done' ? (task.completedAt || task.updatedAt) : null;
   task.archivedAt = status === 'archived' ? (task.archivedAt || task.updatedAt) : null;
-  saveTasks(tasks, { syncCalendar: true });
-  if (status === 'done') logActivity('任务', '完成任务：' + task.title);
-  console.log(JSON.stringify({ ok: true, task }, null, 2));
+  return task;
 }
 
 function addSchedule(args) {
@@ -552,9 +604,8 @@ function addSchedule(args) {
   // an explicitly-passed --end that doesn't make sense.
   const endKey = args.end ? timeToMinutes(args.end) : startKey;
   if (args.end && endKey <= startKey) throw new Error('schedule --end must be after --start');
-  const calendar = readCalendar();
-  if (!calendar[date]) calendar[date] = [];
-  const ev = { title, startKey, endKey, hour: Math.floor(startKey / 60) };
+  // same id shape as the dashboard's genEventId, so either side can address it
+  const ev = { id: 'ev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8), title, startKey, endKey, hour: Math.floor(startKey / 60) };
   // Optional extras — the dashboard's calendar API supports these, so the CLI
   // keeps parity (note shows on the event card). People/location go through
   // the local resolver: matched names are linked with their exact saved
@@ -566,13 +617,38 @@ function addSchedule(args) {
   );
   if (links.location) ev.location = links.location;
   if (links.people.length) ev.people = links.people;
-  calendar[date].push(ev);
-  saveCalendar(calendar);
+  mutateCalendar(calendar => {
+    if (!calendar[date]) calendar[date] = [];
+    calendar[date].push(ev);
+  });
   const fmt = (k) => String(Math.floor(k / 60)).padStart(2, '0') + ':' + String(k % 60).padStart(2, '0');
   logActivity('日程', '新增日程：' + date + ' ' + fmt(startKey)
     + (endKey > startKey ? '-' + fmt(endKey) : '') + ' ' + title
     + (ev.location ? '（' + ev.location + '）' : ''));
   console.log(JSON.stringify({ ok: true, date, event: ev, links }, null, 2));
+}
+
+// Remove one calendar event by date + title (exact match, then unique
+// substring within that date). Exists mainly so a wrongly-added event can be
+// corrected in one command — e.g. after fixing a misspelled name, delete the
+// bad event instead of leaving a duplicate behind.
+function removeSchedule(args) {
+  const date = assertDate(args.date, 'date');
+  if (!date) throw new Error('Missing --date');
+  const q = String(args.title || '').trim();
+  if (!q) throw new Error('Missing --title');
+  let removed;
+  mutateCalendar(calendar => {
+    const evs = Array.isArray(calendar[date]) ? calendar[date] : [];
+    const exact = evs.filter(e => e && e.title === q);
+    const pool = exact.length ? exact : evs.filter(e => e && String(e.title).includes(q));
+    if (!pool.length) throw new Error(`No event on ${date} matching title: ${q}`);
+    if (pool.length > 1) throw new Error(`Ambiguous title "${q}" on ${date} — matches: ` + pool.map(e => e.title).join(' / '));
+    removed = pool[0];
+    calendar[date] = evs.filter(e => e !== removed);
+  });
+  logActivity('日程', '删除日程：' + date + ' ' + removed.title);
+  console.log(JSON.stringify({ ok: true, date, removed }, null, 2));
 }
 
 // ─── Recurring reminders ────────────────────────────────────────────────────
@@ -637,9 +713,7 @@ function addRecurring(args) {
   const times = parseTimesArg(args.times || args.time);
   if (!times.length) throw new Error('Missing --times (e.g. "09:00,14:00")');
   const rule = { id: makeRecurringId(), title, days, times, active: true, createdAt: isoNow() };
-  const rules = readRecurring();
-  rules.push(rule);
-  saveRecurring(rules);
+  mutateRecurring(rules => { rules.push(rule); });
   logActivity('提醒', '新增重复提醒：' + title + '（周' + days.map(d => '一二三四五六日'[d - 1]).join('') + ' ' + times.join('/') + '）');
   console.log(JSON.stringify({ ok: true, rule }, null, 2));
 }
@@ -662,17 +736,20 @@ function findRecurring(rules, args) {
 }
 
 function toggleRecurring(args) {
-  const rules = readRecurring();
-  const rule = findRecurring(rules, args);
-  rule.active = !rule.active;
-  saveRecurring(rules);
+  let rule;
+  mutateRecurring(rules => {
+    rule = findRecurring(rules, args);
+    rule.active = !rule.active;
+  });
   console.log(JSON.stringify({ ok: true, rule }, null, 2));
 }
 
 function removeRecurring(args) {
-  const rules = readRecurring();
-  const rule = findRecurring(rules, args);
-  saveRecurring(rules.filter(r => r.id !== rule.id));
+  let rule;
+  mutateRecurring(rules => {
+    rule = findRecurring(rules, args);
+    return rules.filter(r => r.id !== rule.id);
+  });
   console.log(JSON.stringify({ ok: true, removed: rule.id }, null, 2));
 }
 
@@ -709,6 +786,7 @@ function main() {
   if (command === 'open') return setStatus('open', args);
   if (command === 'archive') return setStatus('archived', args);
   if (command === 'schedule') return addSchedule(args);
+  if (command === 'schedule-remove') return removeSchedule(args);
   if (command === 'remind') return addRecurring(args);
   if (command === 'remind-toggle') return toggleRecurring(args);
   if (command === 'remind-remove') return removeRecurring(args);
