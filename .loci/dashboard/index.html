@@ -9870,346 +9870,11 @@
     </main>
   </div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "./vendor/three.module.js",
-    "three/addons/": "./vendor/three-addons/"
-  }
-}
-</script>
 <script type="module">
 // ============================================================
-// Dashboard v2 — Dark Theme Script
-// Part A: Three.js Brain (Plexus v2)
-// Part B: Vue.js App
-// ============================================================
-
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ============================================================
-// PART A: Three.js Brain Visualization (Plexus v2)
-// ============================================================
-
-function initBrain(container) {
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
-  camera.position.set(0, 0, 4.5);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
-  container.appendChild(renderer.domElement);
-
-  function resize() {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    if (w === 0 || h === 0) return;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  }
-  resize();
-
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.04;
-  controls.rotateSpeed = 0.5;
-  controls.minDistance = 2;
-  controls.maxDistance = 10;
-  controls.enablePan = false;
-
-  // --- Seeded RNG ---
-  function mulberry32(seed) {
-    return function() {
-      seed |= 0;
-      seed = seed + 0x6D2B79F5 | 0;
-      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-  }
-
-  const rng = mulberry32(99);
-  const group = new THREE.Group();
-
-  const nodeColors = [
-    new THREE.Color(0.85, 0.15, 0.5),
-    new THREE.Color(0.2, 0.8, 0.75),
-    new THREE.Color(0.6, 0.15, 0.85),
-    new THREE.Color(0.9, 0.2, 0.35),
-    new THREE.Color(0.25, 0.4, 0.9),
-    new THREE.Color(0.15, 0.65, 0.6),
-    new THREE.Color(0.8, 0.3, 0.65),
-  ];
-
-  // --- Generate nodes ---
-  const outerCount = 350;
-  const innerCount = 200;
-  const totalNodes = outerCount + innerCount;
-  const nodeData = [];
-
-  for (let i = 0; i < totalNodes; i++) {
-    const isOuter = i < outerCount;
-    const radius = isOuter ? 1.3 + rng() * 0.05 : 0.5 + rng() * 0.7;
-    const theta = Math.acos(2 * rng() - 1);
-    const phi = rng() * Math.PI * 2;
-    const color = nodeColors[Math.floor(rng() * nodeColors.length)];
-    const brightness = isOuter ? (0.7 + rng() * 0.3) : (0.3 + rng() * 0.4);
-    const size = isOuter ? (0.8 + rng() * 1.2) : (0.3 + rng() * 0.6);
-    const phase = rng() * Math.PI * 2;
-
-    nodeData.push({ theta, phi, radius, color, brightness, size, phase, isOuter });
-  }
-
-  // --- Layer 1: Soft glow halos (large, blurry, additive) ---
-  const glowPos = new Float32Array(totalNodes * 3);
-  const glowCol = new Float32Array(totalNodes * 3);
-  const glowSizes = new Float32Array(totalNodes);
-  const glowAlphas = new Float32Array(totalNodes);
-
-  for (let i = 0; i < totalNodes; i++) {
-    const nd = nodeData[i];
-    const r = nd.radius;
-    glowPos[i*3]   = r * Math.sin(nd.theta) * Math.cos(nd.phi);
-    glowPos[i*3+1] = r * Math.sin(nd.theta) * Math.sin(nd.phi);
-    glowPos[i*3+2] = r * Math.cos(nd.theta);
-    glowCol[i*3] = nd.color.r; glowCol[i*3+1] = nd.color.g; glowCol[i*3+2] = nd.color.b;
-    glowSizes[i] = nd.size * 0.35;
-    glowAlphas[i] = nd.brightness;
-  }
-
-  const glowGeo = new THREE.BufferGeometry();
-  glowGeo.setAttribute('position', new THREE.BufferAttribute(glowPos, 3));
-  glowGeo.setAttribute('color', new THREE.Float32BufferAttribute(glowCol, 3));
-  glowGeo.setAttribute('size', new THREE.BufferAttribute(glowSizes, 1));
-  glowGeo.setAttribute('alpha', new THREE.BufferAttribute(glowAlphas, 1));
-
-  const glowVS = `
-    attribute float size; attribute float alpha; attribute vec3 color;
-    varying vec3 vColor; varying float vAlpha;
-    void main() {
-      vColor = color; vAlpha = alpha;
-      vec4 mv = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = size * (800.0 / -mv.z);
-      gl_PointSize = max(gl_PointSize, 2.0);
-      gl_Position = projectionMatrix * mv;
-    }
-  `;
-  const glowFS = `
-    varying vec3 vColor; varying float vAlpha;
-    void main() {
-      vec2 center = gl_PointCoord - vec2(0.5);
-      float d = length(center);
-      if (d > 0.5) discard;
-      float glow = exp(-d * d * 12.0);
-      gl_FragColor = vec4(vColor * 0.6, glow * vAlpha * 0.25);
-    }
-  `;
-  const glowMesh = new THREE.Points(glowGeo, new THREE.ShaderMaterial({
-    vertexShader: glowVS, fragmentShader: glowFS,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  }));
-  group.add(glowMesh);
-
-  // --- Layer 2: Bright cores (small, crisp center) ---
-  const corePos = new Float32Array(totalNodes * 3);
-  const coreCol = new Float32Array(totalNodes * 3);
-  const coreSizes = new Float32Array(totalNodes);
-  const coreAlphas = new Float32Array(totalNodes);
-
-  for (let i = 0; i < totalNodes; i++) {
-    const nd = nodeData[i];
-    const r = nd.radius;
-    corePos[i*3]   = r * Math.sin(nd.theta) * Math.cos(nd.phi);
-    corePos[i*3+1] = r * Math.sin(nd.theta) * Math.sin(nd.phi);
-    corePos[i*3+2] = r * Math.cos(nd.theta);
-    const wc = nd.color.clone().lerp(new THREE.Color(1, 1, 1), 0.5);
-    coreCol[i*3] = wc.r; coreCol[i*3+1] = wc.g; coreCol[i*3+2] = wc.b;
-    coreSizes[i] = nd.size * 0.08;
-    coreAlphas[i] = nd.brightness;
-  }
-
-  const coreGeo = new THREE.BufferGeometry();
-  coreGeo.setAttribute('position', new THREE.BufferAttribute(corePos, 3));
-  coreGeo.setAttribute('color', new THREE.Float32BufferAttribute(coreCol, 3));
-  coreGeo.setAttribute('size', new THREE.BufferAttribute(coreSizes, 1));
-  coreGeo.setAttribute('alpha', new THREE.BufferAttribute(coreAlphas, 1));
-
-  const coreVS = `
-    attribute float size; attribute float alpha; attribute vec3 color;
-    varying vec3 vColor; varying float vAlpha;
-    void main() {
-      vColor = color; vAlpha = alpha;
-      vec4 mv = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = size * (800.0 / -mv.z);
-      gl_PointSize = max(gl_PointSize, 1.0);
-      gl_Position = projectionMatrix * mv;
-    }
-  `;
-  const coreFS = `
-    varying vec3 vColor; varying float vAlpha;
-    void main() {
-      float d = length(gl_PointCoord - vec2(0.5));
-      if (d > 0.5) discard;
-      float core = exp(-d * d * 80.0);
-      float mid = exp(-d * d * 20.0);
-      vec3 col = vColor * (core * 1.2 + mid * 0.3);
-      float a = (core * 0.9 + mid * 0.15) * vAlpha;
-      gl_FragColor = vec4(col, a);
-    }
-  `;
-  const coreMesh = new THREE.Points(coreGeo, new THREE.ShaderMaterial({
-    vertexShader: coreVS, fragmentShader: coreFS,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  }));
-  group.add(coreMesh);
-
-  // --- Connection lines ---
-  const maxDist = 0.48;
-  const linePositions = [];
-  const lineColors = [];
-
-  for (let i = 0; i < totalNodes; i++) {
-    for (let j = i + 1; j < totalNodes; j++) {
-      const dx = glowPos[i*3]-glowPos[j*3], dy = glowPos[i*3+1]-glowPos[j*3+1], dz = glowPos[i*3+2]-glowPos[j*3+2];
-      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      if (dist < maxDist) {
-        linePositions.push(
-          glowPos[i*3], glowPos[i*3+1], glowPos[i*3+2],
-          glowPos[j*3], glowPos[j*3+1], glowPos[j*3+2]
-        );
-        const fade = Math.pow(1 - dist / maxDist, 1.5);
-        const ci = nodeData[i].color, cj = nodeData[j].color;
-        lineColors.push(ci.r*fade, ci.g*fade, ci.b*fade);
-        lineColors.push(cj.r*fade, cj.g*fade, cj.b*fade);
-      }
-    }
-  }
-
-  const lineGeo = new THREE.BufferGeometry();
-  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-  lineGeo.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
-  const lineMat = new THREE.LineBasicMaterial({
-    vertexColors: true, transparent: true, opacity: 0.12,
-    blending: THREE.AdditiveBlending, depthWrite: false,
-  });
-  group.add(new THREE.LineSegments(lineGeo, lineMat));
-
-  // --- Inner ambient glow sphere ---
-  const innerGlowGeo = new THREE.SphereGeometry(0.4, 32, 32);
-  const innerGlowMat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, side: THREE.BackSide,
-    blending: THREE.AdditiveBlending,
-    uniforms: { uTime: { value: 0 } },
-    vertexShader: `
-      varying vec3 vNormal; varying vec3 vViewDir;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        vViewDir = normalize(-mv.xyz);
-        gl_Position = projectionMatrix * mv;
-      }
-    `,
-    fragmentShader: `
-      uniform float uTime;
-      varying vec3 vNormal; varying vec3 vViewDir;
-      void main() {
-        float fresnel = pow(1.0 - abs(dot(vNormal, vViewDir)), 3.0);
-        float breath = 0.7 + 0.3 * sin(uTime * 0.6);
-        vec3 col = mix(vec3(0.12, 0.06, 0.25), vec3(0.3, 0.12, 0.55), fresnel);
-        gl_FragColor = vec4(col * breath, fresnel * 0.12 * breath);
-      }
-    `,
-  });
-  group.add(new THREE.Mesh(innerGlowGeo, innerGlowMat));
-
-  scene.add(group);
-
-  // --- Stars ---
-  const starCount = 1200;
-  const sPos = new Float32Array(starCount * 3);
-  const sSizes = new Float32Array(starCount);
-  const srng = mulberry32(7);
-  for (let i = 0; i < starCount; i++) {
-    const r = 15 + srng() * 80;
-    const t = srng() * Math.PI * 2;
-    const p = Math.acos(2 * srng() - 1);
-    sPos[i*3] = r * Math.sin(p) * Math.cos(t);
-    sPos[i*3+1] = r * Math.sin(p) * Math.sin(t);
-    sPos[i*3+2] = r * Math.cos(p);
-    sSizes[i] = srng() < 0.03 ? 0.05 + srng() * 0.06 : 0.01 + srng() * 0.02;
-  }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
-  starGeo.setAttribute('size', new THREE.Float32BufferAttribute(sSizes, 1));
-  const svs = `attribute float size; varying float vA; void main() { vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = size * (400.0 / -mv.z); gl_PointSize = max(gl_PointSize, 0.5); gl_Position = projectionMatrix * mv; vA = smoothstep(80.0, 10.0, -mv.z); }`;
-  const sfs = `varying float vA; void main() { float d = length(gl_PointCoord - vec2(0.5)); if (d > 0.5) discard; float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(0.7, 0.72, 0.82, a * vA * 0.35); }`;
-  scene.add(new THREE.Points(starGeo, new THREE.ShaderMaterial({ vertexShader: svs, fragmentShader: sfs, transparent: true, depthWrite: false })));
-
-  // --- Auto rotation ---
-  let autoRotate = true;
-  controls.addEventListener('start', () => { autoRotate = false; });
-  controls.addEventListener('end', () => { setTimeout(() => { autoRotate = true; }, 3000); });
-
-  // --- Animate ---
-  const clock = new THREE.Clock();
-  let animId;
-
-  function animate() {
-    animId = requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-
-    // Breathing — slow, organic
-    const breathScale = 1 + Math.sin(t * 0.5) * 0.025;
-    const breathR = 1 + Math.sin(t * 0.5) * 0.02;
-    group.scale.setScalar(breathScale);
-
-    // Update node positions (breathing expand/contract)
-    for (let i = 0; i < totalNodes; i++) {
-      const nd = nodeData[i];
-      const r = nd.radius * breathR;
-      const x = r * Math.sin(nd.theta) * Math.cos(nd.phi);
-      const y = r * Math.sin(nd.theta) * Math.sin(nd.phi);
-      const z = r * Math.cos(nd.theta);
-      glowPos[i*3] = x; glowPos[i*3+1] = y; glowPos[i*3+2] = z;
-      corePos[i*3] = x; corePos[i*3+1] = y; corePos[i*3+2] = z;
-    }
-    glowGeo.attributes.position.needsUpdate = true;
-    coreGeo.attributes.position.needsUpdate = true;
-
-    // Breathing alpha — gentle pulse
-    const breathAlpha = 0.85 + 0.15 * Math.sin(t * 0.5);
-    for (let i = 0; i < totalNodes; i++) {
-      const nd = nodeData[i];
-      const pulse = 0.5 + 0.5 * Math.sin(t * 0.8 + nd.phase);
-      const a = nd.brightness * (0.7 + pulse * 0.3) * breathAlpha;
-      glowAlphas[i] = a;
-      coreAlphas[i] = a;
-    }
-    glowGeo.attributes.alpha.needsUpdate = true;
-    coreGeo.attributes.alpha.needsUpdate = true;
-
-    // Lines breathe
-    lineMat.opacity = 0.1 + 0.06 * Math.sin(t * 0.5 + 0.3);
-
-    // Inner glow
-    innerGlowMat.uniforms.uTime.value = t;
-
-    if (autoRotate) group.rotation.y += 0.0015;
-
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  return { renderer, resize, scene, camera, destroy: () => { cancelAnimationFrame(animId); renderer.dispose(); } };
-}
-
-
-// ============================================================
-// PART B: Vue.js App
+// Dashboard v2 — Vue.js App
+// (the old Part A three.js brain was removed: its mount point no longer
+// exists in the template, and the 1.25MB library was loaded for nothing)
 // ============================================================
 
 // ===== Demo mode =====
@@ -10253,14 +9918,25 @@ const lociApp = createApp({
     const error = ref(null);
     // Soft refresh for live reload: re-pull data and swap it in place instead
     // of a full page reload — no white flash when brain files change.
-    window.lociSoftRefresh = async function () {
-      try {
-        const r = await fetch('/api/data');
-        if (!r.ok) return false;
-        data.value = await r.json();
-        if (typeof window.lociSoftRefreshTrace === 'function') window.lociSoftRefreshTrace();
-        return true;
-      } catch { return false; }
+    // Coalesced: concurrent callers share one in-flight pull, and a call
+    // right after a completed one is a no-op — the payload is ~2MB, so a
+    // burst of change events must cost one fetch, not one each.
+    let refreshInflight = null;
+    let refreshDoneAt = 0;
+    window.lociSoftRefresh = function () {
+      if (refreshInflight) return refreshInflight;
+      if (Date.now() - refreshDoneAt < 1000) return Promise.resolve(true);
+      refreshInflight = (async () => {
+        try {
+          const r = await fetch('/api/data');
+          if (!r.ok) return false;
+          data.value = await r.json();
+          if (typeof window.lociSoftRefreshTrace === 'function') window.lociSoftRefreshTrace();
+          return true;
+        } catch { return false; }
+        finally { refreshInflight = null; refreshDoneAt = Date.now(); }
+      })();
+      return refreshInflight;
     };
     const currentPage = ref('overview');
     const sidebarOpen = ref(false);
@@ -14553,7 +14229,10 @@ const lociApp = createApp({
 
     // Date widget
     const now = ref(new Date());
-    setInterval(() => { now.value = new Date(); }, 1000);
+    // 30s tick: nothing in the template renders seconds, and the dependents
+    // (greeting, current-hour, reminder scan with its own 20s throttle) only
+    // care about the minute — a 1s tick just burned computed re-runs.
+    setInterval(() => { now.value = new Date(); }, 30000);
 
     // === Reminders (browser Notification, dashboard-open only) =================
     // Scans timed calendar items AND timed tasks with the exact same rule:
@@ -14943,9 +14622,22 @@ const lociApp = createApp({
       80: 'SHOWERS', 81: 'MOD SHOWERS', 82: 'HEAVY SHOWERS',
       95: 'THUNDERSTORM', 96: 'HAIL STORM', 99: 'SEVERE STORM',
     };
+    // Coordinates come from the brain itself: the user's saved "home" place
+    // (places/, type: home) — falling back to any place with coordinates,
+    // then to a neutral default. Weather used to be hardcoded to San
+    // Francisco, i.e. wrong for everyone else.
+    function weatherCoords() {
+      const places = (data.value && data.value.places) || [];
+      const pick = places.find(p => p.meta && p.meta.type === 'home' && p.meta.lat && p.meta.lng)
+        || places.find(p => p.meta && p.meta.lat && p.meta.lng);
+      return pick ? { lat: pick.meta.lat, lng: pick.meta.lng } : { lat: 37.7749, lng: -122.4194 };
+    }
+    let weatherFetchedAt = 0;
     async function fetchWeather() {
+      if (document.hidden) return; // background tab: don't burn requests
       try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=America%2FLos_Angeles');
+        const { lat, lng } = weatherCoords();
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`);
         const d = await res.json();
         const c = d.current;
         weather.temp = Math.round(c.temperature_2m);
@@ -14953,10 +14645,15 @@ const lociApp = createApp({
         weather.feelsLike = Math.round(c.apparent_temperature);
         weather.wind = Math.round(c.wind_speed_10m);
         weather.desc = WMO_CODES[c.weather_code] || 'CODE ' + c.weather_code;
+        weatherFetchedAt = Date.now();
       } catch(e) { weather.desc = 'OFFLINE'; }
     }
-    fetchWeather();
-    setInterval(fetchWeather, 10 * 60 * 1000); // refresh every 10min
+    // first real fetch once brain data (and with it the home place) is in
+    const stopWeatherBoot = watch(data, (v) => { if (v) { fetchWeather(); stopWeatherBoot(); } });
+    setInterval(fetchWeather, 10 * 60 * 1000); // refresh every 10min (skipped while hidden)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && Date.now() - weatherFetchedAt > 10 * 60 * 1000) fetchWeather();
+    });
 
     const currentDay = computed(() => now.value.getDate());
     const currentDateFull = computed(() => {
@@ -21669,45 +21366,6 @@ const lociApp = createApp({
         drawParticles();
       })();
 
-      // === Telemetry data updater ===
-      (() => {
-        const hexChars = '0123456789ABCDEF';
-        const rHex = () => Array.from({length: 4}, () => hexChars[Math.floor(Math.random()*16)]).join('');
-        const memEls = ['tele-tl-2', 'tele-bl-2'];
-        const sysStates = ['NOMINAL', 'OPTIMAL', 'STANDBY', 'ACTIVE'];
-
-        setInterval(() => {
-          const el1 = document.getElementById('tele-tl-2');
-          if (el1) el1.textContent = 'MEM: ' + (700 + Math.random()*200).toFixed(1) + 'K';
-          const el2 = document.getElementById('tele-tl-3');
-          if (el2) {
-            const bars = Math.floor(Math.random()*5);
-            el2.textContent = 'NET: ' + '█'.repeat(bars) + '░'.repeat(4-bars) + ' ' + (20+bars*20) + '%';
-          }
-          const el3 = document.getElementById('tele-bl-1');
-          if (el3) el3.textContent = 'PROC: ' + (8+Math.floor(Math.random()*8)) + ' THREADS';
-          const el4 = document.getElementById('tele-bl-2');
-          if (el4) el4.textContent = 'IO: ' + (1+Math.random()*4).toFixed(1) + 'MB/s';
-          const el5 = document.getElementById('tele-tl-1');
-          if (el5) el5.textContent = 'SYS.' + sysStates[Math.floor(Math.random()*sysStates.length)];
-        }, 3000);
-
-        // FPS counter
-        let frames = 0, lastTime = performance.now();
-        function countFps() {
-          frames++;
-          const now = performance.now();
-          if (now - lastTime >= 1000) {
-            const fpsEl = document.getElementById('tele-fps');
-            if (fpsEl) fpsEl.textContent = frames;
-            frames = 0;
-            lastTime = now;
-          }
-          requestAnimationFrame(countFps);
-        }
-        countFps();
-      })();
-
       // Auto-scroll day timeline to current hour
       nextTick(() => {
         scrollCalendarToNow();
@@ -21873,13 +21531,6 @@ const lociApp = createApp({
         }
       }, { deep: true });
 
-      // --- Init brain ---
-      nextTick(() => {
-        const container = document.getElementById('brain-container');
-        if (container) {
-          brainInstance = initBrain(container);
-        }
-      });
     });
 
     // ===== SKILLS PAGE =====
@@ -22238,14 +21889,23 @@ lociApp.mount('#app');
   var pending = false;
   var pendingHard = false;
   function refresh(hard) {
+    // Background tab: don't pull ~2MB per brain change nobody is looking at —
+    // remember that something changed and catch up when the tab is visible.
+    if (document.hidden) { pending = true; pendingHard = pendingHard || hard; return; }
     var ae = document.activeElement;
     var typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
     if (typing) { pending = true; pendingHard = pendingHard || hard; return; }
     if (hard || typeof window.lociSoftRefresh !== 'function') { location.reload(); return; }
     window.lociSoftRefresh().then(function (ok) { if (!ok) location.reload(); });
   }
-  document.addEventListener('focusout', function () {
-    if (pending) { pending = false; var h = pendingHard; pendingHard = false; setTimeout(function () { refresh(h); }, 500); }
+  function flushPending(delay) {
+    if (!pending) return;
+    pending = false; var h = pendingHard; pendingHard = false;
+    setTimeout(function () { refresh(h); }, delay);
+  }
+  document.addEventListener('focusout', function () { flushPending(500); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) flushPending(100);
   });
   try {
     var es = new EventSource(window.lociUrl ? window.lociUrl('/api/reload') : '/api/reload');
