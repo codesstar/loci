@@ -110,9 +110,16 @@ function readJson(filePath, fallback) {
 
 function writeJson(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  const tmp = `${filePath}.tmp`;
-  fs.writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, 'utf-8');
-  fs.renameSync(tmp, filePath);
+  // pid+timestamp in the tmp name: two writers racing on the lock-timeout
+  // fallback path must not clobber each other's tmp file
+  const tmp = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, 'utf-8');
+    fs.renameSync(tmp, filePath);
+  } catch (error) {
+    try { fs.unlinkSync(tmp); } catch { /* already renamed or never created */ }
+    throw error;
+  }
 }
 
 // Cross-process write lock shared with the dashboard server (its lib/store.js).
@@ -251,7 +258,16 @@ function renderActiveTaskView(tasks) {
 }
 
 function writeActiveTaskView(tasks) {
-  fs.writeFileSync(ACTIVE_VIEW, renderActiveTaskView(tasks), 'utf-8');
+  // tmp+rename so a concurrent reader (an AI session reading active.md)
+  // never sees a half-written file
+  const tmp = `${ACTIVE_VIEW}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.writeFileSync(tmp, renderActiveTaskView(tasks), 'utf-8');
+    fs.renameSync(tmp, ACTIVE_VIEW);
+  } catch (error) {
+    try { fs.unlinkSync(tmp); } catch { /* already renamed or never created */ }
+    throw error;
+  }
 }
 
 function readCalendar() {
@@ -461,6 +477,11 @@ function matchName(cand, saved) {
 }
 
 function resolveLinks(peopleCands, locationCand) {
+  // Nothing to resolve → don't pay the directory scans (every saved contact/
+  // place file is read per scan; most writes carry no names at all).
+  if (!(peopleCands && peopleCands.length) && !locationCand) {
+    return { people: [], unmatchedPeople: [], location: null, locationLinked: false };
+  }
   const savedPeople = scanNames('people');
   const savedPlaces = scanNames('places');
   const people = [];

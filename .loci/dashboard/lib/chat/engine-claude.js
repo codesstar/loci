@@ -203,14 +203,45 @@ function toolPreview(name, input) {
 // transparently respawned next turn with --resume, so context never breaks.
 
 const IDLE_MS = 15 * 60 * 1000;
+// A prewarmed process that never ran a turn is pure speculation — reap it much
+// sooner than one that carries a live conversation (each claude process holds
+// 100–200MB, so speculative spawns must not linger for 15 minutes).
+const WARM_UNUSED_MS = 3 * 60 * 1000;
+// Hard cap: each process is 100–200MB, and prewarm fires on every panel open /
+// old-session click — without a cap a browsing user stacks up GBs of idle CLIs.
+const MAX_POOL = 3;
 const pool = new Map(); // procKey → entry
+
+// Kick out the least-recently-used idle process. Returns true if one was freed.
+function evictIdle() {
+  let victim = null;
+  for (const ent of pool.values()) {
+    if (!ent.busy && (!victim || ent.lastUsed < victim.lastUsed)) victim = ent;
+  }
+  if (!victim) return false;
+  try { victim.child.kill('SIGTERM'); } catch { /* gone */ }
+  pool.delete(victim.key);
+  return true;
+}
 
 const idleReaper = setInterval(() => {
   const now = Date.now();
   for (const [key, ent] of pool) {
-    if (!ent.busy && now - ent.lastUsed > IDLE_MS) {
-      try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+    if (!ent.busy) {
+      const limit = ent.everUsed ? IDLE_MS : WARM_UNUSED_MS;
+      if (now - ent.lastUsed > limit) {
+        try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+        pool.delete(key);
+      }
+    } else if (now - ent.lastUsed > TURN_TIMEOUT_MS + 60 * 1000) {
+      // Last-resort self-heal: a busy turn should have ended via the turn
+      // timeout long ago. If the process ignored SIGTERM (hung native code,
+      // stuck child command), it would otherwise stay "busy" forever — the
+      // session permanently 409s and the reaper above skips it. Force-kill
+      // and end the turn by hand so the session becomes usable again.
+      try { ent.child.kill('SIGKILL'); } catch { /* gone */ }
       pool.delete(key);
+      finishTurn(ent, { code: -1, killed: true, error: 'AI 进程无响应，已强制结束' });
     }
   }
 }, 60 * 1000);
@@ -311,9 +342,15 @@ function spawnEntry(bin, key, cwd, resumeSessionId) {
     sessionId: resumeSessionId || null,
     busy: false, current: null,
     lastUsed: Date.now(),
+    everUsed: false,
     buf: '', stderrTail: '',
   };
   child.stdin.on('error', () => { /* surfaced via close */ });
+  // Without an explicit encoding each chunk is decoded independently — a
+  // multi-byte UTF-8 char (every Chinese char) split across a chunk boundary
+  // decodes to �. setEncoding makes Node buffer the partial char correctly.
+  child.stdout.setEncoding('utf8');
+  child.stderr.setEncoding('utf8');
   child.stdout.on('data', (chunk) => {
     ent.buf += chunk;
     let nl;
@@ -352,6 +389,9 @@ function prewarm(opts) {
   if (!bin || !opts || !opts.procKey || !opts.cwd) return;
   const ent = pool.get(opts.procKey);
   if (ent && ent.child.exitCode === null) return; // already live
+  // Prewarm is speculative — never worth evicting a live process for, and
+  // never worth exceeding the cap. The real turn spawns on demand anyway.
+  if (pool.size >= MAX_POOL) return;
   try { spawnEntry(bin, opts.procKey, opts.cwd, opts.resumeSessionId || null); } catch { /* next turn spawns normally */ }
 }
 
@@ -369,9 +409,15 @@ function startTurn(opts) {
   const key = opts.procKey || 'session:' + (opts.resumeSessionId || Math.random().toString(36).slice(2));
   let ent = pool.get(key);
   if (ent && (ent.child.exitCode !== null || ent.busy)) ent = null; // dead or (shouldn't happen) mid-turn
-  if (!ent) ent = spawnEntry(bin, key, opts.cwd, opts.resumeSessionId);
+  if (!ent) {
+    // A real turn beats the cap: make room by evicting an idle process. If
+    // every slot is mid-turn, spawn anyway — user work is never refused.
+    if (pool.size >= MAX_POOL) evictIdle();
+    ent = spawnEntry(bin, key, opts.cwd, opts.resumeSessionId);
+  }
 
   ent.busy = true;
+  ent.everUsed = true;
   ent.lastUsed = Date.now();
   ent.stderrTail = '';
   ent.killedByUser = false;
@@ -382,6 +428,10 @@ function startTurn(opts) {
     timeout: setTimeout(() => {
       if (ent.current) ent.current.timedOut = true;
       try { ent.child.kill('SIGTERM'); } catch { /* gone */ }
+      // SIGTERM can be ignored by a hung process — without this the turn
+      // never ends and the session stays busy forever.
+      const hardKill = setTimeout(() => { try { ent.child.kill('SIGKILL'); } catch { /* gone */ } }, 3000);
+      if (hardKill.unref) hardKill.unref();
     }, TURN_TIMEOUT_MS),
   };
   if (ent.current.timeout.unref) ent.current.timeout.unref();

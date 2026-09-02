@@ -73,7 +73,12 @@ module.exports = {
 
     if (p === '/api/chat/stream' && req.method === 'GET') {
       const id = parsed.searchParams.get('session') || '';
-      const stream = ctx.sse.openStream(req, res);
+      // onClose drops the subscriber immediately — otherwise dead streams
+      // linger in the set until the session's next broadcast (EventSource
+      // auto-reconnect makes them accumulate on flaky networks).
+      const stream = ctx.sse.openStream(req, res, {
+        onClose: (s) => manager.unsubscribe(ctx, id, s),
+      });
       if (!manager.subscribe(ctx, id, stream)) {
         stream.send('error', { message: 'no such session' });
         stream.close();

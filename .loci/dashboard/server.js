@@ -1391,17 +1391,27 @@ function handleNoteUnlink(body) {
 }
 
 // Pop a native folder picker (macOS) so the user can choose a folder to mount.
-function handleFolderBrowse() {
+// Native picker via osascript, ASYNC on purpose: the dialog stays open as long
+// as the user thinks (up to the 2-minute timeout), and a synchronous child
+// would freeze the entire single-threaded server for that whole time — every
+// other tab, the phone, SSE heartbeats, all dead until the dialog closes.
+function osascriptChoose(script) {
+  return new Promise((resolve) => {
+    const { execFile } = require('child_process');
+    execFile('osascript', ['-e', script], { timeout: 120000, encoding: 'utf-8' }, (err, stdout) => {
+      // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
+      if (err) return resolve(null);
+      const out = String(stdout || '').trim();
+      resolve(out || null);
+    });
+  });
+}
+
+async function handleFolderBrowse() {
   if (process.platform !== 'darwin') return { error: '文件夹选择目前只支持 macOS' };
-  try {
-    const { execFileSync } = require('child_process');
-    const script = 'POSIX path of (choose folder with prompt "选择要引入的笔记文件夹")';
-    const out = execFileSync('osascript', ['-e', script], { timeout: 120000, encoding: 'utf-8' }).trim();
-    if (!out) return { error: 'cancelled' };
-    return { ok: true, path: out.replace(/\/+$/, '') };
-  } catch (e) {
-    return { error: 'cancelled' };
-  }
+  const out = await osascriptChoose('POSIX path of (choose folder with prompt "选择要引入的笔记文件夹")');
+  if (!out) return { error: 'cancelled' };
+  return { ok: true, path: out.replace(/\/+$/, '') };
 }
 
 // Reveal the notes/ folder (or a subfolder within it) in the OS file manager, so
@@ -2900,41 +2910,31 @@ function handleProjectOpen(body) {
 // (uses osascript). Local machine only — in the demo build demoFetch no-ops, so
 // this never runs there. Lets the connect-project form fill a repo path without
 // hand-typing it.
-function handleProjectBrowse() {
+async function handleProjectBrowse() {
   if (process.platform !== 'darwin') {
     return { error: 'Folder picker only supported on macOS' };
   }
-  try {
-    const { execFileSync } = require('child_process');
-    const script = 'POSIX path of (choose folder with prompt "选择项目仓库文件夹")';
-    const out = execFileSync('osascript', ['-e', script], {
-      timeout: 120000, encoding: 'utf-8'
-    }).trim();
-    if (!out) return { error: 'No folder chosen' };
-    // strip trailing slash for a clean repo path
-    const picked = out.replace(/\/+$/, '');
-    return { ok: true, path: picked };
-  } catch (e) {
-    // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
-    return { error: 'cancelled' };
-  }
+  const out = await osascriptChoose('POSIX path of (choose folder with prompt "选择项目仓库文件夹")');
+  if (!out) return { error: 'cancelled' };
+  // strip trailing slash for a clean repo path
+  return { ok: true, path: out.replace(/\/+$/, '') };
 }
 
 // "链接文件": pop a native file picker, then symlink the chosen file into the
 // project's .loci/knowledge/. Symlink (not copy) — the original stays where it
 // lives (e.g. an Obsidian vault); the project just gains an entry point.
 // macOS only, local machine only.
-function handleProjectKnowledgeAdd(body) {
+async function handleProjectKnowledgeAdd(body) {
   const { repo } = body || {};
   if (!repo || typeof repo !== 'string') return { error: 'Missing repo path' };
-  const known = buildProjects().serious.some(p => p.repo && p.repo === repo);
+  // membership check only needs the light index list, not the full
+  // buildProjects() detail pass (which runs git log per project)
+  const known = listProjectRepos().some(p => p.repo === repo);
   if (!known) return { error: 'Unknown project repo' };
   if (process.platform !== 'darwin') return { error: 'File picker only supported on macOS' };
+  const out = await osascriptChoose('POSIX path of (choose file with prompt "选择要放进项目知识库的文件")');
+  if (!out) return { error: 'cancelled' };
   try {
-    const { execFileSync } = require('child_process');
-    const script = 'POSIX path of (choose file with prompt "选择要放进项目知识库的文件")';
-    const out = execFileSync('osascript', ['-e', script], { timeout: 120000, encoding: 'utf-8' }).trim();
-    if (!out) return { error: 'cancelled' };
     const src = out.replace(/\/+$/, '');
     const kbDir = path.join(repo, '.loci', 'knowledge');
     fs.mkdirSync(kbDir, { recursive: true });
@@ -2943,7 +2943,6 @@ function handleProjectKnowledgeAdd(body) {
     fs.symlinkSync(src, dest);
     return { ok: true, added: path.basename(src) };
   } catch (e) {
-    // user hit Cancel → osascript exits non-zero; treat as a quiet no-op
     return { error: 'cancelled' };
   }
 }
@@ -4422,7 +4421,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/project/knowledge/add' && req.method === 'POST') {
     try {
       const body = await parseJsonBody(req);
-      const result = handleProjectKnowledgeAdd(body);
+      const result = await handleProjectKnowledgeAdd(body);
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) {
@@ -4434,7 +4433,7 @@ const server = http.createServer(async (req, res) => {
   // Pop a native folder picker; return the chosen path (macOS, local only).
   if (pathname === '/api/project/browse' && req.method === 'POST') {
     try {
-      const result = handleProjectBrowse();
+      const result = await handleProjectBrowse();
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) {
@@ -4689,7 +4688,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (pathname === '/api/notes/folder-browse' && req.method === 'POST') {
     try {
-      const result = handleFolderBrowse();
+      const result = await handleFolderBrowse();
       if (result.error) sendError(res, result.error);
       else sendJson(res, result);
     } catch (e) { sendError(res, e.message, 500); }

@@ -177,6 +177,10 @@ function startTurn(opts) {
     }
   }
 
+  // Explicit encoding so a multi-byte UTF-8 char split across chunk
+  // boundaries doesn't decode to � (Node buffers the partial char).
+  child.stdout.setEncoding('utf8');
+  child.stderr.setEncoding('utf8');
   child.stdout.on('data', (chunk) => {
     buf += chunk;
     let nl;

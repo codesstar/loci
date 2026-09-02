@@ -193,7 +193,18 @@ function saveFired(todayKey, fired) {
   st.store.atomicWriteSync(firedFile(), JSON.stringify({ date: todayKey, ids: [...fired] }, null, 2) + '\n', 'utf-8');
 }
 
+// Reentrancy guard: setInterval doesn't wait for the previous scan(), and a
+// hung push request used to let a second scan start from the not-yet-saved
+// fired.json — the same reminder pushed twice.
+let scanning = false;
+
 async function scan() {
+  if (scanning) return;
+  scanning = true;
+  try { await doScan(); } finally { scanning = false; }
+}
+
+async function doScan() {
   const webpush = st.webpush;
   if (!webpush.available() || webpush.count() === 0) return; // nobody to notify
   const now = new Date();
@@ -206,7 +217,6 @@ async function scan() {
   // heads-up and both can be on at once. Same rule for tasks and events —
   // mirrors the browser engine's scanReminders() in index.html.
   const offsets = [0, ...loadSettings().leads];
-  let dirty = false;
 
   for (const item of upcomingTimedItems(now)) {
     const startMs = item.startAt.getTime();
@@ -217,7 +227,9 @@ async function scan() {
       const fireId = item.id + '#' + offset;
       if (nowMs >= fireAt && nowMs < startMs + GRACE_MS && !fired.has(fireId)) {
         fired.add(fireId);
-        dirty = true;
+        // Persist BEFORE the actual send: "marked as fired" must not wait on
+        // slow network I/O, or a crash/restart mid-send re-fires everything.
+        saveFired(todayKey, fired);
         const mins = Math.round((startMs - nowMs) / 60000);
         let body = offset === 0
           ? (item.kind === 'task' ? (mins < 0 ? `已到截止 · ${hh}:${mm}` : `截止 · ${hh}:${mm}`) : (mins < 0 ? `已开始 · ${hh}:${mm}` : `现在 · ${hh}:${mm}`))
@@ -239,7 +251,6 @@ async function scan() {
       }
     }
   }
-  if (dirty) saveFired(todayKey, fired);
 }
 
 function start(ctx, webpush) {
