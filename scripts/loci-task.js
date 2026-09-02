@@ -27,7 +27,10 @@ function usage() {
   node scripts/loci-task.js remind-remove --id rec_x   (or --title "...")
   node scripts/loci-task.js remind-list
   node scripts/loci-task.js log --category "人脉" --line "认识了新朋友阿泰"
-    (one-shot activity-ledger append; add/schedule/done/remind already log themselves)`);
+    (one-shot activity-ledger append; add/schedule/done/remind already log themselves)
+  node scripts/loci-task.js names
+    (all saved contact + place names in one shot — for checking whether a
+     mentioned person/place exists before linking it on a task/event)`);
 }
 
 function parseArgs(argv) {
@@ -638,6 +641,25 @@ function main() {
   if (command === 'remind-toggle') return toggleRecurring(args);
   if (command === 'remind-remove') return removeRecurring(args);
   if (command === 'remind-list') return listRecurring();
+  if (command === 'names') {
+    // One-shot roster: every saved contact and place name. Exists so an AI
+    // caller can resolve "is 沐辰 a saved contact?" in a single tool call —
+    // the result then lives in its conversation context, so a session pays
+    // this lookup at most once.
+    const scan = (dir) => {
+      const names = [];
+      try {
+        for (const f of fs.readdirSync(path.join(LOCI_ROOT, dir))) {
+          if (!f.endsWith('.md') || f === 'README.md') continue;
+          const m = fs.readFileSync(path.join(LOCI_ROOT, dir, f), 'utf-8').slice(0, 600).match(/^name:\s*(.+)$/m);
+          if (m) names.push(m[1].trim().replace(/^['"]|['"]$/g, ''));
+        }
+      } catch { /* module dir absent → empty */ }
+      return names;
+    };
+    console.log(JSON.stringify({ people: scan('people'), places: scan('places') }));
+    return;
+  }
   if (command === 'log') {
     const category = String(args.category || '记录').trim();
     const line = String(args.line || '').trim();

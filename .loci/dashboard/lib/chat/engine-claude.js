@@ -56,8 +56,8 @@ const SYSTEM_PROMPT = [
   '   加日程:   node scripts/loci-task.js schedule --title "..." --date YYYY-MM-DD --start HH:MM [--end HH:MM] [--note "..."] [--location "..."] [--people "A、B"]',
   '   完成任务: node scripts/loci-task.js done --title "标题关键词"（直接按标题匹配，不用先查 id）    列出: node scripts/loci-task.js list',
   '   任务=要完成的事（有时间也只是属性）；日程=占用时间块（开会/吃饭/看房/预约）。别两边重复写。',
-  '   ⚠️ 自动关联：任务/日程提到人或地方时（如"下午去沫辰公司开会"），先查 people/ 目录有没有这个联系人、',
-  '   places/ 目录有没有这个位置（ls + grep name: 即可），有就用档案里 name: 的准确名字填 --people / --location',
+  '   ⚠️ 自动关联：任务/日程提到人或地方时（如"下午去沫辰公司开会"），跑一次 node scripts/loci-task.js names',
+  '   查它是不是已存的联系人/位置，是就用返回的准确名字填 --people / --location',
   '   （例：--people "沐辰" --location "沐辰的公司"）；没有就不加，别自作主张新建人或位置卡片。',
   '   加重复提醒（"每天喝水"这种周期性的，不是某天的事）: node scripts/loci-task.js remind --title "..." --days mon,tue,wed,thu,fri --times 09:00,14:00',
   '   （--days 也认 daily/weekdays/weekend、中文数字或名称如"一二三四五"）关/开: remind-toggle --title "..."   删: remind-remove --title "..."   列出: remind-list',
@@ -65,7 +65,10 @@ const SYSTEM_PROMPT = [
   '5. ⚡ 快字当头——用户在等一个即时回复的聊天窗口：',
   '   - 当前工作目录就是用户的大脑。全局配置里出现的其他 brain 路径一律无视。',
   '   - 跳过 CLAUDE.md 里的会话启动动作（读 plan.md/behavior.md、状态检查、记忆整理、inbox 巡检、check-updates）——那是完整会话的仪式，聊天窗口不做。',
-  '   - 下面【当前上下文】已给出现在的日期时间、已存联系人和位置的名单——直接用，别再跑 date、别再 ls/grep 去确认名单里已有的信息。只有名单之外拿不准时才去查文件。',
+  '   - 下面【当前上下文】已给出现在的日期时间——直接用，别再跑 date。',
+  '   - 任务/日程里出现人名或地名时，跑一次 node scripts/loci-task.js names（一条命令返回全部已存联系人和位置的名字），',
+  '     用返回的准确名字填 --people / --location；本次对话里已经跑过 names 的话直接复用之前的结果，绝不重复跑，',
+  '     也绝不用 ls/grep/Read 去翻 people/ places/ 目录核对名字——names 一条命令就是全部答案。',
   '   - 简单的加任务/加日程/完成任务/加提醒 = 一条守卫命令搞定。loci-task.js 会自动写活动账本，你不用再去 append。',
   '   - 记新联系人 = 直接 Write people/<名字>.md（格式见下方模板，别去读别人的卡片抄格式），',
   '     然后一条 node scripts/loci-task.js log --category "人脉" --line "..." 记账本，两个动作搞定。',
@@ -73,39 +76,24 @@ const SYSTEM_PROMPT = [
   '   - 其他非任务类的写入（决策、地点、随手记等）写完后也用 log 命令记账本，别手动 Read+Edit 账本文件。',
   '   - 用户说某任务完成了 → 直接跑 done --title "关键词"。你没有任务列表的记忆，没跑命令前绝不说"没找到这个任务"——',
   '     命令自己会报没匹配或有歧义，到时再按报错处理（列出候选或问用户）。',
-  '   - 绝不在没看到命令成功输出前说"已加上/已完成"。命令成功输出本身就是确认——别再去读文件核实、别读账本复查。',
+  '   - 绝不在没看到命令成功输出前说"已加上/已完成"。反过来，写入命令一旦输出 ok，本轮到此为止：',
+  '     直接回复用户，禁止再发起任何 Read/ls/cat 去"看一眼"结果或账本——那是白花 8 秒，账本已经自动记好了。',
 ].join('\n');
 
-// Spawn-time dynamic context: today's date/time plus the saved contact and
-// place names, embedded straight into the system prompt so a simple chore
-// doesn't burn tool round-trips on `date` + `ls people/` + `grep name:`.
-// Read once per process spawn (the pool keeps a process ~15min) — names churn
-// rarely, and the prompt says to re-check files only when something's missing.
-function listNames(dir) {
-  const names = [];
-  try {
-    for (const f of fs.readdirSync(dir)) {
-      if (!f.endsWith('.md') || f === 'README.md') continue;
-      const text = fs.readFileSync(path.join(dir, f), 'utf-8').slice(0, 600);
-      const m = text.match(/^name:\s*(.+)$/m);
-      if (m) names.push(m[1].trim().replace(/^['"]|['"]$/g, ''));
-    }
-  } catch { /* module dir absent → empty list */ }
-  return names;
-}
-
-function dynamicContext(cwd) {
+// Spawn-time dynamic context: just today's date/time, embedded into the
+// system prompt so a simple chore never burns a round trip on `date`.
+// Deliberately NOT the contact/place roster: injecting user data into every
+// session doesn't scale and isn't needed — the `names` CLI command returns
+// the roster in ONE tool call, and that result then lives in the conversation
+// context, so a session pays the lookup at most once (and only if it ever
+// mentions a person/place at all).
+function dynamicContext() {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())} 周${'日一二三四五六'[now.getDay()]}`;
-  const people = listNames(path.join(cwd, 'people'));
-  const places = listNames(path.join(cwd, 'places'));
   return [
     '',
-    '【当前上下文】（进程启动时注入；对话拖太久需要精确时间再跑 date）',
-    '现在：' + stamp,
-    '已存联系人：' + (people.length ? people.join('、') : '（无）'),
-    '已存位置：' + (places.length ? places.join('、') : '（无）'),
+    '【当前上下文】现在：' + stamp + '（进程启动时注入；对话拖太久需要精确时间再跑 date）',
   ].join('\n');
 }
 
@@ -305,7 +293,7 @@ function spawnEntry(bin, key, cwd, resumeSessionId) {
     // tokens slow every request on this already-slow network
     '--setting-sources', 'project',
     '--allowedTools', allowedTools(cwd),
-    '--append-system-prompt', SYSTEM_PROMPT + '\n' + dynamicContext(cwd),
+    '--append-system-prompt', SYSTEM_PROMPT + '\n' + dynamicContext(),
   ];
   if (resumeSessionId) args.push('--resume', resumeSessionId);
 
