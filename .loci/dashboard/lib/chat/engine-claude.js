@@ -60,8 +60,9 @@ const SYSTEM_PROMPT = [
   '   ⚠️ 自动关联：任务/日程提到人或地方时，直接把用户说的名字原样放进 --people / --location（如',
   '   --people "沐辰" --location "沐辰公司"），不用提前查任何东西——写入命令会在本地自动对照通讯录：',
   '   对得上的自动换成档案里的准确名字挂好，对不上的自动放弃关联（绝不会乱建卡片），结果在输出的 links 字段里。',
-  '   如果 links 说某个名字没对上、而随附名单里有明显是同一个人的写法（笔误/同音，如 沫辰→沐辰），',
-  '   就用准确名字跑一条 update 补上；确实没存过就算了，如实告诉用户没挂。',
+  '   如果 links 说某个名字没对上、而随附名单里有明显是同一个人的写法（笔误/同音，如 沫辰→沐辰）：',
+  '   任务用 update --id 修正；日程则先 schedule-remove --date --title 删掉刚加错的那条，再用正确名字重新 schedule',
+  '   ——绝不能只加一条新的把错的留在日历上。确实没存过就算了，如实告诉用户没挂。',
   '   加重复提醒（"每天喝水"这种周期性的，不是某天的事）: node scripts/loci-task.js remind --title "..." --days mon,tue,wed,thu,fri --times 09:00,14:00',
   '   （--days 也认 daily/weekdays/weekend、中文数字或名称如"一二三四五"）关/开: remind-toggle --title "..."   删: remind-remove --title "..."   列出: remind-list',
   '4. 回复简短、口语化，遵守大脑 CLAUDE.md 里的所有记忆与偏好规则。拿不准用户意图时，一次问清，别反复追问。',
@@ -102,10 +103,14 @@ function dynamicContext() {
 
 const TURN_TIMEOUT_MS = 10 * 60 * 1000;
 
-// Brain chores (look up tasks, add a schedule, jot a note) don't need a
-// frontier model — default to haiku for speed and cost; override with
-// LOCI_CHAT_MODEL=sonnet (etc.) when the chat should think harder.
-const MODEL = process.env.LOCI_CHAT_MODEL || 'haiku';
+// Default is sonnet, and it's a MEASURED choice, not a "bigger is better"
+// guess: on a mainland-China network the same 3-chore benchmark ran
+// haiku 24.8/22.8/14.5s vs sonnet 11.4/5.1/4.0s vs opus 11.6/4.9/4.3s —
+// haiku spends seconds visibly "thinking" before its first tool call, while
+// sonnet/opus emit the command almost immediately, so the smarter model is
+// also ~3x FASTER here (and more reliable about following the command
+// cheatsheet). Override with LOCI_CHAT_MODEL=haiku to trade speed for cost.
+const MODEL = process.env.LOCI_CHAT_MODEL || 'sonnet';
 
 let cachedBin;
 function resolveBin() {
