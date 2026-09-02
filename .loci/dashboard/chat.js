@@ -116,13 +116,26 @@
 
   // Markdown for finished assistant replies. Raw HTML is neutralized before
   // parsing (single-user local app, but no reason to render model HTML).
+  // Memoized: the panel is one Vue component, so every streaming delta and
+  // every think-timer tick re-runs the whole render function — without the
+  // cache that meant re-parsing EVERY historical message per keystroke of
+  // streamed output. Message text never changes once rendered.
+  var mdCache = new Map();
   function renderMd(text) {
-    var safe = String(text == null ? '' : text).replace(/</g, '&lt;');
+    var key = String(text == null ? '' : text);
+    var hit = mdCache.get(key);
+    if (hit !== undefined) return hit;
+    var safe = key.replace(/</g, '&lt;');
+    var out;
     if (window.marked && window.marked.parse) {
-      try { return window.marked.parse(safe, { gfm: true, breaks: true, async: false }); }
-      catch (e) { /* fall through */ }
+      try { out = window.marked.parse(safe, { gfm: true, breaks: true, async: false }); }
+      catch (e) { out = safe.replace(/\n/g, '<br>'); }
+    } else {
+      out = safe.replace(/\n/g, '<br>');
     }
-    return safe.replace(/\n/g, '<br>');
+    if (mdCache.size >= 600) mdCache.clear(); // bounded; 400-entry transcripts fit
+    mdCache.set(key, out);
+    return out;
   }
 
   // Group the flat transcript into render blocks: consecutive tool steps
@@ -518,9 +531,16 @@
       scroll: function (force) {
         var self = this;
         if (!force && !this.atBottom) { this.hasNew = true; return; }
-        this.$nextTick(function () {
-          var m = self.$refs.msgs;
-          if (m) { m.scrollTop = m.scrollHeight; self.atBottom = true; self.hasNew = false; }
+        // rAF-coalesced: this fires on every SSE event (every streamed token),
+        // and reading scrollHeight forces a synchronous layout each time.
+        if (this._scrollQueued) return;
+        this._scrollQueued = true;
+        requestAnimationFrame(function () {
+          self._scrollQueued = false;
+          self.$nextTick(function () {
+            var m = self.$refs.msgs;
+            if (m) { m.scrollTop = m.scrollHeight; self.atBottom = true; self.hasNew = false; }
+          });
         });
       },
     },

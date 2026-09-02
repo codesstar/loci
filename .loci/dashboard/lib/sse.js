@@ -1,9 +1,13 @@
 /**
  * lib/sse.js — minimal Server-Sent Events helper. Zero dependencies.
  *
- * const stream = sse.openStream(req, res);
+ * const stream = sse.openStream(req, res, { onClose });
  * stream.send('event-name', { any: 'json' });   // → false once the client is gone
  * stream.close();
+ *
+ * opts.onClose fires once when the client disconnects, so holders of stream
+ * references (subscriber sets) can drop them immediately instead of waiting
+ * for the next failed send.
  *
  * A comment-line heartbeat keeps proxies (tailscale serve, etc.) from timing
  * out idle streams. EventSource on the client reconnects automatically.
@@ -47,6 +51,9 @@ function openStream(req, res, opts) {
   req.on('close', () => {
     stream.closed = true;
     clearInterval(heartbeat);
+    if (opts && typeof opts.onClose === 'function') {
+      try { opts.onClose(stream); } catch { /* holder's problem */ }
+    }
   });
 
   return stream;

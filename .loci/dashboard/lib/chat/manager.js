@@ -40,22 +40,31 @@ function init(ctx) {
     }
   } catch { /* first run */ }
 
-  const reap = () => { for (const t of st.turns.values()) { try { t.kill(); } catch { /* gone */ } } };
+  const reap = () => {
+    for (const t of st.turns.values()) { try { t.kill(); } catch { /* gone */ } }
+    try { persistNow(); } catch { /* best effort on the way out */ }
+  };
   process.on('exit', reap);
   process.on('SIGINT', () => { reap(); process.exit(0); });
   process.on('SIGTERM', () => { reap(); process.exit(0); });
   return st;
 }
 
+function persistNow() {
+  if (st.saveTimer) { clearTimeout(st.saveTimer); st.saveTimer = null; }
+  const sessions = [...st.sessions.values()].map(({ running, ...rest }) => rest);
+  try {
+    st.store.atomicWriteSync(st.file, JSON.stringify({ sessions }) + '\n', 'utf-8');
+  } catch (e) { console.error('chat: persist failed:', e.message); }
+}
+
+// Debounced full-file rewrite — every transcript entry triggers this, and an
+// active turn emits events in bursts, so the window is deliberately wide
+// (synchronous stringify+write of ALL sessions blocks the event loop).
+// Turn end (onExit) and process exit call persistNow() so nothing is lost.
 function persistSoon() {
   if (st.saveTimer) return;
-  st.saveTimer = setTimeout(() => {
-    st.saveTimer = null;
-    const sessions = [...st.sessions.values()].map(({ running, ...rest }) => rest);
-    try {
-      st.store.atomicWriteSync(st.file, JSON.stringify({ sessions }, null, 2) + '\n', 'utf-8');
-    } catch (e) { console.error('chat: persist failed:', e.message); }
-  }, 500);
+  st.saveTimer = setTimeout(() => { st.saveTimer = null; persistNow(); }, 2500);
   if (st.saveTimer.unref) st.saveTimer.unref();
 }
 
@@ -104,12 +113,9 @@ function create(ctx, engine) {
   };
   st.sessions.set(s.id, s);
   persistSoon();
-  // boot the CLI in the background while the user is still typing their
-  // first message — by send time the process is warm and the turn starts
-  // at the API request instead of at process spawn
-  if (typeof engines[eng].prewarm === 'function') {
-    engines[eng].prewarm({ cwd: st.root, procKey: s.id });
-  }
+  // No prewarm here: creating a session doesn't mean a message is coming
+  // (mis-clicks, "new chat" spam), and the panel's stream subscription —
+  // which always follows a real open — prewarms with full context anyway.
   return summary(s);
 }
 
@@ -142,6 +148,14 @@ function subscribe(ctx, id, stream) {
     eng.prewarm({ cwd: st.root, procKey: id, resumeSessionId: s.engineSessionId });
   }
   return true;
+}
+
+function unsubscribe(ctx, id, stream) {
+  init(ctx);
+  const subs = st.subscribers.get(id);
+  if (!subs) return;
+  subs.delete(stream);
+  if (subs.size === 0) st.subscribers.delete(id);
 }
 
 function health(ctx, engine) {
@@ -245,7 +259,7 @@ function send(ctx, id, message) {
       s.lastActive = new Date().toISOString();
       if (res.sessionId) s.engineSessionId = res.sessionId;
       st.turns.delete(id);
-      persistSoon();
+      persistNow(); // turn boundary: flush whatever the debounce is holding
       if (res.killed && res.timedOut) {
         const msg = '这轮处理超过 10 分钟，已自动中止';
         s.transcript.push({ role: 'system', text: msg, ts: new Date().toISOString() });
@@ -270,4 +284,4 @@ function send(ctx, id, message) {
   return { ok: true, accepted: true };
 }
 
-module.exports = { list, create, remove, history, subscribe, send, stop, health, warm };
+module.exports = { list, create, remove, history, subscribe, unsubscribe, send, stop, health, warm };

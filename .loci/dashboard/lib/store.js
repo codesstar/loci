@@ -14,7 +14,11 @@ const fs = require('fs');
 const path = require('path');
 
 const LOCK_TIMEOUT_MS = 5000; // give up waiting and proceed (atomic write still protects integrity)
-const LOCK_STALE_MS = 30000;  // a holder silent this long is presumed dead
+// A holder silent this long is presumed dead. Kept just ABOVE the wait
+// timeout: real critical sections are millisecond-scale, so anything older
+// than the longest possible legitimate wait is a crash leftover — reap it
+// instead of letting every writer burn the full 5s timeout on a dead lock.
+const LOCK_STALE_MS = 10000;
 const LOCK_RETRY_MS = 50;
 
 function atomicWriteSync(filePath, data, options) {

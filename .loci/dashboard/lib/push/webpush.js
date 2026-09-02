@@ -77,26 +77,62 @@ function unsubscribe(endpoint) {
   return { ok: true, removed: subs.length - kept.length, count: kept.length };
 }
 
+// A push endpoint that hangs must not stall the whole batch (and the caller's
+// scan loop behind it) — web-push has no default request timeout.
+const SEND_TIMEOUT_MS = 10000;
+// Transient failures tolerated per subscription before it's dropped for good.
+const MAX_FAILS = 5;
+
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('push send timeout')), ms);
+    if (t.unref) t.unref();
+    promise.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+  });
+}
+
 async function sendToAll(payload) {
   if (!webpushLib) return { sent: 0, error: 'web-push not installed' };
   vapidKeys();
   const subs = listSubs();
   const body = JSON.stringify(payload);
   const dead = [];
+  const failCounts = new Map(); // endpoint → new failCount (0 = clear)
   let sent = 0;
   await Promise.all(subs.map(async (s) => {
+    const endpoint = s.subscription.endpoint;
     try {
-      await webpushLib.sendNotification(s.subscription, body);
+      await withTimeout(webpushLib.sendNotification(s.subscription, body), SEND_TIMEOUT_MS);
       sent += 1;
+      if (s.failCount) failCounts.set(endpoint, 0);
     } catch (e) {
       const code = e && e.statusCode;
-      if (code === 404 || code === 410) dead.push(s.subscription.endpoint);
-      else console.error('webpush: send failed:', code || e.message);
+      // 404/410: endpoint gone. 403/401: VAPID key mismatch (subscription was
+      // made with different keys — e.g. .loci/push/ regenerated); it will NEVER
+      // succeed, and left in place it burns a full HTTPS request per reminder
+      // forever ("webpush: send failed" on repeat).
+      if (code === 404 || code === 410 || code === 403 || code === 401) {
+        dead.push(endpoint);
+      } else {
+        const fails = (s.failCount || 0) + 1;
+        if (fails >= MAX_FAILS) dead.push(endpoint);
+        else failCounts.set(endpoint, fails);
+        let host = ''; try { host = new URL(endpoint).host; } catch { /* opaque */ }
+        console.error(`webpush: send failed (${host}, ${fails}/${MAX_FAILS}):`, code || e.message);
+      }
     }
   }));
-  if (dead.length) {
-    saveSubs(listSubs().filter(s => !dead.includes(s.subscription.endpoint)));
-    console.log(`webpush: pruned ${dead.length} dead subscription(s)`);
+  if (dead.length || failCounts.size) {
+    const kept = listSubs()
+      .filter(s => !dead.includes(s.subscription.endpoint))
+      .map(s => {
+        const fc = failCounts.get(s.subscription.endpoint);
+        if (fc === undefined) return s;
+        if (fc === 0) { const { failCount, ...rest } = s; return rest; }
+        return { ...s, failCount: fc };
+      });
+    saveSubs(kept);
+    if (dead.length) console.log(`webpush: pruned ${dead.length} dead subscription(s)`);
   }
   return { sent, pruned: dead.length };
 }
