@@ -383,9 +383,72 @@ function findTask(tasks, id) {
   return task;
 }
 
+// ─── Local people/place link resolution ─────────────────────────────────────
+// The AI passes names exactly as the USER said them; matching against saved
+// contacts/places happens HERE, locally and deterministically. This keeps
+// every write a single generic command (uniform round-trip count whether or
+// not names are involved), with no roster pre-fetch, no cache, no staleness —
+// the roster is read fresh from disk at each write, in milliseconds.
+// Match order: exact → normalized (case/spaces/"的" stripped) → unique
+// substring containment. An unmatched person is dropped from the link (never
+// auto-created) and reported in the output together with the full roster, so
+// the model can spot an obvious typo/homophone and correct with a follow-up.
+function scanNames(dir) {
+  const names = [];
+  try {
+    for (const f of fs.readdirSync(path.join(LOCI_ROOT, dir))) {
+      if (!f.endsWith('.md') || f === 'README.md') continue;
+      const m = fs.readFileSync(path.join(LOCI_ROOT, dir, f), 'utf-8').slice(0, 600).match(/^name:\s*(.+)$/m);
+      if (m) names.push(m[1].trim().replace(/^['"]|['"]$/g, ''));
+    }
+  } catch { /* module dir absent → empty */ }
+  return names;
+}
+
+function normName(s) { return String(s).toLowerCase().replace(/[\s的]/g, ''); }
+
+function matchName(cand, saved) {
+  if (saved.includes(cand)) return cand;
+  const nc = normName(cand);
+  if (!nc) return null;
+  const norm = saved.find(n => normName(n) === nc);
+  if (norm) return norm;
+  const subs = saved.filter(n => { const nn = normName(n); return nn.includes(nc) || nc.includes(nn); });
+  return subs.length === 1 ? subs[0] : null; // ambiguous → treat as no match
+}
+
+function resolveLinks(peopleCands, locationCand) {
+  const savedPeople = scanNames('people');
+  const savedPlaces = scanNames('places');
+  const people = [];
+  const unmatchedPeople = [];
+  for (const c of peopleCands || []) {
+    const hit = matchName(c, savedPeople);
+    if (hit) { if (!people.includes(hit)) people.push(hit); }
+    else unmatchedPeople.push(c);
+  }
+  let location = locationCand || null;
+  let locationLinked = false;
+  if (locationCand) {
+    const hit = matchName(locationCand, savedPlaces);
+    if (hit) { location = hit; locationLinked = true; }
+  }
+  const out = { people, unmatchedPeople, location, locationLinked };
+  // only ship the roster back when something failed to match — that's the one
+  // case where the model may want to judge a typo/homophone and correct
+  if (unmatchedPeople.length || (locationCand && !locationLinked)) {
+    out.roster = { people: savedPeople, places: savedPlaces };
+  }
+  return out;
+}
+
 function addTask(args) {
   const title = String(args.title || args.text || '').trim();
   if (!title) throw new Error('Missing --title');
+  const links = resolveLinks(
+    args.people && args.people !== true ? parsePeopleArg(args.people) : [],
+    args.location && args.location !== true ? String(args.location) : null
+  );
   const tasks = readTasks();
   const task = normalizeTask({
     title,
@@ -396,17 +459,17 @@ function addTask(args) {
     project: args.project || null,
     urgency: parseLevelArg(args.urgency),
     importance: parseLevelArg(args.importance),
-    location: args.location || null,
+    location: links.location,
     color: args.color || null,
     note: args.note || null,
-    people: args.people ? parsePeopleArg(args.people) : undefined,
+    people: links.people.length ? links.people : undefined,
     source: args.source || 'agent',
   }, new Set(tasks.map(t => t.id)));
   tasks.push(task);
   saveTasks(tasks, { syncCalendar: true });
   logActivity('任务', '新增任务：' + title
     + (task.date ? '（' + task.date + (task.startTime ? ' ' + task.startTime : '') + '）' : ''));
-  console.log(JSON.stringify({ ok: true, task }, null, 2));
+  console.log(JSON.stringify({ ok: true, task, links }, null, 2));
 }
 
 function updateTask(args) {
@@ -432,16 +495,23 @@ function updateTask(args) {
     if (args.start !== undefined || args.startTime !== undefined) task.startTime = args.start || args.startTime || null;
     if (args.end !== undefined || args.endTime !== undefined) task.endTime = args.end || args.endTime || null;
   }
-  if (args.location !== undefined) task.location = args.location === true ? null : (args.location || null);
+  let links = null;
+  if ((args.people !== undefined && args.people !== true) || (args.location !== undefined && args.location !== true)) {
+    links = resolveLinks(
+      args.people !== undefined && args.people !== true ? parsePeopleArg(args.people) : [],
+      args.location !== undefined && args.location !== true ? (args.location || null) : null
+    );
+  }
+  if (args.location !== undefined) task.location = args.location === true ? null : (links && links.location) || null;
   if (args.note !== undefined) task.note = args.note === true ? null : (args.note || null);
   if (args.color !== undefined) task.color = args.color === true ? null : (args.color || null);
-  if (args.people !== undefined) task.people = args.people === true ? null : (parsePeopleArg(args.people).length ? parsePeopleArg(args.people) : null);
+  if (args.people !== undefined) task.people = args.people === true ? null : (links && links.people.length ? links.people : null);
   task.updatedAt = isoNow();
   if (task.status === 'done' && !task.completedAt) task.completedAt = task.updatedAt;
   if (task.status !== 'done') task.completedAt = null;
   if (task.status === 'archived' && !task.archivedAt) task.archivedAt = task.updatedAt;
   saveTasks(tasks, { syncCalendar: true });
-  console.log(JSON.stringify({ ok: true, task }, null, 2));
+  console.log(JSON.stringify(links ? { ok: true, task, links } : { ok: true, task }, null, 2));
 }
 
 function setStatus(status, args) {
@@ -486,21 +556,23 @@ function addSchedule(args) {
   if (!calendar[date]) calendar[date] = [];
   const ev = { title, startKey, endKey, hour: Math.floor(startKey / 60) };
   // Optional extras — the dashboard's calendar API supports these, so the CLI
-  // keeps parity (note shows on the event card, location links a saved place,
-  // people links saved contacts by their exact name).
+  // keeps parity (note shows on the event card). People/location go through
+  // the local resolver: matched names are linked with their exact saved
+  // spelling, unmatched people are dropped (reported in the output).
   if (args.note && args.note !== true) ev.note = String(args.note);
-  if (args.location && args.location !== true) ev.location = String(args.location);
-  if (args.people && args.people !== true) {
-    const ppl = parsePeopleArg(args.people);
-    if (ppl.length) ev.people = ppl;
-  }
+  const links = resolveLinks(
+    args.people && args.people !== true ? parsePeopleArg(args.people) : [],
+    args.location && args.location !== true ? String(args.location) : null
+  );
+  if (links.location) ev.location = links.location;
+  if (links.people.length) ev.people = links.people;
   calendar[date].push(ev);
   saveCalendar(calendar);
   const fmt = (k) => String(Math.floor(k / 60)).padStart(2, '0') + ':' + String(k % 60).padStart(2, '0');
   logActivity('日程', '新增日程：' + date + ' ' + fmt(startKey)
     + (endKey > startKey ? '-' + fmt(endKey) : '') + ' ' + title
     + (ev.location ? '（' + ev.location + '）' : ''));
-  console.log(JSON.stringify({ ok: true, date, event: ev }, null, 2));
+  console.log(JSON.stringify({ ok: true, date, event: ev, links }, null, 2));
 }
 
 // ─── Recurring reminders ────────────────────────────────────────────────────
@@ -642,22 +714,10 @@ function main() {
   if (command === 'remind-remove') return removeRecurring(args);
   if (command === 'remind-list') return listRecurring();
   if (command === 'names') {
-    // One-shot roster: every saved contact and place name. Exists so an AI
-    // caller can resolve "is 沐辰 a saved contact?" in a single tool call —
-    // the result then lives in its conversation context, so a session pays
-    // this lookup at most once.
-    const scan = (dir) => {
-      const names = [];
-      try {
-        for (const f of fs.readdirSync(path.join(LOCI_ROOT, dir))) {
-          if (!f.endsWith('.md') || f === 'README.md') continue;
-          const m = fs.readFileSync(path.join(LOCI_ROOT, dir, f), 'utf-8').slice(0, 600).match(/^name:\s*(.+)$/m);
-          if (m) names.push(m[1].trim().replace(/^['"]|['"]$/g, ''));
-        }
-      } catch { /* module dir absent → empty */ }
-      return names;
-    };
-    console.log(JSON.stringify({ people: scan('people'), places: scan('places') }));
+    // One-shot roster: every saved contact and place name. Writes don't need
+    // this (add/schedule/update resolve names locally) — it exists for
+    // questions like "阿星存过吗" and for correcting an unmatched name.
+    console.log(JSON.stringify({ people: scanNames('people'), places: scanNames('places') }));
     return;
   }
   if (command === 'log') {
