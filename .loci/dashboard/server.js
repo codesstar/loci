@@ -67,7 +67,7 @@ let reloadTimer = null;
 // Ignore: VCS/noise, temp files from the guarded writers, lock dirs, and files
 // the server itself regenerates on every request (active.md view cache, push
 // bookkeeping) — otherwise each reload triggers another reload, forever.
-const RELOAD_IGNORE = /(^|[\\/])(\.git|node_modules)([\\/]|$)|\.log$|\.tmp$|\.DS_Store|(^|[\\/])tasks[\\/]\.?active\.md|(^|[\\/])\.loci[\\/](push|status\.yml|\.write-lock)/;
+const RELOAD_IGNORE = /(^|[\\/])(\.git|node_modules)([\\/]|$)|\.log$|\.tmp$|\.DS_Store|(^|[\\/])tasks[\\/]\.?active\.md|(^|[\\/])\.loci[\\/](push|status\.yml|\.write-lock|\.scraps-lock)/;
 
 // Suppress events for files this process just wrote — a page load must never
 // be able to trigger its own reload, no matter what the ignore regex misses.
@@ -140,6 +140,8 @@ const MIME_TYPES = {
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.pdf': 'application/pdf',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf',
@@ -2756,6 +2758,7 @@ function buildAllData() {
     ['learning', buildLearning],
     ['links', buildLinks],
     ['references', buildReferences],
+    ['scraps', () => { try { return require(path.join(__dirname, 'lib', 'scraps.js')).list(); } catch (e) { return { items: [], total: 0, tags: [], error: e.message }; } }],
     ['notes', buildNotes],
     ['projects', buildProjects],
   ];
@@ -4234,7 +4237,7 @@ function handleSkillReveal(body) {
 // optionally { init(ctx) }, called once at startup (e.g. the push module boots
 // the reminder scheduler there). Feature tracks add a file; server.js stays
 // untouched.
-const routeCtx = { LOCI_ROOT, SCRIPT_DIR, auth, sse, store, sendJson, sendError, parseJsonBody };
+const routeCtx = { LOCI_ROOT, SCRIPT_DIR, auth, sse, store, sendJson, sendError, parseJsonBody, readMdFile, notifyReload };
 const routeModules = [];
 try {
   const routesDir = path.join(__dirname, 'lib', 'routes');

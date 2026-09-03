@@ -38,7 +38,7 @@ An optional extension module for external content — articles, tweets, videos, 
 
 ### 1. Routing
 - **External content** (someone else's ideas) → `references/inbox.md`
-- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `references/research/`
+- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `notes/research/`
 - **Your own tasks/thoughts/reminders** → root `inbox.md`
 - Rule of thumb: came from outside you → references. Came from inside you → inbox/me/decisions.
 - Research is evidence, not a decision. If it supports a choice, cite it from a separate decision record instead of storing it under `decisions/`.
@@ -105,9 +105,9 @@ references/
 ```
 
 ### 10. Research Evidence
-- `references/research/` is for evidence and source material gathered while thinking.
+- `notes/research/` is for evidence and source material gathered while thinking.
 - A decision record goes in `decisions/` only after there is a real trade-off and a chosen direction.
-- Decision records may cite files in `references/research/`, but research files themselves are never decision records.
+- Decision records may cite files in `notes/research/`, but research files themselves are never decision records.
 
 ## Project Memory Protocol
 
@@ -259,7 +259,7 @@ At conversation start, check `.loci/last-consolidation.txt`:
 
 ### What It Does
 
-1. Scan recent changes: `decisions/`, `references/research/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity/<current month>.md`, `inbox.md`, and relevant project entries from `projects/index.md`
+1. Scan recent changes: `decisions/`, `notes/research/`, `tasks/tasks.json`, `tasks/active.md`, `me/`, `.loci/activity/<current month>.md`, `inbox.md`, and relevant project entries from `projects/index.md`
 2. Look for patterns: recurring themes, contradictions, momentum signals, cross-project connections, identity shifts, goal progress vs plan.md, time allocation vs priorities, stale/completed tasks to archive
 3. For every new decision, run the L1 promotion check: if it changes current behavior, update the smallest current surface (`plan.md`, `tasks/active.md` via guarded writer, `projects/index.md`, or project `.loci/memory.md`)
 4. If insights found → append to `me/insights.md` with source citations

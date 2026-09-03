@@ -18,6 +18,9 @@ on:
       - 'tests/setup-hooks.test.js'
       - 'tests/setup-web.test.js'
       - 'tests/activity-hooks.test.js'
+      - 'tests/scraps.test.js'
+      - '.loci/dashboard/lib/scraps.js'
+      - '.loci/dashboard/lib/store.js'
       - 'setup.sh'
       - 'update.sh'
       - 'setup-web.js'
@@ -40,6 +43,9 @@ on:
       - 'tests/setup-hooks.test.js'
       - 'tests/setup-web.test.js'
       - 'tests/activity-hooks.test.js'
+      - 'tests/scraps.test.js'
+      - '.loci/dashboard/lib/scraps.js'
+      - '.loci/dashboard/lib/store.js'
       - 'setup.sh'
       - 'update.sh'
       - 'setup-web.js'
@@ -69,3 +75,4 @@ jobs:
       - run: node tests/setup-hooks.test.js
       - run: node tests/setup-web.test.js
       - run: node tests/activity-hooks.test.js
+      - run: node tests/scraps.test.js

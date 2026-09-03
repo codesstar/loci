@@ -25,7 +25,7 @@ No sub-folders by type. Use frontmatter tags instead — easier to search, no "w
 ## What goes here vs root inbox.md
 
 - **External content** (someone else's ideas) → `references/inbox.md`
-- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `references/research/`
+- **Research material** (raw docs, competitive notes, study guides, market scans, case studies) → `notes/research/` — documents to read; they show in the notes tree, not among scraps
 - **Your own tasks/thoughts/reminders** → root `inbox.md`
 
 **Rule of thumb**: If it came from outside you, it goes here. If it came from inside you, it goes in `inbox.md`, `me/`, or `decisions/`.

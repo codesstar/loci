@@ -32,7 +32,7 @@ Loci 把 AI 的上下文分成三层来管理，灵感来自人脑的记忆机�
 | 提到碎片/随手记/旧想法 | `inbox.md` |
 | 问自己的笔记 | `notes/index.md`，再打开具体笔记或外部链接 |
 | 找收藏过的材料 | `references/` |
-| 用到研究证据 | `references/research/` |
+| 用到研究证据 | `notes/research/` |
 
 **原则**：每个领域都有自己的"索引页"——模块 README、`projects/index.md`、`notes/index.md`。AI 先读索引看看有什么，再按需加载具体文件。项目记忆是同一思路往上抬一层：大脑里每个认真项目只留一行索引，完整记忆放在项目自己的 repo（`.loci/memory.md` 重启上下文 + `.loci/profile.md` 稳定详情 + `.loci/progress/` 项目进展 + `.loci/decisions/`）。
 

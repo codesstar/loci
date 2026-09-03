@@ -2,7 +2,7 @@
 
 Important decisions with context, options considered, and reasoning.
 
-Research material does not belong here. Raw docs, competitive notes, study guides, market scans, and case studies are evidence; store them in `references/research/` and cite them from a decision record when they support a choice.
+Research material does not belong here. Raw docs, competitive notes, study guides, market scans, and case studies are evidence; store them in `notes/research/` and cite them from a decision record when they support a choice.
 
 ## File Naming
 `YYYY-MM-DD-short-description.md`

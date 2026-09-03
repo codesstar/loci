@@ -232,6 +232,33 @@ The server also exposes endpoints for tasks (`/api/tasks/reorder`, `/api/tasks/u
 
 ---
 
+## Scraps (碎片)
+
+Everything the user *collected* — text, links, quotes, images, files — read live from `references/` (plus legacy `inbox.md` lines). Lives in `lib/scraps.js` + `lib/routes/scraps.js`.
+
+### GET /api/scraps
+`{ items, total, tags, pending, enrich }` — `items` newest first, each `{ id, kind, title, text, note, url, site, file, fileUrl, tags, aiTags, summary, caption, created, source, titlePending, legacy }`. `/api/data` carries the same object under `scraps`.
+
+### POST /api/scraps/add
+```json
+{ "text": "https://… 这个运镜不错", "tags": ["a"], "note": "", "kind": "", "file": { "name": "shot.png", "type": "image/png", "data": "data:image/png;base64,…" }, "source": "paste" }
+```
+Any of `text` / `url(s)` / `file(s)` is enough — `urls: [...]` and `files: [...]` let several links or attachments share one scrap. `text` is the scrap's own content (paragraphs are kept); URLs found inside it become link blocks; `#tags` in the text become tags; `note` is the 标注 and is never inferred from the text. Returns `{ ok, item }` immediately; title fetch and the AI pass run afterwards and the page is nudged over the live-reload stream.
+
+### POST /api/scraps/update
+`{ id, title?, note?, tags?, aiTags?, acceptTag?, acceptAll?, kind?, text?, url?, by? }` → `{ ok, item }`. Editing a legacy `inbox.md` line turns it into a file (the returned `id` changes).
+
+### POST /api/scraps/remove
+`{ id }` → moves the file (and its binary) to `archive/references/`.
+
+### POST /api/scraps/enrich
+`{ id }` → queue the title fetch + AI pass again. `GET /api/scraps/status` reports `{ enabled, model, queue, running, lastError }`.
+
+### GET /scrap-files/&lt;name&gt;
+The image / PDF behind a scrap (`references/files/`).
+
+---
+
 ## Error Handling
 
 All errors return HTTP 200 with an error body (except 404 for unknown routes):
