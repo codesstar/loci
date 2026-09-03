@@ -1469,6 +1469,23 @@
     .tpill.tp-place .pin svg{ width:8.5px; height:8.5px; color:#fff; }
     .tpill.tp-place:hover{ box-shadow:0 1px 5px rgba(0,0,0,.1); }
     .tpill.loc.raw{ border-style:dashed; background:transparent; color:var(--ink-3); }
+    .tpill.tp-scrap{ display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid var(--line); box-shadow:0 1px 3px rgba(0,0,0,.05); cursor:pointer; padding-left:6px; max-width:220px; }
+    .tpill.tp-scrap i{ display:inline-flex; width:12px; height:12px; color:#6b4fb3; flex:none; } .tpill.tp-scrap i svg{ width:12px; height:12px; }
+    .tpill.tp-scrap:hover{ border-color:#6b4fb3; color:#4a3590; } .tpill.tp-scrap.off{ cursor:default; box-shadow:none; background:transparent; border-style:dashed; color:var(--ink-4); }
+    .tm-scr-panel{ display:flex; flex-direction:column; gap:2px; } .tm-scr-q{ width:100%; font:inherit; font-size:12.5px; border:1px solid var(--line); border-radius:8px; padding:6px 9px; margin-bottom:4px; outline:none; background:#fff; } .tm-scr-q:focus{ border-color:var(--accent); }
+    .tm-scr-g{ display:inline-flex; width:14px; height:14px; color:#6b4fb3; flex:none; } .tm-scr-g svg{ width:14px; height:14px; }
+    .sc-tasklinks{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .tpill.tp-task{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; color:var(--ink-2); background:#fff; border:1px solid var(--line); border-radius:7px; cursor:pointer; max-width:100%; white-space:normal; text-align:left; line-height:1.3; padding:3px 6px 3px 8px; }
+    .tpill.tp-task .dot{ width:7px; height:7px; border-radius:99px; flex:none; } .tpill.tp-task:hover{ border-color:var(--line-2); box-shadow:0 1px 4px rgba(0,0,0,.06); } .tpill.tp-task.done{ text-decoration:line-through; color:var(--ink-4); }
+    .tpill.tp-task .x{ font-weight:700; cursor:pointer; opacity:0; color:var(--ink-3); transition:opacity .12s; } .tpill.tp-task:hover .x{ opacity:.7; } .tpill.tp-task .x:hover{ opacity:1; color:#c0504d; }
+    .sc-tk-panel{ margin-top:12px; }
+    .sc-tk-q{ display:block; width:100%; border:1px solid var(--line); border-radius:8px; padding:7px 10px; font:inherit; font-size:12.5px; color:var(--ink); background:#faf9f6; outline:none; } .sc-tk-q::placeholder{ color:var(--ink-4); } .sc-tk-q:focus{ background:#fff; border-color:var(--line-2); }
+    .sc-tk-list{ max-height:224px; overflow-y:auto; scrollbar-width:thin; margin-top:6px; }
+    .sc-tk-opt{ display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:6px; border:0; border-radius:7px; background:none; font:inherit; font-size:12.5px; color:var(--ink); cursor:pointer; }
+    .sc-tk-opt:hover{ background:#f7f6f3; } .sc-tk-opt.on{ color:#4a3590; } .sc-tk-opt .dot{ width:7px; height:7px; border-radius:99px; flex:none; }
+    .sc-tk-opt .t{ flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .sc-tk-opt em{ font-family:var(--mono); font-size:10px; color:var(--ink-4); font-style:normal; flex:none; } .sc-tk-opt .ck{ font-style:normal; color:#6b4fb3; font-size:11px; flex:none; }
+    .sc-tk-empty{ font-size:12px; color:var(--ink-4); padding:8px 6px; }
+    .sc-tk-new{ display:block; width:100%; text-align:left; margin-top:6px; padding:9px 6px 2px; border:0; border-top:1px solid var(--line); background:transparent; color:#6b4fb3; font:inherit; font-size:12.5px; cursor:pointer; } .sc-tk-new:hover{ color:#4a3590; }
     .tm-links{ display:flex; flex-wrap:wrap; gap:6px; }
     .tm-links .tpill{ font-size:11.5px; padding-top:4px; padding-bottom:4px; }
     .tm-map{ height:158px; border:1px solid var(--line); border-radius:12px; margin-top:9px; overflow:hidden; }
@@ -3739,37 +3756,52 @@
     .sc-tg{ font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:6px; background:#e7f6ef; color:#0b7d5a; display:inline-flex; align-items:center; }
     .sc-tg.ai{ background:transparent; color:var(--ink-3); border:1px dashed var(--line-2); cursor:pointer; } .sc-tg.ai:hover{ color:#6b4fb3; border-color:#6b4fb3; }
     .sc-tg .x{ cursor:pointer; opacity:.5; margin-left:4px; } .sc-tg .x:hover{ opacity:1; }
+    .sc-detail{ border-left:1px solid var(--line); background:#fff; padding:14px 22px 22px; overflow-y:auto; display:flex; flex-direction:column; scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; min-height:0; }
+    .sc-dt-top{ display:flex; align-items:center; gap:6px; height:26px; flex:none; }
+    .sc-dt-kind{ flex:1; font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--ink-4); } .sc-dt-top .sc-kindsw{ margin-right:auto; }
+    .sc-dt-live{ color:#9b7ed0; font-size:11px; animation:scPulse 1.2s ease-in-out infinite; }
+    .sc-dt-x{ width:26px; height:26px; border:0; background:transparent; border-radius:6px; color:var(--ink-3); display:grid; place-items:center; font-size:15px; line-height:1; padding:0; cursor:pointer; } .sc-dt-x:hover{ background:#f4f3ef; color:var(--ink); }
+    .sc-dt-ti{ display:block; width:100%; margin:10px 0 0; border:0; background:transparent; resize:none; overflow:hidden; font-family:'Noto Serif SC',serif; font-size:20px; line-height:1.35; font-weight:600; color:var(--ink); outline:none; padding:0 4px; margin-left:-4px; width:calc(100% + 8px); border-radius:6px; }
+    .sc-dt-ti:hover{ background:#faf9f6; } .sc-dt-ti:focus{ background:#faf9f6; box-shadow:inset 0 0 0 1px var(--line); } .sc-dt-ti::placeholder{ color:var(--ink-4); font-weight:500; }
+    .sc-dt-by{ margin-top:8px; font-size:12px; color:var(--ink-3); display:flex; align-items:baseline; gap:8px; min-width:0; }
+    .sc-dt-by a{ color:var(--ink-2); font-weight:500; flex:none; text-decoration:none; } .sc-dt-by a:hover{ color:var(--ink); }
+    .sc-dt-by .u{ font-family:var(--mono); font-size:10.5px; color:var(--ink-4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+    .sc-dt-fig{ margin:18px 0 0; } .sc-dt-fig + .sc-dt-fig{ margin-top:8px; }
+    .sc-dt-img{ width:100%; border-radius:8px; display:block; cursor:zoom-in; background:var(--surface-3); }
+    .sc-dt-files{ margin-top:14px; }
+    .sc-dt-lk{ margin-top:12px; }
+    .sc-dt-tx{ margin:16px 0 0; font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
+    .sc-dt-tx.editable{ cursor:text; border-radius:8px; margin-left:-6px; margin-right:-6px; padding:0 6px; } .sc-dt-tx.editable:hover{ background:#faf9f6; }
+    .sc-dt-tx.quote{ font-family:'Fraunces','Noto Serif SC',serif; font-style:italic; font-size:16px; padding-left:12px; border-left:2px solid var(--sc-quote); margin-left:0; margin-right:0; }
+    .sc-txbox{ margin-top:16px; width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.7; color:var(--ink); min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-txbox:focus{ border-color:#c9a24b; }
+    .sc-dt-add{ margin:16px 0 0; font-family:'Noto Serif SC',serif; font-size:13.5px; line-height:1.75; color:var(--ink-4); cursor:text; } .sc-dt-add:hover{ color:var(--ink-3); }
+    .sc-dt-doc{ max-height:280px; overflow:auto; font-size:13px; margin-top:10px; }
+    .sc-dt-nh{ margin-top:18px; display:flex; align-items:center; justify-content:space-between; }
+    .sc-dt-k{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--ink-4); white-space:nowrap; } .sc-dt-hint{ font-family:var(--mono); font-size:10px; color:var(--ink-4); }
+    .sc-anbox{ display:block; margin-top:8px; width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:13px; line-height:1.6; color:#3a362f; min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-anbox:focus{ border-color:#c9a24b; }
+    .sc-dt-fn{ position:relative; margin:18px 0 0; padding-top:10px; display:flex; gap:6px; font-size:12px; line-height:1.6; color:var(--ink-3); }
+    .sc-dt-fn::before{ content:''; position:absolute; top:0; left:0; width:32px; border-top:1px solid var(--line-2); }
+    .sc-dt-fn + .sc-dt-fn{ margin-top:6px; padding-top:0; } .sc-dt-fn + .sc-dt-fn::before{ display:none; }
+    .sc-dt-fn i{ font-style:normal; color:#6b4fb3; line-height:19px; flex:none; } .sc-dt-fn.sc-live{ color:#6b4fb3; animation:scPulse 1.2s ease-in-out infinite; }
+    .sc-dt-rel{ margin-top:20px; } .sc-dt-rel .h{ display:flex; align-items:center; justify-content:space-between; }
+    .sc-dt-rel .h a{ font-family:var(--mono); font-size:10px; color:var(--ink-3); cursor:pointer; } .sc-dt-rel .h a:hover{ color:var(--ink); }
+    .sc-dt-rel .sc-tasklinks{ margin-top:10px; }
+    .sc-dt-hr{ border:0; border-top:1px solid var(--line); margin:18px 0 14px; }
+    .sc-dt-meta{ display:grid; grid-template-columns:40px 1fr; gap:7px 12px; margin:0; font-family:var(--mono); font-size:10.5px; line-height:1.5; color:var(--ink-2); }
+    .sc-dt-meta dt{ color:var(--ink-4); } .sc-dt-meta dd{ margin:0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sc-dt-meta dd.tags{ white-space:normal; overflow:visible; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .sc-dt-meta .all{ margin-left:auto; font-size:10px; font-weight:600; color:#6b4fb3; cursor:pointer; }
+    .sc-tgin{ border:0; background:transparent; font-family:var(--mono); font-size:10px; color:var(--ink); padding:2px 0; outline:none; width:64px; } .sc-tgin::placeholder{ color:var(--ink-4); } .sc-tgin:hover::placeholder{ color:var(--ink-3); } .sc-tgin:focus{ box-shadow:inset 0 -1px 0 var(--ink-3); }
+    .sc-dt-acts{ margin-top:20px; display:flex; align-items:center; gap:14px; }
+    .sc-dt-acts .btn{ font-family:var(--mono); font-size:10.5px; font-weight:600; color:var(--ink-2); border:1px solid var(--line); border-radius:8px; padding:5px 10px; background:#fff; cursor:pointer; } .sc-dt-acts .btn:hover{ color:var(--ink); border-color:var(--line-2); }
+    .sc-dt-acts .lk{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); cursor:pointer; } .sc-dt-acts .lk:hover{ color:#6b4fb3; }
+    .sc-dt-acts .del{ margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--ink-4); cursor:pointer; } .sc-dt-acts .del:hover, .sc-dt-acts .del.on{ color:#c0503a; }
     .sc-split{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) clamp(330px, 26%, 420px); }
     /* a reading column, never a full-width ribbon: capped at 780px and centred in whatever is left */
     .sc-stream{ overflow-y:auto; min-height:0; padding:4px max(16px, calc((100% - 780px) / 2)) 24px max(20px, calc((100% - 780px) / 2)); scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; }
     .sc-rail{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); margin:12px 0 8px; }
     .sc-rail::after{ content:''; flex:1; height:1px; background:var(--line); }
     .sc-stream .sc-card{ margin-bottom:10px; } .sc-stream .sc-im{ max-height:200px; width:auto; } .sc-stream .sc-og{ width:auto; max-height:150px; aspect-ratio:auto; }
-    .sc-detail{ border-left:1px solid var(--line); background:#fff; padding:16px 18px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; scrollbar-width:thin; min-height:0; }
-    .sc-dt-h{ display:flex; align-items:center; gap:8px; } .sc-dt-time{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); flex:1; }
-    .sc-dt-x{ width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink-3); display:grid; place-items:center; font-size:15px; cursor:pointer; } .sc-dt-x:hover{ color:var(--ink); }
-    .sc-dt-body{ background:#fbfaf7; border:1px solid var(--line); border-radius:12px; padding:14px; }
-    .sc-dt-img{ width:100%; border-radius:8px; display:block; cursor:zoom-in; }
-    .sc-dt-tx{ font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
-    .sc-dt-tx.editable{ cursor:text; border-radius:8px; margin-left:-6px; margin-right:-6px; padding-left:6px; padding-right:6px; } .sc-dt-tx.editable:hover{ background:#fff; box-shadow:inset 0 0 0 1px var(--line); }
-    .sc-txbox{ width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.7; color:var(--ink); min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-txbox:focus{ border-color:#c9a24b; }
-    .sc-txadd{ margin-top:10px; border:1px dashed var(--line-2); background:transparent; color:var(--ink-3); font-size:12px; border-radius:8px; padding:5px 10px; cursor:pointer; } .sc-txadd:hover{ color:var(--ink); border-color:var(--ink-3); }
-    .sc-dt-tx.quote{ font-family:'Fraunces',serif; font-style:italic; font-size:16px; padding-left:12px; border-left:2px solid var(--sc-quote); }
-    .sc-dt-doc{ max-height:280px; overflow:auto; font-size:13px; margin-top:8px; }
-    .sc-dt-cap, .sc-dt-sum{ margin-top:10px; font-size:12px; color:var(--ink-3); line-height:1.55; } .sc-dt-sum.sc-live{ color:#6b4fb3; animation:scPulse 1.2s ease-in-out infinite; }
-    .sc-dt-ti{ width:100%; border:0; background:transparent; font:inherit; font-size:14px; font-weight:600; color:var(--ink); outline:none; padding:2px 4px; border-radius:6px; }
-    .sc-dt-ti:focus{ background:#fff; box-shadow:inset 0 0 0 1px var(--line-2); } .sc-dt-ti::placeholder{ color:var(--ink-4); font-weight:500; font-style:italic; }
-    .sc-dt-url{ display:block; margin-top:4px; font-family:var(--mono); font-size:10.5px; color:var(--sc-link); text-decoration:none; } .sc-dt-url span{ color:var(--ink-4); word-break:break-all; display:block; }
-    .sc-kv{ display:grid; grid-template-columns:44px 1fr; gap:6px 8px; font-size:12px; } .sc-kv .k{ color:var(--ink-3); font-size:11.5px; } .sc-kv .v{ font-family:var(--mono); font-size:10.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .sc-dt-k{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
-    .sc-dt-sec{ display:flex; flex-direction:column; gap:8px; } .sc-dt-sec .h{ display:flex; align-items:center; justify-content:space-between; } .sc-dt-sec .h a{ font-family:var(--mono); font-size:10px; color:var(--accent-ink); cursor:pointer; }
-    .sc-tgin{ border:1px dashed var(--line-2); border-radius:6px; font-family:var(--mono); font-size:10px; color:var(--ink); padding:3px 8px; outline:none; width:88px; background:transparent; } .sc-tgin::placeholder{ color:var(--ink-4); } .sc-tgin:focus{ border-color:#9b7ed0; }
-    .sc-aisug{ background:#f0eafb; border-radius:10px; padding:9px 11px; } .sc-aisug .k{ font-family:var(--mono); font-size:9.5px; color:#6b4fb3; letter-spacing:.08em; margin-bottom:6px; display:flex; justify-content:space-between; } .sc-aisug .k a{ color:#6b4fb3; font-weight:600; cursor:pointer; }
-    .sc-aisug .sc-tg.ai{ background:#fff; border-style:solid; border-color:#ddd3f2; color:#6b4fb3; }
-    .sc-anbox{ width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:13px; line-height:1.6; color:#3a362f; min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-anbox:focus{ border-color:#c9a24b; }
-    .sc-dt-acts{ display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; padding-top:12px; border-top:1px dashed var(--line); }
-    .sc-dt-acts button{ font-family:var(--mono); font-size:10.5px; font-weight:600; color:var(--ink-2); border:1px solid var(--line); border-radius:8px; padding:6px 10px; background:#fff; cursor:pointer; }
-    .sc-dt-acts button.pr{ color:#fff; background:var(--ink); border-color:var(--ink); } .sc-dt-acts button.danger{ color:#c0503a; border-color:#f3d3cd; background:#fbe9e6; }
     .sc-toast{ position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:9000; display:inline-flex; align-items:center; gap:9px; padding:10px 18px; background:var(--ink); color:#fff; border-radius:999px; font-size:13px; font-weight:500; box-shadow:0 8px 28px rgba(20,20,18,.22); }
     .sc-toast i{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
     @media (max-width:1200px){ .sc-split{ grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; } .sc-detail{ border-left:0; border-top:1px solid var(--line); max-height:46%; } }
@@ -5541,6 +5573,20 @@
             </div>
             <div v-if="tmLinkedPlace" ref="tmMapEl" class="tm-map"></div>
           </div>
+          <div v-if="!(detailTask && detailTask._projectTodo)" class="tm-field tm-field--wide">
+            <label>{{ lang === 'zh' ? '关联碎片' : 'Scraps' }}</label>
+            <div class="tm-ppl" @click.self="tmScrapOpen = !tmScrapOpen">
+              <span v-for="sc in tmLinkedScraps" :key="sc.id" class="tpill tp-scrap" :class="{ off: !sc.found }" :title="sc.found ? (lang === 'zh' ? '打开这条碎片' : 'Open scrap') : ''" @click.stop="sc.found && (closeTaskDetail(), gotoTaskScrap(sc))"><i v-html="sc.glyph"></i>{{ sc.title }}<b class="x" :title="lang === 'zh' ? '移除' : 'Remove'" @click.stop="tmRemoveScrap(sc.id)">×</b></span>
+              <button type="button" class="tm-ppl-add" :title="lang === 'zh' ? '选一条碎片' : 'Pick a scrap'" @click="tmScrapOpen = !tmScrapOpen">＋</button>
+            </div>
+            <div v-if="tmScrapOpen" class="tm-ppl-panel tm-scr-panel">
+              <input class="tm-scr-q" v-model="tmScrapQ" :placeholder="lang === 'zh' ? '搜碎片：标题 / 文字 / 标注 / 标签…' : 'Search scraps…'" @keydown.esc="tmScrapOpen = false">
+              <button type="button" v-for="sc in tmScrapSuggest" :key="sc.id" class="tm-ppl-opt" :class="{ on: editDetail.scrapIds.includes(sc.id) }" @click="tmToggleScrap(sc.id)">
+                <i class="tm-scr-g" v-html="scrapGlyph(sc)"></i><span>{{ scrapLabel(sc) }}</span><i v-if="editDetail.scrapIds.includes(sc.id)">✓</i>
+              </button>
+              <div v-if="!tmScrapSuggest.length" class="tm-ppl-none">{{ scrapsAll.length ? (lang === 'zh' ? '没有匹配的碎片' : 'No match') : (lang === 'zh' ? '还没有碎片' : 'No scraps yet') }}</div>
+            </div>
+          </div>
           <div class="tm-field">
             <label>{{ lang === 'zh' ? '紧急程度' : 'Priority' }}</label>
             <div class="tm-seg">
@@ -6095,11 +6141,12 @@
                   </span>
                   <div class="body" @click.stop="openTaskDetail(task)">
                     <div class="nm">{{ task.text }}</div>
-                    <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location || (task.people && task.people.length))">
+                    <div class="mt" v-if="!task.done && (taskOverdueDays(task) || task.startTime || task.date || task.location || (task.people && task.people.length) || (task.scraps && task.scraps.length))">
                       <span v-if="taskOverdueDays(task)" class="tpill late">{{ lang === 'zh' ? '逾期 ' + taskOverdueDays(task) + ' 天' : taskOverdueDays(task) + 'd overdue' }}</span>
                       <span v-if="task.date && !taskOverdueDays(task)" class="tpill date" :class="{ 'due-today': taskDatePill(task) === (lang === 'zh' ? '今日' : 'Today') }">{{ (lang === 'zh' ? '截止 ' : 'due ') + taskDatePill(task) }}</span>
                       <span v-if="task.startTime" class="tpill time">{{ task.startTime }}</span>
                       <span v-for="pp in taskPeopleList(task)" :key="pp.name" class="tpill tp-person" :class="{ off: !pp.found }" :title="pp.found ? (lang === 'zh' ? '查看人脉卡' : 'Open contact') : ''" @click.stop="pp.found && gotoTaskPerson(pp.name)"><img v-if="pp.photo" :src="pp.photo">{{ pp.name }}</span>
+                      <span v-for="sc in taskScrapList(task)" :key="sc.id" class="tpill tp-scrap" :class="{ off: !sc.found }" :title="sc.found ? (lang === 'zh' ? '打开这条碎片' : 'Open scrap') : (lang === 'zh' ? '这条碎片已不在' : 'Scrap is gone')" @click.stop="sc.found && gotoTaskScrap(sc)"><i v-html="sc.glyph"></i>{{ sc.title }}</span>
                       <span v-if="task.location && taskPlace(task)" class="tpill tp-place" :style="{ '--pc': plTypeMeta(taskPlace(task).type).color }" :title="lang === 'zh' ? '查看位置' : 'Open place'" @click.stop="gotoTaskPlace(task)"><span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" v-html="plIcon(taskPlace(task).type)"></svg></span>{{ task.location }}</span>
                       <span v-else-if="task.location" class="tpill loc raw">📍 {{ task.location }}</span>
                     </div>
@@ -7891,62 +7938,70 @@
                       </template>
                       <p v-if="!scrapsFiltered.length" class="sc-empty">{{ lang === 'zh' ? '没有匹配的碎片' : 'Nothing matches' }}</p>
                     </div>
-                    <aside class="sc-detail">
-                      <div class="sc-dt-h">
+                    <aside class="sc-detail" @click="scrapTaskOpen = false">
+                      <div class="sc-dt-top">
                         <span v-if="scrapSel.kind === 'idea' || scrapSel.kind === 'quote'" class="sc-kindsw" :title="lang === 'zh' ? '这条是文字还是摘录？点一下换' : 'Text or quote? Click to switch'"><span :class="{ on: scrapSel.kind === 'idea' }" @click="scrapSetKind('idea')">{{ scKindLabel('idea') }}</span><span :class="{ on: scrapSel.kind === 'quote' }" @click="scrapSetKind('quote')">{{ scKindLabel('quote') }}</span></span>
-                        <span v-else class="sc-ty" :class="'sc-ty--' + scrapSel.kind">{{ scKindLabel(scrapSel.kind) }}</span>
-                        <span class="sc-dt-time">{{ scTime(scrapSel) }} · {{ scRel(scrapSel) }}</span>
+                        <span v-else class="sc-dt-kind">{{ scKindLabel(scrapSel.kind) }}</span>
+                        <span v-if="scrapIsPending(scrapSel)" class="sc-dt-live" :title="lang === 'zh' ? 'AI 正在看' : 'AI is looking'">✦</span>
                         <button class="sc-dt-x" type="button" @click="scrapClose()" :title="lang === 'zh' ? '关闭（Esc）' : 'Close (Esc)'">×</button>
                       </div>
-                      <div class="sc-dt-body">
-                        <template v-if="scrapSel.kind === 'image'"><img v-for="u in (scrapSel.fileUrls && scrapSel.fileUrls.length ? scrapSel.fileUrls : [scrapSel.fileUrl])" :key="u" class="sc-dt-img" :src="u" alt="" @click="scrapOpenUrl(u)"></template>
-                        <template v-else-if="scrapSel.kind === 'file'">
-                          <div v-for="(f, i) in (scrapSel.files && scrapSel.files.length ? scrapSel.files : [scrapSel.file])" :key="f" class="sc-fl" :class="{ row: i > 0 }" style="cursor:pointer" @click="scrapOpenUrl((scrapSel.fileUrls || [])[i] || scrapSel.fileUrl)"><span class="sc-pdf">{{ (String(f).split('.').pop() || 'FILE').toUpperCase().slice(0, 4) }}</span><div><div class="sc-fl-n">{{ String(f).replace(/^files\//, '').replace(/^\d{8}-\d{6}-/, '') }}</div><div class="sc-fl-m">{{ i === 0 ? scrapSize(scrapSel.fileSize) + ' · ' : '' }}{{ lang === 'zh' ? '点开原样看' : 'open' }}</div></div></div>
-                        </template>
-                        <template v-if="scrapSel.kind === 'link'">
-                          <img v-if="scrapSel.ogImage" class="sc-dt-img" :src="scrapSel.ogImage" alt="" style="margin-bottom:10px" @error="$event.target.style.display='none'">
-                          <input class="sc-dt-ti" v-model="scrapTitleDraft" :placeholder="scrapSel.titlePending ? (lang === 'zh' ? '标题待补，点这里写一个' : 'Title pending — type one') : (lang === 'zh' ? '标题' : 'Title')" @blur="scrapTitleSave" @keydown.enter="$event.target.blur()">
-                          <a class="sc-dt-url" :href="scrapSel.url" target="_blank" rel="noopener">{{ scrapSel.site }} ↗ <span>{{ scrapSel.url }}</span></a>
-                        </template>
-                        <a v-for="l in (scrapSel.links || []).slice(scrapSel.kind === 'link' ? 1 : 0)" :key="l.url" class="sc-dt-lk" :href="l.url" target="_blank" rel="noopener"><span class="sc-fav sm" :style="{ background: '#3457b8' }">{{ (l.site || '·')[0].toUpperCase() }}</span><span class="t"><b :class="{ pending: l.pending && !l.title }">{{ l.title || (l.pending ? (lang === 'zh' ? '标题待补' : 'Title pending') : l.site) }}</b><i>{{ l.site }} ↗</i></span></a>
-                        <template v-if="scrapSel.text">
-                          <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" :style="scrapSel.kind !== 'idea' && scrapSel.kind !== 'quote' ? 'margin-top:10px' : ''" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
-                          <p v-else class="sc-dt-tx editable" :class="{ quote: scrapSel.kind === 'quote' }" :style="scrapSel.kind !== 'idea' && scrapSel.kind !== 'quote' ? 'margin-top:10px' : ''" :title="lang === 'zh' ? '点一下修改' : 'Click to edit'" @click="scrapTextEdit()">{{ scrapSel.text }}</p>
-                          <input v-if="scrapSel.kind === 'quote'" class="sc-byin" :value="scrapSel.by" :placeholder="lang === 'zh' ? '— 谁说的 / 出处' : '— who said it'" @change="scrapSetBy($event.target.value)" @keydown.enter="$event.target.blur()">
-                          <div v-else-if="scrapSel.by" class="sc-qb">{{ scrapSel.by }}</div>
-                        </template>
-                        <template v-else-if="scrapSel.kind !== 'quote'">
-                          <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" style="margin-top:10px" :placeholder="lang === 'zh' ? '写点文字…' : 'Some words…'" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
-                          <button v-else type="button" class="sc-txadd" @click="scrapTextEdit()">{{ lang === 'zh' ? '+ 加一段文字' : '+ Add words' }}</button>
-                        </template>
-                        <div v-if="scrapSel.kind === 'link' && scrapSel.contentHtml" class="md-content sc-dt-doc" v-html="scrapSel.contentHtml"></div>
-                        <p v-if="scrapSel.caption" class="sc-dt-cap">✦ {{ scrapSel.caption }}</p>
-                        <p v-if="scrapSel.summary" class="sc-dt-sum">✦ {{ scrapSel.summary }}</p>
-                        <p v-if="scrapIsPending(scrapSel)" class="sc-dt-sum sc-live">✦ {{ lang === 'zh' ? 'AI 正在看…' : 'AI is looking…' }}</p>
+                      <template v-if="scrapSel.kind === 'link'">
+                        <textarea class="sc-dt-ti" rows="1" v-model="scrapTitleDraft" spellcheck="false" :placeholder="scrapSel.titlePending ? (lang === 'zh' ? '标题待补，点这里写一个' : 'Title pending — type one') : (lang === 'zh' ? '标题' : 'Title')" :title="lang === 'zh' ? '点一下修改' : 'Click to edit'" @input="scAutoGrow($event.target)" @blur="scrapTitleSave" @keydown.enter.prevent="$event.target.blur()"></textarea>
+                        <div class="sc-dt-by"><a :href="scrapSel.url" target="_blank" rel="noopener" :title="lang === 'zh' ? '打开' : 'Open'">{{ scrapSel.site }} ↗</a><span class="u" :title="scrapSel.url">{{ scShortUrl(scrapSel.url) }}</span></div>
+                        <figure v-if="scrapSel.ogImage" class="sc-dt-fig"><img class="sc-dt-img" :src="scrapSel.ogImage" alt="" referrerpolicy="no-referrer" @error="$event.target.parentNode.style.display='none'" @click="scrapOpen(scrapSel)"></figure>
+                      </template>
+                      <template v-else-if="scrapSel.kind === 'image'"><figure v-for="u in (scrapSel.fileUrls && scrapSel.fileUrls.length ? scrapSel.fileUrls : [scrapSel.fileUrl])" :key="u" class="sc-dt-fig"><img class="sc-dt-img" :src="u" alt="" @click="scrapOpenUrl(u)"></figure></template>
+                      <div v-else-if="scrapSel.kind === 'file'" class="sc-dt-files">
+                        <div v-for="(f, i) in (scrapSel.files && scrapSel.files.length ? scrapSel.files : [scrapSel.file])" :key="f" class="sc-fl" :class="{ row: i > 0 }" style="cursor:pointer" @click="scrapOpenUrl((scrapSel.fileUrls || [])[i] || scrapSel.fileUrl)"><span class="sc-pdf">{{ (String(f).split('.').pop() || 'FILE').toUpperCase().slice(0, 4) }}</span><div><div class="sc-fl-n">{{ String(f).replace(/^files\//, '').replace(/^\d{8}-\d{6}-/, '') }}</div><div class="sc-fl-m">{{ lang === 'zh' ? '点一下打开' : 'Click to open' }}</div></div></div>
                       </div>
-                      <div class="sc-kv">
-                        <span class="k">{{ lang === 'zh' ? '来源' : 'Source' }}</span><span class="v">{{ ({ paste: '手动贴入', drop: '拖入', chat: 'AI 对话', inbox: '随手记', legacy: '早期收藏', test: '测试' })[scrapSel.source] || scrapSel.source }}</span>
-                        <span class="k">{{ lang === 'zh' ? '存于' : 'Path' }}</span><span class="v" :title="scrapSel.path">{{ scrapSel.path }}</span>
+                      <a v-for="l in (scrapSel.links || []).slice(scrapSel.kind === 'link' ? 1 : 0)" :key="l.url" class="sc-dt-lk" :href="l.url" target="_blank" rel="noopener"><span class="sc-fav sm" :style="{ background: '#3457b8' }">{{ (l.site || '·')[0].toUpperCase() }}</span><span class="t"><b :class="{ pending: l.pending && !l.title }">{{ l.title || (l.pending ? (lang === 'zh' ? '标题待补' : 'Title pending') : l.site) }}</b><i>{{ l.site }} ↗</i></span></a>
+                      <template v-if="scrapSel.text">
+                        <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
+                        <p v-else class="sc-dt-tx editable" :class="{ quote: scrapSel.kind === 'quote' }" :title="lang === 'zh' ? '点一下修改' : 'Click to edit'" @click="scrapTextEdit()">{{ scrapSel.text }}</p>
+                        <input v-if="scrapSel.kind === 'quote'" class="sc-byin" :value="scrapSel.by" :placeholder="lang === 'zh' ? '— 谁说的 / 出处' : '— who said it'" @change="scrapSetBy($event.target.value)" @keydown.enter="$event.target.blur()">
+                        <div v-else-if="scrapSel.by" class="sc-qb">{{ scrapSel.by }}</div>
+                      </template>
+                      <template v-else-if="scrapSel.kind !== 'quote'">
+                        <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" :placeholder="lang === 'zh' ? '写点文字…' : 'Some words…'" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
+                        <p v-else class="sc-dt-add" @click="scrapTextEdit()">{{ lang === 'zh' ? '加一段文字…' : 'Add some words…' }}</p>
+                      </template>
+                      <div v-if="scrapSel.kind === 'link' && scrapSel.contentHtml" class="md-content sc-dt-doc" v-html="scrapSel.contentHtml"></div>
+                      <div class="sc-dt-nh"><span class="sc-dt-k">{{ lang === 'zh' ? '标注' : 'Note' }}</span><span class="sc-dt-hint">{{ lang === 'zh' ? '只放你自己的话' : 'your words only' }}</span></div>
+                      <textarea class="sc-anbox" v-model="scrapNoteDraft" @input="scrapNoteInput" :placeholder="lang === 'zh' ? '写句标注，搜索时会用到…' : 'A note to yourself — searchable…'"></textarea>
+                      <p v-if="scrapSel.caption" class="sc-dt-fn"><i>✦</i><span>{{ scrapSel.caption }}</span></p>
+                      <p v-if="scrapSel.summary" class="sc-dt-fn"><i>✦</i><span>{{ scrapSel.summary }}</span></p>
+                      <p v-if="scrapIsPending(scrapSel)" class="sc-dt-fn sc-live"><i>✦</i><span>{{ lang === 'zh' ? 'AI 正在看…' : 'AI is looking…' }}</span></p>
+                      <div class="sc-dt-rel" @click.stop>
+                        <div class="h"><span class="sc-dt-k">{{ lang === 'zh' ? '关联任务' : 'Tasks' }}{{ scrapTaskLinks.length ? ' · ' + scrapTaskLinks.length : '' }}</span><a @click="scrapTaskToggleOpen()">{{ scrapTaskOpen ? (lang === 'zh' ? '收起' : 'Close') : (lang === 'zh' ? '＋ 关联' : '＋ Link') }}</a></div>
+                        <div v-if="scrapTaskLinks.length" class="sc-tasklinks">
+                          <span v-for="t in scrapTaskLinks" :key="t.id" class="tpill tp-task" :class="{ done: t.done }" :title="lang === 'zh' ? '打开任务' : 'Open task'" @click="gotoScrapTask(t)"><i class="dot" :style="{ background: taskDotColor(t) }"></i>{{ t.text }}<b class="x" :title="lang === 'zh' ? '取消关联' : 'Unlink'" @click.stop="scrapUnlinkTask(t)">×</b></span>
+                        </div>
+                        <div v-if="scrapTaskOpen" class="sc-tk-panel">
+                          <input ref="scTaskQ" class="sc-tk-q" v-model="scrapTaskQ" :placeholder="lang === 'zh' ? '搜任务，或直接写一个新的…' : 'Search tasks, or type a new one…'" @keydown.esc.prevent="scrapTaskToggleOpen()" @keydown.enter="$event.isComposing || scrapTaskEnter()">
+                          <div class="sc-tk-list">
+                            <button v-for="t in scrapTaskChoices" :key="t.id" type="button" class="sc-tk-opt" :class="{ on: scrapTaskIsLinked(t) }" @click="scrapToggleTask(t)"><i class="dot" :style="{ background: taskDotColor(t) }"></i><span class="t">{{ t.text }}</span><em v-if="t.date">{{ t.date.slice(5) }}</em><i class="ck" v-if="scrapTaskIsLinked(t)">✓</i></button>
+                            <div v-if="!scrapTaskChoices.length" class="sc-tk-empty">{{ scrapTaskQ.trim() ? (lang === 'zh' ? '没有这个任务' : 'No such task') : (lang === 'zh' ? '待办里空空的' : 'No open tasks') }}</div>
+                          </div>
+                          <button v-if="scrapTaskQ.trim() && !scrapTaskChoices.some(t => t.text === scrapTaskQ.trim())" type="button" class="sc-tk-new" @click="scrapCreateTask()">＋ {{ lang === 'zh' ? '新建任务「' + scrapTaskQ.trim() + '」并关联' : 'New task “' + scrapTaskQ.trim() + '”, linked' }}</button>
+                        </div>
                       </div>
-                      <div class="sc-dt-sec">
-                        <div class="h"><span class="sc-dt-k">{{ lang === 'zh' ? '标签' : 'Tags' }}</span><a v-if="scrapsEnrich !== 'off' && !scrapIsPending(scrapSel) && !scrapSel.legacy" @click="scrapEnrich(scrapSel)">{{ lang === 'zh' ? '让 AI 再看一遍' : 'Ask AI again' }}</a></div>
-                        <div class="sc-tgs" style="margin:0">
+                      <hr class="sc-dt-hr">
+                      <dl class="sc-dt-meta">
+                        <dt>{{ lang === 'zh' ? '来源' : 'Source' }}</dt><dd>{{ ({ paste: '手动贴入', drop: '拖入', chat: 'AI 对话', inbox: '随手记', legacy: '早期收藏', test: '测试' })[scrapSel.source] || scrapSel.source }}</dd>
+                        <dt>{{ lang === 'zh' ? '存于' : 'Path' }}</dt><dd :title="scrapSel.path">{{ scrapSel.path }}</dd>
+                        <dt>{{ lang === 'zh' ? '时间' : 'Time' }}</dt><dd>{{ scTime(scrapSel) }} · {{ scRel(scrapSel) }}</dd>
+                        <dt>{{ lang === 'zh' ? '标签' : 'Tags' }}</dt><dd class="tags">
                           <span v-for="t in scrapSel.tags" :key="'t' + t" class="sc-tg">{{ t }}<span class="x" @click="scrapRemoveTag(scrapSel, t)">×</span></span>
                           <span class="sc-tgwrap"><input class="sc-tgin" v-model="scrapTagDraft" :placeholder="lang === 'zh' ? '+ 标签' : '+ tag'" @focus="scrapTagFocus = true" @blur="scrapTagFocus = false; scrapAddTag()" @keydown.enter="$event.isComposing || scrapAddTag()">
                             <div v-if="scrapDetailTagSuggest.length" class="sc-tagpop sc-tagpop--dt"><span class="k">{{ lang === 'zh' ? '已有的' : 'existing' }}</span><span v-for="t in scrapDetailTagSuggest" :key="t" class="sc-tg pick" @mousedown.prevent="scrapPickDetailTag(t)">{{ t }}</span></div></span>
-                        </div>
-                        <div v-if="scrapSel.aiTags.length" class="sc-aisug">
-                          <div class="k"><span>✦ {{ lang === 'zh' ? 'AI 建议' : 'AI suggests' }}</span><a @click="scrapAcceptAll(scrapSel)">{{ lang === 'zh' ? '全部采纳' : 'Keep all' }}</a></div>
-                          <div class="sc-tgs" style="margin:0"><span v-for="t in scrapSel.aiTags" :key="'a' + t" class="sc-tg ai" @click="scrapAcceptTag(scrapSel, t)" :title="lang === 'zh' ? '点一下采纳' : 'Click to keep'">✦ {{ t }}</span></div>
-                        </div>
-                      </div>
-                      <div class="sc-dt-sec">
-                        <div class="h"><span class="sc-dt-k">{{ lang === 'zh' ? '标注' : 'Note' }}</span><span class="sc-dt-k" style="text-transform:none;letter-spacing:0">{{ lang === 'zh' ? '只放你自己的话' : 'your words only' }}</span></div>
-                        <textarea class="sc-anbox" v-model="scrapNoteDraft" @input="scrapNoteInput" :placeholder="lang === 'zh' ? '写句标注，搜索时会用到…' : 'A note to yourself — searchable…'"></textarea>
-                      </div>
+                          <span v-for="t in scrapSel.aiTags" :key="'a' + t" class="sc-tg ai" @click="scrapAcceptTag(scrapSel, t)" :title="lang === 'zh' ? 'AI 建议的，点一下采纳' : 'AI suggestion — click to keep'">✦ {{ t }}</span>
+                          <a v-if="scrapSel.aiTags.length" class="all" @click="scrapAcceptAll(scrapSel)">{{ lang === 'zh' ? '全部采纳' : 'Keep all' }}</a>
+                        </dd>
+                      </dl>
                       <div class="sc-dt-acts">
-                        <button v-if="scrapSel.url || scrapSel.fileUrl" type="button" @click="scrapOpen(scrapSel)">{{ lang === 'zh' ? '打开' : 'Open' }}</button>
-                        <button type="button" :class="{ danger: scrapConfirmDel }" @click="scrapRemove(scrapSel)">{{ scrapConfirmDel ? (lang === 'zh' ? '确认删除' : 'Confirm') : (lang === 'zh' ? '删除' : 'Delete') }}</button>
+                        <button v-if="scrapSel.url || scrapSel.fileUrl" type="button" class="btn" @click="scrapOpen(scrapSel)">{{ lang === 'zh' ? '打开' : 'Open' }} ↗</button>
+                        <a v-if="scrapsEnrich !== 'off' && !scrapIsPending(scrapSel) && !scrapSel.legacy" class="lk" @click="scrapEnrich(scrapSel)">{{ lang === 'zh' ? '让 AI 再看一遍' : 'Ask AI again' }}</a>
+                        <a class="del" :class="{ on: scrapConfirmDel }" @click="scrapRemove(scrapSel)">{{ scrapConfirmDel ? (lang === 'zh' ? '确认删除' : 'Confirm delete') : (lang === 'zh' ? '删除' : 'Delete') }}</a>
                       </div>
                     </aside>
                   </div>
@@ -15577,7 +15632,7 @@ const lociApp = createApp({
     function scrapOpenUrl(u) { if (u) window.open(u, '_blank', 'noopener'); }
     // ── selection / navigation ──
     function scrapPick(it) {
-      scrapSel.value = it; scrapNoteDraft.value = it.note || ''; scrapTitleDraft.value = it.title || ''; scrapTagDraft.value = ''; scrapConfirmDel.value = false; scrapTextEditing.value = false;
+      scrapSel.value = it; scrapNoteDraft.value = it.note || ''; scrapTitleDraft.value = it.title || ''; scrapTagDraft.value = ''; scrapConfirmDel.value = false; scrapTextEditing.value = false; scrapTaskOpen.value = false; scrapTaskQ.value = '';
       nextTick(() => { const el = document.querySelector('.sc-stream .sc-card.sel'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); });
     }
     function scrapClose() { scrapSel.value = null; }
@@ -15611,6 +15666,9 @@ const lociApp = createApp({
     // the words on a scrap are yours — click them to change them (links in the body are kept by the server)
     function scrapTextEdit() { const it = scrapSel.value; if (!it) return; scrapTextDraft.value = it.text || ''; scrapTextEditing.value = true; nextTick(() => { const el = document.querySelector('.sc-txbox'); if (el) { el.focus(); el.style.height = Math.max(84, el.scrollHeight + 4) + 'px'; } }); }
     function scrapTextCancel() { scrapTextEditing.value = false; }
+    function scShortUrl(u) { return String(u || '').replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, ''); }
+    function scAutoGrow(el) { if (!el) return; el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; }
+    watch(scrapTitleDraft, () => nextTick(() => scAutoGrow(document.querySelector('.sc-dt-ti'))));
     async function scrapTextSave() { const it = scrapSel.value; scrapTextEditing.value = false; if (!it) return; const t = scrapTextDraft.value.replace(/\r/g, '').trim(); if (t === (it.text || '')) return; const out = await scrapUpdate(it, { text: t }); if (out) scrapSel.value = out; }
     async function scrapRemove(it) {
       if (!scrapConfirmDel.value) { scrapConfirmDel.value = true; setTimeout(() => { scrapConfirmDel.value = false; }, 3000); return; }
@@ -17189,6 +17247,70 @@ const lociApp = createApp({
       currentPage.value = 'people';
       pplBoard.value = 'places';
       plOpenEdit(pl);
+    }
+
+    // ── Task ↔ scraps links: a task points at scraps by id; the scrap side is computed, never stored ──
+    const SC_GLYPH = {
+      image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>',
+      link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg>',
+      file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5"/></svg>',
+      quote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h4v6H7a3 3 0 0 0 0 6"/><path d="M15 7h4v6h-4a3 3 0 0 0 0 6"/></svg>',
+      idea: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h10M5 18h7"/></svg>',
+    };
+    function scrapGlyph(sc) { return SC_GLYPH[sc && sc.kind] || SC_GLYPH.idea; }
+    function scrapLabel(sc) { if (!sc) return ''; const t = (sc.title || sc.text || sc.note || sc.site || '').replace(/\s+/g, ' ').trim(); return t.length > 36 ? t.slice(0, 35) + '…' : (t || (lang.value === 'zh' ? '（无标题）' : '(untitled)')); }
+    function scrapById(id) { return scrapsAll.value.find(x => x.id === id) || null; }
+    function taskScrapList(t) {
+      return ((t && t.scraps) || []).map(id => { const sc = scrapById(id); return sc ? { id, found: true, title: scrapLabel(sc), glyph: scrapGlyph(sc), item: sc } : { id, found: false, title: id.replace(/^ref:/, '').replace(/\.md$/, ''), glyph: SC_GLYPH.idea, item: null }; });
+    }
+    function gotoTaskScrap(sc) { const it = sc && (sc.item || scrapById(sc.id)); if (!it) return; currentPage.value = 'notes'; notesSelected.value = null; scrapPick(it); }
+    const tmScrapOpen = ref(false); const tmScrapQ = ref('');
+    const tmLinkedScraps = computed(() => taskScrapList({ scraps: editDetail.scrapIds }));
+    const tmScrapSuggest = computed(() => {
+      const q = tmScrapQ.value.trim().toLowerCase();
+      const pool = scrapsAll.value.filter(i => !q || [i.title, i.text, i.note, i.summary, i.site, ...(i.tags || []), ...(i.aiTags || [])].join(' ').toLowerCase().includes(q));
+      return pool.slice(0, q ? 12 : 8);
+    });
+    function tmToggleScrap(id) { const i = editDetail.scrapIds.indexOf(id); if (i >= 0) editDetail.scrapIds.splice(i, 1); else editDetail.scrapIds.push(id); }
+    function tmRemoveScrap(id) { const i = editDetail.scrapIds.indexOf(id); if (i >= 0) editDetail.scrapIds.splice(i, 1); }
+    // the scrap side: which tasks point here (read straight off the task pool), plus a small picker to link one more
+    const scrapTaskQ = ref('');
+    function allVisibleTasks() { const t = data.value && data.value.tasks && data.value.tasks.active_tasks; return (t && t.P1) || []; }
+    const scrapTaskLinks = computed(() => { const it = scrapSel.value; if (!it) return []; return allVisibleTasks().filter(t => (t.scraps || []).includes(it.id)); });
+    const scrapTaskOpen = ref(false);
+    // open tasks, linked ones included (so a click can also unlink); today's picks float up, then by due date
+    const scrapTaskChoices = computed(() => {
+      const it = scrapSel.value; if (!it) return [];
+      const q = scrapTaskQ.value.trim().toLowerCase(); const today = new Date(); const key = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+      const rank = (t) => ((t.scraps || []).includes(it.id) ? 0 : 1) * 10 + (t.plannedFor === key || t.date === key ? 0 : t.date ? 1 : 2);
+      return allVisibleTasks().filter(t => !t.done && (!q || String(t.text || '').toLowerCase().includes(q))).sort((a, b) => rank(a) - rank(b) || String(a.date || '9').localeCompare(String(b.date || '9'))).slice(0, q ? 20 : 40);
+    });
+    function scrapTaskIsLinked(t) { const it = scrapSel.value; return !!(it && t && (t.scraps || []).includes(it.id)); }
+    function scrapToggleTask(t) { if (scrapTaskIsLinked(t)) scrapUnlinkTask(t); else scrapLinkTask(t); }
+    function scrapTaskToggleOpen() { scrapTaskOpen.value = !scrapTaskOpen.value; scrapTaskQ.value = ''; if (scrapTaskOpen.value) nextTick(() => { const el = document.querySelector('.sc-tk-q'); if (el) el.focus(); }); }
+    function scrapTaskEnter() { const q = scrapTaskQ.value.trim(); const list = scrapTaskChoices.value; const exact = list.find(t => t.text === q); if (exact) return scrapToggleTask(exact); if (list.length && q) return scrapLinkTask(list[0]); if (q) return scrapCreateTask(); }
+    function taskDotColor(t) { const m = { red: '#e0533f', orange: '#e8923a', yellow: '#d9b53a', green: '#2f9e6a', blue: '#3b7ddd', purple: '#7b5cd6', pink: '#d6588f' }; return (t && t.color && (m[t.color] || t.color)) || (t && t.done ? '#c9c5bd' : '#9b9791'); }
+    document.addEventListener('click', () => { if (scrapTaskOpen.value) scrapTaskOpen.value = false; });
+    async function scrapSetTaskLinks(t, ids) {
+      const prev = t.scraps; t.scraps = ids;
+      try { const res = await demoFetch('/api/tasks/update-detail', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: t.id, scraps: ids }) }); if (!res.ok) throw new Error('HTTP ' + res.status); }
+      catch (e) { t.scraps = prev; scSay((lang.value === 'zh' ? '没关联上：' : 'Failed: ') + e.message); }
+    }
+    function scrapLinkTask(t) { const it = scrapSel.value; if (!it || !t) return; scrapSetTaskLinks(t, [...(t.scraps || []).filter(x => x !== it.id), it.id]); }
+    function scrapUnlinkTask(t) { const it = scrapSel.value; if (!it || !t) return; scrapSetTaskLinks(t, (t.scraps || []).filter(x => x !== it.id)); }
+    function gotoScrapTask(t) { currentPage.value = 'tasks'; nextTick(() => openTaskDetail(t)); }
+    // a new task born from a scrap: created with the link already on it, and shown in the pool right away
+    async function scrapCreateTask() {
+      const it = scrapSel.value; const text = scrapTaskQ.value.trim(); if (!it || !text) return;
+      scrapTaskQ.value = '';
+      try {
+        const res = await demoFetch('/api/tasks/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, scraps: [it.id], source: 'dashboard' }) });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || out.error || !out.task) throw new Error(out.error || ('HTTP ' + res.status));
+        const t = out.task; const pool = data.value && data.value.tasks && data.value.tasks.active_tasks;
+        if (pool) { if (!pool.P1) pool.P1 = []; pool.P1.push({ id: t.id, text: t.title, done: false, status: 'open', date: t.date || null, endDate: null, startTime: null, endTime: null, project: null, urgency: t.urgency || 0, importance: t.importance || 0, plannedFor: null, deferToday: false, location: null, color: null, note: null, people: [], scraps: t.scraps || [it.id], source: t.source, createdAt: t.createdAt, updatedAt: t.updatedAt, completedAt: null }); }
+        scSay(lang.value === 'zh' ? '任务建好了，已关联这条' : 'Task created and linked');
+      } catch (e) { scSay((lang.value === 'zh' ? '没建成：' : 'Failed: ') + e.message); }
     }
 
     // ── People Relationship Graph (force-directed canvas) ──────────────────
@@ -19452,7 +19574,7 @@ const lociApp = createApp({
     const detailTask = ref(null);     // the task object currently open in the modal
     const taskTitlePeek = ref(null);
     const taskPeekPos = ref(null);   // {top,left} px when anchored to a task, else null → centered
-    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '', peopleText: '' });
+    const editDetail = reactive({ text: '', date: '', time: '', location: '', color: null, note: '', priority: null, category: '', peopleText: '', scrapIds: [] });
     const parsePeopleText = (s) => String(s || '').split(/[,，、;；]/).map(x => x.trim()).filter(Boolean);
 
     const detailMode = ref('edit');   // 'edit' | 'create' — one modal, two jobs
@@ -19487,6 +19609,8 @@ const lociApp = createApp({
       editDetail.priority = levelsToPriority(task);
       editDetail.category = task.category || '';
       editDetail.peopleText = (task.people || []).join('、');
+      editDetail.scrapIds = (task.scraps || []).slice();
+      tmScrapOpen.value = false; tmScrapQ.value = '';
       tmLocCustom.value = false;
       tmPplOpen.value = false;
     }
@@ -19504,6 +19628,8 @@ const lociApp = createApp({
       editDetail.priority = null;
       editDetail.category = '';
       editDetail.peopleText = '';
+      editDetail.scrapIds = [];
+      tmScrapOpen.value = false; tmScrapQ.value = '';
       tmLocCustom.value = false;
       tmPplOpen.value = false;
     }
@@ -19576,6 +19702,7 @@ const lociApp = createApp({
         color: editDetail.color || null,
         note: editDetail.note || null,
         people: parsePeopleText(editDetail.peopleText),
+        scraps: editDetail.scrapIds.slice(),
         urgency: levels.urgency,
         importance: levels.importance,
         source: 'dashboard',
@@ -19608,13 +19735,15 @@ const lociApp = createApp({
       // title: keep the old one if the field was cleared (never blank a task)
       const newText = editDetail.text.trim() || task.text;
       // optimistic update on the live task object
-      const prev = { text: task.text, title: task.title, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance, category: task.category, people: task.people };
+      const prev = { scraps: task.scraps, text: task.text, title: task.title, date: task.date, startTime: task.startTime, location: task.location, color: task.color, note: task.note, urgency: task.urgency, importance: task.importance, category: task.category, people: task.people };
       const newPeople = parsePeopleText(editDetail.peopleText);
+      const newScraps = editDetail.scrapIds.slice();
       task.text = newText;
       task.title = newText;
       task.date = newDate;
       task.startTime = newTime;
       task.people = newPeople;
+      task.scraps = newScraps;
       task.location = editDetail.location || null;
       task.color = editDetail.color || null;
       task.note = editDetail.note || null;
@@ -19652,7 +19781,7 @@ const lociApp = createApp({
         }
         const res = await demoFetch('/api/tasks/update-detail', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: task.id, title: newText, date: newDate, startTime: newTime, location: task.location, color: task.color, note: task.note, urgency: levels.urgency, importance: levels.importance, people: newPeople })
+          body: JSON.stringify({ id: task.id, scraps: newScraps, title: newText, date: newDate, startTime: newTime, location: task.location, color: task.color, note: task.note, urgency: levels.urgency, importance: levels.importance, people: newPeople })
         });
         if (!res.ok) throw new Error('update-detail failed: ' + res.status);
       } catch (e) {
@@ -20902,6 +21031,7 @@ const lociApp = createApp({
       personLinkedPlaces, plNameType, editPlacePickerOpen, editPlaceQuery, toggleFormPlace, editPlacePickerOptions,
       addPlacePickerOpen, addPlaceQuery, addPlacePickerOptions,
       taskPlace, taskPeopleList, gotoTaskPerson, gotoTaskPlace, tmLinkedPlace, tmLinkedPeople, tmMapEl,
+      scrapGlyph, scrapLabel, taskScrapList, gotoTaskScrap, tmScrapOpen, tmScrapQ, tmLinkedScraps, tmScrapSuggest, tmToggleScrap, tmRemoveScrap, scrapTaskQ, scrapTaskLinks, scrapTaskOpen, scrapTaskChoices, scrapTaskIsLinked, scrapToggleTask, scrapTaskToggleOpen, scrapTaskEnter, taskDotColor, scrapLinkTask, scrapUnlinkTask, gotoScrapTask, scrapCreateTask,
       tmPplOpen, tmLocSelect, onTmLocSelect, tmHasPerson, tmTogglePerson, tmRemovePerson,
       calendarView, calendarDayOffset, calendarWeekOffset, calendarMonthOffset,
       notifyEnabled, notifyLeads, notifyPermission, notifyMenuOpen, notifyLeadOptions, toggleNotify, toggleNotifyLead,
@@ -20974,7 +21104,7 @@ const lociApp = createApp({
       scrapsAll, scrapsFresh, scrapsEnrich, scrapsPending, scrapQ, scrapKind, scrapTag, scrapTagMenu, scrapSearchTags, scrapSearchPickTag, scrapSearchKey, scrapSel, scrapDraft, scrapBlocks, scHost, scrapHasContent, scrapCommitText, scrapEditBlock, scrapAddOpen, scrapAddUrl, scrapAddToggle, scrapAddLink, scrapAddPaste, scrapSaving, scrapDragOver, scrapTagFocus, scrapsTagVocab, scrapTagSuggest, scrapPickTag, scrapCapKey, scrapLinkify, scrapDetailTagSuggest, scrapPickDetailTag, scrapOpenUrl,
       scrapNoteDraft, scrapTitleDraft, scrapTagDraft, scrapConfirmDel, scToast, scrapKindList, scrapsFiltered, scrapGroups, scrapDetectLabel,
       scKindLabel, scKindColor, scTime, scRel, scrapSize, scrapIsPending, scrapPaste, scrapFilePick, scrapDrop, scrapSave, scrapPick, scrapClose, scrapsHome,
-      scrapAcceptTag, scrapAcceptAll, scrapAddTag, scrapRemoveTag, scrapNoteInput, scrapTitleSave, scrapTextEditing, scrapTextDraft, scrapTextEdit, scrapTextCancel, scrapTextSave, scrapSetKind, scrapSetBy, scrapRemove, scrapOpen, scrapEnrich, SC_ICON,
+      scrapAcceptTag, scrapAcceptAll, scrapAddTag, scrapRemoveTag, scrapNoteInput, scrapTitleSave, scrapTextEditing, scrapTextDraft, scrapTextEdit, scrapTextCancel, scrapTextSave, scShortUrl, scAutoGrow, scrapSetKind, scrapSetBy, scrapRemove, scrapOpen, scrapEnrich, SC_ICON,
       peopleData, selectedPerson, detailMoreOpen, detailMapOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,

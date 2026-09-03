@@ -14,8 +14,8 @@ function usage() {
   console.log(`Usage:
   node scripts/loci-task.js validate
   node scripts/loci-task.js rebuild
-  node scripts/loci-task.js add --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--end-date YYYY-MM-DD] [--people "A、B"] [--location "..."]
-  node scripts/loci-task.js update --id task_x --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--clear-time] [--clear-date] [--people "A、B"] [--location "..."]
+  node scripts/loci-task.js add --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--end-date YYYY-MM-DD] [--scraps "ref:a,ref:b"] [--people "A、B"] [--location "..."]
+  node scripts/loci-task.js update --id task_x --title "Task" [--date YYYY-MM-DD] [--start HH:MM] [--end HH:MM] [--clear-time] [--clear-date] [--scraps "ref:a,ref:b"] [--people "A、B"] [--location "..."]
   node scripts/loci-task.js done --id task_x       (or --title "关键词" — unique open-task match)
   node scripts/loci-task.js open --id task_x       (or --title "...")
   node scripts/loci-task.js archive --id task_x    (or --title "...")
@@ -188,12 +188,28 @@ function normalizeTask(task, existingIds) {
     note: task.note || null,
     // linked contact names (people/<name>.md), rendered as chips on task cards
     ...(Array.isArray(task.people) && task.people.length ? { people: task.people.map(String) } : {}),
+    // linked scraps (ids from loci-scrap.js list) — what the task refers to; optional, absent when unused
+    ...(Array.isArray(task.scraps) && task.scraps.length ? { scraps: task.scraps.map(String) } : {}),
     ...(typeof task.manualOrder === 'number' ? { manualOrder: task.manualOrder } : {}),
   };
 }
 
 function parsePeopleArg(v) {
   return String(v || '').split(/[,，、;；]/).map(s => s.trim()).filter(Boolean);
+}
+// --scraps "ref:a.md,ref:b.md": keep the ids that exist (a typo never becomes a dangling link); report the rest
+function resolveScraps(v) {
+  const cands = String(v || '').split(/[,，、;；\s]+/).map(s => s.trim()).filter(Boolean);
+  if (!cands.length) return { scraps: [], unknownScraps: [] };
+  let lib = null;
+  try { lib = require(path.join(LOCI_ROOT, '.loci', 'dashboard', 'lib', 'scraps.js')); lib.init({ LOCI_ROOT, store: require(path.join(LOCI_ROOT, '.loci', 'dashboard', 'lib', 'store.js')) }); } catch (e) { lib = null; }
+  const scraps = [], unknownScraps = [];
+  for (const id of cands) {
+    if (!/^(ref|inbox):/.test(id)) { unknownScraps.push(id); continue; }
+    let ok = true; if (lib) { try { ok = !!lib.get(id); } catch (e) { ok = false; } }
+    if (ok) { if (!scraps.includes(id)) scraps.push(id); } else unknownScraps.push(id);
+  }
+  return { scraps, unknownScraps };
 }
 
 function readTasks() {
@@ -513,6 +529,8 @@ function addTask(args) {
     args.people && args.people !== true ? parsePeopleArg(args.people) : [],
     args.location && args.location !== true ? String(args.location) : null
   );
+  const scrapLinks = resolveScraps(args.scraps && args.scraps !== true ? args.scraps : '');
+  if (scrapLinks.unknownScraps.length) links.unknownScraps = scrapLinks.unknownScraps;
   const task = mutateTasks(tasks => {
     const t = normalizeTask({
       title,
@@ -527,6 +545,7 @@ function addTask(args) {
       color: args.color || null,
       note: args.note || null,
       people: links.people.length ? links.people : undefined,
+      scraps: scrapLinks.scraps.length ? scrapLinks.scraps : undefined,
       source: args.source || 'agent',
     }, new Set(tasks.map(x => x.id)));
     tasks.push(t);
@@ -546,6 +565,7 @@ function updateTask(args) {
       args.location !== undefined && args.location !== true ? (args.location || null) : null
     );
   }
+  if (args.scraps !== undefined) { const r = resolveScraps(args.scraps === true ? '' : args.scraps); args._scraps = r.scraps; if (r.unknownScraps.length) { links = links || { people: [], unmatchedPeople: [], location: null, locationLinked: false }; links.unknownScraps = r.unknownScraps; } }
   const task = mutateTasks(tasks => applyTaskUpdate(findTask(tasks, args.id), args, links));
   console.log(JSON.stringify(links ? { ok: true, task, links } : { ok: true, task }, null, 2));
 }
@@ -574,6 +594,7 @@ function applyTaskUpdate(task, args, links) {
   if (args.note !== undefined) task.note = args.note === true ? null : (args.note || null);
   if (args.color !== undefined) task.color = args.color === true ? null : (args.color || null);
   if (args.people !== undefined) task.people = args.people === true ? null : (links && links.people.length ? links.people : null);
+  if (args.scraps !== undefined) task.scraps = (args._scraps && args._scraps.length) ? args._scraps : null;
   task.updatedAt = isoNow();
   if (task.status === 'done' && !task.completedAt) task.completedAt = task.updatedAt;
   if (task.status !== 'done') task.completedAt = null;

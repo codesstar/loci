@@ -471,6 +471,8 @@ function normalizeTask(task) {
     // linked contacts (exact people/<name>.md names) — the dashboard renders
     // them as avatar chips on the task card. Optional, absent when unused.
     ...(Array.isArray(task.people) && task.people.length ? { people: task.people.map(String) } : {}),
+    // linked scraps (ids like ref:2026-09-03-x.md) — things the task refers to. Optional.
+    ...(Array.isArray(task.scraps) && task.scraps.length ? { scraps: task.scraps.map(String) } : {}),
     // manual drag-to-reorder position; only present once the user has dragged.
     // Kept optional so untouched tasks stay clean and fall back to auto-sort.
     ...(typeof task.manualOrder === 'number' ? { manualOrder: task.manualOrder } : {}),
@@ -678,6 +680,7 @@ function buildTasks() {
     color: task.color || null,
     note: task.note || null,
     people: task.people || [],
+    scraps: task.scraps || [],
     source: task.source,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
@@ -3423,7 +3426,7 @@ function handleTaskReorder(body) {
 
 function handleTaskAdd(body) {
   const { text, title, date, endDate, startTime, endTime, project, source,
-          location, color, note, urgency, importance, people } = body;
+          location, color, note, urgency, importance, people, scraps } = body;
   const taskTitle = (title || text || '').trim();
   if (!taskTitle) return { error: 'Missing task text' };
 
@@ -3441,6 +3444,7 @@ function handleTaskAdd(body) {
     color: color || null,
     note: note || null,
     people: Array.isArray(people) ? people : undefined,
+    scraps: Array.isArray(scraps) ? scraps : undefined,
     urgency: urgency,
     importance: importance,
   });
@@ -3453,7 +3457,7 @@ function handleTaskAdd(body) {
 // importance / date / time). Only provided fields are changed; the rest stay.
 function handleTaskUpdateDetail(body) {
   const { id, title, location, color, note, urgency, importance,
-          date, endDate, startTime, endTime, plannedFor, deferToday, people } = body;
+          date, endDate, startTime, endTime, plannedFor, deferToday, people, scraps } = body;
   if (!id) return { error: 'Missing task id' };
   const tasks = loadTaskRecords();
   const target = tasks.find(t => t.id === id);
@@ -3473,6 +3477,7 @@ function handleTaskUpdateDetail(body) {
   if (plannedFor !== undefined) target.plannedFor = plannedFor || null;
   if (deferToday !== undefined) target.deferToday = deferToday === true;
   if (people !== undefined) target.people = Array.isArray(people) && people.length ? people.map(String) : null;
+  if (scraps !== undefined) target.scraps = Array.isArray(scraps) && scraps.length ? scraps.map(String) : null;
   target.updatedAt = isoNow();
   saveTaskRecords(tasks);
   return { ok: true, task: target };
