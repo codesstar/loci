@@ -228,7 +228,7 @@ Load personal log notes for a date.
 
 ## Other Endpoints
 
-The server also exposes endpoints for tasks (`/api/tasks/reorder`, `/api/tasks/update-detail`), inbox (`/api/inbox/remove`), references (`/api/references/add`, `/api/references/remove`), notes (`/api/notes/*` — raw, save, create, delete, import, folder management, source mount/unmount), people (`/api/people/add`, `/api/people/update`, `/api/people/avatar`), and projects (`/api/project/connect`, `/api/project/open`, `/api/project/browse`, `/api/project/disconnect`). See `.loci/dashboard/server.js` for the authoritative list.
+The server also exposes endpoints for tasks (`/api/tasks/reorder`, `/api/tasks/update-detail` — task records carry optional `people` and `scraps` link arrays; `scraps` holds scrap ids such as `ref:2026-09-03-x.md`), inbox (`/api/inbox/remove`), references (`/api/references/add`, `/api/references/remove`), notes (`/api/notes/*` — raw, save, create, delete, import, folder management, source mount/unmount), people (`/api/people/add`, `/api/people/update`, `/api/people/avatar`), and projects (`/api/project/connect`, `/api/project/open`, `/api/project/browse`, `/api/project/disconnect`). See `.loci/dashboard/server.js` for the authoritative list.
 
 ---
 
