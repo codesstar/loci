@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] — 2026-09-03
+
+### Changed
+- **碎片 now lives inside 知识库** — the standalone 碎片 page is gone. The knowledge page has two halves: 笔记 (我的笔记 + 链接知识库, unchanged) and 碎片, pinned above the tree. The wall of cards is the page's home; picking a card turns it into a time-grouped stream with a detail column (tags, AI suggestions, 标注); picking a note opens the reader, and `← 碎片` / Esc / the pinned row bring the wall back.
+- **随手记 and 收藏夹 are one thing** — everything *collected* (a thought, a link, a quote, a screenshot, a PDF) is a 碎片: one item = one markdown file in `references/` (binaries in `references/files/`), with `type`, `created`, `source`, `tags`, `ai_tags`, `summary`, `caption`, `note` frontmatter. Existing `inbox.md` lines still show up and migrate into files the first time they are edited.
+
+### Added
+- **One capture box, made of blocks** — a scrap is a small list of content blocks plus one 标注. Type text (Shift+Enter or the `+` menu seals it into a block; adding a file seals it automatically), paste links (each URL becomes a link block; several links or files can share one scrap), paste a screenshot from the clipboard, or drop images / PDFs onto the wall. `#tag` inside the text becomes a tag, and `#` opens a picker of your existing tags so twins don't get invented. Once a block is in the box, whatever you type next is the 标注 (Enter saves; Shift+Enter makes it another text block instead) — the 标注 is only ever your own words. Cards appear instantly; a link's title and cover are fetched in the background (gzip-aware, gbk-aware, 8s cap) and an AI pass adds 2–3 tags, a one-line summary and, for images, a caption so screenshots become searchable. No AI available → the machine fields still work and the UI says so.
+- **Search that spans everything on a card** — text, title, 标注, summary, caption, site, tags; type chips (文字 / 链接 / 图片 / 文件 / 摘录). Typing `#` in the search box (or the `#` button) lists the tags that exist; pick one to filter by it.
+- **Research write-ups are notes, not scraps** — raw-doc compilations, competitive research, study guides and market scans belong in `notes/research/` (they show in the notes tree with a reader); there is no "doc" kind of scrap.
+- **Cards take their shape from their kind** — no colored kind pill: images bleed to the card edge, a link is a bookmark with its cover, a quote opens with a big mark and its source, a file is one row; kind and date sit as small text in the footer. In the detail column the words on a scrap are click-to-edit, a text scrap can be switched between 文字 and 摘录, and `#标签` typed into the 标注 becomes a tag.
+- **The notes half is display-only** — no new-note button, no editor, no properties panel, no delete; notes are written by you (or the AI) elsewhere and the dashboard shows them. Linking a folder or pasting a doc link still works.
+- **`scripts/loci-scrap.js`** guarded writer (`add` / `update` / `remove` / `list` / `enrich` / `migrate-inbox`) so the AI in chat and the browser produce identical files; the embedded chat and the brain rules now route 随手记 / 收藏 through it.
+- **`/api/scraps` endpoints** and `/scrap-files/<name>` for the binaries; `/api/data` gains a `scraps` section.
+
+### Removed
+- The 碎片 page, its bookshelf / drift-stream / drift-wall views and the article overlay (~43 KB of page code). `inbox.md` is no longer written by the AI (still read).
+
 ## [0.4.0] — 2026-08-31
 
 ### Added

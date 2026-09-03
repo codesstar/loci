@@ -94,7 +94,7 @@ L1 Active Context
 
 L2 On Demand
   用户提到相关主题时再读:
-  inbox.md、me/、people/、notes/、references/、references/research/、decisions/、项目 .loci/memory.md / profile.md / progress/。
+  inbox.md、me/、people/、notes/、references/、notes/research/、decisions/、项目 .loci/memory.md / profile.md / progress/。
 
 L3 Archive / Audit
   archive、旧 journal、activity ledger 等只在用户明确问时读取。
@@ -202,7 +202,7 @@ Fragments 不是一个单独的数据库，而是一组轻量入口，用来处�
 |---|---|---|
 | 随手记 | `inbox.md` | “突然想到一个宣传句” |
 | 收藏夹 | `references/YYYY-MM-DD-slug.md` | 第三方文章、链接、工具、视频 |
-| 研究证据 | `references/research/<slug>.md` | 原始文档、竞品笔记、市场扫描、案例 |
+| 研究证据 | `notes/research/<slug>.md` | 原始文档、竞品笔记、市场扫描、案例 |
 | 用户自己的笔记指针 | `notes/index.md` | Obsidian / 飞书 / Notion 文档链接 |
 | 用户自己的短笔记 | `notes/<slug>.md` | 临时写下来的短文、脚本、想法 |
 
@@ -350,7 +350,7 @@ node scripts/loci-projtodo.js validate --repo <repo-path>
 
 如果不重要，默认留在项目 repo。项目内部决策不复制进 Brain。只有 `[insight]` 或 `[milestone]` 这种跨项目有价值的摘要，才更新 Brain 的项目索引。
 
-决策文件只放取舍和理由。研究材料是证据，放 `references/research/` 或项目自己的研究目录；决策可以引用研究，但研究本身不放进 `decisions/`。
+决策文件只放取舍和理由。研究材料是证据，放 `notes/research/` 或项目自己的研究目录；决策可以引用研究，但研究本身不放进 `decisions/`。
 
 每次写完决策都要做 L1 上浮检查: 如果它改变当前行为，就更新最小的当前表面，例如 `plan.md`、通过守卫写入器更新后的 `tasks/active.md`、`projects/index.md` 或项目 `.loci/memory.md`。如果不改变当前行为，就只作为 L3 历史保留。
 
@@ -388,7 +388,7 @@ Activity ledger 是审计层，用来回答:
 | “今天总结一下” | 每日复盘 | `tasks/journal/YYYY-MM-DD.md` | AI 蒸馏后写入 |
 | “突然想到一个宣传句” | 随手记 | `inbox.md` | Markdown 追加 |
 | “收藏这个链接” | 外部材料 | `references/YYYY-MM-DD-slug.md` | Markdown + frontmatter |
-| “调研一下 Mem0 / 市场情况” | 研究证据 | `references/research/` | evidence markdown |
+| “调研一下 Mem0 / 市场情况” | 研究证据 | `notes/research/` | evidence markdown |
 | “这是我自己的笔记” | 用户笔记 | `notes/index.md` 或 `notes/<slug>.md` | 指针或短笔记 |
 | “我喜欢回答短一点” | 偏好 | `me/values.md` 或 `me/identity.md` | Markdown 更新 |
 | “今天想通了：人脉是价值之后的体现” | 个人洞察 | `me/insights.md` | 背景 + 洞察 + 影响 |

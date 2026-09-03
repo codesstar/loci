@@ -98,11 +98,11 @@ You say something
          ├── New task ("need to update API docs")      → guarded writer → tasks/tasks.json
          ├── Schedule item ("meeting at 3pm")          → guarded writer → tasks/calendar.json
          ├── External content (article, tweet, quote)  → references/
-         ├── Research evidence (raw docs, market scan) → references/research/
+         ├── Research evidence (raw docs, market scan) → notes/research/
          └── Vague thought ("maybe I should learn Rust") → inbox.md
 ```
 
-Decision records are choices and rationale. Research is evidence; it lives in `references/research/` and can be cited from decisions.
+Decision records are choices and rationale. Research is evidence; it lives in `notes/research/` and can be cited from decisions.
 
 ### Distillation Levels
 

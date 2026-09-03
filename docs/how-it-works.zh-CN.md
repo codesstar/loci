@@ -98,11 +98,11 @@ my-brain/
          ├── 新任务（"API 文档得更新一下"）           → 守卫写入器 → tasks/tasks.json
          ├── 日程（"下午 3 点开会"）                 → 守卫写入器 → tasks/calendar.json
          ├── 外部内容（文章、推文、引用）              → references/
-         ├── 研究证据（原始文档、市场扫描）            → references/research/
+         ├── 研究证据（原始文档、市场扫描）            → notes/research/
          └── 模糊想法（"要不要学学 Rust"）           → inbox.md
 ```
 
-决策记录只放取舍和理由。研究材料是证据，放 `references/research/`，需要时由决策文件引用。
+决策记录只放取舍和理由。研究材料是证据，放 `notes/research/`，需要时由决策文件引用。
 
 ### 蒸馏分级
 

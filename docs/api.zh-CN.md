@@ -208,6 +208,19 @@ server 还提供以下端点组：任务（`/api/tasks/reorder`、`/api/tasks/up
 
 ---
 
+## 碎片（Scraps）
+
+用户"捡来"的一切：文字、链接、摘录、图片、文件，实时读自 `references/`（外加旧的 `inbox.md` 行）。实现在 `lib/scraps.js` + `lib/routes/scraps.js`。
+
+- `GET /api/scraps` → `{ items, total, tags, pending, enrich }`，`items` 最新在前；`/api/data` 的 `scraps` 字段是同一份。
+- `POST /api/scraps/add` → `{ text?, url?, title?, tags?, note?, kind?, by?, file?: { name, type, data: dataURL }, source? }`，给 text / url(s) / file(s) 任一即可，`urls` / `files` 数组可以让几个链接或附件同在一条；text 是这条的正文（保留分段），文字里的网址自动拆成链接块，`#标签` 自动拆出；note 是标注，只来自显式传入，不从正文推断。立刻返回 `{ ok, item }`，标题抓取和 AI 标签在后台补，补完通过实时刷新流通知页面。
+- `POST /api/scraps/update` → `{ id, title?, note?, tags?, aiTags?, acceptTag?, acceptAll?, kind?, text?, url?, by? }`；编辑旧的 inbox 行会把它变成文件（返回的 id 会变）。
+- `POST /api/scraps/remove` → `{ id }`，文件（含附件）移入 `archive/references/`。
+- `POST /api/scraps/enrich` → `{ id }` 重新抓标题 + AI 打标签；`GET /api/scraps/status` 看队列。
+- `GET /scrap-files/<name>` → 碎片附带的图片 / PDF（`references/files/`）。
+
+---
+
 ## 错误处理
 
 除 404（未知路由）外，所有错误返回 HTTP 200 + 错误体:

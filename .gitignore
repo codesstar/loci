@@ -26,6 +26,7 @@ __pycache__/
 .loci/dashboard/node_modules/
 .loci/dashboard/package-lock.json
 .loci/.write-lock/
+.loci/.scraps-lock/
 .loci/push/
 
 # ─── Personal data (stays local after onboarding) ───

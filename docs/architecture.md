@@ -32,7 +32,7 @@ These files are read when the conversation enters a specific domain.
 | Mentioning fragments / quick thoughts / old ideas | `inbox.md` |
 | Asking about your own notes | `notes/index.md`, then the specific note or external link |
 | Recalling saved material | `references/` |
-| Using research evidence | `references/research/` |
+| Using research evidence | `notes/research/` |
 
 **Design principle**: Index files serve as the "map" for each domain — module READMEs, `projects/index.md`, `notes/index.md`. The AI reads the index first to understand what's available, then loads specific files as needed. Project memory follows the same idea one level up: the brain holds only a one-line index per serious project, while the full memory lives in that project's own repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/`).
 

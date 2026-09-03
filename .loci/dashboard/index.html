@@ -2716,689 +2716,9 @@
     }
     @media (max-width:1100px){ .rmF-bottom{grid-template-columns:1fr;} .rmF-board{grid-template-columns:1fr;} }
 
-    /* ===== Fragments · tri-state (Scratch Desk board / Drift Stream notes / Drift Wall collections) ===== */
+    /* ===== Notes cards (Clean) ===== */
     /* notes cards: white surface (the markup sets #ececea inline — override) */
     .note-card, .notes-index-panel { background: var(--surface) !important; border: 1px solid var(--line) !important; }
-
-    /* triage toast (promote/dismiss feedback) — self-contained keyframe, no Vue transition timing dependency */
-    .fgToast{position:fixed;left:50%;bottom:34px;z-index:9000;display:inline-flex;align-items:center;gap:9px;padding:10px 18px;background:var(--ink);color:#fff;border-radius:999px;font-family:var(--sans);font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(20,20,18,.22);animation:fgToastIn .22s cubic-bezier(.2,.7,.3,1) both;}
-    .fgToast-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.35);}
-    @keyframes fgToastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-
-    /* ── Scratch Desk (board, fgC-) ── */
-.fgC-wrap{max-width:1320px;margin:0 auto;font-family:var(--sans);color:var(--ink);letter-spacing:-.011em;container-type:inline-size;container-name:fgpage;}
-
-/* ============ header ============ */
-.fgC-head{display:flex;align-items:flex-end;gap:16px;padding:2px 4px 22px;}
-.fgC-lead{flex:1;min-width:0;}
-.fgC-title{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1;}
-.fgC-sub{font-size:13.5px;color:var(--ink-3);margin-top:11px;}
-.fgC-ledger{display:flex;align-items:center;gap:14px;flex:none;padding:9px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-sm);}
-.fgC-stat{display:flex;flex-direction:column;align-items:flex-start;line-height:1;}
-.fgC-stat b{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.02em;}
-.fgC-stat i{font-style:normal;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:6px;}
-.fgC-stat--triage b{color:var(--orange);}
-.fgC-stat--triage i{color:var(--orange);}
-.fgC-statsep{width:1px;height:26px;background:var(--line-2);}
-
-/* ============ desk ============ */
-.fgC-desk{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
-/* collapse to one column off the content area's own width, not the viewport */
-@container fgpage (max-width: 720px){ .fgC-desk{grid-template-columns:1fr;} }
-
-.fgC-pane{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:20px 20px 14px;min-width:0;}
-.fgC-paneHead{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:0 2px;}
-.fgC-eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);}
-.fgC-paneTitle{font-size:16px;font-weight:650;letter-spacing:-.015em;}
-.fgC-count{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);min-width:24px;height:24px;padding:0 7px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;}
-
-/* ============ capture ============ */
-.fgC-capture{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:8px 8px 8px 13px;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;}
-.fgC-capture:focus-within{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 4px rgba(16,185,129,.1);}
-.fgC-captureGlyph{font-size:14px;color:var(--ink-3);flex:none;line-height:1;}
-.fgC-capture:focus-within .fgC-captureGlyph{color:var(--accent-ink);}
-.fgC-captureInput{flex:1;min-width:0;border:0;background:none;font-size:14px;color:var(--ink);padding:5px 0;}
-.fgC-captureInput::placeholder{color:var(--ink-4);}
-.fgC-captureInput:focus{outline:none;}
-.fgC-captureBtn{flex:none;font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:7px 14px;border-radius:9px;transition:all .16s ease;}
-.fgC-captureBtn:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
-
-/* ============ stream ============ */
-.fgC-stream{margin-top:6px;}
-
-/* new / seen rails */
-.fgC-newRail{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);padding:14px 2px 8px;}
-.fgC-newRail em{font-style:normal;margin-left:auto;color:var(--orange);background:rgba(245,158,11,.12);padding:1px 7px;border-radius:6px;font-size:10px;}
-.fgC-newDot{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,.16);flex:none;}
-.fgC-seenRail{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);padding:18px 2px 8px;border-top:1px dashed var(--line-2);margin-top:6px;}
-.fgC-seenRail:first-child{border-top:0;margin-top:0;}
-
-/* ====== quick note row ====== */
-.fgC-note{display:flex;gap:11px;padding:13px 11px 12px;border-radius:13px;position:relative;transition:background .16s ease,box-shadow .16s ease;animation:fgC-in .35s ease both;}
-.fgC-note + .fgC-note{margin-top:2px;}
-.fgC-note:hover{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);}
-.fgC-note--new::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:2.5px;border-radius:999px;background:var(--orange);opacity:.55;}
-.fgC-noteDot{width:7px;height:7px;border-radius:50%;flex:none;margin-top:6px;background:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.13);}
-.fgC-noteDot--muted{background:var(--ink-4);box-shadow:none;}
-.fgC-noteBody{flex:1;min-width:0;}
-.fgC-noteText{font-size:13.5px;font-weight:450;line-height:1.5;color:var(--ink);letter-spacing:-.008em;}
-.fgC-noteFoot{display:flex;align-items:center;gap:10px;margin-top:9px;min-height:22px;}
-.fgC-when{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);letter-spacing:.01em;flex:none;}
-
-/* triage controls — hidden until hover */
-.fgC-triage{display:flex;align-items:center;gap:5px;margin-left:auto;opacity:0;transform:translateY(2px);transition:opacity .16s ease,transform .16s ease;}
-.fgC-note:hover .fgC-triage{opacity:1;transform:none;}
-.fgC-act{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.01em;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:3px 9px;border-radius:7px;transition:all .14s ease;white-space:nowrap;}
-.fgC-act:hover{color:var(--ink);border-color:var(--ink-4);}
-.fgC-act--promote:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
-.fgC-act--dismiss{padding:3px 8px;color:var(--ink-3);}
-.fgC-act--dismiss:hover{color:var(--red);border-color:var(--red);background:var(--red-weak);}
-
-/* ====== collection link card ====== */
-.fgC-link{display:flex;align-items:center;gap:12px;padding:12px 11px;border-radius:13px;text-decoration:none;color:inherit;position:relative;transition:background .16s ease,box-shadow .16s ease;}
-.fgC-link + .fgC-link{margin-top:2px;}
-.fgC-link:hover{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);}
-.fgC-fav{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:15px;line-height:1;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
-.fgC-fav--repo{color:#475569;background:#eef1f4;border-color:transparent;}
-.fgC-fav--video{color:var(--red);background:var(--red-weak);border-color:transparent;}
-.fgC-fav--read{color:var(--blue);background:rgba(59,130,246,.1);border-color:transparent;}
-.fgC-fav--idea{color:#6d54c0;background:#f3f0fb;border-color:transparent;}
-.fgC-fav--article{color:#6d54c0;background:#f3f0fb;border-color:transparent;}
-.fgC-fav--tool{color:var(--accent-ink);background:var(--accent-weak);border-color:transparent;}
-.fgC-fav--tweet{color:var(--ink);background:#f0f0ee;border-color:transparent;}
-.fgC-link:hover .fgC-fav{border-color:var(--line-2);}
-.fgC-linkBody{flex:1;min-width:0;}
-.fgC-linkTitle{font-size:13.5px;font-weight:550;line-height:1.4;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fgC-linkMeta{display:flex;align-items:center;gap:9px;margin-top:7px;}
-.fgC-src{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.01em;}
-.fgC-type{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.1em;padding:2px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);}
-.fgC-type--repo{color:var(--ink-2);}
-.fgC-type--video{color:var(--red);background:var(--red-weak);border-color:transparent;}
-.fgC-type--read{color:var(--blue);background:rgba(59,130,246,.1);border-color:transparent;}
-.fgC-type--tool{color:var(--accent-ink);background:var(--accent-weak);border-color:transparent;}
-.fgC-type--tweet{color:var(--ink-2);}
-.fgC-link .fgC-when{margin-left:0;}
-.fgC-triage--link{flex:none;margin-left:auto;}
-.fgC-link:hover .fgC-triage--link{opacity:1;transform:none;}
-
-@keyframes fgC-in{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
-
-/* ============ responsive ============ */
-@media (max-width:860px){
-  /* .fgC-desk collapse now handled by @container fgpage (see above) */
-  .fgC-head{flex-direction:column;align-items:flex-start;}
-  .fgC-ledger{align-self:stretch;justify-content:space-between;}
-}
-@media (prefers-reduced-motion:reduce){
-  .fgC-note{animation:none;}
-  .fgC-triage{transition:opacity .14s ease;}
-}
-
-    /* ── Quiet Desk (board redesign, fgE-, direction C) ── minimal split desk:
-       two columns, no card chrome, just hairline-separated rows. Left is plain
-       white, right is warm paper, so 随手记 vs 收藏 read as different by feel.
-       Green dot = notes, gold dot = saves. Breathing room over density. ── */
-.fgE-wrap{max-width:1240px;margin:0 auto;font-family:var(--sans);color:var(--ink);container-type:inline-size;container-name:fgpage;}
-    /* masthead — softer than A: thin rule, medium serif title */
-.fgE-masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:4px 2px 20px;margin-bottom:2px;}
-.fgE-title{font-family:'Fraunces',Georgia,serif;font-size:clamp(30px,4cqi,40px);font-weight:600;letter-spacing:-.025em;line-height:.9;}
-.fgE-sub{font-size:13.5px;color:var(--ink-3);margin-top:11px;}
-.fgE-ledger{display:flex;gap:24px;flex:none;padding-bottom:2px;}
-.fgE-stat{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
-.fgE-stat b{font-family:var(--mono);font-size:21px;font-weight:600;color:var(--ink);letter-spacing:-.02em;}
-.fgE-stat i{font-style:normal;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:7px;}
-.fgE-stat--triage b{color:var(--gold-ink);}
-.fgE-stat--triage i{color:var(--gold-ink);}
-    /* two panes, hairline between; left white, right warm paper */
-    /* two/three separate card panels with a gap between them — all the same height */
-.fgE-desk{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:stretch;height:calc(100vh - 170px);min-height:560px;}
-.fgE-desk.has-detail{grid-template-columns:250px 1fr 300px;}
-@container fgpage (max-width: 900px){ .fgE-desk, .fgE-desk.has-detail{grid-template-columns:1fr;height:auto;} }
-.fgE-pane{padding:20px 22px 16px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(20,20,18,.04);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
-.fgE-pane--saved{background:var(--surface);}
-    /* the list area inside a pane scrolls; the header stays put */
-.fgE-tl,.fgE-shelf-wrap,.fgE-pane--detail{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
-.fgE-tl::-webkit-scrollbar,.fgE-shelf-wrap::-webkit-scrollbar,.fgE-pane--detail::-webkit-scrollbar{width:7px;}
-.fgE-tl::-webkit-scrollbar-thumb,.fgE-shelf-wrap::-webkit-scrollbar-thumb,.fgE-pane--detail::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px;}
-.fgE-tl::-webkit-scrollbar-thumb:hover,.fgE-shelf-wrap::-webkit-scrollbar-thumb:hover{background:var(--ink-4);}
-.fgE-pane--detail{border-left:1px solid var(--line);padding:22px 22px 24px;}
-    /* pane head */
-.fgE-ph{display:flex;align-items:center;gap:9px;margin-bottom:20px;}
-.fgE-ph-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;}
-.fgE-ph-dot--gold{background:var(--gold);}
-.fgE-ph-name{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;letter-spacing:-.01em;}
-.fgE-ph-n{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
-.fgE-ph-n--gold{color:var(--gold-ink);}
-.fgE-expand{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.02em;color:var(--accent-ink);background:none;border:0;cursor:pointer;padding:3px 6px;border-radius:6px;transition:background .14s;}
-.fgE-expand:hover{background:var(--accent-weak);}
-.fgE-expand--gold{color:var(--gold-ink);}
-.fgE-expand--gold:hover{background:var(--gold-weak);}
-    /* capture inputs */
-.fgE-capture{display:flex;align-items:center;gap:9px;border:1px solid var(--line-2);border-radius:12px;padding:9px 9px 9px 13px;margin-bottom:22px;transition:border-color .18s,box-shadow .18s,background .18s;}
-.fgE-capture:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(16,185,129,.09);}
-.fgE-capture--gold:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
-.fgE-capture-glyph{width:16px;height:16px;flex:none;color:var(--ink-4);} .fgE-capture-glyph svg{width:16px;height:16px;}
-.fgE-capture:focus-within .fgE-capture-glyph{color:var(--accent-ink);}
-.fgE-capture--gold:focus-within .fgE-capture-glyph{color:var(--gold-ink);}
-.fgE-capture-input{flex:1;min-width:0;border:0;background:none;font-family:var(--sans);font-size:13.5px;color:var(--ink);padding:4px 0;}
-.fgE-capture-input::placeholder{color:var(--ink-4);}
-.fgE-capture-input:focus{outline:none;}
-.fgE-capture-btn{flex:none;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:7px 14px;border-radius:9px;cursor:pointer;transition:all .16s;}
-.fgE-capture-btn:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
-.fgE-capture-btn--gold:hover{color:var(--gold-ink);border-color:var(--gold);background:var(--gold-weak);}
-    /* collapsed "+ new save" button (default state, keeps the pane clean) */
-.fgE-newbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-bottom:22px;padding:11px;border:1.5px dashed #e0d3af;border-radius:12px;background:transparent;color:var(--gold-ink);font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;}
-.fgE-newbtn:hover{border-color:var(--gold);background:var(--gold-weak);}
-.fgE-newbtn span{font-size:15px;line-height:1;}
-    /* save form: title (main) → link (its own line, it's the important field) → tags */
-.fgE-save-form{margin-bottom:22px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 4px 14px rgba(20,20,18,.05);animation:fgE-in .2s ease both;}
-.fgE-save-foot{display:flex;justify-content:flex-end;margin-top:10px;}
-.fgE-save-cancel{border:0;background:none;color:var(--ink-4);font-family:var(--mono);font-size:11px;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .14s;}
-.fgE-save-cancel:hover{color:var(--ink-2);}
-.fgE-save-main{display:flex;align-items:center;gap:9px;}
-.fgE-save-title{flex:1;min-width:0;border:1px solid var(--line-2);border-radius:11px;background:none;font-family:var(--sans);font-size:13.5px;color:var(--ink);padding:10px 13px;transition:border-color .18s,box-shadow .18s;}
-.fgE-save-title::placeholder{color:var(--ink-4);}
-.fgE-save-title:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
-.fgE-save-btn{flex:none;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .16s;}
-.fgE-save-btn:hover{color:var(--gold-ink);border-color:var(--gold);background:var(--gold-weak);}
-.fgE-save-url{display:block;width:100%;box-sizing:border-box;margin-top:8px;border:1px solid var(--line-2);border-radius:11px;background:none;font-family:var(--mono);font-size:12px;color:var(--ink-2);padding:9px 13px;transition:border-color .18s,box-shadow .18s;}
-.fgE-save-url::placeholder{color:var(--ink-4);}
-.fgE-save-url:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,162,75,.12);}
-    /* multi-tag chip input */
-.fgE-tagbox{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;padding:2px;}
-.fgE-tagchip{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;letter-spacing:.02em;}
-.fgE-tagchip .x{cursor:pointer;opacity:.5;font-size:12px;line-height:1;transition:opacity .12s;}
-.fgE-tagchip .x:hover{opacity:1;}
-.fgE-tagin{flex:1;min-width:80px;border:0;background:none;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:4px 4px;}
-.fgE-tagin::placeholder{color:var(--ink-4);}
-.fgE-tagin:focus{outline:none;}
-    /* tag chip on saved rows */
-.fgE-tag{font-family:var(--mono);font-size:9.5px;padding:1px 7px;border-radius:20px;letter-spacing:.02em;}
-    /* left: notes as a vertical timeline — green dots strung on a hairline, date
-       above, serif body below. The editorial look from preview A. */
-.fgE-empty{font-size:13px;color:var(--ink-4);padding:16px 2px;}
-.fgE-tlrail{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);margin:18px 0 12px;}
-.fgE-tlrail:first-child{margin-top:0;}
-.fgE-tlrail--new{color:var(--gold-ink);}
-.fgE-tlrail em{font-style:normal;margin-left:2px;background:var(--gold-weak);color:var(--gold-ink);padding:1px 7px;border-radius:20px;font-size:9.5px;}
-.fgE-tlitem{position:relative;padding:0 0 20px 0;animation:fgE-in .32s ease both;}
-.fgE-tlitem + .fgE-tlitem{border-top:1px solid var(--line);padding-top:16px;}
-.fgE-tlitem:last-child{padding-bottom:4px;}
-.fgE-tlhead{display:flex;align-items:center;gap:10px;margin-bottom:6px;min-height:20px;}
-.fgE-tldate{font-family:var(--mono);font-size:10px;color:var(--ink-4);letter-spacing:.03em;}
-.fgE-text{font-family:'Noto Serif SC',serif;font-size:14px;line-height:1.6;color:var(--ink);letter-spacing:.005em;}
-.fgE-tlitem:not(.fgE-tlitem--new) .fgE-text{color:var(--ink-2);}
-.fgE-acts{display:flex;align-items:center;gap:5px;margin-left:auto;opacity:0;transform:translateY(2px);transition:opacity .16s,transform .16s;}
-.fgE-tlitem:hover .fgE-acts{opacity:1;transform:none;}
-.fgE-act{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);padding:3px 8px;border-radius:7px;cursor:pointer;transition:all .14s;white-space:nowrap;}
-.fgE-act:hover{color:var(--ink);border-color:var(--ink-4);}
-.fgE-act--promote:hover{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-weak);}
-.fgE-act--dismiss{padding:3px 7px;color:var(--ink-4);}
-.fgE-act--dismiss:hover{color:#c0503a;border-color:#e0b0a5;background:#fbeeeb;}
-    /* ── note cards (left rail) — a card each: green rail, date·category head,
-       bold body, tag chips, delete on hover ── */
-.fgE-ncard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px 12px 15px;margin-bottom:10px;overflow:hidden;transition:box-shadow .15s,border-color .15s;animation:fgE-in .3s ease both;}
-.fgE-ncard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ink-4);}
-.fgE-ncard--new::before{background:var(--accent);}
-.fgE-ncard:hover{box-shadow:0 3px 10px rgba(20,20,18,.07);border-color:var(--line-2);}
-.fgE-nc-head{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
-.fgE-nc-date{font-family:var(--mono);font-size:9.5px;color:var(--ink-4);letter-spacing:.02em;}
-.fgE-nc-sep{color:var(--ink-4);font-size:9px;}
-.fgE-nc-cat{font-family:var(--mono);font-size:9.5px;color:var(--gold-ink);}
-.fgE-nc-del{margin-left:auto;border:0;background:none;color:var(--ink-4);cursor:pointer;padding:2px;border-radius:5px;opacity:0;transition:opacity .14s,color .14s;display:grid;place-items:center;}
-.fgE-ncard:hover .fgE-nc-del{opacity:.6;}
-.fgE-nc-del:hover{color:#c0503a;opacity:1 !important;}
-.fgE-nc-text{font-family:'Noto Serif SC',serif;font-size:13px;line-height:1.55;color:var(--ink);font-weight:600;}
-.fgE-nc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
-.fgE-nc-tag{font-family:var(--mono);font-size:9px;color:var(--accent-ink);background:var(--accent-weak);padding:2px 7px;border-radius:5px;}
-    /* right: saves as a numbered index — no thumbnails, just 01 · title · meta */
-.fgE-saved{display:flex;gap:15px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit;transition:padding-left .16s;}
-.fgE-saved:last-child{border-bottom:0;}
-.fgE-saved:hover{padding-left:4px;}
-.fgE-saved:hover .fgE-arch{opacity:.5;}
-.fgE-idx{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink-4);flex:none;width:18px;letter-spacing:.02em;}
-.fgE-saved:hover .fgE-idx{color:var(--gold-ink);}
-.fgE-saved-body{flex:1;min-width:0;}
-.fgE-saved-title{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:600;line-height:1.45;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.fgE-saved-meta{display:flex;align-items:center;gap:8px;margin-top:6px;}
-.fgE-src{font-family:var(--mono);font-size:10px;color:var(--ink-3);}
-.fgE-src::after{content:'·';margin-left:8px;color:var(--ink-4);}
-.fgE-type{font-family:var(--mono);font-size:10px;font-style:italic;color:var(--gold-ink);letter-spacing:.02em;}
-.fgE-type::after{content:'·';margin-left:8px;color:var(--ink-4);font-style:normal;}
-.fgE-when{font-family:var(--mono);font-size:10px;color:var(--ink-4);}
-.fgE-arch{flex:none;border:0;background:none;color:var(--ink-4);font-size:12px;cursor:pointer;opacity:0;padding:2px 4px;border-radius:6px;transition:opacity .14s,color .14s;align-self:center;}
-.fgE-arch:hover{color:#c0503a;opacity:1 !important;}
-@keyframes fgE-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
-@media (prefers-reduced-motion: reduce){ .fgE-row,.fgE-tlitem,.fgE-book{animation:none;} }
-
-    /* ── 情报书架 (bookshelf) — saves as books standing on a wooden plank ── */
-.fgE-shelf-head{display:flex;align-items:center;gap:9px;margin-bottom:16px;}
-.fgE-shelf-tools{margin-left:auto;display:flex;align-items:center;gap:10px;}
-.fgE-shelf-wrap{}
-.fgE-shelf-row{position:relative;margin-bottom:26px;}
-.fgE-shelf-books{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:16px;position:relative;z-index:2;padding:0 2px;}
-.fgE-book{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 13px 11px;box-shadow:0 3px 8px rgba(20,20,18,.08),0 1px 2px rgba(20,20,18,.05);cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;display:flex;flex-direction:column;min-height:190px;animation:fgE-in .3s ease both;}
-.fgE-book:hover{transform:translateY(-4px);box-shadow:0 11px 22px rgba(20,20,18,.14);}
-.fgE-book.sel{border-color:var(--accent);box-shadow:0 6px 16px rgba(16,185,129,.2);}
-.fgE-book-cover{aspect-ratio:1/1;width:100%;border-radius:7px;margin-bottom:11px;overflow:hidden;background-size:cover;background-position:center;background-color:var(--surface-3);}
-.fgE-book-title{font-family:'Noto Serif SC',serif;font-size:12px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.fgE-book-src{font-family:var(--mono);font-size:9px;color:var(--ink-3);}
-.fgE-book-foot{margin-top:auto;display:flex;align-items:center;gap:6px;padding-top:7px;}
-.fgE-book-date{font-family:var(--mono);font-size:8.5px;color:var(--ink-4);}
-.fgE-book-tag{font-family:var(--mono);font-size:8px;color:var(--gold-ink);background:var(--gold-weak);padding:1px 5px;border-radius:4px;}
-    /* the wooden plank under a row of books */
-.fgE-plank{position:absolute;left:-4px;right:-4px;bottom:-10px;height:13px;border-radius:3px;background:linear-gradient(180deg,#c9a877 0%,#b8935f 55%,#a8865a 100%);box-shadow:0 5px 12px rgba(120,90,50,.22);z-index:1;}
-.fgE-plank::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:rgba(255,255,255,.25);border-radius:3px 3px 0 0;}
-    /* add-book tile */
-.fgE-book.add{border:1.5px dashed var(--line-2);box-shadow:none;background:var(--surface);align-items:center;justify-content:center;color:var(--ink-4);text-align:center;gap:6px;}
-.fgE-book.add:hover{transform:none;border-color:var(--gold);color:var(--gold-ink);}
-.fgE-book.add .plus{font-size:22px;line-height:1;}
-    /* ── detail pane (right) — simple: title, summary, one delete ── */
-.fgE-detail-empty{display:grid;place-items:center;height:200px;color:var(--ink-4);font-size:12.5px;text-align:center;line-height:1.7;}
-.fgE-dt-head{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:16px;}
-.fgE-dt-cover{aspect-ratio:1/1;width:100%;border-radius:11px;overflow:hidden;margin-bottom:16px;background-size:cover;background-position:center;background-color:var(--surface-3);}
-.fgE-dt-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:10px;}
-.fgE-dt-metaline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
-.fgE-dt-dateline{font-family:var(--mono);font-size:10px;color:var(--ink-4);margin-bottom:18px;}
-.fgE-dt-src{font-family:var(--mono);font-size:10px;color:var(--ink-3);}
-.fgE-dt-date{font-family:var(--mono);font-size:10px;color:var(--ink-4);}
-.fgE-dt-tag{font-family:var(--mono);font-size:9.5px;padding:1px 8px;border-radius:20px;}
-.fgE-dt-sec{margin-bottom:18px;}
-.fgE-dt-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);margin-bottom:7px;}
-.fgE-dt-body{font-size:13px;line-height:1.7;color:var(--ink-2);}
-.fgE-dt-read{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line-2);background:var(--surface);color:var(--accent-ink);border-radius:11px;padding:10px 12px;font-size:12.5px;font-weight:650;cursor:pointer;transition:.15s;}
-.fgE-dt-read:hover{background:var(--accent-weak);border-color:color-mix(in srgb,var(--accent) 28%,var(--line));}
-.fgE-dt-empty{font-size:12px;line-height:1.6;color:var(--ink-4);background:var(--surface-2);border:1px dashed var(--line-2);border-radius:10px;padding:10px 12px;}
-.fgE-dt-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--accent-ink);text-decoration:none;word-break:break-all;}
-.fgE-dt-link:hover{text-decoration:underline;}
-.fgE-dt-del{width:100%;margin-top:8px;padding:11px;background:none;border:1px solid var(--line-2);border-radius:11px;font-size:12.5px;color:var(--ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;}
-.fgE-dt-del:hover{color:#c0503a;border-color:#e0b0a5;background:#fbeeeb;}
-.fgReader-overlay{position:fixed;inset:0;z-index:1500;background:rgba(20,20,18,.38);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:28px;}
-.fgReader{width:min(860px,96vw);max-height:min(860px,92vh);background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 70px rgba(20,20,18,.22);display:flex;flex-direction:column;overflow:hidden;}
-.fgReader-h{display:flex;align-items:flex-start;gap:16px;padding:22px 26px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--surface-2));}
-.fgReader-k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px;}
-.fgReader-title{font-family:'Noto Serif SC',serif;font-size:23px;line-height:1.3;color:var(--ink);font-weight:650;}
-.fgReader-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--ink-3);}
-.fgReader-tag{padding:2px 8px;border-radius:999px;background:var(--surface-3);}
-.fgReader-close{margin-left:auto;width:32px;height:32px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink-3);cursor:pointer;}
-.fgReader-close:hover{color:var(--ink);background:var(--surface-2);}
-.fgReader-body{padding:24px 30px 34px;overflow:auto;font-size:15px;line-height:1.85;color:var(--ink-2);}
-.fgReader-body h1,.fgReader-body h2,.fgReader-body h3{font-family:'Noto Serif SC',serif;color:var(--ink);line-height:1.35;margin:18px 0 10px;}
-.fgReader-body h1{font-size:24px;}
-.fgReader-body h2{font-size:20px;}
-.fgReader-body h3{font-size:17px;}
-.fgReader-body p{margin:10px 0;}
-.fgReader-body ul,.fgReader-body ol{margin:10px 0 10px 22px;padding:0;}
-.fgReader-body li{margin:5px 0;}
-.fgReader-body table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
-.fgReader-body th,.fgReader-body td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;}
-.fgReader-body th{background:var(--surface-2);color:var(--ink);}
-.fgReader-body blockquote{margin:14px 0;padding:10px 14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:0 10px 10px 0;}
-.fgReader-body a{color:var(--accent-ink);word-break:break-all;}
-.fgReader-body code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 4px;}
-    /* capture bar: tabs + input, saves flow into the shelf */
-.fgE-cap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,18,.04);}
-.fgE-cap-tabs{display:flex;gap:5px;margin-bottom:12px;}
-.fgE-cap-tab{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:9px;font-size:12.5px;color:var(--ink-3);cursor:pointer;border:1px solid transparent;transition:.14s;}
-.fgE-cap-tab:hover{color:var(--ink-2);}
-.fgE-cap-tab.on{background:var(--surface-3);color:var(--ink);border-color:var(--line);}
-.fgE-cap-tab.soon{opacity:.55;}
-.fgE-cap-in{display:flex;gap:9px;}
-.fgE-cap-in input{flex:1;min-width:0;border:1px solid var(--line-2);border-radius:11px;padding:10px 13px;font-size:13.5px;font-family:var(--sans);color:var(--ink);outline:none;transition:border-color .16s,box-shadow .16s;}
-.fgE-cap-in input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(16,185,129,.09);}
-.fgE-cap-in input::placeholder{color:var(--ink-4);}
-.fgE-cap-save{flex:none;background:#0b7d5a;color:#fff;border:0;border-radius:11px;padding:0 22px;font-size:13px;font-weight:600;cursor:pointer;transition:filter .15s;}
-.fgE-cap-save:hover{filter:brightness(1.08);}
-.fgE-cap-soon{padding:14px 4px;font-size:12px;color:var(--ink-4);text-align:center;}
-    /* link capture: title + link + tags on the left, save button on the right */
-.fgE-cap-link{display:flex;align-items:stretch;gap:9px;}
-.fgE-cap-link-fields{flex:1;min-width:0;display:grid;grid-template-columns:1.3fr 1.6fr 1fr;gap:9px;}
-.fgE-cap-link-in{border:1px solid var(--line-2);border-radius:10px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);outline:none;transition:border-color .16s,box-shadow .16s;}
-.fgE-cap-link-in::placeholder{color:var(--ink-4);}
-.fgE-cap-link-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.09);}
-.fgE-cap-tagbox{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border:1px solid var(--line-2);border-radius:10px;padding:6px 8px;}
-.fgE-cap-tagbox:focus-within{border-color:var(--accent);}
-.fgE-cap-tagin{flex:1;min-width:70px;border:0;background:none;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:3px;outline:none;}
-.fgE-cap-tagin::placeholder{color:var(--ink-4);}
-
-    /* ── Drift Stream (notes expanded, fgA-) ── */
-.fgA-wrap{max-width:920px;margin:0;font-family:var(--sans);color:var(--ink);letter-spacing:-.011em;}
-
-/* ---------- head ---------- */
-.fgA-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px;}
-.fgA-eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);}
-.fgA-title{font-size:28px;font-weight:700;letter-spacing:-.025em;margin-top:6px;}
-.fgA-sub{color:var(--ink-2);font-size:14px;margin-top:7px;max-width:420px;}
-.fgA-triage-pill{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;font-weight:500;color:#b45309;background:#fef3e2;padding:6px 12px;border-radius:999px;white-space:nowrap;}
-.fgA-dot-orange{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,.18);animation:fgA-pulse 2s ease-in-out infinite;}
-@keyframes fgA-pulse{0%,100%{opacity:1}50%{opacity:.45}}
-
-/* ---------- capture bar ---------- */
-.fgA-capture{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:8px 8px 8px 16px;margin-bottom:18px;transition:box-shadow .2s ease,transform .2s ease;}
-.fgA-capture:focus-within{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
-.fgA-capture-glyph{width:24px;height:24px;flex:none;display:grid;place-items:center;color:var(--ink-3);transition:color .18s ease,transform .25s ease;}
-.fgA-capture:focus-within .fgA-capture-glyph{color:var(--accent);transform:rotate(90deg);}
-.fgA-capture-glyph svg{width:18px;height:18px;}
-.fgA-capture-input{flex:1;min-width:0;border:0;outline:none;background:none;font-size:15px;color:var(--ink);padding:8px 0;}
-.fgA-capture-input::placeholder{color:var(--ink-3);}
-.fgA-capture-hint{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--ink-4);white-space:nowrap;transition:opacity .18s ease;}
-.fgA-capture:focus-within .fgA-capture-hint{opacity:0;}
-.fgA-capture-btn{display:inline-flex;align-items:center;gap:8px;flex:none;font-size:13px;font-weight:600;color:#fff;background:var(--ink);padding:9px 14px;border-radius:11px;box-shadow:var(--shadow-sm);transition:transform .16s ease,box-shadow .16s ease,background .16s ease;}
-.fgA-capture-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);}
-.fgA-capture:focus-within .fgA-capture-btn{background:var(--accent);box-shadow:0 1px 2px rgba(16,185,129,.3),0 6px 16px rgba(16,185,129,.2);}
-.fgA-kbd{font-family:var(--mono);font-size:10.5px;font-weight:500;color:rgba(255,255,255,.7);background:rgba(255,255,255,.14);border-radius:5px;padding:1px 5px;}
-
-/* ---------- filter bar ---------- */
-.fgA-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px;padding:0 2px;}
-.fgA-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:3px;}
-.fgA-seg-btn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--ink-3);padding:6px 13px;border-radius:8px;transition:color .14s ease,background .14s ease;}
-.fgA-seg-btn:hover{color:var(--ink-2);}
-.fgA-seg-btn.fgA-on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm);font-weight:600;}
-.fgA-seg-c{font-family:var(--mono);font-size:11px;color:var(--ink-4);}
-.fgA-seg-btn.fgA-on .fgA-seg-c{color:var(--accent-ink);}
-.fgA-count{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);}
-
-/* ---------- stream ---------- */
-.fgA-stream{position:relative;padding-top:8px;}
-/* the continuous timeline spine */
-.fgA-stream::before{content:"";position:absolute;left:54px;top:30px;bottom:34px;width:1px;background:var(--line);}
-
-.fgA-rail{position:sticky;top:0;z-index:6;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);padding:20px 0 12px 0;margin-left:0;background:linear-gradient(var(--bg) 60%,rgba(246,246,244,0));}
-.fgA-rail:first-child{padding-top:6px;}
-
-.fgA-item{position:relative;display:flex;align-items:flex-start;gap:14px;padding:12px 14px 12px 0;border-radius:14px;animation:fgA-rise .5s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:calc(var(--i) * 35ms);transition:background .16s ease;}
-@keyframes fgA-rise{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
-.fgA-item:hover{background:var(--surface);box-shadow:var(--shadow);}
-.fgA-item::after{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:2px;background:transparent;transition:background .18s ease;}
-.fgA-item:hover::after{background:var(--accent);}
-.fgA-fresh::after{background:var(--orange);opacity:.55;}
-.fgA-fresh:hover::after{background:var(--orange);opacity:1;}
-
-/* gutter: time + seen dot, sits on the spine */
-.fgA-gutter{position:relative;flex:none;width:54px;display:flex;flex-direction:column;align-items:center;gap:7px;padding-top:2px;}
-.fgA-seen{width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 3px var(--bg),0 0 0 5px rgba(245,158,11,.18);z-index:2;}
-.fgA-seen.fgA-quiet{background:var(--surface);border:1.5px solid var(--line-2);box-shadow:0 0 0 3px var(--bg);}
-.fgA-item:hover .fgA-seen.fgA-quiet{border-color:var(--accent);}
-.fgA-time{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);white-space:nowrap;}
-
-/* body */
-.fgA-body{flex:1;min-width:0;}
-.fgA-text{font-size:14.5px;line-height:1.55;color:var(--ink);letter-spacing:-.01em;}
-.fgA-meta{margin-top:7px;}
-.fgA-kind{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);}
-
-/* link chip */
-.fgA-chip{display:flex;align-items:center;gap:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;text-decoration:none;transition:border-color .16s ease,background .16s ease,transform .16s ease;}
-.fgA-item:hover .fgA-chip{background:var(--surface);}
-.fgA-chip:hover{border-color:var(--line-2);transform:translateX(1px);}
-.fgA-fav{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:15px;color:#fff;font-family:var(--mono);}
-.fgA-fav-gh{background:var(--ink);}
-.fgA-fav-yt{background:#ef4444;}
-.fgA-fav-tool{background:var(--accent);}
-.fgA-fav-x{background:#1c1c1a;font-weight:600;}
-.fgA-fav-art{background:#3b82f6;}
-.fgA-chip-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
-.fgA-chip-title{font-size:14px;font-weight:550;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fgA-chip-url{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--ink-3);}
-.fgA-chip-type{font-size:9.5px;font-weight:500;letter-spacing:.1em;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 6px;}
-.fgA-chip-ext{width:15px;height:15px;flex:none;color:var(--ink-4);transition:color .16s ease;}
-.fgA-chip:hover .fgA-chip-ext{color:var(--accent-ink);}
-
-/* triage rail (hover) */
-.fgA-rail-actions{flex:none;display:flex;align-items:center;gap:5px;opacity:0;transform:translateX(5px);transition:opacity .16s ease,transform .16s ease;align-self:center;}
-.fgA-item:hover .fgA-rail-actions{opacity:1;transform:none;}
-.fgA-act{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 9px;border-radius:9px;color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line);transition:all .14s ease;}
-.fgA-act svg{width:14px;height:14px;}
-.fgA-act span{font-size:12px;font-weight:550;}
-.fgA-act:hover{color:var(--ink);background:var(--surface);border-color:var(--line-2);}
-.fgA-promote:hover{color:var(--accent-ink);background:var(--accent-weak);border-color:transparent;}
-.fgA-x:hover{color:#dc2626;background:var(--red-weak);border-color:transparent;}
-
-/* foot */
-.fgA-foot{text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);padding:28px 0 8px;position:relative;}
-
-@media (max-width:680px){
-  .fgA-capture-hint{display:none;}
-  .fgA-rail-actions{opacity:1;transform:none;}
-  .fgA-stream::before{left:46px;}
-  .fgA-gutter{width:46px;}
-}
-
-    /* ── Drift Wall (collections expanded, fgD-) ── */
-.fgD-wrap{
-  max-width:1320px;margin:0;
-  font-family:var(--sans);color:var(--ink);
-  letter-spacing:-0.011em;
-}
-
-/* ===== Header ===== */
-.fgD-head{display:flex;align-items:flex-end;gap:24px;padding:2px 4px 0;}
-.fgD-headLead{flex:1;min-width:0;}
-.fgD-eyebrow{
-  font-family:var(--mono);font-size:10.5px;font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);
-}
-.fgD-title{font-size:30px;font-weight:700;letter-spacing:-0.025em;margin-top:7px;}
-.fgD-sub{color:var(--ink-2);font-size:14px;margin-top:7px;max-width:440px;}
-
-.fgD-stats{
-  display:flex;align-items:center;gap:16px;flex:none;padding-bottom:4px;
-  background:var(--surface);border:1px solid var(--line);
-  border-radius:14px;padding:13px 20px;box-shadow:var(--shadow-sm);
-}
-.fgD-stat{display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1;}
-.fgD-statNum{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-0.02em;color:var(--ink);}
-.fgD-statLbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);}
-.fgD-statDiv{width:1px;height:26px;background:var(--line-2);}
-.fgD-stat--fresh .fgD-statNum{color:var(--accent-ink);}
-.fgD-stat--fresh .fgD-statLbl{color:var(--accent-ink);}
-
-/* ===== Smart capture bar ===== */
-.fgD-capture{
-  display:flex;align-items:center;gap:13px;
-  margin-top:26px;
-  background:var(--surface);
-  border:1px solid var(--line-2);
-  border-radius:15px;
-  padding:6px 8px 6px 16px;
-  box-shadow:var(--shadow);
-  transition:box-shadow .2s ease,border-color .2s ease,transform .2s ease;
-}
-.fgD-capture:focus-within{
-  border-color:var(--accent);
-  box-shadow:0 0 0 4px var(--accent-weak), var(--shadow);
-  transform:translateY(-1px);
-}
-.fgD-captureGlyph{
-  width:30px;height:30px;flex:none;border-radius:9px;
-  display:grid;place-items:center;
-  background:var(--accent-weak);color:var(--accent-ink);
-  transition:transform .2s ease;
-}
-.fgD-capture:focus-within .fgD-captureGlyph{transform:rotate(90deg);}
-.fgD-captureGlyph svg{width:16px;height:16px;}
-.fgD-captureInput{
-  flex:1;min-width:0;border:0;background:none;outline:none;
-  font-size:15px;color:var(--ink);padding:8px 0;letter-spacing:-0.01em;
-}
-.fgD-captureInput::placeholder{color:var(--ink-3);}
-.fgD-captureHint{
-  display:flex;align-items:center;gap:9px;flex:none;
-  font-size:12px;color:var(--ink-3);padding-right:8px;
-}
-.fgD-kbd{
-  font-family:var(--mono);font-size:11px;color:var(--ink-2);
-  background:var(--surface-2);border:1px solid var(--line);
-  border-bottom-width:2px;border-radius:6px;padding:2px 7px;line-height:1;
-}
-.fgD-captureAuto{
-  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
-  color:var(--ink-4);border-left:1px solid var(--line-2);padding-left:10px;
-}
-
-/* ===== Filter / sort rail ===== */
-.fgD-rail{display:flex;align-items:center;gap:8px;margin-top:20px;padding:0 2px;}
-.fgD-railSpacer{flex:1;}
-.fgD-chip{
-  display:inline-flex;align-items:center;gap:7px;
-  font-size:13px;font-weight:550;color:var(--ink-2);
-  background:var(--surface);border:1px solid var(--line-2);
-  padding:7px 13px;border-radius:999px;
-  transition:all .15s ease;letter-spacing:-0.01em;
-}
-.fgD-chip:hover{background:var(--surface-2);color:var(--ink);transform:translateY(-1px);}
-.fgD-chipN{font-family:var(--mono);font-size:11px;color:var(--ink-4);font-weight:500;}
-.fgD-chip--on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:var(--shadow-sm);}
-.fgD-chip--on .fgD-chipN{color:rgba(255,255,255,.55);}
-.fgD-chip--on:hover{background:var(--ink);color:#fff;}
-.fgD-chip--fresh{color:var(--accent-ink);border-color:var(--accent-weak);background:var(--accent-weak);}
-.fgD-chip--fresh .fgD-chipN{color:var(--accent-ink);}
-.fgD-chip--fresh:hover{background:#cdeede;}
-.fgD-freshDot{
-  width:7px;height:7px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 0 3px rgba(16,185,129,.18);
-  animation:fgD-pulse 2s ease-in-out infinite;
-}
-@keyframes fgD-pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.fgD-sortBtn{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:var(--mono);font-size:11.5px;font-weight:500;
-  color:var(--ink-2);padding:7px 12px;border-radius:999px;
-  letter-spacing:.02em;transition:color .15s ease;
-}
-.fgD-sortBtn:hover{color:var(--ink);}
-.fgD-sortCaret{font-size:9px;color:var(--ink-4);}
-
-/* ===== Drift wall canvas (paper grain, no image) ===== */
-.fgD-wall{
-  column-count:3;column-gap:18px;
-  margin-top:20px;padding:24px 22px;
-  border-radius:20px;
-  background:
-    radial-gradient(circle at 18% 22%, rgba(28,28,26,.018) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 64% 71%, rgba(28,28,26,.015) 0 1px, transparent 1.4px),
-    linear-gradient(180deg,#f3f3f0,#f6f6f4);
-  background-size:22px 22px,30px 30px,100% 100%;
-  border:1px solid var(--line);
-  box-shadow:inset 0 1px 3px rgba(20,20,18,.03);
-}
-@media(max-width:880px){.fgD-wall{column-count:2;}}
-@media(max-width:560px){
-  .fgD-wall{column-count:1;}
-  .fgD-head{flex-direction:column;align-items:stretch;}
-  .fgD-stats{align-self:flex-start;}
-}
-.fgD-col{display:flex;flex-direction:column;gap:18px;}
-
-/* ===== Base card ===== */
-.fgD-card{
-  position:relative;
-  border-radius:14px;padding:16px 17px 13px;
-  transform:rotate(var(--rot,0deg));
-  transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s ease;
-  will-change:transform;
-  break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:18px;
-}
-.fgD-card:hover{
-  transform:rotate(0deg) translateY(-3px);
-  z-index:5;
-}
-
-.fgD-cardFoot{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-top:13px;min-height:22px;
-}
-.fgD-time{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;}
-
-/* actions — hidden until hover */
-.fgD-actions{display:flex;align-items:center;gap:4px;opacity:0;transform:translateY(2px);transition:opacity .16s ease,transform .16s ease;}
-.fgD-card:hover .fgD-actions{opacity:1;transform:translateY(0);}
-.fgD-act{
-  font-size:11.5px;font-weight:550;color:var(--ink-2);
-  padding:4px 8px;border-radius:8px;letter-spacing:-0.01em;
-  transition:all .14s ease;
-}
-.fgD-act:hover{background:var(--surface-2);color:var(--ink);}
-.fgD-act--promote{color:var(--accent-ink);}
-.fgD-act--promote:hover{background:var(--accent-weak);color:var(--accent-ink);}
-.fgD-act--x{color:var(--ink-4);font-size:12px;padding:4px 7px;}
-.fgD-act--x:hover{background:var(--red-weak);color:var(--red);}
-
-/* ===== Note card (warm paper) ===== */
-.fgD-note{
-  background:linear-gradient(180deg,#fffefb,#fefdf8);
-  box-shadow:0 1px 2px rgba(20,20,18,.05),0 6px 16px rgba(20,20,18,.06);
-  border:1px solid #f0ede4;
-}
-.fgD-note:hover{box-shadow:var(--shadow-lg);}
-.fgD-noteText{font-size:14px;line-height:1.55;color:var(--ink);letter-spacing:-0.005em;}
-/* pin */
-.fgD-pin{
-  position:absolute;top:-5px;left:50%;transform:translateX(-50%);
-  width:9px;height:9px;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#d8d4c8,#a9a499);
-  box-shadow:0 1px 2px rgba(20,20,18,.25);
-}
-
-/* ===== Link card (crisp white) ===== */
-.fgD-link{
-  background:var(--surface);
-  box-shadow:var(--shadow);
-  border:1px solid var(--line);
-}
-.fgD-link:hover{box-shadow:var(--shadow-lg);}
-.fgD-linkHead{display:flex;gap:11px;align-items:flex-start;}
-.fgD-srcGlyph{
-  width:34px;height:34px;flex:none;border-radius:10px;
-  display:grid;place-items:center;
-  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);
-}
-.fgD-srcGlyph svg{width:17px;height:17px;}
-.fgD-src--repo{background:#eef1f4;border-color:#e2e7ec;color:#475569;}
-.fgD-src--video{background:#fdeeee;border-color:#f8dede;color:#c0392b;}
-.fgD-src--tool{background:var(--accent-weak);border-color:transparent;color:var(--accent-ink);}
-.fgD-src--article{background:#f3f0fb;border-color:#e9e4f6;color:#6d54c0;}
-.fgD-src--tweet{background:#f0f0ee;border-color:#e6e6e2;color:#1c1c1a;}
-.fgD-linkMeta{min-width:0;flex:1;padding-top:1px;}
-.fgD-typeTag{
-  font-family:var(--mono);font-size:9.5px;font-weight:500;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
-}
-.fgD-linkTitle{
-  font-size:14px;font-weight:600;letter-spacing:-0.015em;color:var(--ink);
-  margin-top:4px;line-height:1.35;
-}
-.fgD-linkUrl{
-  display:block;margin-top:10px;
-  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
-  text-decoration:none;letter-spacing:-0.01em;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  transition:color .15s ease;
-}
-.fgD-linkUrl:hover{color:var(--accent-ink);}
-
-/* ===== Fresh state (needs triage) ===== */
-.fgD-fresh{position:relative;}
-.fgD-note.fgD-fresh{
-  border-color:#bfead7;
-  box-shadow:0 1px 2px rgba(16,185,129,.06),0 6px 18px rgba(16,185,129,.1);
-}
-.fgD-link.fgD-fresh{
-  border-color:#bfead7;
-  box-shadow:0 1px 2px rgba(16,185,129,.06),0 8px 22px rgba(16,185,129,.1);
-}
-.fgD-note.fgD-fresh .fgD-pin{background:radial-gradient(circle at 35% 30%,#34d399,#059669);box-shadow:0 0 0 3px rgba(16,185,129,.16),0 1px 2px rgba(20,20,18,.25);}
-.fgD-freshTag{
-  position:absolute;top:11px;right:13px;
-  font-family:var(--mono);font-size:9px;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;
-  color:var(--accent-ink);background:var(--accent-weak);
-  padding:3px 7px;border-radius:999px;
-}
-.fgD-card.fgD-fresh .fgD-noteText{padding-right:48px;}
-.fgD-freshTag--link{top:14px;right:14px;}
-/* hide fresh tag once hovered so actions read clean */
-.fgD-card:hover .fgD-freshTag{opacity:0;transition:opacity .14s ease;}
 
     /* Clean page-title used across full-bleed views (replaces 14px-tracked HUD title) */
     .clean-bleed-title { font-size: 28px; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); text-transform: none; }
@@ -4295,6 +3615,164 @@
     .nr-ph .t{ font-size:14px; font-weight:600; color:var(--ink-2); }
     .nr-ph .s{ font-size:12.5px; color:var(--ink-3); margin-top:4px; }
     @media (max-width:920px){ .nr{ grid-template-columns:1fr; } .nr-left{ max-height:300px; } }
+
+    /* ===== 碎片 (scraps) inside the knowledge page: pinned row · capture · wall · stream + detail ===== */
+    .nr-scraps{ display:flex; align-items:center; gap:8px; margin:2px 14px 8px; padding:9px 11px; border-radius:11px; background:#f0eafb; border:1px solid #e4dbf6; cursor:pointer; transition:.14s; }
+    .nr-scraps:hover{ filter:brightness(.985); }
+    .nr-scraps.sel{ box-shadow:inset 0 0 0 1.5px #9b7ed0; }
+    .nr-scraps .ic{ width:18px; height:18px; display:grid; place-items:center; color:#6b4fb3; } .nr-scraps .ic svg{ width:15px; height:15px; }
+    .nr-scraps .nm{ font-size:12.5px; font-weight:650; color:#6b4fb3; flex:1; }
+    .nr-scraps .badge{ font-family:var(--mono); font-size:9.5px; font-weight:600; color:#fff; background:#9b7ed0; border-radius:999px; padding:1px 7px; }
+    .nr-scraps .ct{ font-family:var(--mono); font-size:10px; color:#6b4fb3; opacity:.7; }
+    .nr-back{ flex:none; display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:10.5px; font-weight:600; color:#6b4fb3; background:#f0eafb; border:0; border-radius:8px; padding:5px 9px; cursor:pointer; }
+    .nr-back:hover{ filter:brightness(.97); }
+    .sc{ flex:1; min-height:0; display:flex; flex-direction:column; background:#fbfaf7; position:relative;
+      --sc-idea:#6b4fb3; --sc-idea-w:#f0eafb; --sc-link:#3457b8; --sc-link-w:#e8eefb; --sc-img:#0b7d5a; --sc-img-w:#e7f6ef;
+      --sc-file:#c0503a; --sc-file-w:#fbe9e6; --sc-quote:#8a6d34; --sc-quote-w:#f7efdf; --sc-doc:#4b5563; --sc-doc-w:#eef0f3; }
+    .sc-top{ padding:14px 20px 8px; }
+    .nr--collapsed .sc-top{ padding-left:56px; }   /* the rail's reopen button sits in that corner */
+    .sc-row1{ display:flex; align-items:center; gap:10px; }
+    .sc-row1 .sc-cap{ flex:1; min-width:0; }
+    .sc-vs{ position:static; flex:none; box-shadow:none; background:#fff; border-color:var(--line-2); padding:4px; border-radius:12px; }
+    .sc-vs button{ padding:7px 12px; }
+    .sc-cap{ position:relative; background:#fff; border:1px solid var(--line-2); border-radius:12px; min-height:44px; padding:5px 5px 5px 12px; display:flex; align-items:center; gap:9px; flex-wrap:wrap; box-shadow:var(--shadow-sm); transition:.16s; }
+    .sc-att-n{ font-family:var(--mono); font-size:10px; color:#6b4fb3; background:#f0eafb; border-radius:6px; padding:3px 7px; flex:none; }
+    .sc-att-add{ width:28px; height:28px; border-radius:8px; border:1.5px dashed var(--line-2); color:var(--ink-3); display:grid; place-items:center; font-size:16px; line-height:1; cursor:pointer; flex:none; transition:.14s; }
+    .sc-att-add:hover, .sc-att-add.on{ border-color:#9b7ed0; color:#6b4fb3; background:#f0eafb; }
+    .sc-addpop{ position:absolute; left:8px; top:calc(100% + 6px); z-index:9; background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px; display:flex; gap:6px; box-shadow:var(--shadow); }
+    .sc-addin{ width:320px; border:1px solid var(--line-2); border-radius:8px; padding:6px 10px; font-size:12.5px; outline:0; color:var(--ink); } .sc-addin:focus{ border-color:#9b7ed0; box-shadow:none; }
+    .sc-addpop button{ font-family:var(--mono); font-size:11px; font-weight:600; color:#6b4fb3; background:#f0eafb; border:0; border-radius:8px; padding:6px 10px; cursor:pointer; white-space:nowrap; }
+    .sc-tagpop{ position:absolute; left:44px; top:calc(100% + 6px); z-index:8; background:#fff; border:1px solid var(--line); border-radius:10px; padding:7px 8px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; box-shadow:var(--shadow); max-width:560px; }
+    .sc-tagpop .k{ font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; color:var(--ink-4); margin-right:2px; }
+    .sc-tg.pick{ cursor:pointer; background:#f0eafb; color:#6b4fb3; } .sc-tg.pick:hover{ background:#e6dcf8; }
+    .sc-tgwrap{ position:relative; display:inline-block; }
+    .sc-tagpop--dt{ left:0; top:calc(100% + 4px); max-width:280px; }
+    .sc-imgrid{ display:grid; gap:3px; overflow:hidden; position:relative; }
+    .sc-imgrid.n2, .sc-imgrid.n3, .sc-imgrid.n4{ grid-template-columns:1fr 1fr; }
+    .sc-imgrid img{ width:100%; height:110px; object-fit:cover; object-position:top; display:block; background:var(--surface-3); }
+    .sc-imgrid.n3 img:first-child{ grid-column:1 / -1; height:150px; }
+    .sc-imgrid .more{ position:absolute; right:6px; bottom:6px; font-family:var(--mono); font-size:10px; color:#fff; background:rgba(20,20,18,.6); border-radius:6px; padding:2px 7px; }
+    .sc-fl.row{ margin-top:10px; }
+    .sc-lks{ display:flex; flex-direction:column; gap:9px; }
+    .sc-lk-more{ font-family:var(--mono); font-size:10px; color:var(--ink-4); padding-left:40px; }
+    .sc-dt-lk{ display:flex; align-items:center; gap:8px; margin-top:9px; text-decoration:none; color:inherit; }
+    .sc-dt-lk .sc-fav.sm{ width:24px; height:24px; border-radius:7px; font-size:11px; }
+    .sc-dt-lk .t{ min-width:0; display:flex; flex-direction:column; } .sc-dt-lk b{ font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .sc-dt-lk b.pending{ color:var(--ink-3); font-weight:500; font-style:italic; }
+    .sc-dt-lk i{ font-style:normal; font-family:var(--mono); font-size:10px; color:var(--ink-3); }
+    .sc-dt-img + .sc-dt-img{ margin-top:8px; }
+    .sc-cap:focus-within, .sc-cap.drag{ border-color:#9b7ed0; box-shadow:0 0 0 4px rgba(155,126,208,.12); }
+    .sc-cap-plus{ width:30px; height:30px; border-radius:9px; display:grid; place-items:center; background:#f0eafb; color:#6b4fb3; flex:none; cursor:pointer; transition:.14s; }
+    .sc-cap-plus svg{ width:15px; height:15px; } .sc-cap-plus:hover{ background:#e6dcf8; }
+    .sc-att{ display:inline-flex; align-items:center; gap:6px; max-width:260px; background:var(--surface-3); border:1px solid var(--line); border-radius:9px; padding:3px 6px 3px 3px; flex:none; }
+    .sc-att img{ width:26px; height:26px; border-radius:6px; object-fit:cover; }
+    .sc-att-ic{ width:26px; height:26px; border-radius:6px; background:#fbe9e6; color:#c0503a; font-family:var(--mono); font-size:8.5px; font-weight:700; display:grid; place-items:center; }
+    .sc-att--link .sc-att-ic{ background:#e8eefb; color:#3457b8; } .sc-att--link .sc-att-ic svg{ width:13px; height:13px; }
+    .sc-att--text{ cursor:text; max-width:300px; }
+    .sc-seal{ width:24px; height:24px; border-radius:50%; border:1.5px dashed #9b7ed0; color:#6b4fb3; display:grid; place-items:center; font-size:13px; font-weight:700; cursor:pointer; flex:none; transition:.14s; }
+    .sc-seal:hover{ background:#f0eafb; border-style:solid; } .sc-att--text .sc-att-ic{ background:#f0eafb; color:#6b4fb3; font-family:var(--serif, 'Noto Serif SC', serif); font-size:12px; font-weight:600; }
+    .sc-cap-note{ flex:0 1 240px; min-width:150px; border:1px solid var(--line); border-left:2px solid #c9a24b; border-radius:9px; background:#fbf7ee; padding:7px 10px; font-family:'Noto Serif SC',serif; font-size:12.5px; color:#3a362f; outline:0; }
+    .sc-cap-note::placeholder{ color:#b8a98a; } .sc-cap-note:focus{ border-color:#c9a24b; box-shadow:none; }
+    .sc-lks.after{ margin-top:10px; }
+    .sc-att-nm{ font-size:11.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sc-att-x{ cursor:pointer; color:var(--ink-4); padding:0 3px; } .sc-att-x:hover{ color:#c0503a; }
+    .sc-cap-in{ flex:1; min-width:160px; border:0; outline:0; background:none; font-size:13.5px; color:var(--ink); }
+    .sc-cap-in::placeholder{ color:var(--ink-4); }
+    .sc-cap-in:focus, .sc-cap-in:focus-visible{ outline:0; box-shadow:none; border:0; }   /* the box itself shows focus; no second ring inside */
+    .sc-cap-det{ font-family:var(--mono); font-size:10px; color:#6b4fb3; background:#f0eafb; border-radius:6px; padding:3px 7px; flex:none; }
+    .sc-cap-go{ font-family:var(--mono); font-size:11px; font-weight:600; color:#fff; background:var(--ink); border:0; border-radius:9px; padding:9px 13px; flex:none; cursor:pointer; }
+    .sc-cap-go:disabled{ opacity:.5; cursor:default; }
+    .sc-bar{ display:flex; align-items:center; gap:8px; margin-top:9px; flex-wrap:wrap; }
+    .sc-srch{ position:relative; display:flex; align-items:center; gap:7px; background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:6px 12px; flex:0 0 232px; transition:.14s; }
+    .sc-srch:focus-within{ background:#fff; border-color:var(--line-2); }
+    .sc-srch svg{ width:14px; height:14px; color:var(--ink-3); flex:none; }
+    .sc-srch input{ border:0; outline:0; background:none; font-size:12.5px; width:100%; min-width:60px; color:var(--ink); }
+    .sc-srch.tagged{ flex:0 1 auto; min-width:232px; max-width:380px; }
+    .sc-tagsel{ display:inline-flex; align-items:center; gap:2px; font-family:var(--mono); font-size:11px; color:#6b4fb3; background:rgba(107,79,179,.10); border-radius:999px; padding:2px 4px 2px 8px; white-space:nowrap; flex:none; }
+    .sc-tagsel i{ font-style:normal; cursor:pointer; color:var(--ink-3); padding:0 4px; } .sc-tagsel i:hover{ color:var(--ink); }
+    .sc-hash{ flex:none; width:20px; height:20px; margin-right:-5px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:12.5px; color:var(--ink-3); cursor:pointer; }
+    .sc-hash:hover, .sc-hash.on{ background:rgba(0,0,0,.06); color:var(--ink); }
+    .sc-tagpop--srch{ left:0; top:calc(100% + 6px); max-width:460px; }
+    .sc-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+    .sc-chip{ font-size:12px; color:var(--ink-3); border:1px solid var(--line); border-radius:999px; padding:4px 10px; background:#fff; display:inline-flex; gap:6px; align-items:center; cursor:pointer; white-space:nowrap; }
+    .sc-chip.on{ background:var(--ink); color:#fff; border-color:var(--ink); }
+    .sc-chip i{ font-style:normal; font-family:var(--mono); font-size:10px; opacity:.7; } .sc-chip .d{ width:6px; height:6px; border-radius:50%; }
+    .sc-legend{ margin-left:auto; display:flex; gap:6px; align-items:center; }
+    .sc-off{ font-family:var(--mono); font-size:9.5px; color:var(--ink-4); border:1px dashed var(--line-2); border-radius:6px; padding:2px 6px; }
+    .sc-wall{ flex:1; min-height:0; overflow-y:auto; padding:8px 20px 24px; columns:3; column-gap:12px; scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; }
+    @media (max-width:1400px){ .sc-wall{ columns:2; } } @media (min-width:1900px){ .sc-wall{ columns:4; } }
+    .sc-empty{ font-family:var(--mono); font-size:11px; color:var(--ink-4); padding:30px 4px; column-span:all; text-align:center; letter-spacing:.04em; }
+    .sc-card{ break-inside:avoid; background:#fff; border:1px solid var(--line); border-radius:14px; padding:0; overflow:hidden; margin:0 0 12px; position:relative; transition:.15s; cursor:pointer; }
+    .sc-card:hover{ box-shadow:0 6px 18px rgba(20,20,18,.07); border-color:var(--line-2); }
+    .sc-card.sel{ border-color:#9b7ed0; box-shadow:0 0 0 3px rgba(107,79,179,.10); }
+    .sc-ty{ font-family:var(--mono); font-size:9.5px; font-weight:600; letter-spacing:.06em; padding:2px 7px; border-radius:5px; flex:none; }
+    .sc-ty--idea{ color:var(--sc-idea); background:var(--sc-idea-w); } .sc-ty--link{ color:var(--sc-link); background:var(--sc-link-w); }
+    .sc-ty--image{ color:var(--sc-img); background:var(--sc-img-w); } .sc-ty--file{ color:var(--sc-file); background:var(--sc-file-w); }
+    .sc-ty--quote{ color:var(--sc-quote); background:var(--sc-quote-w); } .sc-ty--doc{ color:var(--sc-doc); background:var(--sc-doc-w); }
+    .sc-ai-live{ color:#9b7ed0; font-size:11px; animation:scPulse 1.2s ease-in-out infinite; }
+    @keyframes scPulse{ 50%{ opacity:.25; } }
+    .sc-tm{ margin-left:auto; font-family:var(--mono); font-size:9.5px; color:var(--ink-4); white-space:nowrap; display:inline-flex; align-items:center; gap:5px; }
+    .sc-tx{ font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.65; color:var(--ink); white-space:pre-wrap; word-break:break-word; }
+    .sc-qt{ font-family:'Noto Serif SC',serif; font-size:15px; line-height:1.6; color:var(--ink); white-space:pre-wrap; word-break:break-word; }
+    .sc-qmark{ font-family:'Fraunces',Georgia,serif; font-size:36px; line-height:.55; color:var(--sc-quote); margin:8px 0 10px; }
+    .sc-qb{ font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:8px; }
+    .sc-lk{ display:flex; gap:10px; align-items:center; min-width:0; }
+    .sc-fav{ width:30px; height:30px; border-radius:9px; color:#fff; display:grid; place-items:center; font-weight:700; font-size:13px; flex:none; }
+    .sc-lk-t{ min-width:0; } .sc-lk-ti{ font-size:13.5px; font-weight:600; line-height:1.35; word-break:break-word; } .sc-lk-ti.pending{ color:var(--ink-3); font-weight:500; font-style:italic; }
+    .sc-lk-h{ font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:2px; }
+    .sc-og{ width:100%; display:block; aspect-ratio:16/9; object-fit:cover; background:var(--surface-3); border-bottom:1px solid var(--line); }
+    .sc-im{ width:100%; display:block; object-fit:cover; object-position:top; max-height:320px; background:var(--surface-3); }
+    .sc-cap-ai{ font-size:12px; color:var(--ink-3); margin-top:8px; line-height:1.5; }
+    .sc-fl{ display:flex; gap:10px; align-items:center; }
+    .sc-pdf{ width:34px; height:40px; border-radius:6px; background:var(--sc-file-w); color:var(--sc-file); font-family:var(--mono); font-size:9px; font-weight:700; display:grid; place-items:center; border:1px solid #f3d3cd; flex:none; }
+    .sc-fl-n{ font-size:13px; font-weight:600; word-break:break-all; } .sc-fl-m{ font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:2px; }
+    .sc-an{ margin-top:9px; font-size:12.5px; line-height:1.55; color:var(--ink-2, #5b5b5b); white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .sc-tgs{ display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; align-items:center; }
+    .sc-body{ padding:12px 14px 11px; } .sc-body > :first-child{ margin-top:0 !important; }
+    .sc-card--quote{ background:#fffdf8; } .sc-card--idea .sc-body, .sc-card--quote .sc-body{ padding:14px 16px 11px; }   /* text stays white; only a quote sits on paper */
+    .sc-card--idea .sc-tx{ font-size:15px; }
+    .sc-foot{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:10px; } .sc-foot .sc-tgs{ margin-top:0; min-width:0; } .sc-foot .sc-tm{ flex:none; padding-bottom:1px; }
+    .sc-stream .sc-media{ padding:12px 14px 0; } .sc-stream .sc-media .sc-im, .sc-stream .sc-media .sc-imgrid{ border-radius:9px; }
+    .sc-stream .sc-og{ margin:12px 14px 0; width:calc(100% - 28px); border-radius:9px; border-bottom:0; }
+    .sc-kindsw{ display:inline-flex; border:1px solid var(--line-2); border-radius:6px; overflow:hidden; font-family:var(--mono); font-size:9.5px; letter-spacing:.04em; flex:none; }
+    .sc-kindsw span{ padding:2px 8px; cursor:pointer; color:var(--ink-3); } .sc-kindsw span + span{ border-left:1px solid var(--line-2); } .sc-kindsw span.on{ background:var(--ink); color:#fff; }
+    .sc-byin{ margin-top:8px; width:100%; font-family:var(--mono); font-size:11px; color:var(--ink-2, #5b5b5b); border:0; border-bottom:1px dashed var(--line-2); background:none; outline:none; padding:3px 0; } .sc-byin:focus{ border-bottom-color:var(--sc-quote); }
+    .sc-tg{ font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:6px; background:#e7f6ef; color:#0b7d5a; display:inline-flex; align-items:center; }
+    .sc-tg.ai{ background:transparent; color:var(--ink-3); border:1px dashed var(--line-2); cursor:pointer; } .sc-tg.ai:hover{ color:#6b4fb3; border-color:#6b4fb3; }
+    .sc-tg .x{ cursor:pointer; opacity:.5; margin-left:4px; } .sc-tg .x:hover{ opacity:1; }
+    .sc-split{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) clamp(330px, 26%, 420px); }
+    /* a reading column, never a full-width ribbon: capped at 780px and centred in whatever is left */
+    .sc-stream{ overflow-y:auto; min-height:0; padding:4px max(16px, calc((100% - 780px) / 2)) 24px max(20px, calc((100% - 780px) / 2)); scrollbar-width:thin; scrollbar-color:#e6ddc9 transparent; }
+    .sc-rail{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); margin:12px 0 8px; }
+    .sc-rail::after{ content:''; flex:1; height:1px; background:var(--line); }
+    .sc-stream .sc-card{ margin-bottom:10px; } .sc-stream .sc-im{ max-height:200px; width:auto; } .sc-stream .sc-og{ width:auto; max-height:150px; aspect-ratio:auto; }
+    .sc-detail{ border-left:1px solid var(--line); background:#fff; padding:16px 18px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; scrollbar-width:thin; min-height:0; }
+    .sc-dt-h{ display:flex; align-items:center; gap:8px; } .sc-dt-time{ font-family:var(--mono); font-size:10.5px; color:var(--ink-3); flex:1; }
+    .sc-dt-x{ width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink-3); display:grid; place-items:center; font-size:15px; cursor:pointer; } .sc-dt-x:hover{ color:var(--ink); }
+    .sc-dt-body{ background:#fbfaf7; border:1px solid var(--line); border-radius:12px; padding:14px; }
+    .sc-dt-img{ width:100%; border-radius:8px; display:block; cursor:zoom-in; }
+    .sc-dt-tx{ font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+    .sc-dt-tx.editable{ cursor:text; border-radius:8px; margin-left:-6px; margin-right:-6px; padding-left:6px; padding-right:6px; } .sc-dt-tx.editable:hover{ background:#fff; box-shadow:inset 0 0 0 1px var(--line); }
+    .sc-txbox{ width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:14px; line-height:1.7; color:var(--ink); min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-txbox:focus{ border-color:#c9a24b; }
+    .sc-txadd{ margin-top:10px; border:1px dashed var(--line-2); background:transparent; color:var(--ink-3); font-size:12px; border-radius:8px; padding:5px 10px; cursor:pointer; } .sc-txadd:hover{ color:var(--ink); border-color:var(--ink-3); }
+    .sc-dt-tx.quote{ font-family:'Fraunces',serif; font-style:italic; font-size:16px; padding-left:12px; border-left:2px solid var(--sc-quote); }
+    .sc-dt-doc{ max-height:280px; overflow:auto; font-size:13px; margin-top:8px; }
+    .sc-dt-cap, .sc-dt-sum{ margin-top:10px; font-size:12px; color:var(--ink-3); line-height:1.55; } .sc-dt-sum.sc-live{ color:#6b4fb3; animation:scPulse 1.2s ease-in-out infinite; }
+    .sc-dt-ti{ width:100%; border:0; background:transparent; font:inherit; font-size:14px; font-weight:600; color:var(--ink); outline:none; padding:2px 4px; border-radius:6px; }
+    .sc-dt-ti:focus{ background:#fff; box-shadow:inset 0 0 0 1px var(--line-2); } .sc-dt-ti::placeholder{ color:var(--ink-4); font-weight:500; font-style:italic; }
+    .sc-dt-url{ display:block; margin-top:4px; font-family:var(--mono); font-size:10.5px; color:var(--sc-link); text-decoration:none; } .sc-dt-url span{ color:var(--ink-4); word-break:break-all; display:block; }
+    .sc-kv{ display:grid; grid-template-columns:44px 1fr; gap:6px 8px; font-size:12px; } .sc-kv .k{ color:var(--ink-3); font-size:11.5px; } .sc-kv .v{ font-family:var(--mono); font-size:10.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sc-dt-k{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-4); }
+    .sc-dt-sec{ display:flex; flex-direction:column; gap:8px; } .sc-dt-sec .h{ display:flex; align-items:center; justify-content:space-between; } .sc-dt-sec .h a{ font-family:var(--mono); font-size:10px; color:var(--accent-ink); cursor:pointer; }
+    .sc-tgin{ border:1px dashed var(--line-2); border-radius:6px; font-family:var(--mono); font-size:10px; color:var(--ink); padding:3px 8px; outline:none; width:88px; background:transparent; } .sc-tgin::placeholder{ color:var(--ink-4); } .sc-tgin:focus{ border-color:#9b7ed0; }
+    .sc-aisug{ background:#f0eafb; border-radius:10px; padding:9px 11px; } .sc-aisug .k{ font-family:var(--mono); font-size:9.5px; color:#6b4fb3; letter-spacing:.08em; margin-bottom:6px; display:flex; justify-content:space-between; } .sc-aisug .k a{ color:#6b4fb3; font-weight:600; cursor:pointer; }
+    .sc-aisug .sc-tg.ai{ background:#fff; border-style:solid; border-color:#ddd3f2; color:#6b4fb3; }
+    .sc-anbox{ width:100%; border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-family:'Noto Serif SC',serif; font-size:13px; line-height:1.6; color:#3a362f; min-height:84px; background:#fff; resize:vertical; outline:none; } .sc-anbox:focus{ border-color:#c9a24b; }
+    .sc-dt-acts{ display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; padding-top:12px; border-top:1px dashed var(--line); }
+    .sc-dt-acts button{ font-family:var(--mono); font-size:10.5px; font-weight:600; color:var(--ink-2); border:1px solid var(--line); border-radius:8px; padding:6px 10px; background:#fff; cursor:pointer; }
+    .sc-dt-acts button.pr{ color:#fff; background:var(--ink); border-color:var(--ink); } .sc-dt-acts button.danger{ color:#c0503a; border-color:#f3d3cd; background:#fbe9e6; }
+    .sc-toast{ position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:9000; display:inline-flex; align-items:center; gap:9px; padding:10px 18px; background:var(--ink); color:#fff; border-radius:999px; font-size:13px; font-weight:500; box-shadow:0 8px 28px rgba(20,20,18,.22); }
+    .sc-toast i{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+    @media (max-width:1200px){ .sc-split{ grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; } .sc-detail{ border-left:0; border-top:1px solid var(--line); max-height:46%; } }
 
     /* ===== Notes · Fused (rail nvA- + content nvD-) ===== */
     .ntx-app{ display:grid; grid-template-columns:240px 1fr; gap:26px; max-width:1320px; margin:0; align-items:start; font-family:var(--sans); color:var(--ink); letter-spacing:-.011em; --obs:#6d54c0; --fs:var(--blue); --no:#1c1c1a; }
@@ -5993,25 +5471,6 @@
 </head>
 <body>
   <div id="app" v-cloak :class="'theme-' + dashboardTheme">
-
-    <!-- Full article reader for saved references -->
-    <div v-if="fragReaderCol" class="fgReader-overlay" @click.self="closeFragReader">
-      <article class="fgReader">
-        <header class="fgReader-h">
-          <div>
-            <div class="fgReader-k">{{ lang === 'zh' ? '完整内容' : 'Full article' }}</div>
-            <div class="fgReader-title">{{ fragReaderCol.title || fragReaderCol.name }}</div>
-            <div class="fgReader-meta">
-              <span v-if="fragReaderCol.date">{{ fragReaderCol.date }}</span>
-              <span v-if="fragHost(fragReaderCol.url)">{{ fragHost(fragReaderCol.url) }}</span>
-              <span v-for="tg in (fragReaderCol.tags || [])" :key="tg" class="fgReader-tag">#{{ tg }}</span>
-            </div>
-          </div>
-          <button class="fgReader-close" @click="closeFragReader">✕</button>
-        </header>
-        <div class="fgReader-body" v-html="fragDetailFullHtml(fragReaderCol)"></div>
-      </article>
-    </div>
 
     <!-- ========== WELCOME OVERLAY ========== -->
     <div v-if="showWelcome" class="welcome-overlay" @click.self="dismissWelcome">
@@ -8158,244 +7617,6 @@
           </div>
         </section>
 
-        <!-- ========== FRAGMENTS ========== -->
-        <section v-if="currentPage === 'fragments'" style="padding: 20px;">
-          <div style="background: var(--bg); margin: -20px; padding: 24px 28px; min-height: calc(100vh - 60px);">
-
-          <!-- triage toast -->
-          <div v-if="fragToast" class="fgToast"><span class="fgToast-dot"></span>{{ fragToast }}</div>
-
-          <!-- ════════════ BOARD (default) · Quiet Desk (C) ════════════ -->
-          <div v-if="fragMode === 'board'" class="fgE-wrap">
-            <!-- capture bar: pick a kind, type/paste, it flows into the shelf or notes -->
-            <div class="fgE-cap">
-              <div class="fgE-cap-tabs">
-                <div class="fgE-cap-tab" :class="{ on: fragCapTab === 'note' }" @click="fragCapTab = 'note'">✎ {{ lang === 'zh' ? '随手记' : 'Note' }}</div>
-                <div class="fgE-cap-tab" :class="{ on: fragCapTab === 'link' }" @click="fragCapTab = 'link'">🔗 {{ lang === 'zh' ? '收藏链接' : 'Link' }}</div>
-                <div class="fgE-cap-tab soon" :class="{ on: fragCapTab === 'image' }" @click="fragCapTab = 'image'">▦ {{ lang === 'zh' ? '截图/图片' : 'Image' }}</div>
-                <div class="fgE-cap-tab soon" :class="{ on: fragCapTab === 'file' }" @click="fragCapTab = 'file'">▤ {{ lang === 'zh' ? '文件' : 'File' }}</div>
-              </div>
-              <form v-if="fragCapTab === 'note'" class="fgE-cap-in" @submit.prevent="addFragmentNote">
-                <input type="text" v-model="newFragmentNote" :placeholder="lang === 'zh' ? '记录想法、要点…' : 'Jot a thought…'" @keydown.enter.prevent="addFragmentNote">
-                <button class="fgE-cap-save" type="submit">{{ t('frag.save') }}</button>
-              </form>
-              <form v-else-if="fragCapTab === 'link'" class="fgE-cap-link" @submit.prevent="addFragmentCollection">
-                <div class="fgE-cap-link-fields">
-                  <input class="fgE-cap-link-in" type="text" v-model="newCollectionTitle" :placeholder="lang === 'zh' ? '标题' : 'Title'" @keydown.enter.prevent="addFragmentCollection">
-                  <input class="fgE-cap-link-in" type="text" v-model="newCollectionUrl" :placeholder="lang === 'zh' ? '链接(可选)' : 'Link (optional)'" @keydown.enter.prevent="addFragmentCollection">
-                  <div class="fgE-cap-tagbox">
-                    <span v-for="(tg, i) in fgTagList" :key="tg+i" class="fgE-tagchip" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '1e' }">#{{ tg }}<span class="x" @click="fgRemoveTag(i)">×</span></span>
-                    <input class="fgE-cap-tagin" type="text" v-model="fgTagDraft" :placeholder="fgTagList.length ? (lang === 'zh' ? '再加标签…' : 'more…') : (lang === 'zh' ? '+ 标签' : '+ tag')" @keydown.enter.prevent="fgAddTag" @keydown="fgTagKeydown" @blur="fgAddTag">
-                  </div>
-                </div>
-                <button class="fgE-cap-save" type="submit">{{ t('frag.save') }}</button>
-              </form>
-              <div v-else class="fgE-cap-soon">{{ lang === 'zh' ? '截图 / 图片 / 文件收藏即将支持' : 'Image & file capture — coming soon' }}</div>
-            </div>
-
-            <div class="fgE-desk" :class="{ 'has-detail': !!fragSelectedCol }">
-              <!-- LEFT · quick notes — quiet hairline-separated rows -->
-              <section class="fgE-pane fgE-pane--notes">
-                <div class="fgE-ph">
-                  <span class="fgE-ph-dot"></span>
-                  <span class="fgE-ph-name">{{ t('frag.notes') }}</span>
-                  <span class="fgE-ph-n">{{ fragmentNotes.length }}</span>
-                  <button type="button" class="fgE-expand" @click="fragExpand('notes')" :title="lang === 'zh' ? '展开为时间流' : 'Expand to stream'">{{ lang === 'zh' ? '展开 ↗' : 'Expand ↗' }}</button>
-                </div>
-
-                <div class="fgE-tl">
-                  <p v-if="!fragmentNotes.length" class="fgE-empty">{{ t('frag.empty') }}</p>
-
-                  <article v-for="(note, idx) in fragNotesNew" :key="'fnn-'+idx" class="fgE-ncard fgE-ncard--new">
-                    <div class="fgE-nc-head">
-                      <span class="fgE-nc-date">{{ note.created || t('frag.drifting') }}</span>
-                      <span v-if="fragNoteTags(note).length" class="fgE-nc-sep">·</span>
-                      <span v-if="fragNoteTags(note).length" class="fgE-nc-cat">{{ fragNoteTags(note)[0] }}</span>
-                      <button class="fgE-nc-del" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
-                      </button>
-                    </div>
-                    <p class="fgE-nc-text">{{ fragCleanText(note.text) }}</p>
-                    <div v-if="fragNoteTags(note).length" class="fgE-nc-tags">
-                      <span v-for="tg in fragNoteTags(note)" :key="tg" class="fgE-nc-tag">#{{ tg }}</span>
-                    </div>
-                  </article>
-                  <article v-for="(note, idx) in fragNotesSeen" :key="'fns-'+idx" class="fgE-ncard">
-                    <div class="fgE-nc-head">
-                      <span class="fgE-nc-date">{{ note.created || t('frag.drifting') }}</span>
-                      <span v-if="fragNoteTags(note).length" class="fgE-nc-sep">·</span>
-                      <span v-if="fragNoteTags(note).length" class="fgE-nc-cat">{{ fragNoteTags(note)[0] }}</span>
-                      <button class="fgE-nc-del" type="button" :aria-label="t('frag.dismiss')" @click="fragDismissNote(note)">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
-                      </button>
-                    </div>
-                    <p class="fgE-nc-text">{{ fragCleanText(note.text) }}</p>
-                    <div v-if="fragNoteTags(note).length" class="fgE-nc-tags">
-                      <span v-for="tg in fragNoteTags(note)" :key="tg" class="fgE-nc-tag">#{{ tg }}</span>
-                    </div>
-                  </article>
-                </div>
-              </section>
-
-              <!-- RIGHT · collections — favicon + title rows on warm paper -->
-              <!-- CENTER · 情报书架 (bookshelf) -->
-              <section class="fgE-pane fgE-pane--saved">
-                <div class="fgE-shelf-head">
-                  <span class="fgE-ph-dot fgE-ph-dot--gold"></span>
-                  <span class="fgE-ph-name">{{ lang === 'zh' ? '收藏夹' : 'Shelf' }}</span>
-                  <span class="fgE-ph-n fgE-ph-n--gold">{{ fragmentCollections.length }}</span>
-                </div>
-                <div class="fgE-shelf-wrap">
-                  <p v-if="!fragmentCollections.length && !fragCollectionsSorted.length" class="fgE-empty">{{ t('frag.emptyCol') }}</p>
-                  <div class="fgE-shelf-row">
-                    <div class="fgE-shelf-books">
-                      <div v-for="(col, idx) in fragCollectionsSorted" :key="'bk-'+idx" class="fgE-book"
-                        :class="{ sel: fragSelectedCol && fragSelectedCol.file === col.file }" @click="fragSelectCol(col)">
-                        <div class="fgE-book-cover" :style="{ backgroundImage: 'url(' + fragCoverImg(col.title || col.name) + ')' }"></div>
-                        <div class="fgE-book-title">{{ col.title || col.name }}</div>
-                        <div class="fgE-book-src">{{ fragHost(col.url) || (lang === 'zh' ? '收藏' : 'saved') }}</div>
-                        <div class="fgE-book-foot">
-                          <span v-if="(col.tags || []).length" class="fgE-book-tag">#{{ col.tags[0] }}</span>
-                          <span class="fgE-book-date">{{ col.date || '' }}</span>
-                        </div>
-                      </div>
-                      <!-- add-book tile → opens the link capture tab up top -->
-                      <div class="fgE-book add" @click="fragCapTab = 'link'">
-                        <span class="plus">+</span>
-                        <div style="font-size:11px">{{ lang === 'zh' ? '添加收藏' : 'Add' }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <!-- RIGHT · detail (only when a book is selected) -->
-              <section v-if="fragSelectedCol" class="fgE-pane fgE-pane--detail">
-                <div class="fgE-dt-head">{{ lang === 'zh' ? '碎片详情' : 'Detail' }}</div>
-                <div class="fgE-dt-cover" :style="{ backgroundImage: 'url(' + fragCoverImg(fragSelectedCol.title || fragSelectedCol.name) + ')' }"></div>
-                <div class="fgE-dt-title">{{ fragSelectedCol.title || fragSelectedCol.name }}</div>
-                <div class="fgE-dt-metaline" v-if="fragHost(fragSelectedCol.url) || (fragSelectedCol.tags || []).length">
-                  <span v-if="fragHost(fragSelectedCol.url)" class="fgE-dt-src">{{ fragHost(fragSelectedCol.url) }}</span>
-                  <span v-for="tg in (fragSelectedCol.tags || [])" :key="tg" class="fgE-dt-tag" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '18' }">#{{ tg }}</span>
-                </div>
-                <div class="fgE-dt-dateline" v-if="fragSelectedCol.date">{{ fragSelectedCol.date }}</div>
-                <div v-if="fragSelectedCol.url" class="fgE-dt-sec">
-                  <div class="fgE-dt-label">{{ lang === 'zh' ? '链接' : 'Link' }}</div>
-                  <a class="fgE-dt-link" :href="fragSelectedCol.url" target="_blank" rel="noopener">{{ fragSelectedCol.url }} ↗</a>
-                </div>
-                <div v-if="fragDetailSummary(fragSelectedCol)" class="fgE-dt-sec">
-                  <div class="fgE-dt-label">{{ lang === 'zh' ? '摘要' : 'Summary' }}</div>
-                  <div class="fgE-dt-body">{{ fragDetailSummary(fragSelectedCol) }}</div>
-                </div>
-                <div class="fgE-dt-sec">
-                  <button v-if="fragDetailFullHtml(fragSelectedCol)" class="fgE-dt-read" @click="openFragReader(fragSelectedCol)">
-                    {{ lang === 'zh' ? '阅读全文' : 'Read full article' }} ↗
-                  </button>
-                  <div v-else class="fgE-dt-empty">{{ lang === 'zh' ? '这个收藏只有标题/链接，还没有正文内容。' : 'This save only has a title/link; no body yet.' }}</div>
-                </div>
-                <button class="fgE-dt-del" @click="fragDeleteSelected">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
-                  {{ lang === 'zh' ? '删除' : 'Delete' }}
-                </button>
-              </section>
-            </div>
-          </div>
-
-          <!-- ════════════ NOTES expanded · Drift Stream ════════════ -->
-          <section v-else-if="fragMode === 'notes'" class="fgA-wrap">
-            <header class="fgA-head">
-              <div class="fgA-head-l">
-                <button type="button" @click="fragBack" class="fgA-eyebrow"
-                  style="background:none;border:0;cursor:pointer;color:var(--accent-ink);padding:0;">
-                  {{ lang === 'zh' ? '← 返回' : '← Back' }}
-                </button>
-                <h1 class="fgA-title">{{ t('frag.notes') }}</h1>
-                <p class="fgA-sub">{{ t('frag.notesSub') }}</p>
-              </div>
-              <div class="fgA-head-r">
-                <span class="fgA-triage-pill"><span class="fgA-dot-orange"></span>{{ fragmentNotes.length }}</span>
-              </div>
-            </header>
-
-            <form class="fgA-capture" @submit.prevent="addFragmentNote">
-              <span class="fgA-capture-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-              <input class="fgA-capture-input" v-model="newFragmentNote"
-                :placeholder="t('frag.addNote')" @keydown.enter.prevent="addFragmentNote">
-              <button class="fgA-capture-btn" type="submit">{{ t('frag.save') }} <span class="fgA-kbd">⏎</span></button>
-            </form>
-
-            <div class="fgA-stream">
-              <template v-for="group in fragStreamGroups" :key="group.key">
-                <div class="fgA-rail">{{ lang === 'zh' ? group.label.zh : group.label.en }}</div>
-                <article v-for="(note, idx) in group.notes" :key="group.key+'-'+idx" class="fgA-item fgA-thought" :class="{ 'fgA-fresh': fragNoteIsNew(note) }" :style="{ '--i': idx }">
-                  <div class="fgA-gutter">
-                    <span class="fgA-seen" :class="{ 'fgA-quiet': !fragNoteIsNew(note) }"></span>
-                    <span class="fgA-time">{{ fragGutterTime(note.created) }}</span>
-                  </div>
-                  <div class="fgA-body">
-                    <div class="fgA-text">{{ note.text }}</div>
-                    <div class="fgA-meta"><span class="fgA-kind">{{ t('frag.notes') }}</span></div>
-                  </div>
-                  <div class="fgA-rail-actions">
-                    <button class="fgA-act fgA-promote" type="button" :title="lang === 'zh' ? '升级为任务' : 'Promote to task'" @click="fragPromoteToTask(note)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>{{ lang === 'zh' ? '任务' : 'Task' }}</span></button>
-                    <button class="fgA-act" type="button" :title="lang === 'zh' ? '升级为笔记' : 'Promote to note'" @click="fragPromoteToNote(note)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></button>
-                    <button class="fgA-act fgA-x" type="button" :title="t('frag.dismiss')" @click="fragDismissNote(note)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                  </div>
-                </article>
-              </template>
-              <div v-if="!fragmentNotes.length" class="fgA-foot">{{ t('frag.empty') }}</div>
-              <div v-else class="fgA-foot">{{ lang === 'zh' ? '到底了 · 更早的会在 14 天后自动归档' : 'End · older items auto-archive after 14 days' }}</div>
-            </div>
-          </section>
-
-          <!-- ════════════ COLLECTIONS expanded · Drift Wall ════════════ -->
-          <section v-else class="fgD-wrap">
-            <header class="fgD-head">
-              <div class="fgD-headLead">
-                <button type="button" @click="fragBack" class="fgD-eyebrow"
-                  style="background:none;border:0;cursor:pointer;color:var(--accent-ink);padding:0;">
-                  {{ lang === 'zh' ? '← 返回' : '← Back' }}
-                </button>
-                <h1 class="fgD-title">{{ t('frag.collections') }}</h1>
-                <p class="fgD-sub">{{ t('frag.collectionsSub') }}</p>
-              </div>
-              <div class="fgD-stats">
-                <div class="fgD-stat"><span class="fgD-statNum">{{ fragmentCollections.length }}</span><span class="fgD-statLbl">{{ t('frag.collections') }}</span></div>
-              </div>
-            </header>
-
-            <form class="fgD-capture" @submit.prevent="addFragmentCollection">
-              <span class="fgD-captureGlyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-              <input class="fgD-captureInput" type="text" v-model="newCollectionTitle"
-                :placeholder="t('frag.addCollection')" @keydown.enter.prevent="addFragmentCollection">
-              <span class="fgD-captureHint"><kbd class="fgD-kbd">⏎</kbd> {{ t('frag.save') }}</span>
-            </form>
-
-            <div class="fgD-wall">
-              <article v-for="(col, idx) in fragCollectionsSorted" :key="'dw-'+idx"
-                class="fgD-card fgD-link" :style="{ '--rot': ((idx % 5) * 0.6 - 1.2) + 'deg' }">
-                <div class="fgD-linkHead">
-                  <span class="fgD-srcGlyph" :class="fragTypeMeta(col.type).fgd">{{ fragTypeMeta(col.type).glyph }}</span>
-                  <div class="fgD-linkMeta">
-                    <span class="fgD-typeTag">{{ fragTypeMeta(col.type).label }}</span>
-                    <h3 class="fgD-linkTitle">{{ col.title || col.name }}</h3>
-                  </div>
-                </div>
-                <a v-if="col.url" class="fgD-linkUrl" :href="col.url" target="_blank" rel="noopener">{{ fragHost(col.url) }}</a>
-                <div class="fgD-cardFoot">
-                  <span class="fgD-time">{{ col.date || '' }}</span>
-                  <div class="fgD-actions">
-                    <button class="fgD-act" type="button" :title="t('frag.archive')" @click="archiveCollection(col)">{{ t('frag.archive') }}</button>
-                  </div>
-                </div>
-              </article>
-              <p v-if="!fragmentCollections.length" class="fgD-sub" style="grid-column:1/-1;">{{ t('frag.emptyCol') }}</p>
-            </div>
-          </section>
-
-          </div>
-        </section>
-
         <!-- ========== NOTES ========== -->
         <section v-if="currentPage === 'notes'" style="padding: 20px;">
           <div style="position: relative; background: var(--bg); margin: -20px; padding: 24px 28px; min-height: calc(100vh - 60px);">
@@ -8410,6 +7631,13 @@
                   <button class="nr-collapse" type="button" :title="lang === 'zh' ? '收起' : 'Collapse'" @click="notesCollapsed = true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7l-5 5 5 5"/></svg>
                   </button>
+                </div>
+                <!-- 碎片: the page's other half — pinned above the tree, never a folder inside it -->
+                <div class="nr-scraps" :class="{ sel: !notesSelected && !notesGraphView }" @click="scrapsHome()" :title="lang === 'zh' ? '回到碎片' : 'Back to scraps'">
+                  <span class="ic" v-html="SC_ICON.spark"></span>
+                  <span class="nm">{{ lang === 'zh' ? '碎片' : 'Scraps' }}</span>
+                  <span v-if="scrapsFresh" class="badge">{{ scrapsFresh }} {{ lang === 'zh' ? '新' : 'new' }}</span>
+                  <span class="ct">{{ scrapsAll.length }}</span>
                 </div>
                 <div class="nr-search">
                   <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -8497,9 +7725,6 @@
                   </div>
                 </div>
                 <div v-else class="nr-actions">
-                  <button class="nr-new" type="button" :disabled="notesSaving" @click="notesCreate()">
-                    <span aria-hidden="true">+</span> {{ lang === 'zh' ? '新建笔记' : 'New note' }}
-                  </button>
                   <div class="nr-actrow">
                     <button class="nr-act2" type="button" @click="notesLinkOpen = !notesLinkOpen" :title="lang === 'zh' ? '粘贴一个飞书 / Notion / 网页链接,存成一条外部知识' : 'Paste a Feishu / Notion / web link as an external knowledge item'">
                       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg>
@@ -8535,7 +7760,7 @@
               </button>
               <section class="nr-right">
                 <!-- view switch: reading list vs knowledge graph -->
-                <div class="nr-viewswitch">
+                <div class="nr-viewswitch" v-if="notesGraphView || notesSelected">
                   <button :class="{ active: !notesGraphView }" @click="notesSetGraph(false)">
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
                     {{ lang === 'zh' ? '阅读' : 'Read' }}
@@ -8555,30 +7780,15 @@
 
                 <template v-else-if="notesSelected">
                   <header class="nr-right-head">
+                    <button class="nr-back" type="button" @click="scrapsHome()" :title="lang === 'zh' ? '回到碎片（Esc）' : 'Back to scraps (Esc)'">← {{ lang === 'zh' ? '碎片' : 'Scraps' }}</button>
                     <span class="nr-ico nr-ico-lg"><span v-html="noteSourceMeta(notesSelected.source).glyph"></span></span>
                     <span class="nr-htitle">{{ notesSelected.title }}</span>
                     <span class="nr-hsrc">{{ noteSourceMeta(notesSelected.source).label }}</span>
-                    <!-- edit controls: any local .md (inline OR Obsidian) — same thing underneath -->
-                    <template v-if="notesSelected.editable">
-                      <button v-if="!notesEditing" class="nr-edit nr-edit--icon" :title="lang === 'zh' ? '修改' : 'Edit'" @click="notesStartEdit()">
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                      </button>
-                      <template v-else>
-                        <button class="nr-edit nr-edit--ghost" :disabled="notesSaving" @click="notesCancelEdit()">{{ lang === 'zh' ? '取消' : 'Cancel' }}</button>
-                        <button class="nr-edit nr-edit--save" :disabled="notesSaving" @click="notesSaveEdit()">{{ notesSaving ? (lang === 'zh' ? '保存中…' : 'Saving…') : (lang === 'zh' ? '确定' : 'Save') }}</button>
-                      </template>
-                    </template>
                   </header>
                   <div class="nr-body">
                   <div class="nr-doc">
                     <div class="nr-doc-inner">
-                      <!-- edit mode: raw-markdown textarea -->
-                      <div v-if="notesEditing" class="nr-editwrap">
-                        <p v-if="notesEditError" class="nr-edit-err">{{ notesEditError }}</p>
-                        <textarea class="nr-editarea" v-model="notesEditText" spellcheck="false"></textarea>
-                        <p class="nr-edit-hint">{{ lang === 'zh' ? 'Markdown 格式 · 顶部 --- 之间是标签/日期等信息' : 'Markdown · frontmatter between the --- lines' }}</p>
-                      </div>
-                      <template v-else>
+                      <template v-if="notesSelected">
                       <h1 class="nr-doctitle">{{ notesSelected.title }}</h1>
                       <div class="nr-doc-meta">
                         <span v-for="tg in notesSelected.tags" :key="tg" class="nr-tag">#{{ String(tg).replace(/^#/, '') }}</span>
@@ -8609,44 +7819,138 @@
                       </template>
                     </div>
                   </div>
-                  <!-- ===== PROPERTIES PANEL — edit frontmatter of any local .md ===== -->
-                  <aside v-if="notesSelected.editable" class="nr-props">
-                    <div class="nr-props-head">{{ lang === 'zh' ? '文档属性' : 'Properties' }}<span v-if="notesPropsSaving" class="nr-props-saving">·{{ lang === 'zh' ? '保存中' : 'saving' }}</span></div>
-                    <!-- title -->
-                    <div class="nr-prop">
-                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h10M4 17h7"/></svg>{{ lang === 'zh' ? '标题' : 'Title' }}</span>
-                      <input class="nr-prop-in" :value="notesSelected.title" @blur="notesSetTitle" @keydown.enter="$event.target.blur()" />
-                    </div>
-                    <!-- tags -->
-                    <div class="nr-prop nr-prop--tags">
-                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.6 13.4 11 3.8A2 2 0 0 0 9.6 3H4v5.6a2 2 0 0 0 .6 1.4l9.6 9.6a2 2 0 0 0 2.8 0l3.6-3.6a2 2 0 0 0 0-2.8Z"/><circle cx="7.5" cy="7.5" r="1"/></svg>{{ lang === 'zh' ? '标签' : 'Tags' }}</span>
-                      <div class="nr-prop-tags">
-                        <span v-for="tg in notesSelected.tags" :key="tg" class="nr-prop-tag" :style="{ color: noteTagColor(tg), background: noteTagColor(tg) + '18' }">#{{ String(tg).replace(/^#/, '') }}<span class="x" @click="notesRemoveTag(tg)">×</span></span>
-                        <input class="nr-prop-tagin" v-model="notesNewTag" :placeholder="lang === 'zh' ? '+ 标签' : '+ tag'" @keydown.enter="notesAddTag" @blur="notesAddTag" />
-                      </div>
-                    </div>
-                    <!-- aliases -->
-                    <div class="nr-prop nr-prop--tags">
-                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h16M4 12l4-4M4 12l4 4"/><path d="M20 12l-4-4M20 12l-4 4"/></svg>{{ lang === 'zh' ? '别名' : 'Aliases' }}</span>
-                      <div class="nr-prop-tags">
-                        <span v-for="al in notesAliases" :key="al" class="nr-prop-tag nr-prop-tag--alias">{{ al }}<span class="x" @click="notesRemoveAlias(al)">×</span></span>
-                        <input class="nr-prop-tagin" v-model="notesNewAlias" :placeholder="lang === 'zh' ? '+ 别名' : '+ alias'" @keydown.enter="notesAddAlias" @blur="notesAddAlias" />
-                      </div>
-                    </div>
-                    <!-- date -->
-                    <div class="nr-prop">
-                      <span class="nr-prop-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>{{ lang === 'zh' ? '日期' : 'Date' }}</span>
-                      <input class="nr-prop-in" :value="notesSelected.date" :placeholder="'YYYY-MM-DD'" @blur="notesSetField('date', $event)" @keydown.enter="$event.target.blur()" />
-                    </div>
-                  </aside>
                   </div>
                 </template>
-                <div v-else class="nr-ph">
-                  <div class="box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg>
-                    <div class="t">{{ lang === 'zh' ? '从左边选一篇笔记' : 'Pick a note on the left' }}</div>
-                    <div class="s">{{ lang === 'zh' ? '内置 / Obsidian 直接看正文 · 飞书 / Notion 一键跳转' : 'Inline / Obsidian read inline · Feishu / Notion jump out' }}</div>
+                <!-- ===== 碎片 (scraps): wall by default → stream + detail once a card is picked ===== -->
+                <div v-else class="sc" :class="{ 'sc--stream': !!scrapSel }" @dragover.prevent="scrapDragOver = true" @dragleave="scrapDragOver = false" @drop.prevent="scrapDrop">
+                  <div class="sc-top">
+                    <div class="sc-row1">
+                    <div class="sc-cap" :class="{ 'has-att': scrapBlocks.length, drag: scrapDragOver }">
+                      <input ref="scFile" type="file" multiple accept="image/*,.pdf,.txt,.md,.csv,.json" style="display:none" @change="scrapFilePick">
+                      <!-- content blocks, in the order they were added -->
+                      <template v-for="(b, i) in scrapBlocks" :key="b.key">
+                        <span v-if="b.type === 'text'" class="sc-att sc-att--text" :title="lang === 'zh' ? '点一下拿回来改' : 'Click to edit'" @click="scrapEditBlock(i)"><span class="sc-att-ic">{{ lang === 'zh' ? '文' : 'T' }}</span><span class="sc-att-nm">{{ b.text.slice(0, 24) }}{{ b.text.length > 24 ? '…' : '' }}</span><span class="sc-att-x" @click.stop="scrapBlocks.splice(i, 1)">×</span></span>
+                        <span v-else-if="b.type === 'link'" class="sc-att sc-att--link" :title="b.url"><span class="sc-att-ic" v-html="SC_ICON.link"></span><span class="sc-att-nm">{{ scHost(b.url) }}</span><span class="sc-att-x" @click="scrapBlocks.splice(i, 1)">×</span></span>
+                        <span v-else class="sc-att" :title="b.name"><img v-if="b.kind === 'image'" :src="b.dataUrl" alt=""><span v-else class="sc-att-ic">{{ b.ext }}</span><span class="sc-att-nm">{{ b.name }}</span><span class="sc-att-x" @click="scrapBlocks.splice(i, 1)">×</span></span>
+                      </template>
+                      <span v-if="scrapBlocks.length || scrapDraft.trim()" class="sc-att-add" :class="{ on: scrapAddOpen }" @click.stop="scrapAddToggle()" :title="lang === 'zh' ? '再加一块：文字、链接或文件' : 'Add another block'">+</span>
+                      <div v-if="scrapAddOpen" class="sc-addpop" @click.stop>
+                        <input class="sc-addin" v-model="scrapAddUrl" :placeholder="lang === 'zh' ? '写一段文字或贴一个链接，回车加进这条' : 'Text or a link — Enter adds it'" @keydown.enter="$event.isComposing || ($event.preventDefault(), scrapAddLink())" @keydown.esc="scrapAddOpen = false" @paste="scrapAddPaste">
+                        <button type="button" @click="scrapAddOpen = false; $refs.scFile && $refs.scFile.click()">{{ lang === 'zh' ? '图片 / 文件' : 'Image / file' }}</button>
+                      </div>
+                      <span v-if="scrapBlocks.length > 1" class="sc-att-n">{{ scrapBlocks.length }} {{ lang === 'zh' ? '块存成一条' : 'blocks, one scrap' }}</span>
+                      <input class="sc-cap-in" v-model="scrapDraft" @paste="scrapPaste" @keydown="scrapCapKey" @blur="scrapLinkify()"
+                        :placeholder="scrapBlocks.length ? (lang === 'zh' ? '添加标注' : 'Add a note') : (lang === 'zh' ? '记点什么，贴个链接，或把截图、PDF 拖进来… 打 # 选标签' : 'Jot a thought, paste a link, or drop images / PDFs… # for tags')">
+                      <span v-if="!scrapBlocks.length && scrapDraft.trim()" class="sc-seal" @mousedown.prevent="scrapLinkify(); scrapCommitText()" :title="lang === 'zh' ? '变成一块（Shift+回车）' : 'Make it a block (Shift+Enter)'">✓</span>
+                      <span v-if="scrapHasContent" class="sc-cap-det">{{ scrapDetectLabel }}</span>
+                      <button v-if="scrapHasContent" class="sc-cap-go" type="button" :disabled="scrapSaving" @click="scrapSave()">{{ scrapSaving ? '…' : (lang === 'zh' ? '保存 ⏎' : 'Save ⏎') }}</button>
+                      <div v-if="scrapTagSuggest.length" class="sc-tagpop"><span class="k">{{ lang === 'zh' ? '已有标签 · Tab 选第一个' : 'existing · Tab picks first' }}</span><span v-for="t in scrapTagSuggest" :key="t" class="sc-tg pick" @mousedown.prevent="scrapPickTag(t)">{{ t }}</span></div>
+                    </div>
+                    <div class="nr-viewswitch sc-vs">
+                  <button :class="{ active: !notesGraphView }" @click="notesSetGraph(false)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                    {{ lang === 'zh' ? '碎片' : 'Scraps' }}
+                  </button>
+                  <button :class="{ active: notesGraphView }" @click="notesSetGraph(true)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M7.8 7.3 10.4 15M16.4 8.7 13.4 15.4M8 6.4 15.7 6.7"/></svg>
+                    {{ lang === 'zh' ? '图谱' : 'Graph' }}
+                  </button>
+                    </div>
+                    </div>
+                    <div class="sc-bar">
+                      <div class="sc-srch" :class="{ tagged: scrapTag }" @click.stop>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+                        <span v-if="scrapTag" class="sc-tagsel" :title="lang === 'zh' ? '只看这个标签 · 退格取消' : 'Only this tag · Backspace clears'">#{{ scrapTag }}<i @click="scrapTag = ''">×</i></span>
+                        <input v-model="scrapQ" :placeholder="scrapTag ? (lang === 'zh' ? '在这个标签里再搜…' : 'Search within…') : (lang === 'zh' ? '搜碎片，打 # 选标签' : 'Search, # picks a tag')" @keydown="scrapSearchKey">
+                        <span class="sc-hash" :class="{ on: scrapTagMenu }" @click="scrapTagMenu = !scrapTagMenu" :title="lang === 'zh' ? '看看有哪些标签' : 'Browse tags'">#</span>
+                        <div v-if="scrapSearchTags.length || scrapTagMenu" class="sc-tagpop sc-tagpop--srch" @mousedown.prevent>
+                          <span class="k">{{ scrapSearchTags.length ? (lang === 'zh' ? '标签 · 点一个只看它' : 'tags · click to filter') : (lang === 'zh' ? '还没有标签' : 'no tags yet') }}</span>
+                          <span v-for="t in scrapSearchTags" :key="t.tag" class="sc-tg" @click="scrapSearchPickTag(t.tag)">{{ t.tag }} <i>{{ t.count }}</i></span>
+                        </div>
+                      </div>
+                      <div class="sc-chips">
+                        <span class="sc-chip" :class="{ on: scrapKind === 'all' }" @click="scrapKind = 'all'">{{ lang === 'zh' ? '全部' : 'All' }} <i>{{ scrapsAll.length }}</i></span>
+                        <span v-for="k in scrapKindList" :key="k.id" class="sc-chip" :class="{ on: scrapKind === k.id }" @click="scrapKind = k.id"><span class="d" :style="{ background: k.color }"></span>{{ k.label }} <i>{{ k.n }}</i></span>
+                      </div>
+                      <span v-if="scrapsEnrich === 'off'" class="sc-off" :title="lang === 'zh' ? '没找到 claude 命令，或配置里关掉了；标签和摘要不会自动补' : 'No claude CLI found (or enrich: off) — tags and summaries are not filled in automatically'">{{ lang === 'zh' ? 'AI 补全已关' : 'AI enrich off' }}</span>
+                    </div>
                   </div>
+
+                  <!-- wall -->
+                  <div v-if="!scrapSel" class="sc-wall">
+                    <p v-if="!scrapsFiltered.length" class="sc-empty">{{ scrapsAll.length ? (lang === 'zh' ? '没有匹配的碎片' : 'Nothing matches') : (lang === 'zh' ? '还是空的。记点什么，或者跟 AI 说"收藏一下"' : 'Empty. Jot something, or tell the AI "save this"') }}</p>
+                    <scrap-card v-for="it in scrapsFiltered" :key="it.id" :item="it" :sel="false" :lang="lang" :pending="scrapIsPending(it)" @pick="scrapPick" @accept="scrapAcceptTag"></scrap-card>
+                  </div>
+
+                  <!-- stream + detail -->
+                  <div v-else class="sc-split">
+                    <div class="sc-stream">
+                      <template v-for="g in scrapGroups" :key="g.key">
+                        <div class="sc-rail">{{ g.label }} · {{ g.items.length }}</div>
+                        <scrap-card v-for="it in g.items" :key="it.id" :item="it" :sel="scrapSel.id === it.id" :lang="lang" :pending="scrapIsPending(it)" @pick="scrapPick" @accept="scrapAcceptTag"></scrap-card>
+                      </template>
+                      <p v-if="!scrapsFiltered.length" class="sc-empty">{{ lang === 'zh' ? '没有匹配的碎片' : 'Nothing matches' }}</p>
+                    </div>
+                    <aside class="sc-detail">
+                      <div class="sc-dt-h">
+                        <span v-if="scrapSel.kind === 'idea' || scrapSel.kind === 'quote'" class="sc-kindsw" :title="lang === 'zh' ? '这条是文字还是摘录？点一下换' : 'Text or quote? Click to switch'"><span :class="{ on: scrapSel.kind === 'idea' }" @click="scrapSetKind('idea')">{{ scKindLabel('idea') }}</span><span :class="{ on: scrapSel.kind === 'quote' }" @click="scrapSetKind('quote')">{{ scKindLabel('quote') }}</span></span>
+                        <span v-else class="sc-ty" :class="'sc-ty--' + scrapSel.kind">{{ scKindLabel(scrapSel.kind) }}</span>
+                        <span class="sc-dt-time">{{ scTime(scrapSel) }} · {{ scRel(scrapSel) }}</span>
+                        <button class="sc-dt-x" type="button" @click="scrapClose()" :title="lang === 'zh' ? '关闭（Esc）' : 'Close (Esc)'">×</button>
+                      </div>
+                      <div class="sc-dt-body">
+                        <template v-if="scrapSel.kind === 'image'"><img v-for="u in (scrapSel.fileUrls && scrapSel.fileUrls.length ? scrapSel.fileUrls : [scrapSel.fileUrl])" :key="u" class="sc-dt-img" :src="u" alt="" @click="scrapOpenUrl(u)"></template>
+                        <template v-else-if="scrapSel.kind === 'file'">
+                          <div v-for="(f, i) in (scrapSel.files && scrapSel.files.length ? scrapSel.files : [scrapSel.file])" :key="f" class="sc-fl" :class="{ row: i > 0 }" style="cursor:pointer" @click="scrapOpenUrl((scrapSel.fileUrls || [])[i] || scrapSel.fileUrl)"><span class="sc-pdf">{{ (String(f).split('.').pop() || 'FILE').toUpperCase().slice(0, 4) }}</span><div><div class="sc-fl-n">{{ String(f).replace(/^files\//, '').replace(/^\d{8}-\d{6}-/, '') }}</div><div class="sc-fl-m">{{ i === 0 ? scrapSize(scrapSel.fileSize) + ' · ' : '' }}{{ lang === 'zh' ? '点开原样看' : 'open' }}</div></div></div>
+                        </template>
+                        <template v-if="scrapSel.kind === 'link'">
+                          <img v-if="scrapSel.ogImage" class="sc-dt-img" :src="scrapSel.ogImage" alt="" style="margin-bottom:10px" @error="$event.target.style.display='none'">
+                          <input class="sc-dt-ti" v-model="scrapTitleDraft" :placeholder="scrapSel.titlePending ? (lang === 'zh' ? '标题待补，点这里写一个' : 'Title pending — type one') : (lang === 'zh' ? '标题' : 'Title')" @blur="scrapTitleSave" @keydown.enter="$event.target.blur()">
+                          <a class="sc-dt-url" :href="scrapSel.url" target="_blank" rel="noopener">{{ scrapSel.site }} ↗ <span>{{ scrapSel.url }}</span></a>
+                        </template>
+                        <a v-for="l in (scrapSel.links || []).slice(scrapSel.kind === 'link' ? 1 : 0)" :key="l.url" class="sc-dt-lk" :href="l.url" target="_blank" rel="noopener"><span class="sc-fav sm" :style="{ background: '#3457b8' }">{{ (l.site || '·')[0].toUpperCase() }}</span><span class="t"><b :class="{ pending: l.pending && !l.title }">{{ l.title || (l.pending ? (lang === 'zh' ? '标题待补' : 'Title pending') : l.site) }}</b><i>{{ l.site }} ↗</i></span></a>
+                        <template v-if="scrapSel.text">
+                          <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" :style="scrapSel.kind !== 'idea' && scrapSel.kind !== 'quote' ? 'margin-top:10px' : ''" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
+                          <p v-else class="sc-dt-tx editable" :class="{ quote: scrapSel.kind === 'quote' }" :style="scrapSel.kind !== 'idea' && scrapSel.kind !== 'quote' ? 'margin-top:10px' : ''" :title="lang === 'zh' ? '点一下修改' : 'Click to edit'" @click="scrapTextEdit()">{{ scrapSel.text }}</p>
+                          <input v-if="scrapSel.kind === 'quote'" class="sc-byin" :value="scrapSel.by" :placeholder="lang === 'zh' ? '— 谁说的 / 出处' : '— who said it'" @change="scrapSetBy($event.target.value)" @keydown.enter="$event.target.blur()">
+                          <div v-else-if="scrapSel.by" class="sc-qb">{{ scrapSel.by }}</div>
+                        </template>
+                        <template v-else-if="scrapSel.kind !== 'quote'">
+                          <textarea v-if="scrapTextEditing" ref="scTextBox" class="sc-txbox" v-model="scrapTextDraft" spellcheck="false" style="margin-top:10px" :placeholder="lang === 'zh' ? '写点文字…' : 'Some words…'" @blur="scrapTextSave" @keydown.esc.prevent="scrapTextCancel" @keydown="($event.metaKey || $event.ctrlKey) && $event.key === 'Enter' && $event.target.blur()"></textarea>
+                          <button v-else type="button" class="sc-txadd" @click="scrapTextEdit()">{{ lang === 'zh' ? '+ 加一段文字' : '+ Add words' }}</button>
+                        </template>
+                        <div v-if="scrapSel.kind === 'link' && scrapSel.contentHtml" class="md-content sc-dt-doc" v-html="scrapSel.contentHtml"></div>
+                        <p v-if="scrapSel.caption" class="sc-dt-cap">✦ {{ scrapSel.caption }}</p>
+                        <p v-if="scrapSel.summary" class="sc-dt-sum">✦ {{ scrapSel.summary }}</p>
+                        <p v-if="scrapIsPending(scrapSel)" class="sc-dt-sum sc-live">✦ {{ lang === 'zh' ? 'AI 正在看…' : 'AI is looking…' }}</p>
+                      </div>
+                      <div class="sc-kv">
+                        <span class="k">{{ lang === 'zh' ? '来源' : 'Source' }}</span><span class="v">{{ ({ paste: '手动贴入', drop: '拖入', chat: 'AI 对话', inbox: '随手记', legacy: '早期收藏', test: '测试' })[scrapSel.source] || scrapSel.source }}</span>
+                        <span class="k">{{ lang === 'zh' ? '存于' : 'Path' }}</span><span class="v" :title="scrapSel.path">{{ scrapSel.path }}</span>
+                      </div>
+                      <div class="sc-dt-sec">
+                        <div class="h"><span class="sc-dt-k">{{ lang === 'zh' ? '标签' : 'Tags' }}</span><a v-if="scrapsEnrich !== 'off' && !scrapIsPending(scrapSel) && !scrapSel.legacy" @click="scrapEnrich(scrapSel)">{{ lang === 'zh' ? '让 AI 再看一遍' : 'Ask AI again' }}</a></div>
+                        <div class="sc-tgs" style="margin:0">
+                          <span v-for="t in scrapSel.tags" :key="'t' + t" class="sc-tg">{{ t }}<span class="x" @click="scrapRemoveTag(scrapSel, t)">×</span></span>
+                          <span class="sc-tgwrap"><input class="sc-tgin" v-model="scrapTagDraft" :placeholder="lang === 'zh' ? '+ 标签' : '+ tag'" @focus="scrapTagFocus = true" @blur="scrapTagFocus = false; scrapAddTag()" @keydown.enter="$event.isComposing || scrapAddTag()">
+                            <div v-if="scrapDetailTagSuggest.length" class="sc-tagpop sc-tagpop--dt"><span class="k">{{ lang === 'zh' ? '已有的' : 'existing' }}</span><span v-for="t in scrapDetailTagSuggest" :key="t" class="sc-tg pick" @mousedown.prevent="scrapPickDetailTag(t)">{{ t }}</span></div></span>
+                        </div>
+                        <div v-if="scrapSel.aiTags.length" class="sc-aisug">
+                          <div class="k"><span>✦ {{ lang === 'zh' ? 'AI 建议' : 'AI suggests' }}</span><a @click="scrapAcceptAll(scrapSel)">{{ lang === 'zh' ? '全部采纳' : 'Keep all' }}</a></div>
+                          <div class="sc-tgs" style="margin:0"><span v-for="t in scrapSel.aiTags" :key="'a' + t" class="sc-tg ai" @click="scrapAcceptTag(scrapSel, t)" :title="lang === 'zh' ? '点一下采纳' : 'Click to keep'">✦ {{ t }}</span></div>
+                        </div>
+                      </div>
+                      <div class="sc-dt-sec">
+                        <div class="h"><span class="sc-dt-k">{{ lang === 'zh' ? '标注' : 'Note' }}</span><span class="sc-dt-k" style="text-transform:none;letter-spacing:0">{{ lang === 'zh' ? '只放你自己的话' : 'your words only' }}</span></div>
+                        <textarea class="sc-anbox" v-model="scrapNoteDraft" @input="scrapNoteInput" :placeholder="lang === 'zh' ? '写句标注，搜索时会用到…' : 'A note to yourself — searchable…'"></textarea>
+                      </div>
+                      <div class="sc-dt-acts">
+                        <button v-if="scrapSel.url || scrapSel.fileUrl" type="button" @click="scrapOpen(scrapSel)">{{ lang === 'zh' ? '打开' : 'Open' }}</button>
+                        <button type="button" :class="{ danger: scrapConfirmDel }" @click="scrapRemove(scrapSel)">{{ scrapConfirmDel ? (lang === 'zh' ? '确认删除' : 'Confirm') : (lang === 'zh' ? '删除' : 'Delete') }}</button>
+                      </div>
+                    </aside>
+                  </div>
+                  <div v-if="scToast" class="sc-toast"><i></i>{{ scToast }}</div>
                 </div>
               </section>
             </div>
@@ -9920,22 +9224,29 @@ const lociApp = createApp({
     // of a full page reload — no white flash when brain files change.
     // Coalesced: concurrent callers share one in-flight pull, and a call
     // right after a completed one is a no-op — the payload is ~2MB, so a
-    // burst of change events must cost one fetch, not one each.
+    // burst of change events must cost one fetch, not one each. A change
+    // event that lands DURING a pull queues exactly one follow-up pull:
+    // the in-flight response may predate that change.
     let refreshInflight = null;
+    let refreshQueued = false;
     let refreshDoneAt = 0;
+    async function pullAllData() {
+      try {
+        const r = await fetch('/api/data');
+        if (!r.ok) return false;
+        data.value = await r.json();
+        if (typeof window.lociSoftRefreshTrace === 'function') window.lociSoftRefreshTrace();
+        return true;
+      } catch { return false; }
+    }
     window.lociSoftRefresh = function () {
-      if (refreshInflight) return refreshInflight;
-      if (Date.now() - refreshDoneAt < 1000) return Promise.resolve(true);
+      if (refreshInflight) { refreshQueued = true; return refreshInflight; }
+      if (Date.now() - refreshDoneAt < 250) return Promise.resolve(true);
       refreshInflight = (async () => {
-        try {
-          const r = await fetch('/api/data');
-          if (!r.ok) return false;
-          data.value = await r.json();
-          if (typeof window.lociSoftRefreshTrace === 'function') window.lociSoftRefreshTrace();
-          return true;
-        } catch { return false; }
-        finally { refreshInflight = null; refreshDoneAt = Date.now(); }
-      })();
+        let ok = await pullAllData();
+        while (refreshQueued) { refreshQueued = false; ok = await pullAllData(); }
+        return ok;
+      })().finally(() => { refreshInflight = null; refreshDoneAt = Date.now(); });
       return refreshInflight;
     };
     const currentPage = ref('overview');
@@ -10753,7 +10064,6 @@ const lociApp = createApp({
       { id: 'journal', icon: '&#9687;', nameKey: 'welcome.secJournal', introKey: 'guide.journalIntro' },
       { id: 'memory', icon: '&#9674;', nameKey: 'welcome.secMemory', introKey: 'guide.memoryIntro' },
       { id: 'people', icon: '&#9671;', nameKey: 'welcome.secPeople', introKey: 'guide.peopleIntro' },
-      { id: 'fragments', icon: '&#10043;', nameKey: 'welcome.secFragments', introKey: 'guide.fragmentsIntro' },
     ];
     const guidePerPage = 6;
     const guideTotalPages = computed(() => Math.ceil(guideModules.length / guidePerPage));
@@ -10798,10 +10108,6 @@ const lociApp = createApp({
       people: [
         { target: '[data-tour="people-stats"]', title: { zh: '\u4EBA\u8109\u7EDF\u8BA1', en: 'Network Stats' }, text: { zh: '\u6309\u4EB2\u5BC6\u5EA6\u5206\u7C7B\uFF1AShield(\u81F3\u4EB2) / Neural(\u5BC6\u53CB) / Crew(\u540C\u4E8B) / Signal(\u5F31\u8FDE\u63A5)', en: 'Categorized by closeness: Shield / Neural / Crew / Signal' }, pos: 'bottom' },
         { target: '[data-tour="people-cards"]', title: { zh: '\u8054\u7CFB\u4EBA\u5361\u7247', en: 'Contact Cards' }, text: { zh: '\u70B9\u51FB\u67E5\u770B\u8BE6\u60C5\uFF0C\u4EB2\u5BC6\u5EA6\u6761\u663E\u793A\u5173\u7CFB\u5F3A\u5EA6', en: 'Click for details. Strength bar shows relationship health' }, pos: 'top' },
-      ],
-      fragments: [
-        { target: '[data-tour="frag-input"]', title: { zh: '\u5FEB\u901F\u6355\u6349', en: 'Quick Capture' }, text: { zh: '\u8F93\u5165\u4E00\u4E2A\u60F3\u6CD5\u6216\u94FE\u63A5\uFF0C\u7ACB\u5373\u4FDD\u5B58', en: 'Type a thought or link \u2014 saved instantly' }, pos: 'bottom' },
-        { target: '[data-tour="frag-tabs"]', title: { zh: '\u7B14\u8BB0 / \u6536\u85CF', en: 'Notes / Collections' }, text: { zh: '\u7075\u611F\u788E\u7247\u548C\u6536\u85CF\u94FE\u63A5\u5206\u5F00\u7BA1\u7406', en: 'Fleeting thoughts and saved links managed separately' }, pos: 'bottom' },
       ],
     };
 
@@ -13010,7 +12316,6 @@ const lociApp = createApp({
       { id: 'brain',     label: t('nav.brain'),    icon: '\u2756', termIcon: '[B]' },
       { id: 'roadmap',   label: t('nav.roadmap'),  icon: '\u25B1', termIcon: '[#]' },
       { id: 'notes',     label: t('nav.notes'),    icon: '\u25A4', termIcon: '[N]' },
-      { id: 'fragments', label: t('nav.fragments'), icon: '\u22B9', termIcon: '[*]' },
       { id: 'skills',    label: t('nav.skills'),    icon: '\u2605', termIcon: '[S]' },
     ].map(x => ({ ...x, svg: NAV_SVG[x.id] || null, c: NAV_COLOR[x.id] || 'var(--accent)' })));
 
@@ -13019,13 +12324,13 @@ const lociApp = createApp({
     const navCount = (id) => {
       if (id === 'people')    return (peopleData.value || []).length || null;
       if (id === 'roadmap')   return (roadmapProjects.value || []).length || null;
-      if (id === 'fragments') return (fragmentNotes.value || []).length || null;
+      if (id === 'notes')     return scrapsFresh.value || null;   // fresh 碎片 in the last 24h
       return null;
     };
     const navById = (id) => navItems.value.find(i => i.id === id);
     const navGroups = computed(() => [
       { label: null,                    items: ['overview'] },
-      { label: t('nav.sec.daily'),      items: ['today', 'fragments', 'people', 'memory'] },
+      { label: t('nav.sec.daily'),      items: ['today', 'people', 'memory'] },
       { label: t('nav.sec.workspace'),  items: ['roadmap', 'notes', 'skills', 'journal'] }, // 'brain' hidden (page kept, removed from sidebar)
     ].map(g => ({ label: g.label, items: g.items.map(navById).filter(Boolean) })));
 
@@ -13400,8 +12705,8 @@ const lociApp = createApp({
       if (updPpl.length) g.push({ label: zh ? '人脉更新' : 'People updated', page: 'people', cat: '人脉', chips: updPpl.map(p => ({ label: p.name, sub: p.relation, person: true })) });
       if (newNotes.length) g.push({ label: zh ? '新增笔记' : 'Notes added', page: 'notes', cat: '笔记', chips: newNotes.map(x => ({ label: x.title })) });
       if (updNotes.length) g.push({ label: zh ? '笔记更新' : 'Notes updated', page: 'notes', cat: '笔记', chips: updNotes.map(x => ({ label: x.title })) });
-      if (refs.length) g.push({ label: zh ? '新增收藏' : 'Bookmarks', page: 'fragments', cat: '收藏', chips: refs.map(r => ({ label: r.title })) });
-      if (research.length) g.push({ label: zh ? '新增研究' : 'Research', page: 'fragments', cat: '研究', chips: research.map(r => ({ label: r.title })) });
+      if (refs.length) g.push({ label: zh ? '新增收藏' : 'Bookmarks', page: 'notes', cat: '收藏', chips: refs.map(r => ({ label: r.title })) });
+      if (research.length) g.push({ label: zh ? '新增研究' : 'Research', page: 'notes', cat: '研究', chips: research.map(r => ({ label: r.title })) });
       return g;
     });
     const dtCollectedCount = computed(() => dtCollected.value.reduce((n, g) => n + g.chips.length, 0));
@@ -14948,7 +14253,6 @@ const lociApp = createApp({
       };
     }
 
-    // ===== Fragments =====
     // ─── Roadmap (project todos) ───────────────────────────────────────────
     // Every connected project renders its OWN stacked block (dossier + kanban),
     // so per-project UI state is keyed by project name, not a single selection.
@@ -15526,7 +14830,7 @@ const lociApp = createApp({
       const zh = lang.value === 'zh';
       const notes = (notesUnified.value || []).length;
       const decisions = overview.value.kpis.decisions || 0;
-      const fragments = (fragmentNotes.value || []).length;
+      const fragments = scrapsAll.value.length;
       const raw = [
         { key: 'a', label: zh ? '笔记' : 'Notes',     value: notes },
         { key: 'b', label: zh ? '决策' : 'Decisions', value: decisions },
@@ -16054,6 +15358,286 @@ const lociApp = createApp({
       notesGraphView.value = on;
       if (on) kgStart(); else kgStop();
     }
+    // ===== 碎片 (scraps): everything collected — thoughts, links, images, files, quotes, docs =====
+    // Data comes from /api/data → scraps (lib/scraps.js). The wall is the page's home; picking a card
+    // turns the wall into a time-grouped stream with a detail column; picking a note shows the reader.
+    const SC_ICON = {
+      spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/></svg>',
+      link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M10.5 6.5 12 5a4 4 0 0 1 6 6l-1.5 1.5M13.5 17.5 12 19a4 4 0 0 1-6-6l1.5-1.5"/></svg>',
+    };
+    const SC_KINDS = [
+      { id: 'idea',  zh: '文字', en: 'Text',   color: '#6b4fb3' }, { id: 'link', zh: '链接', en: 'Links', color: '#3457b8' },
+      { id: 'image', zh: '图片', en: 'Images', color: '#0b7d5a' }, { id: 'file', zh: '文件', en: 'Files', color: '#c0503a' },
+      { id: 'quote', zh: '摘录', en: 'Quotes', color: '#8a6d34' },
+    ];
+    const scrapsAll = computed(() => (data.value && data.value.scraps && Array.isArray(data.value.scraps.items)) ? data.value.scraps.items : []);
+    const scrapsEnrich = computed(() => (data.value && data.value.scraps && data.value.scraps.enrich) || 'off');
+    const scrapsPending = computed(() => (data.value && data.value.scraps && data.value.scraps.pending) || []);
+    const scrapQ = ref(''); const scrapKind = ref('all'); const scrapSel = ref(null);
+    const scrapDraft = ref(''); const scrapBlocks = ref([]); const scrapAddOpen = ref(false); const scrapAddUrl = ref(''); const scrapSaving = ref(false); const scrapDragOver = ref(false); const scrapTagFocus = ref(false);
+    const scrapNoteDraft = ref(''); const scrapTitleDraft = ref(''); const scrapTagDraft = ref(''); const scrapConfirmDel = ref(false);
+    const scrapTextEditing = ref(false); const scrapTextDraft = ref('');
+    const scToast = ref(''); let scToastTimer = null;
+    function scSay(m) { scToast.value = m; clearTimeout(scToastTimer); scToastTimer = setTimeout(() => { scToast.value = ''; }, 1800); }
+    const scPad = (n) => String(n).padStart(2, '0');
+    function scKindLabel(k) { const m = SC_KINDS.find(x => x.id === k); return m ? (lang.value === 'zh' ? m.zh : m.en) : k; }
+    function scKindColor(k) { const m = SC_KINDS.find(x => x.id === k); return m ? m.color : 'var(--ink-3)'; }
+    function scMs(it) { const t = Date.parse((it && it.created) || ''); return Number.isFinite(t) ? t : 0; }
+    function scTime(it) { const t = scMs(it); if (!t) return ''; const d = new Date(t); const md = scPad(d.getMonth() + 1) + '-' + scPad(d.getDate()); return /T00:00:00/.test(String(it.created)) ? md : md + ' ' + scPad(d.getHours()) + ':' + scPad(d.getMinutes()); }
+    function scRel(it) {
+      const t = scMs(it); if (!t) return ''; const zh = lang.value === 'zh'; const diff = Date.now() - t;
+      const m = Math.floor(diff / 60000), h = Math.floor(diff / 3600000), d = Math.floor(diff / 86400000);
+      if (m < 1) return zh ? '刚刚' : 'now'; if (m < 60) return zh ? m + ' 分钟前' : m + 'm ago'; if (h < 24) return zh ? h + ' 小时前' : h + 'h ago';
+      if (d === 1) return zh ? '昨天' : 'yesterday'; if (d < 7) return zh ? d + ' 天前' : d + 'd ago'; if (d < 30) return zh ? Math.floor(d / 7) + ' 周前' : Math.floor(d / 7) + 'w ago';
+      const x = new Date(t); return zh ? (x.getMonth() + 1) + ' 月' : x.toLocaleString('en', { month: 'short' });
+    }
+    function scIsFresh(it) { return Date.now() - scMs(it) < 86400000; }
+    function scrapSize(n) { n = Number(n) || 0; return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : n >= 1024 ? Math.round(n / 1024) + ' KB' : n + ' B'; }
+    const scrapIsPending = (it) => !!it && scrapsPending.value.includes(it.id);
+    const scrapsFresh = computed(() => scrapsAll.value.filter(scIsFresh).length);
+    const scrapKindList = computed(() => SC_KINDS.map(k => ({ ...k, label: lang.value === 'zh' ? k.zh : k.en, n: scrapsAll.value.filter(i => i.kind === k.id).length })).filter(k => k.n));
+    const scrapTag = ref(''); const scrapTagMenu = ref(false);
+    const scrapsFiltered = computed(() => {
+      const q = scrapQ.value.trim().replace(/^#/, '').toLowerCase(); const tag = scrapTag.value;
+      return scrapsAll.value.filter(i => (scrapKind.value === 'all' || i.kind === scrapKind.value)
+        && (!tag || (i.tags || []).includes(tag) || (i.aiTags || []).includes(tag))
+        && (!q || [i.title, i.text, i.note, i.summary, i.caption, i.url, i.site, i.by, ...(i.tags || []), ...(i.aiTags || [])].join(' ').toLowerCase().includes(q)));
+    });
+    // "#" in the search box (or the # button) lists the tags that exist — nobody remembers their own tag names
+    const scrapSearchTags = computed(() => {
+      const vocab = (data.value && data.value.scraps && data.value.scraps.tags) || [];
+      const m = scrapQ.value.match(/(^|\s)#([^\s#]*)$/);
+      if (!m && !scrapTagMenu.value) return [];
+      const q = m ? m[2].toLowerCase() : '';
+      return vocab.filter(t => t.tag !== scrapTag.value && (!q || t.tag.toLowerCase().includes(q))).slice(0, m ? 12 : 40);
+    });
+    function scrapSearchPickTag(t) { scrapTag.value = t; scrapQ.value = scrapQ.value.replace(/(^|\s)#[^\s#]*$/, '').trim(); scrapTagMenu.value = false; }
+    function scrapSearchKey(e) {
+      if (e.isComposing) return;
+      const typingTag = /#[^\s#]*$/.test(scrapQ.value);
+      if (e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation();
+        if (scrapTagMenu.value) scrapTagMenu.value = false;
+        else if (typingTag) scrapQ.value = scrapQ.value.replace(/(^|\s)#[^\s#]*$/, '').trim();
+        else if (scrapQ.value) scrapQ.value = '';
+        else scrapTag.value = '';
+        return;
+      }
+      if ((e.key === 'Tab' || e.key === 'Enter') && typingTag && scrapSearchTags.value.length) { e.preventDefault(); scrapSearchPickTag(scrapSearchTags.value[0].tag); return; }
+      if (e.key === 'Backspace' && !scrapQ.value && scrapTag.value) { e.preventDefault(); scrapTag.value = ''; }
+    }
+    document.addEventListener('click', () => { if (scrapTagMenu.value) scrapTagMenu.value = false; });
+    const scrapGroups = computed(() => {
+      const zh = lang.value === 'zh'; const start = new Date(); start.setHours(0, 0, 0, 0);
+      const weekAgo = start.getTime() - 6 * 86400000; const g = { today: [], week: [], older: [] };
+      for (const it of scrapsFiltered.value) { const t = scMs(it); (t >= start.getTime() ? g.today : t >= weekAgo ? g.week : g.older).push(it); }
+      return [{ key: 'today', label: zh ? '今天' : 'Today', items: g.today }, { key: 'week', label: zh ? '本周' : 'This week', items: g.week }, { key: 'older', label: zh ? '更早' : 'Earlier', items: g.older }].filter(x => x.items.length);
+    });
+    // ── capture: a scrap is a small list of blocks (text / link / image / file) plus one 标注 ──
+    const scrapsTagVocab = computed(() => ((data.value && data.value.scraps && data.value.scraps.tags) || []).map(t => t.tag));
+    const scHost = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
+    const scKey = () => Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+    const scrapHasContent = computed(() => !!(scrapDraft.value.trim() || scrapBlocks.value.length));
+    const scrapDetectLabel = computed(() => {
+      const zh = lang.value === 'zh'; const bl = scrapBlocks.value;
+      const files = bl.filter(b => b.type === 'file'); const links = bl.filter(b => b.type === 'link');
+      const textLen = bl.filter(b => b.type === 'text').reduce((n, b) => n + b.text.length, 0) + scrapDraft.value.trim().length;
+      if (files.length) return scKindLabel(files.every(f => f.kind === 'image') ? 'image' : 'file') + (files.length > 1 ? ' ×' + files.length : '');
+      const nl = links.length + (scrapDraft.value.match(/https?:\/\/\S+/g) || []).length;
+      if (nl) return scKindLabel('link') + (nl > 1 ? ' ×' + nl : '');
+      if (!textLen) return zh ? '自动识别' : 'auto';
+      return scKindLabel('idea');
+    });
+    // "#" at the end of the draft opens the existing-tag picker: reuse a tag instead of inventing a twin
+    const scrapTagSuggest = computed(() => {
+      const m = scrapDraft.value.match(/(^|\s)#([^\s#]*)$/); if (!m) return [];
+      const q = m[2].toLowerCase(); const used = (scrapDraft.value.match(/#([^\s#]+)/g) || []).map(x => x.slice(1));
+      return scrapsTagVocab.value.filter(t => !used.includes(t) && (!q || t.toLowerCase().includes(q))).slice(0, 8);
+    });
+    function scrapPickTag(t) { scrapDraft.value = scrapDraft.value.replace(/#[^\s#]*$/, '#' + t + ' '); }
+    // the typed text becomes a text block: Shift+Enter, the "+" menu, or automatically when a file joins
+    let scrapEditAt = -1;   // where a block taken back for editing came from
+    function scrapCommitText() {
+      const t = scrapDraft.value.trim(); if (!t) { scrapEditAt = -1; return false; }
+      const block = { key: scKey(), type: 'text', text: t };
+      if (scrapEditAt >= 0 && scrapEditAt <= scrapBlocks.value.length) scrapBlocks.value.splice(scrapEditAt, 0, block); else scrapBlocks.value.push(block);
+      scrapEditAt = -1; scrapDraft.value = ''; return true;
+    }
+    function scrapEditBlock(i) {
+      const b = scrapBlocks.value[i]; if (!b || b.type !== 'text') return;
+      scrapCommitText(); const at = scrapBlocks.value.indexOf(b); scrapBlocks.value.splice(at, 1); scrapDraft.value = b.text; scrapEditAt = at;
+      nextTick(() => { const el = document.querySelector('.sc-cap-in'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } });
+    }
+    // every URL in the draft becomes a link block; the words around it stay in the draft
+    function scrapLinkify() {
+      const found = scrapDraft.value.match(/https?:\/\/[^\s<>"'）)]+/g) || [];
+      if (!found.length) return false;
+      let d = scrapDraft.value;
+      for (const u of found) { if (!scrapBlocks.value.some(b => b.type === 'link' && b.url === u)) scrapBlocks.value.push({ key: scKey(), type: 'link', url: u }); d = d.split(u).join(' '); }
+      scrapDraft.value = d.replace(/[ \t]{2,}/g, ' ').trim();
+      return true;
+    }
+    function scrapAddToggle() { scrapAddOpen.value = !scrapAddOpen.value; if (scrapAddOpen.value) nextTick(() => { const el = document.querySelector('.sc-addin'); if (el) el.focus(); }); }
+    function scrapAddLink() {
+      // whatever is in the mini box joins the scrap: URLs as link blocks, the rest as a text block
+      let v = scrapAddUrl.value.trim(); if (!v) return;
+      const found = v.match(/https?:\/\/[^\s<>"'）)]+/g) || [];
+      for (const u of found) { if (!scrapBlocks.value.some(b => b.type === 'link' && b.url === u)) scrapBlocks.value.push({ key: scKey(), type: 'link', url: u }); v = v.split(u).join(' '); }
+      v = v.replace(/[ \t]{2,}/g, ' ').trim();
+      if (v) scrapBlocks.value.push({ key: scKey(), type: 'text', text: v });
+      scrapAddUrl.value = ''; scrapAddOpen.value = false;
+      nextTick(() => { const el = document.querySelector('.sc-cap-in'); if (el) el.focus(); });
+    }
+    function scrapAddPaste(e) { const t = e.clipboardData && e.clipboardData.getData('text'); if (t && /https?:\/\/\S+/.test(t)) { e.preventDefault(); scrapAddUrl.value = t; scrapAddLink(); } }
+    function scrapCapKey(e) {
+      if (e.isComposing) return;
+      if (e.key === 'Tab' && scrapTagSuggest.value.length) { e.preventDefault(); scrapPickTag(scrapTagSuggest.value[0]); return; }
+      if (e.key === ' ' && /https?:\/\/\S+$/.test(scrapDraft.value)) { e.preventDefault(); scrapLinkify(); return; }
+      if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); if (!scrapBlocks.value.length) { scrapLinkify(); scrapCommitText(); } return; }
+      if (e.key === 'Enter') { e.preventDefault(); scrapSave(); }
+    }
+    function scReadDataUrl(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); }); }
+    async function scrapAttachFile(file) {
+      if (!file) return false;
+      if (file.size > 25 * 1024 * 1024) { scSay(lang.value === 'zh' ? '文件太大（上限 25MB）' : 'File too large (25MB max)'); return false; }
+      scrapLinkify(); scrapCommitText();   // a file joining the box seals the words typed so far into a block
+      const dataUrl = await scReadDataUrl(file);
+      const isImg = /^image\//.test(file.type) || /\.(png|jpe?g|gif|webp|heic|heif|bmp)$/i.test(file.name || '');
+      let name = file.name || (isImg ? 'image-' + Date.now() + '.png' : 'file');
+      if (/^[0-9a-f]{16,}(\.[a-z0-9]+)?$/i.test(name)) name = (isImg ? 'image-' : 'file-') + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + (name.includes('.') ? name.slice(name.lastIndexOf('.')) : (isImg ? '.png' : ''));   // a pasted blob named by its hash says nothing — stamp it instead
+      scrapBlocks.value.push({ key: scKey(), type: 'file', name, mime: file.type, dataUrl, kind: isImg ? 'image' : 'file', ext: (name.includes('.') ? name.split('.').pop() : 'FILE').toUpperCase().slice(0, 4) });
+      return true;
+    }
+    async function scrapPaste(e) {
+      const files = [...((e.clipboardData && e.clipboardData.files) || [])];
+      if (files.length) { e.preventDefault(); for (const f of files) await scrapAttachFile(f); return; }
+      const text = e.clipboardData && e.clipboardData.getData('text');
+      if (text && /https?:\/\/\S+/.test(text)) { e.preventDefault(); scrapDraft.value = (scrapDraft.value + ' ' + text).trim(); scrapLinkify(); }
+    }
+    async function scrapFilePick(e) { const files = [...(e.target.files || [])]; e.target.value = ''; await scrapFiles(files); }
+    async function scrapDrop(e) {
+      scrapDragOver.value = false;
+      const files = [...((e.dataTransfer && e.dataTransfer.files) || [])];
+      if (files.length) { await scrapFiles(files); return; }
+      const text = e.dataTransfer && (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text'));
+      if (text) { scrapDraft.value = (scrapDraft.value + ' ' + text).trim(); scrapLinkify(); }
+    }
+    async function scrapFiles(files) {
+      for (const f of files) await scrapAttachFile(f);
+      if (files.length > 1) scSay(lang.value === 'zh' ? files.length + ' 个文件进了同一条，写句标注或直接回车' : files.length + ' files joined one scrap — add a note or press Enter');
+    }
+    function scrapUpsertLocal(item) {
+      if (!data.value) return;
+      if (!data.value.scraps) data.value.scraps = { items: [], total: 0, tags: [], pending: [], enrich: 'off' };
+      const list = data.value.scraps.items;
+      const i = list.findIndex(x => x.id === item.id);
+      if (i >= 0) list.splice(i, 1, item); else list.unshift(item);
+      data.value.scraps.total = list.length;
+      if (scrapSel.value && scrapSel.value.id === item.id) scrapSel.value = item;
+    }
+    async function scrapPost(o) {
+      const payload = { text: o.text || '', url: (o.urls && o.urls[0]) || '', urls: o.urls || [], note: o.note || '', source: o.source || 'paste' };
+      if (o.files && o.files.length) payload.files = o.files.map(a => ({ name: a.name, type: a.mime, data: a.dataUrl }));
+      const res = await demoFetch('/api/scraps/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.error) throw new Error(out.error || ('HTTP ' + res.status));
+      if (out.item) { scrapUpsertLocal(out.item); if (scrapsPending.value && !scrapsPending.value.includes(out.item.id) && scrapsEnrich.value !== 'off') scrapsPending.value.push(out.item.id); }
+      return out.item;
+    }
+    async function scrapSave() {
+      scrapLinkify();
+      let note = '';
+      if (scrapBlocks.value.length) note = scrapDraft.value.trim();   // blocks exist → the words in the box are the 标注
+      else scrapCommitText();                                          // nothing else → the words are the content
+      const bl = scrapBlocks.value.slice();
+      if (!bl.length || scrapSaving.value) return;
+      scrapSaving.value = true;
+      try {
+        const item = await scrapPost({
+          text: bl.filter(b => b.type === 'text').map(b => b.text).join('\n\n'),
+          urls: bl.filter(b => b.type === 'link').map(b => b.url),
+          files: bl.filter(b => b.type === 'file'),
+          note, source: 'paste',
+        });
+        scrapDraft.value = ''; scrapBlocks.value = []; scrapAddOpen.value = false; scrapKind.value = 'all';
+        const zh = lang.value === 'zh';
+        scSay(item && item.kind === 'link' && item.titlePending ? (zh ? '记住了 · 正在抓标题' : 'Saved · fetching title') : (zh ? '记住了' : 'Saved'));
+        setTimeout(() => { if (typeof window.lociSoftRefresh === 'function') window.lociSoftRefresh(); }, 1500);
+      } catch (e) {
+        scSay((lang.value === 'zh' ? '没存上：' : 'Not saved: ') + e.message);
+      } finally { scrapSaving.value = false; }
+    }
+    // detail panel: the same existing-tag picker under the "+ 标签" input
+    const scrapDetailTagSuggest = computed(() => {
+      if (!scrapTagFocus.value || !scrapSel.value) return [];
+      const q = scrapTagDraft.value.replace(/^#/, '').toLowerCase(); const have = [...(scrapSel.value.tags || []), ...(scrapSel.value.aiTags || [])];
+      return scrapsTagVocab.value.filter(t => !have.includes(t) && (!q || t.toLowerCase().includes(q))).slice(0, 8);
+    });
+    async function scrapPickDetailTag(t) { if (!scrapSel.value) return; scrapTagDraft.value = ''; await scrapUpdate(scrapSel.value, { tags: [...scrapSel.value.tags, t] }); }
+    function scrapOpenUrl(u) { if (u) window.open(u, '_blank', 'noopener'); }
+    // ── selection / navigation ──
+    function scrapPick(it) {
+      scrapSel.value = it; scrapNoteDraft.value = it.note || ''; scrapTitleDraft.value = it.title || ''; scrapTagDraft.value = ''; scrapConfirmDel.value = false; scrapTextEditing.value = false;
+      nextTick(() => { const el = document.querySelector('.sc-stream .sc-card.sel'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); });
+    }
+    function scrapClose() { scrapSel.value = null; }
+    function scrapsHome() { notesSelected.value = null; if (notesGraphView.value) notesSetGraph(false); }
+    watch(scrapsAll, (list) => { if (scrapSel.value) { const fresh = list.find(x => x.id === scrapSel.value.id); if (fresh && fresh !== scrapSel.value) { scrapSel.value = fresh; if (!scrapNoteDraft.value) scrapNoteDraft.value = fresh.note || ''; if (!scrapTitleDraft.value) scrapTitleDraft.value = fresh.title || ''; } } });
+    // ── editing ──
+    async function scrapUpdate(it, patch) {
+      const res = await demoFetch('/api/scraps/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ id: it.id }, patch)) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.error) { scSay((lang.value === 'zh' ? '没改成：' : 'Failed: ') + (out.error || res.status)); return null; }
+      if (out.item) { if (out.item.id !== it.id && data.value && data.value.scraps) { const l = data.value.scraps.items; const i = l.findIndex(x => x.id === it.id); if (i >= 0) l.splice(i, 1); } scrapUpsertLocal(out.item); }
+      return out.item;
+    }
+    async function scrapAcceptTag(it, t) { await scrapUpdate(it, { acceptTag: t }); }
+    async function scrapAcceptAll(it) { await scrapUpdate(it, { acceptAll: true }); scSay(lang.value === 'zh' ? '标签都收下了' : 'Tags kept'); }
+    // a piece of text is either your own words (文字) or someone else's (摘录) — only you know which, so it's a switch, not a guess
+    async function scrapSetKind(k) { const it = scrapSel.value; if (!it || it.kind === k) return; const out = await scrapUpdate(it, { kind: k }); if (out) scrapSel.value = out; }
+    async function scrapSetBy(v) { const it = scrapSel.value; if (!it) return; const out = await scrapUpdate(it, { by: String(v || '').replace(/^[—\-–\s]+/, '').trim() }); if (out) scrapSel.value = out; }
+    async function scrapAddTag() {
+      const t = scrapTagDraft.value.replace(/^#/, '').trim(); if (!t || !scrapSel.value) return;
+      scrapTagDraft.value = ''; if (scrapSel.value.tags.includes(t)) return;
+      await scrapUpdate(scrapSel.value, { tags: [...scrapSel.value.tags, t] });
+    }
+    async function scrapRemoveTag(it, t) { await scrapUpdate(it, { tags: it.tags.filter(x => x !== t) }); }
+    let scNoteTimer = null;
+    function scrapNoteInput() {
+      clearTimeout(scNoteTimer);
+      scNoteTimer = setTimeout(() => { const it = scrapSel.value; if (it && scrapNoteDraft.value.trim() !== (it.note || '').trim()) scrapUpdate(it, { note: scrapNoteDraft.value }); }, 700);
+    }
+    async function scrapTitleSave() { const it = scrapSel.value; const t = scrapTitleDraft.value.trim(); if (it && t && t !== it.title) await scrapUpdate(it, { title: t }); }
+    // the words on a scrap are yours — click them to change them (links in the body are kept by the server)
+    function scrapTextEdit() { const it = scrapSel.value; if (!it) return; scrapTextDraft.value = it.text || ''; scrapTextEditing.value = true; nextTick(() => { const el = document.querySelector('.sc-txbox'); if (el) { el.focus(); el.style.height = Math.max(84, el.scrollHeight + 4) + 'px'; } }); }
+    function scrapTextCancel() { scrapTextEditing.value = false; }
+    async function scrapTextSave() { const it = scrapSel.value; scrapTextEditing.value = false; if (!it) return; const t = scrapTextDraft.value.replace(/\r/g, '').trim(); if (t === (it.text || '')) return; const out = await scrapUpdate(it, { text: t }); if (out) scrapSel.value = out; }
+    async function scrapRemove(it) {
+      if (!scrapConfirmDel.value) { scrapConfirmDel.value = true; setTimeout(() => { scrapConfirmDel.value = false; }, 3000); return; }
+      scrapConfirmDel.value = false;
+      const res = await demoFetch('/api/scraps/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: it.id }) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.error) { scSay((lang.value === 'zh' ? '没删掉：' : 'Failed: ') + (out.error || res.status)); return; }
+      if (data.value && data.value.scraps) { const l = data.value.scraps.items; const i = l.findIndex(x => x.id === it.id); if (i >= 0) l.splice(i, 1); data.value.scraps.total = l.length; }
+      if (scrapSel.value && scrapSel.value.id === it.id) scrapSel.value = null;
+      scSay(lang.value === 'zh' ? '删掉了（在归档里还能找到）' : 'Deleted (kept in archive)');
+    }
+    function scrapOpen(it) { const u = it && (it.url || it.fileUrl); if (u) window.open(u, '_blank', 'noopener'); }
+    async function scrapEnrich(it) {
+      const res = await demoFetch('/api/scraps/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: it.id }) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.error) { scSay(out.error || ('HTTP ' + res.status)); return; }
+      if (scrapsPending.value && !scrapsPending.value.includes(it.id)) scrapsPending.value.push(it.id);
+      scSay(lang.value === 'zh' ? 'AI 正在看…' : 'AI is looking…');
+    }
+    // Esc: reader → back to scraps; detail → back to the wall. Never while editing a note.
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || currentPage.value !== 'notes' || notesEditing.value) return;
+      if (notesSelected.value) { scrapsHome(); e.preventDefault(); }
+      else if (scrapSel.value) { scrapClose(); e.preventDefault(); }
+    });
+    // ===== end 碎片 =====
+
     const notesSearchHits = computed(() => {
       const q = notesSearch.value.trim().toLowerCase();
       if (!q) return [];
@@ -16144,11 +15728,16 @@ const lociApp = createApp({
       const notes = notesUnified.value.filter(x => x.source === filter && noteMatchesSearch(x, q)).slice().sort(byDateDesc);
       return notes.length ? [{ source: filter, label: noteSourceMeta(filter).label, timeline: false, notes }] : [];
     });
-    // Keep the right pane selection valid as the tree changes. Only auto-pick a
-    // first note when nothing valid is selected — never override the user's click.
+    // Keep the right pane selection valid as the tree changes. Nothing auto-opens:
+    // the scraps wall is the page's home, a note shows only after a click. If the
+    // selected note vanished (deleted / moved), drop back to the wall.
     watch(notesAllLeaves, (leaves) => {
-      if (notesSelected.value && leaves.some(n => n.id === notesSelected.value.id)) return;
-      notesSelected.value = leaves[0] || null;
+      const sel = notesSelected.value; if (!sel) return;
+      if (leaves.some(n => n.id === sel.id)) return;
+      // a selection made from the flat list carries a basename; swap it for the tree leaf
+      const fn = String(sel.filename || '');
+      const again = fn ? leaves.find(n => n.filename === fn || String(n.filename || '').endsWith('/' + fn)) : null;
+      notesSelected.value = again || null;
     }, { immediate: true });
     const notesResultCount = computed(() => notesGroups.value.reduce((s, g) => s + g.notes.length, 0));
     function noteToggleInline(id) {
@@ -16761,399 +16350,6 @@ const lociApp = createApp({
       if (todo) roadmapMoveTo(p, todo, status);
     }
 
-    const newFragmentNote = ref('');
-    const newCollectionTitle = ref('');
-    const newCollectionUrl = ref('');
-    // the save form is collapsed by default — click "+ new save" to reveal it
-    const fgSaveOpen = ref(false);
-    const fgTitleInput = ref(null);
-    function fgOpenSave() { fgSaveOpen.value = true; nextTick(() => { if (fgTitleInput.value) fgTitleInput.value.focus(); }); }
-    function fgCloseSave() {
-      fgSaveOpen.value = false;
-      newCollectionTitle.value = ''; newCollectionUrl.value = '';
-      fgTagList.value = []; fgTagDraft.value = '';
-    }
-    // multi-tag entry for a new save: committed chips + the in-progress draft
-    const fgTagList = ref([]);
-    const fgTagDraft = ref('');
-    const fgUrlInput = ref(null);
-    function fgAddTag() {
-      const t = String(fgTagDraft.value || '').replace(/^#/, '').trim();
-      fgTagDraft.value = '';
-      if (t && !fgTagList.value.includes(t)) fgTagList.value.push(t);
-    }
-    function fgRemoveTag(i) { fgTagList.value.splice(i, 1); }
-    function fgTagKeydown(e) {
-      // comma / space commit the current tag; backspace on empty removes the last chip
-      if (e.key === ',' || e.key === '，' || e.key === ' ') { e.preventDefault(); fgAddTag(); }
-      else if (e.key === 'Backspace' && !fgTagDraft.value && fgTagList.value.length) fgTagList.value.pop();
-    }
-    function fgFocusUrl() { nextTick(() => { if (fgUrlInput.value) fgUrlInput.value.focus(); }); }
-
-    const fragmentNotes = computed(() => {
-      const items = data.value?.inbox?.items;
-      if (!items || !Array.isArray(items)) return [];
-      return items;
-    });
-
-    // Strip visual clutter from a raw inbox line for display: markdown bold/italic
-    // markers, list bullets, and a leading emoji/symbol. The raw text stays intact
-    // in the file — this only cleans what's shown so the timeline reads calm.
-    function fragCleanText(raw) {
-      let s = String(raw || '');
-      s = s.replace(/\*\*(.+?)\*\*/g, '$1');       // **bold** → bold
-      s = s.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '$1'); // *italic* → italic
-      s = s.replace(/`([^`]+)`/g, '$1');           // `code` → code
-      s = s.replace(/^\s*[-*+]\s+/, '');           // leading list bullet
-      // drop a leading emoji / pictograph + following space (💡 🔧 ⚠️ 📝 🎬 …)
-      s = s.replace(/^\s*(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+)\s*/u, '');
-      return s.trim();
-    }
-
-    const fragmentCollections = computed(() => {
-      const refs = data.value?.references;
-      if (!refs || !refs.files || !Array.isArray(refs.files)) return [];
-      return refs.files.map(f => {
-        const fname = f.filename || f.file || f.name || '';   // backend uses `filename`
-        const tg = f.meta?.tags;
-        return {
-          name: fname,
-          title: f.meta?.title || fname.replace(/\.md$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, ''),
-          url: f.meta?.url || '',
-          date: f.meta?.date || '',
-          type: f.meta?.type || '',
-          tags: Array.isArray(tg) ? tg.map(x => String(x).replace(/^#/, '')) : (tg ? [String(tg).replace(/^#/, '')] : []),
-          content: f.content || '',
-          file: fname,
-        };
-      });
-    });
-
-    // Derive up-to-2 tags for a note card: explicit #tags in the text if any, else
-    // the leading "X想法 / X笔记 / X选题 / X清单" category word. Keeps cards labelled
-    // without asking the user to tag every quick thought.
-    function fragNoteTags(note) {
-      const raw = String(note && note.text || '');
-      const hash = (raw.match(/#([^\s#，、]+)/g) || []).map(t => t.replace(/^#/, '')).slice(0, 2);
-      if (hash.length) return hash;
-      const m = raw.replace(/^\s*[-*+]\s*/, '').replace(/^\s*(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]+)\s*/u, '')
-        .match(/^([一-鿿]{1,6}?)(想法|笔记|选题|清单|计划|流程|工作流|复盘)/u);
-      return m ? [m[1] + m[2]] : [];
-    }
-
-    // ── Bookshelf (情报书架) state ──
-    const fragCapTab = ref('note');          // capture bar: note | link | image | file
-    const fragSelectedCol = ref(null);       // the book whose detail is shown on the right
-    const fragReaderCol = ref(null);
-    function fragSelectCol(col) {
-      // toggle: click the open book again to close the detail pane
-      fragSelectedCol.value = (fragSelectedCol.value && fragSelectedCol.value.file === col.file) ? null : col;
-    }
-    // stable cover colour (0..5) hashed from the title, so a book keeps its hue
-    function fragCoverHue(seed) {
-      const s = String(seed || '');
-      let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-      return h % 6;
-    }
-    // A cover image for a save, when it has no real thumbnail: pick one of the
-    // shelf backdrops in assets/covers/ by a stable hash of the title, so a given
-    // save always shows the same picture. There are 8 covers (cover-1..8.jpg).
-    const FRAG_COVER_COUNT = 8;
-    function fragCoverImg(seed) {
-      const s = String(seed || '');
-      let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0;
-      return 'assets/covers/cover-' + (h % FRAG_COVER_COUNT + 1) + '.jpg';
-    }
-    // a one-line summary for the detail pane: gist/content if we have it, else nothing
-    function fragDetailSummary(col) {
-      if (!col) return '';
-      const raw = col.gist || (col.content ? String(col.content).replace(/<[^>]+>/g, ' ') : '');
-      return raw.replace(/\s+/g, ' ').trim().slice(0, 160);
-    }
-    function fragDetailFullHtml(col) {
-      if (!col || !col.content) return '';
-      const html = String(col.content).trim();
-      const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      return text ? html : '';
-    }
-    function openFragReader(col) { if (fragDetailFullHtml(col)) fragReaderCol.value = col; }
-    function closeFragReader() { fragReaderCol.value = null; }
-    // capture-bar link tab: reuse the collection add (url doubles as title if no title)
-    function fragCapSaveLink() {
-      const v = (newCollectionUrl.value || '').trim();
-      if (!v) return;
-      addFragmentCollection();   // reads newCollectionTitle/Url; here title is empty → host used
-    }
-    // delete the currently-selected book, then close the detail pane
-    function fragDeleteSelected() {
-      const col = fragSelectedCol.value;
-      if (!col) return;
-      archiveCollection(col);
-      fragSelectedCol.value = null;
-    }
-
-    // Clean demo build: fragments writes stay purely local on data.value — /clean
-    // uses self-contained mock data and must NEVER hit the real inbox.md / references.
-    async function addFragmentNote() {
-      const text = newFragmentNote.value.trim();
-      if (!text) return;
-      if (!data.value.inbox) data.value.inbox = { content: '', meta: {}, items: [] };
-      if (!Array.isArray(data.value.inbox.items)) data.value.inbox.items = [];
-      const today = dateToKey(new Date());
-      const localNote = { text, created: today };
-      data.value.inbox.items.unshift(localNote);   // optimistic
-      newFragmentNote.value = '';
-      try {
-        const res = await demoFetch('/api/inbox/add', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
-        });
-        if (!res.ok) throw new Error('inbox add failed: ' + res.status);
-        await fragReloadData();
-        showFragToast(lang.value === 'zh' ? '已保存' : 'Saved');
-      } catch (e) {
-        const items = data.value && data.value.inbox && data.value.inbox.items;
-        if (Array.isArray(items)) {
-          const i = items.indexOf(localNote);
-          if (i !== -1) items.splice(i, 1);
-        }
-        newFragmentNote.value = text;
-        showFragToast(lang.value === 'zh' ? '保存失败' : 'Save failed');
-        console.error('Failed to save fragment note:', e);
-      }
-    }
-
-    function dismissFragment(idx) {
-      const items = data.value && data.value.inbox && data.value.inbox.items;
-      if (!Array.isArray(items)) return;
-      const note = fragNotesSorted.value[idx];   // idx comes from the sorted view
-      if (!note) return;
-      const real = items.indexOf(note);
-      if (real !== -1) items.splice(real, 1);    // optimistic: drop from view now
-      // ...then persist to inbox.md so it stays gone after a reload. Matched by the
-      // raw text (the file stores the raw line, same as note.text).
-      demoFetch('/api/inbox/remove', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: note.text })
-      }).catch(() => { /* view already updated; a failed write just reappears on reload */ });
-    }
-
-    async function addFragmentCollection() {
-      // Two fields now: a title and an optional link. Title is required; if only a
-      // link is given, fall back to its host as the title. Normalize a bare host to
-      // https://. Type stays the default '文章'.
-      let title = (newCollectionTitle.value || '').trim();
-      let rawUrl = (newCollectionUrl.value || '').trim();
-      if (!title && !rawUrl) return;
-      let url = '';
-      if (rawUrl) {
-        url = /^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl;
-        if (!title) { try { title = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { title = rawUrl; } }
-      }
-      if (!title) return;
-      // commit any half-typed tag, then take the full chip list
-      const draft = String(fgTagDraft.value || '').replace(/^#/, '').trim();
-      if (draft && !fgTagList.value.includes(draft)) fgTagList.value.push(draft);
-      fgTagDraft.value = '';
-      const tags = fgTagList.value.slice();
-      const refs = data.value.references || (data.value.references = { files: [], total: 0 });
-      if (!Array.isArray(refs.files)) refs.files = [];
-      const today = dateToKey(new Date());
-      // optimistic entry so it shows instantly; then persist and re-pull /api/data so
-      // the entry carries the REAL server-assigned filename (needed for later archive).
-      const localRef = { name: '', file: '', filename: '', meta: { title, url, date: today, type: '文章', tags }, content: '', path: '' };
-      refs.files.unshift(localRef);
-      refs.total = refs.files.length;
-      newCollectionTitle.value = '';
-      newCollectionUrl.value = '';
-      fgTagList.value = [];
-      fgTagDraft.value = '';
-      fgSaveOpen.value = false;   // collapse back to the "+ new save" button
-      try {
-        const res = await demoFetch('/api/references/add', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, url, type: '文章', tags })
-        });
-        if (!res.ok) throw new Error('reference add failed: ' + res.status);
-        await fragReloadData();
-        showFragToast(lang.value === 'zh' ? '已保存' : 'Saved');
-      } catch (e) {
-        refs.files = refs.files.filter(f => f !== localRef);
-        refs.total = refs.files.length;
-        newCollectionTitle.value = title;
-        newCollectionUrl.value = rawUrl;
-        fgTagList.value = tags.slice();
-        showFragToast(lang.value === 'zh' ? '保存失败' : 'Save failed');
-        console.error('Failed to save fragment collection:', e);
-      }
-    }
-    // Re-pull /api/data so the fragments view reflects what's actually on disk
-    // (avoids optimistic-entry drift for saves that get server-assigned filenames).
-    async function fragReloadData() {
-      try { const r = await fetch('/api/data'); if (r.ok) data.value = await r.json(); } catch (e) {}
-    }
-
-    function archiveCollection(col) {
-      const refs = data.value && data.value.references;
-      if (!refs || !Array.isArray(refs.files)) return;
-      const key = col.file || col.name;
-      refs.files = refs.files.filter(f => (f.filename || f.file || f.name) !== key);   // optimistic
-      refs.total = refs.files.length;
-      // persist: server moves the file to archive/ (Loci archives, doesn't hard-delete)
-      if (key) demoFetch('/api/references/remove', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file: key })
-      }).catch(() => {});
-    }
-
-    // ── tri-state mode + expand/back (mirrors roadmap focus pattern) ──
-    const fragMode = ref('board');               // 'board' | 'notes' | 'collections'
-    function fragExpand(mode) { fragMode.value = mode; }
-    function fragBack() { fragMode.value = 'board'; }
-
-    // newest-first views (sort by created/date desc when present)
-    const fragNotesSorted = computed(() =>
-      [...fragmentNotes.value].sort((a, b) => String(b.created || '').localeCompare(String(a.created || ''))));
-    const fragCollectionsSorted = computed(() =>
-      [...fragmentCollections.value].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))));
-
-    // A note is "new · still to triage" if captured within the last 3 days.
-    function fragNoteIsNew(note) {
-      const d = note && note.created;
-      if (!d) return false;
-      const ageMs = Date.now() - new Date(d + 'T00:00:00').getTime();
-      return ageMs <= 3 * 86400000;
-    }
-    const fragNotesNew  = computed(() => fragNotesSorted.value.filter(fragNoteIsNew));
-    const fragNotesSeen = computed(() => fragNotesSorted.value.filter(n => !fragNoteIsNew(n)));
-    const fragTriageCount = computed(() => fragNotesNew.value.length);
-    // dismissFragment is keyed off fragNotesSorted index; map a (group, i) back to it.
-    function fragDismissNote(note) {
-      const idx = fragNotesSorted.value.indexOf(note);
-      if (idx !== -1) { dismissFragment(idx); showFragToast(lang.value === 'zh' ? '已清除' : 'Dismissed'); }
-    }
-
-    // Lightweight corner toast for triage feedback. Clean demo: a captured thought
-    // can be promoted to a Note or a Task; both mutate mock data locally and remove
-    // the thought from the inbox (the whole point of Fragments — triage to zero).
-    const fragToast = ref('');
-    let fragToastTimer = null;
-    function showFragToast(msg) {
-      fragToast.value = msg;
-      if (fragToastTimer) clearTimeout(fragToastTimer);
-      fragToastTimer = setTimeout(() => { fragToast.value = ''; }, 2200);
-    }
-    function fragRemoveNoteObj(note) {
-      const items = data.value && data.value.inbox && data.value.inbox.items;
-      if (Array.isArray(items)) {
-        const i = items.indexOf(note);
-        if (i !== -1) items.splice(i, 1);
-      }
-    }
-    // Persist an inbox removal by raw text (used after a promote consumes a note).
-    function fragPersistInboxRemove(text) {
-      demoFetch('/api/inbox/remove', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      }).catch(() => {});
-    }
-    function fragPromoteToNote(note) {
-      if (!note) return;
-      const today = dateToKey(new Date());
-      const cleaned = fragCleanText(note.text);
-      const title = cleaned.length > 24 ? cleaned.slice(0, 24) + '…' : cleaned;
-      if (!data.value.notes) data.value.notes = { index: null, files: [] };
-      if (!Array.isArray(data.value.notes.files)) data.value.notes.files = [];
-      data.value.notes.files.unshift({
-        meta: { title, created: today, tags: ['碎片'] },
-        content: '<p>' + cleaned.replace(/[<>&]/g, '') + '</p>',
-        filename: today + '-fragment-note.md',
-        path: today + '-fragment-note.md',
-      });
-      const rawText = note.text;
-      fragRemoveNoteObj(note);
-      showFragToast(lang.value === 'zh' ? '已变为笔记' : 'Promoted to note');
-      // persist: create the note file, then drop the thought from inbox.md
-      demoFetch('/api/notes/create', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body: cleaned })
-      }).catch(() => {}).finally(() => fragPersistInboxRemove(rawText));
-    }
-    function fragPromoteToTask(note) {
-      if (!note) return;
-      const at = data.value && data.value.tasks && data.value.tasks.active_tasks;
-      if (!at) return;
-      if (!Array.isArray(at.P2)) at.P2 = [];
-      const now = new Date().toISOString();
-      const taskText = fragCleanText(note.text);
-      at.P2.unshift({
-        id: 'frag_' + Math.round(performance.now() * 1000), text: taskText,
-        done: false, status: 'open', stale: false, date: null, endDate: null,
-        startTime: null, endTime: null, project: null, urgency: 0, importance: 0,
-        source: 'fragment', createdAt: now, updatedAt: now, completedAt: null,
-      });
-      const rawText = note.text;
-      fragRemoveNoteObj(note);
-      showFragToast(lang.value === 'zh' ? '已加入任务' : 'Promoted to task');
-      // persist: add the task, then drop the thought from inbox.md
-      demoFetch('/api/tasks/add', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: taskText, source: 'fragment' })
-      }).catch(() => {}).finally(() => fragPersistInboxRemove(rawText));
-    }
-
-    // Drift Stream: group notes into 今天 / 昨天 / 更早 by created date,
-    // each group keeps newest-first order. Empty groups are dropped.
-    function fragDayBucket(created) {
-      if (!created) return 'earlier';
-      const day = new Date(created + 'T00:00:00'); day.setHours(0, 0, 0, 0);
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const diff = Math.round((today.getTime() - day.getTime()) / 86400000);
-      if (diff <= 0) return 'today';
-      if (diff === 1) return 'yesterday';
-      return 'earlier';
-    }
-    const fragStreamGroups = computed(() => {
-      const labels = {
-        today:     { zh: '今天 · TODAY',     en: 'TODAY' },
-        yesterday: { zh: '昨天 · YESTERDAY', en: 'YESTERDAY' },
-        earlier:   { zh: '更早 · EARLIER',   en: 'EARLIER' },
-      };
-      const order = ['today', 'yesterday', 'earlier'];
-      return order.map(key => ({
-        key,
-        label: labels[key],
-        notes: fragNotesSorted.value.filter(n => fragDayBucket(n.created) === key),
-      })).filter(g => g.notes.length);
-    });
-    // gutter time label: a date like 2026-06-02 → "06·02"; today/yesterday stay as the date.
-    function fragGutterTime(created) {
-      if (!created) return '';
-      const m = String(created).match(/(\d{4})-(\d{2})-(\d{2})/);
-      return m ? (m[2] + '·' + m[3]) : String(created);
-    }
-
-    // type → icon/color metadata; handles freeform/empty `type` gracefully.
-    // `fav` colors the board glyph chip; `fgc` the board type tag; `fgd` the wall glyph.
-    // This is the single source of truth — any new collection auto-picks its color here.
-    function fragTypeMeta(type) {
-      const s = String(type || '').toLowerCase();
-      const has = (...k) => k.some(w => s.includes(w));
-      if (has('repo', 'github', '仓库'))            return { label: type || 'REPO',  fav: 'fgC-fav--repo',    fgc: 'fgC-type--repo',  fgd: 'fgD-src--repo',    glyph: '⌨' };
-      if (has('video', 'youtube', '视频'))          return { label: type || 'VIDEO', fav: 'fgC-fav--video',   fgc: 'fgC-type--video', fgd: 'fgD-src--video',   glyph: '▶' };
-      if (has('tool', '工具'))                      return { label: type || 'TOOL',  fav: 'fgC-fav--tool',    fgc: 'fgC-type--tool',  fgd: 'fgD-src--tool',    glyph: '◳' };
-      if (has('tweet', 'twitter', 'x.com', '推文')) return { label: type || 'POST',  fav: 'fgC-fav--tweet',   fgc: 'fgC-type--tweet', fgd: 'fgD-src--tweet',   glyph: '𝕏' };
-      if (has('灵感', 'idea', 'inspir'))            return { label: type || '灵感',  fav: 'fgC-fav--idea',    fgc: 'fgC-type--read',  fgd: 'fgD-src--article', glyph: '¶' };
-      return { label: type || (lang.value === 'zh' ? '文章' : 'ARTICLE'), fav: 'fgC-fav--article', fgc: 'fgC-type--read', fgd: 'fgD-src--article', glyph: '¶' };
-    }
-
-    function fragHost(url) {
-      if (!url) return '';
-      try { return new URL(url).hostname.replace(/^www\./, ''); }
-      catch (e) { return String(url).replace(/^https?:\/\//, '').split('/')[0]; }
-    }
-    function fragOpen(url) { if (url) window.open(url, '_blank', 'noopener'); }
-    // ===== End Fragments =====
 
     const peopleData = computed(() => {
       const contacts = data.value?.people?.contacts;
@@ -21172,7 +20368,7 @@ const lociApp = createApp({
       // Deep link: /#people opens that page directly (used by the Today page's
       // collected-chips and shareable links). Unknown hashes fall through to
       // the default page; hash changes while open navigate the same way.
-      const PAGE_IDS = ['overview', 'today', 'journal', 'memory', 'people', 'brain', 'roadmap', 'notes', 'fragments', 'skills'];
+      const PAGE_IDS = ['overview', 'today', 'journal', 'memory', 'people', 'brain', 'roadmap', 'notes', 'skills'];
       const hashPage = () => decodeURIComponent((location.hash || '').replace(/^#/, ''));
       if (PAGE_IDS.includes(hashPage())) currentPage.value = hashPage();
       window.addEventListener('hashchange', () => {
@@ -21767,7 +20963,7 @@ const lociApp = createApp({
       notesGraphView, notesSetGraph, kgCanvas, kgEmpty,
       notesMounting, notesMountMsg, notesMountedSources, notesSelectedSource, notesMountFolder, notesUnmountFolder,
       notesLinkOpen, notesLinkUrl, notesLinkTitle, notesLinkTags, notesLinkSource, notesLinkMsg, notesLinking, notesLinkInput, notesLinkSniff, notesLinkSubmit,
-      notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesLinkPointers, notesTotal, notesSearchHits, notesMkdir, notesReveal, fragCleanText,
+      notesView, notesOpenFolders, notesToggleFolder, notesSecOpen, notesToggleSec, notesOwned, notesLinked, notesLinkPointers, notesTotal, notesSearchHits, notesMkdir, notesReveal,
       noteSourceMeta, noteSourceColor, noteColor, noteTagColor, noteInferSource, notesSourceCounts, notesGroups, notesResultCount,
       noteToggleInline, noteIsOpen, noteOpenExternal,
       overview, ovKpiCards, ovKpiGapCards, netStats, ovBubbles, ovTrendHasData, ovRelDate,
@@ -21775,16 +20971,10 @@ const lociApp = createApp({
       ovPace, ovPaceStates, ovPaceState, ovPaceAngle, ovPaceTicks,
       ovPaceSet, ovPaceDown, ovPaceMove, ovPaceUp, ovPaceKey,
       ovMemoryMix,
-      fragMode, fragExpand, fragBack, fragNotesSorted, fragCollectionsSorted, fragTypeMeta, fragHost, fragOpen,
-      fragNotesNew, fragNotesSeen, fragTriageCount, fragDismissNote,
-      fragStreamGroups, fragGutterTime, fragNoteIsNew,
-      fragToast, fragPromoteToNote, fragPromoteToTask,
-      fragmentNotes, fragmentCollections,
-      newFragmentNote, newCollectionTitle, newCollectionUrl,
-      fgSaveOpen, fgOpenSave, fgCloseSave, fgTitleInput,
-      fgTagList, fgTagDraft, fgUrlInput, fgAddTag, fgRemoveTag, fgTagKeydown, fgFocusUrl,
-      addFragmentNote, dismissFragment, addFragmentCollection, archiveCollection,
-      fragCapTab, fragSelectedCol, fragReaderCol, fragSelectCol, fragCoverHue, fragCoverImg, fragDetailSummary, fragDetailFullHtml, openFragReader, closeFragReader, fragCapSaveLink, fragDeleteSelected, fragNoteTags,
+      scrapsAll, scrapsFresh, scrapsEnrich, scrapsPending, scrapQ, scrapKind, scrapTag, scrapTagMenu, scrapSearchTags, scrapSearchPickTag, scrapSearchKey, scrapSel, scrapDraft, scrapBlocks, scHost, scrapHasContent, scrapCommitText, scrapEditBlock, scrapAddOpen, scrapAddUrl, scrapAddToggle, scrapAddLink, scrapAddPaste, scrapSaving, scrapDragOver, scrapTagFocus, scrapsTagVocab, scrapTagSuggest, scrapPickTag, scrapCapKey, scrapLinkify, scrapDetailTagSuggest, scrapPickDetailTag, scrapOpenUrl,
+      scrapNoteDraft, scrapTitleDraft, scrapTagDraft, scrapConfirmDel, scToast, scrapKindList, scrapsFiltered, scrapGroups, scrapDetectLabel,
+      scKindLabel, scKindColor, scTime, scRel, scrapSize, scrapIsPending, scrapPaste, scrapFilePick, scrapDrop, scrapSave, scrapPick, scrapClose, scrapsHome,
+      scrapAcceptTag, scrapAcceptAll, scrapAddTag, scrapRemoveTag, scrapNoteInput, scrapTitleSave, scrapTextEditing, scrapTextDraft, scrapTextEdit, scrapTextCancel, scrapTextSave, scrapSetKind, scrapSetBy, scrapRemove, scrapOpen, scrapEnrich, SC_ICON,
       peopleData, selectedPerson, detailMoreOpen, detailMapOpen,
       detailEditing, peSaving, editForm, startEditPerson, cancelEditPerson, savePersonEdit,
       editMoreOpen, addMoreOpen, remDraftEdit, remDraftAdd, addReminder, removeReminder,
@@ -21821,6 +21011,61 @@ const lociApp = createApp({
 // a colored (folder/obsidian) icon, name + count; clicking toggles expand. A note
 // shows a file glyph; clicking selects it. `openSet` is a reactive Set of expanded
 // folder ids. Linked (external) top-level folders get a small 🔗 badge + remove.
+lociApp.component('scrap-card', {
+  name: 'scrap-card',
+  props: { item: Object, sel: Boolean, lang: String, pending: Boolean },
+  emits: ['pick', 'accept'],
+  methods: {
+    favColorOf(site) { const s = site || ''; let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return ['#fb7299', '#3457b8', '#ea4c89', '#ff5000', '#0b7d5a', '#7c6cf0', '#c2803a', '#0ea5a4'][h % 8]; },
+  },
+  computed: {
+    zh() { return this.lang === 'zh'; },
+    kindLabel() { const m = { idea: ['文字', 'TEXT'], link: ['链接', 'LINK'], image: ['图片', 'IMAGE'], file: ['文件', 'FILE'], quote: ['摘录', 'QUOTE'] }[this.item.kind]; return m ? m[this.zh ? 0 : 1] : this.item.kind; },
+    ms() { const t = Date.parse(this.item.created || ''); return Number.isFinite(t) ? t : 0; },
+    time() { if (!this.ms) return ''; const d = new Date(this.ms); const p = (n) => String(n).padStart(2, '0'); const md = p(d.getMonth() + 1) + '-' + p(d.getDate()); return /T00:00:00/.test(String(this.item.created)) ? md : md + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); },
+    rel() {
+      if (!this.ms) return ''; const zh = this.zh; const diff = Date.now() - this.ms;
+      const m = Math.floor(diff / 60000), h = Math.floor(diff / 3600000), d = Math.floor(diff / 86400000);
+      if (m < 1) return zh ? '刚刚' : 'now'; if (m < 60) return zh ? m + ' 分钟前' : m + 'm'; if (h < 24) return zh ? h + ' 小时前' : h + 'h';
+      if (d === 1) return zh ? '昨天' : 'yesterday'; if (d < 7) return zh ? d + ' 天前' : d + 'd'; if (d < 30) return zh ? Math.floor(d / 7) + ' 周前' : Math.floor(d / 7) + 'w';
+      const x = new Date(this.ms); return zh ? (x.getMonth() + 1) + ' 月' : x.toLocaleString('en', { month: 'short' });
+    },
+    ext() { const f = this.item.file || ''; return (f.includes('.') ? f.split('.').pop() : 'FILE').toUpperCase().slice(0, 4); },
+    sizeLabel() { const n = Number(this.item.fileSize) || 0; return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : n >= 1024 ? Math.round(n / 1024) + ' KB' : (n ? n + ' B' : ''); },
+    favLetter() { const s = this.item.site || ''; return s ? s[0].toUpperCase() : '·'; },
+    favColor() { return this.favColorOf(this.item.site); },
+    linkTitle() { return this.item.title || (this.item.titlePending ? (this.zh ? '标题待补' : 'Title pending') : this.item.site); },
+  },
+  template: `
+    <article class="sc-card" :class="['sc-card--' + item.kind, { sel: sel, legacy: item.legacy }]" @click="$emit('pick', item)">
+      <div v-if="item.kind === 'image'" class="sc-media">
+        <div v-if="(item.fileUrls || []).length > 1" class="sc-imgrid" :class="'n' + Math.min(item.fileUrls.length, 4)"><img v-for="u in item.fileUrls.slice(0, 4)" :key="u" :src="u" alt="" loading="lazy"><span v-if="item.fileUrls.length > 4" class="more">+{{ item.fileUrls.length - 4 }}</span></div>
+        <img v-else class="sc-im" :src="item.fileUrl" alt="" loading="lazy">
+      </div>
+      <img v-else-if="item.kind === 'link' && item.ogImage" class="sc-og" :src="item.ogImage" alt="" loading="lazy" referrerpolicy="no-referrer" @error="$event.target.style.display='none'">
+      <div class="sc-body">
+        <template v-if="item.kind === 'quote'"><div class="sc-qmark">“</div><p class="sc-qt">{{ item.text }}</p><div v-if="item.by" class="sc-qb">— {{ item.by }}</div></template>
+        <template v-else>
+          <div v-if="item.kind === 'file'" class="sc-fl"><span class="sc-pdf">{{ ext }}</span><div><div class="sc-fl-n">{{ item.title }}</div><div class="sc-fl-m">{{ sizeLabel }}{{ (item.files || []).length > 1 ? ' · ' + item.files.length + (zh ? ' 个文件' : ' files') : '' }}</div></div></div>
+          <div v-if="(item.links || []).length" class="sc-lks" :class="{ after: item.kind !== 'link' }">
+            <div v-for="l in item.links.slice(0, 4)" :key="l.url" class="sc-lk"><span class="sc-fav" :style="{ background: favColorOf(l.site) }">{{ (l.site || '·')[0].toUpperCase() }}</span><div class="sc-lk-t"><div class="sc-lk-ti" :class="{ pending: l.pending && !l.title }">{{ l.title || (l.pending ? (zh ? '标题待补' : 'Title pending') : l.site) }}</div><div class="sc-lk-h">{{ l.site }} ↗</div></div></div>
+            <div v-if="item.links.length > 4" class="sc-lk-more">+{{ item.links.length - 4 }} {{ zh ? '个链接' : 'more' }}</div>
+          </div>
+          <p v-if="item.text" class="sc-tx" :style="(item.kind === 'file' || (item.links || []).length) ? 'margin-top:10px' : ''">{{ item.text }}</p>
+          <div v-if="item.caption && !item.note && !item.text" class="sc-cap-ai">✦ {{ item.caption }}</div>
+        </template>
+        <div v-if="item.note" class="sc-an" :title="item.note">{{ item.note }}</div>
+        <div class="sc-foot">
+          <div class="sc-tgs">
+            <span v-for="t in item.tags" :key="'t' + t" class="sc-tg">{{ t }}</span>
+            <span v-for="t in item.aiTags" :key="'a' + t" class="sc-tg ai" :title="zh ? 'AI 打的标签，点一下采纳' : 'AI tag — click to keep'" @click.stop="$emit('accept', item, t)">✦ {{ t }}</span>
+          </div>
+          <span class="sc-tm" :title="rel"><span v-if="pending" class="sc-ai-live" :title="zh ? 'AI 正在看' : 'AI is looking'">✦</span>{{ kindLabel }} · {{ time }}</span>
+        </div>
+      </div>
+    </article>`,
+});
+
 lociApp.component('note-tree-node', {
   name: 'note-tree-node',
   props: {
@@ -21861,9 +21106,6 @@ lociApp.component('note-tree-node', {
       <span v-if="node.kind==='folder'" class="nr-tct">{{ node.count }}</span>
       <button v-if="linked && depth===0" class="nr-trm" title="移除链接(不删原文件)" @click.stop="$emit('remove-src')">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-      <button v-if="!linked && node.kind==='note'" class="nr-tdel" title="删除这篇笔记" @click.stop="$emit('del-note', node)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></svg>
       </button>
     </div>
     <template v-if="isOpen && node.kind==='folder' && node.children">
