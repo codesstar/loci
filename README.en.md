@@ -73,17 +73,10 @@ Start the Dashboard with `node <brain-path>/.loci/dashboard/server.js`, then ope
 
 ## One entry, one manual, shared data
 
-```mermaid
-flowchart TD
-  A[LOCI.md: short entry] --> B[Native instructions in each agent]
-  B --> C[Startup: short preferences]
-  H[Optional hook / same fallback reader] --> C
-  B --> D[First memory use: read LOCI-RULES.md once]
-  D --> E[Read relevant indexes and records]
-  E --> F[Existing scripts / Dashboard API]
-  F --> G[Local Markdown, JSON and attachments]
-  UI[Dashboard] <--> G
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-en-dark.svg" />
+  <img src="docs/assets/architecture-en-light.svg" alt="Loci architecture: install an entry, load preferences at startup, read rules at first memory use, and share local data" width="960" />
+</picture>
 
 - **`LOCI.md`** provides the brain path, startup preference reader and triggers to read the manual.
 - **`LOCI-RULES.md`** contains the complete operating rules. Read it at first Loci use, reuse while valid, reload after changes or lost context.
