@@ -54,17 +54,17 @@ The agent's file and command tools perform the operations. Results depend on ins
 
 ## Install with your AI agent
 
-**New to Loci? Install it. Already have Loci? Connect the new agent.** Send the matching prompt to your AI; it finds the paths for you.
+All agents below use the same two prompts: **install Loci for the first time, or connect another agent to your existing brain.**
 
-| Supported agent | First installation | Connect to an existing brain |
-| --- | --- | --- |
-| Claude Code | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| Codex | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| Hermes | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| Qwen Work | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| Doubao Work | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| Qoder | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
-| WorkBuddy | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Supported agent |
+| --- |
+| Claude Code |
+| Codex |
+| Hermes |
+| Qwen Work |
+| Doubao Work |
+| Qoder |
+| WorkBuddy |
 
 ### First installation
 
