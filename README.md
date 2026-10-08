@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — AI 的记忆宫殿" width="600" />
+  <img src="docs/assets/loci-banner.png" alt="Loci — AI 的记忆宫殿" width="900" />
 </p>
 
 <p align="center">
