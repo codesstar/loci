@@ -26,7 +26,7 @@ node <brain-path>/scripts/loci-install.js --brain <brain-path> --connect auto --
 
 ## 3. 接入不同 Agent
 
-**大脑装一份，Agent 分别接入。** 已经连接 Claude Code/Codex，后来新装千问、豆包等，用户直接将 [已有大脑接入指南](connect-existing-brain.md) 的一句指令发给新客户端；执行 Agent 按 [AI-CONNECT.md](AI-CONNECT.md) 自动寻找已有大脑、配置和验收，不要求用户填写路径。
+**大脑装一份，Agent 分别接入。** 已经连接 Claude Code/Codex，后来新装千问、豆包、Qoder 等，用户直接将 [已有大脑接入指南](connect-existing-brain.md) 的一句指令发给新客户端；执行 Agent 按 [AI-CONNECT.md](AI-CONNECT.md) 自动寻找已有大脑、配置和验收，不要求用户填写路径。
 
 对当前版本已有大脑，只刷新一个现成适配入口，例如新增 WorkBuddy：
 
@@ -35,15 +35,19 @@ node "<existing-brain-path>/scripts/loci-install.js" --brain "<existing-brain-pa
 node "<existing-brain-path>/scripts/loci-install.js" --brain "<existing-brain-path>" --connect workbuddy --check
 ```
 
-`--refresh` 跳过初始资料/空数据池准备，但会刷新托管入口和配置；检查返回的备份与警告。它不下载新版本。发现旧版缺文件时说明需要升级，不强行覆盖。自动适配器只接受下表前三个名称，不支持 `--connect qwen` 或 `--connect doubao`。
+`--refresh` 跳过初始资料/空数据池准备，但会刷新托管入口和配置；检查返回的备份与警告。它不下载新版本。发现旧版缺文件时说明需要升级，不强行覆盖。自动适配器只接受下表前三个名称，不支持 `--connect qwen`、`--connect doubao` 或 `--connect qoder`。新装时如果当前客户端不是前三者，完成大脑安装后还须按 [AI-CONNECT.md 第3节](AI-CONNECT.md#3-由你完成配置) 配置当前客户端；不能以 `--connect auto` 成功代替这一步。
 
 | 客户端 | 本版本接入入口 | 验证要求 |
 | --- | --- | --- |
 | Claude Code | `~/.claude/CLAUDE.md`，可选 SessionStart Hook | 新会话验证偏好、手册读取、写入工具权限 |
 | Codex | `~/.codex/AGENTS.md`，安装器提供 Hook 配置 | Hook 是否执行取决于客户端版本与功能支持；无 Hook 时用同一入口的读取后备路径 |
 | WorkBuddy | `~/.workbuddy/MEMORY.md` | 验证当前版本实际加载该入口；不承诺原生 Hook |
-| 千问办公国内桌面版 | 官方文档提供“意识 → 工作手册（AGENTS.md）”；由 Agent 核实实际位置并合并 | [由 AI 完成配置的步骤和依据](AI-CONNECT.md#3-由你完成配置)；不属于当前自动适配器，仍需本地访问和新会话实测 |
-| 豆包工作及其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径、不写入任意位置；必须具备本地文件和命令能力；只有会话粘贴时明确属于临时接入 |
+| 千问工作 / 千问办公（国内桌面版） | 由 AI 配置“意识 → 工作手册（AGENTS.md）” | 维护者已验证用接入指令连接已有大脑成功；实际入口与权限以当前版本为准 |
+| 豆包工作 | 由 AI 核实并配置当前版本的规则或记忆入口 | 维护者已验证用同一接入指令连接已有大脑成功；不假定其他豆包产品也具备本地工具能力 |
+| Qoder | 由 AI 核实并配置规则或记忆入口 | 维护者已验证用同一接入指令连接已有大脑成功；不等同于 QoderWork |
+| 其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径；只有会话粘贴时明确属于临时接入 |
+
+后三个已验证客户端共用现有接入指南，没有新增 CLI 适配参数；[验证范围](validation-0.6.1.md) 区分人工接入确认与自动化测试。
 
 其他客户端：把 `<brain-path>/LOCI.md` 中 `<brain-path>` 替换为实际绝对路径，将该短入口放进**已核实会加载的指令位置**；保留详细手册在大脑内。由 Agent 使用文件、设置工具或已授权的界面操作完成配置，不要求用户查询路径、编辑规则或粘贴第二段配置；能力不足时报告具体限制。若客户端不能访问本地文件/运行 Node，说明当前未接通，不声称适配完成。
 

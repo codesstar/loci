@@ -58,9 +58,9 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 
 需要 **Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent**。不需要 npm 包或 npx 安装器。AI 下载仓库后使用同一个跨平台 Node 安装器，具体步骤见 [给 AI 的安装与升级指南](docs/AI-INSTALL.md)。
 
-现成入口适配：**Claude Code、Codex、WorkBuddy**。千问办公、豆包工作等工具，先核实当前版本的指令入口与本地工具能力，再接入同一份短入口；目前不将它们列为已经实测的集成。Hook 可选，安装后须在所用客户端的新会话中验证。
+支持 **Claude Code、Codex、WorkBuddy、豆包工作、千问工作（千问办公）、Qoder**。前三者由安装器配置入口；后三者由 AI 按接入指南完成配置，已由维护者验证连接已有大脑成功。它们共用同一份本地数据，无需重复安装。Hook 可选；不同客户端版本的入口与权限仍需安装时检查。[接入方式与验证范围](docs/validation-0.6.1.md)。
 
-已经在用 Loci，后来又装了千问、豆包或新的 Agent？直接在**新工具**中发送：
+已经在用 Loci，后来又装了千问、豆包、Qoder 或新的 Agent？直接在**新工具**中发送：
 
 ```text
 我已经安装了 Loci，请把你连接到现有大脑。

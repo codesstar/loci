@@ -1,5 +1,5 @@
 # Only engine files are managed. All user data stays untouched.
-version: "0.6.0"
+version: "0.6.1"
 loci-schema: 1
 managed:
   - LOCI.md
