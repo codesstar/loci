@@ -7,6 +7,10 @@
 </p>
 
 <p align="center">
+  支持 Claude Code · Codex · Hermes · 千问工作 · 豆包工作 · Qoder · WorkBuddy
+</p>
+
+<p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://github.com/codesstar/loci/stargazers"><img src="https://img.shields.io/github/stars/codesstar/loci?style=social" alt="GitHub Stars" /></a>
   <img src="https://img.shields.io/badge/storage-local_Markdown_%2B_JSON-green" alt="本地 Markdown 与 JSON" />
@@ -58,7 +62,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 
 需要 **Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent**。不需要 npm 包或 npx 安装器。AI 下载仓库后使用同一个跨平台 Node 安装器，具体步骤见 [给 AI 的安装与升级指南](docs/AI-INSTALL.md)。
 
-支持 **Claude Code、Codex、WorkBuddy、豆包工作、千问工作（千问办公）、Qoder**。前三者由安装器配置入口；后三者由 AI 按接入指南完成配置，已由维护者验证连接已有大脑成功。它们共用同一份本地数据，无需重复安装。Hook 可选；不同客户端版本的入口与权限仍需安装时检查。[接入方式与验证范围](docs/validation-0.6.1.md)。
+支持 **Claude Code、Codex、Hermes、千问工作、豆包工作、Qoder、WorkBuddy**，共用同一份本地数据，无需重复安装。Claude Code、Codex、WorkBuddy 由安装器配置入口；Hermes、千问工作、豆包工作、Qoder 由 AI 按接入指南配置。千问工作、豆包工作和 Qoder 已由维护者验证连接已有大脑成功。Hook 可选，安装后在新会话中检查入口与权限。[验证范围](docs/validation-0.6.1.md)。
 
 已经在用 Loci，后来又装了千问、豆包、Qoder 或新的 Agent？直接在**新工具**中发送：
 

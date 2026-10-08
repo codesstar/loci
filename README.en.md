@@ -7,6 +7,10 @@
 </p>
 
 <p align="center">
+  Supports Claude Code · Codex · Hermes · Qwen Work · Doubao Work · Qoder · WorkBuddy
+</p>
+
+<p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://github.com/codesstar/loci/stargazers"><img src="https://img.shields.io/github/stars/codesstar/loci?style=social" alt="GitHub Stars" /></a>
   <img src="https://img.shields.io/badge/storage-local_Markdown_%2B_JSON-green" alt="Local Markdown and JSON" />
@@ -60,7 +64,7 @@ Reuse an existing brain and preserve all data. Connect this client and verify th
 
 You need **Node.js 18+ and Git**. No npm package or npx installer is required. The agent downloads the repository and uses one cross-platform Node installer. [AI installation and upgrade guide](docs/AI-INSTALL.md).
 
-Supported clients: **Claude Code, Codex, WorkBuddy, Doubao Work, Qwen Work and Qoder**. The first three have built-in installer adapters. The maintainer has successfully connected the latter three to an existing brain using the AI connection prompt below. They share the same local data; no second brain is needed. Hooks are optional. Entry loading and permissions depend on the client version; verify in a new conversation. See the [connection methods and validation scope](docs/validation-0.6.1.md).
+Supported clients: **Claude Code, Codex, Hermes, Qwen Work, Doubao Work, Qoder and WorkBuddy**. They share one local brain; no second installation is needed. Claude Code, Codex and WorkBuddy have built-in installer adapters; Hermes, Qwen Work, Doubao Work and Qoder use AI-guided entry configuration. The maintainer has verified existing-brain connections with Qwen Work, Doubao Work and Qoder. Hooks are optional. Verify entry loading and permissions in a new conversation. [Validation scope](docs/validation-0.6.1.md).
 
 Already using Loci and adding another agent? Send this directly to the **new client**:
 
