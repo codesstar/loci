@@ -27,9 +27,9 @@ Claude Code、Codex、WorkBuddy 使用已有大脑的安装器，参数由你填
 node <brain>/scripts/loci-install.js --brain <brain> --connect <claude|codex|workbuddy> --refresh
 ```
 
-只接入当前目标，记录备份、警告与结果。`--refresh` 跳过资料初始化，但仍刷新托管入口与配置。不编造 `--connect qwen`、`--connect doubao` 等不存在的参数。
+只接入当前目标，记录备份、警告与结果。`--refresh` 跳过资料初始化，但仍刷新托管入口与配置。不编造 `--connect qwen`、`--connect doubao`、`--connect qoder` 等不存在的参数。
 
-其他客户端先核实该版本的官方规则入口和本地配置。千问办公国内桌面版的官方文档提供“意识 → 工作手册（AGENTS.md）”，意识目录为 `~/.qwenworkcn/awareness/main`；以实际版本和目录为准。[官方说明](https://docs.qwenwork.cn/desktop/memory)。豆包等产品也须核实自己的入口，不能套用 Trae、Claude 或 Codex 的目录，不假定 Hook 通用。
+其他客户端先核实该版本的官方规则入口和本地配置。千问办公国内桌面版的官方文档提供“意识 → 工作手册（AGENTS.md）”，意识目录为 `~/.qwenworkcn/awareness/main`；以实际版本和目录为准。[官方说明](https://docs.qwenwork.cn/desktop/memory)。豆包工作和 Qoder 也须核实自己的入口，不能套用 Trae、Claude 或 Codex 的目录，不假定 Hook 通用。维护者已用本指南的同一接入指令，在豆包工作、千问工作和 Qoder 中成功连接已有大脑。Qoder 的本机验证使用用户级记忆入口；路径、自动加载范围和格式须以当前安装为准，不据此硬编码其他用户的配置。[验证范围](validation-0.6.1.md)。
 
 入口明确后，由你执行以下操作：
 

@@ -60,7 +60,7 @@ Reuse an existing brain and preserve all data. Connect this client and verify th
 
 You need **Node.js 18+ and Git**. No npm package or npx installer is required. The agent downloads the repository and uses one cross-platform Node installer. [AI installation and upgrade guide](docs/AI-INSTALL.md).
 
-Built-in entry adapters: Claude Code, Codex and WorkBuddy. Other clients, including Qwen office and Doubao work tools, require a verified instruction entry and local file/command access; they are not claimed as tested integrations. Hooks are optional. Validate the actual client in a new conversation after installation.
+Supported clients: **Claude Code, Codex, WorkBuddy, Doubao Work, Qwen Work and Qoder**. The first three have built-in installer adapters. The maintainer has successfully connected the latter three to an existing brain using the AI connection prompt below. They share the same local data; no second brain is needed. Hooks are optional. Entry loading and permissions depend on the client version; verify in a new conversation. See the [connection methods and validation scope](docs/validation-0.6.1.md).
 
 Already using Loci and adding another agent? Send this directly to the **new client**:
 

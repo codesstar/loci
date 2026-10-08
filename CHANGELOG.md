@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 — 2026-10-08
+
+- 支持豆包工作、千问工作和 Qoder 通过 AI 接入指令连接已有大脑：维护者已验证成功，无需用户寻找路径或重复安装。Claude Code、Codex、WorkBuddy 继续使用现成安装适配器。
+- 更新中英文首页、安装/接入指南、官网和完整使用手册；明确新装与已有大脑接入的区别，新增客户端的配置由 AI 完成，没有新增虚构的 `--connect` 参数。
+- 使用指南补齐真实界面截图、启动地图/短入口/完整规则的职责和新的架构图。
+- 启动地图移除容易过时的时间戳；优先复用宿主的时间信息，精确时间按需确认。逐轮时间注入列为未来选项。
+- [验证范围](docs/validation-0.6.1.md)：人工确认的已有大脑接入与跨平台自动化测试分别记录，不代表所有版本或每轮模型行为都已验证。
+
 ## 0.6.0 — 2026-10-08
 
 - One short `LOCI.md` entry and one complete `LOCI-RULES.md` manual. Read the manual at first memory use; keep actual data on demand.
@@ -14,9 +22,6 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
-### Changed
-- Removed the timestamp from the shared startup map. Reuse host-provided date/time context and verify precise time on demand; per-turn time injection remains a future option, not an enabled hook.
 
 ### Added
 - **Tasks can point at scraps** — a task record carries an optional `scraps` list of scrap ids (same shape as `people`). Set it from the task detail (a searchable picker), from a scrap's detail ("+ 关联或新建一个任务" — type a title that does not exist yet and it creates the task already linked), or with `loci-task.js add/update --scraps "ref:a,ref:b"`; chips on the task card open the scrap, and the scrap lists its tasks. Stored one way, on the task; a scrap that is later archived shows as a dashed chip. A scrap is never turned into a task — the task points at it.

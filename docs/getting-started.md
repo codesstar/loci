@@ -9,7 +9,7 @@ Install Loci following https://raw.githubusercontent.com/codesstar/loci/main/doc
 Reuse an existing brain and preserve its data. Verify the connection afterward.
 ```
 
-Node.js 18+ and Git are required; no npm package is needed. Your agent must have file and command tools. The installer connects native instructions for Claude Code, Codex and WorkBuddy; validate loading in a new conversation. Other clients need a verified equivalent entry.
+Node.js 18+ and Git are required; no npm package is needed. Your agent must have file and command tools. The installer connects native instructions for Claude Code, Codex and WorkBuddy; validate loading in a new conversation. Doubao Work, Qwen Work and Qoder have also been connected to an existing brain by the maintainer using the AI connection prompt; the agent verifies and configures their native entry. See [validation scope](validation-0.6.1.md).
 
 Try: “Use English”, “Add a task to send materials tomorrow at 9”, or “Save this link”. The first memory operation reads the complete `LOCI-RULES.md`; subsequent operations reuse it while valid. Actual records are read only when relevant.
 
