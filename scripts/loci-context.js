@@ -80,18 +80,6 @@ function compactPreferences(text) {
     : '');
 }
 
-function localTimestamp(now = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: false,
-    weekday: 'short'
-  }).formatToParts(now).reduce((all, part) => {
-    all[part.type] = part.value;
-    return all;
-  }, {});
-  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} ${parts.weekday}`;
-}
-
 function section(title, body) {
   return body ? `\n===== ${title} =====\n${body}\n` : '';
 }
@@ -107,7 +95,7 @@ function buildContext(options = {}) {
     platform
   );
 
-  let output = `[Loci] Lightweight startup map · ${localTimestamp(options.now)}\n`;
+  let output = '[Loci] Lightweight startup map\n';
   output += `Brain: ${brain}\nWorkspace: ${workspace}\n`;
   output += 'This startup map is already loaded. Do not run it again in this session.\n';
 

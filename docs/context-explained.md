@@ -7,7 +7,7 @@
 | 内容 | 它回答什么问题 | 内容来自哪里 | 何时读到 |
 | --- | --- | --- | --- |
 | `LOCI.md` 短入口 | 大脑在哪里？先做什么？何时查手册？ | 产品维护的短规则，安装时替换路径后写入宿主入口 | 宿主加载原生指令时 |
-| 启动地图 | 此刻路径、时间、用户短偏好是什么？ | `loci-context.js` 读取实际偏好，结合运行时路径生成 | 有效 Hook 注入，或 Agent 按入口调用同一脚本 |
+| 启动地图 | 大脑在哪、用户短偏好是什么、去哪里读规则？ | `loci-context.js` 读取实际偏好，结合运行时路径生成 | 有效 Hook 注入，或 Agent 按入口调用同一脚本 |
 | `LOCI-RULES.md` 完整手册 | 这类内容应该怎么读、怎么保存、怎么确认？ | 产品维护的一份业务规则文件 | 首次涉及 Loci 操作时完整读取；有效且未变时复用 |
 
 ## LOCI.md：入口到底写了什么
@@ -42,10 +42,12 @@
 
 ## 启动地图：实际会注入哪段文字
 
+日期与时间优先复用 Agent 已提供的信息，Loci 不重复注入。启动地图只提供短偏好、位置和规则指针；涉及精确时间时按需核对。逐轮时间补充留作[后续可探索项](https://www.tryloci.com/handbook/#待探索宿主时间不足时再补充)，当前未启用。
+
 以下由当前 `loci-context.js` 在临时目录中真实运行生成，偏好为虚构示例，输出路径替换为 `/example/loci` 与 `/example/work`。没有读取任何人的真实资料；不要把示例路径用于实际连接。
 
 ```text
-[Loci] Lightweight startup map · 2026-10-08 09:00 Thu
+[Loci] Lightweight startup map
 Brain: /example/loci
 Workspace: /example/work
 This startup map is already loaded. Do not run it again in this session.
@@ -65,7 +67,7 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 
 | 输出字段 | 意思与目的 |
 | --- | --- |
-| `[Loci] Lightweight startup map` 与时间 | 标识这是读取器的启动输出；时间是生成时的本地时间，不会在对话过程中自行刷新 |
+| `[Loci] Lightweight startup map` | 标识这是读取器的启动输出；不包含日期或时间 |
 | `Brain` | 本次连接的大脑位置，后续从这里定位规则和数据 |
 | `Workspace` | 当前工作目录，提供运行环境位置；不代表项目正文已读入，也不代表这个目录自动成为大脑 |
 | `already loaded` | 提醒 Agent 本会话不要又跑一遍读取器，避免 Hook 和后备调用重复 |
