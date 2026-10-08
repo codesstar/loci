@@ -1,94 +1,136 @@
 #!/usr/bin/env node
 'use strict';
-
-// GitHub-safe SVG: native text only, no foreignObject, remote fonts or scripts.
+// Native SVG only: readable in GitHub images, with no foreignObject or remote fonts.
 const fs = require('node:fs');
 const path = require('node:path');
 const out = path.resolve(__dirname, '../docs/assets');
-const copy = {
+const words = {
   zh: {
-    title: '一个入口，一本手册，一套本地数据',
-    subtitle: '规则让 Agent 知道怎么用；工具负责执行；文件保存记忆。',
-    install: '安装一次', entry: ['LOCI.md', '短入口 · 大脑路径与触发条件'],
-    native: ['安装到各 Agent 原生指令入口', 'Claude Code · Codex · WorkBuddy', 'CLAUDE.md / AGENTS.md / MEMORY.md'],
-    start: '每次启动：只取短偏好', hook: ['有 Hook：自动提供', '无 Hook：Agent 按入口调用', '两条路径共用同一个读取器'],
-    prefs: ['loci-context.js', '读取 me/preferences.md', '输出短偏好、路径和手册指针'],
-    use: '首次需要记忆：读手册，再操作',
-    manual: ['LOCI-RULES.md', '完整读一次', '有效且未变时复用'],
-    read: ['按需读取数据', '先查索引', '再打开相关记录'],
-    write: ['脚本 / 本地 API', '校验、写入、关联', '按操作记录活动'],
-    dashboard: ['Dashboard', '人查看、修改同一份数据'],
-    data: ['本地 Markdown · JSON · 附件', '任务 / 日程 / 偏好 / 人脉 / 笔记 / 碎片', '项目正文留在项目仓库，大脑保存索引。'],
-    foot: 'Hook 增强送达，不保证模型遵守；实际数据始终按需读取。',
-    desc: '安装器将 LOCI.md 写入 Agent 指令入口。启动由可选 Hook 或入口调用同一偏好读取器。首次使用记忆时完整读取 LOCI-RULES.md，再按需读数据并调用脚本或本地 API。Dashboard 与 Agent 共用本地文件。'
+    title: '换个 Agent，记忆仍在。', sub: '两份规则负责指路，一套本地数据持续积累。',
+    install: '安装一次', installLine: 'LOCI.md → 各 Agent 原生指令入口',
+    first: '每次会话开始', later: '需要使用记忆时',
+    names: ['找到大脑', '带上偏好', '读懂规则', '执行操作'],
+    files: ['LOCI.md', '启动地图', 'LOCI-RULES.md', '文件工具 / 脚本 / API'],
+    notes: [ ['大脑在哪里，', '何时读取完整规则。'], ['Hook 已提供就复用；', '否则调用同一读取器。'], ['首次记忆操作时完整读；', '有效、未变时复用。'], ['先查索引，再取相关数据；', '写入后核对结果。'] ],
+    output: '短偏好 + 路径 + 指针', readwrite: '按需读 / 写', shared: '你的本地大脑',
+    data: '任务 · 日程 · 人脉 · 笔记 · 碎片 · 个人记忆', formats: 'Markdown  /  JSON  /  附件',
+    you: '你也能看，也能改', dashboard: 'Dashboard', direct: '同一份数据',
+    foot: '项目正文留在各自仓库，大脑只留索引。',
+    desc: '安装将 LOCI.md 合并进各 Agent 原生入口。会话启动获取同源短偏好。首次记忆操作读取 LOCI-RULES.md，再按需检索并执行工具。Agent 和 Dashboard 读写同一份本地数据，项目正文留在项目仓库。'
   },
   en: {
-    title: 'One entry. One manual. Shared local data.',
-    subtitle: 'Instructions guide the agent. Tools execute. Files keep the memory.',
-    install: 'Install once', entry: ['LOCI.md', 'Brain path + when to load rules'],
-    native: ['Install into native agent instructions', 'Claude Code · Codex · WorkBuddy', 'CLAUDE.md / AGENTS.md / MEMORY.md'],
-    start: 'At session start: compact preferences', hook: ['With a hook: automatic context', 'Without one: the agent calls it', 'Both paths use the same reader'],
-    prefs: ['loci-context.js', 'Reads me/preferences.md', 'Returns preferences + file pointers'],
-    use: 'At first memory use: read the manual, then act',
-    manual: ['LOCI-RULES.md', 'Read in full once', 'Reuse while valid'],
-    read: ['Read on demand', 'Look up an index', 'Open relevant records'],
-    write: ['Scripts / local API', 'Validate, write, link', 'Log the operation'],
-    dashboard: ['Dashboard', 'People view and edit the same data'],
-    data: ['Local Markdown · JSON · attachments', 'Tasks / calendar / preferences / people / notes / scraps', 'Project details stay in their repository; the brain keeps an index.'],
-    foot: 'Hooks improve delivery, not compliance. Actual data stays on demand.',
-    desc: 'The installer copies LOCI.md into native agent instructions. An optional hook or instruction fallback calls the same preference reader at startup. At first memory use, the agent reads LOCI-RULES.md, retrieves relevant data and uses scripts or local APIs. Dashboard and agents share local files.'
+    title: 'A new agent. The same memory.', sub: 'Two instruction files. One shared home for your data.',
+    install: 'INSTALL ONCE', installLine: 'LOCI.md → native agent instructions',
+    first: 'AT SESSION START', later: 'WHEN MEMORY IS NEEDED',
+    names: ['Find the brain', 'Get preferences', 'Read the rules', 'Take action'],
+    files: ['LOCI.md', 'Startup map', 'LOCI-RULES.md', 'File tools / scripts / API'],
+    notes: [ ['Where the brain lives.', 'When to load the manual.'], ['Reuse hook output, or', 'call the same reader.'], ['Read in full at first use.', 'Reuse while valid.'], ['Index first, relevant data next.', 'Verify after writing.'] ],
+    output: 'Preferences + file pointers', readwrite: 'READ / WRITE', shared: 'Your local brain',
+    data: 'Tasks · Calendar · People · Notes · Scraps · Profile', formats: 'Markdown  /  JSON  /  Attachments',
+    you: 'See it. Edit it.', dashboard: 'Dashboard', direct: 'SAME DATA',
+    foot: 'Project details stay in their own repositories; the brain keeps an index.',
+    desc: 'LOCI.md is installed in native agent instructions. At startup a hook or the same reader supplies compact preferences. At first memory use the agent reads LOCI-RULES.md, retrieves relevant data, and executes tools. Agents and Dashboard share local files.'
   }
 };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
-
-function render(lang, dark) {
-  const c = copy[lang];
+function render(lang, dark, mobile) {
+  const c = words[lang];
   const p = dark
-    ? {bg:'#101915',panel:'#1a2820',line:'#3d5647',ink:'#edf4ee',muted:'#b3c8ba',accent:'#9cdbb6',soft:'#203c2c',arrow:'#87b79b'}
-    : {bg:'#f6f8f4',panel:'#ffffff',line:'#d2dfd5',ink:'#243b2d',muted:'#52685a',accent:'#236941',soft:'#e7f1e6',arrow:'#67967b'};
-  const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="960" height="960" viewBox="0 0 960 960" role="img" aria-labelledby="title desc" xml:lang="${lang}">`,
+    ? {bg:'#111e19',ink:'#edf3e9',muted:'#aec1af',line:'#3b5546',accent:'#bee391',paper:'#21362b',soft:'#253e30',store:'#dcebbf',storeInk:'#22392b',detail:'#516949'}
+    : {bg:'#f6f8f1',ink:'#243f31',muted:'#63765e',line:'#c8d6bc',accent:'#3f6845',paper:'#fffef8',soft:'#e5edda',store:'#284d38',storeInk:'#f1f6e6',detail:'#c3d9ae'};
+  const w=mobile?640:1240, h=mobile?1380:800;
+  const a=[`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="title desc" xml:lang="${lang}">`,
     `<title id="title">${esc(c.title)}</title><desc id="desc">${esc(c.desc)}</desc>`,
-    `<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="${p.arrow}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`,
-    `<rect width="960" height="960" rx="20" fill="${p.bg}"/>`,
-    `<g font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',Helvetica,sans-serif">`];
-  const text = (x,y,value,size=21,color=p.ink,weight=400) => parts.push(`<text x="${x}" y="${y}" font-size="${size}" fill="${color}" font-weight="${weight}">${esc(value)}</text>`);
-  const rect = (x,y,w,h,fill=p.panel) => parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${fill}" stroke="${p.line}"/>`);
-  const arrow = (x1,y1,x2,y2,both=false) => parts.push(`<path d="M${x1} ${y1} L${x2} ${y2}" fill="none" stroke="${p.arrow}" stroke-width="2.3" marker-end="url(#arrow)"${both?' marker-start="url(#arrow)"':''}/>`);
-  const stage = (n,y,label) => { text(40,y,n,18,p.accent,700); text(83,y,label,22,p.ink,650); };
-  const card = (x,y,w,h,lines,fill) => { rect(x,y,w,h,fill); lines.forEach((s,i)=>text(x+22,y+33+i*28,s,i===0?22:19,i===0?p.ink:p.muted,i===0?650:400)); };
-  text(40,38,'LOCI / ARCHITECTURE',14,p.accent,700);
-  text(40,83,c.title,lang==='zh'?34:32,p.ink,700);
-  text(40,117,c.subtitle,20,p.muted);
-
-  stage('01',169,c.install);
-  card(40,189,314,116,c.entry);
-  arrow(369,247,407,247);
-  card(423,189,497,116,c.native);
-
-  stage('02',354,c.start);
-  card(40,374,411,117,c.hook);
-  arrow(465,432,495,432);
-  card(511,374,409,117,c.prefs);
-
-  stage('03',545,c.use);
-  card(40,565,260,118,c.manual,p.soft);
-  arrow(310,624,339,624);
-  card(351,565,260,118,c.read);
-  arrow(621,624,650,624);
-  card(662,565,258,118,c.write);
-  card(40,704,382,78,c.dashboard);
-  arrow(231,790,231,819,true);
-  arrow(791,696,791,818,true);
-  rect(40,831,880,65,p.soft);
-  text(61,858,c.data[0],23,p.ink,650);
-  text(61,882,c.data[2],17,p.muted);
-  text(40,930,c.foot,17,p.muted);
-  parts.push('</g></svg>');
-  return parts.join('\n')+'\n';
+    `<defs><marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M3 2L9 6L3 10" fill="none" stroke="${p.accent}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`,
+    `<rect width="${w}" height="${h}" rx="18" fill="${p.bg}"/>`,
+    `<g font-family="'Avenir Next','PingFang SC','Microsoft YaHei',sans-serif">`];
+  const text=(x,y,s,size=22,fill=p.ink,weight=400,extra='')=>a.push(`<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-weight="${weight}" ${extra}>${esc(s)}</text>`);
+  const line=(d,stroke=p.line,width=1.5,extra='')=>a.push(`<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`);
+  const rect=(x,y,width,height,rx=8,fill=p.paper,stroke='none')=>a.push(`<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="${rx}" fill="${fill}" stroke="${stroke}"/>`);
+  const arrow=(d,both=false)=>line(d,p.accent,2,`marker-end="url(#arrow)"${both?' marker-start="url(#arrow)"':''}`);
+  const icon=(x,y,type)=>{
+    a.push(`<g transform="translate(${x} ${y})">`);
+    if(type===0){
+      rect(7,7,71,87,6,p.soft);rect(0,0,71,87,6,p.paper,p.line);
+      line('M18 24H47M18 36H55M18 48H41',p.line,3);
+      a.push(`<circle cx="54" cy="69" r="18" fill="${p.accent}"/>`);
+      line('M46 69H61M56 64L61 69L56 74',p.bg,2);
+    } else if(type===1){
+      rect(0,8,92,72,8,p.paper,p.line);
+      [25,45,65].forEach((yy,i)=>{a.push(`<circle cx="17" cy="${yy}" r="4" fill="${i===0?p.accent:p.line}"/>`);line(`M30 ${yy}H${i===1?63:74}`,i===0?p.accent:p.line,3);});
+      a.push(`<circle cx="85" cy="14" r="14" fill="${p.soft}" stroke="${p.line}"/>`);line('M85 7V14L90 18',p.accent,1.8);
+    } else if(type===2){
+      a.push(`<path d="M0 12Q20 2 42 12Q65 2 87 12V79Q65 69 42 79Q20 69 0 79Z" fill="${p.paper}" stroke="${p.line}" stroke-width="1.5"/>`);
+      line('M42 12V79',p.accent,2);line('M12 28H29M12 41H29M12 54H24M55 28H74M55 41H74M55 54H68',p.line,2.5);
+      a.push(`<path d="M58 5V27L64 23L70 27V5" fill="${p.accent}"/>`);
+    } else {
+      rect(0,9,92,72,8,p.paper,p.line);line('M0 28H92',p.line,1.5);
+      [13,22,31].forEach(xx=>a.push(`<circle cx="${xx}" cy="19" r="2" fill="${p.line}"/>`));
+      line('M18 43L28 52L18 61M39 61H60',p.accent,3);
+      a.push(`<circle cx="86" cy="75" r="15" fill="${p.accent}"/>`);line('M80 75L84 79L92 70',p.bg,2.2);
+    }
+    a.push('</g>');
+  };
+  const dashboard=(x,y)=>{
+    rect(x,y,70,50,5,p.paper,p.line);line(`M${x} ${y+12}H${x+70}M${x+18} ${y+12}V${y+50}`,p.line);
+    rect(x+27,y+21,14,19,2,p.soft);rect(x+46,y+21,15,8,2,p.soft);line(`M${x+46} ${y+36}H${x+61}`,p.accent,2);
+  };
+  text(48,49,'LOCI  /  HOW MEMORY WORKS',14,p.accent,600,'letter-spacing="2"');
+  text(48,108,c.title,mobile?(lang==='zh'?37:31):43,p.ink,600);
+  text(48,146,c.sub,mobile?21:23,p.muted);
+  if(!mobile){
+    rect(48,179,1144,55,6,p.soft);
+    text(68,213,c.install,15,p.accent,600);
+    text(lang==='zh'?180:218,214,c.installLine,20,p.ink,500);
+    text(1169,213,'Claude Code · Codex · WorkBuddy',17,p.muted,400,'text-anchor="end"');
+    text(48,278,c.first,15,p.muted,600);line(`M${lang==='zh'?184:238} 273H575`);
+    text(636,278,c.later,15,p.muted,600);line(`M${lang==='zh'?795:890} 273H1192`);
+    [48,342,636,930].forEach((x,i)=>{
+      icon(x,305,i);
+      if(i<3)arrow(`M${x+193} 349H${x+258}`);
+      text(x,438,'0'+(i+1),14,p.accent,600);
+      text(x+34,440,c.names[i],lang==='zh'?27:25,p.ink,600);
+      text(x,475,c.files[i],i===3?18:22,p.accent,550);
+      c.notes[i].forEach((s,j)=>text(x,509+j*27,s,18,p.muted));
+    });
+    arrow('M1061 557V582Q1061 596 1047 596H761V622',true);
+    text(1080,585,c.readwrite,13,p.muted,500);
+    rect(48,630,772,118,10,p.store);
+    text(75,669,c.shared,28,p.storeInk,600);
+    text(75,702,c.data,19,p.detail);
+    text(75,729,c.formats,15,p.detail);
+    dashboard(979,634);text(1064,650,c.you,lang==='zh'?16:17,p.muted);
+    text(979,716,c.dashboard,26,p.ink,550);
+    arrow('M838 687H953',true);text(896,674,c.direct,12,p.muted,500,'text-anchor="middle"');
+    text(48,779,c.foot,16,p.muted);
+  }else{
+    rect(48,173,544,92,6,p.soft);text(66,204,c.install+' · '+c.installLine,lang==='zh'?18:15,p.ink,500);
+    text(66,241,'Claude Code · Codex · WorkBuddy',20,p.muted);
+    text(48,309,c.first,17,p.muted,600);line('M220 303H590');
+    const ys=[338,512,747,921];
+    ys.forEach((y,i)=>{
+      icon(57,y+4,i);
+      text(179,y+24,'0'+(i+1),16,p.accent,600);text(212,y+25,c.names[i],30,p.ink,600);
+      text(179,y+62,c.files[i],24,p.accent,500);
+      c.notes[i].forEach((s,j)=>text(179,y+98+j*29,s,23,p.muted));
+      if(i===0||i===2)arrow(`M101 ${y+109}V${y+146}`);
+    });
+    text(48,712,c.later,17,p.muted,600);line('M270 706H590');
+    arrow('M101 1033V1063H320V1091',true);
+    text(349,1076,c.readwrite,17,p.muted);
+    rect(48,1102,544,122,10,p.store);
+    text(70,1142,c.shared,30,p.storeInk,600);
+    text(70,1177,c.data,lang==='zh'?20:16,p.detail);
+    text(70,1206,c.formats,18,p.detail);
+    arrow('M320 1236V1263',true);
+    dashboard(112,1275);text(200,1298,c.dashboard,27,p.ink,550);text(200,1327,c.you+' · '+c.direct,19,p.muted);
+    text(320,1361,c.foot,lang==='zh'?17:13,p.muted,400,'text-anchor="middle"');
+  }
+  a.push('</g></svg>');return a.join('\n')+'\n';
 }
 fs.mkdirSync(out,{recursive:true});
-for (const lang of ['zh','en']) for (const theme of ['light','dark']) {
-  const name = `architecture-${lang}-${theme}.svg`;
-  fs.writeFileSync(path.join(out,name),render(lang,theme==='dark'));
-  console.log(name);
+for(const lang of ['zh','en'])for(const theme of ['light','dark']){
+  const name=`architecture-${lang}-${theme}.svg`;
+  fs.writeFileSync(path.join(out,name),render(lang,theme==='dark',false));console.log(name);
 }
+fs.writeFileSync(path.join(out,'architecture-zh-mobile.svg'),render('zh',false,true));

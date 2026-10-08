@@ -1,55 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="960" viewBox="0 0 960 960" role="img" aria-labelledby="title desc" xml:lang="en">
-<title id="title">One entry. One manual. Shared local data.</title><desc id="desc">The installer copies LOCI.md into native agent instructions. An optional hook or instruction fallback calls the same preference reader at startup. At first memory use, the agent reads LOCI-RULES.md, retrieves relevant data and uses scripts or local APIs. Dashboard and agents share local files.</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#67967b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
-<rect width="960" height="960" rx="20" fill="#f6f8f4"/>
-<g font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',Helvetica,sans-serif">
-<text x="40" y="38" font-size="14" fill="#236941" font-weight="700">LOCI / ARCHITECTURE</text>
-<text x="40" y="83" font-size="32" fill="#243b2d" font-weight="700">One entry. One manual. Shared local data.</text>
-<text x="40" y="117" font-size="20" fill="#52685a" font-weight="400">Instructions guide the agent. Tools execute. Files keep the memory.</text>
-<text x="40" y="169" font-size="18" fill="#236941" font-weight="700">01</text>
-<text x="83" y="169" font-size="22" fill="#243b2d" font-weight="650">Install once</text>
-<rect x="40" y="189" width="314" height="116" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="62" y="222" font-size="22" fill="#243b2d" font-weight="650">LOCI.md</text>
-<text x="62" y="250" font-size="19" fill="#52685a" font-weight="400">Brain path + when to load rules</text>
-<path d="M369 247 L407 247" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)"/>
-<rect x="423" y="189" width="497" height="116" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="445" y="222" font-size="22" fill="#243b2d" font-weight="650">Install into native agent instructions</text>
-<text x="445" y="250" font-size="19" fill="#52685a" font-weight="400">Claude Code · Codex · WorkBuddy</text>
-<text x="445" y="278" font-size="19" fill="#52685a" font-weight="400">CLAUDE.md / AGENTS.md / MEMORY.md</text>
-<text x="40" y="354" font-size="18" fill="#236941" font-weight="700">02</text>
-<text x="83" y="354" font-size="22" fill="#243b2d" font-weight="650">At session start: compact preferences</text>
-<rect x="40" y="374" width="411" height="117" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="62" y="407" font-size="22" fill="#243b2d" font-weight="650">With a hook: automatic context</text>
-<text x="62" y="435" font-size="19" fill="#52685a" font-weight="400">Without one: the agent calls it</text>
-<text x="62" y="463" font-size="19" fill="#52685a" font-weight="400">Both paths use the same reader</text>
-<path d="M465 432 L495 432" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)"/>
-<rect x="511" y="374" width="409" height="117" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="533" y="407" font-size="22" fill="#243b2d" font-weight="650">loci-context.js</text>
-<text x="533" y="435" font-size="19" fill="#52685a" font-weight="400">Reads me/preferences.md</text>
-<text x="533" y="463" font-size="19" fill="#52685a" font-weight="400">Returns preferences + file pointers</text>
-<text x="40" y="545" font-size="18" fill="#236941" font-weight="700">03</text>
-<text x="83" y="545" font-size="22" fill="#243b2d" font-weight="650">At first memory use: read the manual, then act</text>
-<rect x="40" y="565" width="260" height="118" rx="12" fill="#e7f1e6" stroke="#d2dfd5"/>
-<text x="62" y="598" font-size="22" fill="#243b2d" font-weight="650">LOCI-RULES.md</text>
-<text x="62" y="626" font-size="19" fill="#52685a" font-weight="400">Read in full once</text>
-<text x="62" y="654" font-size="19" fill="#52685a" font-weight="400">Reuse while valid</text>
-<path d="M310 624 L339 624" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)"/>
-<rect x="351" y="565" width="260" height="118" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="373" y="598" font-size="22" fill="#243b2d" font-weight="650">Read on demand</text>
-<text x="373" y="626" font-size="19" fill="#52685a" font-weight="400">Look up an index</text>
-<text x="373" y="654" font-size="19" fill="#52685a" font-weight="400">Open relevant records</text>
-<path d="M621 624 L650 624" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)"/>
-<rect x="662" y="565" width="258" height="118" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="684" y="598" font-size="22" fill="#243b2d" font-weight="650">Scripts / local API</text>
-<text x="684" y="626" font-size="19" fill="#52685a" font-weight="400">Validate, write, link</text>
-<text x="684" y="654" font-size="19" fill="#52685a" font-weight="400">Log the operation</text>
-<rect x="40" y="704" width="382" height="78" rx="12" fill="#ffffff" stroke="#d2dfd5"/>
-<text x="62" y="737" font-size="22" fill="#243b2d" font-weight="650">Dashboard</text>
-<text x="62" y="765" font-size="19" fill="#52685a" font-weight="400">People view and edit the same data</text>
-<path d="M231 790 L231 819" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
-<path d="M791 696 L791 818" fill="none" stroke="#67967b" stroke-width="2.3" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
-<rect x="40" y="831" width="880" height="65" rx="12" fill="#e7f1e6" stroke="#d2dfd5"/>
-<text x="61" y="858" font-size="23" fill="#243b2d" font-weight="650">Local Markdown · JSON · attachments</text>
-<text x="61" y="882" font-size="17" fill="#52685a" font-weight="400">Project details stay in their repository; the brain keeps an index.</text>
-<text x="40" y="930" font-size="17" fill="#52685a" font-weight="400">Hooks improve delivery, not compliance. Actual data stays on demand.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="800" viewBox="0 0 1240 800" role="img" aria-labelledby="title desc" xml:lang="en">
+<title id="title">A new agent. The same memory.</title><desc id="desc">LOCI.md is installed in native agent instructions. At startup a hook or the same reader supplies compact preferences. At first memory use the agent reads LOCI-RULES.md, retrieves relevant data, and executes tools. Agents and Dashboard share local files.</desc>
+<defs><marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M3 2L9 6L3 10" fill="none" stroke="#3f6845" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="1240" height="800" rx="18" fill="#f6f8f1"/>
+<g font-family="'Avenir Next','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="48" y="49" font-size="14" fill="#3f6845" font-weight="600" letter-spacing="2">LOCI  /  HOW MEMORY WORKS</text>
+<text x="48" y="108" font-size="43" fill="#243f31" font-weight="600" >A new agent. The same memory.</text>
+<text x="48" y="146" font-size="23" fill="#63765e" font-weight="400" >Two instruction files. One shared home for your data.</text>
+<rect x="48" y="179" width="1144" height="55" rx="6" fill="#e5edda" stroke="none"/>
+<text x="68" y="213" font-size="15" fill="#3f6845" font-weight="600" >INSTALL ONCE</text>
+<text x="218" y="214" font-size="20" fill="#243f31" font-weight="500" >LOCI.md → native agent instructions</text>
+<text x="1169" y="213" font-size="17" fill="#63765e" font-weight="400" text-anchor="end">Claude Code · Codex · WorkBuddy</text>
+<text x="48" y="278" font-size="15" fill="#63765e" font-weight="600" >AT SESSION START</text>
+<path d="M238 273H575" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="636" y="278" font-size="15" fill="#63765e" font-weight="600" >WHEN MEMORY IS NEEDED</text>
+<path d="M890 273H1192" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<g transform="translate(48 305)">
+<rect x="7" y="7" width="71" height="87" rx="6" fill="#e5edda" stroke="none"/>
+<rect x="0" y="0" width="71" height="87" rx="6" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M18 24H47M18 36H55M18 48H41" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="54" cy="69" r="18" fill="#3f6845"/>
+<path d="M46 69H61M56 64L61 69L56 74" fill="none" stroke="#f6f8f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<path d="M241 349H306" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="48" y="438" font-size="14" fill="#3f6845" font-weight="600" >01</text>
+<text x="82" y="440" font-size="25" fill="#243f31" font-weight="600" >Find the brain</text>
+<text x="48" y="475" font-size="22" fill="#3f6845" font-weight="550" >LOCI.md</text>
+<text x="48" y="509" font-size="18" fill="#63765e" font-weight="400" >Where the brain lives.</text>
+<text x="48" y="536" font-size="18" fill="#63765e" font-weight="400" >When to load the manual.</text>
+<g transform="translate(342 305)">
+<rect x="0" y="8" width="92" height="72" rx="8" fill="#fffef8" stroke="#c8d6bc"/>
+<circle cx="17" cy="25" r="4" fill="#3f6845"/>
+<path d="M30 25H74" fill="none" stroke="#3f6845" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="17" cy="45" r="4" fill="#c8d6bc"/>
+<path d="M30 45H63" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="17" cy="65" r="4" fill="#c8d6bc"/>
+<path d="M30 65H74" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="85" cy="14" r="14" fill="#e5edda" stroke="#c8d6bc"/>
+<path d="M85 7V14L90 18" fill="none" stroke="#3f6845" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<path d="M535 349H600" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="342" y="438" font-size="14" fill="#3f6845" font-weight="600" >02</text>
+<text x="376" y="440" font-size="25" fill="#243f31" font-weight="600" >Get preferences</text>
+<text x="342" y="475" font-size="22" fill="#3f6845" font-weight="550" >Startup map</text>
+<text x="342" y="509" font-size="18" fill="#63765e" font-weight="400" >Reuse hook output, or</text>
+<text x="342" y="536" font-size="18" fill="#63765e" font-weight="400" >call the same reader.</text>
+<g transform="translate(636 305)">
+<path d="M0 12Q20 2 42 12Q65 2 87 12V79Q65 69 42 79Q20 69 0 79Z" fill="#fffef8" stroke="#c8d6bc" stroke-width="1.5"/>
+<path d="M42 12V79" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M12 28H29M12 41H29M12 54H24M55 28H74M55 41H74M55 54H68" fill="none" stroke="#c8d6bc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M58 5V27L64 23L70 27V5" fill="#3f6845"/>
+</g>
+<path d="M829 349H894" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="636" y="438" font-size="14" fill="#3f6845" font-weight="600" >03</text>
+<text x="670" y="440" font-size="25" fill="#243f31" font-weight="600" >Read the rules</text>
+<text x="636" y="475" font-size="22" fill="#3f6845" font-weight="550" >LOCI-RULES.md</text>
+<text x="636" y="509" font-size="18" fill="#63765e" font-weight="400" >Read in full at first use.</text>
+<text x="636" y="536" font-size="18" fill="#63765e" font-weight="400" >Reuse while valid.</text>
+<g transform="translate(930 305)">
+<rect x="0" y="9" width="92" height="72" rx="8" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M0 28H92" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="13" cy="19" r="2" fill="#c8d6bc"/>
+<circle cx="22" cy="19" r="2" fill="#c8d6bc"/>
+<circle cx="31" cy="19" r="2" fill="#c8d6bc"/>
+<path d="M18 43L28 52L18 61M39 61H60" fill="none" stroke="#3f6845" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="86" cy="75" r="15" fill="#3f6845"/>
+<path d="M80 75L84 79L92 70" fill="none" stroke="#f6f8f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="930" y="438" font-size="14" fill="#3f6845" font-weight="600" >04</text>
+<text x="964" y="440" font-size="25" fill="#243f31" font-weight="600" >Take action</text>
+<text x="930" y="475" font-size="18" fill="#3f6845" font-weight="550" >File tools / scripts / API</text>
+<text x="930" y="509" font-size="18" fill="#63765e" font-weight="400" >Index first, relevant data next.</text>
+<text x="930" y="536" font-size="18" fill="#63765e" font-weight="400" >Verify after writing.</text>
+<path d="M1061 557V582Q1061 596 1047 596H761V622" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="1080" y="585" font-size="13" fill="#63765e" font-weight="500" >READ / WRITE</text>
+<rect x="48" y="630" width="772" height="118" rx="10" fill="#284d38" stroke="none"/>
+<text x="75" y="669" font-size="28" fill="#f1f6e6" font-weight="600" >Your local brain</text>
+<text x="75" y="702" font-size="19" fill="#c3d9ae" font-weight="400" >Tasks · Calendar · People · Notes · Scraps · Profile</text>
+<text x="75" y="729" font-size="15" fill="#c3d9ae" font-weight="400" >Markdown  /  JSON  /  Attachments</text>
+<rect x="979" y="634" width="70" height="50" rx="5" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M979 646H1049M997 646V684" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="1006" y="655" width="14" height="19" rx="2" fill="#e5edda" stroke="none"/>
+<rect x="1025" y="655" width="15" height="8" rx="2" fill="#e5edda" stroke="none"/>
+<path d="M1025 670H1040" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1064" y="650" font-size="17" fill="#63765e" font-weight="400" >See it. Edit it.</text>
+<text x="979" y="716" font-size="26" fill="#243f31" font-weight="550" >Dashboard</text>
+<path d="M838 687H953" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="896" y="674" font-size="12" fill="#63765e" font-weight="500" text-anchor="middle">SAME DATA</text>
+<text x="48" y="779" font-size="16" fill="#63765e" font-weight="400" >Project details stay in their own repositories; the brain keeps an index.</text>
 </g></svg>

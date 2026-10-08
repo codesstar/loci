@@ -126,7 +126,7 @@ async function copyText(text, button) {
 }
 document.querySelectorAll('.copy-code').forEach(button => button.addEventListener('click', () => copyText(button.closest('.code-wrap').querySelector('code').textContent, button)));
 document.querySelectorAll('.copy-primary').forEach(button => button.addEventListener('click', () => copyText(button.closest('.start-content').querySelector('.prompt-text').textContent, button)));
-const tabs = Array.from(document.querySelectorAll('[role=tab]'));
+const tabs = Array.from(document.querySelectorAll('.switcher [role=tab]'));
 function activateTab(tab) {
   tabs.forEach(button => {
     const on = button === tab;
@@ -152,3 +152,28 @@ addEventListener('beforeprint', () => {
 });
 addEventListener('afterprint', () => { (printDetails || []).forEach(([d, open]) => { d.open = open; }); });
 document.querySelector('#print').addEventListener('click', () => window.print());
+
+// Each article gallery has its own selection; prompt tabs stay independent.
+document.querySelectorAll('.image-gallery').forEach(gallery => {
+  const choices = Array.from(gallery.querySelectorAll('[role=tab]'));
+  function show(choice) {
+    choices.forEach(button => {
+      const active = choice === button;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
+    });
+  }
+  choices.forEach((button, index) => {
+    button.addEventListener('click', () => show(button));
+    button.addEventListener('keydown', event => {
+      let next;
+      if (event.key === 'ArrowRight') next = (index + 1) % choices.length;
+      if (event.key === 'ArrowLeft') next = (index - 1 + choices.length) % choices.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = choices.length - 1;
+      if (next !== undefined) { event.preventDefault(); show(choices[next]); choices[next].focus(); }
+    });
+  });
+  show(choices[0]);
+});
