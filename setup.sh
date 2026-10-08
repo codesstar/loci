@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-# Legacy convenience entry. Node is the only installation implementation.
+# Compatibility wrapper; pwd -W keeps native Node paths valid in Git Bash.
 set -eu
-exec node "$(cd "$(dirname "$0")" && pwd)/scripts/loci-install.js" "$@"
+script_dir="$(cd "$(dirname "$0")" && (pwd -W 2>/dev/null || pwd))"
+exec node "$script_dir/scripts/loci-install.js" "$@"

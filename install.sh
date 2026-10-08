@@ -11,4 +11,5 @@ fi
 command -v node >/dev/null || { printf '%s\n' 'Node.js 18+ required.' >&2; exit 1; }
 brain_root="${1:-$HOME/loci}"
 git clone --depth 1 https://github.com/codesstar/loci.git "$brain_root"
+if command -v cygpath >/dev/null 2>&1; then brain_root="$(cygpath -m "$brain_root")"; fi
 exec node "$brain_root/scripts/loci-install.js" --brain "$brain_root" --connect auto
