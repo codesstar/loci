@@ -71,17 +71,10 @@ node loci/scripts/loci-install.js --connect auto --lang zh
 
 ## 架构：一个入口，一本手册，一套数据
 
-```mermaid
-flowchart TD
-  A[LOCI.md：短入口] --> B[安装到各 Agent 原生指令文件]
-  B --> C[启动：短偏好与大脑位置]
-  H[可选 Hook / 同一个后备读取器] --> C
-  B --> D[首次涉及记忆：完整读取 LOCI-RULES.md]
-  D --> E[按需查询索引和相关记录]
-  E --> F[现有脚本 / Dashboard API]
-  F --> G[本地 Markdown、JSON、附件]
-  UI[Dashboard] <--> G
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-zh-dark.svg" />
+  <img src="docs/assets/architecture-zh-light.svg" alt="Loci 架构：安装短入口，启动获取偏好，首次使用读手册，Agent 与 Dashboard 共用本地数据" width="960" />
+</picture>
 
 - **`LOCI.md` 是短入口**：告诉 Agent 大脑在哪、如何获取偏好、何时读取完整手册。
 - **`LOCI-RULES.md` 是完整手册**：任务、碎片、人物、项目等规则集中分块维护；首次涉及 Loci 操作时读一次，未变且仍在上下文则复用。

@@ -4,23 +4,12 @@
 
 Loci 的核心是让不同 Agent 通过自己的原生指令入口，使用同一份本地记忆。规则告诉模型何时读取和调用工具，脚本/API 完成实际读写。Markdown 指令能够引导模型，不能从机制上强制它执行；安装验证与真实客户端验收是两件事。
 
-```mermaid
-flowchart TD
-    Source[LOCI.md：唯一短入口源文件] --> Install[同一个 Node 安装器：替换大脑路径并合并标记区]
-    Install --> Native[各 Agent 原生指令入口]
-    Native --> Prefs[启动：短偏好与大脑位置]
-    Hook[可选 SessionStart Hook] --> Context[scripts/loci-context.js]
-    Fallback[入口指令的后备调用] --> Context
-    Context --> Prefs
-    Native --> Trigger{首次涉及 Loci 记忆操作？}
-    Trigger -->|是| Rules[完整读取 LOCI-RULES.md 一次]
-    Trigger -->|否| Chat[继续普通请求]
-    Rules --> Index[按需查索引、读取最小相关数据]
-    Index --> Tools[现有脚本或 Dashboard API]
-    Tools --> Data[本地 Markdown、JSON 和附件]
-    Dashboard[Dashboard 界面] <--> Data
-    Data --> Project[项目正文留在对应仓库，大脑只保存索引]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-zh-dark.svg" />
+  <img src="assets/architecture-zh-light.svg" alt="Loci 架构：安装短入口，启动获取偏好，首次使用读手册，Agent 与 Dashboard 共用本地数据" width="960" />
+</picture>
+
+图分为三个阶段：安装入口、启动获取短偏好、首次使用记忆。Dashboard 与 Agent 最终读写同一套本地数据。图片随 GitHub 的深浅主题切换；文字与流程源文件在 [`scripts/render-architecture.js`](../scripts/render-architecture.js)，运行 `node scripts/render-architecture.js` 可重新生成中英文 SVG。
 
 ## 哪些文件需要维护
 
