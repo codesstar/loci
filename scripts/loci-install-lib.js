@@ -15,8 +15,6 @@ function replaceBlock(before, block) {
 }
 function migrateRoot(before, block) {
   before = before.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-  const sourceEntry = '# Loci repository / brain entry';
-  if (before.startsWith(sourceEntry)) return block;
   const signatures = require('./loci-legacy-signatures.json');
   // Only remove a byte-for-byte known shipping rulebook; preserve user additions.
   for (const { length, sha256 } of signatures) {

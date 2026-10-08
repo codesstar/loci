@@ -17,9 +17,14 @@ function clone(to) { fs.cpSync(ROOT, to, { recursive: true, filter: src => !['.g
 function run(script, args) { return JSON.parse(execFileSync(process.execPath, [path.join(brain, 'scripts', script), ...args], { encoding: 'utf8' })); }
 try {
   clone(brain);
+  execFileSync('git', ['init', brain], { stdio: 'pipe' });
+  execFileSync('git', ['remote', 'add', 'origin', 'https://github.com/codesstar/loci.git'], { cwd: brain });
+  write(brain, 'CLAUDE.md', read(brain, 'CLAUDE.md') + '\nCUSTOM ROOT INSTRUCTION\n');
   write(home, '.workbuddy/MEMORY.md', '# My rules\nUser content.\n');
   const first = install({ brain, home, connect: 'workbuddy', name: '测试用户', lang: 'zh' });
   assert(first.ok);
+  assert(read(brain, 'CLAUDE.md').includes('CUSTOM ROOT INSTRUCTION'));
+  assert.strictEqual(execFileSync('git', ['remote', 'get-url', '--push', 'origin'], { cwd: brain, encoding: 'utf8' }).trim(), 'DISABLED-LOCI-PERSONAL-BRAIN');
   assert(!fs.existsSync(path.join(home, '.codex')));
   assert(read(home, '.workbuddy/MEMORY.md').includes('User content.'));
   write(brain, 'me/identity.md', 'PRIVATE_IDENTITY\n');
