@@ -54,17 +54,27 @@ Loci 把这些内容放进你自己的本地“大脑”目录，通过各 Agent
 
 ## 把这一句发给你的 AI，即可开始安装
 
+**首次使用选「安装」，已有 Loci、换个工具选「连接」。** 直接把对应指令发给 AI，不用自己找路径。
+
+| 支持的 Agent | 首次安装 Loci | 已有 Loci，接入新工具 |
+| --- | --- | --- |
+| Claude Code | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| Codex | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| Hermes | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| 千问工作 | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| 豆包工作 | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| Qoder | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+| WorkBuddy | [安装指令](#首次安装) | [连接指令](#连接新工具) |
+
+### 首次安装
+
 ```text
 帮我安装 Loci，并连接到你当前使用的客户端。请读取并执行：
 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 已有大脑就复用，保留全部数据，安装后验证连接。
 ```
 
-需要 **Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent**。不需要 npm 包或 npx 安装器。AI 下载仓库后使用同一个跨平台 Node 安装器，具体步骤见 [给 AI 的安装与升级指南](docs/AI-INSTALL.md)。
-
-支持 **Claude Code、Codex、Hermes、千问工作、豆包工作、Qoder、WorkBuddy**，共用同一份本地数据，无需重复安装。Claude Code、Codex、WorkBuddy 由安装器配置入口；Hermes、千问工作、豆包工作、Qoder 由 AI 按接入指南配置。千问工作、豆包工作和 Qoder 已由维护者验证连接已有大脑成功。Hook 可选，安装后在新会话中检查入口与权限。[验证范围](docs/validation-0.6.1.md)。
-
-已经在用 Loci，后来又装了千问、豆包、Qoder 或新的 Agent？直接在**新工具**中发送：
+### 连接新工具
 
 ```text
 我已经安装了 Loci，请把你连接到现有大脑。
@@ -72,7 +82,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 请你自己找到已有大脑并完成接入，保留数据，不要重复安装。
 ```
 
-不需要自己找路径或编辑配置。AI 会核实当前客户端的能力，完成配置并说明检查结果。
+需要 Node.js 18+、Git 和本地文件/命令能力；不需要 npm 包。[详细说明](docs/AI-INSTALL.md) · [验证范围](docs/validation-0.6.1.md)
 
 想看面板，直接说：**“帮我打开 Loci Dashboard，使用我现有的大脑。”** 本地服务需保持运行；保存提醒不等于设备已收到通知。
 

@@ -54,7 +54,19 @@ The agent's file and command tools perform the operations. Results depend on ins
 
 ## Install with your AI agent
 
-Copy this into an agent that can read local files and run commands:
+**New to Loci? Install it. Already have Loci? Connect the new agent.** Send the matching prompt to your AI; it finds the paths for you.
+
+| Supported agent | First installation | Connect to an existing brain |
+| --- | --- | --- |
+| Claude Code | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Codex | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Hermes | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Qwen Work | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Doubao Work | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| Qoder | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+| WorkBuddy | [Install prompt](#first-installation) | [Connect prompt](#connect-another-agent) |
+
+### First installation
 
 ```text
 Install Loci for me. Read and follow:
@@ -62,11 +74,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 Reuse an existing brain and preserve all data. Connect this client and verify the result.
 ```
 
-You need **Node.js 18+ and Git**. No npm package or npx installer is required. The agent downloads the repository and uses one cross-platform Node installer. [AI installation and upgrade guide](docs/AI-INSTALL.md).
-
-Supported clients: **Claude Code, Codex, Hermes, Qwen Work, Doubao Work, Qoder and WorkBuddy**. They share one local brain; no second installation is needed. Claude Code, Codex and WorkBuddy have built-in installer adapters; Hermes, Qwen Work, Doubao Work and Qoder use AI-guided entry configuration. The maintainer has verified existing-brain connections with Qwen Work, Doubao Work and Qoder. Hooks are optional. Verify entry loading and permissions in a new conversation. [Validation scope](docs/validation-0.6.1.md).
-
-Already using Loci and adding another agent? Send this directly to the **new client**:
+### Connect another agent
 
 ```text
 Connect yourself to my existing Loci brain. Read and follow:
@@ -74,7 +82,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-CONNECT.md
 Find the brain yourself, preserve my data, and do not create another installation.
 ```
 
-The agent checks its capabilities, finds the existing brain and configures its entry. You do not need to find paths or edit configuration.
+Requires Node.js 18+, Git, and local file/command tools. No npm package needed. [Details](docs/AI-INSTALL.md) · [Validation scope](docs/validation-0.6.1.md)
 
 To open the Dashboard, say: **“Open my Loci Dashboard using my existing brain.”** Keep its local service running. Saving a reminder does not prove delivery.
 
