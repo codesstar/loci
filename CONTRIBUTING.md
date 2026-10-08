@@ -47,6 +47,10 @@ See [How It Works](docs/architecture.md) for the full system overview. Key files
 - `.loci/dashboard/server.js` — Dashboard server (run with `node .loci/dashboard/server.js`, port 8765)
 - `examples/alex/` — Demo data for new users
 
+## User guide
+
+Edit `docs/user-guide.md`, then run `node scripts/build-user-guide.js` and commit the generated `site/handbook/index.html` and architecture asset together. The reader styles and behavior live in `site/handbook/style.css` and `app.js`. Preview the `site/` directory with a local HTTP server. Keep examples fictional and never copy private brain files or article archives into `site/`.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).

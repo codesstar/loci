@@ -1026,6 +1026,7 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
     <a href="#why" data-i="navProblem"></a>
     <a href="#dashboard" data-i="navDemo"></a>
     <a href="#how" data-i="navHow"></a>
+    <a href="/handbook/" data-i="navGuide"></a>
   </div>
   <div class="nav-right">
     <div class="lang-toggle">
@@ -2216,9 +2217,8 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
         </div>
         <div class="use-aside">
           <div class="use-cmds">
-            <div class="use-cmd" style="display:block;white-space:normal;overflow-wrap:anywhere;"><p id="aiInstallPrompt">帮我安装 Loci，按照 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md 操作；已有大脑则保留数据升级，最后验证接入。</p><button type="button" id="copyAiInstall">复制指令 / Copy</button></div>
-            <div class="use-or"><span data-i="useOr"></span></div>
-            <div class="use-cmd use-cmd-alt"><span class="pmt">$</span><code>node scripts/loci-install.js</code></div>
+            <div class="use-cmd" style="display:block;white-space:normal;overflow-wrap:anywhere;"><p id="aiInstallPrompt">帮我安装 Loci，按照 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md 操作；已有大脑就复用并保留数据，最后验证接入。</p><button type="button" id="copyAiInstall">复制指令 / Copy</button></div>
+            <div class="use-or"><a href="/handbook/#connect" data-i="useConnect"></a></div>
           </div>
         </div>
       </div>
@@ -2230,8 +2230,7 @@ html[lang="en"] .ap-dest-hit { letter-spacing: -0.01em; }
           <div class="use-h" data-i="use2h"></div>
           <p class="use-p" data-i="use2p"></p>
           <div class="use-cmds" style="margin-top:16px;max-width:420px">
-            <div class="use-cmd"><span class="pmt">$</span><code>node .loci/dashboard/server.js</code></div>
-            <div class="use-cmd use-cmd-alt"><span class="pmt">↳</span><code>localhost:8765</code><span class="tag"><span class="ap-zh">浏览器打开</span><span class="ap-en">in browser</span></span></div>
+            <div class="use-cmd" style="white-space:normal"><span class="ap-zh">帮我打开 Loci Dashboard，使用我现有的大脑。</span><span class="ap-en">Open my Loci Dashboard using my existing brain.</span></div>
           </div>
         </div>
         <div class="use-aside">
@@ -2372,6 +2371,7 @@ const I = {
   navProblem: { zh:'为什么', en:'Why Loci' },
   navDemo: { zh:'界面', en:'Dashboard' },
   navHow: { zh:'原理', en:'How it works' },
+  navGuide: { zh:'使用指南', en:'Guide (中文)' },
 
   heroBadge: { zh:'AGENT-NATIVE 记忆系统', en:'AGENT-NATIVE MEMORY SYSTEM' },
   heroH1: { zh:'给你的 AI 一个<br>跟着你走的<span class="accent-text">记忆</span>', en:'Give your AI a memory <span class="accent-text">that lives with you</span>' },
@@ -2454,10 +2454,10 @@ const I = {
   useTitle: { zh:'三步开始用', en:'Up and running in three steps' },
   useSub: { zh:'装好、打开、开始说话 —— 剩下的交给 Loci。', en:'Install, open, start talking — Loci handles the rest.' },
   use1h: { zh:'交给 AI 安装', en:'Ask your agent to install' },
-  useOr: { zh:'或手动运行', en:'or run manually' },
+  useConnect: { zh:'已经安装，连接新的 AI →', en:'Connect another agent →' },
   use1p: { zh:'把右侧指令交给能操作本地文件的 AI：它会读取安装指南、下载仓库、配置入口并验证。需要 Node.js 18+ 和 Git，不需要 npm 包。', en:'Give the instruction to an agent with local file tools. It reads the guide, downloads the repository, configures entries and verifies. Requires Node.js 18+ and Git; no npm package.' },
   use2h: { zh:'打开 Dashboard', en:'Open the dashboard' },
-  use2p: { zh:'想看大脑全貌时,在大脑目录里跑这条命令,再用浏览器打开 localhost:8765 —— 或者干脆跟 Codex / Claude Code 说一句"帮我打开 dashboard",它会替你启动。第一次进来选个语言、点 Open Dashboard,就是你记忆系统的平静界面。', en:'When you want to see your whole brain, run this from your brain folder and open localhost:8765 — or just tell Codex / Claude Code "open my dashboard" and it starts it for you. On first open, pick your language and hit Open Dashboard — the calm surface of your memory system.' },
+  use2p: { zh:'想看记下来的内容时，直接对 AI 说“帮我打开 Loci Dashboard”。它会找到已有大脑、启动服务并打开页面。任务、人物和资料都在同一个面板里，需要时随时可看、可改。', en:'Ask your agent to open your Loci Dashboard. It finds the existing brain, starts the service and opens the page. Review and edit your tasks, people and materials in one place.' },
   use3h: { zh:'开始说话', en:'Start chatting' },
   use3p: { zh:'回到 Claude Code 或 Codex,像平时一样说话就行。下面这些都可以直接对它说 —— 排日程、记待办、跟进项目、留决策、存链接、记灵感:', en:'Back in Claude Code or Codex, just talk like always. Any of these you can say straight to it — schedule things, capture to-dos, track projects, record decisions, save links, jot ideas:' },
 
@@ -2554,8 +2554,8 @@ function setLang(l){
   _lang=l;
   const installPrompt = document.getElementById('aiInstallPrompt');
   if (installPrompt) installPrompt.textContent = l === 'en'
-    ? 'Install Loci following https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md . Preserve and upgrade any existing brain, then verify the connection.'
-    : '帮我安装 Loci，按照 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md 操作；已有大脑则保留数据升级，最后验证接入。';
+    ? 'Install Loci following https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md . Reuse any existing brain and preserve its data, then verify the connection.'
+    : '帮我安装 Loci，按照 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md 操作；已有大脑就复用并保留数据，最后验证接入。';
   const installButton = document.getElementById('copyAiInstall');
   if (installButton) installButton.textContent = l === 'en' ? 'Copy instruction' : '复制安装指令';
   document.documentElement.lang = (l==='zh'?'zh-CN':'en');
@@ -2578,7 +2578,7 @@ const saved = (()=>{ try{ return localStorage.getItem('loci-demo-lang'); }catch(
 setLang(saved || 'zh');
 
 document.getElementById('copyAiInstall').addEventListener('click', async function () {
-  const prompt = _lang === 'en' ? 'Install Loci following https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md . Preserve and upgrade any existing brain, then verify the connection.' : document.getElementById('aiInstallPrompt').textContent;
+  const prompt = _lang === 'en' ? 'Install Loci following https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md . Reuse any existing brain and preserve its data, then verify the connection.' : document.getElementById('aiInstallPrompt').textContent;
   try { await navigator.clipboard.writeText(prompt); this.textContent = _lang === 'en' ? 'Copied' : '已复制'; }
   catch { this.textContent = _lang === 'en' ? 'Select and copy the text above' : '请选择上方文字复制'; }
 });

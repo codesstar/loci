@@ -55,21 +55,26 @@ Copy this into an agent that can read local files and run commands:
 ```text
 Install Loci for me. Read and follow:
 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
-If I already have a brain, upgrade it while preserving my data. Verify the connection afterward.
+Reuse an existing brain and preserve all data. Connect this client and verify the result.
 ```
 
 You need **Node.js 18+ and Git**. No npm package or npx installer is required. The agent downloads the repository and uses one cross-platform Node installer. [AI installation and upgrade guide](docs/AI-INSTALL.md).
 
 Built-in entry adapters: Claude Code, Codex and WorkBuddy. Other clients, including Qwen office and Doubao work tools, require a verified instruction entry and local file/command access; they are not claimed as tested integrations. Hooks are optional. Validate the actual client in a new conversation after installation.
 
-For manual setup:
+Already using Loci and adding another agent? Send this directly to the **new client**:
 
-```bash
-git clone https://github.com/codesstar/loci.git loci
-node loci/scripts/loci-install.js --connect auto --lang en
+```text
+Connect yourself to my existing Loci brain. Read and follow:
+https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-CONNECT.md
+Find the brain yourself, preserve my data, and do not create another installation.
 ```
 
-Start the Dashboard with `node <brain-path>/.loci/dashboard/server.js`, then open [localhost:8765](http://localhost:8765). Keep the local process running for UI and reminder features. Saving a reminder does not prove delivery.
+The agent checks its capabilities, finds the existing brain and configures its entry. You do not need to find paths or edit configuration.
+
+To open the Dashboard, say: **“Open my Loci Dashboard using my existing brain.”** Keep its local service running. Saving a reminder does not prove delivery.
+
+[Full user guide (中文) →](https://www.tryloci.com/handbook/)
 
 ## One entry, one manual, shared data
 
@@ -93,6 +98,7 @@ Loci is an MIT-licensed open-source project. Models and third-party services may
 
 ## Documentation and contributions
 
+- [Full user guide (中文)](https://www.tryloci.com/handbook/)
 - [English getting started guide](docs/getting-started.md) · [中文指南](docs/getting-started.zh-CN.md)
 - [AI installation](docs/AI-INSTALL.md)
 - [Connect a new agent to an existing brain (中文)](docs/connect-existing-brain.md) · [Entry, startup map, and rules explained (中文)](docs/context-explained.md)
