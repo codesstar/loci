@@ -5,7 +5,7 @@
 ## 1. 检查环境与已有安装
 
 - 需要 Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent。用 `node --version`、`git --version` 检查。缺少运行环境时说明具体缺项，按用户授权安装依赖；不能声称纯网页聊天也能访问用户磁盘。
-- 读取用户主目录下 `.loci/brain-path`（如果存在），检查指向的大脑。已有可用大脑时走**升级**，不要再建第二份、不要覆盖个人数据。
+- 读取用户主目录下 `.loci/brain-path`（如果存在），检查指向的大脑。先区分用户要**新装、仅连接新 Agent、还是升级**：已有可用大脑且只新增 Agent 时走第3节，不默认下载、升级或重建；用户要升级或旧版本缺少必要文件时，再按第4节处理。路径冲突或多个大脑时先辨认，不静默切换。
 - 主目录、临时目录和目标路径由当前系统确定；所有示例占位符都须替换。不要假设 Windows 有 Bash，不要把含空格或特殊字符的路径/用户文本拼进未经转义的 Shell 命令。优先用参数数组调用进程。
 - 默认新大脑目录为用户主目录下 `loci`。目标非空且不是刚下载的 Loci 时停止覆盖，选择空目录或明确已有安装的用途。可直接使用已知称呼和语言，不必进行个人信息问卷。
 
@@ -26,12 +26,24 @@ node <brain-path>/scripts/loci-install.js --brain <brain-path> --connect auto --
 
 ## 3. 接入不同 Agent
 
+**大脑装一份，Agent 分别接入。** 已经连接 Claude Code/Codex，后来新装千问、豆包等，按 [已有大脑接入指南](connect-existing-brain.md) 操作；其中有给原 Agent、给新 Agent 的可复制指令，以及新会话验收方法。
+
+对当前版本已有大脑，只刷新一个现成适配入口，例如新增 WorkBuddy：
+
+```text
+node "<existing-brain-path>/scripts/loci-install.js" --brain "<existing-brain-path>" --connect workbuddy --refresh
+node "<existing-brain-path>/scripts/loci-install.js" --brain "<existing-brain-path>" --connect workbuddy --check
+```
+
+`--refresh` 跳过初始资料/空数据池准备，但会刷新托管入口和配置；检查返回的备份与警告。它不下载新版本。发现旧版缺文件时说明需要升级，不强行覆盖。自动适配器只接受下表前三个名称，不支持 `--connect qwen` 或 `--connect doubao`。
+
 | 客户端 | 本版本接入入口 | 验证要求 |
 | --- | --- | --- |
 | Claude Code | `~/.claude/CLAUDE.md`，可选 SessionStart Hook | 新会话验证偏好、手册读取、写入工具权限 |
 | Codex | `~/.codex/AGENTS.md`，安装器提供 Hook 配置 | Hook 是否执行取决于客户端版本与功能支持；无 Hook 时用同一入口的读取后备路径 |
 | WorkBuddy | `~/.workbuddy/MEMORY.md` | 验证当前版本实际加载该入口；不承诺原生 Hook |
-| 千问办公、豆包工作及其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径、不写入任意位置；必须具备本地文件和命令能力 |
+| 千问办公国内桌面版 | 官方文档提供“意识 → 工作手册（AGENTS.md）”；从应用确认实际位置后手动合并 | [具体步骤和依据](connect-existing-brain.md#千问办公国内桌面版通过已核实的工作手册入口)；不属于当前自动适配器，仍需本地访问和新会话实测 |
+| 豆包工作及其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径、不写入任意位置；必须具备本地文件和命令能力；只有会话粘贴时明确属于临时接入 |
 
 其他客户端：把 `<brain-path>/LOCI.md` 中 `<brain-path>` 替换为实际绝对路径，将该短入口放进**已核实会加载的指令位置**；保留详细手册在大脑内。若只能手动粘贴指令，给用户生成完整、可复制的一段。若客户端不能访问本地文件/运行 Node，说明当前未接通，不声称适配完成。
 
