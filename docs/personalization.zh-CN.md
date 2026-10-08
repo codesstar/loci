@@ -1,87 +1,9 @@
-# 个性化指南
+# 个性化
 
-## 把 Loci 变成你自己的
+称呼、语言、语气和工作偏好写在 `me/preferences.md`。Hook 与启动后备路径读取同一份文件。保持简短；超出启动预算会截断，需要相关时补读。
 
-Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么换成你自己的东西。
+稳定身份在 `me/identity.md`，价值观在 `me/values.md`，目标在 `plan.md`，相关时读取。用户自己的内容留在数据文件；`LOCI.md` 和 `LOCI-RULES.md` 是产品维护的入口与手册，升级会更新。
 
-## 基础定制
+只适用于某个客户端的个人指令，可写在原生指令文件的 Loci 标记区之外；安装会保留外围内容。不要再复制一套任务、碎片或项目路由规则，统一参考 [操作手册](../LOCI-RULES.md)。
 
-### 1. 个人身份（`me/identity.md`）
-
-这是最关键的文件。AI 读这个来了解你是谁。
-
-建议写上：
-- 姓名、职业、坐标
-- 干活风格和习惯
-- 常用工具
-- 沟通偏好
-- 当前在忙什么
-
-### 2. 价值观和原则（`me/values.md`）
-
-你做决策的底层逻辑。AI 会参考这些给你提建议。
-
-好的原则长这样：
-- "质量大于速度——自己不满意的东西绝不发"
-- "一次只做一个项目——做完再开新的"
-- "健康第一——睡眠和运动没得商量"
-
-### 3. 人生方向（`plan.md`）
-
-你的北极星。写上使命、年度目标、当前季度重点。
-
-### 4. 任务（`tasks/tasks.json`）
-
-日常指挥中心。有事直接跟 AI 说就行——任务存在 `tasks/tasks.json` 里，一律走守卫写入器（`node scripts/loci-task.js` 或 Dashboard API）。`tasks/active.md` 是生成出来的只读快照，这两个文件都别手改。
-
-## 进阶玩法
-
-### 给 AI 加行为规则
-
-改 `CLAUDE.md` 就行。几个场景：
-
-**什么都想答应的人：**
-```markdown
-## Personal Reminders
-- User tends to say yes to everything — always ask "does this align with your Q1 goals?"
-- If they mention a new project idea, suggest parking it in projects/side.md first
-```
-
-**正在创业的人：**
-```markdown
-## Business Context
-- Company: Acme Inc, Series A, 12 employees
-- Current priority: Product-market fit
-- Key metric: Weekly active users
-- When discussing features, always consider impact on WAU
-```
-
-**学生：**
-```markdown
-## Academic Context
-- University: MIT, Computer Science, graduating May 2026
-- Current courses: [list]
-- Thesis topic: [topic]
-- Academic deadlines take priority over side projects
-```
-
-### 连接多个项目
-
-如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/architecture.md` 的多项目章节。
-
-### Dashboard 换皮
-
-默认是 Clean 主题——安静的浅色调，单一翡翠绿点缀。详见 `docs/dashboard.zh-CN.md`。
-
-## 几条建议
-
-1. **别一上来就填满** — 先搞最基本的，让系统跟着你自然长出来。
-2. **多用蒸馏** — 正常聊天就行，让 AI 自己把信息捞出来。不用手动改文件。
-3. **每周理一理** — 花 10 分钟清 inbox、过一遍任务。
-4. **信任分层机制** — 不是所有东西都得塞进 Layer 1。细节放 Layer 2 和 Layer 3 就好。
-
-## 别动这些
-
-- 不要改 `CLAUDE.md` 的文件名 — AI 工具靠它当入口
-- 不要删 `plan.md` 或 `tasks/active.md` — 它们是 Layer 1 的核心文件。`inbox.md` 仍然重要，但它是 Layer 2 的碎片池，按需打开。
-- 不要手改 `tasks/tasks.json` 和 `tasks/calendar.json` — 永远走守卫写入器或 Dashboard API
+扩展模块可从 `templates/extensions/` 的模板开始，并说明数据格式。[架构说明](architecture.md) 解释了规则和数据的加载边界。
