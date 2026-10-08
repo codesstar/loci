@@ -1,0 +1,42 @@
+{
+  "assets/handbook/tasks-overview.png": {
+    "label": "任务在左，日程在右",
+    "width": 1665,
+    "height": 1022
+  },
+  "assets/handbook/task-states.png": {
+    "label": "查看任务状态",
+    "width": 642,
+    "height": 801
+  },
+  "assets/handbook/task-today.png": {
+    "label": "拖到今天",
+    "width": 637,
+    "height": 742
+  },
+  "assets/handbook/task-create.png": {
+    "label": "添加任务",
+    "width": 801,
+    "height": 970
+  },
+  "assets/handbook/schedule-create.png": {
+    "label": "新建日程",
+    "width": 503,
+    "height": 441
+  },
+  "assets/handbook/schedule-drag.png": {
+    "label": "安排时间块",
+    "width": 1608,
+    "height": 965
+  },
+  "assets/handbook/reminder-settings.png": {
+    "label": "设置提醒",
+    "width": 306,
+    "height": 435
+  },
+  "assets/handbook/reminder-phone.jpg": {
+    "label": "手机收到通知",
+    "width": 1206,
+    "height": 1631
+  }
+}

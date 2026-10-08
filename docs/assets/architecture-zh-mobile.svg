@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="1380" viewBox="0 0 640 1380" role="img" aria-labelledby="title desc" xml:lang="zh">
+<title id="title">换个 Agent，记忆仍在。</title><desc id="desc">安装将 LOCI.md 合并进各 Agent 原生入口。会话启动获取同源短偏好。首次记忆操作读取 LOCI-RULES.md，再按需检索并执行工具。Agent 和 Dashboard 读写同一份本地数据，项目正文留在项目仓库。</desc>
+<defs><marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M3 2L9 6L3 10" fill="none" stroke="#3f6845" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="640" height="1380" rx="18" fill="#f6f8f1"/>
+<g font-family="'Avenir Next','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="48" y="49" font-size="14" fill="#3f6845" font-weight="600" letter-spacing="2">LOCI  /  HOW MEMORY WORKS</text>
+<text x="48" y="108" font-size="37" fill="#243f31" font-weight="600" >换个 Agent，记忆仍在。</text>
+<text x="48" y="146" font-size="21" fill="#63765e" font-weight="400" >两份规则负责指路，一套本地数据持续积累。</text>
+<rect x="48" y="173" width="544" height="92" rx="6" fill="#e5edda" stroke="none"/>
+<text x="66" y="204" font-size="18" fill="#243f31" font-weight="500" >安装一次 · LOCI.md → 各 Agent 原生指令入口</text>
+<text x="66" y="241" font-size="20" fill="#63765e" font-weight="400" >Claude Code · Codex · WorkBuddy</text>
+<text x="48" y="309" font-size="17" fill="#63765e" font-weight="600" >每次会话开始</text>
+<path d="M220 303H590" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<g transform="translate(57 342)">
+<rect x="7" y="7" width="71" height="87" rx="6" fill="#e5edda" stroke="none"/>
+<rect x="0" y="0" width="71" height="87" rx="6" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M18 24H47M18 36H55M18 48H41" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="54" cy="69" r="18" fill="#3f6845"/>
+<path d="M46 69H61M56 64L61 69L56 74" fill="none" stroke="#f6f8f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="179" y="362" font-size="16" fill="#3f6845" font-weight="600" >01</text>
+<text x="212" y="363" font-size="30" fill="#243f31" font-weight="600" >找到大脑</text>
+<text x="179" y="400" font-size="24" fill="#3f6845" font-weight="500" >LOCI.md</text>
+<text x="179" y="436" font-size="23" fill="#63765e" font-weight="400" >大脑在哪里，</text>
+<text x="179" y="465" font-size="23" fill="#63765e" font-weight="400" >何时读取完整规则。</text>
+<path d="M101 447V484" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g transform="translate(57 516)">
+<rect x="0" y="8" width="92" height="72" rx="8" fill="#fffef8" stroke="#c8d6bc"/>
+<circle cx="17" cy="25" r="4" fill="#3f6845"/>
+<path d="M30 25H74" fill="none" stroke="#3f6845" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="17" cy="45" r="4" fill="#c8d6bc"/>
+<path d="M30 45H63" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="17" cy="65" r="4" fill="#c8d6bc"/>
+<path d="M30 65H74" fill="none" stroke="#c8d6bc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="85" cy="14" r="14" fill="#e5edda" stroke="#c8d6bc"/>
+<path d="M85 7V14L90 18" fill="none" stroke="#3f6845" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="179" y="536" font-size="16" fill="#3f6845" font-weight="600" >02</text>
+<text x="212" y="537" font-size="30" fill="#243f31" font-weight="600" >带上偏好</text>
+<text x="179" y="574" font-size="24" fill="#3f6845" font-weight="500" >启动地图</text>
+<text x="179" y="610" font-size="23" fill="#63765e" font-weight="400" >Hook 已提供就复用；</text>
+<text x="179" y="639" font-size="23" fill="#63765e" font-weight="400" >否则调用同一读取器。</text>
+<g transform="translate(57 751)">
+<path d="M0 12Q20 2 42 12Q65 2 87 12V79Q65 69 42 79Q20 69 0 79Z" fill="#fffef8" stroke="#c8d6bc" stroke-width="1.5"/>
+<path d="M42 12V79" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M12 28H29M12 41H29M12 54H24M55 28H74M55 41H74M55 54H68" fill="none" stroke="#c8d6bc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M58 5V27L64 23L70 27V5" fill="#3f6845"/>
+</g>
+<text x="179" y="771" font-size="16" fill="#3f6845" font-weight="600" >03</text>
+<text x="212" y="772" font-size="30" fill="#243f31" font-weight="600" >读懂规则</text>
+<text x="179" y="809" font-size="24" fill="#3f6845" font-weight="500" >LOCI-RULES.md</text>
+<text x="179" y="845" font-size="23" fill="#63765e" font-weight="400" >首次记忆操作时完整读；</text>
+<text x="179" y="874" font-size="23" fill="#63765e" font-weight="400" >有效、未变时复用。</text>
+<path d="M101 856V893" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<g transform="translate(57 925)">
+<rect x="0" y="9" width="92" height="72" rx="8" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M0 28H92" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="13" cy="19" r="2" fill="#c8d6bc"/>
+<circle cx="22" cy="19" r="2" fill="#c8d6bc"/>
+<circle cx="31" cy="19" r="2" fill="#c8d6bc"/>
+<path d="M18 43L28 52L18 61M39 61H60" fill="none" stroke="#3f6845" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="86" cy="75" r="15" fill="#3f6845"/>
+<path d="M80 75L84 79L92 70" fill="none" stroke="#f6f8f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="179" y="945" font-size="16" fill="#3f6845" font-weight="600" >04</text>
+<text x="212" y="946" font-size="30" fill="#243f31" font-weight="600" >执行操作</text>
+<text x="179" y="983" font-size="24" fill="#3f6845" font-weight="500" >文件工具 / 脚本 / API</text>
+<text x="179" y="1019" font-size="23" fill="#63765e" font-weight="400" >先查索引，再取相关数据；</text>
+<text x="179" y="1048" font-size="23" fill="#63765e" font-weight="400" >写入后核对结果。</text>
+<text x="48" y="712" font-size="17" fill="#63765e" font-weight="600" >需要使用记忆时</text>
+<path d="M270 706H590" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M101 1033V1063H320V1091" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<text x="349" y="1076" font-size="17" fill="#63765e" font-weight="400" >按需读 / 写</text>
+<rect x="48" y="1102" width="544" height="122" rx="10" fill="#284d38" stroke="none"/>
+<text x="70" y="1142" font-size="30" fill="#f1f6e6" font-weight="600" >你的本地大脑</text>
+<text x="70" y="1177" font-size="20" fill="#c3d9ae" font-weight="400" >任务 · 日程 · 人脉 · 笔记 · 碎片 · 个人记忆</text>
+<text x="70" y="1206" font-size="18" fill="#c3d9ae" font-weight="400" >Markdown  /  JSON  /  附件</text>
+<path d="M320 1236V1263" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<rect x="112" y="1275" width="70" height="50" rx="5" fill="#fffef8" stroke="#c8d6bc"/>
+<path d="M112 1287H182M130 1287V1325" fill="none" stroke="#c8d6bc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="139" y="1296" width="14" height="19" rx="2" fill="#e5edda" stroke="none"/>
+<rect x="158" y="1296" width="15" height="8" rx="2" fill="#e5edda" stroke="none"/>
+<path d="M158 1311H173" fill="none" stroke="#3f6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<text x="200" y="1298" font-size="27" fill="#243f31" font-weight="550" >Dashboard</text>
+<text x="200" y="1327" font-size="19" fill="#63765e" font-weight="400" >你也能看，也能改 · 同一份数据</text>
+<text x="320" y="1361" font-size="17" fill="#63765e" font-weight="400" text-anchor="middle">项目正文留在各自仓库，大脑只留索引。</text>
+</g></svg>
