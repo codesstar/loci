@@ -7,7 +7,7 @@
   <!-- ===== Entry paths ===== -->
   <!-- Path A -->
   <rect x="118" y="62" width="234" height="58" rx="13" fill="#ffffff" stroke="#e3e3e0" stroke-width="1.5"/>
-  <text id="d-pa-cmd" data-en="npx create-loci" x="135" y="88" font-size="13" font-weight="650" font-family="'JetBrains Mono', monospace" fill="#1c1c1a">npx create-loci</text>
+  <text id="d-pa-cmd" data-en="AI-INSTALL.md" x="135" y="88" font-size="13" font-weight="650" font-family="'JetBrains Mono', monospace" fill="#1c1c1a">AI-INSTALL.md</text>
   <text id="d-pa-sub" data-en="one command" x="135" y="106" font-size="10.5" fill="#5b5b57">一行命令</text>
 
   <!-- OR -->

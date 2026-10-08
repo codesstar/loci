@@ -1,42 +1,9 @@
----
-date: 2026-03-17
-status: draft
----
+# Loci for OpenClaw
 
-# Loci × OpenClaw
+This is a thin entry adapter for an OpenClaw environment with local file and command tools. It uses the same Loci brain and operation manual as other agents.
 
-Give your OpenClaw agent a structured brain.
+1. Ask the agent to follow [the AI installation guide](../../docs/AI-INSTALL.md). Use `--connect none` when only this adapter is needed.
+2. Install [skill/SKILL.md](skill/SKILL.md) in the skill location actually supported by the current OpenClaw environment.
+3. In a new conversation, verify that it resolves `~/.loci/brain-path`, reads `LOCI.md`, and reads `LOCI-RULES.md` before the first memory operation.
 
-## Install
-
-### For OpenClaw users (easiest)
-
-Copy the skill folder to your OpenClaw skills directory:
-
-```bash
-cp -r skill/ ~/.openclaw/workspace/skills/loci/
-```
-
-Then just start a conversation. Your agent will automatically:
-1. Download the brain template
-2. Ask you a few questions
-3. Set up your memory
-
-You don't need to do anything else.
-
-### For Claude Code users who also use OpenClaw
-
-If you already have a Loci brain via Claude Code, just copy the skill:
-
-```bash
-cp -r skill/ ~/.openclaw/workspace/skills/loci/
-```
-
-Your agent will auto-detect your existing brain (via `~/.loci/brain-path`) and start using it immediately. No re-setup needed.
-
-## How it works
-
-- SKILL.md teaches your OpenClaw agent to use Loci's structured memory
-- Brain files are stored locally as markdown (you own your data)
-- If you also use Claude Code, both tools share the same brain
-- OpenClaw's default MEMORY.md continues to work alongside Loci
+Installing a skill file alone does not prove it has been loaded. This adapter does not create a separate rulebook, data store or onboarding process.

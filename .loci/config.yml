@@ -5,10 +5,6 @@ version: 1
 
 language: mix              # en | zh | mix
 
-persistence:
-  mode: auto              # auto | manual
-  notify: true            # show save notifications
-
 wellbeing:
   enabled: true
   wind_down_time: "22:30"

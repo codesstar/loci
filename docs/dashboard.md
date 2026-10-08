@@ -161,6 +161,6 @@ See [API docs](api.md) for endpoint details.
 ## Related Docs
 
 - [Getting Started](getting-started.md)
-- [How It Works](how-it-works.md)
+- [How It Works](architecture.md)
 - [API](api.md)
 - [Project Overview](project-overview.zh-CN.md)

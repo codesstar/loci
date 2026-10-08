@@ -1,349 +1,107 @@
 <p align="center">
-  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — Memory Palace for AI" width="600" />
+  <img src="docs/assets/loci-banner-transparent.png" alt="Loci — AI 的记忆宫殿" width="600" />
 </p>
 
 <p align="center">
-  <strong>The first agent-native memory system. A full brain architecture for AI.</strong>
+  <strong>跨 Agent 的本地记忆与数据层。AI 帮你记录，你随时可看、可改。</strong>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://github.com/codesstar/loci/stargazers"><img src="https://img.shields.io/github/stars/codesstar/loci?style=social" alt="GitHub Stars" /></a>
-  <img src="https://img.shields.io/badge/agent--native-AI--first_CLI-blueviolet" alt="Agent-Native" />
-  <img src="https://img.shields.io/badge/storage-100%25_local_Markdown-green" alt="Local Markdown" />
+  <img src="https://img.shields.io/badge/storage-local_Markdown_%2B_JSON-green" alt="本地 Markdown 与 JSON" />
 </p>
 
 <p align="center">
-  English | <a href="README.zh-CN.md">中文</a>
+  中文 | <a href="README.en.md">English</a>
 </p>
 
----
+## Loci 是什么
 
-## The Problem
+不同 AI 工具的记忆往往各自独立。换一个 Agent，偏好、任务和项目背景可能需要重新交代；记录散落在不同位置，也难以统一整理。
 
-Your AI doesn't remember you.
+Loci 把这些内容放进你自己的本地“大脑”目录，通过各 Agent 的指令入口告诉它们：去哪里读、什么值得记、怎样写入。接入同一个大脑的 Agent，可以读取已经保存的共同上下文。
 
-Every conversation starts from zero. You re-introduce yourself. You re-explain your project. You re-describe your preferences. The thing you spent an hour figuring out yesterday? Gone. The decision you made last week? Never happened.
+记忆、任务、日程、人脉和知识资料使用 Markdown、JSON 与附件保存。你可以直接打开文件，也可以通过 Dashboard 查看和修改。无需部署外部数据库或云端记忆服务；Dashboard 是在本机运行的 Node.js 服务。
 
-And it's not just forgetting between sessions. Chat long enough and the context fills up — your AI starts repeating itself, getting confused, forgetting things you said 20 minutes ago. You restart. Everything you built up is gone.
+## 能做什么
 
-Worse: your memories are scattered. Claude Code's auto-memory is a flat file that gets messy over time. Cursor's memory lives in `.cursorrules` and breaks across projects. Every tool remembers its own fragments, but nothing holds the full picture of you.
+| 能力 | 用法 |
+| --- | --- |
+| 个人记忆 | 保存称呼、语言、个人资料、反思与决定，相关时读取 |
+| 任务与日程 | 管理待办、会议和时间块；带时间的待办仍是任务，不自动复制进日历 |
+| 项目上下文 | 在项目仓库保存状态、技术决定和开发待办，大脑只保留索引 |
+| 人脉与地点 | 记录联系人、关系、互动及相关地点 |
+| 知识库 | 收藏链接、碎片和附件，索引自己的笔记与研究材料 |
+| 日记与回顾 | 查看活动记录，整理近期工作和已保存的信息 |
 
-**What if your AI actually knew you — and that knowledge was yours forever?**
+例如，你可以对已接入的 Agent 说：
 
-## The Solution
-
-Loci gives your AI a real brain. Everything it learns about you is saved as plain Markdown files on your machine. No server, no subscription, no lock-in. Your memories belong to you.
-
-```
-Day 1:       "I'm a frontend developer. I prefer simple solutions
-              over clever ones. I'm building a fitness app."
-              Your AI remembers. Permanently.
-
-Week 2:      Context is full. AI is slowing down. You restart.
-             "Pick up where I left off."
-             "You were building the workout tracker. You decided on
-              a card layout because of mobile. The exercise list is
-              done. Next up: the timer component. Ready?"
-
-Month 3:     You open a completely different project.
-             "How should I structure this?"
-             "Based on what I know about you: you like flat folder
-              structures, you always regret adding too many abstractions
-              early, and you prefer starting with a working prototype.
-              Here's what I'd suggest..."
+```text
+以后用中文回复我。
+明天上午9点提醒我发材料。
+把这个链接收藏起来，标注“面试参考”。
+记住这个项目，再告诉我目前做到哪里了。
 ```
 
-The longer you use it, the better it knows you. Your preferences, your patterns, your growth — across every conversation, every project, every context reset. It never forgets, and it never disappears.
-
-**Your AI is no longer a stranger. It's the one assistant that actually knows who you are.**
-
-### Why Loci?
-
-- **It's yours.** Every memory is a file on your machine. No server, no subscription. Cancel anything, switch any tool — your brain stays with you.
-- **It's private.** Your identity, your decisions, your goals — stored locally. No one else can see it. Not even us.
-- **It grows with you.** Day one, it knows your name. Month three, it knows your patterns. Year one, it can tell you how you've changed.
-- **It never crashes.** Session dies? Context full? Computer restarts? Save and recover in 10 seconds. Your AI picks up exactly where you left off.
-- **It collects for you.** Toss in an article, a link, a half-formed idea. Forget about it. Weeks later, when it's relevant, your AI surfaces it at exactly the right moment.
-
-### "I already have CLAUDE.md — why do I need this?"
-
-CLAUDE.md is a sticky note. Loci is a second brain.
-
-- **CLAUDE.md is one file.** Loci is 30+ structured modules — identity, decisions, tasks, daily plans, journal, evolution — that stay clean no matter how much you use them.
-- **CLAUDE.md is per-project.** Loci connects all your projects. A lesson you learned in Project A becomes a warning in Project B — automatically.
-- **CLAUDE.md degrades with use.** The file grows, context bloats, AI slows down. Loci uses layered loading — only relevant memory enters context. Heavy use makes it smarter, not slower.
-- **CLAUDE.md doesn't manage your work.** Loci gives you morning briefings, task tracking, pattern detection, daily journals, and a visual dashboard.
-
-Loci actually *uses* CLAUDE.md — it's one of the 30+ files in the system. The difference is everything else around it.
+实际读写由 Agent 的文件/命令工具执行。效果取决于工具是否加载规则、能否访问大脑，以及是否正确执行操作；仅安装文件不会强制模型遵守规则。
 
 ![Loci Dashboard](docs/assets/dashboard-preview.png)
 
----
-
-## Quick Start
-
-### Option 1 — Ask your AI to install it (recommended)
-
-Loci is built for AI agents — so let yours install it. Paste this into Claude Code or Codex:
+## 把这一句发给你的 AI，即可开始安装
 
 ```text
-Install Loci for me: https://github.com/codesstar/loci
-Clone the repo, then follow docs/AI-INSTALL.md inside it.
+帮我安装 Loci。请读取并按照这份指南完成安装：
+https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
+如果已有大脑，请保留我的数据并升级，最后验证实际接入结果。
 ```
 
-Your AI clones the repo, asks your name, runs the scriptable setup, connects itself to the new brain, and verifies everything works. About a minute — and the first thing your AI ever does with its new memory is set it up for you.
+需要 **Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent**。不需要 npm 包或 npx 安装器。AI 下载仓库后使用同一个跨平台 Node 安装器，具体步骤见 [给 AI 的安装与升级指南](docs/AI-INSTALL.md)。
 
-### Option 2 — Installer (no AI needed)
+现成入口适配：**Claude Code、Codex、WorkBuddy**。千问办公、豆包工作等工具，先核实当前版本的指令入口与本地工具能力，再接入同一份短入口；目前不将它们列为已经实测的集成。Hook 可选，安装后须在所用客户端的新会话中验证。
 
-One command. Loci gives Claude Code and Codex one shared local brain, so decisions and tasks saved in one tool are available to the other.
+也可以手动运行：
 
 ```bash
-npx create-loci
+git clone https://github.com/codesstar/loci.git loci
+node loci/scripts/loci-install.js --connect auto --lang zh
 ```
 
-The installer opens a browser setup wizard, creates your brain, and lets you connect Claude Code, Codex, WorkBuddy, or a combination. Takes about 2 minutes. Prefer terminal setup? Run `npx create-loci --cli`.
+打开 Dashboard：运行 `node <brain-path>/.loci/dashboard/server.js`，访问 [localhost:8765](http://localhost:8765)。本地服务需保持运行；保存提醒不等于设备已收到通知。
 
-### OpenClaw (experimental)
+## 架构：一个入口，一本手册，一套数据
 
-```bash
-clawhub install loci-brain
+```mermaid
+flowchart TD
+  A[LOCI.md：短入口] --> B[安装到各 Agent 原生指令文件]
+  B --> C[启动：短偏好与大脑位置]
+  H[可选 Hook / 同一个后备读取器] --> C
+  B --> D[首次涉及记忆：完整读取 LOCI-RULES.md]
+  D --> E[按需查询索引和相关记录]
+  E --> F[现有脚本 / Dashboard API]
+  F --> G[本地 Markdown、JSON、附件]
+  UI[Dashboard] <--> G
 ```
 
-### Manual Setup
+- **`LOCI.md` 是短入口**：告诉 Agent 大脑在哪、如何获取偏好、何时读取完整手册。
+- **`LOCI-RULES.md` 是完整手册**：任务、碎片、人物、项目等规则集中分块维护；首次涉及 Loci 操作时读一次，未变且仍在上下文则复用。
+- **实际数据按需读取**：不在启动时加载所有任务、人脉和历史；项目完整记忆留在项目仓库。
+- **Hook 只是增强**：有 Hook 自动提供短偏好，没有就按入口调用同一读取器；没有第二份规则或启动地图文件。
 
-```bash
-git clone https://github.com/codesstar/loci.git ~/loci
-cd ~/loci && ./setup.sh
-```
+普通请求无需先读完整手册；第一次记忆操作承担一次读取开销。规则文件能指导模型，不能强制模型执行。[完整架构与取舍](docs/architecture.md) · [短入口原文](LOCI.md) · [操作手册原文](LOCI-RULES.md)。
 
-Scripting it (or you're an AI reading this)? `./setup.sh --non-interactive --name "Alex"` skips the wizard — see `./setup.sh --help` and [docs/AI-INSTALL.md](docs/AI-INSTALL.md).
+## 数据与隐私
 
-> **Note**: Without Claude Code or Codex CLI, Loci only works inside the brain directory. Global cross-project memory requires a tool that supports global instruction files.
->
-> Prefer the old shell installer? `curl -fsSL https://raw.githubusercontent.com/codesstar/loci/main/install.sh | bash` still works.
+文件保存在你的机器上，可以备份、查看和迁移。Loci 不要求把记忆存到独立的云端记忆服务。Agent 调用模型、联网或使用其他工具时，数据处理仍遵循你所用 Agent 与服务的配置；本地存储不等于模型调用完全离线。
 
-> **Windows?** `npx create-loci` runs natively from PowerShell or Command Prompt. Startup context uses Node and does not require Bash. WSL/Git Bash remain supported for the optional terminal wizard and shell fallback.
->
-> **Want to see what a brain looks like?** Check out [`examples/alex/`](examples/alex/) — a full brain with 3 months of history.
->
-> **New to Loci?** Read the **[Getting Started Guide](docs/getting-started.md)** for a complete walkthrough.
+这是 MIT 开源项目；使用的模型或第三方服务可能另行收费。
 
----
+## 文档与贡献
 
-## Why "Loci"? And Why a Seahorse?
+- [中文入门指南](docs/getting-started.zh-CN.md) · [English guide](docs/getting-started.md)
+- [AI 安装说明](docs/AI-INSTALL.md)
+- [Dashboard](docs/dashboard.md) · [API](docs/api.md)
+- [示例大脑](examples/alex/)
+- [参与贡献](CONTRIBUTING.md) · [MIT License](LICENSE)
 
-The **Method of Loci** is one of the oldest memory techniques in human history. Ancient Greek orators would mentally place each point of their speech in a room of an imaginary palace. To recall, they simply walked through the palace — every room held a memory, exactly where they left it.
-
-That's what Loci does for your AI. Every decision, every preference, every lesson you've learned — placed in its own room, ready to be recalled at the right moment.
-
-And the seahorse? In your brain, the **hippocampus** is the region responsible for forming and retrieving memories. The word "hippocampus" comes from Greek: *hippos* (horse) + *kampos* (sea creature) — it literally means **seahorse**. Neuroscientists named it that because the structure looks like one.
-
-Our logo is a seahorse because Loci is the hippocampus of your AI — the part that turns fleeting conversations into lasting memory.
-
----
-
-## What Happens After Setup
-
-You don't learn Loci. You just talk to your AI, and five things start happening:
-
-### It remembers what matters
-
-Spend 30 minutes figuring something out with your AI? That knowledge is saved automatically — the decision, the reasoning, and the alternatives you rejected.
-
-```
-You: "We compared Vercel, Railway, and self-hosted. Going with Railway
-      — Vercel is too expensive at our scale, self-hosted is too much
-      ops work for a two-person team."
-
-Got it — saved your hosting decision with the tradeoffs.
-```
-
-Next month, when you're wondering "why aren't we on Vercel?" — your AI already knows the full story. You figured it out once. You never have to figure it out again.
-
-### It connects your projects
-
-No command to learn. While you work inside a project, if your AI notices it's becoming real, it offers once — at the end of a conversation: "This project seems to be taking off. Want me to keep a memory for it here?"
-
-Say yes, and Loci creates the project's own `.loci/` memory inside that repo. Your brain keeps only a one-line index entry pointing to it. Project memory belongs to the project; the brain aggregates and orchestrates. **Loci aggregates memory — it does not own it.**
-
-```
-Brain (your memory hub)
- ├── projects/index.md
- │    "Main app lives at ~/work/main-app — project memory in .loci/memory.md"
- │
- ├── me/, tasks/, decisions/
- │    your global preferences, tasks, and cross-project decisions
- │
- └── project repo/.loci/
-      memory.md       short restart context
-      profile.md      stable project details
-      progress/       project progress, one file per month
-      decisions/      the project's own decision stream
-      todo.json       the project's development todos
-```
-
-### It finds patterns you miss
-
-Every morning, Loci reviews what changed and surfaces insights:
-
-```
-Morning briefing:
-  - You've started 3 new side projects this month but finished
-    none of them. Maybe ship one before starting another?
-  - "Write the project README" has been on your list for 12 days.
-    Do it today or drop it?
-  - You estimated the payment integration would take 2 days.
-    Your last 3 integrations took 2x your estimates.
-```
-
-### It survives context resets
-
-Long session? Context window full? AI getting slow? Just save and restart.
-
-```
-> save everything before I restart
-  Done — synced all decisions and progress to your brain.
-
-(open a new terminal)
-
-> picking up where I left off
-  You were building the notification system. You decided on
-  email + in-app (no SMS — too expensive for now). The email
-  templates are done, you were about to wire up the trigger
-  logic. The file is src/notifications/triggers.ts. Ready?
-```
-
-Not "what project are you working on?" — it knows exactly where you were, what you decided, and what file you had open.
-
-### It grows with you
-
-Your skills change. Your focus shifts. Loci tracks the evolution — current state stays lean, history is preserved for when you want to reflect.
-
-```
-January:  "data engineer, mass-producing dashboards"
-April:    "data engineer → building my own analytics product"
-July:     "founder, shipped v1, first 50 users"
-          evolution.md records each transition and what triggered it
-```
-
----
-
-## How It Works
-
-| Concept | What it does | Why it matters |
-|---------|-------------|----------------|
-| **Smart saving** | Extracts decisions, tasks, and insights from conversation — never saves raw chat transcripts | Your memory stays clean and searchable, not a wall of text |
-| **Layered loading** | Loads only what's relevant to the current conversation. Archives stay out of the way until needed | Fast responses, even after months of accumulated memory |
-| **Cross-project memory** | Each serious project keeps its own memory in its repo (`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`); your brain holds only a one-line index. Loci aggregates memory, it does not own it | Lessons stay where they belong, and your AI knows where to find them from any project |
-| **Daily review** | Morning briefing summarizes yesterday, surfaces patterns, flags stale tasks | You start each day with full context in 10 seconds |
-| **Growth tracking** | When your identity or goals change, old versions are archived automatically | You can look back and see how you've evolved |
-| **Git-native** | Everything is Markdown files in a git repo. `git diff` shows what your AI learned. `git log` is your memory timeline | Full version history, works offline, you own your data |
-
-> **Deep dive**: [How It Works](docs/how-it-works.md) — one doc that covers the entire system.
-
----
-
-## Dashboard
-
-Loci includes an optional local dashboard for seeing the shape of your brain: today's work, project memory, notes, people, decisions, fragments, and the activity around them.
-
-![Loci Dashboard](docs/assets/dashboard-preview.png)
-
-```bash
-loci
-```
-
-The `loci` command (installed by setup) starts the server and opens the dashboard in your browser. It works from any directory — `loci stop` shuts it down, `loci help` lists the rest. Prefer doing it by hand? `node .loci/dashboard/server.js` from the brain directory does the same, then open:
-
-```text
-http://localhost:8765
-```
-
-The dashboard reads your brain files live on every request. On a fresh install it starts out clean and empty — it fills up as your AI saves memories. The same local server exposes the API Loci's live workflows use for tasks, schedule, journal, and project todos.
-
-- **Overview**: Current focus, task velocity, memory mix, recent notes, decisions, and project progress
-- **Tasks / Schedule**: Task pool and schedule timeline, kept strictly separate — a task is something to complete, a schedule item is a block of occupied time
-- **Journal**: Daily/weekly/monthly reflections and AI summaries
-- **Memory**: Identity, values, learned lessons, and growth history
-- **People**: Relationship cards and contact context
-- **Projects**: Connected project memory plus repo-local development todos
-- **Notes / Fragments**: Your own notes from Obsidian/Feishu/Notion, inline notes, loose ideas, and references
-
-The dashboard is a window into your brain, not a separate cloud system. User data stays in local Markdown and JSON files.
-
-> **API docs**: [docs/api.md](docs/api.md) — local REST endpoints for reading and writing your brain.
->
-> **Dashboard docs**: [docs/dashboard.md](docs/dashboard.md) — pages, data sources, and API behavior.
-
----
-
-## Integrations
-
-Loci currently focuses on Claude Code and Codex. Both can share the same local brain: a task, decision, preference, or project context saved in one tool is available to the other.
-
-| Platform | Status |
-|----------|--------|
-| **Claude Code** | Primary support |
-| **Codex** | Primary support |
-| **WorkBuddy** | Selectable in the web wizard; auto-detected by CLI setup |
-| **Cursor / Windsurf / Cline** | Future adapters |
-| **OpenCode / Hermes** | Works via the universal method below |
-| **OpenClaw** | Experimental integration |
-
-### Connect any other tool — let your AI do it
-
-The brain is plain Markdown plus one block of read/write rules. Connecting a new tool just means putting that block where the tool reads its global rules — and the fastest way is to not do it yourself. Paste this to any agent you already use (Claude Code, Codex, or the new tool itself):
-
-```text
-Help me connect Loci to <tool name>: read AGENTS.md in my brain directory,
-copy the whole block between <!-- loci:start --> and <!-- loci:end --> into
-<tool name>'s global rules / system instructions file, and keep every path
-pointing at my brain directory.
-```
-
-Example: for WorkBuddy the block lands in its global memory file (`~/.workbuddy/MEMORY.md`); for OpenCode, in the global rules file it reads (it follows the AGENTS.md convention). Once the block is in place, that tool reads and writes the same brain as everything else.
-
----
-
-## What It Feels Like In Practice
-
-**"I stopped re-explaining my architecture"** — Marcus opens his terminal Monday morning. His AI already knows the migration strategy they debated on Friday, the edge cases they found, and why they rejected the simpler approach.
-
-**"It saved me from repeating a mistake"** — Priya is setting up deployment for a new service. Her AI reminds her that the last time she used that hosting provider, DNS propagation took 48 hours and broke the launch timeline. She switches providers before wasting a day.
-
-**"It told me to go to bed"** — It's 11:30pm and Dev is still chasing a bug. His AI says "you've been circling the same 3 files for an hour — sleep on it" — then saves exactly where he was so tomorrow's first message picks up mid-thought.
-
-> More: **[User Stories](docs/user-stories.md)** — what Loci actually feels like in daily use.
-
----
-
-## Learn More
-
-| | |
-|---|---|
-| **[Getting Started](docs/getting-started.md)** | Setup walkthrough and first conversation |
-| **[How It Works](docs/how-it-works.md)** | Complete system overview |
-| **[Project Overview](docs/project-overview.zh-CN.md)** (中文) | Positioning, architecture, and current state in one doc — Chinese only |
-| **[User Stories](docs/user-stories.md)** | What daily use feels like |
-| **[Commands & Structure](docs/getting-started.md#understanding-your-brain)** | Directory layout, slash commands, config |
-| **[Other Editors](docs/other-editors.md)** | Cursor, Windsurf, Cline support |
-| **[Privacy](docs/privacy.md)** | Data protection and what stays where |
-| **[Roadmap](docs/roadmap.md)** | What's coming next |
-
----
-
-## Contributing
-
-Contributions welcome — bug fixes, features, docs, or just sharing how you use Loci. Please open an issue first for large changes. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
----
-
-<p align="center">
-  <strong>Loci</strong> is built by <a href="https://github.com/codesstar">Callum</a>.<br/>
-  If this gives your AI a better memory, consider giving it a star.
-</p>
+欢迎通过 [Issues](https://github.com/codesstar/loci/issues) 提交可复现的问题和建议，或提交 Pull Request。

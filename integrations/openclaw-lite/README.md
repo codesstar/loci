@@ -1,3 +1,7 @@
+# Legacy standalone Lite integration
+
+This older, separate data format is retained for existing users. New installations should use the [shared Loci installer](../../docs/AI-INSTALL.md) and [thin OpenClaw adapter](../openclaw/skill/SKILL.md). Do not overwrite or move an existing Lite brain automatically. The architecture described on the main README applies to the shared full brain.
+
 # Loci Lite — Daily Planning Dashboard for OpenClaw
 
 A lightweight AI-powered daily planning system with a visual dashboard. Talk to your AI, it handles the rest.

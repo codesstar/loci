@@ -15,7 +15,7 @@ Open an [issue](https://github.com/codesstar/loci/issues) with:
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-idea`
 3. Make your changes
-4. Test locally (clone fresh, run onboarding, verify dashboard)
+4. Run `node --test tests/*.test.js`; use temporary brains and explicit `--home` for install tests
 5. Submit a pull request
 
 Please open an issue first for large changes so we can discuss the approach.
@@ -33,14 +33,16 @@ Please open an issue first for large changes so we can discuss the approach.
 - Keep changes focused — one feature/fix per PR
 - Follow existing file naming conventions (`YYYY-MM-DD-slug.md` for decisions, etc.)
 - Use YAML frontmatter for all content files
-- Test the onboarding flow if you change CLAUDE.md or plan.md
-- Write in English for code/docs; content templates should be language-neutral
+- Test install/upgrade if you change entry generation or data initialization
+- Keep the README Chinese-first with an English option; code comments can use English
 
 ## Project Structure
 
-See [How It Works](docs/how-it-works.md) for the full system overview. Key files:
+See [How It Works](docs/architecture.md) for the full system overview. Key files:
 
-- `CLAUDE.md` — The AI system prompt (core logic lives here)
+- `LOCI.md` — Short entry installed in each agent
+- `LOCI-RULES.md` — The complete operation manual
+- `scripts/loci-install.js` / `scripts/loci-update.js` — Cross-platform installation and protected upgrades
 - `templates/commands/` — Slash command definitions
 - `.loci/dashboard/server.js` — Dashboard server (run with `node .loci/dashboard/server.js`, port 8765)
 - `examples/alex/` — Demo data for new users

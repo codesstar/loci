@@ -92,7 +92,7 @@ function injectBlock(filePath, block) {
 function renderProjectBlock(brainPath) {
   const template = readFile(path.join(LOCI_ROOT, 'templates', 'project-claude-block.md'));
   if (!template) throw new Error('Missing templates/project-claude-block.md');
-  return template.replace(/<brain-path>/g, brainPath);
+  return template.replace(/<brain-path>/g, () => brainPath);
 }
 
 function renderMemory(args) {
@@ -103,7 +103,7 @@ function renderMemory(args) {
     .replace(/<name>/g, args.name)
     .replace(/<one-line>/g, args.description)
     .replace(/<one-line description>/g, args.description)
-    .replace(/<brain-path>/g, args.brain)
+    .replace(/<brain-path>/g, () => args.brain)
     .replace(/<ISO8601>/g, now)
     .replace(/<Project Name>/g, args.name)
     .replace(/<this-repo-path>/g, args.repo)
