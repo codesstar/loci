@@ -67,7 +67,7 @@ Loci 自带了一个虚构人物（Alex Rivera）当示例。下面说说怎么�
 
 ### 连接多个项目
 
-如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/how-it-works.zh-CN.md` 的多项目章节。
+如果你手上有好几个项目要管，直接跟 AI 说"记住这个项目"就行——或者等项目做起来时 AI 主动问你。项目的记忆放在它自己的 repo 里（`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`），大脑只在 `projects/index.md` 留一行索引。详见 `docs/architecture.md` 的多项目章节。
 
 ### Dashboard 换皮
 

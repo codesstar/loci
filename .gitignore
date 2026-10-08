@@ -95,3 +95,7 @@ notes/*
 tasks/journal/*.md
 !tasks/journal/README.md
 !tasks/journal/buffer.md
+
+# Transactional installation and upgrade backups
+.loci/backups/
+*.loci-tmp-*

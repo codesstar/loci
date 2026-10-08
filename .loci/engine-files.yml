@@ -1,54 +1,29 @@
-# Engine Files Manifest
-# These files are managed by Loci and will be updated on upgrade.
-# All other files in ~/loci/ are user data — never touched by upgrades.
-
-version: "0.3.5"
+# Only engine files are managed. All user data stays untouched.
+version: "0.6.0"
 loci-schema: 1
-
 managed:
-  # Core AI instructions
-  - CLAUDE.md
-  - AGENTS.md
-  - docs/behavior.md
-  - docs/how-it-works.md
-
-  # Templates for new files
-  - templates/**
-
-  # System internals
+  - LOCI.md
+  - LOCI-RULES.md
+  - README.md
+  - README.en.md
+  - CHANGELOG.md
+  - LICENSE
   - scripts/**
   - bin/**
+  - templates/**
+  - integrations/**
+  - docs/**
   - .loci/hooks/**
   - .loci/dashboard/**
   - .loci/engine-files.yml
-
-  # Integration files
-  - integrations/**
   - .claude/hooks/**
-
-  # Install, setup & update
+  - .githooks/**
   - install.sh
   - setup.sh
-  - setup-web.js
-  - setup-wizard.html
   - update.sh
-  - .githooks/**
-  - .github/**
-
-  # Module READMEs (structure guides, not user data)
   - me/README.md
   - tasks/README.md
   - decisions/README.md
   - references/README.md
   - archive/README.md
-
-# User data (NEVER touched by upgrades):
-# - plan.md, inbox.md
-# - me/identity.md, me/values.md, me/wellbeing.md, me/insights.md, me/learned.md, me/evolution.md (me/goals.md kept for legacy brains)
-# - projects/index.md, projects/side.md, projects/* (all project memory)
-# - tasks/tasks.json, tasks/active.md, tasks/daily/*, tasks/calendar.json
-# - decisions/*.md (except README.md)
-# - references/entries/*, references/inbox.md
-# - notes/* (the user's own notes — index + inline notes)
-# - All journal files
-# - .loci/config.yml, .loci/status.yml, .loci/activity/
+# Root CLAUDE.md/AGENTS.md are merged by the installer, never copied wholesale.

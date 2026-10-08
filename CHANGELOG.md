@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-10-08
+
+- One short `LOCI.md` entry and one complete `LOCI-RULES.md` manual. Read the manual at first memory use; keep actual data on demand.
+- Optional hooks and instruction fallback use the same short preference reader. Dashboard engines share the entry instead of maintaining separate business prompts.
+- AI-led installation via `docs/AI-INSTALL.md`; one native Node installer and protected updater replace the npm package, browser wizard and duplicated Shell logic.
+- Backed-up migrations preserve personal data and custom entry content; failed updates roll back. Explicit rollback refuses to erase later edits.
+- Removed auto/manual mode and duplicate behavior documents; retained task, calendar, scrap, people, project and Dashboard storage/operations.
+- Chinese-first GitHub README with English option; refreshed website installation and architecture content.
+- File-level compatibility checks do not imply every agent version follows instructions; verify native entry loading and tools in a new conversation.
+
+
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]

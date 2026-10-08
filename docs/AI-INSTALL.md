@@ -1,108 +1,73 @@
-# AI Install Guide
+# 给 AI 的 Loci 安装与升级指南
 
-> **You are an AI agent** (Claude Code, Codex, or similar) and a user has asked you to install Loci for them. Follow these steps exactly. Everything here is scriptable — no interactive wizard, no menus.
->
-> Loci is a local, Markdown-based memory system ("second brain") that you — the AI — will read and write on the user's behalf. You are installing your own memory. The brain stays 100% on the user's machine; nothing is uploaded anywhere.
+你正在协助用户安装 Loci。本文件是唯一安装流程；运行时行为由根目录 `LOCI.md` 和 `LOCI-RULES.md` 定义。按用户语言沟通，执行后根据实际结果报告。不要仅回复安装教程。
 
-## Step 0 — Preconditions
+## 1. 检查环境与已有安装
 
-Check these before starting:
+- 需要 Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent。用 `node --version`、`git --version` 检查。缺少运行环境时说明具体缺项，按用户授权安装依赖；不能声称纯网页聊天也能访问用户磁盘。
+- 读取用户主目录下 `.loci/brain-path`（如果存在），检查指向的大脑。已有可用大脑时走**升级**，不要再建第二份、不要覆盖个人数据。
+- 主目录、临时目录和目标路径由当前系统确定；所有示例占位符都须替换。不要假设 Windows 有 Bash，不要把含空格或特殊字符的路径/用户文本拼进未经转义的 Shell 命令。优先用参数数组调用进程。
+- 默认新大脑目录为用户主目录下 `loci`。目标非空且不是刚下载的 Loci 时停止覆盖，选择空目录或明确已有安装的用途。可直接使用已知称呼和语言，不必进行个人信息问卷。
 
-```bash
-git --version        # required
-node --version       # recommended — native startup hooks, dashboard, task writer
+## 2. 下载与新装
+
+官方仓库：`https://github.com/codesstar/loci.git`。把仓库完整克隆到选定的空目录：
+
+```text
+git clone --depth 1 https://github.com/codesstar/loci.git <brain-path>
+node <brain-path>/scripts/loci-install.js --brain <brain-path> --connect auto --lang zh
 ```
 
-- No `git` → stop and tell the user to install git first.
-- No `node` → proceed on macOS/Linux/WSL/Git Bash with the lightweight shell fallback, but mention that native startup hooks, the dashboard, and task writer need Node.js. The installer will not add a Codex hook that cannot run.
-- **Windows**: these steps require a POSIX shell. Use WSL or Git Bash.
+`--connect auto` 仅接入主目录中已存在配置目录的 Claude Code、Codex、WorkBuddy。明确接入可用 `--connect claude,codex,workbuddy`，单个名称也可；`--connect none` 仅准备大脑。可选 `--name`、`--role`、`--focus`、`--about`、`--lang zh|en|mix`，不要替用户编造资料。
 
-## Step 1 — Ask the user two things
+安装器会：初始化仍为空或标记为模板的个人文件；将 `LOCI.md` 替换大脑路径后合并到原生指令入口；登记大脑路径；可用时配置 Hook。它保留入口标记区外的用户内容，备份被修改的文件。重复安装保留已经启用的个人资料和数据；`--force` 只是旧参数兼容，不会重置数据。
 
-Before running anything, ask the user (in their language):
+**不需要 npm/npx，不需要安装 npm 包。** Node.js 是运行脚本和本地 Dashboard 的运行环境。
 
-1. **Their name** — required by the setup script.
-2. **Install location** — default is `~/loci`. Only ask if `~/loci` already exists or the user seems to care.
+## 3. 接入不同 Agent
 
-You can infer the rest (role, focus, language, schedule) from your conversation so far, or use the defaults. Don't interrogate the user with six questions — one short message is enough.
+| 客户端 | 本版本接入入口 | 验证要求 |
+| --- | --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md`，可选 SessionStart Hook | 新会话验证偏好、手册读取、写入工具权限 |
+| Codex | `~/.codex/AGENTS.md`，安装器提供 Hook 配置 | Hook 是否执行取决于客户端版本与功能支持；无 Hook 时用同一入口的读取后备路径 |
+| WorkBuddy | `~/.workbuddy/MEMORY.md` | 验证当前版本实际加载该入口；不承诺原生 Hook |
+| 千问办公、豆包工作及其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径、不写入任意位置；必须具备本地文件和命令能力 |
 
-## Step 2 — Clone
+其他客户端：把 `<brain-path>/LOCI.md` 中 `<brain-path>` 替换为实际绝对路径，将该短入口放进**已核实会加载的指令位置**；保留详细手册在大脑内。若只能手动粘贴指令，给用户生成完整、可复制的一段。若客户端不能访问本地文件/运行 Node，说明当前未接通，不声称适配完成。
 
-```bash
-git clone https://github.com/codesstar/loci.git ~/loci
+只有 Hook 输出中包含有效的启动地图时才复用；没有 Hook 就按入口调用同一个 `scripts/loci-context.js`。Hook 和后备读取不得维护两套偏好或业务规则。
+
+## 4. 升级已有大脑
+
+不要在含个人数据的大脑里执行 `git reset --hard`、覆盖整个目录或重新初始化。先将官方最新仓库下载到另一个临时目录，然后**运行新下载版本的升级器**：
+
+```text
+git clone --depth 1 https://github.com/codesstar/loci.git <release-temp-path>
+node <release-temp-path>/scripts/loci-update.js --source <release-temp-path> --brain <existing-brain-path> --connect auto
 ```
 
-If the target directory already exists and is not an empty dir, do NOT delete it — ask the user for a different location.
+升级器仅复制清单管理的程序、模板和文档，迁移根入口和全局指令，刷新已索引项目的 Loci 标记区。个人任务、日程、人物、偏好、笔记等数据不在下载覆盖范围。`persistence.mode` 退出使用：明确的持久信号按统一规则保存；敏感/含糊内容仍先确认，用户明确“不记”仍服从。原 manual 用户会收到迁移提示。
 
-## Step 3 — Run the scriptable setup
+记录返回的 `backup` 路径。已定制且无法识别的旧根规则、损坏的入口标记或符号链接冲突会阻止升级，并恢复已经修改的文件。此时先检查备份和实际冲突，合并用户规则后重试，不能绕过保护直接覆盖。
 
-```bash
-cd ~/loci && ./setup.sh --non-interactive \
-  --name "<user's name>" \
-  --role "<their role, e.g. Developer>" \
-  --focus "<their current #1 focus>" \
-  --schedule <morning|daytime|evening|night|irregular> \
-  --lang <en|zh|mix> \
-  --connect auto
+可预检：`node <release-temp-path>/scripts/loci-update.js --source <release-temp-path> --brain <existing-brain-path> --check`。
+
+需要撤销本次更新时：
+
+```text
+node <release-temp-path>/scripts/loci-update.js --rollback <exact-backup-directory>
 ```
 
-Notes:
+回滚先检查更新后文件是否又被修改；有新改动则拒绝覆盖，人工合并。备份可能含私人配置，不上传 GitHub。安装和升级过程中关闭其他正在修改大脑的 Agent；Dashboard 使用旧进程时重启后才加载新代码。
 
-- Only `--name` is required. Every other flag has a sensible default (`./setup.sh --help` lists them).
-- `--about "<text>"` is optional — anything else worth knowing about the user (habits, birthday, goals). Include it if the user has shared such details in conversation.
-- `--connect auto` detects Claude Code, Codex, and WorkBuddy on this machine and connects whatever is installed. This appends a Loci block to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and/or `~/.workbuddy/MEMORY.md` (existing files are backed up to `*.loci-backup` first).
-- With Node available, setup also merges one lightweight SessionStart handler into Claude Code and Codex. WorkBuddy uses its user-level `MEMORY.md` instruction block because Loci does not install a native WorkBuddy hook. Existing settings and unrelated hooks are preserved; malformed JSON is left untouched.
-- `--lang` controls the language the brain (and its AI notifications) will use: `en`, `zh`, or `mix`.
-- If the script reports the brain is **already set up**, it exits without changing anything. Do not re-run with `--force` unless the user explicitly confirms they want to overwrite their existing brain.
+## 5. 验收后再报告成功
 
-The setup also disconnects the git remote (so the user's private brain can never be pushed back to the public template repo) and registers the brain path in `~/.loci/brain-path`.
+1. 执行 `node <brain-path>/scripts/loci-install.js --brain <brain-path> --connect <实际接入名称> --check`，检查 `ok`、路径、入口；`none` 仅验证大脑文件，不代表有客户端接通。
+2. 执行 `node <brain-path>/scripts/loci-context.js <brain-path>`，确认偏好和路径正确，输出没有完整任务池或历史。不要把私人偏好发到公共渠道。
+3. 在用户所用客户端开启新会话，让它“告诉我连接的大脑在哪里，读取 Loci 操作手册，然后列出已有任务，不新增数据”。确认使用了正确文件/工具；文件检查通过不等于模型一定执行规则。用户未授权新测试任务时不添加测试数据。
+4. 如需要 Dashboard：`node <brain-path>/.loci/dashboard/server.js`，访问 `http://localhost:8765`。保留服务运行；提醒需要通知通道和设备权限，保存不等于送达。
+5. 简短报告：大脑位置、实际接入客户端、检查结果、Hook 警告、是否还需新会话验收。不能把“配置已写入”说成“所有 Agent 均已实测”。
 
-## Step 4 — Verify
+## 给维护者的隔离测试
 
-Run these checks and confirm they all pass:
-
-```bash
-# 1. Brain is initialized (must print "status: active")
-grep 'status:' ~/loci/plan.md | head -1
-
-# 2. Config exists
-test -f ~/loci/.loci/config.yml && echo OK
-
-# 3. Brain path is registered globally
-cat ~/.loci/brain-path
-
-# 4. If Claude Code was connected:
-grep -q 'loci:start' ~/.claude/CLAUDE.md && echo CLAUDE_CONNECTED
-
-# 5. If Codex was connected:
-grep -q 'loci:start' ~/.codex/AGENTS.md && echo CODEX_CONNECTED
-
-# 6. The `loci` launcher is installed
-test -x ~/.local/bin/loci && echo LAUNCHER_OK
-
-# 7. Native context builder is small and succeeds
-node ~/loci/scripts/loci-context.js ~/loci | wc -c   # should stay below 4400 bytes
-
-# 8. If Codex was connected with Node available:
-grep -q 'loci-context.js' ~/.codex/hooks.json && echo CODEX_HOOK_INSTALLED
-```
-
-Optional smoke test (needs Node.js): `~/.local/bin/loci` starts the dashboard server and opens `http://localhost:8765` — a visual dashboard of the brain. (`loci stop` to shut it down.)
-
-If any check fails, fix it before reporting success. Do not tell the user it worked if it didn't.
-
-## Step 5 — Report back
-
-Tell the user, briefly and in their language:
-
-1. Loci is installed at `~/loci` (or wherever they chose) and which tools got connected.
-2. **They should restart their AI session** — the global instruction file is loaded at session start, so the current session doesn't know about the brain yet.
-   If Codex asks to review the new hook, they should run `/hooks` and trust the Loci SessionStart entry once.
-3. After restarting, they can just talk normally. First useful thing to say: introduce themselves or dump what they're working on — the brain fills itself from conversation. Nothing to learn, no commands to memorize.
-4. Optional: typing `loci` in a new terminal opens the visual dashboard at `localhost:8765` (starts the server automatically; `loci stop` shuts it down).
-
-## Safety rules
-
-- Never run `--force` on an existing brain without explicit user confirmation — it overwrites their identity, plan, and task files.
-- Never push the brain directory to any git remote. It contains the user's private data.
-- Never edit `~/loci/tasks/tasks.json` or `~/loci/tasks/calendar.json` by hand — use `node ~/loci/scripts/loci-task.js` (see the brain's own CLAUDE.md after install).
+安装器支持 `--home <temporary-home>`；所有测试使用临时大脑和临时 home，不触碰维护者真实配置。入口测试：`node --test tests/*.test.js`。`setup.sh` / `update.sh` 只是旧命令的 Node 包装，不再各维护一套安装逻辑。

@@ -12,7 +12,7 @@ const NODE_SCRIPT = path.join(ROOT, 'scripts', 'loci-context.js');
 const HOOK = path.join(ROOT, '.claude', 'hooks', 'loci-context.sh');
 const DAILY_HOOK = path.join(ROOT, '.claude', 'hooks', 'daily-context.sh');
 const NODE_HOOK = path.join(ROOT, '.claude', 'hooks', 'loci-context.js');
-const GLOBAL_BLOCK = path.join(ROOT, 'templates', 'global-claude-block.md');
+const GLOBAL_BLOCK = path.join(ROOT, 'LOCI.md');
 const NODE_DAILY_HOOK = path.join(ROOT, '.claude', 'hooks', 'daily-context.js');
 const UPDATE = path.join(ROOT, 'update.sh');
 const PATH_SCRIPT = path.join(ROOT, 'scripts', 'loci-path.js');
@@ -107,7 +107,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(nativeOutput.includes('[Loci] Lightweight startup map'));
   assert(nativeOutput.includes('Call me 老板'));
   assert(!nativeOutput.includes('status: active'));
-  assert(nativeOutput.includes('Project: Unicode Project'));
+  assert(!nativeOutput.includes('Project: Unicode Project'));
   assert(!nativeOutput.includes('PLAN_SECRET'));
   assert(Buffer.byteLength(nativeOutput) <= 4400);
   ok('native Node builder is compact on the host platform');
@@ -116,12 +116,12 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(output.includes('[Loci] Lightweight startup map'));
   assert(output.includes('Call me 老板'));
   assert(!output.includes('status: active'), 'preference frontmatter leaked');
-  assert(output.includes('Paths below are relative to Brain.'));
-  assert(output.includes('Project: Unicode Project'));
+  assert(output.includes('LOCI-RULES.md'));
+  assert(!output.includes('Project: Unicode Project'));
   // The shell launcher delegates to native Node when available. On Windows the
   // normalized workspace therefore matches the native project-index entry.
-  assert(output.includes(`Repo: ${process.platform === 'win32' ? repo : repoForBash}`));
-  assert(output.includes('state: focused'));
+  assert(!output.includes('Current workspace project pointer'));
+  assert(!output.includes('state: focused'));
   assert(!output.includes('private_detail'));
   for (const secret of ['PLAN_SECRET', 'TASK_SECRET', 'INBOX_SECRET', 'JOURNAL_SECRET', 'STATUS_SECRET']) {
     assert(!output.includes(secret), `${secret} was preloaded`);
@@ -139,7 +139,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   const hookPayload = JSON.parse(hookRaw);
   const hookContext = hookPayload.hookSpecificOutput.additionalContext;
   assert(hookContext.includes('[Loci] Lightweight startup map'));
-  assert(hookContext.includes('Project: Unicode Project'));
+  assert(hookContext.includes('LOCI-RULES.md'));
   assert(!hookContext.includes('PLAN_SECRET'));
   ok('Claude hook delegates to the shared lightweight builder');
 
@@ -149,7 +149,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   });
   const dailyHookContext = JSON.parse(dailyHookRaw).hookSpecificOutput.additionalContext;
   assert(dailyHookContext.includes('[Loci] Lightweight startup map'));
-  assert(dailyHookContext.includes('Project: Unicode Project'));
+  assert(dailyHookContext.includes('LOCI-RULES.md'));
   assert(!dailyHookContext.includes('PLAN_SECRET'));
   ok('project-level Claude hook delegates to the shared lightweight builder');
 
@@ -167,7 +167,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   const nodeHookPayload = JSON.parse(execFileSync(process.execPath, [NODE_HOOK], {
     encoding: 'utf8', env: nodeHookEnv
   }));
-  assert(nodeHookPayload.hookSpecificOutput.additionalContext.includes('Project: Unicode Project'));
+  assert(nodeHookPayload.hookSpecificOutput.additionalContext.includes('LOCI-RULES.md'));
   assert(!nodeHookPayload.hookSpecificOutput.additionalContext.includes('PLAN_SECRET'));
   fs.mkdirSync(path.join(workspace, '.claude'), { recursive: true });
   fs.writeFileSync(path.join(workspace, '.claude', 'settings.json'), JSON.stringify({
@@ -180,7 +180,7 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   const nodeDailyPayload = JSON.parse(execFileSync(process.execPath, [NODE_DAILY_HOOK], {
     encoding: 'utf8', env: nodeHookEnv
   }));
-  assert(nodeDailyPayload.hookSpecificOutput.additionalContext.includes('Project: Unicode Project'));
+  assert(nodeDailyPayload.hookSpecificOutput.additionalContext.includes('LOCI-RULES.md'));
   ok('Claude Node hooks translate a Git Bash pointer without Bash or Python');
 
   fs.writeFileSync(path.join(home, '.loci', 'brain-path'), '/definitely/missing/loci', 'utf8');
@@ -191,30 +191,6 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(!fallbackPayload.hookSpecificOutput.additionalContext.includes('Startup map unavailable'));
   fs.writeFileSync(path.join(home, '.loci', 'brain-path'), brainForBash, 'utf8');
   ok('project hook falls back to its own brain when the pointer is stale');
-
-  for (const rel of ['.claude/CLAUDE.md', '.codex/AGENTS.md', '.workbuddy/MEMORY.md']) {
-    const target = path.join(home, rel);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.writeFileSync(target, `USER CONTENT BEFORE\n<!-- loci:start v1 -->\nOLD STARTUP CONTENT\n<!-- loci:end -->\nUSER CONTENT AFTER\n`, 'utf8');
-  }
-  execFileSync('bash', [updateForBash, '--refresh-blocks'], {
-    encoding: 'utf8',
-    env: { ...process.env, HOME: homeForBash },
-  });
-  for (const rel of ['.claude/CLAUDE.md', '.codex/AGENTS.md', '.workbuddy/MEMORY.md']) {
-    const refreshed = fs.readFileSync(path.join(home, rel), 'utf8');
-    assert(refreshed.includes('USER CONTENT BEFORE'));
-    assert(refreshed.includes('USER CONTENT AFTER'));
-    assert(/lightweight startup/i.test(refreshed));
-    assert(!refreshed.includes('OLD STARTUP CONTENT'));
-  }
-  const refreshedCodexHooks = JSON.parse(fs.readFileSync(path.join(home, '.codex', 'hooks.json'), 'utf8'));
-  const refreshedLociHandlers = refreshedCodexHooks.hooks.SessionStart
-    .flatMap((group) => group.hooks || [])
-    .filter((handler) => /loci-context\.js/.test(handler.command || ''));
-  assert.strictEqual(refreshedLociHandlers.length, 1);
-  assert.strictEqual(refreshedLociHandlers[0].timeout, 3);
-  ok('existing global instruction blocks refresh without touching user content');
 
   const longPrefs = Array.from({ length: 35 }, (_, i) => `- preference-${i + 1}`).join('\n');
   write('me/preferences.md', `---\nstatus: active\n---\n${longPrefs}\n`);
@@ -238,15 +214,6 @@ private_detail: STATUS_SECRET_MUST_BE_ON_DEMAND
   assert(Buffer.byteLength(unicodeBudget) <= 4400, `Unicode output exceeded budget: ${Buffer.byteLength(unicodeBudget)}`);
   assert(unicodeBudget.includes('Preferences truncated at startup'));
   ok('hard byte budget also holds for multi-byte Unicode');
-
-  const { findProject } = require(NODE_SCRIPT);
-  const windowsProject = findProject(
-    '## Windows Project <!-- status: active -->\r\nDescription. repo: C:\\Users\\老板\\My Project. memory: C:\\Users\\老板\\My Project\\.loci\\memory.md\r\n',
-    'c:\\users\\老板\\my project\\src',
-    'win32'
-  );
-  assert(windowsProject && windowsProject.name === 'Windows Project');
-  ok('Windows drive paths match case-insensitively');
 
   const { normalizePath, registerBrain, resolveBrain, windowsShellPath } = require(PATH_SCRIPT);
   assert.strictEqual(windowsShellPath('/g/loci'), 'G:/loci');

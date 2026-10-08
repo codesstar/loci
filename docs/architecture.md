@@ -1,117 +1,70 @@
-# Architecture — The Three-Layer Memory System
+# Loci 架构：一个入口，一本手册，一套本地数据
 
-## Overview
+[中文首页](../README.md) · [English](../README.en.md) · [AI 安装说明](AI-INSTALL.md)
 
-Loci organizes your AI's context into three layers, inspired by how human memory works: working memory (always active), episodic memory (recalled on demand), and long-term storage (archived for reference).
+Loci 的核心是让不同 Agent 通过自己的原生指令入口，使用同一份本地记忆。规则告诉模型何时读取和调用工具，脚本/API 完成实际读写。Markdown 指令能够引导模型，不能从机制上强制它执行；安装验证与真实客户端验收是两件事。
 
-## Layer 1 — Always Loaded
-
-These files are read at the start of every conversation. They define who you are and what matters right now.
-
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | System rules, behavior protocols, directory map |
-| `plan.md` | Life direction, annual goals, current focus |
-| `tasks/active.md` | Current-task snapshot — a read-only view generated from `tasks/tasks.json` |
-| `projects/index.md` | Serious-project index — one line per project, no details expanded |
-| `.loci/status.yml` | Current state — energy, situation, temporary context |
-| Auto-memory | The AI tool's own persistent notes about you (managed by Claude Code / Codex) |
-
-**Design principle**: Layer 1 must stay small. It is for rules, indexes, current action summaries, and truly important personal context. Fragment pools such as `inbox.md` do not belong in L1; they are Layer 2 and are opened only when fragments/quick thoughts/idea triage are relevant.
-
-## Layer 2 — Loaded on Demand
-
-These files are read when the conversation enters a specific domain.
-
-| Trigger | Files Loaded |
-|---------|-------------|
-| Working with tasks or schedule | `tasks/tasks.json`, `tasks/calendar.json` (via the guarded writer), `tasks/README.md` |
-| Mentioning a person | `people/person-name.md` |
-| Planning / reviewing the day | `tasks/daily/YYYY-MM-DD.md`, module README |
-| Mentioning a connected project | That repo's own `.loci/memory.md` first; `.loci/profile.md`, `.loci/progress/`, or `.loci/decisions/` only when needed |
-| Mentioning fragments / quick thoughts / old ideas | `inbox.md` |
-| Asking about your own notes | `notes/index.md`, then the specific note or external link |
-| Recalling saved material | `references/` |
-| Using research evidence | `notes/research/` |
-
-**Design principle**: Index files serve as the "map" for each domain — module READMEs, `projects/index.md`, `notes/index.md`. The AI reads the index first to understand what's available, then loads specific files as needed. Project memory follows the same idea one level up: the brain holds only a one-line index per serious project, while the full memory lives in that project's own repo (`.loci/memory.md` restart context + `.loci/profile.md` stable details + `.loci/progress/` project stream + `.loci/decisions/`).
-
-## Layer 3 — Deep Storage
-
-Never auto-loaded. Only accessed when explicitly needed.
-
-- `archive/` — Completed tasks, expired plans, old content
-- `decisions/` — Historical decision records (choices and rationale, not research material)
-- `me/evolution.md` — Personal growth timeline
-- `.loci/activity/` — The activity ledger (audit layer: written after every save, read only when you ask "what did I do?")
-- Old journals
-
-**Design principle**: Layer 3 can grow indefinitely without affecting performance. It's your searchable archive.
-
-## Information Flow
-
-```
-Conversation
-    ↓
-[Distillation]
-    ↓
-┌─────────────────────────────────────────┐
-│  Layer 1 (Always Active)                │
-│  CLAUDE.md → plan.md → tasks/active.md  │
-│  projects/index.md → status.yml         │
-│  auto-memory                            │
-├─────────────────────────────────────────┤
-│  Layer 2 (On Demand)                    │
-│  inbox.md → me/ → tasks/ → people/     │
-│  notes/ → references/ → project memory  │
-├─────────────────────────────────────────┤
-│  Layer 3 (Deep Storage)                 │
-│  archive/ → decisions/                  │
-│  me/evolution.md → .loci/activity/      │
-└─────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Source[LOCI.md：唯一短入口源文件] --> Install[同一个 Node 安装器：替换大脑路径并合并标记区]
+    Install --> Native[各 Agent 原生指令入口]
+    Native --> Prefs[启动：短偏好与大脑位置]
+    Hook[可选 SessionStart Hook] --> Context[scripts/loci-context.js]
+    Fallback[入口指令的后备调用] --> Context
+    Context --> Prefs
+    Native --> Trigger{首次涉及 Loci 记忆操作？}
+    Trigger -->|是| Rules[完整读取 LOCI-RULES.md 一次]
+    Trigger -->|否| Chat[继续普通请求]
+    Rules --> Index[按需查索引、读取最小相关数据]
+    Index --> Tools[现有脚本或 Dashboard API]
+    Tools --> Data[本地 Markdown、JSON 和附件]
+    Dashboard[Dashboard 界面] <--> Data
+    Data --> Project[项目正文留在对应仓库，大脑只保存索引]
 ```
 
-## Why Three Layers?
+## 哪些文件需要维护
 
-AI context windows are finite. Loading everything every time wastes tokens and dilutes focus. The three-layer system ensures:
+| 位置 | 职责 | 何时进入模型上下文 |
+| --- | --- | --- |
+| 根目录 `LOCI.md` | 大脑路径、偏好入口、手册触发条件、基本保存边界 | 安装到客户端原生指令文件，随客户端加载 |
+| 根目录 `LOCI-RULES.md` | 任务、日程、碎片、笔记、人物、个人记忆、项目、回顾、日志与撤销的完整操作规则 | 首次涉及任一 Loci 操作时，完整读取一次；未变且仍在上下文则复用 |
+| `scripts/` 与 Dashboard API | 参数校验、真实写入、索引与关联、日志等程序行为 | 需要时执行；不把源码全部读进上下文 |
+| `me/preferences.md` | 用户会改变的短偏好 | Hook 或后备调用通过同一个读取器提供 |
+| 各数据目录及项目 `.loci/` | 会增长的实际记录 | 先索引、后记录，按需读取 |
+| `docs/` | 面向人和安装 Agent 的使用、安装、架构说明 | 不属于会话启动规则链 |
 
-1. **Speed**: Layer 1 loads instantly, giving the AI immediate context
-2. **Relevance**: Layer 2 loads only what's needed for the current topic
-3. **Completeness**: Layer 3 ensures nothing is ever lost
+`CLAUDE.md`、`AGENTS.md`、WorkBuddy 的 `MEMORY.md` 是安装结果所在的入口；不各写一套业务规则。修改产品规则时，主要维护前两个文件；需要改变执行行为才修改相应脚本。
 
-This mirrors how the human brain works — you don't consciously recall every memory at once, but everything is accessible when triggered.
+## 一次对话怎样运行
 
-## Design Philosophy: Loci as a Memory Scheduler
+1. **会话启动**：客户端加载短入口。有有效 Hook 输出则使用它；没有则让 Agent 执行同一个 `loci-context.js`。启动输出只有时间、路径、短偏好和手册指针，不再携带任务路由表、状态摘要或项目正文。
+2. **普通问题**：如果不涉及记忆读取，也没有值得保存的明确内容，无需读完整手册。
+3. **首次需要 Loci**：例如“明天9点发材料”，或正常讨论中形成一个明确任务，Agent 先完整读取 `LOCI-RULES.md`，然后按规则调用任务工具。不能只在用户说“记住”时才触发。
+4. **后续使用**：手册已在上下文中就复用。只读当前所需数据，写入后按实际结果确认。手册被截断需补齐；压缩后丢失、版本变化需重读。
+5. **换 Agent**：读取的是同一个大脑目录；共享已落盘的数据，不共享尚未保存的完整对话或其他 Agent 的隐含状态。
 
-**The core job of Loci is deciding what the AI should remember right now — and what it can safely forget.**
+## 为什么采用这个取舍
 
-This is exactly how the human brain works:
+- 每次启动都加载详细手册会让每个普通请求承担读取和上下文开销。推迟到首次使用，将开销放在实际需要记忆时。
+- 首次读取一本完整手册，比继续维护六个模块指南更容易维护，也减少“读哪个指南”的判断。但它仍会增加首次 Loci 操作的上下文和一次文件读取开销。
+- 后续复用已有上下文，避免每条消息重复读取。大上下文容量不能保证模型不会遗漏指令；性能和可靠性仍需真实客户端验证，不能只按文件长度判断。
+- Hook 提高偏好送达的确定性，不能保证规则被执行；无 Hook 的客户端依赖原生入口和文件工具。两条路径读取同一份偏好，因此没有第二份“启动地图文件”需要维护。
+- 数据始终按需读取。完整加载操作手册，不等于完整加载个人数据。
 
-| Human Brain | Capacity | Loci Equivalent |
-|-------------|----------|-----------------|
-| Working memory | 4-7 chunks (tiny!) | Layer 1 — always loaded, must stay small |
-| Short-term memory | Recall on demand | Layer 2 — one thought away |
-| Long-term memory | Unlimited storage | Layer 3 — archived, searchable |
+## 与旧版的区别
 
-The human hippocampus (海马体) acts as the dispatcher — it decides which memories to promote to working memory and which to consolidate into long-term storage. **Loci plays this exact role for your AI.**
+| 旧版 | 当前 |
+| --- | --- |
+| 全局块、启动地图、根 CLAUDE/AGENTS、behavior 文档与聊天提示词重叠 | 短入口 + 单份完整手册；聊天窗口复用入口 |
+| 启动会读取多种状态并执行整理检查 | 启动短偏好；具体回顾、整理按请求或已启用触发器执行 |
+| auto/manual 配置分支 | 统一按持久信号保存，保留敏感确认、“不记”和撤销 |
+| npm、浏览器向导、长 Shell 安装器分别维护 | AI 安装指南 + 同一个跨平台 Node 安装器 |
+| 升级覆盖根指令，部分迁移缺少恢复手段 | 识别旧规则、合并自有标记区、备份、验证和回滚 |
 
-For decisions, that dispatch has one hard rule: the full decision record stays in L3, but any conclusion that changes current behavior must be promoted to the smallest L1 surface (`plan.md`, `tasks/active.md`, `projects/index.md`, or project `.loci/memory.md`).
+任务与日程分开、碎片单一写入口、人物关系图、项目记忆归项目、活动记录以及 Dashboard 都继续沿用已有存储和操作工具。没有更换数据库、迁移个人数据格式，也没有增加 MCP 服务。
 
-This is also why competitors fall short:
-- **ChatGPT Memory**: flat list, no layers, no scheduling — like having all your memories at the same volume
-- **Mem0**: has storage and retrieval, but no intelligent dispatch — like a filing cabinet without a librarian
-- **Loci**: **layered storage + on-demand loading + active forgetting** — the three things that make memory systems actually work
+## 兼容性和维护边界
 
-> The name isn't a coincidence. The hippocampus (our seahorse mascot) is the brain's memory scheduler. Loci is the AI's.
+Claude Code、Codex、WorkBuddy 有现成入口适配。千问办公、豆包工作等先核实当前版本是否支持可加载指令、本地文件和命令工具，再放入相同短入口；不以文件已生成代替接入成功。参见 [AI 安装指南的接入矩阵](AI-INSTALL.md#3-接入不同-agent)。
 
-## Context Awareness
-
-Loci includes a state sensing and cross-terminal sync system. See **[Context Awareness](context-awareness.md)** for the full design, including:
-
-- **State Sensing (Context Aura)** — three-layer signal model that infers user state (energy, location, schedule) from daily plans, time signals, and optional user overrides
-- **Cross-Terminal Sync (Changelog Protocol)** — a shared append-only log that lets multiple terminals know about each other's file changes
-- **`/status` and `/sync` commands** — lightweight user controls for override and manual refresh
-
-## Customization
-
-You can adjust what belongs in each layer by editing `CLAUDE.md`. The directory map and context layering rules sections define exactly what gets loaded when.
+自动检查覆盖安装/重复安装、Hook 配置、旧版迁移、失败恢复、数据保护与原有任务/碎片操作。CI 在 Linux、macOS、Windows 运行。客户端是否遵守触发规则、首次响应耗时、提醒是否到达设备，仍要在对应实际环境中确认。

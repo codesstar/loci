@@ -80,65 +80,6 @@ function compactPreferences(text) {
     : '');
 }
 
-function pathApi(platform) {
-  return platform === 'win32' ? path.win32 : path;
-}
-
-function comparablePath(value, platform = process.platform) {
-  if (!value) return '';
-  const api = pathApi(platform);
-  let normalized;
-  try {
-    normalized = api.normalize(api.resolve(String(value).trim()));
-  } catch {
-    normalized = String(value).trim();
-  }
-  normalized = normalized.replace(/[\\/]+$/, '');
-  return platform === 'win32' ? normalized.toLowerCase() : normalized;
-}
-
-function isWithin(workspace, repo, platform = process.platform) {
-  const api = pathApi(platform);
-  const current = comparablePath(workspace, platform);
-  const root = comparablePath(repo, platform);
-  return !!root && (current === root || current.startsWith(root + api.sep));
-}
-
-function findProject(indexText, workspace, platform = process.platform) {
-  let name = '';
-  for (const line of indexText.replace(/\r\n?/g, '\n').split('\n')) {
-    const heading = line.match(/^##\s+(.+?)(?:\s*<!--\s*status:.*)?$/);
-    if (heading) {
-      name = heading[1].trim();
-      continue;
-    }
-    const repoAt = line.indexOf('repo: ');
-    if (repoAt === -1) continue;
-    const rest = line.slice(repoAt + 6).trim();
-    const memoryMarker = '. memory: ';
-    const memoryAt = rest.indexOf(memoryMarker);
-    const repo = (memoryAt === -1 ? rest : rest.slice(0, memoryAt)).trim();
-    const api = pathApi(platform);
-    const memory = (memoryAt === -1
-      ? api.join(repo, '.loci', 'memory.md')
-      : rest.slice(memoryAt + memoryMarker.length).trim());
-    if (isWithin(workspace, repo, platform)) return { name, repo, memory };
-  }
-  return null;
-}
-
-function stateSummary(text) {
-  const allowed = new Set(['state', 'energy', 'updated', 'ttl', 'context']);
-  const result = [];
-  for (const line of text.split('\n')) {
-    const match = line.match(/^([A-Za-z_]+):\s*(.*)$/);
-    if (!match || !allowed.has(match[1])) continue;
-    const clipped = takeUtf8(`${match[1]}: ${match[2]}`, 240);
-    result.push(`- ${clipped}${clipped.length < match[0].length ? '...' : ''}`);
-  }
-  return result.join('\n');
-}
-
 function localTimestamp(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -173,32 +114,7 @@ function buildContext(options = {}) {
   const preferences = compactPreferences(readText(path.join(brain, 'me', 'preferences.md')));
   output += section('Standing user preferences — honor in every reply', preferences);
 
-  output += section('On-demand memory map — open only when the request needs it', [
-    'Paths below are relative to Brain.',
-    '- Life direction and goals -> plan.md',
-    '- Current tasks -> tasks/active.md; full task data -> tasks/tasks.json',
-    "- Serious projects -> projects/index.md; then open only the matching repo's .loci/memory.md",
-    '- Personal context -> me/',
-    '- Decisions -> decisions/',
-    '- People and places -> people/ and places/',
-    '- User notes -> notes/index.md; saved external material -> references/',
-    '- Quick thoughts -> inbox.md',
-    '- Recent activity, only when asked what happened -> .loci/activity/'
-  ].join('\n'));
-
-  const project = findProject(readText(path.join(brain, 'projects', 'index.md')), workspace, platform);
-  if (project) {
-    output += section('Current workspace project pointer', [
-      `- Project: ${project.name}`,
-      `- Repo: ${project.repo}`,
-      `- Memory (read on demand): ${project.memory}`
-    ].join('\n'));
-  }
-
-  output += section(
-    'Current state summary — refresh the file if freshness matters',
-    stateSummary(readText(path.join(brain, '.loci', 'status.yml')))
-  );
+  output += `\nLoci entry: ${brain}/LOCI.md\nOperation manual (first Loci use): ${brain}/LOCI-RULES.md\n`;
 
   const footer = '\nDo not preload plans, tasks, inbox, journals, project memory, or history. Read the smallest relevant source on demand and cache it for this session.\n===== end of lightweight startup map =====\n';
   const budget = Math.max(0, MAX_OUTPUT_BYTES - byteLength(footer));
@@ -223,10 +139,6 @@ module.exports = {
   MAX_OUTPUT_BYTES,
   buildContext,
   compactPreferences,
-  comparablePath,
-  findProject,
-  isWithin,
-  stateSummary,
   takeUtf8
 };
 

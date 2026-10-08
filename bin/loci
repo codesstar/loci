@@ -23,7 +23,7 @@ fail() { printf 'loci: %s\n' "$*" >&2; exit 1; }
 find_brain() {
   if [ -f "$BRAIN_PATH_FILE" ]; then
     local p
-    p="$(head -1 "$BRAIN_PATH_FILE" | tr -d '[:space:]')"
+    p="$(head -1 "$BRAIN_PATH_FILE" | tr -d '\r\n')"
     [ -n "$p" ] && [ -f "$p/plan.md" ] && { printf '%s' "$p"; return 0; }
   fi
   # Fallback: launcher lives at <brain>/bin/loci (also works via symlink)

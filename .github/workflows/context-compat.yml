@@ -1,63 +1,11 @@
-name: Startup context compatibility
-
+name: Loci compatibility
 on:
   push:
-    paths:
-      - 'scripts/loci-context.*'
-      - 'scripts/loci-path.js'
-      - 'scripts/loci-*-hook.js'
-      - 'scripts/loci-claude-settings.js'
-      - '.claude/hooks/loci-context.*'
-      - '.claude/hooks/daily-context.*'
-      - '.claude/settings.json'
-      - '.loci/hooks/*.js'
-      - '.loci/hooks/*.sh'
-      - 'templates/global-claude-block.md'
-      - 'tests/loci-context.test.js'
-      - 'tests/context-hooks.test.js'
-      - 'tests/setup-hooks.test.js'
-      - 'tests/setup-web.test.js'
-      - 'tests/activity-hooks.test.js'
-      - 'tests/scraps.test.js'
-      - 'tests/task-scraps.test.js'
-      - '.loci/dashboard/lib/scraps.js'
-      - '.loci/dashboard/lib/store.js'
-      - 'setup.sh'
-      - 'update.sh'
-      - 'setup-web.js'
-      - 'setup-wizard.html'
-      - '.github/workflows/context-compat.yml'
+    branches: [main]
   pull_request:
-    paths:
-      - 'scripts/loci-context.*'
-      - 'scripts/loci-path.js'
-      - 'scripts/loci-*-hook.js'
-      - 'scripts/loci-claude-settings.js'
-      - '.claude/hooks/loci-context.*'
-      - '.claude/hooks/daily-context.*'
-      - '.claude/settings.json'
-      - '.loci/hooks/*.js'
-      - '.loci/hooks/*.sh'
-      - 'templates/global-claude-block.md'
-      - 'tests/loci-context.test.js'
-      - 'tests/context-hooks.test.js'
-      - 'tests/setup-hooks.test.js'
-      - 'tests/setup-web.test.js'
-      - 'tests/activity-hooks.test.js'
-      - 'tests/scraps.test.js'
-      - 'tests/task-scraps.test.js'
-      - '.loci/dashboard/lib/scraps.js'
-      - '.loci/dashboard/lib/store.js'
-      - 'setup.sh'
-      - 'update.sh'
-      - 'setup-web.js'
-      - 'setup-wizard.html'
-      - '.github/workflows/context-compat.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   context:
     name: ${{ matrix.os }}
@@ -66,16 +14,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node tests/loci-context.test.js
-      - run: node tests/context-hooks.test.js
-      - run: node tests/setup-hooks.test.js
-      - run: node tests/setup-web.test.js
-      - run: node tests/activity-hooks.test.js
-      - run: node tests/scraps.test.js
-      - run: node tests/task-scraps.test.js
+      - run: node --test tests/*.test.js

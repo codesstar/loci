@@ -67,7 +67,7 @@ Edit `CLAUDE.md` to add personalized behavior rules. Some examples:
 
 ### Connecting Projects
 
-If you manage multiple projects, just tell the AI to remember one ("remember this project") — or let it offer when a project gets serious. The project keeps its own memory in its repo (`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`), and your brain keeps only a one-line index in `projects/index.md`. See the multi-project section in `docs/how-it-works.md`.
+If you manage multiple projects, just tell the AI to remember one ("remember this project") — or let it offer when a project gets serious. The project keeps its own memory in its repo (`.loci/memory.md` + `.loci/profile.md` + `.loci/progress/` + `.loci/decisions/`), and your brain keeps only a one-line index in `projects/index.md`. See the multi-project section in `docs/architecture.md`.
 
 ### Dashboard Theming
 
