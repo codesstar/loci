@@ -51,23 +51,28 @@ Loci 把这些内容放进你自己的本地“大脑”目录，通过各 Agent
 ## 把这一句发给你的 AI，即可开始安装
 
 ```text
-帮我安装 Loci。请读取并按照这份指南完成安装：
+帮我安装 Loci，并连接到你当前使用的客户端。请读取并执行：
 https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
-如果已有大脑，请保留我的数据并升级，最后验证实际接入结果。
+已有大脑就复用，保留全部数据，安装后验证连接。
 ```
 
 需要 **Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent**。不需要 npm 包或 npx 安装器。AI 下载仓库后使用同一个跨平台 Node 安装器，具体步骤见 [给 AI 的安装与升级指南](docs/AI-INSTALL.md)。
 
 现成入口适配：**Claude Code、Codex、WorkBuddy**。千问办公、豆包工作等工具，先核实当前版本的指令入口与本地工具能力，再接入同一份短入口；目前不将它们列为已经实测的集成。Hook 可选，安装后须在所用客户端的新会话中验证。
 
-也可以手动运行：
+已经在用 Loci，后来又装了千问、豆包或新的 Agent？直接在**新工具**中发送：
 
-```bash
-git clone https://github.com/codesstar/loci.git loci
-node loci/scripts/loci-install.js --connect auto --lang zh
+```text
+我已经安装了 Loci，请把你连接到现有大脑。
+请读取并执行：https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-CONNECT.md
+请你自己找到已有大脑并完成接入，保留数据，不要重复安装。
 ```
 
-打开 Dashboard：运行 `node <brain-path>/.loci/dashboard/server.js`，访问 [localhost:8765](http://localhost:8765)。本地服务需保持运行；保存提醒不等于设备已收到通知。
+不需要自己找路径或编辑配置。AI 会核实当前客户端的能力，完成配置并说明检查结果。
+
+想看面板，直接说：**“帮我打开 Loci Dashboard，使用我现有的大脑。”** 本地服务需保持运行；保存提醒不等于设备已收到通知。
+
+**[阅读完整使用指南 →](https://www.tryloci.com/handbook/)** · 安装、日常用法、架构与设计取舍
 
 ## 架构：一个入口，一本手册，一套数据
 
@@ -91,6 +96,7 @@ node loci/scripts/loci-install.js --connect auto --lang zh
 
 ## 文档与贡献
 
+- [完整使用指南](https://www.tryloci.com/handbook/) · [Markdown 版](docs/user-guide.md)
 - [中文入门指南](docs/getting-started.zh-CN.md) · [English guide](docs/getting-started.md)
 - [AI 安装说明](docs/AI-INSTALL.md)
 - [已有大脑，接入新 Agent](docs/connect-existing-brain.md) · [短入口、启动地图与完整规则逐项拆解](docs/context-explained.md)

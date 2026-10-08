@@ -5,7 +5,7 @@
 ## 1. 检查环境与已有安装
 
 - 需要 Node.js 18+、Git，以及能读写本地文件和执行命令的 Agent。用 `node --version`、`git --version` 检查。缺少运行环境时说明具体缺项，按用户授权安装依赖；不能声称纯网页聊天也能访问用户磁盘。
-- 读取用户主目录下 `.loci/brain-path`（如果存在），检查指向的大脑。先区分用户要**新装、仅连接新 Agent、还是升级**：已有可用大脑且只新增 Agent 时走第3节，不默认下载、升级或重建；用户要升级或旧版本缺少必要文件时，再按第4节处理。路径冲突或多个大脑时先辨认，不静默切换。
+- 按 [AI-CONNECT.md 第1节](AI-CONNECT.md#1-自己定位已有大脑) 自行查找已有安装：先读取主目录 `.loci/brain-path`，无有效指针时再检查现有原生入口等少量候选，不让用户找路径。先区分用户要**新装、仅连接新 Agent、还是升级**：已有可用大脑且只新增 Agent 时走第3节，不默认下载、升级或重建；用户要升级或旧版本缺少必要文件时，再按第4节处理。路径冲突或多个大脑时先辨认，不静默切换。
 - 主目录、临时目录和目标路径由当前系统确定；所有示例占位符都须替换。不要假设 Windows 有 Bash，不要把含空格或特殊字符的路径/用户文本拼进未经转义的 Shell 命令。优先用参数数组调用进程。
 - 默认新大脑目录为用户主目录下 `loci`。目标非空且不是刚下载的 Loci 时停止覆盖，选择空目录或明确已有安装的用途。可直接使用已知称呼和语言，不必进行个人信息问卷。
 
@@ -26,7 +26,7 @@ node <brain-path>/scripts/loci-install.js --brain <brain-path> --connect auto --
 
 ## 3. 接入不同 Agent
 
-**大脑装一份，Agent 分别接入。** 已经连接 Claude Code/Codex，后来新装千问、豆包等，按 [已有大脑接入指南](connect-existing-brain.md) 操作；其中有给原 Agent、给新 Agent 的可复制指令，以及新会话验收方法。
+**大脑装一份，Agent 分别接入。** 已经连接 Claude Code/Codex，后来新装千问、豆包等，用户直接将 [已有大脑接入指南](connect-existing-brain.md) 的一句指令发给新客户端；执行 Agent 按 [AI-CONNECT.md](AI-CONNECT.md) 自动寻找已有大脑、配置和验收，不要求用户填写路径。
 
 对当前版本已有大脑，只刷新一个现成适配入口，例如新增 WorkBuddy：
 
@@ -42,10 +42,10 @@ node "<existing-brain-path>/scripts/loci-install.js" --brain "<existing-brain-pa
 | Claude Code | `~/.claude/CLAUDE.md`，可选 SessionStart Hook | 新会话验证偏好、手册读取、写入工具权限 |
 | Codex | `~/.codex/AGENTS.md`，安装器提供 Hook 配置 | Hook 是否执行取决于客户端版本与功能支持；无 Hook 时用同一入口的读取后备路径 |
 | WorkBuddy | `~/.workbuddy/MEMORY.md` | 验证当前版本实际加载该入口；不承诺原生 Hook |
-| 千问办公国内桌面版 | 官方文档提供“意识 → 工作手册（AGENTS.md）”；从应用确认实际位置后手动合并 | [具体步骤和依据](connect-existing-brain.md#千问办公国内桌面版通过已核实的工作手册入口)；不属于当前自动适配器，仍需本地访问和新会话实测 |
+| 千问办公国内桌面版 | 官方文档提供“意识 → 工作手册（AGENTS.md）”；由 Agent 核实实际位置并合并 | [由 AI 完成配置的步骤和依据](AI-CONNECT.md#3-由你完成配置)；不属于当前自动适配器，仍需本地访问和新会话实测 |
 | 豆包工作及其他客户端 | 先核实该版本的自定义指令、项目规则或技能入口 | 不猜配置文件路径、不写入任意位置；必须具备本地文件和命令能力；只有会话粘贴时明确属于临时接入 |
 
-其他客户端：把 `<brain-path>/LOCI.md` 中 `<brain-path>` 替换为实际绝对路径，将该短入口放进**已核实会加载的指令位置**；保留详细手册在大脑内。若只能手动粘贴指令，给用户生成完整、可复制的一段。若客户端不能访问本地文件/运行 Node，说明当前未接通，不声称适配完成。
+其他客户端：把 `<brain-path>/LOCI.md` 中 `<brain-path>` 替换为实际绝对路径，将该短入口放进**已核实会加载的指令位置**；保留详细手册在大脑内。由 Agent 使用文件、设置工具或已授权的界面操作完成配置，不要求用户查询路径、编辑规则或粘贴第二段配置；能力不足时报告具体限制。若客户端不能访问本地文件/运行 Node，说明当前未接通，不声称适配完成。
 
 只有 Hook 输出中包含有效的启动地图时才复用；没有 Hook 就按入口调用同一个 `scripts/loci-context.js`。Hook 和后备读取不得维护两套偏好或业务规则。
 
@@ -70,7 +70,7 @@ node <release-temp-path>/scripts/loci-update.js --source <release-temp-path> --b
 node <release-temp-path>/scripts/loci-update.js --rollback <exact-backup-directory>
 ```
 
-回滚先检查更新后文件是否又被修改；有新改动则拒绝覆盖，人工合并。备份可能含私人配置，不上传 GitHub。安装和升级过程中关闭其他正在修改大脑的 Agent；Dashboard 使用旧进程时重启后才加载新代码。
+回滚先检查更新后文件是否又被修改；有新改动则拒绝覆盖，先检查差异并保留后续修改，再合并。备份可能含私人配置，不上传 GitHub。安装和升级过程中关闭其他正在修改大脑的 Agent；Dashboard 使用旧进程时重启后才加载新代码。
 
 ## 5. 验收后再报告成功
 
