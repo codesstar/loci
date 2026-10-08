@@ -128,7 +128,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 <p>安装时，<code>LOCI.md</code> 的内容会被替换为实际大脑路径，再合并进宿主指令文件的 Loci 标记区。以后产品规则主要维护入口和手册；改脚本行为才需要改执行代码。</p>
 <p>这里解释当前架构中模型会看到的三类内容。<strong>需要维护的是两份规则文件；启动地图是程序现场生成的一段文本，不是第三份规则文件。</strong> 用户的偏好和实际记录则保存在大脑数据中。</p>
 <blockquote>
-<p><strong>入口 → 会话信息 → 操作手册。</strong> <code>LOCI.md</code> 告诉 Agent：有 Loci，大脑在哪、先获取什么、何时查手册。启动地图提供这次会话应先知道的短偏好、生成时间和位置。<code>LOCI-RULES.md</code> 说明具体信息怎样读取、保存和更新。实际任务、人物和笔记另存在数据文件里，相关时再读。</p>
+<p><strong>入口 → 会话信息 → 操作手册。</strong> <code>LOCI.md</code> 告诉 Agent：有 Loci，大脑在哪、先获取什么、何时查手册。启动地图提供这次会话应先知道的短偏好和位置。<code>LOCI-RULES.md</code> 说明具体信息怎样读取、保存和更新。实际任务、人物和笔记另存在数据文件里，相关时再读。</p>
 </blockquote>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead>
@@ -147,7 +147,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 </tr>
 <tr>
 <td>启动地图</td>
-<td>此刻路径、时间、用户短偏好是什么？</td>
+<td>大脑在哪、用户短偏好是什么、去哪里读规则？</td>
 <td><code>loci-context.js</code> 读取实际偏好，结合运行时路径生成</td>
 <td>有效 Hook 注入，或 Agent 按入口调用同一脚本</td>
 </tr>
@@ -185,9 +185,12 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 <p>所以 <code>LOCI.md</code> 不是各模块完整使用说明。它先让 Agent 找到正确入口，再明确何时必须去看详细规则。</p>
 <h3 id="启动地图实际会注入哪段文字">启动地图：实际会注入哪段文字</h3>
 <h4 id="作用让-agent-开始时就知道少量重要信息">作用：让 Agent 开始时就知道少量重要信息</h4>
-<p>启动地图给 Agent 一份<strong>本次会话的简短说明</strong>：用户希望怎样协作、现在生成这段信息的时间、大脑和操作手册在哪里。这样，第一句回复就能照顾用户的语言、称呼和工作习惯，后续也有查找记忆的入口。</p>
-<p>它不只有偏好。<strong>当前代码已经输出：短偏好、生成时的本地日期与时间、大脑路径、当前工作目录、入口与手册指针，以及避免重复加载的提示。</strong> 用户习惯只要已写入 <code>me/preferences.md</code> 的短偏好范围，就能一并带入；读取器不会自己分析聊天、推测用户性格或总结全部历史。</p>
-<p>这里的“动态”指<strong>运行读取器时，从当前文件和运行环境现场取值</strong>。注入后，它就是上下文中的一份快照。上午9点生成的时间，到下午仍写着9点；偏好文件后来被另一位 Agent 修改，旧会话中的文本也不会自动变化。涉及“现在、今天、最新”的问题，要重新获取当前时间或读取最小的相关来源，不能把启动快照当成实时状态。</p>
+<p>启动地图给 Agent 一份<strong>本次会话的简短说明</strong>：用户希望怎样协作、大脑和操作手册在哪里。这样，第一句回复就能照顾用户的语言、称呼和工作习惯，后续也有查找记忆的入口。</p>
+<p>它不只有偏好。<strong>当前代码输出：短偏好、大脑路径、当前工作目录、入口与手册指针，以及避免重复加载的提示。</strong> 用户习惯只要已写入 <code>me/preferences.md</code> 的短偏好范围，就能一并带入；读取器不会自己分析聊天、推测用户性格或总结全部历史。</p>
+<p>这里的“动态”指<strong>运行读取器时，从当前文件和运行环境现场取值</strong>。注入后，它就是上下文中的一份快照。例如，偏好文件后来被另一位 Agent 修改，旧会话中的文本不会自动变化；需要最新信息时，刷新最小的相关来源。</p>
+<blockquote>
+<p><strong>时间由宿主提供，Loci 不重复注入。</strong> 复用 Agent 已有的日期或时间上下文，当前启动地图不再附带时间戳，也不增加每轮时间 Hook。不同宿主提供的精度和时区可能不同；涉及精确时间的操作，仍需按需核对。额外时间补充只列入<a href="#%E5%BE%85%E6%8E%A2%E7%B4%A2%E5%AE%BF%E4%B8%BB%E6%97%B6%E9%97%B4%E4%B8%8D%E8%B6%B3%E6%97%B6%E5%86%8D%E8%A1%A5%E5%85%85">后续可探索项</a>。</p>
+</blockquote>
 <h4 id="可以再加入什么哪些还没有实现">可以再加入什么，哪些还没有实现</h4>
 <p>第二层可以承载会影响当前协作的少量信息。应先判断：<strong>它是否经常影响回答、来源是否明确、是否足够短、过期后怎么办。</strong> 重要不等于要把全部记录都放进来。</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
@@ -204,9 +207,9 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 <td>已支持从 <code>me/preferences.md</code> 读取；只在短偏好预算内输出</td>
 </tr>
 <tr>
-<td>时间与运行位置</td>
-<td>生成时的日期、时间，大脑与工作目录</td>
-<td>已输出；时间来自运行读取器的环境，当前没有单独的时区字段</td>
+<td>运行位置与规则入口</td>
+<td>大脑与工作目录、短入口与完整手册路径</td>
+<td>已输出，便于 Agent 找到实际数据与规则</td>
 </tr>
 <tr>
 <td>当前协作中需要关注的状态</td>
@@ -227,7 +230,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 <p><strong>“可以扩展”不代表当前已经实现。</strong> 增加临时状态等字段，需要修改读取器与刷新逻辑；把一句话写进说明文档，不会让 Hook 自动获得这项能力。数据仍保存在自己的来源文件里，Hook 与无 Hook 的路径继续调用同一个读取器。</p>
 <h4 id="当前实际输出">当前实际输出</h4>
 <p>以下由当前 <code>loci-context.js</code> 在临时目录中真实运行生成，偏好为虚构示例，输出路径替换为 <code>/example/loci</code> 与 <code>/example/work</code>。没有读取任何人的真实资料；不要把示例路径用于实际连接。</p>
-<details class="source-detail"><summary>展开查看启动地图输出</summary><div class="code-wrap"><div class="code-toolbar"><span>启动读取器的示例输出</span><button type="button" class="copy-code" aria-label="复制启动读取器的示例输出">复制</button></div><pre><code>[Loci] Lightweight startup map · 2026-10-08 09:00 Thu
+<details class="source-detail"><summary>展开查看启动地图输出</summary><div class="code-wrap"><div class="code-toolbar"><span>启动读取器的示例输出</span><button type="button" class="copy-code" aria-label="复制启动读取器的示例输出">复制</button></div><pre><code>[Loci] Lightweight startup map
 Brain: /example/loci
 Workspace: /example/work
 This startup map is already loaded. Do not run it again in this session.
@@ -252,8 +255,8 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 </tr>
 </thead>
 <tbody><tr>
-<td><code>[Loci] Lightweight startup map</code> 与时间</td>
-<td>标识这是读取器的启动输出；时间是生成时的本地时间，不会在对话过程中自行刷新</td>
+<td><code>[Loci] Lightweight startup map</code></td>
+<td>标识这是读取器的启动输出；不包含日期或时间</td>
 </tr>
 <tr>
 <td><code>Brain</code></td>
@@ -414,7 +417,7 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 <td>由宿主管理，不让 Agent 每条消息重复读取</td>
 </tr>
 <tr>
-<td>时间、短偏好、大脑和手册指针</td>
+<td>短偏好、大脑和手册指针</td>
 <td>Hook 或 Agent 调用同一读取器</td>
 <td>会话启动；已有有效输出则复用</td>
 <td>不重复启动读取</td>
@@ -449,7 +452,7 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 <p>Hook 是一个宿主事件触发的程序入口。它能让偏好在启动时更直接地被提供；没有 Hook 时，短入口要求 Agent 调用相同读取器。<strong>两条路线同源，只有送达方式不同。</strong></p>
 <p>短入口也不是强制执行器：宿主可能没加载它，模型可能忽略它，工具也可能没有权限。因此验收要覆盖“配置写对 → 新会话实际收到 → 真实操作正确”三个层次。Hook 主要加强第二层，不能代替第三层。</p>
 <h3 id="启动-hook还是每轮-hook">启动 Hook，还是每轮 Hook</h3>
-<p><strong>Loci 当前采用启动注入，加上相关时按需刷新。</strong> 稳定偏好适合在会话开始时提供，当前时间与易变数据则在实际需要时重新取值。这样能兼顾第一句回复的个性化和后续信息的新鲜度。</p>
+<p><strong>Loci 当前采用启动注入，加上相关时按需刷新。</strong> 稳定偏好适合在会话开始时提供，易变数据在实际需要时重新读取。日期与时间优先复用宿主已有信息，不另做重复注入。</p>
 <p>先区分触发时机。以 Claude Code 为例，<code>SessionStart</code> 在会话开始、恢复等生命周期事件触发；<code>UserPromptSubmit</code> 在一轮输入交给模型处理前触发；<code>Stop</code> 在模型完成回复时触发。若想让补充信息影响本轮回答，应在处理输入前提供。一次输入可能带来多次工具调用和模型生成，不能把“每轮输入前”理解成“每生成一句话前”。具体事件由宿主及版本决定。<a href="https://code.claude.com/docs/en/hooks#hook-lifecycle">Claude Code Hook 文档</a></p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead>
@@ -460,13 +463,13 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 </tr>
 </thead>
 <tbody><tr>
-<td>启动 Hook</td>
-<td>短偏好、大脑位置、规则指针、启动时刻</td>
+<td>启动 Hook（当前采用）</td>
+<td>短偏好、大脑位置、规则指针</td>
 <td>调用频率低；会话很长或外部文件有变更时，快照可能过期</td>
 </tr>
 <tr>
-<td>每轮输入前 Hook</td>
-<td>更新后的时间、已变更的偏好、已过期状态的更正</td>
+<td>每轮输入前 Hook（未启用）</td>
+<td>已变更的偏好、已过期状态的更正等少量变化</td>
 <td>可以更及时，但每轮有执行成本；整份重复注入会增加上下文负担，运行慢也会延迟回答</td>
 </tr>
 <tr>
@@ -477,14 +480,7 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 </tbody></table></div>
 <p>启动注入的内容只要还在有效上下文中，后续轮次就可以继续使用，并非只影响第一条回复。上下文被压缩或重置后，仍需要恢复关键内容。</p>
 <p>当前仓库的 Claude 接入配置了 <code>startup|resume|clear|compact|fork</code>，Codex 接入配置了 <code>startup|clear|compact</code>；这些是安装器写入的匹配条件，实际触发以宿主支持为准。因此，“启动 Hook”也可能在清空或压缩后再次提供地图。<strong>当前 Loci 没有安装用于逐轮注入地图的 <code>UserPromptSubmit</code> Hook。</strong> 写文件后的活动记录 Hook 另有用途，不等于逐轮更新上下文。</p>
-<p>如果以后确实需要更强的实时感，建议在现有启动方案上增加一个很轻的每轮检查，而不是每轮重新载入整份地图或完整手册：</p>
-<ol>
-<li><strong>只补变化。</strong> 偏好未变就不重复输出；发生变更时，提供新的短值并注明替代旧值。临时状态到期时也要明确失效，不能只停止输出、让旧状态继续留在上下文里。</li>
-<li><strong>时间单独处理。</strong> 对时间敏感的请求获取当前时间和明确时区；若产品选择每轮提供时间，只加一行即可。宿主已经提供可靠时间时避免重复。</li>
-<li><strong>保持轻量。</strong> 做文件变更或有效期检查，不在每轮扫描全部历史、调用模型总结用户、或远程检索。对读取耗时和输出长度设上限，失败不阻塞普通聊天。</li>
-<li><strong>所有 Agent 共用来源。</strong> 有相应 Hook 的宿主自动补充；其他宿主保留入口指引和按需读取。不要为每个 Agent 维护一份不同的用户状态。</li>
-</ol>
-<p>以上是后续扩展建议，本次说明没有启用逐轮 Hook。当前选择是：<strong>入口保持短，启动先带上必要信息，首次操作读规则，易变数据用到再刷新。</strong></p>
+<p>如果以后增加逐轮补充，应只发送实际变化，注明旧状态失效，设置耗时与输出上限，并让所有 Agent 共用数据来源。当前保持：<strong>入口保持短，启动先带上必要信息，首次操作读规则，易变数据用到再刷新。</strong></p>
 <p class="sources">源码依据：<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-context.js">启动读取器</a>、<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-claude-settings.js">Claude Hook 配置</a>、<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-codex-hook.js">Codex Hook 配置</a>。宿主事件语义参考 <a href="https://code.claude.com/docs/en/hooks#sessionstart">SessionStart</a> 与 <a href="https://code.claude.com/docs/en/hooks#userpromptsubmit">UserPromptSubmit</a>。</p>
 <h3 id="数据具体放在哪里">数据具体放在哪里</h3>
 <div class="code-wrap"><div class="code-toolbar"><span>目录结构</span><button type="button" class="copy-code" aria-label="复制目录结构">复制</button></div><pre><code>brain/
@@ -904,7 +900,7 @@ project-repo/.loci/
 <p>单次成功不是可靠率统计，不同环境也不能用来给模型排名。已发布测试不代表所有原生客户端版本、上下文压缩恢复和设备提醒都已验收。</p>
 <p class="sources">来源：<a href="https://github.com/codesstar/loci/blob/main/docs/validation-0.6.md">公开验证记录</a>、<a href="https://github.com/codesstar/loci/actions/runs/37725538952">发布 CI</a>。</p>
 <nav class="chapter-pagination" aria-label="相邻章节"><a href="#chapter-14"><small>← 上一篇</small>常见问题</a><a href="#chapter-13"><small>下一篇 →</small>接下来的改进</a></nav><footer class="reading-footer">让记忆留在自己手里。<a href="https://github.com/codesstar/loci/issues" target="_blank" rel="noopener">反馈问题 ↗</a></footer></article>
-<article class="chapter" id="chapter-13" data-title="接下来的改进"><div class="breadcrumb"><a href="#home">使用指南</a><span>/</span><span>帮助与参与</span></div><div class="chapter-label">LOCI GUIDE · 14</div><h2 class="chapter-title">待优化清单，以及哪些事暂时不做</h2><h3 id="优先级按用户损失和验收成本排列">优先级按用户损失和验收成本排列</h3>
+<article class="chapter" id="chapter-13" data-title="接下来的改进"><div class="breadcrumb"><a href="#home">使用指南</a><span>/</span><span>帮助与参与</span></div><div class="chapter-label">LOCI GUIDE · 14</div><h2 class="chapter-title">待优化清单，以及哪些事暂时不做</h2><details class="in-page"><summary>本页内容 · 3 个小节</summary><nav aria-label="本页目录"><a href="#优先级按用户损失和验收成本排列">优先级按用户损失和验收成本排列</a><a href="#待探索宿主时间不足时再补充">待探索：宿主时间不足时再补充</a><a href="#为什么优先改善这些问题">为什么优先改善这些问题</a></nav></details><h3 id="优先级按用户损失和验收成本排列">优先级按用户损失和验收成本排列</h3>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead>
 <tr>
@@ -968,7 +964,17 @@ project-repo/.loci/
 <td>有真实需求，但文件冲突不是复制目录就能解决</td>
 <td>先定义单写者/冲突副本/恢复，再验证双设备离线修改</td>
 </tr>
+<tr>
+<td>待探索</td>
+<td>宿主时间不足时的轻量补充</td>
+<td>优先复用 Agent 已有时间能力，仅在实际出现不足时考虑</td>
+<td>明确日期、时刻、星期与时区；避免重复；跨时区与长会话验证</td>
+</tr>
 </tbody></table></div>
+<h3 id="待探索宿主时间不足时再补充">待探索：宿主时间不足时再补充</h3>
+<p><strong>当前不做独立时间注入。</strong> Agent 已有的日期或时间上下文由宿主负责，Loci 优先复用；精确时间不足、过期或时区不明确时，通过工具按需核对。</p>
+<p>如果后续在实际使用中发现宿主时间支持不足，再考虑在支持的客户端通过 <code>UserPromptSubmit</code> 只补几行时间信息。输出应明确写出日期、时刻、星期和时区，并说明它是本轮输入处理前获取的时间；不把时间藏在启动地图标题里，也不每轮重发偏好和完整规则。长任务执行过程中需要精确计时时，仍要重新获取时间。</p>
+<p>这是后续可做的方向，尚未启用，也没有排定实施时间。</p>
 <h3 id="为什么优先改善这些问题">为什么优先改善这些问题</h3>
 <p>“装了但没生效”“明明保存却看不到”“服务运行却没收到提醒”都会直接影响日常使用。后续改进应让这些状态可见、可复现、可恢复。</p>
 <p>性能优化需要看整轮请求：模型初始化、推理、工具往返、文件操作和确认输出。当前已减少重复读取，内置聊天也使用部分进程复用和缓存；复杂检索、长会话恢复和不同宿主的实际耗时仍需持续验证。</p>

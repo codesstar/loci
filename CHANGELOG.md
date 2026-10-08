@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Removed the timestamp from the shared startup map. Reuse host-provided date/time context and verify precise time on demand; per-turn time injection remains a future option, not an enabled hook.
+
 ### Added
 - **Tasks can point at scraps** — a task record carries an optional `scraps` list of scrap ids (same shape as `people`). Set it from the task detail (a searchable picker), from a scrap's detail ("+ 关联或新建一个任务" — type a title that does not exist yet and it creates the task already linked), or with `loci-task.js add/update --scraps "ref:a,ref:b"`; chips on the task card open the scrap, and the scrap lists its tasks. Stored one way, on the task; a scrap that is later archived shows as a dashed chip. A scrap is never turned into a task — the task points at it.
 
