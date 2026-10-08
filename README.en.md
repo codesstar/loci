@@ -95,6 +95,7 @@ Loci is an MIT-licensed open-source project. Models and third-party services may
 
 - [English getting started guide](docs/getting-started.md) · [中文指南](docs/getting-started.zh-CN.md)
 - [AI installation](docs/AI-INSTALL.md)
+- [Connect a new agent to an existing brain (中文)](docs/connect-existing-brain.md) · [Entry, startup map, and rules explained (中文)](docs/context-explained.md)
 - [Dashboard](docs/dashboard.md) · [API](docs/api.md)
 - [Example brain](examples/alex/)
 - [Contributing](CONTRIBUTING.md) · [MIT License](LICENSE)

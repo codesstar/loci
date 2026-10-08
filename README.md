@@ -93,6 +93,7 @@ node loci/scripts/loci-install.js --connect auto --lang zh
 
 - [中文入门指南](docs/getting-started.zh-CN.md) · [English guide](docs/getting-started.md)
 - [AI 安装说明](docs/AI-INSTALL.md)
+- [已有大脑，接入新 Agent](docs/connect-existing-brain.md) · [短入口、启动地图与完整规则逐项拆解](docs/context-explained.md)
 - [Dashboard](docs/dashboard.md) · [API](docs/api.md)
 - [示例大脑](examples/alex/)
 - [参与贡献](CONTRIBUTING.md) · [MIT License](LICENSE)
