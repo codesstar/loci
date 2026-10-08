@@ -70,7 +70,7 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 <p>Loci 不会修改模型权重，也没有给模型增加一种生物式记忆。它增加的是<strong>模型外部的持久状态、访问约定和操作工具</strong>。模型真正受某条记录影响，发生在这条记录被放进当前上下文之后。</p>
 <p>为什么还做 Dashboard？因为记忆如果只会保存，用户仍很难判断它有没有用、有没有记错。任务、日历、人脉和知识库把已保存的信息放回日常工作里：看安排、找资料、回忆关系、接续项目。Dashboard 也是人工纠错和检查 AI 操作的窗口。</p>
 <nav class="chapter-pagination" aria-label="相邻章节"><a href="#chapter-01"><small>← 上一篇</small>安装与连接</a><a href="#chapter-06"><small>下一篇 →</small>任务与日历</a></nav><footer class="reading-footer">让记忆留在自己手里。<a href="https://github.com/codesstar/loci/issues" target="_blank" rel="noopener">反馈问题 ↗</a></footer></article>
-<article class="chapter" id="chapter-03" data-title="架构与三类上下文"><div class="breadcrumb"><a href="#home">使用指南</a><span>/</span><span>了解设计</span></div><div class="chapter-label">LOCI GUIDE · 09</div><h2 class="chapter-title">整体架构：规则、工具、数据各管什么</h2><details class="in-page"><summary>本页内容 · 9 个小节</summary><nav aria-label="本页目录"><a href="#维护两份规则而不是维护几套大脑">维护两份规则，而不是维护几套大脑</a><a href="#locimd入口到底写了什么">LOCI.md：入口到底写了什么</a><a href="#启动地图实际会注入哪段文字">启动地图：实际会注入哪段文字</a><a href="#loci-rulesmd11个分块具体管什么">LOCI-RULES.md：11个分块具体管什么</a><a href="#三者怎样配合谁应该改哪里">三者怎样配合，谁应该改哪里</a><a href="#从一次请求看执行顺序">从一次请求看执行顺序</a><a href="#哪些东西会进入上下文">哪些东西会进入上下文</a><a href="#没有-hook-怎么办">没有 Hook 怎么办</a><a href="#数据具体放在哪里">数据具体放在哪里</a></nav></details><p>直接查看：<a href="#locimd%E5%85%A5%E5%8F%A3%E5%88%B0%E5%BA%95%E5%86%99%E4%BA%86%E4%BB%80%E4%B9%88">LOCI.md 原文与解释</a> · <a href="#%E5%90%AF%E5%8A%A8%E5%9C%B0%E5%9B%BE%E5%AE%9E%E9%99%85%E4%BC%9A%E6%B3%A8%E5%85%A5%E5%93%AA%E6%AE%B5%E6%96%87%E5%AD%97">启动地图实际输出</a> · <a href="#loci-rulesmd11%E4%B8%AA%E5%88%86%E5%9D%97%E5%85%B7%E4%BD%93%E7%AE%A1%E4%BB%80%E4%B9%88">完整规则11个分块</a></p>
+<article class="chapter" id="chapter-03" data-title="架构与三类上下文"><div class="breadcrumb"><a href="#home">使用指南</a><span>/</span><span>了解设计</span></div><div class="chapter-label">LOCI GUIDE · 09</div><h2 class="chapter-title">整体架构：规则、工具、数据各管什么</h2><details class="in-page"><summary>本页内容 · 10 个小节</summary><nav aria-label="本页目录"><a href="#维护两份规则而不是维护几套大脑">维护两份规则，而不是维护几套大脑</a><a href="#locimd入口到底写了什么">LOCI.md：入口到底写了什么</a><a href="#启动地图实际会注入哪段文字">启动地图：实际会注入哪段文字</a><a href="#loci-rulesmd11个分块具体管什么">LOCI-RULES.md：11个分块具体管什么</a><a href="#三者怎样配合谁应该改哪里">三者怎样配合，谁应该改哪里</a><a href="#从一次请求看执行顺序">从一次请求看执行顺序</a><a href="#哪些东西会进入上下文">哪些东西会进入上下文</a><a href="#没有-hook-怎么办">没有 Hook 怎么办</a><a href="#启动-hook还是每轮-hook">启动 Hook，还是每轮 Hook</a><a href="#数据具体放在哪里">数据具体放在哪里</a></nav></details><p>直接查看：<a href="#locimd%E5%85%A5%E5%8F%A3%E5%88%B0%E5%BA%95%E5%86%99%E4%BA%86%E4%BB%80%E4%B9%88">LOCI.md 原文与解释</a> · <a href="#%E5%90%AF%E5%8A%A8%E5%9C%B0%E5%9B%BE%E5%AE%9E%E9%99%85%E4%BC%9A%E6%B3%A8%E5%85%A5%E5%93%AA%E6%AE%B5%E6%96%87%E5%AD%97">启动地图的作用与输出</a> · <a href="#loci-rulesmd11%E4%B8%AA%E5%88%86%E5%9D%97%E5%85%B7%E4%BD%93%E7%AE%A1%E4%BB%80%E4%B9%88">完整规则11个分块</a> · <a href="#%E5%90%AF%E5%8A%A8-hook%E8%BF%98%E6%98%AF%E6%AF%8F%E8%BD%AE-hook">启动还是每轮 Hook</a></p>
 <figure class="architecture-figure"><a href="assets/architecture-zh-light.svg" target="_blank" rel="noopener" aria-label="查看架构大图"><picture><source media="(max-width: 720px)" srcset="assets/architecture-zh-mobile.svg" width="640" height="1380"><img src="assets/architecture-zh-light.svg" alt="Loci 当前架构：安装、启动、首次使用和共享数据" width="1240" height="800" loading="lazy"></picture></a><figcaption>四步读懂 Loci。点击图片查看大图。</figcaption></figure>
 <h3 id="维护两份规则而不是维护几套大脑">维护两份规则，而不是维护几套大脑</h3>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
@@ -127,6 +127,9 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 </tbody></table></div>
 <p>安装时，<code>LOCI.md</code> 的内容会被替换为实际大脑路径，再合并进宿主指令文件的 Loci 标记区。以后产品规则主要维护入口和手册；改脚本行为才需要改执行代码。</p>
 <p>这里解释当前架构中模型会看到的三类内容。<strong>需要维护的是两份规则文件；启动地图是程序现场生成的一段文本，不是第三份规则文件。</strong> 用户的偏好和实际记录则保存在大脑数据中。</p>
+<blockquote>
+<p><strong>入口 → 会话信息 → 操作手册。</strong> <code>LOCI.md</code> 告诉 Agent：有 Loci，大脑在哪、先获取什么、何时查手册。启动地图提供这次会话应先知道的短偏好、生成时间和位置。<code>LOCI-RULES.md</code> 说明具体信息怎样读取、保存和更新。实际任务、人物和笔记另存在数据文件里，相关时再读。</p>
+</blockquote>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead>
 <tr>
@@ -181,6 +184,48 @@ https://raw.githubusercontent.com/codesstar/loci/main/docs/AI-INSTALL.md
 </ol>
 <p>所以 <code>LOCI.md</code> 不是各模块完整使用说明。它先让 Agent 找到正确入口，再明确何时必须去看详细规则。</p>
 <h3 id="启动地图实际会注入哪段文字">启动地图：实际会注入哪段文字</h3>
+<h4 id="作用让-agent-开始时就知道少量重要信息">作用：让 Agent 开始时就知道少量重要信息</h4>
+<p>启动地图给 Agent 一份<strong>本次会话的简短说明</strong>：用户希望怎样协作、现在生成这段信息的时间、大脑和操作手册在哪里。这样，第一句回复就能照顾用户的语言、称呼和工作习惯，后续也有查找记忆的入口。</p>
+<p>它不只有偏好。<strong>当前代码已经输出：短偏好、生成时的本地日期与时间、大脑路径、当前工作目录、入口与手册指针，以及避免重复加载的提示。</strong> 用户习惯只要已写入 <code>me/preferences.md</code> 的短偏好范围，就能一并带入；读取器不会自己分析聊天、推测用户性格或总结全部历史。</p>
+<p>这里的“动态”指<strong>运行读取器时，从当前文件和运行环境现场取值</strong>。注入后，它就是上下文中的一份快照。上午9点生成的时间，到下午仍写着9点；偏好文件后来被另一位 Agent 修改，旧会话中的文本也不会自动变化。涉及“现在、今天、最新”的问题，要重新获取当前时间或读取最小的相关来源，不能把启动快照当成实时状态。</p>
+<h4 id="可以再加入什么哪些还没有实现">可以再加入什么，哪些还没有实现</h4>
+<p>第二层可以承载会影响当前协作的少量信息。应先判断：<strong>它是否经常影响回答、来源是否明确、是否足够短、过期后怎么办。</strong> 重要不等于要把全部记录都放进来。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead>
+<tr>
+<th>信息</th>
+<th>例子</th>
+<th>当前状态与放置方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>沟通偏好与稳定工作习惯</td>
+<td>中文短答、先给结论、专注工作时少打断</td>
+<td>已支持从 <code>me/preferences.md</code> 读取；只在短偏好预算内输出</td>
+</tr>
+<tr>
+<td>时间与运行位置</td>
+<td>生成时的日期、时间，大脑与工作目录</td>
+<td>已输出；时间来自运行读取器的环境，当前没有单独的时区字段</td>
+</tr>
+<tr>
+<td>当前协作中需要关注的状态</td>
+<td>“今天只安排线上活动”“本周先完成一个项目”</td>
+<td>可扩展，当前不会自动读取；若加入，应从有来源、更新时间和有效期的短状态记录获取</td>
+</tr>
+<tr>
+<td>用户明确希望被提醒的行为约定</td>
+<td>“规划时保留连续的专注时间”</td>
+<td>长期且常用的可写入偏好；临时约定应带期限，不把模型猜测固化为用户习惯</td>
+</tr>
+<tr>
+<td>具体任务、日程、人物与历史</td>
+<td>今天全部待办、所有会议、某人的完整往来</td>
+<td>当前按需读取；需要安排今天时再查任务与日程，无需每个会话都带入</td>
+</tr>
+</tbody></table></div>
+<p><strong>“可以扩展”不代表当前已经实现。</strong> 增加临时状态等字段，需要修改读取器与刷新逻辑；把一句话写进说明文档，不会让 Hook 自动获得这项能力。数据仍保存在自己的来源文件里，Hook 与无 Hook 的路径继续调用同一个读取器。</p>
+<h4 id="当前实际输出">当前实际输出</h4>
 <p>以下由当前 <code>loci-context.js</code> 在临时目录中真实运行生成，偏好为虚构示例，输出路径替换为 <code>/example/loci</code> 与 <code>/example/work</code>。没有读取任何人的真实资料；不要把示例路径用于实际连接。</p>
 <details class="source-detail"><summary>展开查看启动地图输出</summary><div class="code-wrap"><div class="code-toolbar"><span>启动读取器的示例输出</span><button type="button" class="copy-code" aria-label="复制启动读取器的示例输出">复制</button></div><pre><code>[Loci] Lightweight startup map · 2026-10-08 09:00 Thu
 Brain: /example/loci
@@ -243,6 +288,7 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 <p><strong>Hook 和没有 Hook 的区别在递送方式。</strong> 前者由宿主在事件触发时把脚本输出放入上下文；后者由 Agent 依照入口执行同一脚本，输出作为工具结果进入上下文。两者读取同一份文件，无需同步两份偏好。</p>
 <p>地图结尾与入口都有“不要预加载/重复读取”的短提醒，用来约束这段输出的使用范围；任务分类、人物关系等业务细节不在地图里另写一份。修改长期业务规则主要去手册，修改用户偏好去 <code>me/preferences.md</code>。</p>
 <h3 id="loci-rulesmd11个分块具体管什么">LOCI-RULES.md：11个分块具体管什么</h3>
+<p>这是 <strong>Agent 使用 Loci 的完整操作手册</strong>：记什么、不记什么、去哪里查、怎样写、怎样关联、如何确认与撤销，都在这里。它覆盖任务、日程、人物、碎片、笔记、个人记忆和项目记录；Dashboard 是查看和修改同一份数据的界面。Agent 通常通过文件工具、脚本或本地 API 操作，因此这里的规则范围比 Dashboard 的按钮操作更大。</p>
 <p>手册当前是规则版本6，按以下11块维护。表格是面向人的讲解；Agent 真正操作时读取大脑中的 <a href="https://github.com/codesstar/loci/blob/main/LOCI-RULES.md">完整手册原文</a>。</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
 <thead>
@@ -402,6 +448,44 @@ Do not preload plans, tasks, inbox, journals, project memory, or history. Read t
 <h3 id="没有-hook-怎么办">没有 Hook 怎么办</h3>
 <p>Hook 是一个宿主事件触发的程序入口。它能让偏好在启动时更直接地被提供；没有 Hook 时，短入口要求 Agent 调用相同读取器。<strong>两条路线同源，只有送达方式不同。</strong></p>
 <p>短入口也不是强制执行器：宿主可能没加载它，模型可能忽略它，工具也可能没有权限。因此验收要覆盖“配置写对 → 新会话实际收到 → 真实操作正确”三个层次。Hook 主要加强第二层，不能代替第三层。</p>
+<h3 id="启动-hook还是每轮-hook">启动 Hook，还是每轮 Hook</h3>
+<p><strong>Loci 当前采用启动注入，加上相关时按需刷新。</strong> 稳定偏好适合在会话开始时提供，当前时间与易变数据则在实际需要时重新取值。这样能兼顾第一句回复的个性化和后续信息的新鲜度。</p>
+<p>先区分触发时机。以 Claude Code 为例，<code>SessionStart</code> 在会话开始、恢复等生命周期事件触发；<code>UserPromptSubmit</code> 在一轮输入交给模型处理前触发；<code>Stop</code> 在模型完成回复时触发。若想让补充信息影响本轮回答，应在处理输入前提供。一次输入可能带来多次工具调用和模型生成，不能把“每轮输入前”理解成“每生成一句话前”。具体事件由宿主及版本决定。<a href="https://code.claude.com/docs/en/hooks#hook-lifecycle">Claude Code Hook 文档</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="表格，可横向滚动"><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>适合提供什么</th>
+<th>代价与边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>启动 Hook</td>
+<td>短偏好、大脑位置、规则指针、启动时刻</td>
+<td>调用频率低；会话很长或外部文件有变更时，快照可能过期</td>
+</tr>
+<tr>
+<td>每轮输入前 Hook</td>
+<td>更新后的时间、已变更的偏好、已过期状态的更正</td>
+<td>可以更及时，但每轮有执行成本；整份重复注入会增加上下文负担，运行慢也会延迟回答</td>
+</tr>
+<tr>
+<td>Agent 按需读取</td>
+<td>排日程时取当前时间，问今天时查当天数据，提到某人时读对应档案</td>
+<td>读取范围小；依赖 Agent 识别触发条件并正确执行</td>
+</tr>
+</tbody></table></div>
+<p>启动注入的内容只要还在有效上下文中，后续轮次就可以继续使用，并非只影响第一条回复。上下文被压缩或重置后，仍需要恢复关键内容。</p>
+<p>当前仓库的 Claude 接入配置了 <code>startup|resume|clear|compact|fork</code>，Codex 接入配置了 <code>startup|clear|compact</code>；这些是安装器写入的匹配条件，实际触发以宿主支持为准。因此，“启动 Hook”也可能在清空或压缩后再次提供地图。<strong>当前 Loci 没有安装用于逐轮注入地图的 <code>UserPromptSubmit</code> Hook。</strong> 写文件后的活动记录 Hook 另有用途，不等于逐轮更新上下文。</p>
+<p>如果以后确实需要更强的实时感，建议在现有启动方案上增加一个很轻的每轮检查，而不是每轮重新载入整份地图或完整手册：</p>
+<ol>
+<li><strong>只补变化。</strong> 偏好未变就不重复输出；发生变更时，提供新的短值并注明替代旧值。临时状态到期时也要明确失效，不能只停止输出、让旧状态继续留在上下文里。</li>
+<li><strong>时间单独处理。</strong> 对时间敏感的请求获取当前时间和明确时区；若产品选择每轮提供时间，只加一行即可。宿主已经提供可靠时间时避免重复。</li>
+<li><strong>保持轻量。</strong> 做文件变更或有效期检查，不在每轮扫描全部历史、调用模型总结用户、或远程检索。对读取耗时和输出长度设上限，失败不阻塞普通聊天。</li>
+<li><strong>所有 Agent 共用来源。</strong> 有相应 Hook 的宿主自动补充；其他宿主保留入口指引和按需读取。不要为每个 Agent 维护一份不同的用户状态。</li>
+</ol>
+<p>以上是后续扩展建议，本次说明没有启用逐轮 Hook。当前选择是：<strong>入口保持短，启动先带上必要信息，首次操作读规则，易变数据用到再刷新。</strong></p>
+<p class="sources">源码依据：<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-context.js">启动读取器</a>、<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-claude-settings.js">Claude Hook 配置</a>、<a href="https://github.com/codesstar/loci/blob/main/scripts/loci-codex-hook.js">Codex Hook 配置</a>。宿主事件语义参考 <a href="https://code.claude.com/docs/en/hooks#sessionstart">SessionStart</a> 与 <a href="https://code.claude.com/docs/en/hooks#userpromptsubmit">UserPromptSubmit</a>。</p>
 <h3 id="数据具体放在哪里">数据具体放在哪里</h3>
 <div class="code-wrap"><div class="code-toolbar"><span>目录结构</span><button type="button" class="copy-code" aria-label="复制目录结构">复制</button></div><pre><code>brain/
 ├── LOCI.md                 短入口
