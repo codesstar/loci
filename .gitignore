@@ -84,6 +84,7 @@ docs/*.html
 
 # This repo's own Loci project-memory (aggregated in the brain, not shipped)
 .loci/memory.md
+.loci/logo.*
 .loci/profile.md
 .loci/progress/
 .loci/decisions/
@@ -95,3 +96,5 @@ notes/*
 tasks/journal/*.md
 !tasks/journal/README.md
 !tasks/journal/buffer.md
+.loci/dashboard/traj-v-*.js
+.loci/dashboard/traj-v-*.css

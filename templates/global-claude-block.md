@@ -19,8 +19,9 @@
 - Answer the user first. Then lightly check for a durable signal; no signal means no save.
 - Auto-save clear tasks, decisions, stable factual preferences/details, and useful links. Ask before saving sensitive, ambiguous, highly subjective, or major strategy/life changes. Distill; never save raw transcripts.
 - Preferences about nickname, language, tone, or workflow go to `me/preferences.md` and apply in the acknowledging reply itself.
-- Tasks go through the Dashboard API when running, otherwise `node <brain-path>/scripts/loci-task.js ...`; never hand-edit task JSON. A task with a date/time remains a task. Meetings, appointments, travel, meals, and deliberate time blocks go to the schedule. Loose ideas go to `inbox.md`.
-- Personal decisions go to `decisions/`; personal facts/insights go to `me/`; third-party links/materials go to `references/`; the user's own note pointers go to `notes/index.md` (short inline notes may live in `notes/`).
+- Tasks go through the Dashboard API when running, otherwise `node <brain-path>/scripts/loci-task.js ...`; never hand-edit task JSON. A task with a date/time remains a task. Meetings, appointments, travel, meals, and deliberate time blocks go to the schedule.
+- Personal decisions go to `decisions/`; personal facts/insights go to `me/`; the user's own note pointers go to `notes/index.md` (short inline notes may live in `notes/`).
+- Loose ideas, links, quotes, screenshots and saved material are 碎片 (scraps) — one writer: `node <brain-path>/scripts/loci-scrap.js add --text "..." | --url <link> | --file <abs path> [--note "..."] [--tags "a,b"]`. They land in `references/`; **never append to `inbox.md`** (legacy lines there migrate on first edit). A long write-up is a note, not a scrap.
 - After any brain write, append one human-readable line to `.loci/activity/YYYY-MM.md` under today's heading: `- HH:MM · <category> · <traceable summary>`. Never auto-load this ledger; read it only when asked what happened.
 - Keep confirmations short and natural. Do not expose internal paths unless asked. An undo request should revert the last save when possible.
 
@@ -30,7 +31,4 @@
 - Connect a project with `node <brain-path>/scripts/loci-project.js connect ...`; this updates both `CLAUDE.md` and `AGENTS.md`. A development todo belongs in that repo's `.loci/todo.json` via `node <brain-path>/scripts/loci-projtodo.js ...`, not in the personal task pool.
 - Before writing people/relationships, places, notes, or project records, consult the matching section of `<brain-path>/CLAUDE.md` if the compact rules above do not fully determine the safe route.
 
-### Commands
-
-`/loci-sync` · `/loci-settings` · `/loci-scan` · `/loci-consolidate`
 <!-- loci:end -->

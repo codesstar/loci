@@ -1,0 +1,26 @@
+{
+  "tasks": [
+    {
+      "id": "task_20261007104650_task_c7i6",
+      "title": "季度材料发给客户",
+      "status": "open",
+      "date": "2026-10-08",
+      "endDate": null,
+      "startTime": "09:00",
+      "endTime": null,
+      "project": null,
+      "urgency": 0,
+      "importance": 0,
+      "plannedFor": null,
+      "deferToday": false,
+      "source": "agent",
+      "createdAt": "2026-10-07T10:46:50.861Z",
+      "updatedAt": "2026-10-07T10:46:50.861Z",
+      "completedAt": null,
+      "archivedAt": null,
+      "location": null,
+      "color": null,
+      "note": null
+    }
+  ]
+}

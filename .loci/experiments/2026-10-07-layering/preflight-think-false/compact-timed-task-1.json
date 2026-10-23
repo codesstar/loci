@@ -1,0 +1,51 @@
+{
+  "id": "compact-timed-task-1",
+  "model": "qwen3:14b",
+  "variant": "compact",
+  "case": "timed-task",
+  "repeat": 1,
+  "prompt": "明天早上九点把季度材料发给客户。",
+  "mode": "auto",
+  "rule_bytes": 1619,
+  "rule_chars": 851,
+  "seconds": 4.61,
+  "error": null,
+  "reply": "",
+  "checks": {
+    "used_guarded_writer": false,
+    "task_saved": false,
+    "calendar_unchanged": true
+  },
+  "passed": false,
+  "changed": [],
+  "tool_calls": 0,
+  "guide_reads": [],
+  "first_prompt_tokens": 772,
+  "summed_prompt_tokens": 772,
+  "output_tokens": 30,
+  "usage": [
+    {
+      "prompt_eval_count": 772,
+      "eval_count": 30,
+      "total_duration": 4603472541,
+      "load_duration": 47702875,
+      "prompt_eval_duration": 3299403875,
+      "eval_duration": 1246031666
+    }
+  ],
+  "trace": [],
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是用户的个人助手，使用工具处理用户请求。当前时间是 2026-10-07 19:00，时区 Asia/Shanghai。文件路径相对隔离工作区。\n\n以下是宿主已提供的 AGENTS.md 内容：\n# Loci 共享记忆\n大脑：`brain`。数据路径相对大脑，项目路径由 projects/index.md 定位。\n启动只读 me/preferences.md 和 .loci/config.yml 一次，偏好立即生效。persistence.mode 默认 auto，读失败暂停自动保存；不预读全部任务/笔记/历史。缓存已读内容，当前/最新问题刷新最小来源。\n每次请求后检查：auto 保存明确任务、日程、稳定事实/偏好、已决定事项、希望保留的材料；manual 仅按明确保存/更新请求写入。无信号不保存；敏感、含糊、临时情绪、重大个人策略先问。提炼不存原始聊天，写前查重，不把讨论当结论。\n## 常驻路由索引\n| 场景 | 数据入口 | 执行前的指南 |\n|---|---|---|\n| 任务或日程 | tasks/tasks.json、tasks/calendar.json | rules/tasks.md |\n| 偏好或个人资料 | me/preferences.md、me/ | rules/personal.md |\n| 目标、个人决策 | plan.md、decisions/ | rules/personal.md、rules/startup.md |\n| 项目上下文或决定 | projects/index.md → 对应仓库 .loci/ | rules/projects.md |\n| 人物、关系、地点 | people/、places/ | rules/people.md |\n| 笔记、碎片、材料 | notes/index.md、references/ | rules/notes.md |\n遇到对应场景先读该指南，只加载需要的一份；已读未变则复用。参数和格式在指南及工具帮助里。\n结构化数据通过对应写入工具维护；普通 Markdown 保留原内容，标注时间来源。成功再确认；写后活动记录一次，工具已记录不重复。无法读写如实说明。撤销尽量恢复上次修改并保留其他变更。\n"
+    },
+    {
+      "role": "user",
+      "content": "明天早上九点把季度材料发给客户。"
+    },
+    {
+      "role": "assistant",
+      "content": ""
+    }
+  ]
+}

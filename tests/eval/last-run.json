@@ -1,0 +1,15 @@
+[
+  {
+    "id": "preference-applies-immediately",
+    "why": "The instant-apply protocol: the reply acknowledging a preference must already obey it. Uses a nickname the host's real memory cannot already know — with a common one like 老板 the case passes on prior knowledge instead of on the rule.",
+    "changed": [
+      ".loci/activity/2026-09.md",
+      ".loci/changelog.log",
+      "me/preferences.md"
+    ],
+    "reply": "好的，舰长，记住了，以后就这么叫。\n",
+    "error": null,
+    "seconds": "27",
+    "fails": []
+  }
+]

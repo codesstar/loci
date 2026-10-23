@@ -1,0 +1,51 @@
+{
+  "id": "qwen3.5-4b-pointer-preference-1",
+  "model": "qwen3.5:4b",
+  "think": false,
+  "variant": "pointer",
+  "case": "preference",
+  "repeat": 1,
+  "prompt": "以后叫我队长，回答简短一点。",
+  "mode": "auto",
+  "rule_bytes": 700,
+  "rule_chars": 404,
+  "seconds": 0.65,
+  "error": null,
+  "reply": "收到，队长。",
+  "checks": {
+    "preference_saved": false,
+    "immediate_reply": true
+  },
+  "passed": false,
+  "changed": [],
+  "tool_calls": 0,
+  "guide_reads": [],
+  "first_prompt_tokens": 729,
+  "summed_prompt_tokens": 729,
+  "output_tokens": 5,
+  "usage": [
+    {
+      "prompt_eval_count": 729,
+      "eval_count": 5,
+      "total_duration": 645223750,
+      "load_duration": 78785375,
+      "prompt_eval_duration": 446022959,
+      "eval_duration": 115340835
+    }
+  ],
+  "trace": [],
+  "messages": [
+    {
+      "role": "system",
+      "content": "你是用户的个人助手，使用工具处理用户请求。当前时间是 2026-10-07 19:00，时区 Asia/Shanghai。文件路径相对隔离工作区。\n\n以下是宿主已提供的 AGENTS.md 内容：\n# Loci\n共享大脑在 `brain`。启动读 me/preferences.md 和 .loci/config.yml，一次后复用；不要扫描整个大脑。Loci 提供个人记忆的按需读写，遇到记忆相关内容按以下索引读取规则再处理。\n- 启动、保存判断、记录要求：rules/startup.md\n- 任务与日程：rules/tasks.md → tasks/\n- 偏好与个人资料：rules/personal.md → me/\n- 项目：rules/projects.md → projects/index.md → 项目仓库 .loci/\n- 人物/关系/地点：rules/people.md → people/、places/\n- 笔记/碎片：rules/notes.md → notes/index.md、references/\n详细指令留在上述文件，按需加载，本会话已读未变则复用。成功后简短确认。\n"
+    },
+    {
+      "role": "user",
+      "content": "以后叫我队长，回答简短一点。"
+    },
+    {
+      "role": "assistant",
+      "content": "收到，队长。"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "note": "Behavior eval cases. Each one sends ONE message to a throwaway brain and scores the filesystem diff. Synthetic content only — no real personal data, so this file is safe to publish.",
+  "cases": [
+    {
+      "id": "manual-mode-respected",
+      "why": "persistence.mode=manual should mean: answer, but write nothing unless explicitly asked.",
+      "config": {
+        "persistence.mode": "manual"
+      },
+      "prompt": "明天下午三点要去见客户张伟",
+      "expect": {
+        "writes": [],
+        "notWrites": [
+          "tasks/tasks.json",
+          "tasks/calendar.json"
+        ]
+      }
+    },
+    {
+      "id": "auto-mode-writes",
+      "why": "Control for the case above. Same sentence under auto MUST land somewhere.",
+      "config": {
+        "persistence.mode": "auto"
+      },
+      "prompt": "明天下午三点要去见客户张伟",
+      "expect": {
+        "writesAnyOf": [
+          "tasks/calendar.json",
+          "tasks/tasks.json"
+        ]
+      }
+    },
+    {
+      "id": "timed-task-not-on-calendar",
+      "why": "A task with a time is still a task. It must NOT be projected onto the calendar.",
+      "config": {
+        "persistence.mode": "auto"
+      },
+      "prompt": "明天早上九点把季度材料发给客户",
+      "expect": {
+        "writes": [
+          "tasks/tasks.json"
+        ],
+        "notWrites": [
+          "tasks/calendar.json"
+        ]
+      }
+    },
+    {
+      "id": "chitchat-writes-nothing",
+      "why": "Noise sample. No signal means no save — this is the noise-rate metric.",
+      "config": {
+        "persistence.mode": "auto"
+      },
+      "prompt": "今天天气还不错啊",
+      "expect": {
+        "writes": []
+      }
+    },
+    {
+      "id": "preference-applies-immediately",
+      "why": "The instant-apply protocol: the reply acknowledging a preference must already obey it. Uses a nickname the host's real memory cannot already know — with a common one like 老板 the case passes on prior knowledge instead of on the rule.",
+      "config": {
+        "persistence.mode": "auto"
+      },
+      "prompt": "以后叫我舰长",
+      "expect": {
+        "writes": [
+          "me/preferences.md"
+        ],
+        "replyMatches": "舰长"
+      }
+    }
+  ]
+}

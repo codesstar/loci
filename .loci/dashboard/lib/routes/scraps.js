@@ -56,6 +56,7 @@ module.exports = {
         return true;
       }
       if (p === '/api/scraps/update') { ctx.sendJson(res, { ok: true, item: scraps.update(String(body.id || ''), body) }); return true; }
+      if (p === '/api/scraps/view') { ctx.sendJson(res, scraps.view(String(body.id || ''))); return true; }
       if (p === '/api/scraps/remove') { ctx.sendJson(res, scraps.remove(String(body.id || ''))); return true; }
       if (p === '/api/scraps/enrich') {
         const it = scraps.get(String(body.id || ''));

@@ -1,0 +1,1013 @@
+{
+  "groups": [
+    {
+      "model": "qwen3.5:4b",
+      "variant": "compact",
+      "think": false,
+      "absolute_index": false,
+      "n": 8,
+      "errors": 0,
+      "pass": 3,
+      "valid": 8,
+      "rule_bytes": 1619,
+      "median_first_prompt_tokens": 949.0,
+      "median_summed_prompt_tokens": 8084.0,
+      "median_seconds": 17.22,
+      "median_tool_calls": 6.0,
+      "guide_cases": 5,
+      "startup_config_cases": 1,
+      "tool_errors": 22
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "compact",
+      "think": true,
+      "absolute_index": false,
+      "n": 1,
+      "errors": 0,
+      "pass": 1,
+      "valid": 1,
+      "rule_bytes": 1619,
+      "median_first_prompt_tokens": 947,
+      "median_summed_prompt_tokens": 8668,
+      "median_seconds": 28.4,
+      "median_tool_calls": 7,
+      "guide_cases": 1,
+      "startup_config_cases": 0,
+      "tool_errors": 2
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "compact-v2",
+      "think": false,
+      "absolute_index": false,
+      "n": 8,
+      "errors": 0,
+      "pass": 2,
+      "valid": 8,
+      "rule_bytes": 2889,
+      "median_first_prompt_tokens": 1256.0,
+      "median_summed_prompt_tokens": 6685.5,
+      "median_seconds": 12.65,
+      "median_tool_calls": 4.0,
+      "guide_cases": 1,
+      "startup_config_cases": 5,
+      "tool_errors": 28
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "compact-v2",
+      "think": true,
+      "absolute_index": false,
+      "n": 8,
+      "errors": 0,
+      "pass": 4,
+      "valid": 8,
+      "rule_bytes": 2889,
+      "median_first_prompt_tokens": 1254.0,
+      "median_summed_prompt_tokens": 12725.5,
+      "median_seconds": 32.52,
+      "median_tool_calls": 7.0,
+      "guide_cases": 4,
+      "startup_config_cases": 7,
+      "tool_errors": 19
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "compact-v2",
+      "think": true,
+      "absolute_index": true,
+      "n": 3,
+      "errors": 0,
+      "pass": 0,
+      "valid": 3,
+      "rule_bytes": 2889,
+      "median_first_prompt_tokens": 1255,
+      "median_summed_prompt_tokens": 29306,
+      "median_seconds": 46.43,
+      "median_tool_calls": 12,
+      "guide_cases": 1,
+      "startup_config_cases": 2,
+      "tool_errors": 10
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "full",
+      "think": false,
+      "absolute_index": false,
+      "n": 8,
+      "errors": 0,
+      "pass": 2,
+      "valid": 8,
+      "rule_bytes": 6307,
+      "median_first_prompt_tokens": 2100.0,
+      "median_summed_prompt_tokens": 6842.5,
+      "median_seconds": 14.52,
+      "median_tool_calls": 2.0,
+      "guide_cases": 1,
+      "startup_config_cases": 0,
+      "tool_errors": 12
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "full",
+      "think": true,
+      "absolute_index": false,
+      "n": 1,
+      "errors": 0,
+      "pass": 0,
+      "valid": 1,
+      "rule_bytes": 6307,
+      "median_first_prompt_tokens": 2098,
+      "median_summed_prompt_tokens": 32748,
+      "median_seconds": 43.09,
+      "median_tool_calls": 12,
+      "guide_cases": 0,
+      "startup_config_cases": 0,
+      "tool_errors": 4
+    },
+    {
+      "model": "qwen3.5:4b",
+      "variant": "pointer",
+      "think": false,
+      "absolute_index": false,
+      "n": 8,
+      "errors": 0,
+      "pass": 3,
+      "valid": 8,
+      "rule_bytes": 700,
+      "median_first_prompt_tokens": 731.0,
+      "median_summed_prompt_tokens": 5639.0,
+      "median_seconds": 10.9,
+      "median_tool_calls": 4.5,
+      "guide_cases": 6,
+      "startup_config_cases": 0,
+      "tool_errors": 21
+    },
+    {
+      "model": "qwen3:14b",
+      "variant": "compact",
+      "think": true,
+      "absolute_index": false,
+      "n": 1,
+      "errors": 1,
+      "pass": 0,
+      "valid": 0,
+      "rule_bytes": 1619,
+      "median_first_prompt_tokens": 766,
+      "median_summed_prompt_tokens": 766,
+      "median_seconds": 27.75,
+      "median_tool_calls": 0,
+      "guide_cases": 0,
+      "startup_config_cases": 0,
+      "tool_errors": 0
+    },
+    {
+      "model": "qwen3:14b",
+      "variant": "full",
+      "think": true,
+      "absolute_index": false,
+      "n": 1,
+      "errors": 0,
+      "pass": 0,
+      "valid": 1,
+      "rule_bytes": 6307,
+      "median_first_prompt_tokens": 1978,
+      "median_summed_prompt_tokens": 7789,
+      "median_seconds": 84.33,
+      "median_tool_calls": 2,
+      "guide_cases": 0,
+      "startup_config_cases": 0,
+      "tool_errors": 1
+    },
+    {
+      "model": "qwen3:14b",
+      "variant": "pointer",
+      "think": true,
+      "absolute_index": false,
+      "n": 1,
+      "errors": 0,
+      "pass": 0,
+      "valid": 1,
+      "rule_bytes": 700,
+      "median_first_prompt_tokens": 547,
+      "median_summed_prompt_tokens": 4908,
+      "median_seconds": 71.1,
+      "median_tool_calls": 3,
+      "guide_cases": 0,
+      "startup_config_cases": 0,
+      "tool_errors": 2
+    }
+  ],
+  "cases": [
+    {
+      "id": "compact-timed-task-1",
+      "case": "timed-task",
+      "variant": "compact",
+      "model": "qwen3:14b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": false,
+        "task_saved": false,
+        "calendar_unchanged": true
+      },
+      "error": "empty model response without tool call",
+      "seconds": 27.75,
+      "tool_calls": 0,
+      "guide_reads": []
+    },
+    {
+      "id": "full-timed-task-1",
+      "case": "timed-task",
+      "variant": "full",
+      "model": "qwen3:14b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": false,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 84.33,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "pointer-timed-task-1",
+      "case": "timed-task",
+      "variant": "pointer",
+      "model": "qwen3:14b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": false,
+        "calendar_unchanged": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 71.1,
+      "tool_calls": 3,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-chitchat-1",
+      "case": "chitchat",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 12.64,
+      "tool_calls": 6,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-decision-1",
+      "case": "decision",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": false,
+        "decision_format": false,
+        "current_project_memory_updated": false,
+        "personal_decisions_unchanged": true
+      },
+      "error": "step limit reached",
+      "seconds": 33.87,
+      "tool_calls": 12,
+      "guide_reads": [
+        "brain/rules/projects.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-latest-1",
+      "case": "latest",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": true,
+        "index_read": true,
+        "project_read": false,
+        "correct_answer": false
+      },
+      "error": "step limit reached",
+      "seconds": 32.23,
+      "tool_calls": 12,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-manual-1",
+      "case": "manual",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 18.2,
+      "tool_calls": 6,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-meeting-1",
+      "case": "meeting",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "meeting_saved": true,
+        "task_pool_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 16.24,
+      "tool_calls": 5,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-preference-1",
+      "case": "preference",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "preference_saved": false,
+        "existing_preference_preserved": true,
+        "immediate_reply": true
+      },
+      "error": null,
+      "seconds": 9.58,
+      "tool_calls": 4,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-relationship-1",
+      "case": "relationship",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "edge_saved": true,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 13.52,
+      "tool_calls": 6,
+      "guide_reads": [
+        "brain/rules/people.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-timed-task-1",
+      "case": "timed-task",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": true,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 18.46,
+      "tool_calls": 6,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-chitchat-1",
+      "case": "chitchat",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 1.93,
+      "tool_calls": 0,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-decision-1",
+      "case": "decision",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": false,
+        "decision_format": false,
+        "current_project_memory_updated": false,
+        "personal_decisions_unchanged": true
+      },
+      "error": null,
+      "seconds": 38.26,
+      "tool_calls": 10,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-latest-1",
+      "case": "latest",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": true,
+        "index_read": true,
+        "project_read": false,
+        "correct_answer": false
+      },
+      "error": "step limit reached",
+      "seconds": 43.53,
+      "tool_calls": 12,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-manual-1",
+      "case": "manual",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 5.22,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-meeting-1",
+      "case": "meeting",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "meeting_saved": false,
+        "task_pool_unchanged": true
+      },
+      "error": "step limit reached",
+      "seconds": 55.18,
+      "tool_calls": 13,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-preference-1",
+      "case": "preference",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "preference_saved": false,
+        "existing_preference_preserved": true,
+        "immediate_reply": true
+      },
+      "error": null,
+      "seconds": 3.95,
+      "tool_calls": 1,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-relationship-1",
+      "case": "relationship",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "edge_saved": false
+      },
+      "error": null,
+      "seconds": 19.58,
+      "tool_calls": 6,
+      "guide_reads": [
+        "brain/rules/people.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-compact-v2-timed-task-1",
+      "case": "timed-task",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": false,
+        "task_saved": false,
+        "calendar_unchanged": true
+      },
+      "error": null,
+      "seconds": 5.72,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-chitchat-1",
+      "case": "chitchat",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 4.95,
+      "tool_calls": 0,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-decision-1",
+      "case": "decision",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": false,
+        "decision_format": false,
+        "current_project_memory_updated": false,
+        "personal_decisions_unchanged": true
+      },
+      "error": null,
+      "seconds": 18.19,
+      "tool_calls": 3,
+      "guide_reads": [
+        "brain/rules/startup.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-full-latest-1",
+      "case": "latest",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true,
+        "index_read": true,
+        "project_read": true,
+        "correct_answer": true
+      },
+      "error": null,
+      "seconds": 32.55,
+      "tool_calls": 9,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-manual-1",
+      "case": "manual",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 14.44,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-meeting-1",
+      "case": "meeting",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "meeting_saved": false,
+        "task_pool_unchanged": true
+      },
+      "error": null,
+      "seconds": 90.85,
+      "tool_calls": 6,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-preference-1",
+      "case": "preference",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "preference_saved": false,
+        "existing_preference_preserved": true,
+        "immediate_reply": true,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 8.15,
+      "tool_calls": 1,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-relationship-1",
+      "case": "relationship",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "edge_saved": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 12.85,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-full-timed-task-1",
+      "case": "timed-task",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": false,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 14.61,
+      "tool_calls": 2,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-pointer-chitchat-1",
+      "case": "chitchat",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 25.32,
+      "tool_calls": 10,
+      "guide_reads": [
+        "brain/rules/startup.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-pointer-decision-1",
+      "case": "decision",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": true,
+        "decision_format": true,
+        "current_project_memory_updated": true,
+        "personal_decisions_unchanged": true,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 29.36,
+      "tool_calls": 9,
+      "guide_reads": [
+        "brain/rules/projects.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-pointer-latest-1",
+      "case": "latest",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": true,
+        "index_read": false,
+        "project_read": false,
+        "correct_answer": false
+      },
+      "error": "step limit reached",
+      "seconds": 42.56,
+      "tool_calls": 12,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-pointer-manual-1",
+      "case": "manual",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 6.55,
+      "tool_calls": 2,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-pointer-meeting-1",
+      "case": "meeting",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "meeting_saved": true,
+        "task_pool_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 6.8,
+      "tool_calls": 2,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-pointer-preference-1",
+      "case": "preference",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "preference_saved": false,
+        "existing_preference_preserved": true,
+        "immediate_reply": true
+      },
+      "error": null,
+      "seconds": 0.65,
+      "tool_calls": 0,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-pointer-relationship-1",
+      "case": "relationship",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "edge_saved": true,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 15.01,
+      "tool_calls": 7,
+      "guide_reads": [
+        "brain/rules/people.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-pointer-timed-task-1",
+      "case": "timed-task",
+      "variant": "pointer",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": true,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 6.59,
+      "tool_calls": 2,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-absindex-compact-v2-decision-1",
+      "case": "decision",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": false,
+        "decision_format": false,
+        "current_project_memory_updated": false,
+        "personal_decisions_unchanged": true
+      },
+      "error": "step limit reached",
+      "seconds": 46.43,
+      "tool_calls": 14,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-absindex-compact-v2-latest-1",
+      "case": "latest",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": true,
+        "index_read": true,
+        "project_read": false,
+        "correct_answer": false
+      },
+      "error": "step limit reached",
+      "seconds": 181.83,
+      "tool_calls": 12,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-absindex-compact-v2-manual-statement-1",
+      "case": "manual-statement",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": false,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 26.2,
+      "tool_calls": 4,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-timed-task-1",
+      "case": "timed-task",
+      "variant": "compact",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": true,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 28.4,
+      "tool_calls": 7,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-chitchat-1",
+      "case": "chitchat",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "no_writes": true
+      },
+      "error": null,
+      "seconds": 4.83,
+      "tool_calls": 0,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-decision-1",
+      "case": "decision",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "project_decision_saved": false,
+        "decision_format": false,
+        "current_project_memory_updated": false,
+        "personal_decisions_unchanged": true
+      },
+      "error": "step limit reached",
+      "seconds": 49.46,
+      "tool_calls": 14,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-latest-1",
+      "case": "latest",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": true,
+        "index_read": true,
+        "project_read": false,
+        "correct_answer": false
+      },
+      "error": "step limit reached",
+      "seconds": 45.99,
+      "tool_calls": 12,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-manual-1",
+      "case": "manual",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "no_writes": false,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 35.21,
+      "tool_calls": 7,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-meeting-1",
+      "case": "meeting",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "meeting_saved": true,
+        "task_pool_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 22.13,
+      "tool_calls": 4,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-preference-1",
+      "case": "preference",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "preference_saved": true,
+        "existing_preference_preserved": true,
+        "immediate_reply": true,
+        "one_ledger_entry": false
+      },
+      "error": null,
+      "seconds": 14.02,
+      "tool_calls": 3,
+      "guide_reads": []
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-relationship-1",
+      "case": "relationship",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "edge_saved": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 52.24,
+      "tool_calls": 13,
+      "guide_reads": [
+        "brain/rules/people.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-compact-v2-timed-task-1",
+      "case": "timed-task",
+      "variant": "compact-v2",
+      "model": "qwen3.5:4b",
+      "passed": true,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": true,
+        "calendar_unchanged": true,
+        "one_ledger_entry": true
+      },
+      "error": null,
+      "seconds": 29.82,
+      "tool_calls": 7,
+      "guide_reads": [
+        "brain/rules/tasks.md"
+      ]
+    },
+    {
+      "id": "qwen3.5-4b-thinking-full-timed-task-1",
+      "case": "timed-task",
+      "variant": "full",
+      "model": "qwen3.5:4b",
+      "passed": false,
+      "checks": {
+        "used_guarded_writer": true,
+        "task_saved": false,
+        "calendar_unchanged": false,
+        "one_ledger_entry": true
+      },
+      "error": "step limit reached",
+      "seconds": 43.09,
+      "tool_calls": 12,
+      "guide_reads": []
+    }
+  ]
+}

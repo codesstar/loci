@@ -1212,13 +1212,6 @@ GEOF
     print_check "$(t "Global awareness enabled (~/.claude/CLAUDE.md)" "全局感知已启用 (~/.claude/CLAUDE.md)")"
   fi
 
-  # Copy slash commands
-  local global_commands="$HOME/.claude/commands"
-  if [ -d "$BRAIN_PATH/templates/commands" ]; then
-    mkdir -p "$global_commands"
-    cp "$BRAIN_PATH"/templates/commands/*.md "$global_commands/" 2>/dev/null
-    print_check "$(t "Slash commands installed" "斜杠命令已安装")"
-  fi
 
   # Install the native Node SessionStart hook and keep the shell fallback for
   # existing settings files from older releases.

@@ -1642,7 +1642,7 @@ function readProjectDecisions(repoPath, limit = 10) {
           .trim()
           .slice(0, 280);
       } catch {}
-      return { title, date, dateFull, excerpt };
+      return { title, date, dateFull, excerpt, file: f };
     });
   } catch {
     return [];
@@ -1978,6 +1978,7 @@ function buildProjects() {
         keyPeople: sections.keyPeople,
         progressLog: sections.progressLog,
         knowledge: repoPath ? readProjectKnowledge(repoPath) : [],
+        logo: repoPath ? readProjectLogoUrl(repoPath, name) : null,
         createdAt: repoPath ? readProjectCreatedAt(repoPath) : null,
         decisionsTotal: repoPath ? countProjectDecisions(repoPath) : 0,
         pulse: computeProjectPulse({ progressLog: sections.progressLog, decisions, commits, todos }),
@@ -2885,6 +2886,234 @@ function handleProjectTodo(action, body) {
     try { return { error: JSON.parse(stderr).error || stderr }; }
     catch { return { error: stderr }; }
   }
+}
+
+// ─── Project logo: <repo>/.loci/logo.<ext>, uploaded from the projects page ───
+// Lives with the project (inside its gitignored .loci/), never in the brain or
+// the code. Served by name through /project-logo/<name>; ?v= is the mtime so a
+// new upload busts the browser cache.
+const LOGO_EXTS = ['png', 'jpg', 'webp', 'gif', 'svg'];
+function findProjectLogo(repoPath) {
+  for (const ext of LOGO_EXTS) {
+    const f = path.join(repoPath, '.loci', 'logo.' + ext);
+    try { const st = fs.statSync(f); if (st.isFile()) return { file: f, ext, mtime: Math.floor(st.mtimeMs) }; } catch { /* next */ }
+  }
+  return null;
+}
+function readProjectLogoUrl(repoPath, name) {
+  const hit = findProjectLogo(repoPath);
+  return hit ? '/project-logo/' + encodeURIComponent(name) + '?v=' + hit.mtime : null;
+}
+function handleProjectLogo(body) {
+  const { repo, data, remove } = body || {};
+  if (!repo || !listProjectRepos().some(p => p.repo === repo)) return { error: 'Unknown project repo' };
+  const dir = path.join(repo, '.loci');
+  const clear = () => { for (const e of LOGO_EXTS) { try { fs.unlinkSync(path.join(dir, 'logo.' + e)); } catch { /* absent */ } } };
+  if (remove) { clear(); return { ok: true, logo: null }; }
+  const m = String(data || '').match(/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,(.+)$/i);
+  if (!m) return { error: 'Unsupported image data' };
+  const ext = m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase() === 'svg+xml' ? 'svg' : m[1].toLowerCase();
+  const buf = Buffer.from(m[2], 'base64');
+  if (buf.length > 2 * 1024 * 1024) return { error: 'Image too large (max 2MB)' };
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    clear();
+    store.atomicWriteSync(path.join(dir, 'logo.' + ext), buf);
+    const name = (listProjectRepos().find(p => p.repo === repo) || {}).name || '';
+    return { ok: true, logo: readProjectLogoUrl(repo, name) };
+  } catch (e) { return { error: 'Could not save image' }; }
+}
+
+// ─── One decision file, rendered (GET /api/project/decision?repo=<path>&file=<name>.md) ───
+// Read-only. Only a bare filename inside <repo>/.loci/decisions/ of a connected
+// project is ever opened — never a caller-supplied path.
+function handleProjectDecision(repoPath, file) {
+  if (!repoPath || !listProjectRepos().some(p => p.repo === repoPath)) return { error: 'Unknown project repo' };
+  const name = String(file || '');
+  if (!/^[^\/\\]+\.md$/.test(name) || name.startsWith('.')) return { error: 'Bad file name' };
+  const full = path.join(repoPath, '.loci', 'decisions', name);
+  if (!fs.existsSync(full)) return { error: 'Decision not found' };
+  const doc = readMdFileSimple(full);
+  if (!doc) return { error: 'Unreadable decision' };
+  const dateMatch = name.match(/\d{4}-\d{2}-\d{2}/);
+  return { file: name, date: dateMatch ? dateMatch[0] : null, title: (doc.meta && doc.meta.title) || null, content: doc.content || '' };
+}
+
+// ─── GitHub stats for a connected project (GET /api/project/github?repo=<path>) ───
+// Only for repos whose `origin` remote points at github.com. Goes through the
+// `gh` CLI when it is installed and logged in (private repos and traffic work),
+// otherwise the public REST API (60 req/h unauthenticated). Every sub-request
+// is optional: a missing piece degrades to null, never to an error. Cached
+// 10 min per repo with in-flight sharing, so the overview can ask for every
+// project at once. Read-only — nothing is ever written.
+const githubCache = new Map(); // repoPath → { at, promise }
+const GITHUB_TTL_MS = 10 * 60 * 1000;
+
+function ghRemoteSlug(repoPath) {
+  return new Promise(resolve => {
+    const { execFile } = require('child_process');
+    execFile('git', ['-C', repoPath, 'remote', 'get-url', 'origin'], { timeout: 2000, encoding: 'utf-8' }, (err, out) => {
+      if (err) return resolve(null);
+      const m = String(out || '').trim().match(/github\.com[:\/]([^\/\s]+)\/([^\/\s]+?)(?:\.git)?\/?$/i);
+      resolve(m ? `${m[1]}/${m[2]}` : null);
+    });
+  });
+}
+
+function ghApi(apiPath, accept) {
+  const headers = ['-H', `Accept: ${accept || 'application/vnd.github+json'}`];
+  const viaCli = () => new Promise(resolve => {
+    const { execFile } = require('child_process');
+    execFile('gh', ['api', apiPath, ...headers], { timeout: 10000, encoding: 'utf-8', maxBuffer: 8 * 1024 * 1024 }, (err, out) => {
+      if (err) return resolve({ ok: false, cli: err.code === 'ENOENT' ? 'missing' : 'failed' });
+      try { resolve({ ok: true, data: JSON.parse(out) }); } catch { resolve({ ok: false, cli: 'failed' }); }
+    });
+  });
+  const viaHttp = () => new Promise(resolve => {
+    try {
+      const https = require('https');
+      const req = https.get({ host: 'api.github.com', path: '/' + apiPath.replace(/^\//, ''), headers: { 'User-Agent': 'loci-dashboard', 'Accept': accept || 'application/vnd.github+json' }, timeout: 8000 }, res => {
+        let body = '';
+        res.on('data', c => { body += c; });
+        res.on('end', () => { if (res.statusCode !== 200) return resolve(null); try { resolve(JSON.parse(body)); } catch { resolve(null); } });
+      });
+      req.on('timeout', () => { req.destroy(); resolve(null); });
+      req.on('error', () => resolve(null));
+    } catch { resolve(null); }
+  });
+  return viaCli().then(r => (r.ok ? r.data : (r.cli === 'missing' ? viaHttp() : viaHttp())));
+}
+
+async function buildProjectGithub(repoPath) {
+  const slug = await ghRemoteSlug(repoPath);
+  if (!slug) return { github: null };
+  const [owner] = slug.split('/');
+  const repo = await ghApi(`repos/${slug}`);
+  if (!repo || typeof repo.stargazers_count !== 'number') return { github: null, reason: 'unreachable' };
+  const [issuesRaw, pulls, releases, tags, runs, views, clones] = await Promise.all([
+    ghApi(`repos/${slug}/issues?state=open&per_page=10`),
+    ghApi(`repos/${slug}/pulls?state=open&per_page=10`),
+    ghApi(`repos/${slug}/releases?per_page=1`),
+    ghApi(`repos/${slug}/tags?per_page=1`),
+    ghApi(`repos/${slug}/actions/runs?per_page=1`),
+    ghApi(`repos/${slug}/traffic/views`),   // owner-only; null for everyone else
+    ghApi(`repos/${slug}/traffic/clones`),
+  ]);
+  // Star timeline: the stargazers list is oldest-first, so read the LAST few
+  // pages (≤300 most recent stars) — enough for a 28-day trend on any repo
+  // that gains fewer than ~10 stars a day; `partial` says when it is not.
+  const total = repo.stargazers_count;
+  const pages = Math.max(1, Math.ceil(total / 100));
+  const wanted = [];
+  for (let p = Math.max(1, pages - 2); p <= pages; p++) wanted.push(p);
+  const branch = repo.default_branch || 'main';
+  const releaseTag = Array.isArray(releases) && releases[0] ? releases[0].tag_name : (Array.isArray(tags) && tags[0] ? tags[0].name : null);
+  const [starPages, headCommit, sinceRelease] = await Promise.all([
+    Promise.all(wanted.map(p => ghApi(`repos/${slug}/stargazers?per_page=100&page=${p}`, 'application/vnd.github.star+json'))),
+    ghApi(`repos/${slug}/commits/${encodeURIComponent(branch)}`),
+    releaseTag ? ghApi(`repos/${slug}/compare/${encodeURIComponent(releaseTag)}...${encodeURIComponent(branch)}`) : Promise.resolve(null),
+  ]);
+  const dayMs = 86400000;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const key = t => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const starDays = {};
+  let fetched = 0, earliest = Infinity;
+  for (const page of starPages) for (const s of (Array.isArray(page) ? page : [])) {
+    const t = Date.parse(s.starred_at || ''); if (isNaN(t)) continue;
+    fetched++; earliest = Math.min(earliest, t);
+    const k = key(t); starDays[k] = (starDays[k] || 0) + 1;
+  }
+  const stars28 = [...Array(28)].map((_, i) => starDays[key(today.getTime() - (27 - i) * dayMs)] || 0);
+  const sum = (a, f, t) => a.slice(f, t).reduce((x, y) => x + y, 0);
+  const partial = fetched < total && earliest > today.getTime() - 27 * dayMs;
+  const issues = (Array.isArray(issuesRaw) ? issuesRaw : []).filter(i => !i.pull_request).map(i => ({
+    n: i.number, title: i.title, by: i.user && i.user.login, at: i.created_at, comments: i.comments || 0,
+    labels: (i.labels || []).map(l => l.name), url: i.html_url,
+  }));
+  const release = Array.isArray(releases) && releases[0] ? { tag: releases[0].tag_name, at: releases[0].published_at }
+    : (Array.isArray(tags) && tags[0] ? { tag: tags[0].name, at: null } : null);
+  const run = runs && Array.isArray(runs.workflow_runs) && runs.workflow_runs[0]
+    ? { name: runs.workflow_runs[0].name, status: runs.workflow_runs[0].status, conclusion: runs.workflow_runs[0].conclusion, branch: runs.workflow_runs[0].head_branch, at: runs.workflow_runs[0].created_at, url: runs.workflow_runs[0].html_url }
+    : null;
+  return {
+    github: {
+      slug, owner, url: repo.html_url || `https://github.com/${slug}`,
+      stars: total, forks: repo.forks_count || 0, watchers: repo.subscribers_count || 0,
+      openIssues: repo.open_issues_count || 0, pushedAt: repo.pushed_at || null,
+      starsWeek: sum(stars28, 21, 28), starsLast: sum(stars28, 14, 21), stars28, starsPartial: partial,
+      issues,
+      pulls: (Array.isArray(pulls) ? pulls : []).map(p => ({ n: p.number, title: p.title, by: p.user && p.user.login, at: p.created_at, url: p.html_url, draft: !!p.draft, reviewers: Array.isArray(p.requested_reviewers) ? p.requested_reviewers.length : 0 })),
+      release, run,
+      defaultBranch: branch,
+      // the tip of the default branch on GitHub — what the world sees
+      main: headCommit && headCommit.commit ? {
+        sha: String(headCommit.sha || '').slice(0, 7),
+        msg: String(headCommit.commit.message || '').split('\n')[0].slice(0, 120),
+        at: (headCommit.commit.committer && headCommit.commit.committer.date) || (headCommit.commit.author && headCommit.commit.author.date) || null,
+        by: (headCommit.author && headCommit.author.login) || (headCommit.commit.author && headCommit.commit.author.name) || null,
+        url: headCommit.html_url || null,
+      } : null,
+      // commits on the default branch since the latest release/tag
+      unreleased: sinceRelease && typeof sinceRelease.ahead_by === 'number' ? sinceRelease.ahead_by : null,
+      views: views && typeof views.count === 'number' ? { count: views.count, uniques: views.uniques } : null,
+      clones: clones && typeof clones.count === 'number' ? { count: clones.count, uniques: clones.uniques } : null,
+      fetchedAt: new Date().toISOString(),
+    },
+  };
+}
+
+// Warm the GitHub cache in the background so the page never waits on the
+// first open — only when the `gh` CLI is available (the unauthenticated API
+// budget of 60 req/h is too small for periodic refreshes; that path stays
+// on-demand). Re-run once per TTL; handleProjectGithub skips fresh entries.
+function ghCliAvailable() {
+  return new Promise(resolve => {
+    const { execFile } = require('child_process');
+    execFile('gh', ['--version'], { timeout: 3000 }, err => resolve(!err));
+  });
+}
+async function warmGithubCache() {
+  try {
+    if (!(await ghCliAvailable())) return;
+    for (const p of listProjectRepos()) handleProjectGithub(p.repo).catch(() => {});
+  } catch { /* best effort */ }
+}
+setTimeout(warmGithubCache, 4000).unref();
+setInterval(warmGithubCache, GITHUB_TTL_MS + 5000).unref();
+
+// Local checkout vs the remote default branch: current branch, commits ahead /
+// behind (against the last-fetched origin ref — no network), dirty file count.
+// Cheap (three git calls), so it is read fresh on every request rather than cached.
+function gitOut(repoPath, args) {
+  return new Promise(resolve => {
+    const { execFile } = require('child_process');
+    execFile('git', ['-C', repoPath, ...args], { timeout: 2000, encoding: 'utf-8' }, (err, out) => resolve(err ? null : String(out || '').trim()));
+  });
+}
+async function readLocalGitState(repoPath, defaultBranch) {
+  const branch = await gitOut(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (!branch) return null;
+  const counts = await gitOut(repoPath, ['rev-list', '--left-right', '--count', `origin/${defaultBranch || 'main'}...HEAD`]);
+  let behind = null, ahead = null;
+  if (counts) { const [b, a] = counts.split(/\s+/).map(Number); if (Number.isFinite(b) && Number.isFinite(a)) { behind = b; ahead = a; } }
+  const status = await gitOut(repoPath, ['status', '--porcelain']);
+  const dirty = status ? status.split('\n').filter(Boolean).length : 0;
+  return { branch, ahead, behind, dirty };
+}
+
+function handleProjectGithub(repoPath) {
+  if (!repoPath || typeof repoPath !== 'string') return Promise.resolve({ github: null });
+  if (!listProjectRepos().some(p => p.repo === repoPath)) return Promise.resolve({ error: 'Unknown project repo' });
+  const hit = githubCache.get(repoPath);
+  let promise = hit && Date.now() - hit.at < GITHUB_TTL_MS ? hit.promise : null;
+  if (!promise) {
+    promise = buildProjectGithub(repoPath).catch(e => ({ github: null, reason: e && e.message }));
+    githubCache.set(repoPath, { at: Date.now(), promise });
+  }
+  // local state is fresh every time; the cached GitHub object is never mutated
+  return promise.then(r => (r && r.github
+    ? readLocalGitState(repoPath, r.github.defaultBranch).then(local => ({ github: { ...r.github, local } }))
+    : r));
 }
 
 // Connect a project for real: invoke scripts/loci-project.js connect, which
@@ -4532,6 +4761,43 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Project logo: upload (dataUrl) or remove — writes only <repo>/.loci/logo.<ext>.
+  if (pathname === '/api/project/logo' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const result = handleProjectLogo(body);
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  // One decision file of a connected project, rendered to html (read-only).
+  if (pathname === '/api/project/decision' && req.method === 'GET') {
+    try {
+      const result = handleProjectDecision(parsed.searchParams.get('repo') || '', parsed.searchParams.get('file') || '');
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
+  // GitHub stats for one connected project (read-only, server-cached 10 min).
+  if (pathname === '/api/project/github' && req.method === 'GET') {
+    try {
+      const result = await handleProjectGithub(parsed.searchParams.get('repo') || '');
+      if (result.error) sendError(res, result.error);
+      else sendJson(res, result);
+    } catch (e) {
+      sendError(res, e.message, 500);
+    }
+    return;
+  }
+
   // Open a connected project's folder in Finder/Explorer (local machine only).
   if (pathname === '/api/project/open' && req.method === 'POST') {
     try {
@@ -4999,6 +5265,16 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Serve the user's own avatar from me/ (outside SCRIPT_DIR).
+  // A connected project's logo, looked up by project name (see readProjectLogoUrl).
+  if (pathname.startsWith('/project-logo/')) {
+    const name = decodeURIComponent(pathname.slice('/project-logo/'.length));
+    const proj = listProjectRepos().find(p => p.name === name);
+    const hit = proj ? findProjectLogo(proj.repo) : null;
+    if (hit) serveStaticFile(res, hit.file);
+    else sendError(res, 'Not found', 404);
+    return;
+  }
+
   if (pathname.startsWith('/me-avatar-user/')) {
     const fname = path.basename(decodeURIComponent(pathname.slice('/me-avatar-user/'.length)));
     const avPath = path.join(LOCI_ROOT, 'me', fname);

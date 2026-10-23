@@ -1,0 +1,1403 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f2ec" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23177a55'/%3E%3Cpath d='M22 32c5-11 15-11 20 0-5 11-15 11-20 0Z' fill='%23f4f2ec'/%3E%3C/svg%3E" />
+    <title>声场 · 实时语音问答</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f4f2ec;
+        --sheet: #fbfaf6;
+        --ink: #20241f;
+        --muted: #6c716a;
+        --faint: #a9ada5;
+        --line: #dedfd8;
+        --green: #177a55;
+        --green-dark: #0f5f42;
+        --green-soft: #dcebe2;
+        --warm: #e8d7c1;
+        --danger: #a1463b;
+        --shadow: 0 24px 70px rgba(43, 49, 43, 0.08), 0 3px 10px rgba(43, 49, 43, 0.04);
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--paper);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(rgba(32, 36, 31, 0.025) 1px, transparent 1px),
+          var(--paper);
+        background-size: 100% 28px;
+        font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1440px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 24px clamp(18px, 4vw, 64px) clamp(24px, 4vw, 56px);
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: clamp(28px, 5vh, 68px);
+      }
+
+      .masthead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 17px;
+        opacity: 0;
+        transform: translateY(-8px);
+        animation: enter 700ms var(--ease) 80ms forwards;
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: baseline;
+        gap: 11px;
+      }
+
+      .wordmark strong {
+        font-family: "Iowan Old Style", "Songti SC", serif;
+        font-size: 21px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+      }
+
+      .wordmark span,
+      .eyebrow,
+      .status,
+      .turn-label,
+      .shortcut {
+        font-family: "SFMono-Regular", "JetBrains Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .wordmark span {
+        color: var(--faint);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--muted);
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--faint);
+        transition: background 240ms ease, box-shadow 240ms ease;
+      }
+
+      .status[data-state="live"] .status-dot {
+        background: var(--green);
+        box-shadow: 0 0 0 5px rgba(23, 122, 85, 0.1);
+      }
+
+      .status[data-state="connecting"] .status-dot {
+        background: #b6782d;
+        animation: breathe 1.2s ease-in-out infinite;
+      }
+
+      .status[data-state="error"] .status-dot {
+        background: var(--danger);
+      }
+
+      .layout {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(300px, 0.8fr) minmax(470px, 1.2fr);
+        gap: clamp(48px, 7vw, 120px);
+        align-items: center;
+      }
+
+      .intro {
+        max-width: 590px;
+        padding: 10px 0 50px;
+        opacity: 0;
+        transform: translateY(16px);
+        animation: enter 780ms var(--ease) 170ms forwards;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--green-dark);
+        font-weight: 700;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: var(--green);
+      }
+
+      h1 {
+        max-width: 620px;
+        margin: 30px 0 24px;
+        font-family: "Iowan Old Style", "Songti SC", "STSong", serif;
+        font-weight: 500;
+        font-size: clamp(44px, 4.6vw, 72px);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+      }
+
+      h1 em {
+        color: var(--green);
+        font-style: normal;
+      }
+
+      h1 .line {
+        display: block;
+        white-space: nowrap;
+      }
+
+      .lead {
+        max-width: 450px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(15px, 1.2vw, 18px);
+        line-height: 1.8;
+      }
+
+      .start-row {
+        margin-top: clamp(34px, 6vh, 62px);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .primary-button {
+        min-width: 172px;
+        border: 0;
+        border-radius: 999px;
+        padding: 15px 23px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 11px;
+        color: #f7fbf8;
+        background: var(--green);
+        cursor: pointer;
+        font-weight: 650;
+        box-shadow: 0 8px 24px rgba(23, 122, 85, 0.18);
+        transition: transform 180ms var(--ease), background 180ms ease, box-shadow 180ms ease;
+      }
+
+      .primary-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        background: var(--green-dark);
+        box-shadow: 0 11px 30px rgba(23, 122, 85, 0.22);
+      }
+
+      .primary-button:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      .primary-button:disabled {
+        cursor: wait;
+        opacity: 0.68;
+      }
+
+      .primary-button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .privacy-note {
+        max-width: 180px;
+        color: var(--faint);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .voice-sheet {
+        position: relative;
+        min-height: min(680px, calc(100vh - 150px));
+        max-height: 760px;
+        background: var(--sheet);
+        border: 1px solid rgba(32, 36, 31, 0.08);
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-rows: auto auto minmax(230px, 1fr) auto;
+        opacity: 0;
+        transform: translateY(22px) rotate(0.25deg);
+        animation: sheet-enter 880ms var(--ease) 260ms forwards;
+      }
+
+      .voice-sheet::after {
+        content: "";
+        position: absolute;
+        inset: 7px -8px -9px 8px;
+        border: 1px solid rgba(32, 36, 31, 0.07);
+        z-index: -1;
+      }
+
+      .sheet-head {
+        padding: 22px 25px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sheet-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Iowan Old Style", "Songti SC", serif;
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .sheet-index {
+        color: var(--faint);
+        font-family: "SFMono-Regular", monospace;
+        font-size: 10px;
+      }
+
+      .signal {
+        min-height: 116px;
+        padding: 23px 25px 18px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .signal-copy strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 15px;
+      }
+
+      .signal-copy span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .meter {
+        width: 128px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+      }
+
+      .meter i {
+        display: block;
+        width: 3px;
+        height: 100%;
+        background: var(--green);
+        opacity: 0.4;
+        transform: scaleY(0.12);
+        transform-origin: center;
+        transition: transform 70ms linear, opacity 120ms ease;
+      }
+
+      .meter.idle i {
+        animation: idle-wave 1.8s ease-in-out infinite alternate;
+        animation-delay: calc(var(--i) * -90ms);
+      }
+
+      .transcript {
+        overflow: auto;
+        padding: 10px 25px 26px;
+        scroll-behavior: smooth;
+      }
+
+      .empty-state {
+        min-height: 100%;
+        display: grid;
+        place-content: center;
+        gap: 10px;
+        color: var(--faint);
+        text-align: center;
+      }
+
+      .empty-state strong {
+        color: var(--muted);
+        font-family: "Iowan Old Style", "Songti SC", serif;
+        font-size: 19px;
+        font-weight: 500;
+      }
+
+      .empty-state span {
+        max-width: 300px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .turn {
+        padding: 17px 0 19px;
+        border-bottom: 1px solid var(--line);
+        animation: turn-in 400ms var(--ease) both;
+      }
+
+      .turn:last-child {
+        border-bottom: 0;
+      }
+
+      .turn-label {
+        margin-bottom: 8px;
+        color: var(--faint);
+      }
+
+      .turn.assistant .turn-label {
+        color: var(--green-dark);
+      }
+
+      .turn-text {
+        white-space: pre-wrap;
+        font-family: "Iowan Old Style", "Songti SC", serif;
+        font-size: 17px;
+        line-height: 1.7;
+      }
+
+      .turn.pending .turn-text::after {
+        content: "";
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        margin-left: 7px;
+        border-radius: 50%;
+        vertical-align: middle;
+        background: currentColor;
+        animation: breathe 900ms ease-in-out infinite;
+      }
+
+      .composer {
+        padding: 17px 18px 18px 25px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .mic-button,
+      .send-button,
+      .disconnect-button {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .mic-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--green-dark);
+        background: var(--green-soft);
+        transition: transform 180ms var(--ease), background 180ms ease;
+      }
+
+      .mic-button:hover:not(:disabled) {
+        transform: scale(1.05);
+      }
+
+      .mic-button.muted {
+        color: var(--danger);
+        background: #f0dfdb;
+      }
+
+      .mic-button:disabled,
+      .send-button:disabled,
+      .disconnect-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.35;
+      }
+
+      .mic-button svg,
+      .send-button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .text-input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        color: var(--ink);
+        background: transparent;
+        font-size: 14px;
+      }
+
+      .text-input::placeholder {
+        color: var(--faint);
+      }
+
+      .send-button {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        color: var(--green);
+      }
+
+      .sheet-foot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -38px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--faint);
+        font-size: 10px;
+      }
+
+      .disconnect-button {
+        padding: 4px 0;
+        color: var(--danger);
+        font-size: 11px;
+      }
+
+      .error-banner {
+        position: fixed;
+        z-index: 20;
+        left: 50%;
+        bottom: 24px;
+        width: min(520px, calc(100% - 32px));
+        padding: 14px 16px;
+        border: 1px solid rgba(161, 70, 59, 0.18);
+        color: #75382f;
+        background: #f5e9e4;
+        box-shadow: 0 16px 50px rgba(73, 41, 34, 0.14);
+        font-size: 13px;
+        line-height: 1.5;
+        transform: translate(-50%, 20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease, transform 340ms var(--ease);
+      }
+
+      .error-banner.visible {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        pointer-events: auto;
+      }
+
+      @keyframes enter {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes sheet-enter {
+        to {
+          opacity: 1;
+          transform: translateY(0) rotate(0.25deg);
+        }
+      }
+
+      @keyframes turn-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+
+      @keyframes breathe {
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      @keyframes idle-wave {
+        0% {
+          transform: scaleY(0.08);
+          opacity: 0.25;
+        }
+        100% {
+          transform: scaleY(0.28);
+          opacity: 0.5;
+        }
+      }
+
+      @media (max-width: 920px) {
+        .page {
+          gap: 36px;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+          gap: 30px;
+          align-items: start;
+        }
+
+        .intro {
+          max-width: 700px;
+          padding: 10px 0 0;
+        }
+
+        h1 {
+          max-width: 740px;
+        }
+
+        .voice-sheet {
+          min-height: 620px;
+          max-height: none;
+          margin-bottom: 42px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          padding-inline: 14px;
+        }
+
+        .wordmark span,
+        .privacy-note,
+        .sheet-index {
+          display: none;
+        }
+
+        h1 {
+          margin-top: 22px;
+          font-size: clamp(42px, 12vw, 56px);
+        }
+
+        .start-row {
+          align-items: stretch;
+        }
+
+        .primary-button {
+          width: 100%;
+        }
+
+        .voice-sheet {
+          min-height: 580px;
+        }
+
+        .signal,
+        .sheet-head,
+        .transcript {
+          padding-inline: 18px;
+        }
+
+        .meter {
+          width: 102px;
+        }
+
+        .composer {
+          padding-left: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="masthead">
+        <div class="wordmark">
+          <strong>声场</strong>
+          <span>Realtime Voice Lab</span>
+        </div>
+        <div class="status" id="status" data-state="idle">
+          <i class="status-dot"></i>
+          <span id="statusText">尚未连接</span>
+        </div>
+      </header>
+
+      <section class="layout">
+        <div class="intro">
+          <div class="eyebrow">实时语音问答实验</div>
+          <h1><span class="line">不是按住说话。</span><span class="line">是直接<em>开口</em>。</span></h1>
+          <p class="lead">
+            它会听你说完，也允许你随时打断。点击开始后，像和一个坐在对面的人一样提问就好。
+          </p>
+          <div class="start-row">
+            <button class="primary-button" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 1 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.8" />
+                <path d="M5.8 11.4v.6a6.2 6.2 0 0 0 12.4 0v-.6M12 18.2V22M8.6 22h6.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              <span>开始对话</span>
+            </button>
+            <span class="privacy-note">麦克风音频仅在对话期间传输，断开后立即停止。</span>
+          </div>
+        </div>
+
+        <section class="voice-sheet" aria-label="实时对话面板">
+          <header class="sheet-head">
+            <div class="sheet-title">今天的对话</div>
+            <div class="sheet-index" id="sessionClock">00:00</div>
+          </header>
+
+          <div class="signal">
+            <div class="signal-copy">
+              <strong id="signalTitle">等你开口</strong>
+              <span id="signalDetail">连接后，正常说话即可</span>
+            </div>
+            <div class="meter idle" id="meter" aria-hidden="true"></div>
+          </div>
+
+          <div class="transcript" id="transcript" aria-live="polite">
+            <div class="empty-state" id="emptyState">
+              <strong>这里会留下对话的文字痕迹</strong>
+              <span>你可以问一个具体问题，例如：“为什么天空是蓝色的？”</span>
+            </div>
+          </div>
+
+          <form class="composer" id="composer">
+            <button class="mic-button" id="muteButton" type="button" disabled aria-label="静音">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 1 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="1.8" />
+                <path d="M5.8 11.4v.6a6.2 6.2 0 0 0 12.4 0v-.6M12 18.2V22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+            </button>
+            <input class="text-input" id="textInput" type="text" placeholder="也可以打字问一句…" autocomplete="off" disabled />
+            <button class="send-button" id="sendButton" type="submit" disabled aria-label="发送">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m5 12 14-7-4.7 14-2.6-5.1L5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </form>
+
+          <footer class="sheet-foot">
+            <span class="shortcut">直接说话 · 随时插话</span>
+            <button class="disconnect-button" id="disconnectButton" type="button" disabled>结束对话</button>
+          </footer>
+        </section>
+      </section>
+    </main>
+
+    <div class="error-banner" id="errorBanner" role="alert"></div>
+
+    <script>
+      const state = {
+        mode: null,
+        pc: null,
+        dc: null,
+        stream: null,
+        audio: null,
+        audioContext: null,
+        analyser: null,
+        meterFrame: null,
+        connectedAt: null,
+        clockTimer: null,
+        muted: false,
+        turns: new Map(),
+        recognition: null,
+        shouldListen: false,
+        localAbort: null,
+        localMessages: [],
+        speechBuffer: "",
+        currentAssistantId: null,
+      };
+
+      const els = {
+        status: document.querySelector("#status"),
+        statusText: document.querySelector("#statusText"),
+        startButton: document.querySelector("#startButton"),
+        muteButton: document.querySelector("#muteButton"),
+        disconnectButton: document.querySelector("#disconnectButton"),
+        composer: document.querySelector("#composer"),
+        textInput: document.querySelector("#textInput"),
+        sendButton: document.querySelector("#sendButton"),
+        transcript: document.querySelector("#transcript"),
+        emptyState: document.querySelector("#emptyState"),
+        signalTitle: document.querySelector("#signalTitle"),
+        signalDetail: document.querySelector("#signalDetail"),
+        meter: document.querySelector("#meter"),
+        sessionClock: document.querySelector("#sessionClock"),
+        errorBanner: document.querySelector("#errorBanner"),
+      };
+
+      for (let index = 0; index < 22; index += 1) {
+        const bar = document.createElement("i");
+        bar.style.setProperty("--i", index);
+        els.meter.appendChild(bar);
+      }
+
+      function setStatus(status, text) {
+        els.status.dataset.state = status;
+        els.statusText.textContent = text;
+      }
+
+      function showError(message) {
+        els.errorBanner.textContent = message;
+        els.errorBanner.classList.add("visible");
+        window.clearTimeout(showError.timer);
+        showError.timer = window.setTimeout(() => els.errorBanner.classList.remove("visible"), 7000);
+      }
+
+      function setControls(isConnected, isConnecting = false) {
+        els.startButton.disabled = isConnected || isConnecting;
+        els.startButton.querySelector("span").textContent = isConnecting ? "正在连接…" : isConnected ? "对话进行中" : "开始对话";
+        els.muteButton.disabled = !isConnected;
+        els.disconnectButton.disabled = !isConnected;
+        els.textInput.disabled = !isConnected;
+        els.sendButton.disabled = !isConnected;
+      }
+
+      function startClock() {
+        state.connectedAt = Date.now();
+        window.clearInterval(state.clockTimer);
+        state.clockTimer = window.setInterval(() => {
+          const elapsed = Math.floor((Date.now() - state.connectedAt) / 1000);
+          const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
+          const seconds = String(elapsed % 60).padStart(2, "0");
+          els.sessionClock.textContent = `${minutes}:${seconds}`;
+        }, 1000);
+      }
+
+      function startMeter(stream) {
+        state.audioContext = new AudioContext();
+        const source = state.audioContext.createMediaStreamSource(stream);
+        state.analyser = state.audioContext.createAnalyser();
+        state.analyser.fftSize = 64;
+        state.analyser.smoothingTimeConstant = 0.78;
+        source.connect(state.analyser);
+        const data = new Uint8Array(state.analyser.frequencyBinCount);
+        const bars = [...els.meter.children];
+        els.meter.classList.remove("idle");
+
+        const draw = () => {
+          state.analyser.getByteFrequencyData(data);
+          bars.forEach((bar, index) => {
+            const sample = data[Math.min(index, data.length - 1)] / 255;
+            const level = state.muted ? 0.06 : Math.max(0.07, Math.min(1, sample * 1.7));
+            bar.style.transform = `scaleY(${level})`;
+            bar.style.opacity = String(0.28 + level * 0.72);
+          });
+          state.meterFrame = requestAnimationFrame(draw);
+        };
+        draw();
+      }
+
+      function resetMeter() {
+        cancelAnimationFrame(state.meterFrame);
+        state.meterFrame = null;
+        els.meter.classList.add("idle");
+        [...els.meter.children].forEach((bar) => {
+          bar.style.transform = "";
+          bar.style.opacity = "";
+        });
+      }
+
+      function turnKey(role, event) {
+        return event.item_id || event.response_id || event.id || `${role}-${Date.now()}`;
+      }
+
+      function updateTurn(role, id, text, done = false) {
+        if (!text && !state.turns.has(id)) return;
+        els.emptyState.hidden = true;
+        let record = state.turns.get(id);
+
+        if (!record) {
+          const element = document.createElement("article");
+          element.className = `turn ${role} pending`;
+          element.innerHTML = `<div class="turn-label">${role === "user" ? "你" : "声场"}</div><div class="turn-text"></div>`;
+          els.transcript.appendChild(element);
+          record = { element, text: "" };
+          state.turns.set(id, record);
+        }
+
+        record.text = text;
+        record.element.querySelector(".turn-text").textContent = text;
+        record.element.classList.toggle("pending", !done);
+        els.transcript.scrollTop = els.transcript.scrollHeight;
+      }
+
+      function appendDelta(role, id, delta) {
+        const record = state.turns.get(id);
+        updateTurn(role, id, `${record?.text || ""}${delta || ""}`, false);
+      }
+
+      function completeTurn(role, id, transcript) {
+        const record = state.turns.get(id);
+        updateTurn(role, id, transcript || record?.text || "", true);
+      }
+
+      function handleRealtimeEvent(event) {
+        const type = event.type || "";
+
+        if (type === "input_audio_buffer.speech_started") {
+          els.signalTitle.textContent = "正在听你说";
+          els.signalDetail.textContent = "说完后它会自动回应";
+          return;
+        }
+
+        if (type === "input_audio_buffer.speech_stopped") {
+          els.signalTitle.textContent = "正在理解";
+          els.signalDetail.textContent = "已经收到这一句话";
+          return;
+        }
+
+        if (type === "response.created") {
+          els.signalTitle.textContent = "正在组织回答";
+          els.signalDetail.textContent = "你仍然可以随时插话";
+          return;
+        }
+
+        if (type === "response.done") {
+          els.signalTitle.textContent = "继续问吧";
+          els.signalDetail.textContent = "麦克风保持开启";
+          return;
+        }
+
+        if (type === "error") {
+          showError(event.error?.message || "Realtime API 返回了一个错误。");
+          return;
+        }
+
+        const userDeltaTypes = new Set([
+          "conversation.item.input_audio_transcription.delta",
+          "session.input_transcript.delta",
+        ]);
+        const userDoneTypes = new Set([
+          "conversation.item.input_audio_transcription.completed",
+          "session.input_transcript.done",
+        ]);
+        const assistantDeltaTypes = new Set([
+          "response.audio_transcript.delta",
+          "response.output_audio_transcript.delta",
+          "response.output_text.delta",
+          "session.output_transcript.delta",
+        ]);
+        const assistantDoneTypes = new Set([
+          "response.audio_transcript.done",
+          "response.output_audio_transcript.done",
+          "response.output_text.done",
+          "session.output_transcript.done",
+        ]);
+
+        if (userDeltaTypes.has(type)) {
+          appendDelta("user", turnKey("user", event), event.delta);
+        } else if (userDoneTypes.has(type)) {
+          completeTurn("user", turnKey("user", event), event.transcript || event.text);
+        } else if (assistantDeltaTypes.has(type)) {
+          appendDelta("assistant", turnKey("assistant", event), event.delta);
+        } else if (assistantDoneTypes.has(type)) {
+          completeTurn("assistant", turnKey("assistant", event), event.transcript || event.text);
+        }
+      }
+
+      function sendEvent(event) {
+        if (!state.dc || state.dc.readyState !== "open") return false;
+        state.dc.send(JSON.stringify({ event_id: crypto.randomUUID(), ...event }));
+        return true;
+      }
+
+      async function checkBackend() {
+        let response;
+        try {
+          response = await fetch("/health", { cache: "no-store" });
+        } catch {
+          const error = new Error("本地语音服务没有运行。请回到终端重新执行启动命令，并保持终端窗口开启。");
+          error.code = "BACKEND_OFFLINE";
+          throw error;
+        }
+
+        if (!response.ok) {
+          const error = new Error("本地语音服务状态异常，请重新启动 server.js。");
+          error.code = "BACKEND_UNHEALTHY";
+          throw error;
+        }
+
+        const health = await response.json();
+        if (health.localModelAvailable) {
+          return { mode: "local", health };
+        }
+        if (health.apiKeyConfigured) {
+          return { mode: "realtime", health };
+        }
+
+        const error = new Error(`没有找到可用模型。请确认 Ollama 正在运行，并且已经安装 ${health.localModel || "qwen3.5:4b"}。`);
+        error.code = "NO_MODEL";
+        throw error;
+      }
+
+      function startRecognition() {
+        if (!state.recognition || !state.shouldListen || state.muted) return;
+        window.setTimeout(() => {
+          if (!state.recognition || !state.shouldListen || state.muted) return;
+          try {
+            state.recognition.start();
+          } catch {
+            // Recognition is already active; its onend handler will restart it when needed.
+          }
+        }, 120);
+      }
+
+      function cancelLocalReply() {
+        if (state.localAbort) {
+          state.localAbort.abort();
+          state.localAbort = null;
+        }
+        window.speechSynthesis?.cancel();
+        state.speechBuffer = "";
+        if (state.currentAssistantId) {
+          const record = state.turns.get(state.currentAssistantId);
+          if (record) completeTurn("assistant", state.currentAssistantId, record.text);
+        }
+        state.currentAssistantId = null;
+      }
+
+      function speakChunk(text) {
+        const clean = text.replace(/\s+/g, " ").trim();
+        if (!clean || !window.speechSynthesis || state.mode !== "local") return;
+        const utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = "zh-CN";
+        utterance.rate = 1.08;
+        utterance.pitch = 1;
+        const voices = window.speechSynthesis.getVoices();
+        utterance.voice = voices.find((voice) => voice.lang.toLowerCase().startsWith("zh")) || null;
+        utterance.onstart = () => {
+          els.signalTitle.textContent = "正在回答";
+          els.signalDetail.textContent = "你可以直接插话打断";
+        };
+        utterance.onend = () => {
+          if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending && !state.localAbort) {
+            els.signalTitle.textContent = "继续问吧";
+            els.signalDetail.textContent = "本地 Qwen 正在等待你的问题";
+          }
+        };
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function queueSpeech(delta, final = false) {
+        state.speechBuffer += delta || "";
+        let match = state.speechBuffer.match(/^([\s\S]*?[。！？!?；;\n])/);
+        while (match) {
+          speakChunk(match[1]);
+          state.speechBuffer = state.speechBuffer.slice(match[1].length);
+          match = state.speechBuffer.match(/^([\s\S]*?[。！？!?；;\n])/);
+        }
+        if (final && state.speechBuffer.trim()) {
+          speakChunk(state.speechBuffer);
+          state.speechBuffer = "";
+        }
+      }
+
+      async function sendLocalQuestion(text) {
+        const clean = text.trim();
+        if (!clean || state.mode !== "local") return;
+        cancelLocalReply();
+
+        const userId = `local-user-${crypto.randomUUID()}`;
+        const assistantId = `local-assistant-${crypto.randomUUID()}`;
+        state.currentAssistantId = assistantId;
+        completeTurn("user", userId, clean);
+        updateTurn("assistant", assistantId, "正在想…", false);
+        els.signalTitle.textContent = "正在理解";
+        els.signalDetail.textContent = "本地 Qwen 正在组织回答";
+
+        const controller = new AbortController();
+        state.localAbort = controller;
+        let answer = "";
+
+        try {
+          const response = await fetch("/api/local-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: [...state.localMessages, { role: "user", content: clean }],
+            }),
+            signal: controller.signal,
+          });
+
+          if (!response.ok || !response.body) {
+            let message = "本地模型调用失败。";
+            try {
+              const payload = await response.json();
+              message = payload.error || message;
+            } catch {
+              // Keep the readable fallback message.
+            }
+            throw new Error(message);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          const processLine = (line) => {
+            if (!line.trim()) return;
+            const event = JSON.parse(line);
+            const delta = event.message?.content || "";
+            if (delta) {
+              if (!answer) answer = "";
+              answer += delta;
+              updateTurn("assistant", assistantId, answer, false);
+              queueSpeech(delta, false);
+              els.signalTitle.textContent = "正在回答";
+              els.signalDetail.textContent = "答案由本机 qwen3.5:4b 生成";
+            }
+          };
+
+          while (true) {
+            const { value, done } = await reader.read();
+            buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            lines.forEach(processLine);
+            if (done) break;
+          }
+          if (buffer.trim()) processLine(buffer);
+
+          queueSpeech("", true);
+          completeTurn("assistant", assistantId, answer || "我暂时没有生成出回答，请再问一次。");
+          state.localMessages = [
+            ...state.localMessages,
+            { role: "user", content: clean },
+            { role: "assistant", content: answer },
+          ].slice(-12);
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            showError(error.message || "本地模型调用失败。");
+            completeTurn("assistant", assistantId, answer || "这次回答失败了，请再试一次。");
+          }
+        } finally {
+          if (state.localAbort === controller) state.localAbort = null;
+          if (state.currentAssistantId === assistantId) state.currentAssistantId = null;
+          if (!window.speechSynthesis?.speaking && !window.speechSynthesis?.pending) {
+            els.signalTitle.textContent = "继续问吧";
+            els.signalDetail.textContent = "本地 Qwen 正在等待你的问题";
+          }
+        }
+      }
+
+      function startLocalSession(stream, health) {
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Recognition) {
+          const error = new Error("当前浏览器不支持连续语音识别，请改用最新版 Chrome 或 Safari。你仍可使用下方文字输入。");
+          error.code = "SPEECH_UNSUPPORTED";
+          throw error;
+        }
+
+        const recognition = new Recognition();
+        recognition.lang = "zh-CN";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onspeechstart = () => {
+          if (state.localAbort || window.speechSynthesis?.speaking || window.speechSynthesis?.pending) {
+            cancelLocalReply();
+          }
+          els.signalTitle.textContent = "正在听你说";
+          els.signalDetail.textContent = "停顿后会自动发送";
+        };
+
+        recognition.onresult = (event) => {
+          let finalText = "";
+          for (let index = event.resultIndex; index < event.results.length; index += 1) {
+            const result = event.results[index];
+            if (result.isFinal) finalText += result[0].transcript;
+          }
+          if (finalText.trim()) sendLocalQuestion(finalText);
+        };
+
+        recognition.onerror = (event) => {
+          if (["no-speech", "aborted"].includes(event.error)) return;
+          showError(`语音识别暂时不可用：${event.error}`);
+        };
+
+        recognition.onend = () => startRecognition();
+
+        state.mode = "local";
+        state.stream = stream;
+        state.recognition = recognition;
+        state.shouldListen = true;
+        setStatus("live", "本地 Qwen");
+        setControls(true);
+        els.signalTitle.textContent = "我在听";
+        els.signalDetail.textContent = `${health.localModel} · 无需 API Key`;
+        startClock();
+        startMeter(stream);
+        startRecognition();
+      }
+
+      function configureSession() {
+        sendEvent({
+          type: "session.update",
+          session: {
+            type: "realtime",
+            instructions: [
+              "你是一个实时中文语音问答助手。",
+              "默认用简洁、自然的中文回答，每次先给结论，再补充必要解释。",
+              "口语表达要短句化，不要使用 Markdown，不要朗读网址。",
+              "如果问题信息不足，只追问一个最关键的问题。",
+              "用户插话时立即停止当前回答并听他说。",
+            ].join("\n"),
+            audio: {
+              input: {
+                transcription: {
+                  model: "gpt-4o-mini-transcribe",
+                  language: "zh",
+                },
+                noise_reduction: { type: "near_field" },
+                turn_detection: {
+                  type: "semantic_vad",
+                  eagerness: "medium",
+                  create_response: true,
+                  interrupt_response: true,
+                },
+              },
+              output: { voice: "marin" },
+            },
+          },
+        });
+      }
+
+      async function startSession() {
+        if (state.mode || state.pc) return;
+        setStatus("connecting", "正在连接");
+        setControls(false, true);
+        els.signalTitle.textContent = "检查本地服务";
+        els.signalDetail.textContent = "优先使用你电脑上的本地模型";
+
+        try {
+          const backend = await checkBackend();
+          els.signalTitle.textContent = "请求麦克风权限";
+          els.signalDetail.textContent = "允许后即可直接开口";
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+          state.stream = stream;
+
+          if (backend.mode === "local") {
+            startLocalSession(stream, backend.health);
+            return;
+          }
+
+          const pc = new RTCPeerConnection();
+          const dc = pc.createDataChannel("oai-events");
+          const audio = document.createElement("audio");
+          audio.autoplay = true;
+
+          state.pc = pc;
+          state.dc = dc;
+          state.mode = "realtime";
+          state.stream = stream;
+          state.audio = audio;
+
+          stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+          pc.ontrack = ({ streams }) => {
+            audio.srcObject = streams[0];
+          };
+
+          dc.addEventListener("open", () => {
+            configureSession();
+            setStatus("live", "正在对话");
+            setControls(true);
+            els.signalTitle.textContent = "我在听";
+            els.signalDetail.textContent = "直接开口，不必按住按钮";
+            startClock();
+            startMeter(stream);
+          });
+
+          dc.addEventListener("message", ({ data }) => {
+            try {
+              handleRealtimeEvent(JSON.parse(data));
+            } catch (error) {
+              console.warn("Unable to parse realtime event", error);
+            }
+          });
+
+          dc.addEventListener("close", () => {
+            if (state.pc) stopSession(false);
+          });
+
+          pc.addEventListener("connectionstatechange", () => {
+            if (["failed", "disconnected"].includes(pc.connectionState)) {
+              showError("语音连接已断开，请重新连接。");
+              stopSession(false);
+            }
+          });
+
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          const sessionResponse = await fetch("/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/sdp" },
+            body: offer.sdp,
+          });
+
+          if (!sessionResponse.ok) {
+            let message = "创建语音会话失败。";
+            try {
+              const payload = await sessionResponse.json();
+              message = payload.error || message;
+            } catch {
+              message = await sessionResponse.text() || message;
+            }
+            throw new Error(message);
+          }
+
+          await pc.setRemoteDescription({
+            type: "answer",
+            sdp: await sessionResponse.text(),
+          });
+        } catch (error) {
+          const permissionDenied = error?.name === "NotAllowedError";
+          const message = permissionDenied
+            ? "没有获得麦克风权限，请在浏览器地址栏中允许麦克风后重试。"
+            : error.message || "连接失败，请稍后重试。";
+          showError(message);
+          stopSession(false);
+          if (error?.code === "BACKEND_OFFLINE") {
+            setStatus("error", "本地服务未启动");
+          } else if (error?.code === "NO_MODEL") {
+            setStatus("error", "本地模型未启动");
+          } else {
+            setStatus("error", "连接失败");
+          }
+        }
+      }
+
+      function stopSession(updateStatus = true) {
+        const dc = state.dc;
+        const pc = state.pc;
+        state.dc = null;
+        state.pc = null;
+        state.shouldListen = false;
+
+        if (state.recognition) {
+          state.recognition.onend = null;
+          try {
+            state.recognition.stop();
+          } catch {
+            // Recognition may already be stopped.
+          }
+        }
+        state.recognition = null;
+        cancelLocalReply();
+
+        if (dc && dc.readyState !== "closed") dc.close();
+        if (state.stream) state.stream.getTracks().forEach((track) => track.stop());
+        if (pc) pc.close();
+        if (state.audio) state.audio.srcObject = null;
+        if (state.audioContext) state.audioContext.close().catch(() => {});
+
+        window.clearInterval(state.clockTimer);
+        state.stream = null;
+        state.audio = null;
+        state.audioContext = null;
+        state.analyser = null;
+        state.muted = false;
+        state.mode = null;
+        state.localMessages = [];
+
+        resetMeter();
+        els.muteButton.classList.remove("muted");
+        els.sessionClock.textContent = "00:00";
+        els.signalTitle.textContent = "等你开口";
+        els.signalDetail.textContent = "连接后，正常说话即可";
+        setControls(false);
+        if (updateStatus) setStatus("idle", "已经结束");
+      }
+
+      function toggleMute() {
+        if (!state.stream) return;
+        state.muted = !state.muted;
+        state.stream.getAudioTracks().forEach((track) => {
+          track.enabled = !state.muted;
+        });
+        if (state.mode === "local") {
+          state.shouldListen = !state.muted;
+          if (state.muted) {
+            try {
+              state.recognition?.stop();
+            } catch {
+              // Recognition may already be stopped.
+            }
+          } else {
+            startRecognition();
+          }
+        }
+        els.muteButton.classList.toggle("muted", state.muted);
+        els.muteButton.setAttribute("aria-label", state.muted ? "取消静音" : "静音");
+        els.signalTitle.textContent = state.muted ? "麦克风已关闭" : "我在听";
+        els.signalDetail.textContent = state.muted ? "点击麦克风图标恢复" : "直接开口，不必按住按钮";
+      }
+
+      function sendTextQuestion(text) {
+        const clean = text.trim();
+        if (!clean) return;
+        if (state.mode === "local") {
+          els.textInput.value = "";
+          sendLocalQuestion(clean);
+          return;
+        }
+        const id = `typed-${crypto.randomUUID()}`;
+        completeTurn("user", id, clean);
+        sendEvent({
+          type: "conversation.item.create",
+          item: {
+            type: "message",
+            role: "user",
+            content: [{ type: "input_text", text: clean }],
+          },
+        });
+        sendEvent({ type: "response.create" });
+        els.textInput.value = "";
+        els.signalTitle.textContent = "正在组织回答";
+        els.signalDetail.textContent = "你仍然可以随时插话";
+      }
+
+      els.startButton.addEventListener("click", startSession);
+      els.disconnectButton.addEventListener("click", () => stopSession(true));
+      els.muteButton.addEventListener("click", toggleMute);
+      els.composer.addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendTextQuestion(els.textInput.value);
+      });
+      window.addEventListener("beforeunload", () => stopSession(false));
+    </script>
+  </body>
+</html>

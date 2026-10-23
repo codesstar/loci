@@ -110,7 +110,7 @@ function yamlValue(v) {
   if (/^[\[\]'"]/.test(s) || /^(true|false)$/i.test(s) || /^-?\d+(\.\d+)?$/.test(s) || s.startsWith('#')) return JSON.stringify(s.replace(/"/g, '”'));
   return s;
 }
-const META_ORDER = ['type', 'title', 'url', 'site', 'file', 'files', 'created', 'date', 'source', 'tags', 'ai_tags', 'summary', 'caption', 'note', 'by', 'title_pending', 'og_image', 'status'];
+const META_ORDER = ['type', 'title', 'url', 'site', 'file', 'files', 'created', 'date', 'source', 'tags', 'ai_tags', 'summary', 'caption', 'note', 'by', 'views', 'last_viewed', 'title_pending', 'og_image', 'status'];
 function serialize(meta, body) {
   const keys = [...META_ORDER.filter(k => k in meta), ...Object.keys(meta).filter(k => !META_ORDER.includes(k))];
   let out = '---\n';
@@ -182,6 +182,8 @@ function fromFile(fullPath, md) {
     titlePending: meta.title_pending === true,
     ogImage: meta.og_image ? String(meta.og_image) : '',
     by: meta.by ? String(meta.by) : (meta.author ? String(meta.author) : ''),
+    // how often the detail was opened in the dashboard (written by view()); 0 when never
+    views: Math.max(0, parseInt(meta.views, 10) || 0), lastViewed: toIso(meta.last_viewed) || '',
     contentHtml: (kind === 'link' && text.length >= 400) ? (md.content || '') : '',
     hasBody: text.length > 0,
   };
@@ -403,6 +405,21 @@ function update(id, patch) {
   if (patch.by !== undefined) p.by = String(patch.by).trim();
   return patchFile(item.id, p, body);
 }
+// One look at the detail = one view. Lives in the file's frontmatter, so it
+// survives browsers, devices and cache — legacy inbox lines are not counted
+// (they have no file until first edited).
+function view(id) {
+  const item = get(id); if (!item) throw new Error('not found: ' + id);
+  if (item.legacy) return { ok: true, id, views: 0, legacy: true };
+  const fp = refPath(item.id);
+  return locked(() => {
+    const [meta, body] = parseFrontmatter(fs.readFileSync(fp, 'utf-8'));
+    const views = Math.max(0, parseInt(meta.views, 10) || 0) + 1;
+    const lastViewed = localIso();
+    writeFile(fp, serialize(Object.assign({}, meta, { views, last_viewed: lastViewed }), body));
+    return { ok: true, id: item.id, views, lastViewed };
+  });
+}
 function remove(id) {
   const item = get(id); if (!item) throw new Error('not found: ' + id);
   if (item.legacy) return removeInboxLine(item.raw) ? { ok: true, id } : { error: 'line not found' };
@@ -604,4 +621,4 @@ function runClaude(item) {
 }
 function status() { return { enabled: aiEnabled(), model: ENRICH_MODEL, queue: [...queue], running, lastError }; }
 
-module.exports = { init, list, get, add, update, remove, migrateInbox, enrichLater, fetchMeta, status, KINDS, parseFrontmatter, serialize, host, localIso, fileUrlFor };
+module.exports = { init, list, get, add, update, view, remove, migrateInbox, enrichLater, fetchMeta, status, KINDS, parseFrontmatter, serialize, host, localIso, fileUrlFor };
